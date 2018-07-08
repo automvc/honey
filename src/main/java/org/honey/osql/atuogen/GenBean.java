@@ -35,8 +35,8 @@ public class GenBean {
 //	生成指定表对象对应的类文件
 	private void genBeanFile(Table table) {
 		String tableName = table.getTableName();
-		List<String> columNames = table.getColumNames();
-		List<String> columTypes = table.getColumTypes();
+		List<String> columnNames = table.getColumNames();
+		List<String> columTypes = table.getColumTypes();  //jdbcType
 
 		// 表名对应的实体类名
 		String entityName ="";
@@ -47,6 +47,8 @@ public class GenBean {
 			entityName=tableName;
 		}
 		entityName=HoneyUtil.firstLetterToUpperCase(entityName);
+		
+		System.out.println("The Honey gen the JavaBean: " + config.getPackagePath() +"."+entityName);
 		
 		String authorComment="/**"+ LINE_SEPARATOR;
 //		       authorComment+="*@author Bee"+ LINE_SEPARATOR;
@@ -80,23 +82,26 @@ public class GenBean {
 		
 		StringBuffer tostring=new StringBuffer();
 		
-		for (int i = 0; i < columNames.size(); i++) {
-			String columName = columNames.get(i);
-			String columType = columTypes.get(i);
+		if(config.isGenSerializable()){
+			importStr += "import java.io.Serializable;" + LINE_SEPARATOR;
+		}
+		
+		for (int i = 0; i < columnNames.size(); i++) {
+			String columnName = columnNames.get(i);
+			String columnType = columTypes.get(i);
 			
 			if(HoneyConfig.getHoneyConfig().isDbNamingToLowerCaseBefore()){
-				columName=columName.toLowerCase();
+				columnName=columnName.toLowerCase();
 			}
 			
 			if(HoneyConfig.getHoneyConfig().isUnderScoreAndCamelTransform()){
-				propertyName=HoneyUtil.toCamelNaming(columName);
+				propertyName=HoneyUtil.toCamelNaming(columnName);
 			}else{
-				propertyName=columName;
+				propertyName=columnName;
 			}
 			
 			getsetProNameStr = HoneyUtil.firstLetterToUpperCase(propertyName);
-			javaType = HoneyUtil.convertType(columType);
-			
+			javaType = HoneyUtil.convertType(columnType);
 			
 			//import
 			if ("BigDecimal".equals(javaType) && bigDecimalFlag) {
@@ -138,7 +143,7 @@ public class GenBean {
 					+ propertyName + ";" + LINE_SEPARATOR + "\t}"
 					+ LINE_SEPARATOR + LINE_SEPARATOR;
 			
-			if("true".equals(config.getGenToString())){  //toString()
+			if("true".equals(config.isGenToString())){  //toString()
 				tostring.append("\t\t str.append(\",").append(propertyName).append("=\").append(").append(propertyName).append(");");
 				tostring.append("\t\t "+LINE_SEPARATOR );
 			}
@@ -162,9 +167,17 @@ public class GenBean {
 			if(!"".equals(importStr))
 			    bw.write(importStr + LINE_SEPARATOR);
 			bw.write(authorComment+ LINE_SEPARATOR);
-			bw.write("public class " + entityName + " {" + LINE_SEPARATOR+ LINE_SEPARATOR);
+			bw.write("public class " + entityName );
+			if(config.isGenSerializable()){
+			  bw.write(" implements Serializable");
+			}
+			bw.write(" {" + LINE_SEPARATOR+ LINE_SEPARATOR);
+			if(config.isGenSerializable()){
+			  bw.write("\tprivate static final long serialVersionUID = "+HoneyUtil.genSerializableNum()+";"+ LINE_SEPARATOR);
+			  bw.write(LINE_SEPARATOR);
+			}
 			bw.write(propertiesStr);
-			bw.write(LINE_SEPARATOR);
+//			bw.write(LINE_SEPARATOR);
 //			bw.write(constructorStr);
 			bw.write(LINE_SEPARATOR);
 			// bw.write(toStringStr);
@@ -172,7 +185,7 @@ public class GenBean {
 			bw.write(getsetStr);
 			// bw.write(LINE_SEPARATOR);
 			
-			if("true".equals(config.getGenToString())){ //toString()
+			if("true".equals(config.isGenToString())){ //toString()
 				tostring.deleteCharAt(tostring.indexOf(","));
 				tostring.insert(0,"\t\t"+LINE_SEPARATOR );
 //				tostring.insert(0,"\t");
@@ -182,7 +195,7 @@ public class GenBean {
 				tostring.append("\t }");  tostring.append("\t\t "+LINE_SEPARATOR );
 				
 //				tostring.insert(0,"\t"+LINE_SEPARATOR ); 
-				tostring.insert(0, "\t\t str.append(\"[\");\t");   
+				tostring.insert(0, "\t\t str.append(\""+entityName+"[\");\t");   
 				tostring.insert(0,"\t"+LINE_SEPARATOR ); tostring.insert(0, "\t\t StringBuffer str=new StringBuffer();"); 
 				tostring.insert(0,"\t"+LINE_SEPARATOR ); tostring.insert(0, "\t public String toString(){");
 				

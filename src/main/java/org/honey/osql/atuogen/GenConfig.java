@@ -11,8 +11,8 @@ public class GenConfig {
 	private String username = "";
 	private String password = "";
 	private String queryTableSql = ""; // 查询所有表名的SQL语句，mysqll,oracle和sql server不用设置
-	private String genToString;
-	private String genSerializable;
+	private boolean genToString;
+	private boolean genSerializable;
 
 	public String getEncode() {
 		return encode;
@@ -86,19 +86,20 @@ public class GenConfig {
 		this.packagePath = packagePath;
 	}
 
-	public String getGenToString() {
+	public boolean isGenToString() {
 		return genToString;
 	}
 
-	public void setGenToString(String genToString) {
+	public void setGenToString(boolean genToString) {
 		this.genToString = genToString;
 	}
 
-	public String getGenSerializable() {
+	public boolean isGenSerializable() {
 		return genSerializable;
 	}
 
-	public void setGenSerializable(String genSerializable) {
+	public void setGenSerializable(boolean genSerializable) {
 		this.genSerializable = genSerializable;
 	}
+
 }

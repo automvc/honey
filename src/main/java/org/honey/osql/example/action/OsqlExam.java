@@ -26,7 +26,7 @@ public class OsqlExam {
 			System.out.println(list1.get(i).toString());
 		}
 		
-		orders1.setName("Bee(V1.0)--ORM Framework");
+		orders1.setName("Bee--ORM Framework");
 		//默认只更新需要更新的字段. 过滤条件默认只用id字段,其它需求可用SuidRich中的方法.
 		int updateNum=suid.update(orders1);   //update
 		System.out.println("update record:"+updateNum);

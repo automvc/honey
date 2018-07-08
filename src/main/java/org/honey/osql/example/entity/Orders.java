@@ -1,13 +1,16 @@
 package org.honey.osql.example.entity;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 
 /**
 *@author Honey
-*Create on 2018-07-01 15:41:02
+*Create on 2018-07-08 14:07:57
 */
-public class Orders {
+public class Orders implements Serializable {
+
+	private static final long serialVersionUID = 1591582446342962L;
 
 	private Long id;
 	private String userid;
@@ -16,7 +19,6 @@ public class Orders {
 	private Timestamp createtime;
 	private String remark;
 	private String sequence;
-
 
 	public Long getId() {
 		return id;
@@ -74,17 +76,4 @@ public class Orders {
 		this.sequence = sequence;
 	}
 
-	 public String toString(){	
-		 StringBuffer str=new StringBuffer();	
-		 str.append("[");			
-		 str.append("id=").append(id);		 
-		 str.append(",userid=").append(userid);		 
-		 str.append(",name=").append(name);		 
-		 str.append(",total=").append(total);		 
-		 str.append(",createtime=").append(createtime);		 
-		 str.append(",remark=").append(remark);		 
-		 str.append(",sequence=").append(sequence);		 
-		 str.append("]");			 
-		 return str.toString();			 
-	 }		 
 }

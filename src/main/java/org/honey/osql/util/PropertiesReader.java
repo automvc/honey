@@ -3,6 +3,7 @@ package org.honey.osql.util;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
+import java.util.Set;
 
 /**
  * @author KingStar
@@ -39,5 +40,9 @@ public  class PropertiesReader {
 	
 	public  String getValue(String key,String defaultValue) {
 		return prop.getProperty(key,defaultValue);
+	}
+	
+	public Set<String> getKeys(){
+		return prop.stringPropertyNames();
 	}
 }

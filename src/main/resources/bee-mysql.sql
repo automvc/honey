@@ -9,6 +9,7 @@ Source Database       : bee
 Target Server Type    : MYSQL
 Target Server Version : 50624
 File Encoding         : 65001
+version               : mysql-5.6.24
 
 Date: 2018-06-30 23:16:18
 */

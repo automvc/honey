@@ -13,7 +13,9 @@ import java.sql.Types;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.honey.osql.constant.DatabaseConst;
 import org.honey.osql.constant.NullEmpty;
+import org.honey.osql.util.PropertiesReader;
 
 /**
  * @author KingStar
@@ -21,14 +23,18 @@ import org.honey.osql.constant.NullEmpty;
  */
 public final class HoneyUtil {
 	
-	private static Map<String,Integer> jdbcTypeMap=new HashMap<String,Integer>();
+	private static Map<String,String> jdbcTypeMap=new HashMap<String,String>();
 	private static Map<String,Integer> javaTypeMap=new HashMap<String,Integer>();
+	
+	private static PropertiesReader jdbcTypeCustomProp = new PropertiesReader("/jdbcTypeToFieldType.properties");
 	
 	static{
 		initJdbcTypeMap();
+		appendJdbcTypeCustomProp();
+		
 		initJavaTypeMap();
 	}
-	
+
 	public static int[] mergeArray(int total[], int part[], int start, int end) {
 
 		try {
@@ -36,7 +42,7 @@ public final class HoneyUtil {
 				total[start + i] = part[i];
 			}
 		} catch (Exception e) {
-			System.err.println(">>>>>>>>>>>>>>>HoneyUtil mergeArray() "+ e.getMessage());
+			System.err.println(">>>>>>>>>>>>>>>HoneyUtil mergeArray() " + e.getMessage());
 		}
 
 		return total;
@@ -80,110 +86,73 @@ public final class HoneyUtil {
     	
         String javaType = "";  
         
-        int i;
+        if(null==jdbcTypeMap.get(jdbcType)) javaType = "[UNKNOWN TYPE]" + jdbcType;
+        else javaType=jdbcTypeMap.get(jdbcType);
         
-       if(null==jdbcTypeMap.get(jdbcType)) i=-1;
-       else i=jdbcTypeMap.get(jdbcType);
-        switch(i){
-        case 1:
-        	javaType="String"; break;
-        case 2:
-        	javaType="BigDecimal"; break;
-        case 3:
-        	javaType="Boolean"; break;
-        case 4:
-        	javaType="Byte"; break;
-        case 5:
-        	javaType="Short"; break;
-        case 6:
-        	javaType="Integer"; break;
-        case 7:
-        	javaType="Long"; break;
-        case 8:
-        	javaType="Float"; break;
-        case 9:
-        case 10:
-        	javaType="Double"; break;
-        case 11:
-//        	javaType="Byte[]"; break;
-        	javaType="byte[]"; break;
-        case 12:
-        	javaType="Date"; break;
-        case 13:
-        	javaType="Time"; break;
-        case 14:
-        	javaType="Timestamp"; break;
-        case 15:
-        	javaType="Clob"; break;
-        case 16:
-        	javaType="Blob"; break;
-        case 17:
-        	javaType="Array"; break;
-        	
-        //mysql 1xx
-        case 101:
-        	javaType="Integer"; break;
-        case 102:
-        	javaType="Date"; break;
-        case 103:
-        	javaType="Blob"; break;
-        case 104:
-        	javaType="Integer"; break;
-        
-        case -1:
-        default:
-        	javaType = "[UNKNOWN TYPE]" + jdbcType;    //TODO
-        }
-     
-        return javaType;  
+        return javaType;
     } 
     
-	private static void initJdbcTypeMap(){
-		
+	private static void initJdbcTypeMap() {
+
 		//url: https://docs.oracle.com/javase/1.5.0/docs/guide/jdbc/getstart/mapping.html
+
+		jdbcTypeMap.put("CHAR", "String");
+		jdbcTypeMap.put("VARCHAR", "String");
+		jdbcTypeMap.put("LONGVARCHAR", "String");
+
+		jdbcTypeMap.put("NUMERIC", "BigDecimal");
+		jdbcTypeMap.put("DECIMAL", "BigDecimal");
+
+		jdbcTypeMap.put("BIT", "Boolean");
+
+		jdbcTypeMap.put("TINYINT", "Byte");
+		jdbcTypeMap.put("SMALLINT", "Short");
+
+		jdbcTypeMap.put("INT", "Integer");
+		jdbcTypeMap.put("INTEGER", "Integer");
+
+		jdbcTypeMap.put("BIGINT", "Long");
+		jdbcTypeMap.put("REAL", "Float");
+		jdbcTypeMap.put("FLOAT", "Double");
+		jdbcTypeMap.put("DOUBLE", "Double");
+
+		jdbcTypeMap.put("BINARY", "byte[]");
+		jdbcTypeMap.put("VARBINARY", "byte[]");
+		jdbcTypeMap.put("LONGVARBINARY", "byte[]");
+
+		jdbcTypeMap.put("DATE", "Date");
+		jdbcTypeMap.put("TIME", "Time");
+		jdbcTypeMap.put("TIMESTAMP", "Timestamp");
+
+		jdbcTypeMap.put("CLOB", "Clob");
+		jdbcTypeMap.put("BLOB", "Blob");
+		jdbcTypeMap.put("ARRAY", "Array");
+
 		
-		jdbcTypeMap.put("CHAR", 1);  // 1->String
-		jdbcTypeMap.put("VARCHAR", 1);
-		jdbcTypeMap.put("LONGVARCHAR", 1);
+		String dbName=HoneyConfig.getHoneyConfig().getDbName();
 		
-		jdbcTypeMap.put("NUMERIC", 2);
-		jdbcTypeMap.put("DECIMAL", 2);
-		
-		jdbcTypeMap.put("BIT", 3);
-		
-		jdbcTypeMap.put("TINYINT", 4);
-		jdbcTypeMap.put("SMALLINT", 5);
-		
-		jdbcTypeMap.put("INT", 6);  //can not find in url
-		jdbcTypeMap.put("INTEGER", 6);
-		
-		jdbcTypeMap.put("BIGINT", 7);
-		jdbcTypeMap.put("REAL", 8);
-		jdbcTypeMap.put("FLOAT", 9);
-		jdbcTypeMap.put("DOUBLE", 10);
-		
-		jdbcTypeMap.put("BINARY", 11);  //11->byte[]
-		jdbcTypeMap.put("VARBINARY", 11);
-		jdbcTypeMap.put("LONGVARBINARY", 11);
-		
-		jdbcTypeMap.put("DATE", 12);
-		jdbcTypeMap.put("TIME", 13);
-		jdbcTypeMap.put("TIMESTAMP", 14);
-		
-		jdbcTypeMap.put("CLOB", 15);
-		jdbcTypeMap.put("BLOB", 16);
-		jdbcTypeMap.put("ARRAY", 17);
-		
-		//mysql 1xx
-		jdbcTypeMap.put("MEDIUMINT",101);
-		jdbcTypeMap.put("DATETIME",102);
-		jdbcTypeMap.put("TINYBLOB",103);
-		jdbcTypeMap.put("MEDIUMBLOB",103);
-		jdbcTypeMap.put("LONGBLOB",103);
-		jdbcTypeMap.put("YEAR", 104);
-//		[UNKNOWN TYPE]GEOMETRY
+		if (DatabaseConst.MYSQL.equalsIgnoreCase(dbName) 
+		  ||DatabaseConst.MariaDB.equalsIgnoreCase(dbName)) {
+			jdbcTypeMap.put("MEDIUMINT", "Integer");
+			jdbcTypeMap.put("DATETIME", "Date");
+			jdbcTypeMap.put("TINYBLOB", "Blob");
+			jdbcTypeMap.put("MEDIUMBLOB", "Blob");
+			jdbcTypeMap.put("LONGBLOB", "Blob");
+			jdbcTypeMap.put("YEAR", "Integer");
+		}else if (DatabaseConst.ORACLE.equalsIgnoreCase(dbName)) {
+		  //TODO
+		}else if (DatabaseConst.SQLSERVER.equalsIgnoreCase(dbName)) {
+		 //TODO
+		}
+
 	}
-	
+
+	private static void appendJdbcTypeCustomProp() {
+		for (String s : jdbcTypeCustomProp.getKeys()) {
+			System.out.println("---------------keys:        " + s);
+			jdbcTypeMap.put(s, jdbcTypeCustomProp.getValue(s));
+		}
+	}
 	
 	private static void initJavaTypeMap(){
 		
@@ -340,6 +309,10 @@ public final class HoneyUtil {
 	public static void setPreparedNull(PreparedStatement pst,int objTypeIndex,int i) throws SQLException{
 		
 		pst.setNull(i+1,Types.NULL);
+	}
+	
+	public static String genSerializableNum(){
+		return "159"+(Math.random()+"").substring(5)+"L";
 	}
 	
 }

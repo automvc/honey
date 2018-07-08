@@ -1,7 +1,9 @@
-/**
- *@author Kingstar
- *Create on 2013-6-29 下午11:33:21
+/*
+ * Copyright 2013-2018 the original author.All rights reserved.
+ * Kingstar(honeysoft@126.com)
+ * The license,see the LICENSE file.
  */
+
 package org.honey.osql.core;
 
 import org.bee.osql.ObjSQLException;
