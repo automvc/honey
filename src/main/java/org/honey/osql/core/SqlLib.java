@@ -69,7 +69,7 @@ public class SqlLib implements SQL {
 
 				targetObj = (T) entity.getClass().newInstance();
 				for (int i = 0; i < columnCount; i++) {
-
+					if("serialVersionUID".equals(field[i].getName())) continue;
 					field[i].setAccessible(true);
 					field[i].set(targetObj, rs.getObject(transformStr(field[i].getName())));
 				}
@@ -117,6 +117,7 @@ public class SqlLib implements SQL {
 
 				targetObj = (T) entity.getClass().newInstance();
 				for (int i = 0; i < columnCount; i++) {
+//					if("serialVersionUID".equals(field[i].getName())) continue;
 					try {
 						field[i] = entity.getClass().getDeclaredField(transformField(rmeta.getColumnName(i + 1)));
 					} catch (NoSuchFieldException e) {

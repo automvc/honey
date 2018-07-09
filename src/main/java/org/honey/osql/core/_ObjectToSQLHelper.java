@@ -94,7 +94,7 @@ final class _ObjectToSQLHelper {
 			PreparedValue preparedValue = null;
 			for (int i = 0, k = 0; i < len; i++) {
 				fields[i].setAccessible(true);
-				if (HoneyUtil.isContinue(includeType, fields[i].get(entity))) {
+				if (HoneyUtil.isContinue(includeType, fields[i].get(entity),fields[i].getName())) {
 					continue;
 				} else {
 
@@ -161,7 +161,7 @@ final class _ObjectToSQLHelper {
 			if ("id".equalsIgnoreCase(whereColmn) && fields[i].get(entity) == null && "id".equalsIgnoreCase(fields[i].getName()))
 				throw new ObjSQLException("ObjSQLException: in the update(T entity), the id field of entity must not be null !");
 			//			if (fields[i].get(entity) == null || "serialVersionUID".equals(fields[i].getName()))
-			if (HoneyUtil.isContinue(includeType, fields[i].get(entity))) {
+			if (HoneyUtil.isContinue(includeType, fields[i].get(entity),fields[i].getName())) {
 				continue;
 			} else {
 				if (whereColmn.equalsIgnoreCase(fields[i].getName())) { //java.lang.ClassCastException: java.lang.Integer cannot be cast to java.lang.String
@@ -280,7 +280,7 @@ final class _ObjectToSQLHelper {
 				}
 			} else {
 
-				if (HoneyUtil.isContinue(includeType, fields[i].get(entity))) {
+				if (HoneyUtil.isContinue(includeType, fields[i].get(entity),fields[i].getName())) {
 					continue;
 				} else {
 
@@ -357,7 +357,7 @@ final class _ObjectToSQLHelper {
 								continue;
 							}
 						}*/
-			if (HoneyUtil.isContinue(includeType, fields[i].get(entity))) {
+			if (HoneyUtil.isContinue(includeType, fields[i].get(entity),fields[i].getName())) {
 				continue;
 			} else {
 
@@ -429,7 +429,7 @@ final class _ObjectToSQLHelper {
 								continue;
 							}
 						}*/
-			if (HoneyUtil.isContinue(includeType, fields[i].get(entity))) {
+			if (HoneyUtil.isContinue(includeType, fields[i].get(entity),fields[i].getName())) {
 				continue;
 			} else {
 
@@ -524,7 +524,7 @@ final class _ObjectToSQLHelper {
 			for (int i = 0, k = 0; i < len; i++) {
 				fields[i].setAccessible(true);
 
-				if (HoneyUtil.isContinue(includeType, fields[i].get(entity))) {
+				if (HoneyUtil.isContinue(includeType, fields[i].get(entity),fields[i].getName())) {
 					continue;
 				} else {
 

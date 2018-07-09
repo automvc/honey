@@ -53,6 +53,7 @@ public final class HoneyUtil {
 	    StringBuffer s=new StringBuffer();
 	    int len=fields.length;
 		for (int i = 0; i <len;  i++) {
+			if("serialVersionUID".equals(fields[i].getName())) continue;
 //			s.append(fields[i].getName());
 			if(HoneyConfig.getHoneyConfig().isUnderScoreAndCamelTransform()){
 			   s.append(HoneyUtil.toUnderscoreNaming(fields[i].getName()));
@@ -250,11 +251,11 @@ public final class HoneyUtil {
 		}
 	}
 	
-	public static boolean isContinue(int includeType,Object object){
+	public static boolean isContinue(int includeType,Object object,String fieldName){
 		return (
 				( (includeType==NullEmpty.EXCLUDE || includeType==NullEmpty.EMPTY_STRING ) && object == null)
 				|| ( (includeType==NullEmpty.EXCLUDE ||includeType==NullEmpty.NULL) && "".equals(object) )
-				|| "serialVersionUID".equals(object)  
+				|| "serialVersionUID".equals(fieldName)  
 				) ;
 	}
 	
