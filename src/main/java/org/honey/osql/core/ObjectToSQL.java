@@ -15,9 +15,6 @@ import org.bee.osql.ObjToSQL;
  * @since  1.0
  */
 public class ObjectToSQL implements ObjToSQL {
-	// copy from ConverString
-	// fields[i].setAccessible(true); 看是否可以用private
-	// ////////////////test Object -- > SQL
 
 	@Override
 	public <T> String toInsertSQL(T entity) {
@@ -26,7 +23,7 @@ public class ObjectToSQL implements ObjToSQL {
 		try {
 			sql = _ObjectToSQLHelper._toInsertSQL(entity, -1);
 		} catch (IllegalAccessException e) {
-			System.err.println("In ObjectToSQL  -----------IllegalAccessException:  "+ e.getMessage());
+			System.err.println("In ObjectToSQL  -----------IllegalAccessException:  " + e.getMessage());
 		}
 		return sql;
 	}
@@ -48,7 +45,7 @@ public class ObjectToSQL implements ObjToSQL {
 			sql = _ObjectToSQLHelper._toUpdateSQL(entity, "id", -1);
 			// Logger.logSQL("update SQL : ", sql);
 		} catch (IllegalAccessException e) {
-			System.err.println("In ObjectToSQL  -----------IllegalAccessException:  "+ e.getMessage());
+			System.err.println("In ObjectToSQL  -----------IllegalAccessException:  " + e.getMessage());
 		}
 		return sql;
 	}

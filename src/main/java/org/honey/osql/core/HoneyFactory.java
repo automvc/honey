@@ -27,7 +27,6 @@ public class HoneyFactory {
 	private PreparedSQL preparedSQL;
 	private CallableSQL callableSQL;
 
-
 	public Suid getSuid() {
 		if(suid==null) return new ObjSQL();
 		else return suid;                      //可以通过配置spring bean的方式注入
@@ -91,14 +90,16 @@ public class HoneyFactory {
 		this.callableSQL = callableSQL;
 	}
 
-	public DbFeature getDbDialect(){
-		if(DatabaseConst.MYSQL.equalsIgnoreCase((HoneyContext.getDbDialect()))) return new MySqlFeature();
-		else if(DatabaseConst.ORACLE.equalsIgnoreCase((HoneyContext.getDbDialect()))) return new OracleFeature();
-		else if(DatabaseConst.SQLSERVER.equalsIgnoreCase((HoneyContext.getDbDialect()))) return new SqlServerFeature();
+	public DbFeature getDbDialect() {
+		if (DatabaseConst.MYSQL.equalsIgnoreCase((HoneyContext.getDbDialect())))
+			return new MySqlFeature();
+		else if (DatabaseConst.ORACLE.equalsIgnoreCase((HoneyContext.getDbDialect())))
+			return new OracleFeature();
+		else if (DatabaseConst.SQLSERVER.equalsIgnoreCase((HoneyContext.getDbDialect())))
+			return new SqlServerFeature();
 		else {
 			System.err.println("Error: Do not set the database name. ");
 			return null;
-	     }
+		}
 	}
-
 }

@@ -19,6 +19,5 @@ public class OracleFeature implements DbFeature {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
 	
 }

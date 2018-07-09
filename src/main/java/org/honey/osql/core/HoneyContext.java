@@ -14,26 +14,22 @@ import java.util.concurrent.ConcurrentMap;
 public final class HoneyContext {
 
 	private static ConcurrentMap<String, String> beanMap;
-	
-	private static ThreadLocal<Map<String,List<PreparedValue>>> sqlLocal;
-	private static ThreadLocal<Map<String,String>> sqlValueLocal;
-	
+
+	private static ThreadLocal<Map<String, List<PreparedValue>>> sqlLocal;
+	private static ThreadLocal<Map<String, String>> sqlValueLocal;
+
 	private static ThreadLocal<Connection> currentConnection;
-	
-//	private static PropertiesReader osqlProp;
-	
+
 	static {
-		beanMap = new ConcurrentHashMap();
-		sqlLocal=new ThreadLocal();
-		sqlValueLocal=new ThreadLocal();
-		
-		currentConnection=new ThreadLocal();
-		
-//		osqlProp=new PropertiesReader("/osql.properties");
+		beanMap = new ConcurrentHashMap<>();
+		sqlLocal = new ThreadLocal<>();
+		sqlValueLocal = new ThreadLocal<>();
+
+		currentConnection = new ThreadLocal<>();
 	}
 
-	private HoneyContext(){}
-	
+	private HoneyContext() {}
+
 	public static String addBeanField(String key, String value) {
 		return beanMap.put(key, value);
 	}
@@ -41,59 +37,55 @@ public final class HoneyContext {
 	public static String getBeanField(String key) {
 		return beanMap.get(key);
 	}
-	
-	public static void setPreparedValue(String sqlStr,List<PreparedValue> list) {
-		if(list==null || list.size()==0) return ;
-		Map<String,List<PreparedValue>> map=sqlLocal.get();
-		if(null==map) map=new HashMap();
+
+	public static void setPreparedValue(String sqlStr, List<PreparedValue> list) {
+		if (list == null || list.size() == 0) return;
+		Map<String, List<PreparedValue>> map = sqlLocal.get();
+		if (null == map) map = new HashMap<>();
 		map.put(sqlStr, list);//TODO 覆盖??
 		sqlLocal.set(map);
 	}
-	
+
 	public static List<PreparedValue> getPreparedValue(String sqlStr) {
-		Map<String,List<PreparedValue>> map=sqlLocal.get();
-		if(null==map) return null;
-		
-		List<PreparedValue> list=map.get(sqlStr);
-		if(list!=null) map.remove(sqlStr);
+		Map<String, List<PreparedValue>> map = sqlLocal.get();
+		if (null == map) return null;
+
+		List<PreparedValue> list = map.get(sqlStr);
+		if (list != null) map.remove(sqlStr);
 		return list;
 	}
-	
-	public static void setSqlValue(String sqlStr,String value) {
-		if(value==null || "".equals(value.trim())) return ;
-		Map<String,String> map=sqlValueLocal.get();
-		if(null==map) map=new HashMap();
-		map.put(sqlStr, value);  //TODO 覆盖??
+
+	public static void setSqlValue(String sqlStr, String value) {
+		if (value == null || "".equals(value.trim())) return;
+		Map<String, String> map = sqlValueLocal.get();
+		if (null == map) map = new HashMap<>();
+		map.put(sqlStr, value); //TODO 覆盖??
 		sqlValueLocal.set(map);
 	}
-	
+
 	public static String getSqlValue(String sqlStr) {
-		Map<String,String> map=sqlValueLocal.get();
-		if(null==map) return null;
-		
-		String s=map.get(sqlStr);
-		if(s!=null) map.remove(sqlStr);
+		Map<String, String> map = sqlValueLocal.get();
+		if (null == map) return null;
+
+		String s = map.get(sqlStr);
+		if (s != null) map.remove(sqlStr);
 		return s;
 	}
-	
-	public static String getDbDialect(){
-		return HoneyConfig.getHoneyConfig().getDbName();  
+
+	public static String getDbDialect() {
+		return HoneyConfig.getHoneyConfig().getDbName();
 	}
 
 	public static Connection getCurrentConnection() {
 		return currentConnection.get();
 	}
-	
+
 	public static void setCurrentConnection(Connection conn) {
-		 currentConnection.set(conn);
-	}
-	
-	public static void removeCurrentConnection() {
-		 currentConnection.remove();
+		currentConnection.set(conn);
 	}
 
-//	public static PropertiesReader getOsqlProp() {
-//		return osqlProp;
-//	}
+	public static void removeCurrentConnection() {
+		currentConnection.remove();
+	}
 
 }

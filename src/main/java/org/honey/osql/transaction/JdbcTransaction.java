@@ -14,16 +14,16 @@ import org.honey.osql.core.SessionFactory;
  * @since  1.0
  */
 public class JdbcTransaction implements Transaction {
-	
-	private Connection conn=null;
+
+	private Connection conn = null;
 	private boolean oldAutoCommit;
-	private boolean isBegin=false;
-	
+	private boolean isBegin = false;
+
 	private Connection initOneConn() {
-		
+
 		Connection c = null;
 		try {
-			c=SessionFactory.getConnection();
+			c = SessionFactory.getConnection();
 		} catch (ObjSQLException e) {
 			// TODO: handle exception
 			System.err.println(e.getMessage());
@@ -32,64 +32,63 @@ public class JdbcTransaction implements Transaction {
 	}
 
 	@Override
-	public void begin()  throws SQLException{
-		
-			this.conn = initOneConn();
-			
-			setOldAutoCommit(conn.getAutoCommit());
-			conn.setAutoCommit(false);
-			
-			HoneyContext.setCurrentConnection(this.conn); //存入上下文
-			
-			isBegin=true;
+	public void begin() throws SQLException {
+
+		this.conn = initOneConn();
+
+		setOldAutoCommit(conn.getAutoCommit());
+		conn.setAutoCommit(false);
+
+		HoneyContext.setCurrentConnection(this.conn); //存入上下文
+
+		isBegin = true;
 	}
 
 	@Override
-	public void commit() throws SQLException{
-		if(!isBegin) throw new SQLException("The Transaction did not to begin!");
-		
-	    if (conn != null && !conn.getAutoCommit()) {  
-	        conn.commit();  
-	        if(oldAutoCommit!=conn.getAutoCommit()) conn.setAutoCommit(oldAutoCommit);
-	        close();   
-	        isBegin=false;
-	      }  
+	public void commit() throws SQLException {
+		if (!isBegin) throw new SQLException("The Transaction did not to begin!");
+
+		if (conn != null && !conn.getAutoCommit()) {
+			conn.commit();
+			if (oldAutoCommit != conn.getAutoCommit()) conn.setAutoCommit(oldAutoCommit);
+			close();
+			isBegin = false;
+		}
 	}
 
 	@Override
-	public void rollback()  throws SQLException{
-		 if (conn != null && !conn.getAutoCommit()) {  
-		      conn.rollback();  
-		      if(oldAutoCommit!=conn.getAutoCommit()) conn.setAutoCommit(oldAutoCommit);
-		      close(); 
-		    }  
+	public void rollback() throws SQLException {
+		if (conn != null && !conn.getAutoCommit()) {
+			conn.rollback();
+			if (oldAutoCommit != conn.getAutoCommit()) conn.setAutoCommit(oldAutoCommit);
+			close();
+		}
 	}
 
 	@Override
-	public void setReadOnly(boolean readOnly) throws SQLException{
+	public void setReadOnly(boolean readOnly) throws SQLException {
 		conn.setReadOnly(readOnly);
 	}
 
 	@Override
-	public void setTransactionIsolation(TransactionIsolationLevel level) throws SQLException{
+	public void setTransactionIsolation(TransactionIsolationLevel level) throws SQLException {
 		conn.setTransactionIsolation(level.getLevel());
 	}
 
 	@Override
-	public boolean isReadOnly() throws SQLException{
+	public boolean isReadOnly() throws SQLException {
 		return conn.isReadOnly();
 	}
 
 	@Override
-	public int getTransactionIsolation() throws SQLException{
+	public int getTransactionIsolation() throws SQLException {
 		return conn.getTransactionIsolation();
 	}
-	
+
 	@Override
-    public void setTimeout(int second){
+	public void setTimeout(int second) {
 		//TODO
 	}
-	
 
 	private void setOldAutoCommit(boolean oldAutoCommit) {
 		this.oldAutoCommit = oldAutoCommit;
@@ -100,8 +99,8 @@ public class JdbcTransaction implements Transaction {
 			try {
 				conn.close();
 			} catch (SQLException e) {
-				 System.err.println("-----------SQLException in checkClose------"+e.getMessage());
-			} finally{
+				System.err.println("-----------SQLException in checkClose------" + e.getMessage());
+			} finally {
 				HoneyContext.removeCurrentConnection();
 			}
 		}

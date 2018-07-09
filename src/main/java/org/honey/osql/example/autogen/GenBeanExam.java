@@ -52,7 +52,5 @@ public class GenBeanExam {
 //			genBean.genSomeBeanFile("orders,items");//只创建部分表对应的JavaBean
 			genBean.genSomeBeanFile("orders");
 //			genBean.genSomeBeanFile("ordersView");
-			
-			
 	}
 }

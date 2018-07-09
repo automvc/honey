@@ -76,21 +76,23 @@ public final class HoneyUtil {
 	
 	
 	
-    /**
-     * jdbc type->java type
-     * 将jdbc的数据类型转换为java的类型 
-     * @param jdbcType
-     * @return the string of java type
-     */
-    public static String convertType(String jdbcType) {
-    	
-        String javaType = "";  
-        
-        if(null==jdbcTypeMap.get(jdbcType)) javaType = "[UNKNOWN TYPE]" + jdbcType;
-        else javaType=jdbcTypeMap.get(jdbcType);
-        
-        return javaType;
-    } 
+	/**
+	 * jdbc type->java type
+	 * 将jdbc的数据类型转换为java的类型 
+	 * @param jdbcType
+	 * @return the string of java type
+	 */
+	public static String convertType(String jdbcType) {
+
+		String javaType = "";
+
+		if (null == jdbcTypeMap.get(jdbcType))
+			javaType = "[UNKNOWN TYPE]" + jdbcType;
+		else
+			javaType = jdbcTypeMap.get(jdbcType);
+
+		return javaType;
+	}
     
 	private static void initJdbcTypeMap() {
 
@@ -128,21 +130,20 @@ public final class HoneyUtil {
 		jdbcTypeMap.put("BLOB", "Blob");
 		jdbcTypeMap.put("ARRAY", "Array");
 
-		
-		String dbName=HoneyConfig.getHoneyConfig().getDbName();
-		
+		String dbName = HoneyConfig.getHoneyConfig().getDbName();
+
 		if (DatabaseConst.MYSQL.equalsIgnoreCase(dbName) 
-		  ||DatabaseConst.MariaDB.equalsIgnoreCase(dbName)) {
+		 ||DatabaseConst.MariaDB.equalsIgnoreCase(dbName)) {
 			jdbcTypeMap.put("MEDIUMINT", "Integer");
 			jdbcTypeMap.put("DATETIME", "Date");
 			jdbcTypeMap.put("TINYBLOB", "Blob");
 			jdbcTypeMap.put("MEDIUMBLOB", "Blob");
 			jdbcTypeMap.put("LONGBLOB", "Blob");
 			jdbcTypeMap.put("YEAR", "Integer");
-		}else if (DatabaseConst.ORACLE.equalsIgnoreCase(dbName)) {
-		  //TODO
-		}else if (DatabaseConst.SQLSERVER.equalsIgnoreCase(dbName)) {
-		 //TODO
+		} else if (DatabaseConst.ORACLE.equalsIgnoreCase(dbName)) {
+			//TODO
+		} else if (DatabaseConst.SQLSERVER.equalsIgnoreCase(dbName)) {
+			//TODO
 		}
 
 	}
@@ -154,21 +155,21 @@ public final class HoneyUtil {
 		}
 	}
 	
-	private static void initJavaTypeMap(){
-		
-		javaTypeMap.put("java.lang.String", 1);  
-		javaTypeMap.put("java.lang.Integer", 2);  
-		javaTypeMap.put("java.lang.Long", 3);  
-		javaTypeMap.put("java.lang.Double", 4);  
-		javaTypeMap.put("java.lang.Float", 5);  
-		javaTypeMap.put("java.lang.Short", 6);  
-		javaTypeMap.put("java.lang.Byte", 7);  
+	private static void initJavaTypeMap() {
+
+		javaTypeMap.put("java.lang.String", 1);
+		javaTypeMap.put("java.lang.Integer", 2);
+		javaTypeMap.put("java.lang.Long", 3);
+		javaTypeMap.put("java.lang.Double", 4);
+		javaTypeMap.put("java.lang.Float", 5);
+		javaTypeMap.put("java.lang.Short", 6);
+		javaTypeMap.put("java.lang.Byte", 7);
 //		javaTypeMap.put("[Ljava.lang.Byte;", 8); //  Byte[]
-		javaTypeMap.put("[B",8);                //byte[]  
-		javaTypeMap.put("java.lang.Boolean", 9);  
-		
-		javaTypeMap.put("java.math.BigDecimal", 10);  
-		
+		javaTypeMap.put("[B", 8); //byte[]  
+		javaTypeMap.put("java.lang.Boolean", 9);
+
+		javaTypeMap.put("java.math.BigDecimal", 10);
+
 		javaTypeMap.put("java.sql.Date", 11);
 		javaTypeMap.put("java.sql.Time", 12);
 		javaTypeMap.put("java.sql.Timestamp", 13);
@@ -181,11 +182,11 @@ public final class HoneyUtil {
     	return javaTypeMap.get(javaType)==null?-1:javaTypeMap.get(javaType);
     }
     
-    /**
-     * @param name
-     * @return UnderscoreNaming String
-     * @eg bee_name->beeName,bee_t_name->beeTName
-     */
+	/**
+	 * @param name
+	 * @return UnderscoreNaming String
+	 * @eg bee_name->beeName,bee_t_name->beeTName
+	 */
 	public static String toUnderscoreNaming(String name) {
 		StringBuffer buf = new StringBuffer(name);
 		for (int i = 1; i < buf.length() - 1; i++) {
@@ -314,5 +315,4 @@ public final class HoneyUtil {
 	public static String genSerializableNum(){
 		return "159"+(Math.random()+"").substring(5)+"L";
 	}
-	
 }

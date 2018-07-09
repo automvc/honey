@@ -7,53 +7,52 @@ import org.honey.osql.constant.DbConfigConst;
  * @since  1.0
  */
 public final class HoneyConfig {
-	
-	private static HoneyConfig honeyConfig=null;
-	static{
-		honeyConfig=new HoneyConfig();
-		honeyConfig.init();  // just run one time
+
+	private static HoneyConfig honeyConfig = null;
+	static {
+		honeyConfig = new HoneyConfig();
+		honeyConfig.init(); // just run one time
 	}
-	
-	private HoneyConfig(){}
-	
-	public static HoneyConfig getHoneyConfig(){
-		
+
+	private HoneyConfig() {}
+
+	public static HoneyConfig getHoneyConfig() {
+
 		return honeyConfig;
 	}
-	
-	private void init(){
+
+	private void init() {
 		setDbName(BeeProp.getBeeProp("bee.databaseName"));
 		setShowSQL(Boolean.parseBoolean(BeeProp.getBeeProp("bee.osql.showSQL")));
-		String t_batchSize=BeeProp.getBeeProp("bee.osql.select.batchSize");
-		if(t_batchSize!=null)
-		    setBatchSize(Integer.parseInt(t_batchSize));
-		String t_maxResultSize=BeeProp.getBeeProp("bee.osql.select.maxResultSize");
-		if(t_maxResultSize!=null)
-			setMaxResultSize(Integer.parseInt(t_maxResultSize));
-		
-		setUnderScoreAndCamelTransform(Boolean.parseBoolean(BeeProp.getBeeProp("bee.osql.underScoreAndCamelTransform"))); 
+		String t_batchSize = BeeProp.getBeeProp("bee.osql.select.batchSize");
+		if (t_batchSize != null) setBatchSize(Integer.parseInt(t_batchSize));
+		String t_maxResultSize = BeeProp.getBeeProp("bee.osql.select.maxResultSize");
+		if (t_maxResultSize != null) setMaxResultSize(Integer.parseInt(t_maxResultSize));
+
+		setUnderScoreAndCamelTransform(Boolean.parseBoolean(BeeProp.getBeeProp("bee.osql.underScoreAndCamelTransform")));
 		setDbNamingToLowerCaseBefore(Boolean.parseBoolean(BeeProp.getBeeProp("bee.osql.dbNaming.toLowerCaseBefore")));
-//		BeeProp.getBeeProp("bee.osql.delete.isAllowDeleteAllDataInOneTable");
-		
+		//		BeeProp.getBeeProp("bee.osql.delete.isAllowDeleteAllDataInOneTable");
+
 		setDriverName(BeeProp.getBeeProp(DbConfigConst.DB_DRIVERNAME));
 		setUrl(BeeProp.getBeeProp(DbConfigConst.DB_URL));
 		setUsername(BeeProp.getBeeProp(DbConfigConst.DB_USERNAM));
 		setPassword(BeeProp.getBeeProp(DbConfigConst.DB_PASSWORD));
-		
+
 	}
-	
+
 	// 启动时动态获取
-	private boolean showSQL;  
-    private int batchSize=100;  //不设置,默认100
-    private String dbName;
-    private boolean underScoreAndCamelTransform;
-    private boolean dbNamingToLowerCaseBefore;
-    
-    private String driverName; 
-    private String url;
-    private String username;
-    private String password;
-    private int maxResultSize;
+	private boolean showSQL;
+	private int batchSize = 100; //不设置,默认100
+	private String dbName;
+	private boolean underScoreAndCamelTransform;
+	private boolean dbNamingToLowerCaseBefore;
+
+	private String driverName;
+	private String url;
+	private String username;
+	private String password;
+	private int maxResultSize;
+
 	private void setShowSQL(boolean showSQL) {
 		this.showSQL = showSQL;
 	}
@@ -133,5 +132,5 @@ public final class HoneyConfig {
 	public int getMaxResultSize() {
 		return maxResultSize;
 	}
-    
+
 }

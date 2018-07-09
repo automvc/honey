@@ -8,19 +8,15 @@ public class Logger {
 	
 	private static boolean  showSQL=HoneyConfig.getHoneyConfig().isShowSQL();
 	
-	
 	public static void print(String s1,String s2){
-		
 		System.out.println(s1+" :  "  +s2);
 	}
 	
 	public static void println(String s1,String s2){
-		
 		System.out.println(s1+"\n"  +s2);
 	}
 	
 	private static void _println(String s1,String s2){
-		
 		System.out.println(s1+"\n"  +s2);
 	}
 	
@@ -33,9 +29,5 @@ public class Logger {
 			else
 				_println(hardStr, sql +" values: "+ value);
 		}
-		
-		
-		
 	}
-
 }

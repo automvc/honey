@@ -14,49 +14,49 @@ import org.bee.osql.SQL;
  * @since  1.0
  */
 public class PreparedSqlLib implements PreparedSQL {
-	
-	private SQL sqlLib=BeeFactory.getHoneyFactory().getSQL();
+
+	private SQL sqlLib = BeeFactory.getHoneyFactory().getSQL();
 
 	@Override
 	public <T> List<T> select(String sql, T entity, Object[] preValues) {
 
-		initPreparedValues(sql,preValues);
+		initPreparedValues(sql, preValues);
 		Logger.logSQL("PreparedSqlLib select SQL: ", sql);
 		return sqlLib.select(sql, entity);
 	}
 
 	@Override
 	public <T> List<T> selectSomeField(String sql, T entity, Object[] preValues) {
-		
-		initPreparedValues(sql,preValues);
+
+		initPreparedValues(sql, preValues);
 		Logger.logSQL("PreparedSqlLib selectSomeField SQL: ", sql);
 		return sqlLib.selectSomeField(sql, entity);
 	}
 
 	@Override
 	public String selectFun(String sql, Object[] preValues) throws ObjSQLException {
-		
-		initPreparedValues(sql,preValues);
+
+		initPreparedValues(sql, preValues);
 		Logger.logSQL("PreparedSqlLib selectFun SQL: ", sql);
 		return sqlLib.selectFun(sql);
 	}
 
 	@Override
 	public List<String[]> select(String sql, Object[] preValues) {
-		initPreparedValues(sql,preValues);
+		initPreparedValues(sql, preValues);
 		Logger.logSQL("PreparedSqlLib select SQL: ", sql);
 		return sqlLib.select(sql);
 	}
 
 	@Override
 	public int modify(String sql, Object[] preValues) {
-		initPreparedValues(sql,preValues);
+		initPreparedValues(sql, preValues);
 		Logger.logSQL("PreparedSqlLib modify SQL: ", sql);
 		return sqlLib.modify(sql);
 	}
-	
-	private void initPreparedValues(String sql,Object[] preValues){
-		
+
+	private void initPreparedValues(String sql, Object[] preValues) {
+
 		PreparedValue preparedValue = null;
 		List<PreparedValue> list = new ArrayList();
 		StringBuffer valueBuffer = new StringBuffer();
