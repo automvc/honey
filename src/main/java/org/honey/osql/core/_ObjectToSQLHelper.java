@@ -28,7 +28,7 @@ final class _ObjectToSQLHelper {
 			sqlBuffer.append(tableName);
 			boolean firstWhere = true;
 			int len = fields.length;
-			List<PreparedValue> list = new ArrayList();
+			List<PreparedValue> list = new ArrayList<>();
 			PreparedValue preparedValue = null;
 			for (int i = 0, k = 0; i < len; i++) {
 				fields[i].setAccessible(true);
@@ -90,7 +90,7 @@ final class _ObjectToSQLHelper {
 			sqlBuffer.append(tableName);
 			boolean firstWhere = true;
 			int len = fields.length;
-			List<PreparedValue> list = new ArrayList();
+			List<PreparedValue> list = new ArrayList<>();
 			PreparedValue preparedValue = null;
 			for (int i = 0, k = 0; i < len; i++) {
 				fields[i].setAccessible(true);
@@ -153,8 +153,8 @@ final class _ObjectToSQLHelper {
 
 		Field fields[] = entity.getClass().getDeclaredFields();
 		int len = fields.length;
-		List<PreparedValue> list = new ArrayList();
-		List<PreparedValue> whereList = new ArrayList();
+		List<PreparedValue> list = new ArrayList<>();
+		List<PreparedValue> whereList = new ArrayList<>();
 		PreparedValue preparedValue = null;
 		for (int i = 0, k = 0, w = 0; i < len; i++) {
 			fields[i].setAccessible(true);
@@ -246,8 +246,8 @@ final class _ObjectToSQLHelper {
 
 		Field fields[] = entity.getClass().getDeclaredFields();
 		int len = fields.length;
-		List<PreparedValue> list = new ArrayList();
-		List<PreparedValue> whereList = new ArrayList();
+		List<PreparedValue> list = new ArrayList<>();
+		List<PreparedValue> whereList = new ArrayList<>();
 
 		PreparedValue preparedValue = null;
 		for (int i = 0, k = 0, w = 0; i < len; i++) {
@@ -345,7 +345,7 @@ final class _ObjectToSQLHelper {
 
 		Field fields[] = entity.getClass().getDeclaredFields();
 		int len = fields.length;
-		List<PreparedValue> list = new ArrayList();
+		List<PreparedValue> list = new ArrayList<>();
 		PreparedValue preparedValue = null;
 		for (int i = 0, k = 0; i < len; i++) {
 			fields[i].setAccessible(true);
@@ -417,7 +417,7 @@ final class _ObjectToSQLHelper {
 
 		Field fields[] = entity.getClass().getDeclaredFields();
 		int len = fields.length;
-		List<PreparedValue> list = new ArrayList();
+		List<PreparedValue> list = new ArrayList<>();
 		PreparedValue preparedValue = null;
 		for (int i = 0, k = 0; i < len; i++) {
 			fields[i].setAccessible(true);
@@ -479,7 +479,7 @@ final class _ObjectToSQLHelper {
 
 		Field fields[] = entity.getClass().getDeclaredFields();
 		int len = fields.length;
-		List<PreparedValue> list = new ArrayList();
+		List<PreparedValue> list = new ArrayList<>();
 		PreparedValue preparedValue = null;
 		for (int i = 0, k = 0; i < len; i++) {
 			fields[i].setAccessible(true);
@@ -519,7 +519,7 @@ final class _ObjectToSQLHelper {
 
 			Field fields[] = entity.getClass().getDeclaredFields();
 			int len = fields.length;
-			List<PreparedValue> list = new ArrayList();
+			List<PreparedValue> list = new ArrayList<>();
 			PreparedValue preparedValue = null;
 			for (int i = 0, k = 0; i < len; i++) {
 				fields[i].setAccessible(true);

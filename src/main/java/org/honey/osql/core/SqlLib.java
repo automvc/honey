@@ -119,7 +119,7 @@ public class SqlLib implements SQL {
 				for (int i = 0; i < columnCount; i++) {
 //					if("serialVersionUID".equals(field[i].getName())) continue;
 					try {
-						field[i] = entity.getClass().getDeclaredField(transformField(rmeta.getColumnName(i + 1)));
+						field[i] = entity.getClass().getDeclaredField(transformColumn(rmeta.getColumnName(i + 1)));
 					} catch (NoSuchFieldException e) {
 						System.err.println(e.getMessage());
 					}
@@ -201,17 +201,20 @@ public class SqlLib implements SQL {
 			setPreparedValues(pst, sql);
 
 			rs = pst.executeQuery();
-			ResultSetMetaData rmeta = rs.getMetaData();
-			int columnCount = rmeta.getColumnCount();
-			String str[] = null;
-			while (rs.next()) {
-				str = new String[columnCount];
-				for (int i = 0; i < columnCount; i++) {
-					str[i] = rs.getString(i + 1);
-				}
-				list.add(str);
-			}
+			
+//			ResultSetMetaData rmeta = rs.getMetaData();
+//			int columnCount = rmeta.getColumnCount();
+//			String str[] = null;
+//			while (rs.next()) {
+//				str = new String[columnCount];
+//				for (int i = 0; i < columnCount; i++) {
+//					str[i] = rs.getString(i + 1);
+//				}
+//				list.add(str);
+//			}
 
+			list=TransformResultSet.toStringsList(rs);
+			
 		} catch (SQLException e) {
 			System.err.println("========= List<String> select: " + e.getMessage());
 		} finally {
@@ -246,10 +249,58 @@ public class SqlLib implements SQL {
 		return num;
 	}
 
+	/**
+	 * @since  1.1
+	 */
 	@Override
 	public String selectJson(String sql) {
-		// TODO Auto-generated method stub
-		return null;
+		StringBuffer json=new StringBuffer("");
+		Connection conn = null;
+		PreparedStatement pst = null;
+		ResultSet rs = null;
+
+		try {
+			conn = getConn();
+			pst = conn.prepareStatement(sql);
+
+			setPreparedValues(pst, sql);
+
+			rs = pst.executeQuery();
+			
+/*			ResultSetMetaData rmeta = rs.getMetaData();
+			int columnCount = rmeta.getColumnCount();
+			while (rs.next()) {
+				json.append(",{");
+				for (int i = 1; i <= columnCount; i++) { //1..n
+					   json.append("\"");
+					   json.append(rmeta.getColumnName(i));
+					   json.append("\":");
+
+					if (rs.getString(i) != null && "String".equals(HoneyUtil.getFieldType(rmeta.getColumnTypeName(i)))) {
+						json.append("\"");
+						json.append(rs.getString(i));
+						json.append("\"");
+					} else {
+						json.append(rs.getString(i));
+					}
+
+					if (i != columnCount) json.append(",");
+				}
+				json.append("}");
+			}
+			json.deleteCharAt(0);
+			json.insert(0, "[");
+			json.append("]");*/
+			
+			json = TransformResultSet.toJson(rs);
+
+		} catch (SQLException e) {
+			System.err.println("========= List<String> select: " + e.getMessage());
+		} finally {
+			checkClose(pst, conn);
+		}
+
+		return json.toString();
 	}
 
 	@Override
@@ -348,8 +399,8 @@ public class SqlLib implements SQL {
 
 	//to java naming
 	// 转成java命名规范  
-	private String transformField(String field) {
-		return HoneyUtil.transformField(field);
+	private String transformColumn(String column) {
+		return HoneyUtil.transformColumn(column);
 	}
 
 	//to db naming

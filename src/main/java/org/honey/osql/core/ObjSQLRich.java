@@ -238,4 +238,25 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		return list;
 	}
 
+	@Override
+	public <T> String selectJson(T entity) {
+		
+		if (entity == null) return null;
+		
+		String sql = objToSQLRich.toSelectSQL(entity);
+		Logger.logSQL("selectJson SQL: ", sql);
+		
+		return sqlLib.selectJson(sql);
+	}
+
+	@Override
+	public <T> String selectJson(T entity, IncludeType includeType) {
+		if (entity == null) return null;
+		
+		String sql = objToSQLRich.toSelectSQL(entity, includeType);
+		Logger.logSQL("selectJson SQL: ", sql);
+		
+		return sqlLib.selectJson(sql);
+	}
+
 }

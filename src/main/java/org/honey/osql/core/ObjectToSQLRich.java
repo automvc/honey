@@ -210,7 +210,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			boolean firstWhere = true;
 			Field fields[] = entity.getClass().getDeclaredFields(); // 改为以最高权限访问？2012-07-15
 			int len = fields.length;
-			List<PreparedValue> list = new ArrayList();
+			List<PreparedValue> list = new ArrayList<>();
 			PreparedValue preparedValue = null;
 			for (int i = 0, k = 0; i < len; i++) {
 				fields[i].setAccessible(true);
@@ -362,7 +362,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			sqlBuffer.append(tableName);
 			boolean firstWhere = true;
 			int len = fields.length;
-			List<PreparedValue> list = new ArrayList();
+			List<PreparedValue> list = new ArrayList<>();
 			PreparedValue preparedValue = null;
 			for (int i = 0, k = 0; i < len; i++) {
 				fields[i].setAccessible(true);

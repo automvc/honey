@@ -37,7 +37,7 @@ public class HoneyFactory {
 	}
 	
 	public SuidRich getSuidRich() {
-		if(suid==null) return new ObjSQLRich();
+		if(suidRich==null) return new ObjSQLRich();
 		else return suidRich;
 	}
 
@@ -46,7 +46,7 @@ public class HoneyFactory {
 	}
 
 	public SQL getSQL() {
-		if(suid==null) return new SqlLib();
+		if(SQL==null) return new SqlLib();
 		else return SQL;
 	}
 
@@ -55,7 +55,7 @@ public class HoneyFactory {
 	}
 
 	public ObjToSQL getObjToSQL() {
-		if(suid==null) return new ObjectToSQL();
+		if(objToSQL==null) return new ObjectToSQL();
 		else return objToSQL;
 	}
 
@@ -64,7 +64,7 @@ public class HoneyFactory {
 	}
 
 	public ObjToSQLRich getObjToSQLRich() {
-		if(suid==null) return new ObjectToSQLRich();
+		if(objToSQLRich==null) return new ObjectToSQLRich();
 		else return objToSQLRich;
 	}
 
@@ -73,7 +73,7 @@ public class HoneyFactory {
 	}
 
 	public PreparedSQL getPreparedSQL() {
-		if(suid==null) return new PreparedSqlLib();
+		if(preparedSQL==null) return new PreparedSqlLib();
 		else return preparedSQL;
 	}
 
@@ -82,7 +82,7 @@ public class HoneyFactory {
 	}
 
 	public CallableSQL getCallableSQL() {
-		if(suid==null) return new CallableSqlLib();
+		if(callableSQL==null) return new CallableSqlLib();
 		else return callableSQL;
 	}
 

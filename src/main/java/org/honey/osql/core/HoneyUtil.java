@@ -83,7 +83,7 @@ public final class HoneyUtil {
 	 * @param jdbcType
 	 * @return the string of java type
 	 */
-	public static String convertType(String jdbcType) {
+	public static String getFieldType(String jdbcType) {
 
 		String javaType = "";
 
@@ -233,12 +233,12 @@ public final class HoneyUtil {
 		return result;
 	}
 	
-    //转成java命名规范
-	public static String transformField(String field) {  
+    //从列名转成java命名规范
+	public static String transformColumn(String column) {  
 		if (HoneyConfig.getHoneyConfig().isUnderScoreAndCamelTransform()) {
-			return HoneyUtil.toCamelNaming(field);
+			return HoneyUtil.toCamelNaming(column);
 		} else {
-			return field;
+			return column;
 		}
 	}
 	

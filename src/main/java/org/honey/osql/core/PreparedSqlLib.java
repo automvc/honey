@@ -58,7 +58,7 @@ public class PreparedSqlLib implements PreparedSQL {
 	private void initPreparedValues(String sql, Object[] preValues) {
 
 		PreparedValue preparedValue = null;
-		List<PreparedValue> list = new ArrayList();
+		List<PreparedValue> list = new ArrayList<>();
 		StringBuffer valueBuffer = new StringBuffer();
 		for (int i = 0, k = 0; i < preValues.length; i++) {
 			preparedValue = new PreparedValue();
@@ -79,7 +79,8 @@ public class PreparedSqlLib implements PreparedSQL {
 
 	@Override
 	public String selectJson(String sql, Object[] preValues) {
-		// TODO Auto-generated method stub
-		return null;
+		initPreparedValues(sql, preValues);
+		Logger.logSQL("PreparedSqlLib selectJson SQL: ", sql);
+		return sqlLib.selectJson(sql);
 	}
 }

@@ -12,31 +12,13 @@ import org.honey.osql.core.HoneyConfig;
  */
 public class GenBeanExam {
 		public static void main(String[] args) throws IOException {
-			// MySQL
-			String driverName = "com.mysql.jdbc.Driver";
-			String url = "jdbc:mysql://localhost:3306/bee?characterEncoding=UTF-8";
-			String username = "root";
-			String password = "";
+
 			
 			String dbName=HoneyConfig.getHoneyConfig().getDbName();
-			
-			// SQL Server
-			// String driverName = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
-			// String url = "jdbc:sqlserver://localhost:1433";
-			// String username = "sa";
-			// String password = "";
-
-			// Oracle
-			// String driverName = "oracle.jdbc.driver.OracleDriver";
-			// String url = "";
-			// String username = "";
-			// String password = "";
+//			driverName,url,username,password config in bee.properties.
 
 			GenConfig config = new GenConfig();
-			config.setDriverName(driverName);
-			config.setUrl(url);
-			config.setUsername(username);
-			config.setPassword(password);
+
 			config.setDbName(dbName);
 			
 			config.setGenToString(true);

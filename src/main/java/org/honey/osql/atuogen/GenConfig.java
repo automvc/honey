@@ -6,10 +6,6 @@ public class GenConfig {
 	private String baseDir = "";
 	private String packagePath = "";
 	private String dbName = ""; // 数据库类型 mysql oracle等
-	private String driverName = ""; // 数据库驱动名
-	private String url = ""; // 数据库连接地址
-	private String username = "";
-	private String password = "";
 	private String queryTableSql = ""; // 查询所有表名的SQL语句，mysqll,oracle和sql server不用设置
 	private boolean genToString;
 	private boolean genSerializable;
@@ -28,38 +24,6 @@ public class GenConfig {
 
 	public void setBaseDir(String baseDir) {
 		this.baseDir = baseDir;
-	}
-
-	public String getDriverName() {
-		return driverName;
-	}
-
-	public void setDriverName(String driverName) {
-		this.driverName = driverName;
-	}
-
-	public String getUrl() {
-		return url;
-	}
-
-	public void setUrl(String url) {
-		this.url = url;
-	}
-
-	public String getUsername() {
-		return username;
-	}
-
-	public void setUsername(String username) {
-		this.username = username;
-	}
-
-	public String getPassword() {
-		return password;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
 	}
 
 	public String getQueryTableSql() {

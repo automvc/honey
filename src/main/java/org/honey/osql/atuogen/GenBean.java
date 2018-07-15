@@ -6,7 +6,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -19,11 +18,12 @@ import java.util.List;
 import org.honey.osql.constant.DatabaseConst;
 import org.honey.osql.core.HoneyConfig;
 import org.honey.osql.core.HoneyUtil;
+import org.honey.osql.core.SessionFactory;
 
 //TODO 是否覆盖文件,       支持写生成其中一个文件或几个文件(已实现)
 public class GenBean {
 
-	private GenConfig config; // 配置类
+	private GenConfig config;
 	private String LINE_SEPARATOR = System.getProperty("line.separator"); // 换行符
 	
 	SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -101,7 +101,7 @@ public class GenBean {
 			}
 			
 			getsetProNameStr = HoneyUtil.firstLetterToUpperCase(propertyName);
-			javaType = HoneyUtil.convertType(columnType);
+			javaType = HoneyUtil.getFieldType(columnType);
 			
 			//import
 			if ("BigDecimal".equals(javaType) && bigDecimalFlag) {
@@ -143,7 +143,7 @@ public class GenBean {
 					+ propertyName + ";" + LINE_SEPARATOR + "\t}"
 					+ LINE_SEPARATOR + LINE_SEPARATOR;
 			
-			if("true".equals(config.isGenToString())){  //toString()
+			if(config.isGenToString()){  //toString()
 				tostring.append("\t\t str.append(\",").append(propertyName).append("=\").append(").append(propertyName).append(");");
 				tostring.append("\t\t "+LINE_SEPARATOR );
 			}
@@ -185,7 +185,7 @@ public class GenBean {
 			bw.write(getsetStr);
 			// bw.write(LINE_SEPARATOR);
 			
-			if("true".equals(config.isGenToString())){ //toString()
+			if(config.isGenToString()){ //toString()
 				tostring.deleteCharAt(tostring.indexOf(","));
 				tostring.insert(0,"\t\t"+LINE_SEPARATOR );
 //				tostring.insert(0,"\t");
@@ -234,14 +234,14 @@ public class GenBean {
 
 		Connection con = null;
 		try {
-			Class.forName(config.getDriverName());
-			con = DriverManager.getConnection(config.getUrl(),
-					config.getUsername(), config.getPassword());
-
+			con =SessionFactory.getConnection();
+			Table table = null;
 		for (int i = 0; i < tables.length; i++) {
+			table = getTable(tables[i], con);
 			// 生成实体类
-			genBeanFile(getTable(tables[i], con));
+			genBeanFile(table);
 		}
+		con.close();
 
 		}catch(Exception e){
 			System.err.println(e.getMessage());
@@ -253,19 +253,6 @@ public class GenBean {
 		System.out.println("Please check: " + config.getBaseDir()+config.getPackagePath().replace(".", "\\"));
 	}
 
-	//通过驱动程序生成连接
-	private Connection getConnection(){
-		Connection conn = null;
-		try {
-			Class.forName(config.getDriverName());
-			conn = DriverManager.getConnection(config.getUrl(),config.getUsername(), config.getPassword());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return conn;
-			
-	}
-	
     // 获取所有表信息
 	private List<Table> getAllTables() {
 		List<Table> tables = new ArrayList<Table>();
@@ -274,7 +261,8 @@ public class GenBean {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			con = getConnection();
+//			con = getConnection();
+			con =SessionFactory.getConnection();
 			// 获取所有表名
 			String showTablesSql = "";
 			if (!"".equals(config.getQueryTableSql().trim())) {
@@ -321,7 +309,6 @@ public class GenBean {
 
 		int columCount = rmeta.getColumnCount();
 		for (int i = 1; i <=columCount; i++) {
-//			System.out.println(rmeta.getColumnName(i).trim());
 			table.getColumNames().add(rmeta.getColumnName(i).trim());
 			table.getColumTypes().add(rmeta.getColumnTypeName(i).trim());
 		}

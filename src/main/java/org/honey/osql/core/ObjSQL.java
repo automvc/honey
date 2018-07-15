@@ -64,7 +64,7 @@ public class ObjSQL implements Suid {
 
 	@Override
 	public <T> int update(T entity) {
-		// TODO 当id为null时抛出异常
+		// 当id为null时抛出异常  在转sql时抛出
 
 		if (entity == null) return 0;
 
