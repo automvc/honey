@@ -20,50 +20,77 @@
 			<version>1.1.0</version>
 		</dependency>
 
+		<!-- Mysql config just for demo.You need change it to the real database. -->
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
 			<version>5.1.25</version>
 			<scope>runtime</scope>
 		</dependency>
-		
-<!-- 		<dependency>
-			<groupId>com.mchange</groupId>
-			<artifactId>c3p0</artifactId>
-			<version>0.9.2.1</version>
-		</dependency> -->
+
+<!-- 	   <dependency>
+		  <groupId>com.mchange</groupId>
+		  <artifactId>c3p0</artifactId>
+		  <version>0.9.2.1</version>
+	   </dependency> -->
 
 	</dependencies>
 
 	<build>
 		<finalName>honey-${project.version}</finalName>
-<!-- 		将xml，properties文件打包 -->
+		<!-- 将xml，properties文件打包 -->
 		<resources>
-            <resource>
-                <directory>src/main/java</directory>
-                <includes>
-                    <include>**/*.xml</include>
-                </includes>
-            </resource>
-            <resource>
-                <directory>src/main/resources</directory>
-                <includes>
-                    <include>**/*</include>
-                </includes>
-                <excludes>
-                  <exclude>bee.properties</exclude>
-                </excludes>
-            </resource>
-        </resources>
-		
+			<resource>
+				<directory>src/main/java</directory>
+				<includes>
+					<include>**/*.xml</include>
+				</includes>
+			</resource>
+			<resource>
+				<directory>src/main/resources</directory>
+				<includes>
+					<include>**/*</include>
+				</includes>
+				<excludes>
+					<exclude>bee.properties</exclude>
+				</excludes>
+			</resource>
+		</resources>
+
 		<plugins>
 			<plugin>
-			
+
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
 				<version>3.0.0</version>
+				<configuration>
+					<excludes> <!-- org.honey.osql.example包下的文件不要打包 -->
+						<exclude>/org/honey/osql/example/**</exclude>
+					</excludes>
+				</configuration>
 			</plugin>
-			
+
+			<!--配置生成源码包 -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>3.0.0</version>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+
+				<configuration>
+					<excludes>
+						<exclude>/org/honey/osql/example/**</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+
 		</plugins>
 	</build>
 
