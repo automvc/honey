@@ -1,4 +1,4 @@
-package org.honey.osql.example.action;
+package org.honey.osql.example;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -11,7 +11,7 @@ import org.honey.osql.example.entity.Orders;
  * @author KingStar
  * @since  1.0
  */
-public class OsqlExam {
+public class SuidExam {
 	
 	public static void main(String[] args) {
 		Suid suid=BeeFactory.getHoneyFactory().getSuid();
@@ -32,9 +32,9 @@ public class OsqlExam {
 		System.out.println("update record:"+updateNum);
 		
 		Orders orders2=new Orders();
-		orders2.setUserid("client01");
-		orders2.setName("ORM book");
-		orders2.setTotal(new BigDecimal(91));
+		orders2.setUserid("bee");
+		orders2.setName("Bee-ORM framework");
+		orders2.setTotal(new BigDecimal(91.99));
 		orders2.setRemark("");  //empty String test
 		
 		//默认不处理null和空字符串.不用再写一堆的判断;其它有值的字段全部自动插入数据库中. 
