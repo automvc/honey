@@ -27,7 +27,7 @@ public class Logger {
 			if (value == null || "".equals(value.trim()))
 				_println(hardStr, sql);
 			else
-				_println(hardStr, sql +" values: "+ value);
+				_println(hardStr, sql +"   [values]: "+ value);
 		}
 	}
 }
