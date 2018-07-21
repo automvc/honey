@@ -65,15 +65,15 @@ public final class HoneyUtil {
 		return s.toString();
 	}
 	
-	static boolean isNumberType(Field field){
+/*	static boolean isNumberType(Field field){
 		if (
 			(field.getType() == Integer.class)|| (field.getType() == Long.class)
 		  ||(field.getType() == Short.class) || (field.getType() == Byte.class)
 		  ||(field.getType() == Double.class)|| (field.getType() == Float.class)
-		  ||(field.getType() == BigDecimal.class)
+		  ||(field.getType() == BigInteger.class)||(field.getType() == BigDecimal.class)
 		  )  return true;
 		else return false;
-	}
+	}*/
 	
 	
 	
@@ -116,7 +116,8 @@ public final class HoneyUtil {
 
 		jdbcTypeMap.put("BIGINT", "Long");
 		jdbcTypeMap.put("REAL", "Float");
-		jdbcTypeMap.put("FLOAT", "Double");
+//		jdbcTypeMap.put("FLOAT", "Double");
+		jdbcTypeMap.put("FLOAT", "Float");
 		jdbcTypeMap.put("DOUBLE", "Double");
 
 		jdbcTypeMap.put("BINARY", "byte[]");
