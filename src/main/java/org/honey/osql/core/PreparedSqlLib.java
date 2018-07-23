@@ -2,6 +2,7 @@ package org.honey.osql.core;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.bee.osql.ObjSQLException;
 import org.bee.osql.PreparedSQL;
@@ -12,6 +13,8 @@ import org.bee.osql.SQL;
  * 若是简单的操作,建议用面向对象的操作方式,ObjSQL和ObjSQLRich.
  * @author Kingstar
  * @since  1.0
+ * 支持如name=#{name}的map参数形式
+ * @since  1.2
  */
 public class PreparedSqlLib implements PreparedSQL {
 
@@ -24,13 +27,27 @@ public class PreparedSqlLib implements PreparedSQL {
 		Logger.logSQL("PreparedSqlLib select SQL: ", sql);
 		return sqlLib.select(sql, entity);
 	}
-
+	
+	@Override
+	public <T> List<T> select(String sqlStr, T returnType, Map<String, Object> map) {
+		String sql=initPrepareValuesViaMap(sqlStr,map);
+		Logger.logSQL("PreparedSqlLib select SQL: ", sql);
+		return sqlLib.select(sql, returnType);
+	}
+	
 	@Override
 	public <T> List<T> selectSomeField(String sql, T entity, Object[] preValues) {
 
 		initPreparedValues(sql, preValues);
 		Logger.logSQL("PreparedSqlLib selectSomeField SQL: ", sql);
 		return sqlLib.selectSomeField(sql, entity);
+	}
+
+	@Override
+	public <T> List<T> selectSomeField(String sqlStr, T returnType, Map<String, Object> map) {
+		String sql=initPrepareValuesViaMap(sqlStr,map);
+		Logger.logSQL("PreparedSqlLib selectSomeField SQL: ", sql);
+		return sqlLib.selectSomeField(sql, returnType);
 	}
 
 	@Override
@@ -42,8 +59,23 @@ public class PreparedSqlLib implements PreparedSQL {
 	}
 
 	@Override
+	public String selectFun(String sqlStr, Map<String, Object> map) throws ObjSQLException {
+		String sql=initPrepareValuesViaMap(sqlStr,map);
+		Logger.logSQL("PreparedSqlLib selectFun SQL: ", sql);
+		return sqlLib.selectFun(sql);
+	}
+
+	@Override
 	public List<String[]> select(String sql, Object[] preValues) {
 		initPreparedValues(sql, preValues);
+		Logger.logSQL("PreparedSqlLib select SQL: ", sql);
+		return sqlLib.select(sql);
+	}
+	
+
+	@Override
+	public List<String[]> select(String sqlStr, Map<String, Object> map) {
+		String sql=initPrepareValuesViaMap(sqlStr,map);
 		Logger.logSQL("PreparedSqlLib select SQL: ", sql);
 		return sqlLib.select(sql);
 	}
@@ -55,6 +87,27 @@ public class PreparedSqlLib implements PreparedSQL {
 		return sqlLib.modify(sql);
 	}
 
+	@Override
+	public int modify(String sqlStr, Map<String, Object> map) {
+		String sql=initPrepareValuesViaMap(sqlStr,map);
+		Logger.logSQL("PreparedSqlLib modify SQL: ", sql);
+		return sqlLib.modify(sql);
+	}
+
+	@Override
+	public String selectJson(String sql, Object[] preValues) {
+		initPreparedValues(sql, preValues);
+		Logger.logSQL("PreparedSqlLib selectJson SQL: ", sql);
+		return sqlLib.selectJson(sql);
+	}
+	
+	@Override
+	public String selectJson(String sqlStr, Map<String, Object> map) {
+		String sql=initPrepareValuesViaMap(sqlStr,map);
+		Logger.logSQL("PreparedSqlLib selectJson SQL: ", sql);
+		return sqlLib.selectJson(sql);
+	}
+	
 	private void initPreparedValues(String sql, Object[] preValues) {
 
 		PreparedValue preparedValue = null;
@@ -76,11 +129,65 @@ public class PreparedSqlLib implements PreparedSQL {
 			HoneyContext.setSqlValue(sql, valueBuffer.toString());
 		}
 	}
-
-	@Override
-	public String selectJson(String sql, Object[] preValues) {
-		initPreparedValues(sql, preValues);
-		Logger.logSQL("PreparedSqlLib selectJson SQL: ", sql);
-		return sqlLib.selectJson(sql);
+	
+	private String initPrepareValuesViaMap(String sqlStr, Map<String, Object> map){
+		SqlValueWrap wrap=processSql(sqlStr);
+		String sql=wrap.getSql();
+		initPreparedValues(sql,wrap.getValueBuffer().toString(), map);
+		return sql;
 	}
+	
+	private void initPreparedValues(String sql, String paraList,Map<String,Object> map) {
+
+		PreparedValue preparedValue = null;
+		List<PreparedValue> list = new ArrayList<>();
+		StringBuffer valueBuffer = new StringBuffer();
+		Object value;
+		
+		String keys[]=paraList.split(",");  //map's key
+		
+		
+		for (int i = 0, k = 0; i < keys.length; i++) {
+			preparedValue = new PreparedValue();
+			value=null;
+			
+			int len=keys[i].length();
+			if(keys[i].startsWith("%")){
+				if(keys[i].endsWith("%")){  //    %para$
+					keys[i]=keys[i].substring(1,len-1);
+					value="%"+map.get(keys[i])+"%";
+					preparedValue.setValue(value);
+				}else{  //   %para
+					keys[i]=keys[i].substring(1,len);
+					value="%"+map.get(keys[i]);
+					preparedValue.setValue(value);
+				}
+			}else if(keys[i].endsWith("%")){  //  para%
+				keys[i]=keys[i].substring(0,len-1);
+				value=map.get(keys[i])+"%";
+				preparedValue.setValue(value);
+			}else{
+				value=map.get(keys[i]);
+				preparedValue.setValue(value);
+			}
+			
+			preparedValue.setType(map.get(keys[i]).getClass().getName());
+			
+			list.add(k++, preparedValue);
+
+			valueBuffer.append(",");
+			valueBuffer.append(value);
+		}
+
+		if (valueBuffer.length() > 0) {
+			valueBuffer.deleteCharAt(0);
+			HoneyContext.setPreparedValue(sql, list);
+			HoneyContext.setSqlValue(sql, valueBuffer.toString());
+		}
+	}
+
+	private SqlValueWrap  processSql(String sql){
+		return TokenUtil.process(sql, "#{", "}", "?");
+	}
+
 }

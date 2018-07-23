@@ -9,7 +9,7 @@ import org.honey.osql.util.PropertiesReader;
  * @author Kingstar
  * @since  1.0
  */
-public class CustomSqlLib implements CustomSQL{
+public class CustomSqlLib { //implements CustomSQL{
 	
 	private static PropertiesReader customSql;
 	
@@ -17,8 +17,8 @@ public class CustomSqlLib implements CustomSQL{
 		customSql=new PropertiesReader("/bee.sql.properties");
 	}
 	
-	@Override
-	public String getCustomSql(String sqlId){
+//	@Override
+	public static String getCustomSql(String sqlId){
 		return customSql.getValue(sqlId);
 	}
 
