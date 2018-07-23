@@ -34,4 +34,4 @@ CREATE TABLE `orders` (
 -- ----------------------------
 -- Records of orders
 -- ----------------------------
-INSERT INTO `orders` VALUES ('100001', 'client01', 'Bee--ORM Framework', '59.50', '2018-06-30 23:17:41', '', null);
+INSERT INTO `orders` VALUES ('100001', 'bee', 'Bee--ORM Framework', '59.50', '2018-06-30 23:17:41', '', null);
