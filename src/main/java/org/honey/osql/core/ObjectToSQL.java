@@ -11,7 +11,7 @@ import org.bee.osql.ObjToSQL;
 
 /**
  * 对象到SQL语句的转化 (标准sql)
- * @author KingStar
+ * @author Kingstar
  * @since  1.0
  */
 public class ObjectToSQL implements ObjToSQL {

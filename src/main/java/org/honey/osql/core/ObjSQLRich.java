@@ -17,7 +17,7 @@ import org.bee.osql.SQL;
 import org.bee.osql.SuidRich;
 
 /**
- * @author KingStar
+ * @author Kingstar
  * @since  1.0
  */
 public class ObjSQLRich extends ObjSQL implements SuidRich {

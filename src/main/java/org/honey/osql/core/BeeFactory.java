@@ -3,7 +3,7 @@ package org.honey.osql.core;
 import org.bee.osql.BeeAbstractFactory;
 
 /**
- * @author KingStar
+ * @author Kingstar
  * @since  1.0
  */
 public class BeeFactory extends BeeAbstractFactory {

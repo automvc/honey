@@ -8,7 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * @author KingStar
+ * @author Kingstar
  * @since  1.0
  */
 public final class HoneyContext {

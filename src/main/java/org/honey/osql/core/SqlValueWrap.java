@@ -3,7 +3,7 @@ package org.honey.osql.core;
 import java.util.List;
 
 /**
- * @author KingStar
+ * @author Kingstar
  * @since 1.0
  */
 class SqlValueWrap {

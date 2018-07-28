@@ -10,7 +10,7 @@ import org.honey.osql.constant.DbConfigConst;
 import org.honey.osql.transaction.JdbcTransaction;
 
 /**
- * @author KingStar
+ * @author Kingstar
  * @since  1.0
  */
 public final class SessionFactory {

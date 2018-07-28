@@ -19,7 +19,7 @@ import org.bee.osql.OrderType;
 import org.bee.osql.dialect.DbFeature;
 
 /**
- * @author KingStar
+ * @author Kingstar
  * @since  1.0
  */
 public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {

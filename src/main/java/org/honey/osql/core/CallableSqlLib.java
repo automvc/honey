@@ -14,7 +14,7 @@ import java.util.Map;
 import org.bee.osql.CallableSQL;
 
 /**
- * @author KingStar
+ * @author Kingstar
  * @since  1.0
  */
 public class CallableSqlLib implements CallableSQL {

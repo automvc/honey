@@ -18,7 +18,7 @@ import org.honey.osql.constant.NullEmpty;
 import org.honey.osql.util.PropertiesReader;
 
 /**
- * @author KingStar
+ * @author Kingstar
  * @since  1.0
  */
 public final class HoneyUtil {

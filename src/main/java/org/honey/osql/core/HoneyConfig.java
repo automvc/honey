@@ -3,7 +3,7 @@ package org.honey.osql.core;
 import org.honey.osql.constant.DbConfigConst;
 
 /**
- * @author KingStar
+ * @author Kingstar
  * @since  1.0
  */
 public final class HoneyConfig {

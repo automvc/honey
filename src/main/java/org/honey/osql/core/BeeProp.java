@@ -3,7 +3,7 @@ package org.honey.osql.core;
 import org.honey.osql.util.PropertiesReader;
 
 /**
- * @author KingStar
+ * @author Kingstar
  * @since  1.0
  */
 class BeeProp {

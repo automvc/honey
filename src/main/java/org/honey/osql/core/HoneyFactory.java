@@ -14,7 +14,7 @@ import org.honey.osql.dialect.oracle.OracleFeature;
 import org.honey.osql.dialect.sqlserver.SqlServerFeature;
 
 /**
- * @author KingStar
+ * @author Kingstar
  * @since  1.0
  */
 public class HoneyFactory {

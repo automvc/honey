@@ -7,7 +7,7 @@ import java.util.List;
 import org.bee.osql.ObjSQLException;
 
 /**
- * @author KingStar
+ * @author Kingstar
  * @since  1.0
  */
 final class _ObjectToSQLHelper {
