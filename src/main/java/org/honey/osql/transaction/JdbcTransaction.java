@@ -10,7 +10,7 @@ import org.honey.osql.core.HoneyContext;
 import org.honey.osql.core.SessionFactory;
 
 /**
- * @author KingStar
+ * @author Kingstar
  * @since  1.0
  */
 public class JdbcTransaction implements Transaction {

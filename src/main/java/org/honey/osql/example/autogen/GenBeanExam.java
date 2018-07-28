@@ -7,7 +7,7 @@ import org.honey.osql.atuogen.GenConfig;
 import org.honey.osql.core.HoneyConfig;
 
 /**
- * @author KingStar
+ * @author Kingstar
  * @since  1.0
  */
 public class GenBeanExam {

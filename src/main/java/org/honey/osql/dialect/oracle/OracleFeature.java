@@ -3,7 +3,7 @@ package org.honey.osql.dialect.oracle;
 import org.bee.osql.dialect.DbFeature;
 
 /**
- * @author KingStar
+ * @author Kingstar
  * @since  1.0
  */
 public class OracleFeature implements DbFeature {

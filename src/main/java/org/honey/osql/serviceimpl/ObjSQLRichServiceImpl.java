@@ -6,7 +6,7 @@ import org.bee.osql.service.ObjSQLRichAbstractServiceImpl;
 import org.honey.osql.core.BeeFactory;
 
 /**
- * @author KingStar
+ * @author Kingstar
  * @since  1.0
  */
 public class ObjSQLRichServiceImpl extends ObjSQLRichAbstractServiceImpl {

@@ -5,7 +5,7 @@ import org.bee.osql.service.ObjSQLAbstractServiceImpl;
 import org.honey.osql.core.BeeFactory;
 
 /**
- * @author KingStar
+ * @author Kingstar
  * @since  1.0
  */
 public class ObjSQLServiceImpl extends ObjSQLAbstractServiceImpl {

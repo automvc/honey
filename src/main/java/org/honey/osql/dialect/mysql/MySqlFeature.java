@@ -3,7 +3,7 @@ package org.honey.osql.dialect.mysql;
 import org.bee.osql.dialect.DbFeature;
 
 /**
- * @author KingStar
+ * @author Kingstar
  * @since  1.0
  */
 public class MySqlFeature implements DbFeature {
