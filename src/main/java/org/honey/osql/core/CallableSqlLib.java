@@ -234,7 +234,7 @@ public class CallableSqlLib implements CallableSQL {
 		conn = HoneyContext.getCurrentConnection();
 		if (conn == null) {
 			try {
-				conn = SessionFactory.getConnection(); //不开户事务时
+				conn = SessionFactory.getConnection(); //不开启事务时
 			} catch (Exception e) {
 				Logger.print("Have Error when get the Connection: ", e.getMessage());
 			}

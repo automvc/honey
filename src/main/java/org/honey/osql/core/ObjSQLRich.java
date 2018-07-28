@@ -40,7 +40,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	}
 
 	@Override
-	public <T> List<T> select(T entity, String selectField) {
+	public <T> List<T> select(T entity, String selectField) {//sqlLib.selectSomeField
 		if (entity == null) return null;
 		List<T> list = null;
 		try {

@@ -18,7 +18,7 @@ public final class HoneyContext {
 	private static ThreadLocal<Map<String, List<PreparedValue>>> sqlLocal;
 	private static ThreadLocal<Map<String, String>> sqlValueLocal;
 
-	private static ThreadLocal<Connection> currentConnection;
+	private static ThreadLocal<Connection> currentConnection;  //当前事务
 
 	static {
 		beanMap = new ConcurrentHashMap<>();

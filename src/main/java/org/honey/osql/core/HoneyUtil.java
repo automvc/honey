@@ -270,7 +270,10 @@ public final class HoneyUtil {
 	 */
 	public static void setPreparedValues(PreparedStatement pst,int objTypeIndex,int i,Object value) throws SQLException{
 		 
-		if(null==value) setPreparedNull(pst,objTypeIndex,i);
+		if(null==value) {
+			setPreparedNull(pst,objTypeIndex,i);  
+			return ;
+		}
 		
 		switch(objTypeIndex){
 	        case 1:

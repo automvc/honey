@@ -14,7 +14,9 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 
 import org.bee.osql.ObjSQLException;
 import org.bee.osql.SQL;
@@ -35,7 +37,7 @@ public class SqlLib implements SQL {
 		conn = HoneyContext.getCurrentConnection();
 		if (conn == null) {
 			try {
-				conn = SessionFactory.getConnection(); //不开户事务时
+				conn = SessionFactory.getConnection(); //不开启事务时
 			} catch (Exception e) {
 				// TODO: handle exception
 				Logger.print("Have Error when get the Connection: ", e.getMessage());
@@ -100,6 +102,7 @@ public class SqlLib implements SQL {
 		PreparedStatement pst = null;
 		T targetObj = null;
 		List<T> rsList = null;
+		Map<String,Field> map=null;
 		try {
 			conn = getConn();
 			pst = conn.prepareStatement(sql);
@@ -111,23 +114,34 @@ public class SqlLib implements SQL {
 			int columnCount = rmeta.getColumnCount();
 			rsList = new ArrayList<T>();
 
-			Field field[] = entity.getClass().getDeclaredFields();
-
+//			Field field[] = entity.getClass().getDeclaredFields();
+			map=new Hashtable<>();
+			
+			Field field=null;
+			String name=null;
+			boolean isFirst=true;
 			while (rs.next()) {
 
 				targetObj = (T) entity.getClass().newInstance();
 				for (int i = 0; i < columnCount; i++) {
 //					if("serialVersionUID".equals(field[i].getName())) continue;
 					try {
-						field[i] = entity.getClass().getDeclaredField(transformColumn(rmeta.getColumnName(i + 1)));
+						name=transformColumn(rmeta.getColumnName(i + 1));
+						if(isFirst){
+						field = entity.getClass().getDeclaredField(name);
+						map.put(name, field);
+						}else{
+							field=map.get(name);
+						}
 					} catch (NoSuchFieldException e) {
 						System.err.println(e.getMessage());
 					}
-					field[i].setAccessible(true);
-					field[i].set(targetObj, rs.getObject(i + 1)); //对相应Field设置
+					field.setAccessible(true);
+					field.set(targetObj, rs.getObject(i + 1)); //对相应Field设置
 
 				}
 				rsList.add(targetObj);
+				isFirst=false;
 			}
 
 		} catch (SecurityException se) {
@@ -144,6 +158,7 @@ public class SqlLib implements SQL {
 
 		entity = null;
 		targetObj = null;
+		map=null;
 
 		return rsList;
 	}
@@ -266,32 +281,6 @@ public class SqlLib implements SQL {
 			setPreparedValues(pst, sql);
 
 			rs = pst.executeQuery();
-			
-/*			ResultSetMetaData rmeta = rs.getMetaData();
-			int columnCount = rmeta.getColumnCount();
-			while (rs.next()) {
-				json.append(",{");
-				for (int i = 1; i <= columnCount; i++) { //1..n
-					   json.append("\"");
-					   json.append(rmeta.getColumnName(i));
-					   json.append("\":");
-
-					if (rs.getString(i) != null && "String".equals(HoneyUtil.getFieldType(rmeta.getColumnTypeName(i)))) {
-						json.append("\"");
-						json.append(rs.getString(i));
-						json.append("\"");
-					} else {
-						json.append(rs.getString(i));
-					}
-
-					if (i != columnCount) json.append(",");
-				}
-				json.append("}");
-			}
-			json.deleteCharAt(0);
-			json.insert(0, "[");
-			json.append("]");*/
-			
 			json = TransformResultSet.toJson(rs);
 
 		} catch (SQLException e) {
@@ -305,32 +294,43 @@ public class SqlLib implements SQL {
 
 	@Override
 	public int[] batch(String sql[]) {
-		int len = sql.length;
 		int batchSize = HoneyConfig.getHoneyConfig().getBatchSize();
-
-		if (len > batchSize)
-			return batch(sql, batchSize);
-		else
-			return batch(sql, 0, len);
+		return batch(sql,batchSize);
 	}
 
 	@Override
-	public int[] batch(String insertSql[], int batchSize) {
-		int len = insertSql.length;
+	public int[] batch(String sql[], int batchSize) {
+		int len = sql.length;
 		int total[] = new int[len];
 		int part[] = new int[batchSize];
-		if (len <= batchSize)
-			return batch(insertSql);
-		else {
+		
+		Connection conn = null;
+		PreparedStatement pst = null;
+		try {
+			conn = getConn();
+			conn.setAutoCommit(false);
+			pst = conn.prepareStatement(sql[0]);
+		
+		if (len <= batchSize){
+			total=batch(sql,0,len,conn,pst);
+		}else {
 			for (int i = 0; i < len / batchSize; i++) {
-				part = batch(insertSql, i * batchSize, (i + 1) * batchSize);
+				part = batch(sql, i * batchSize, (i + 1) * batchSize,conn,pst);
 				total = HoneyUtil.mergeArray(total, part, i * batchSize, (i + 1) * batchSize);
+				pst.clearBatch();  //clear Batch
+//				pst.clearParameters();
 			}
-
+			
+			if (len % batchSize != 0) { //尾数不成批
+				int t2[] = batch(sql, len - (len % batchSize), len,conn,pst);
+				total = HoneyUtil.mergeArray(total, t2, len - (len % batchSize), len);
+			}
 		}
-		if (len % batchSize != 0) { //尾数不成批
-			int t2[] = batch(insertSql, len - (len % batchSize), len);
-			total = HoneyUtil.mergeArray(total, t2, len - (len % batchSize), len);
+		conn.setAutoCommit(true);  //reset
+		} catch (SQLException e) {
+			System.err.println("==================SqlLib.batch=============:" + e.getMessage());
+		} finally {
+			checkClose(pst, conn);
 		}
 
 		return total;
@@ -339,28 +339,14 @@ public class SqlLib implements SQL {
 	private static String index1 = "[index";
 	private static String index2 = "]";
 
-	private int[] batch(String sql[], int start, int end) {
+	private int[] batch(String sql[], int start, int end, Connection conn,PreparedStatement pst) throws SQLException {
 		int a[] = new int[end - start];
-		Connection conn = null;
-		PreparedStatement pst = null;
-		try {
-			conn = getConn();
-			conn.setAutoCommit(false);
-
-			pst = conn.prepareStatement(sql[0]);
-			for (int i = start; i < end; i++) { //start... (end-1)
-
-				setPreparedValues(pst, sql[0] + index1 + i + index2);
-				pst.addBatch();
-			}
-			a = pst.executeBatch(); //一次性提交      若两条数据,有一条插入不成功,返回0,0.  但实际上又有一第成功插入数据库(mysql测试,在自动提交的时候会有问题,不是自动提交不会)
-			conn.commit();
-
-		} catch (SQLException e) {
-			System.err.println("==================SqlLib.batch=============:" + e.getMessage());
-		} finally {
-			checkClose(pst, conn);
+		for (int i = start; i < end; i++) { //start... (end-1)
+			setPreparedValues(pst, sql[0] + index1 + i + index2);
+			pst.addBatch();
 		}
+		a = pst.executeBatch(); //一次性提交      若两条数据,有一条插入不成功,返回0,0.  但实际上又有一第成功插入数据库(mysql测试,在自动提交的时候会有问题,不是自动提交不会)
+		conn.commit();
 
 		return a;
 	}
