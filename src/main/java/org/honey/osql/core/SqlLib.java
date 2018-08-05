@@ -34,7 +34,7 @@ public class SqlLib implements SQL {
 	private Connection getConn() throws SQLException {
 		Connection conn = null;
 
-		conn = HoneyContext.getCurrentConnection();
+		conn = HoneyContext.getCurrentConnection(); //获取已开启事务的连接
 		if (conn == null) {
 			try {
 				conn = SessionFactory.getConnection(); //不开启事务时
@@ -308,6 +308,7 @@ public class SqlLib implements SQL {
 		PreparedStatement pst = null;
 		try {
 			conn = getConn();
+			boolean oldAutoCommit=conn.getAutoCommit();
 			conn.setAutoCommit(false);
 			pst = conn.prepareStatement(sql[0]);
 		
@@ -326,7 +327,8 @@ public class SqlLib implements SQL {
 				total = HoneyUtil.mergeArray(total, t2, len - (len % batchSize), len);
 			}
 		}
-		conn.setAutoCommit(true);  //reset
+//		conn.setAutoCommit(true);  //reset
+		conn.setAutoCommit(oldAutoCommit);
 		} catch (SQLException e) {
 			System.err.println("==================SqlLib.batch=============:" + e.getMessage());
 		} finally {
