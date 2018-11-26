@@ -31,7 +31,8 @@ public class TransformResultSet {
 
 				if (rs.getString(i) != null && "String".equals(HoneyUtil.getFieldType(rmeta.getColumnTypeName(i)))) {
 					json.append("\"");
-					json.append(rs.getString(i));
+//					json.append(rs.getString(i));
+					json.append(rs.getString(i).replace("\"","\\\""));
 					json.append("\"");
 				} else {
 					json.append(rs.getString(i));
