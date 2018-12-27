@@ -9,13 +9,13 @@ import org.bee.osql.dialect.DbFeature;
 public class OracleFeature implements DbFeature {
 
 	@Override
-	public String toFromSql(String sql, int from, int size) {
+	public String toPageSql(String sql, int start, int size) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public String toFromSql(String sql, int size) {
+	public String toPageSql(String sql, int size) {
 		// TODO Auto-generated method stub
 		return null;
 	}
