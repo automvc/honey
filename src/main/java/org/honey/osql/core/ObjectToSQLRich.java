@@ -33,7 +33,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 
 		SqlValueWrap wrap = toSelectSQL_0(entity);
 		String sql = wrap.getSql();
-		sql = dbFeature.toPageSql(sql, size);
+		sql = dbFeature.toPageSql(sql, size)+";";
 
 		setPreparedValue(sql, wrap);
 		Logger.logSQL("select SQL(entity,size): ", sql);
@@ -46,7 +46,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		// String sql=dbFeature.toPageSql(toSelectSQL(entity), from, size);
 		SqlValueWrap wrap = toSelectSQL_0(entity);
 		String sql = wrap.getSql();
-		sql = dbFeature.toPageSql(sql, from, size);
+		sql = dbFeature.toPageSql(sql, from, size)+";";
 
 		setPreparedValue(sql, wrap);
 
