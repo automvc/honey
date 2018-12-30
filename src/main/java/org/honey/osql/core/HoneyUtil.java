@@ -320,4 +320,11 @@ public final class HoneyUtil {
 	public static String genSerializableNum(){
 		return "159"+(Math.random()+"").substring(5)+"L";
 	}
+	
+	public static String deleteLastSemicolon(String sql){
+		sql=sql.trim();
+		if(sql.endsWith(";"))
+			sql=sql.substring(0, sql.length()-1);
+		return sql;
+	}
 }
