@@ -1,6 +1,7 @@
 package org.honey.osql.dialect.mysql;
 
 import org.bee.osql.dialect.DbFeature;
+import org.honey.osql.core.HoneyUtil;
 
 /**
  * @author Kingstar
@@ -8,16 +9,19 @@ import org.bee.osql.dialect.DbFeature;
  */
 public class MySqlFeature implements DbFeature {
 
-	public String toPageSql(String sql, int from, int size) {
-		sql=sql.replace(";", ""); //去掉原来有的分号
-		String limitStament = " limit " + from + "," + size + ";";
+	public String toPageSql(String sql, int start, int size) {
+//		sql=sql.replace(";", ""); //去掉原来有的分号   只能去掉最后一个
+		sql=HoneyUtil.deleteLastSemicolon(sql);
+		
+		String limitStament = " limit " + start + "," + size;
 		sql += limitStament;
 		return sql;
 	}
 	
 	public String toPageSql(String sql, int size) {
-		sql=sql.replace(";", ""); //去掉原来有的分号
-		String limitStament = " limit 0," + size + ";";
+//		sql=sql.replace(";", ""); //去掉原来有的分号
+		sql=HoneyUtil.deleteLastSemicolon(sql);
+		String limitStament = " limit 0," + size;
 		sql += limitStament;
 		return sql;
 	}
