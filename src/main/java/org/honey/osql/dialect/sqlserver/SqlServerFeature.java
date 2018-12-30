@@ -1,6 +1,7 @@
 package org.honey.osql.dialect.sqlserver;
 
 import org.bee.osql.dialect.DbFeature;
+import org.honey.osql.core.HoneyUtil;
 
 /**
  * @author Kingstar
@@ -8,14 +9,15 @@ import org.bee.osql.dialect.DbFeature;
  */
 public class SqlServerFeature implements DbFeature {
 
-		public String toPageSql(String sql, int from, int size) {
+		public String toPageSql(String sql, int start, int size) {
 			//TODO
 			return null;
 		}
 		
 		public String toPageSql(String sql, int size) {
-			sql=sql.replace(";", ""); //去掉原来有的分号,如果有
-			sql = "top "+size+" "+sql+" ;";
+//			sql=sql.replace(";", ""); //去掉原来有的分号,如果有
+			sql=HoneyUtil.deleteLastSemicolon(sql);
+			sql = "top "+size+" "+sql;
 			return sql;
 		}
 }
