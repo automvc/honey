@@ -4,7 +4,7 @@ import org.bee.osql.CallableSQL;
 import org.bee.osql.ObjToSQL;
 import org.bee.osql.ObjToSQLRich;
 import org.bee.osql.PreparedSQL;
-import org.bee.osql.SQL;
+import org.bee.osql.BeeSql;
 import org.bee.osql.Suid;
 import org.bee.osql.SuidRich;
 import org.bee.osql.dialect.DbFeature;
@@ -21,7 +21,7 @@ public class HoneyFactory {
 	
 	private Suid suid;
 	private SuidRich suidRich;
-	private SQL SQL;
+	private BeeSql beeSql;
 	private ObjToSQL objToSQL;
 	private ObjToSQLRich objToSQLRich;
 	private PreparedSQL preparedSQL;
@@ -45,13 +45,13 @@ public class HoneyFactory {
 		this.suidRich = suidRich;
 	}
 
-	public SQL getSQL() {
-		if(SQL==null) return new SqlLib();
-		else return SQL;
+	public BeeSql getBeeSql() {
+		if(this.beeSql==null) return new SqlLib();
+		return beeSql;
 	}
 
-	public void setSQL(SQL sQL) {
-		SQL = sQL;
+	public void setBeeSql(BeeSql beeSql) {
+		this.beeSql = beeSql;
 	}
 
 	public ObjToSQL getObjToSQL() {
