@@ -10,7 +10,7 @@ import java.util.List;
 
 import org.bee.osql.ObjSQLException;
 import org.bee.osql.ObjToSQL;
-import org.bee.osql.SQL;
+import org.bee.osql.BeeSql;
 import org.bee.osql.Suid;
 
 /**
@@ -22,19 +22,20 @@ import org.bee.osql.Suid;
 public class ObjSQL implements Suid {
 	
 
-	private SQL sQL;// = BeeFactory.getHoneyFactory().getSQL();
+	private BeeSql beeSql;// = BeeFactory.getHoneyFactory().getBeeSql();
 	private ObjToSQL objToSQL = BeeFactory.getHoneyFactory().getObjToSQL();
 
 	public ObjSQL() {}
 
-	public SQL getsQL() {
-		if(sQL==null) sQL = BeeFactory.getHoneyFactory().getSQL();
-		return sQL;
+	public BeeSql getBeeSql() {
+		if(this.beeSql==null) beeSql = BeeFactory.getHoneyFactory().getBeeSql();
+		return beeSql;
 	}
 
-	public void setsQL(SQL sQL) {
-		this.sQL = sQL;
+	public void setBeeSql(BeeSql beeSql) {
+		this.beeSql = beeSql;
 	}
+
 
 	@Override
 	public <T> List<T> select(T entity) {
@@ -44,7 +45,7 @@ public class ObjSQL implements Suid {
 		List<T> list = null;
 		String sql = objToSQL.toSelectSQL(entity);
 		Logger.logSQL("select SQL: ", sql);
-		list = sQL.select(sql, entity); // 返回值用到泛型
+		list = getBeeSql().select(sql, entity); // 返回值用到泛型
 		return list;
 	}
 
@@ -56,7 +57,7 @@ public class ObjSQL implements Suid {
 		String sql = objToSQL.toInsertSQL(entity);
 		int insertNum = -3;
 		Logger.logSQL("insert SQL: ", sql);
-		insertNum = sQL.modify(sql);
+		insertNum = getBeeSql().modify(sql);
 		return insertNum;
 	}
 
@@ -68,7 +69,7 @@ public class ObjSQL implements Suid {
 		String sql = objToSQL.toDeleteSQL(entity);
 		int deleteNum = -3;
 		Logger.logSQL("delete SQL: ", sql);
-		deleteNum = sQL.modify(sql);
+		deleteNum = getBeeSql().modify(sql);
 		return deleteNum;
 	}
 
@@ -83,7 +84,7 @@ public class ObjSQL implements Suid {
 		try {
 			sql = objToSQL.toUpdateSQL(entity);
 			Logger.logSQL("update SQL: ", sql);
-			updateNum = sQL.modify(sql);
+			updateNum = getBeeSql().modify(sql);
 		} catch (ObjSQLException e) {
 			// TODO: handle exception
 			System.err.println(e.getMessage());
