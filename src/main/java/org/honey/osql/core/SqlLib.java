@@ -128,13 +128,15 @@ public class SqlLib implements SQL {
 					try {
 						name=transformColumn(rmeta.getColumnName(i + 1));
 						if(isFirst){
-						field = entity.getClass().getDeclaredField(name);
+						field = entity.getClass().getDeclaredField(name);//可能会找不到Javabean的字段
 						map.put(name, field);
 						}else{
 							field=map.get(name);
+							if(field==null) continue;
 						}
 					} catch (NoSuchFieldException e) {
-						System.err.println(e.getMessage());
+//						System.err.println("NoSuchFieldException:"+e.getMessage());
+						continue;
 					}
 					field.setAccessible(true);
 					field.set(targetObj, rs.getObject(i + 1)); //对相应Field设置
