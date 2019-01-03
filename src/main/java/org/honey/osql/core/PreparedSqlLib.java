@@ -6,7 +6,7 @@ import java.util.Map;
 
 import org.bee.osql.ObjSQLException;
 import org.bee.osql.PreparedSQL;
-import org.bee.osql.SQL;
+import org.bee.osql.BeeSql;
 
 /**
  * 支持带占位符(?)的sql操作.sql语句是DB能识别的SQL,非面向对象的sql.
@@ -18,21 +18,30 @@ import org.bee.osql.SQL;
  */
 public class PreparedSqlLib implements PreparedSQL {
 
-	private SQL sqlLib = BeeFactory.getHoneyFactory().getSQL();
+	private BeeSql beeSql;// = BeeFactory.getHoneyFactory().getBeeSql();
 
+	public BeeSql getBeeSql() {
+		if(this.beeSql==null) beeSql = BeeFactory.getHoneyFactory().getBeeSql();
+		return beeSql;
+	}
+
+	public void setBeeSql(BeeSql beeSql) {
+		this.beeSql = beeSql;
+	}
+	
 	@Override
 	public <T> List<T> select(String sql, T entity, Object[] preValues) {
 
 		initPreparedValues(sql, preValues);
 		Logger.logSQL("PreparedSqlLib select SQL: ", sql);
-		return sqlLib.select(sql, entity);
+		return getBeeSql().select(sql, entity);
 	}
 	
 	@Override
 	public <T> List<T> select(String sqlStr, T returnType, Map<String, Object> map) {
 		String sql=initPrepareValuesViaMap(sqlStr,map);
 		Logger.logSQL("PreparedSqlLib select SQL: ", sql);
-		return sqlLib.select(sql, returnType);
+		return getBeeSql().select(sql, returnType);
 	}
 	
 	@Override
@@ -40,14 +49,14 @@ public class PreparedSqlLib implements PreparedSQL {
 
 		initPreparedValues(sql, preValues);
 		Logger.logSQL("PreparedSqlLib selectSomeField SQL: ", sql);
-		return sqlLib.selectSomeField(sql, entity);
+		return getBeeSql().selectSomeField(sql, entity);
 	}
 
 	@Override
 	public <T> List<T> selectSomeField(String sqlStr, T returnType, Map<String, Object> map) {
 		String sql=initPrepareValuesViaMap(sqlStr,map);
 		Logger.logSQL("PreparedSqlLib selectSomeField SQL: ", sql);
-		return sqlLib.selectSomeField(sql, returnType);
+		return getBeeSql().selectSomeField(sql, returnType);
 	}
 
 	@Override
@@ -55,21 +64,21 @@ public class PreparedSqlLib implements PreparedSQL {
 
 		initPreparedValues(sql, preValues);
 		Logger.logSQL("PreparedSqlLib selectFun SQL: ", sql);
-		return sqlLib.selectFun(sql);
+		return getBeeSql().selectFun(sql);
 	}
 
 	@Override
 	public String selectFun(String sqlStr, Map<String, Object> map) throws ObjSQLException {
 		String sql=initPrepareValuesViaMap(sqlStr,map);
 		Logger.logSQL("PreparedSqlLib selectFun SQL: ", sql);
-		return sqlLib.selectFun(sql);
+		return getBeeSql().selectFun(sql);
 	}
 
 	@Override
 	public List<String[]> select(String sql, Object[] preValues) {
 		initPreparedValues(sql, preValues);
 		Logger.logSQL("PreparedSqlLib select SQL: ", sql);
-		return sqlLib.select(sql);
+		return getBeeSql().select(sql);
 	}
 	
 
@@ -77,35 +86,35 @@ public class PreparedSqlLib implements PreparedSQL {
 	public List<String[]> select(String sqlStr, Map<String, Object> map) {
 		String sql=initPrepareValuesViaMap(sqlStr,map);
 		Logger.logSQL("PreparedSqlLib select SQL: ", sql);
-		return sqlLib.select(sql);
+		return getBeeSql().select(sql);
 	}
 
 	@Override
 	public int modify(String sql, Object[] preValues) {
 		initPreparedValues(sql, preValues);
 		Logger.logSQL("PreparedSqlLib modify SQL: ", sql);
-		return sqlLib.modify(sql);
+		return getBeeSql().modify(sql);
 	}
 
 	@Override
 	public int modify(String sqlStr, Map<String, Object> map) {
 		String sql=initPrepareValuesViaMap(sqlStr,map);
 		Logger.logSQL("PreparedSqlLib modify SQL: ", sql);
-		return sqlLib.modify(sql);
+		return getBeeSql().modify(sql);
 	}
 
 	@Override
 	public String selectJson(String sql, Object[] preValues) {
 		initPreparedValues(sql, preValues);
 		Logger.logSQL("PreparedSqlLib selectJson SQL: ", sql);
-		return sqlLib.selectJson(sql);
+		return getBeeSql().selectJson(sql);
 	}
 	
 	@Override
 	public String selectJson(String sqlStr, Map<String, Object> map) {
 		String sql=initPrepareValuesViaMap(sqlStr,map);
 		Logger.logSQL("PreparedSqlLib selectJson SQL: ", sql);
-		return sqlLib.selectJson(sql);
+		return getBeeSql().selectJson(sql);
 	}
 	
 	private void initPreparedValues(String sql, Object[] preValues) {
