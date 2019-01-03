@@ -20,11 +20,21 @@ import org.bee.osql.Suid;
  * @since  1.0
  */
 public class ObjSQL implements Suid {
+	
 
-	private SQL sqlLib = BeeFactory.getHoneyFactory().getSQL();
+	private SQL sQL;// = BeeFactory.getHoneyFactory().getSQL();
 	private ObjToSQL objToSQL = BeeFactory.getHoneyFactory().getObjToSQL();
 
 	public ObjSQL() {}
+
+	public SQL getsQL() {
+		if(sQL==null) sQL = BeeFactory.getHoneyFactory().getSQL();
+		return sQL;
+	}
+
+	public void setsQL(SQL sQL) {
+		this.sQL = sQL;
+	}
 
 	@Override
 	public <T> List<T> select(T entity) {
@@ -34,7 +44,7 @@ public class ObjSQL implements Suid {
 		List<T> list = null;
 		String sql = objToSQL.toSelectSQL(entity);
 		Logger.logSQL("select SQL: ", sql);
-		list = sqlLib.select(sql, entity); // 返回值用到泛型
+		list = sQL.select(sql, entity); // 返回值用到泛型
 		return list;
 	}
 
@@ -46,7 +56,7 @@ public class ObjSQL implements Suid {
 		String sql = objToSQL.toInsertSQL(entity);
 		int insertNum = -3;
 		Logger.logSQL("insert SQL: ", sql);
-		insertNum = sqlLib.modify(sql);
+		insertNum = sQL.modify(sql);
 		return insertNum;
 	}
 
@@ -58,7 +68,7 @@ public class ObjSQL implements Suid {
 		String sql = objToSQL.toDeleteSQL(entity);
 		int deleteNum = -3;
 		Logger.logSQL("delete SQL: ", sql);
-		deleteNum = sqlLib.modify(sql);
+		deleteNum = sQL.modify(sql);
 		return deleteNum;
 	}
 
@@ -73,7 +83,7 @@ public class ObjSQL implements Suid {
 		try {
 			sql = objToSQL.toUpdateSQL(entity);
 			Logger.logSQL("update SQL: ", sql);
-			updateNum = sqlLib.modify(sql);
+			updateNum = sQL.modify(sql);
 		} catch (ObjSQLException e) {
 			// TODO: handle exception
 			System.err.println(e.getMessage());

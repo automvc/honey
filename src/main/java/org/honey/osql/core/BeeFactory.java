@@ -11,5 +11,8 @@ public class BeeFactory extends BeeAbstractFactory {
 	public static HoneyFactory getHoneyFactory() {
 		return new HoneyFactory();
 	}
+	
+	public BeeFactory(){
+	}
 
 }

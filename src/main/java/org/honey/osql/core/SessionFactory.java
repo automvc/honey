@@ -17,20 +17,27 @@ public final class SessionFactory {
 
 	private static BeeFactory beeFactory = null;
 
-	static {
-		beeFactory = new BeeFactory();
+	public static BeeFactory getBeeFactory() {
+		if(beeFactory==null) {
+			beeFactory = new BeeFactory();
+		}
+		return beeFactory;
 	}
 
+	public void setBeeFactory(BeeFactory beeFactory) {
+		this.beeFactory = beeFactory;
+	}
+
+	
+	public SessionFactory(){
+	}
 	public static Connection getConnection() throws ObjSQLException {
 		Connection conn = null;
 		try {
-			//测试
-//			conn=BeeFactory.getDefaultDataSource().getConnection();
-
-			if (beeFactory.getDataSource() == null) { //do not set the dataSource
+			if (getBeeFactory().getDataSource() == null) { //do not set the dataSource
 				conn = getOriginalConn();
 			} else {
-				conn = beeFactory.getDataSource().getConnection();
+				conn = getBeeFactory().getDataSource().getConnection();
 			}
 
 		} catch (SQLException e) {
@@ -43,10 +50,10 @@ public final class SessionFactory {
 
 	public static Transaction getTransaction() {
 		Transaction tran = null;
-		if (beeFactory.getTransaction() == null) { // do not set the dataSource
+		if (getBeeFactory().getTransaction() == null) { // do not set the dataSource
 			tran = new JdbcTransaction();
 		} else {
-			tran = beeFactory.getTransaction();
+			tran = getBeeFactory().getTransaction();
 		}
 
 		return tran;
