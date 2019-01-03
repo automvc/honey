@@ -1,6 +1,5 @@
 package org.honey.osql.core;
 
-import org.bee.osql.CustomSQL;
 import org.honey.osql.util.PropertiesReader;
 
 /**
