@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.bee.osql.ObjSQLException;
-import org.bee.osql.SQL;
+import org.bee.osql.BeeSql;
 
 /**
  * 直接操作数据库，并返回结果.在该类中的sql字符串要是DB能识别的SQL语句
@@ -27,7 +27,7 @@ import org.bee.osql.SQL;
  * Create on 2013-6-30 下午10:32:53
  * @since  1.0
  */
-public class SqlLib implements SQL {
+public class SqlLib implements BeeSql {
 
 	public SqlLib() {}
 
