@@ -32,7 +32,7 @@ public class SuidExamEN {
 		Orders orders2=new Orders();
 		orders2.setUserid("bee");
 		orders2.setName("Bee-ORM framework");
-		orders2.setTotal(new BigDecimal(91.99));
+		orders2.setTotal(new BigDecimal("91.99"));
 		orders2.setRemark("");  //empty String test
 		
 		int insertNum=suid.insert(orders2); //insert
