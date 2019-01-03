@@ -34,13 +34,16 @@ public class SuidExam {
 		Orders orders2=new Orders();
 		orders2.setUserid("bee");
 		orders2.setName("Bee-ORM framework");
-		orders2.setTotal(new BigDecimal(91.99));
+		orders2.setTotal(new BigDecimal("91.99"));
 		orders2.setRemark("");  //empty String test
 		
 		//默认不处理null和空字符串.不用再写一堆的判断;其它有值的字段全部自动插入数据库中. 
 		//方便结合DB插值,如id自动增长,由DB插入;createtime由DB默认插入
 		int insertNum=suid.insert(orders2); //insert
 		System.out.println("insert record:"+insertNum);
+		
+		suid.select(orders2);
+		suid.update(orders2);
 		
 		//默认不处理null和空字符串.不用再写一堆的判断;其它有值的字段全部自动作为过滤条件
 //		int deleteNum=suid.delete(orders2);   //delete
