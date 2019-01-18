@@ -33,6 +33,9 @@ public class ConverString {
 	public static String getTableName(Object obj) {
 
 		String s = getClassName(obj);
+		
+		String firstLetter=s.substring(0,1).toLowerCase();
+		s=firstLetter+s.substring(1);
 		return transformStr(s);
 		//return s.toLowerCase();
 
