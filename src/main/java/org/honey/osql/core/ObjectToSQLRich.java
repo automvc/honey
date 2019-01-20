@@ -50,7 +50,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 
 		setPreparedValue(sql, wrap);
 
-		Logger.logSQL("select SQL(entity,from,size):", sql);
+		Logger.logSQL("select(entity,from,size) SQL:", sql);
 		return sql;
 	}
 
@@ -185,12 +185,12 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	}
 
 	@Override
-	public <T> String toSelectFunSQL(T entity, String fieldForFun, FunctionType functionType) throws ObjSQLException {
-		return _toSelectFunSQL(entity, fieldForFun, functionType.getName());
+	public <T> String toSelectFunSQL(T entity, FunctionType functionType,String fieldForFun) throws ObjSQLException {
+		return _toSelectFunSQL(entity,functionType.getName(),fieldForFun);
 	}
 
 	//	 select max(bookPrice) from gen3 where =7 and name='newName' and =0.03 and aTest='test3-new' ;
-	private <T> String _toSelectFunSQL(T entity, String fieldForFun, String funType) throws ObjSQLException {
+	private <T> String _toSelectFunSQL(T entity, String funType,String fieldForFun) throws ObjSQLException {
 		if (fieldForFun == null || funType == null) return null;
 		boolean isContainField = false;
 		StringBuffer sqlBuffer = new StringBuffer();
@@ -201,9 +201,9 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			String selectAndFun;
 			if ("count".equalsIgnoreCase(funType) && "*".equals(fieldForFun))
 				//		    selectAndFun = " select " + funType + "(" + fieldForFun + ") from ";  //  count(*)
-				selectAndFun = " select count(*) from ";
+				selectAndFun = "select count(*) from ";
 			else
-				selectAndFun = " select " + funType + "(" + transformStr(fieldForFun) + ") from ";
+				selectAndFun = "select " + funType + "(" + transformStr(fieldForFun) + ") from ";
 
 			sqlBuffer.append(selectAndFun);
 			sqlBuffer.append(tableName);
@@ -340,6 +340,179 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		}
 
 		return sql;
+	}
+	
+	@Override
+	public String toDeleteByIdSQL(Class c, Integer id) {
+		if(id==null) return null;
+		StringBuffer sqlBuffer=toDeleteByIdSQL0(c);
+		return _toSelectAndDeleteByIdSQL(sqlBuffer, id, "java.lang.Integer");
+	}
+	
+	@Override
+	public String toDeleteByIdSQL(Class c, Long id) {
+		if(id==null) return null;
+		StringBuffer sqlBuffer=toDeleteByIdSQL0(c);
+		return _toSelectAndDeleteByIdSQL(sqlBuffer, id, "java.lang.Long");
+	}
+
+	@Override
+	public String toDeleteByIdSQL(Class c, String ids) {
+		if(ids==null || "".equals(ids.trim())) return null;
+		StringBuffer sqlBuffer=toDeleteByIdSQL0(c);
+		return _toSelectAndDeleteByIdSQL(sqlBuffer,ids);
+		
+//		String idArray[]=ids.split(",");
+//		String t_ids="id="+idArray[0];
+//		for (int i = 1; i < idArray.length; i++) { //i from 1
+//			t_ids+=" or id="+idArray[i];
+//		}
+//		
+//		sqlBuffer.append(t_ids).append(";");
+//		return sqlBuffer.toString();
+	}
+
+	private  StringBuffer toDeleteByIdSQL0(Class c){
+		StringBuffer sqlBuffer = new StringBuffer();
+		String tableName = ConverString.getTableName(c);
+		
+		sqlBuffer.append("delete from ")
+		.append(tableName)
+		.append(" where ")
+		;
+		return sqlBuffer;
+	}
+	
+	@Override
+	public <T> String toSelectByIdSQL(T entity, Integer id) {
+		StringBuffer sqlBuffer = toSelectByIdSQL0(entity);
+		return _toSelectAndDeleteByIdSQL(sqlBuffer, id, "java.lang.Integer");
+	}
+
+	@Override
+	public <T> String toSelectByIdSQL(T entity, Long id) {
+		StringBuffer sqlBuffer = toSelectByIdSQL0(entity);
+		return _toSelectAndDeleteByIdSQL(sqlBuffer, id, "java.lang.Long");
+	}
+
+	@Override
+	public <T> String toSelectByIdSQL(T entity, String ids) {
+		if(ids==null || "".equals(ids.trim())) return null;
+		StringBuffer sqlBuffer=toSelectByIdSQL0(entity);
+		return _toSelectAndDeleteByIdSQL(sqlBuffer,ids);
+	}
+
+	private <T> String _toSelectAndDeleteByIdSQL(StringBuffer sqlBuffer, Number id,String numType) {
+		if(id==null) return null;
+//		StringBuffer sqlBuffer=toSelectByIdSQL0(entity);
+		sqlBuffer.append("id=").append("?").append(";");
+
+		List<PreparedValue> list = new ArrayList<>();
+		PreparedValue preparedValue = null;
+		preparedValue = new PreparedValue();
+		preparedValue.setType(numType);
+		preparedValue.setValue(id);
+		list.add(preparedValue);
+		
+		HoneyContext.setPreparedValue(sqlBuffer.toString(), list);
+		HoneyContext.setSqlValue(sqlBuffer.toString(), id+""); //用于log显示
+		
+		return sqlBuffer.toString();
+	}
+	
+	private <T> String _toSelectAndDeleteByIdSQL(StringBuffer sqlBuffer, String ids) {
+		
+		List<PreparedValue> list = new ArrayList<>();
+		PreparedValue preparedValue = null;
+		
+		String idArray[]=ids.split(",");
+		String t_ids="id=?";
+		
+		preparedValue = new PreparedValue();
+//		preparedValue.setType(numType);//id的类型Object
+		preparedValue.setValue(idArray[0]);
+		list.add(preparedValue);
+		
+		for (int i = 1; i < idArray.length; i++) { //i from 1
+			preparedValue = new PreparedValue();
+			t_ids+=" or id=?";
+//			preparedValue.setType(numType);//id的类型Object
+			preparedValue.setValue(idArray[i]);
+			list.add(preparedValue);
+		}
+		
+		sqlBuffer.append(t_ids).append(";");
+		
+		HoneyContext.setPreparedValue(sqlBuffer.toString(), list);
+		HoneyContext.setSqlValue(sqlBuffer.toString(), ids); //用于log显示
+		
+		return sqlBuffer.toString();
+	}
+	
+	private  <T> StringBuffer toSelectByIdSQL0(T entity){
+		StringBuffer sqlBuffer = new StringBuffer();
+//		StringBuffer valueBuffer = new StringBuffer();
+//		try {
+			String tableName = ConverString.getTableName(entity);
+			Field fields[] = entity.getClass().getDeclaredFields();
+
+			String packageAndClassName = entity.getClass().getName();
+			String fieldNames = HoneyContext.getBeanField(packageAndClassName);
+			if (fieldNames == null) {
+				fieldNames = HoneyUtil.getBeanField(fields);
+				HoneyContext.addBeanField(packageAndClassName, fieldNames);
+			}
+
+			sqlBuffer.append("select " + fieldNames + " from ");
+			sqlBuffer.append(tableName);
+			/*boolean firstWhere = true;
+			int len = fields.length;
+			List<PreparedValue> list = new ArrayList<>();
+			PreparedValue preparedValue = null;
+			for (int i = 0, k = 0; i < len; i++) {
+				fields[i].setAccessible(true);
+				if (HoneyUtil.isContinue(includeType, fields[i].get(entity),fields[i].getName())) {
+					continue;
+				} else {
+
+					if (fields[i].get(entity) == null && "id".equalsIgnoreCase(fields[i].getName())) 
+						continue; //id=null不作为过滤条件
+
+					if (firstWhere) {
+						sqlBuffer.append(" where ");
+						firstWhere = false;
+					} else {
+						sqlBuffer.append(" and ");
+					}
+					sqlBuffer.append(HoneyUtil.transformStr(fields[i].getName()));
+					if (fields[i].get(entity) == null) {
+						sqlBuffer.append(" is null");
+					} else {
+						sqlBuffer.append("=");
+						sqlBuffer.append("?");
+
+						valueBuffer.append(",");
+						valueBuffer.append(fields[i].get(entity));
+
+						preparedValue = new PreparedValue();
+						preparedValue.setType(fields[i].getType().getName());
+						preparedValue.setValue(fields[i].get(entity));
+						list.add(k++, preparedValue);
+					}
+				}
+			}
+
+			sqlBuffer.append(";");
+
+			if (valueBuffer.length() > 0) valueBuffer.deleteCharAt(0);
+			HoneyContext.setPreparedValue(sqlBuffer.toString(), list);
+			HoneyContext.setSqlValue(sqlBuffer.toString(), valueBuffer.toString()); //用于log显示
+
+		} catch (IllegalAccessException e) {
+			System.err.println("In ObjectToSQL  -----------IllegalAccessException:  " + e.getMessage());
+		}*/
+
+		return sqlBuffer;
 	}
 
 	private <T> SqlValueWrap toSelectSQL_0(T entity) {
