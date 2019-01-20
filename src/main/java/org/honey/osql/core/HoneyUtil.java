@@ -137,7 +137,8 @@ public final class HoneyUtil {
 		if (DatabaseConst.MYSQL.equalsIgnoreCase(dbName) 
 		 ||DatabaseConst.MariaDB.equalsIgnoreCase(dbName)) {
 			jdbcTypeMap.put("MEDIUMINT", "Integer");
-			jdbcTypeMap.put("DATETIME", "Date");
+//			jdbcTypeMap.put("DATETIME", "Date");
+			jdbcTypeMap.put("DATETIME", "Timestamp");//fix on 2019-01-19
 			jdbcTypeMap.put("TINYBLOB", "Blob");
 			jdbcTypeMap.put("MEDIUMBLOB", "Blob");
 			jdbcTypeMap.put("LONGBLOB", "Blob");
@@ -255,7 +256,7 @@ public final class HoneyUtil {
 	public static boolean isContinue(int includeType,Object object,String fieldName){
 		return (
 				( (includeType==NullEmpty.EXCLUDE || includeType==NullEmpty.EMPTY_STRING ) && object == null)
-				|| ( (includeType==NullEmpty.EXCLUDE ||includeType==NullEmpty.NULL) && "".equals(object) )
+				|| ( (includeType==NullEmpty.EXCLUDE ||includeType==NullEmpty.NULL) && "".equals(object) ) //TODO "  "也要排除
 				|| "serialVersionUID".equals(fieldName)  
 				) ;
 	}
