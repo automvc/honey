@@ -147,11 +147,11 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	}
 
 	@Override
-	public <T> String selectWithFun(T entity, String fieldForFun, FunctionType functionType) {
+	public <T> String selectWithFun(T entity, FunctionType functionType, String fieldForFun) {
 		if (entity == null) return null;
 		String s = null;
 		try {
-			String sql = objToSQLRich.toSelectFunSQL(entity, fieldForFun, functionType);
+			String sql = objToSQLRich.toSelectFunSQL(entity, functionType, fieldForFun);
 			return getBeeSql().selectFun(sql);
 		} catch (ObjSQLException e) {
 			System.err.println(e.getMessage());
@@ -256,6 +256,57 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		Logger.logSQL("selectJson SQL: ", sql);
 		
 		return getBeeSql().selectJson(sql);
+	}
+
+	@Override
+	public <T> List<T> selectById(T entity, Integer id) {
+		if (entity == null) return null;
+		String sql = objToSQLRich.toSelectByIdSQL(entity, id);
+		Logger.logSQL("selectById SQL: ", sql);
+		return getBeeSql().select(sql, entity);
+	}
+
+	@Override
+	public <T> List<T> selectById(T entity, Long id) {
+		if (entity == null) return null;
+		String sql = objToSQLRich.toSelectByIdSQL(entity, id);
+		Logger.logSQL("selectById SQL: ", sql);
+		return getBeeSql().select(sql, entity);
+	}
+
+	@Override
+	public <T> List<T> selectById(T entity, String ids) {
+		if (entity == null) return null;
+		String sql = objToSQLRich.toSelectByIdSQL(entity, ids);
+		Logger.logSQL("selectById SQL: ", sql);
+		return getBeeSql().select(sql, entity);
+	}
+
+	@Override
+	@SuppressWarnings("rawtypes")
+	public int deleteById(Class c, Integer id) {
+		if (c == null) return 0;
+		String sql = objToSQLRich.toDeleteByIdSQL(c, id);
+		Logger.logSQL("deleteById SQL: ", sql);
+		return getBeeSql().modify(sql);
+	}
+
+	@Override
+	@SuppressWarnings("rawtypes")
+	public int deleteById(Class c, Long id) {
+		if (c == null) return 0;
+		String sql = objToSQLRich.toDeleteByIdSQL(c, id);
+		Logger.logSQL("deleteById SQL: ", sql);
+		return getBeeSql().modify(sql);
+	}
+
+	@Override
+	@SuppressWarnings("rawtypes")
+	public int deleteById(Class c, String ids) {
+		if (c == null) return 0;
+		String sql = objToSQLRich.toDeleteByIdSQL(c, ids);
+		Logger.logSQL("deleteById SQL: ", sql);
+		return getBeeSql().modify(sql);
 	}
 
 }
