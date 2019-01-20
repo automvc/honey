@@ -49,6 +49,7 @@ public class SqlLib implements BeeSql {
 
 	//要是写的sql对应的结构与entity的结构不一致,将会有问题
 	@Override
+	@SuppressWarnings("unchecked")
 	public <T> List<T> select(String sql, T entity) {
 
 		Connection conn = null;
@@ -96,6 +97,7 @@ public class SqlLib implements BeeSql {
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public <T> List<T> selectSomeField(String sql, T entity) {
 
 		Connection conn = null;
