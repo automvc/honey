@@ -16,27 +16,27 @@ public class Aggregate {
 	private static String L_PARENTHESES = "(";
 	private static String R_PARENTHESES = ")";
 
-	public static String selectWithFun(String fieldForFun, FunctionType functionType) {
+	public static String selectWithFun( FunctionType functionType,String fieldForFun) {
 		return functionType.getName() + L_PARENTHESES + fieldForFun + R_PARENTHESES; // eg. sum(price)
 	}
 
 	public static String max(String field) {
-		return selectWithFun(field, FunctionType.MAX);
+		return selectWithFun(FunctionType.MAX,field);
 	}
 
 	public String min(String field) {
-		return selectWithFun(field, FunctionType.MIN);
+		return selectWithFun(FunctionType.MIN,field);
 	}
 
 	public String sum(String field) {
-		return selectWithFun(field, FunctionType.SUM);
+		return selectWithFun(FunctionType.SUM,field);
 	}
 
 	public String avg(String field) {
-		return selectWithFun(field, FunctionType.AVG);
+		return selectWithFun(FunctionType.AVG,field);
 	}
 
 	public String count(String field) {
-		return selectWithFun(field, FunctionType.COUNT);
+		return selectWithFun(FunctionType.COUNT,field);
 	}
 }
