@@ -361,15 +361,6 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		if(ids==null || "".equals(ids.trim())) return null;
 		StringBuffer sqlBuffer=toDeleteByIdSQL0(c);
 		return _toSelectAndDeleteByIdSQL(sqlBuffer,ids);
-		
-//		String idArray[]=ids.split(",");
-//		String t_ids="id="+idArray[0];
-//		for (int i = 1; i < idArray.length; i++) { //i from 1
-//			t_ids+=" or id="+idArray[i];
-//		}
-//		
-//		sqlBuffer.append(t_ids).append(";");
-//		return sqlBuffer.toString();
 	}
 
 	private  StringBuffer toDeleteByIdSQL0(Class c){
@@ -464,54 +455,8 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			}
 
 			sqlBuffer.append("select " + fieldNames + " from ");
-			sqlBuffer.append(tableName);
-			/*boolean firstWhere = true;
-			int len = fields.length;
-			List<PreparedValue> list = new ArrayList<>();
-			PreparedValue preparedValue = null;
-			for (int i = 0, k = 0; i < len; i++) {
-				fields[i].setAccessible(true);
-				if (HoneyUtil.isContinue(includeType, fields[i].get(entity),fields[i].getName())) {
-					continue;
-				} else {
-
-					if (fields[i].get(entity) == null && "id".equalsIgnoreCase(fields[i].getName())) 
-						continue; //id=null不作为过滤条件
-
-					if (firstWhere) {
-						sqlBuffer.append(" where ");
-						firstWhere = false;
-					} else {
-						sqlBuffer.append(" and ");
-					}
-					sqlBuffer.append(HoneyUtil.transformStr(fields[i].getName()));
-					if (fields[i].get(entity) == null) {
-						sqlBuffer.append(" is null");
-					} else {
-						sqlBuffer.append("=");
-						sqlBuffer.append("?");
-
-						valueBuffer.append(",");
-						valueBuffer.append(fields[i].get(entity));
-
-						preparedValue = new PreparedValue();
-						preparedValue.setType(fields[i].getType().getName());
-						preparedValue.setValue(fields[i].get(entity));
-						list.add(k++, preparedValue);
-					}
-				}
-			}
-
-			sqlBuffer.append(";");
-
-			if (valueBuffer.length() > 0) valueBuffer.deleteCharAt(0);
-			HoneyContext.setPreparedValue(sqlBuffer.toString(), list);
-			HoneyContext.setSqlValue(sqlBuffer.toString(), valueBuffer.toString()); //用于log显示
-
-		} catch (IllegalAccessException e) {
-			System.err.println("In ObjectToSQL  -----------IllegalAccessException:  " + e.getMessage());
-		}*/
-
+			sqlBuffer.append(tableName)
+			.append(" where ");
 		return sqlBuffer;
 	}
 
