@@ -4,7 +4,7 @@
 	<groupId>org.honey</groupId>
 	<artifactId>honey-osql</artifactId>
 	<name>honey</name>
-	<version>1.3.2-SNAPSHOT</version>
+	<version>1.4.0-SNAPSHOT</version>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -17,7 +17,7 @@
 		<dependency>
 			<groupId>org.bee</groupId>
 			<artifactId>bee-osql</artifactId>
-			<version>1.3.2-SNAPSHOT</version>
+			<version>1.4.0-SNAPSHOT</version>
 		</dependency>
 
 		<!-- Mysql config just for demo.You need change it to the real database config. -->
@@ -54,6 +54,8 @@
  			<!--if you define a new one,don't pack the bee.properties to jar file-->
 				<excludes>
 					<exclude>bee.properties</exclude>
+					<exclude>bee.sql.properties</exclude>
+					<exclude>jdbcTypeToFieldType.properties</exclude>
 				</excludes>
 			</resource>
 		</resources>
