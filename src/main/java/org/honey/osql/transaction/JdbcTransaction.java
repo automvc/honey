@@ -3,9 +3,9 @@ package org.honey.osql.transaction;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import org.bee.osql.ObjSQLException;
 import org.bee.osql.transaction.Transaction;
 import org.bee.osql.transaction.TransactionIsolationLevel;
+import org.honey.osql.core.ExceptionHelper;
 import org.honey.osql.core.HoneyContext;
 import org.honey.osql.core.SessionFactory;
 
@@ -22,12 +22,10 @@ public class JdbcTransaction implements Transaction {
 	private Connection initOneConn() {
 
 		Connection c = null;
-		try {
+//		try {
 			c = SessionFactory.getConnection();
-		} catch (ObjSQLException e) {
-			// TODO: handle exception
-			System.err.println(e.getMessage());
-		}
+//		} catch (ObjSQLException e) {
+//		}
 		return c;
 	}
 
@@ -99,7 +97,7 @@ public class JdbcTransaction implements Transaction {
 			try {
 				conn.close();
 			} catch (SQLException e) {
-				System.err.println("-----------SQLException in checkClose------" + e.getMessage());
+				throw ExceptionHelper.convert(e);
 			} finally {
 				HoneyContext.removeCurrentConnection();
 			}
