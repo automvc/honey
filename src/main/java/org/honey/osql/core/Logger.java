@@ -8,6 +8,10 @@ public class Logger {
 	
 	private static boolean  showSQL=HoneyConfig.getHoneyConfig().isShowSQL();
 	
+	public static void print(String s){
+		System.out.println(s);
+	}
+	
 	public static void print(String s1,String s2){
 		System.out.println(s1+" :  "  +s2);
 	}
@@ -21,7 +25,6 @@ public class Logger {
 	}
 	
 	public static void logSQL(String hardStr,String sql){
-//		System.out.println("select SQL(entity,size):"+sql);
 		if(showSQL){
 			String value = HoneyContext.getSqlValue(sql);
 			if (value == null || "".equals(value.trim()))

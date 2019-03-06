@@ -42,7 +42,7 @@ public final class HoneyUtil {
 				total[start + i] = part[i];
 			}
 		} catch (Exception e) {
-			System.err.println(">>>>>>>>>>>>>>>HoneyUtil mergeArray() " + e.getMessage());
+			Logger.print(" HoneyUtil.mergeArray() " + e.getMessage());
 		}
 
 		return total;
@@ -153,7 +153,6 @@ public final class HoneyUtil {
 
 	private static void appendJdbcTypeCustomProp() {
 		for (String s : jdbcTypeCustomProp.getKeys()) {
-			System.out.println("---------------keys:        " + s);
 			jdbcTypeMap.put(s, jdbcTypeCustomProp.getValue(s));
 		}
 	}

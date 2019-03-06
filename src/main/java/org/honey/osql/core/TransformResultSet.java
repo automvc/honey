@@ -57,7 +57,7 @@ public class TransformResultSet {
 		while (rs.next()) {
 			str = new String[columnCount];
 			for (int i = 0; i < columnCount; i++) {
-				str[i] = rs.getString(i + 1);
+				str[i] = rs.getString(i + 1);  //TODO null-->""  ??
 			}
 			list.add(str);
 		}

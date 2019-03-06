@@ -1,13 +1,14 @@
 package org.honey.osql.core;
 
+import org.bee.osql.BeeSql;
 import org.bee.osql.CallableSQL;
 import org.bee.osql.ObjToSQL;
 import org.bee.osql.ObjToSQLRich;
 import org.bee.osql.PreparedSQL;
-import org.bee.osql.BeeSql;
 import org.bee.osql.Suid;
 import org.bee.osql.SuidRich;
 import org.bee.osql.dialect.DbFeature;
+import org.bee.osql.exception.NoConfigException;
 import org.honey.osql.constant.DatabaseConst;
 import org.honey.osql.dialect.mysql.MySqlFeature;
 import org.honey.osql.dialect.oracle.OracleFeature;
@@ -98,8 +99,7 @@ public class HoneyFactory {
 		else if (DatabaseConst.SQLSERVER.equalsIgnoreCase((HoneyContext.getDbDialect())))
 			return new SqlServerFeature();
 		else {
-			System.err.println("Error: Do not set the database name. ");
-			return null;
+			throw new NoConfigException("Error: Do not set the database name. ");
 		}
 	}
 }
