@@ -18,6 +18,7 @@ import java.util.List;
 import org.honey.osql.constant.DatabaseConst;
 import org.honey.osql.core.HoneyConfig;
 import org.honey.osql.core.HoneyUtil;
+import org.honey.osql.core.Logger;
 import org.honey.osql.core.SessionFactory;
 
 //TODO 是否覆盖文件,       支持写生成其中一个文件或几个文件(已实现)
@@ -48,7 +49,7 @@ public class GenBean {
 		}
 		entityName=HoneyUtil.firstLetterToUpperCase(entityName);
 		
-		System.out.println("The Honey gen the JavaBean: " + config.getPackagePath() +"."+entityName);
+		Logger.print("The Honey gen the JavaBean: " + config.getPackagePath() +"."+entityName);
 		
 		String authorComment="/**"+ LINE_SEPARATOR;
 //		       authorComment+="*@author Bee"+ LINE_SEPARATOR;
@@ -213,7 +214,7 @@ public class GenBean {
 	}
 
 	public void genAllBeanFile() throws IOException {
-		System.out.println("Generating...");
+		Logger.print("Generating...");
 
 		List<Table> tables = getAllTables();
 		Table table = null;
@@ -223,8 +224,8 @@ public class GenBean {
 			genBeanFile(table);
 		}
 
-		System.out.println("Generate Success!");
-		System.out.println("Please check: " + config.getBaseDir()+config.getPackagePath().replace(".", "\\"));
+		Logger.print("Generate Success!");
+		Logger.print("Please check: " + config.getBaseDir()+config.getPackagePath().replace(".", "\\"));
 	}
 	
 	
@@ -244,13 +245,13 @@ public class GenBean {
 		con.close();
 
 		}catch(Exception e){
-			System.err.println(e.getMessage());
+			Logger.print(e.getMessage());
 			if(e.getMessage().contains("You have an error in your SQL syntax;")&& e.getMessage().contains("where 1<>1")){
-				System.err.println("Maybe the table name is the database key work. Please rename the tableName and test again.");
+				Logger.print("Maybe the table name is the database key work. Please rename the tableName and test again.",e.getMessage());
 			}
 		}
-		System.out.println("Generate Success!");
-		System.out.println("Please check: " + config.getBaseDir()+config.getPackagePath().replace(".", "\\"));
+		Logger.print("Generate Success!");
+		Logger.print("Please check: " + config.getBaseDir()+config.getPackagePath().replace(".", "\\"));
 	}
 
     // 获取所有表信息
