@@ -5,6 +5,8 @@ import java.io.InputStream;
 import java.util.Properties;
 import java.util.Set;
 
+import org.honey.osql.core.Logger;
+
 /**
  * @author Kingstar
  * @since  1.0
@@ -19,7 +21,7 @@ public class PropertiesReader {
 			InputStream in = PropertiesReader.class.getResourceAsStream(fileName);
 			prop.load(in);
 		} catch (IOException e) {
-			System.err.println("=========PropertiesReadUtil====  " + e.getMessage());
+			Logger.print("  In PropertiesReader" + e.getMessage());
 		}
 	}
 
