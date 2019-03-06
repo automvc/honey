@@ -55,9 +55,12 @@ public class CallableSqlLib implements CallableSQL {
 				}
 				rsList.add(targetObj);
 			}
-
-		} catch (Exception e) {
-			// TODO: handle exception
+		} catch (SQLException e) {
+			throw ExceptionHelper.convert(e);
+		} catch (IllegalAccessException e) {
+			throw ExceptionHelper.convert(e);
+		} catch (InstantiationException e) {
+			throw ExceptionHelper.convert(e);
 		} finally {
 			checkClose(cstmt, conn);
 		}
