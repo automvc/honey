@@ -3,6 +3,7 @@ package org.honey.osql.example;
 import java.math.BigDecimal;
 import java.util.List;
 
+import org.bee.osql.BeeException;
 import org.bee.osql.Suid;
 import org.honey.osql.core.BeeFactory;
 import org.honey.osql.example.entity.Orders;
@@ -14,6 +15,9 @@ import org.honey.osql.example.entity.Orders;
 public class SuidExam {
 	
 	public static void main(String[] args) {
+		
+	 try {
+			
 		Suid suid=BeeFactory.getHoneyFactory().getSuid();
 		
 		Orders orders1=new Orders();
@@ -43,7 +47,7 @@ public class SuidExam {
 		System.out.println("insert record:"+insertNum);
 		
 		suid.select(orders2);
-		suid.update(orders2);
+//		suid.update(orders2);
 		
 		//默认不处理null和空字符串.不用再写一堆的判断;其它有值的字段全部自动作为过滤条件
 //		int deleteNum=suid.delete(orders2);   //delete
@@ -53,6 +57,10 @@ public class SuidExam {
 		for (int i = 0; i < list2.size(); i++) {
 			System.out.println(list2.get(i).toString());
 		}
+		
+	  } catch (BeeException e) {
+		 e.printStackTrace();
+	  }
 	}
 
 }
