@@ -8,9 +8,9 @@ package org.honey.osql.core;
 
 import java.util.List;
 
+import org.bee.osql.BeeSql;
 import org.bee.osql.ObjSQLException;
 import org.bee.osql.ObjToSQL;
-import org.bee.osql.BeeSql;
 import org.bee.osql.Suid;
 
 /**
@@ -50,12 +50,12 @@ public class ObjSQL implements Suid {
 	}
 
 	@Override
-	public <T> int insert(T entity) {
+	public <T> int insert(T entity){
 
 		if (entity == null) return 0;
 
 		String sql = objToSQL.toInsertSQL(entity);
-		int insertNum = -3;
+		int insertNum = -1;
 		Logger.logSQL("insert SQL: ", sql);
 		insertNum = getBeeSql().modify(sql);
 		return insertNum;
@@ -67,7 +67,7 @@ public class ObjSQL implements Suid {
 		if (entity == null) return 0;
 
 		String sql = objToSQL.toDeleteSQL(entity);
-		int deleteNum = -3;
+		int deleteNum = -1;
 		Logger.logSQL("delete SQL: ", sql);
 		deleteNum = getBeeSql().modify(sql);
 		return deleteNum;
@@ -80,14 +80,13 @@ public class ObjSQL implements Suid {
 		if (entity == null) return 0;
 
 		String sql = "";
-		int updateNum = 0;
+		int updateNum = -1;
 		try {
 			sql = objToSQL.toUpdateSQL(entity);
 			Logger.logSQL("update SQL: ", sql);
 			updateNum = getBeeSql().modify(sql);
 		} catch (ObjSQLException e) {
-			// TODO: handle exception
-			System.err.println(e.getMessage());
+			throw e;
 		}
 
 		return updateNum;

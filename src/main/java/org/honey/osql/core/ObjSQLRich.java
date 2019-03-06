@@ -46,7 +46,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 			String sql = objToSQLRich.toSelectSQL(entity, selectField);
 			list = getBeeSql().selectSomeField(sql, entity);
 		} catch (ObjSQLException e) {
-			System.err.println(e.getMessage());
+			throw e;
 		}
 
 		return list;
@@ -61,7 +61,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 			Logger.logSQL("selectOrderBy SQL: ", sql);
 			list = getBeeSql().select(sql, entity);
 		} catch (ObjSQLException e) {
-			System.err.println(e.getMessage());
+			throw e;
 		}
 
 		return list;
@@ -76,7 +76,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 			Logger.logSQL("selectOrderBy SQL: ", sql);
 			list = getBeeSql().select(sql, entity);
 		} catch (ObjSQLException e) {
-			System.err.println(e.getMessage());
+			throw e;
 		}
 
 		return list;
@@ -131,7 +131,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 			Logger.logSQL("update SQL(updateFieldList) :", sql);
 			r = getBeeSql().modify(sql);
 		} catch (ObjSQLException e) {
-			System.err.println(e.getMessage());
+			throw e;
 		}
 
 		return r;
@@ -152,9 +152,9 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		String s = null;
 		try {
 			String sql = objToSQLRich.toSelectFunSQL(entity, functionType, fieldForFun);
-			return getBeeSql().selectFun(sql);
+			s=getBeeSql().selectFun(sql);
 		} catch (ObjSQLException e) {
-			System.err.println(e.getMessage());
+			throw e;
 		}
 
 		return s;
@@ -169,7 +169,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 			Logger.logSQL("update SQL(updateFieldList) :", sql);
 			r = getBeeSql().modify(sql);
 		} catch (ObjSQLException e) {
-			System.err.println(e.getMessage());
+			throw e;
 		}
 
 		return r;
@@ -231,7 +231,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 			String sql = objToSQLRich.toSelectSQL(entity, selectFields);
 			list = getBeeSql().select(sql);
 		} catch (ObjSQLException e) {
-			System.err.println(e.getMessage());
+			throw e;
 		}
 
 		return list;

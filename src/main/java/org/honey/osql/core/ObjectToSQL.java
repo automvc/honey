@@ -23,7 +23,7 @@ public class ObjectToSQL implements ObjToSQL {
 		try {
 			sql = _ObjectToSQLHelper._toInsertSQL(entity, -1);
 		} catch (IllegalAccessException e) {
-			System.err.println("In ObjectToSQL  -----------IllegalAccessException:  " + e.getMessage());
+			throw ExceptionHelper.convert(e);
 		}
 		return sql;
 	}
@@ -45,7 +45,7 @@ public class ObjectToSQL implements ObjToSQL {
 			sql = _ObjectToSQLHelper._toUpdateSQL(entity, "id", -1);
 			// Logger.logSQL("update SQL : ", sql);
 		} catch (IllegalAccessException e) {
-			System.err.println("In ObjectToSQL  -----------IllegalAccessException:  " + e.getMessage());
+			throw ExceptionHelper.convert(e);
 		}
 		return sql;
 	}

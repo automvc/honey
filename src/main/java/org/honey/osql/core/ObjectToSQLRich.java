@@ -89,7 +89,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 
 		}//end for
 
-		if (!"".equals(errorField)) throw new ObjSQLException("ObjSQLException :errorField: " + errorField);
+		if (!"".equals(errorField)) throw new ObjSQLException(" ObjSQLException, has errorField: " + errorField);
 
 //		String sql=_ObjectToSQLHelper._toSelectSQL(entity);
 		String sql = _ObjectToSQLHelper._toSelectSQL(entity, newSelectFields);
@@ -162,7 +162,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 
 			sql = _ObjectToSQLHelper._toUpdateSQL(entity, updateFields, -1);
 		} catch (IllegalAccessException e) {
-			System.err.println(e.getMessage());
+			throw ExceptionHelper.convert(e);
 		}
 		return sql;
 	}
@@ -179,7 +179,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 
 			sql = _ObjectToSQLHelper._toUpdateSQL(entity, updateFields, includeType.getValue());
 		} catch (IllegalAccessException e) {
-			System.err.println(e.getMessage());
+			throw ExceptionHelper.convert(e);
 		}
 		return sql;
 	}
@@ -262,7 +262,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			if (!isContainField) throw new ObjSQLException("ObjSQLException:Miss The Field! The entity(" + tableName + ") don't contain the field:" + fieldForFun);
 
 		} catch (IllegalAccessException e) {
-			System.err.println(e.getMessage());
+			throw ExceptionHelper.convert(e);
 		}
 
 		return sql;
@@ -284,7 +284,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		try {
 			sql = _ObjectToSQLHelper._toInsertSQL(entity, includeType.getValue());
 		} catch (IllegalAccessException e) {
-			System.err.println("In ObjectToSQL  -----------IllegalAccessException:  " + e.getMessage());
+			throw ExceptionHelper.convert(e);
 		}
 		return sql;
 
@@ -296,9 +296,9 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		try {
 			sql = _ObjectToSQLHelper._toUpdateSQL(entity, "id", includeType.getValue());
 		} catch (IllegalAccessException e) {
-			System.err.println(e.getMessage());
+			throw ExceptionHelper.convert(e);
 		} catch (ObjSQLException e) {
-			System.err.println(e.getMessage());
+			throw e;
 		}
 		return sql;
 
@@ -336,7 +336,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 				Logger.logSQL("insert[] SQL :", sql[0] + index1 + i + index2);
 			}
 		} catch (IllegalAccessException e) {
-			System.err.println(e.getMessage());
+			throw ExceptionHelper.convert(e);
 		}
 
 		return sql;
@@ -518,7 +518,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			wrap.setValueBuffer(valueBuffer);
 
 		} catch (IllegalAccessException e) {
-			System.err.println("In ObjectToSQL  -----------IllegalAccessException:  " + e.getMessage());
+			throw ExceptionHelper.convert(e);
 		}
 
 		return wrap;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2018 the original author.All rights reserved.
+ * Copyright 2013-2019 the original author.All rights reserved.
  * Kingstar(honeysoft@126.com)
  * The license,see the LICENSE file.
  */
@@ -18,8 +18,8 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
-import org.bee.osql.ObjSQLException;
 import org.bee.osql.BeeSql;
+import org.bee.osql.ObjSQLException;
 
 /**
  * 直接操作数据库，并返回结果.在该类中的sql字符串要是DB能识别的SQL语句
@@ -36,12 +36,11 @@ public class SqlLib implements BeeSql {
 
 		conn = HoneyContext.getCurrentConnection(); //获取已开启事务的连接
 		if (conn == null) {
-			try {
+//			try {
 				conn = SessionFactory.getConnection(); //不开启事务时
-			} catch (Exception e) {
-				// TODO: handle exception
-				Logger.print("Have Error when get the Connection: ", e.getMessage());
-			}
+//			} catch (Exception e) {
+//				Logger.print("Have Error when get the Connection: ", e.getMessage());
+//			}
 		}
 
 		return conn;
@@ -78,14 +77,12 @@ public class SqlLib implements BeeSql {
 				}
 				rsList.add(targetObj);
 			}
-		} catch (SecurityException se) {
-			System.err.println("---------the SqlLib.Select  -----------SecurityException:  " + se.getMessage());
 		} catch (SQLException e) {
-			System.err.println("---------the SqlLib.Select -----------SQLException:  " + e.getMessage());
+			throw ExceptionHelper.convert(e);
 		} catch (IllegalAccessException e) {
-			System.err.println("---------the SqlLib.Select -----------IllegalAccessException:  " + e.getMessage());
+			throw ExceptionHelper.convert(e);
 		} catch (InstantiationException e) {
-			System.err.println("---------the SqlLib.Select -----------InstantiationException:  " + e.getMessage());
+			throw ExceptionHelper.convert(e);
 		} finally {
 			checkClose(pst, conn);
 		}
@@ -137,7 +134,6 @@ public class SqlLib implements BeeSql {
 							if(field==null) continue;
 						}
 					} catch (NoSuchFieldException e) {
-//						System.err.println("NoSuchFieldException:"+e.getMessage());
 						continue;
 					}
 					field.setAccessible(true);
@@ -148,14 +144,12 @@ public class SqlLib implements BeeSql {
 				isFirst=false;
 			}
 
-		} catch (SecurityException se) {
-			System.err.println("---------the SqlLib.selectSomeField  -----------SecurityException:  " + se.getMessage());
 		} catch (SQLException e) {
-			System.err.println("---------the SqlLib.selectSomeField  -----------SQLException:  " + e.getMessage());
+			throw ExceptionHelper.convert(e);
 		} catch (IllegalAccessException e) {
-			System.err.println("---------the SqlLib.selectSomeField  -----------IllegalAccessException:  " + e.getMessage());
+			throw ExceptionHelper.convert(e);
 		} catch (InstantiationException e) {
-			System.err.println("---------the SqlLib.selectSomeField  -----------InstantiationException:  " + e.getMessage());
+			throw ExceptionHelper.convert(e);
 		} finally {
 			checkClose(pst, conn);
 		}
@@ -194,11 +188,10 @@ public class SqlLib implements BeeSql {
 			rs.last();
 			if (rs.getRow() > 1) {
 				throw new ObjSQLException("ObjSQLException:The size of ResultSet more than 1.");
-				//				throw new ObjSQLException("ObjSQLException:Miss The Field! The entity("+tableName+") don't contain the field:"+ FieldForFun);
 			}
 
 		} catch (SQLException e) {
-			System.err.println("===============selectFun: " + e.getMessage());
+			throw ExceptionHelper.convert(e);
 		} finally {
 			checkClose(pst, conn);
 		}
@@ -235,7 +228,7 @@ public class SqlLib implements BeeSql {
 			list=TransformResultSet.toStringsList(rs);
 			
 		} catch (SQLException e) {
-			System.err.println("========= List<String> select: " + e.getMessage());
+			throw ExceptionHelper.convert(e);
 		} finally {
 			checkClose(pst, conn);
 		}
@@ -261,7 +254,7 @@ public class SqlLib implements BeeSql {
 			num = pst.executeUpdate(); //该语句必须是一个 SQL 数据操作语言（Data Manipulation Language，DML）语句
 										//，比如 INSERT、UPDATE 或 DELETE 语句；或者是无返回内容的 SQL 语句，比如 DDL 语句。
 		} catch (SQLException e) {
-			System.err.println("===============SqlLib.modify: " + e.getMessage());
+			throw ExceptionHelper.convert(e);
 		} finally {
 			checkClose(pst, conn);
 		}
@@ -288,7 +281,7 @@ public class SqlLib implements BeeSql {
 			json = TransformResultSet.toJson(rs);
 
 		} catch (SQLException e) {
-			System.err.println("========= List<String> select: " + e.getMessage());
+			throw ExceptionHelper.convert(e);
 		} finally {
 			checkClose(pst, conn);
 		}
@@ -334,7 +327,7 @@ public class SqlLib implements BeeSql {
 //		conn.setAutoCommit(true);  //reset
 		conn.setAutoCommit(oldAutoCommit);
 		} catch (SQLException e) {
-			System.err.println("==================SqlLib.batch=============:" + e.getMessage());
+			throw ExceptionHelper.convert(e);
 		} finally {
 			checkClose(pst, conn);
 		}
@@ -364,7 +357,7 @@ public class SqlLib implements BeeSql {
 				stmt.close();
 			} catch (SQLException e) {
 				e.printStackTrace();
-				System.err.println("-----------SQLException in checkClose------" + e.getMessage());
+				throw ExceptionHelper.convert(e);
 			}
 		}
 		try {
@@ -372,7 +365,7 @@ public class SqlLib implements BeeSql {
 				conn.close();
 			}
 		} catch (SQLException e) {
-			System.err.println("-----------SQLException in checkClose------" + e.getMessage());
+			throw ExceptionHelper.convert(e);
 		}
 	}
 

@@ -4,7 +4,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-import org.bee.osql.ObjSQLException;
+import org.bee.osql.exception.NoConfigException;
 import org.bee.osql.transaction.Transaction;
 import org.honey.osql.constant.DbConfigConst;
 import org.honey.osql.transaction.JdbcTransaction;
@@ -31,7 +31,7 @@ public final class SessionFactory {
 	
 	public SessionFactory(){
 	}
-	public static Connection getConnection() throws ObjSQLException {
+	public static Connection getConnection() {
 		Connection conn = null;
 		try {
 			if (getBeeFactory().getDataSource() == null) { //do not set the dataSource
@@ -41,8 +41,7 @@ public final class SessionFactory {
 			}
 
 		} catch (SQLException e) {
-			// TODO: handle exception
-			Logger.println("Have SQLException when get Connection", e.getMessage());
+			throw ExceptionHelper.convert(e);
 		}
 
 		return conn;
@@ -59,7 +58,7 @@ public final class SessionFactory {
 		return tran;
 	}
 
-	private static Connection getOriginalConn() throws ObjSQLException {
+	private static Connection getOriginalConn(){
 
 		String driverName = HoneyConfig.getHoneyConfig().getDriverName();
 		String url = HoneyConfig.getHoneyConfig().getUrl();
@@ -72,21 +71,21 @@ public final class SessionFactory {
 		if (username == null) nullInfo += DbConfigConst.DB_USERNAM + " do not config; ";
 		if (password == null) nullInfo += DbConfigConst.DB_PASSWORD + " do not config; ";
 
-		if (!"".equals(nullInfo)) throw new ObjSQLException(nullInfo);
+		if (!"".equals(nullInfo)){
+			throw new NoConfigException("NoConfigException,Do not set the database info: "+nullInfo);
+		}
 
 		Connection conn = null;
 		try {
 			Class.forName(driverName);
 			conn = DriverManager.getConnection(url, username, password);
 		} catch (ClassNotFoundException e) {
-			// TODO: handle exception
 			Logger.println("Can not find the Database driver", e.getMessage());
+			throw new NoConfigException("Can not find the Database driver.");
 		} catch (SQLException e) {
-			// TODO: handle exception
-			Logger.println("Have SQLException when get Connection", e.getMessage());
+			throw ExceptionHelper.convert(e);
 		}
 
 		return conn;
 	}
-
 }

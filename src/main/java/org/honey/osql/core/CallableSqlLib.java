@@ -84,8 +84,8 @@ public class CallableSqlLib implements CallableSQL {
 			Logger.logSQL("Callable SQL: ", callSql + "  values: " + values);
 			result = cstmt.executeUpdate();
 			
-		} catch (Exception e) {
-			// TODO: handle exception
+		} catch (SQLException e) {
+			throw ExceptionHelper.convert(e);
 		}finally{
 		  checkClose(cstmt, conn);
 		}
@@ -106,8 +106,8 @@ public class CallableSqlLib implements CallableSQL {
 
 			setConnLocal(getIdString(cstmt), conn);
 
-		} catch (Exception e) {
-			// TODO: handle exception
+		} catch (SQLException e) {
+			throw ExceptionHelper.convert(e);
 		}
 
 		return cstmt;
@@ -121,8 +121,8 @@ public class CallableSqlLib implements CallableSQL {
 			Connection conn = getConnLocal(getIdString(cstmt));
 			result = cstmt.executeUpdate();
 			checkClose(cstmt, conn);
-		} catch (Exception e) {
-			// TODO: handle exception
+		} catch (SQLException e) {
+			throw ExceptionHelper.convert(e);
 		}
 		return result;
 	}
@@ -148,8 +148,8 @@ public class CallableSqlLib implements CallableSQL {
 
 			list=TransformResultSet.toStringsList(rs);
 
-		} catch (Exception e) {
-			// TODO: handle exception
+		} catch (SQLException e) {
+			throw ExceptionHelper.convert(e);
 		} finally {
 			checkClose(cstmt, conn);
 		}
@@ -178,8 +178,8 @@ public class CallableSqlLib implements CallableSQL {
 
 			json = TransformResultSet.toJson(rs);
 
-		} catch (Exception e) {
-			// TODO: handle exception
+		} catch (SQLException e) {
+			throw ExceptionHelper.convert(e);
 		} finally {
 			checkClose(cstmt, conn);
 		}
@@ -233,11 +233,11 @@ public class CallableSqlLib implements CallableSQL {
 		Connection conn = null;
 		conn = HoneyContext.getCurrentConnection();
 		if (conn == null) {
-			try {
+//			try {
 				conn = SessionFactory.getConnection(); //不开启事务时
-			} catch (Exception e) {
-				Logger.print("Have Error when get the Connection: ", e.getMessage());
-			}
+//			} catch (Exception e) {
+//				Logger.print("Have Error when get the Connection: ", e.getMessage());
+//			}
 		}
 		return conn;
 
@@ -249,8 +249,7 @@ public class CallableSqlLib implements CallableSQL {
 			try {
 				stmt.close();
 			} catch (SQLException e) {
-				e.printStackTrace();
-				System.err.println("-----------SQLException in checkClose------");
+				throw ExceptionHelper.convert(e);
 			}
 		}
 		try {
@@ -258,7 +257,7 @@ public class CallableSqlLib implements CallableSQL {
 				conn.close();
 			}
 		} catch (SQLException e) {
-			System.err.println("-----------SQLException in checkClose------" + e.getMessage());
+			throw ExceptionHelper.convert(e);
 		}
 	}
 	
