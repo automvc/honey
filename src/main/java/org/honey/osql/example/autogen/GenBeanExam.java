@@ -2,6 +2,7 @@ package org.honey.osql.example.autogen;
 
 import java.io.IOException;
 
+import org.bee.osql.BeeException;
 import org.honey.osql.atuogen.GenBean;
 import org.honey.osql.atuogen.GenConfig;
 import org.honey.osql.core.HoneyConfig;
@@ -13,7 +14,7 @@ import org.honey.osql.core.HoneyConfig;
 public class GenBeanExam {
 		public static void main(String[] args) throws IOException {
 
-			
+		 try{
 			String dbName=HoneyConfig.getHoneyConfig().getDbName();
 //			driverName,url,username,password config in bee.properties.
 
@@ -32,7 +33,12 @@ public class GenBeanExam {
 			
 //			genBean.genAllBeanFile();
 //			genBean.genSomeBeanFile("orders,items");//只创建部分表对应的JavaBean
-			genBean.genSomeBeanFile("orders");
+//			genBean.genSomeBeanFile("orders");
+			genBean.genSomeBeanFile("orderitem");
 //			genBean.genSomeBeanFile("ordersView");
+			
+		  } catch (BeeException e) {
+			 e.printStackTrace();
+		  }
 	}
 }

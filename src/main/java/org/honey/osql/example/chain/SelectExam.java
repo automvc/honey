@@ -1,5 +1,6 @@
 package org.honey.osql.example.chain;
 
+import org.bee.osql.BeeException;
 import org.bee.osql.Op;
 import org.bee.osql.chain.Select;
 import org.bee.osql.chain.UnionSelect;
@@ -12,8 +13,8 @@ import org.honey.osql.chain.UnionSelectImpl;
  */
 public class SelectExam {
 public static void main(String[] args) {
-		
-	SelectImpl joinSelect =new SelectImpl();
+	try{	
+	  SelectImpl joinSelect =new SelectImpl();
 		joinSelect.select("*")
 		.from("Orders,Orderitem")
 		.where("Orders.id=Orderitem.orderid")
@@ -38,7 +39,8 @@ public static void main(String[] args) {
 		unionSelect.union(select1, select2);
 //		unionSelect.unionAll(select1, select2);
 		System.out.println(unionSelect.toSQL());
-		
-		
+	  } catch (BeeException e) {
+		e.printStackTrace();
+	  }
 	}
 }

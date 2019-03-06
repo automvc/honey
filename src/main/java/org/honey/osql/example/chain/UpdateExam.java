@@ -1,5 +1,6 @@
 package org.honey.osql.example.chain;
 
+import org.bee.osql.BeeException;
 import org.bee.osql.Op;
 import org.bee.osql.chain.Update;
 import org.honey.osql.chain.UpdateImpl;
@@ -10,7 +11,7 @@ import org.honey.osql.chain.UpdateImpl;
  */
 public class UpdateExam {
 	public static void main(String[] args) {
-		
+	 try{
 		Update updateSql=new UpdateImpl();
 		updateSql.update("orders")
 		.set("name", "bee")
@@ -20,6 +21,9 @@ public class UpdateExam {
 		;
 		
 		System.out.println(updateSql.toSQL());
+	   } catch (BeeException e) {
+			e.printStackTrace();
+	   }
 	}
 
 }
