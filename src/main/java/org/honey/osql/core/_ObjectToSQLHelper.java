@@ -64,7 +64,7 @@ final class _ObjectToSQLHelper {
 			HoneyContext.setSqlValue(sql, valueBuffer.toString());
 
 		} catch (IllegalAccessException e) {
-			System.err.println("In ObjectToSQL  -----------IllegalAccessException:  " + e.getMessage());
+			throw ExceptionHelper.convert(e);
 		}
 
 		return sql;
@@ -132,7 +132,7 @@ final class _ObjectToSQLHelper {
 			HoneyContext.setSqlValue(sqlBuffer.toString(), valueBuffer.toString()); //用于log显示
 
 		} catch (IllegalAccessException e) {
-			System.err.println("In ObjectToSQL  -----------IllegalAccessException:  " + e.getMessage());
+			throw ExceptionHelper.convert(e);
 		}
 
 		return sqlBuffer.toString();
@@ -352,7 +352,7 @@ final class _ObjectToSQLHelper {
 			/*			if (fields[i].get(entity) == null){
 			//				continue;
 							if(isIncludeNullField) {
-								//TODO 
+							
 							}else{
 								continue;
 							}
@@ -424,7 +424,7 @@ final class _ObjectToSQLHelper {
 			/*			if (fields[i].get(entity) == null){
 			//				continue;
 							if(isIncludeNullField) {
-								//TODO 
+								
 							}else{
 								continue;
 							}
@@ -567,7 +567,7 @@ final class _ObjectToSQLHelper {
 			//if(!notFirstWhere) {sql="delete * from "+tableName + "where id='still do not set id'"; throw new SQLException(); }
 
 		} catch (IllegalAccessException e) {
-			System.err.println("In ObjectToSQL  -----------IllegalAccessException:  " + e.getMessage());
+			throw ExceptionHelper.convert(e);
 		}
 		return sql;
 	}
