@@ -374,7 +374,7 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 	/**
 	 * 默认自动加 and default will automatically add and
 	 * 
-	 * @return
+	 * @return a reference to this object.
 	 */
 	public Select and() {
 		sql.append(" and ");

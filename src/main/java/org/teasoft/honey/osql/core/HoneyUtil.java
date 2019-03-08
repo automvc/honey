@@ -187,7 +187,7 @@ public final class HoneyUtil {
 	/**
 	 * @param name
 	 * @return UnderscoreNaming String
-	 * @eg bee_name->beeName,bee_t_name->beeTName
+	 * eg: bee_name->beeName,bee_t_name->beeTName
 	 */
 	public static String toUnderscoreNaming(String name) {
 		StringBuffer buf = new StringBuffer(name);
@@ -201,8 +201,8 @@ public final class HoneyUtil {
 	
 	/**
 	 * @param name
-	 * @return
-	 * @eg  beeName->bee_name,beeTName->bee_t_name
+	 * @return a string of CamelNaming
+	 * eg:  beeName->bee_name,beeTName->bee_t_name
 	 */
 	public static String toCamelNaming(String name){
 //		StringBuffer buf = new StringBuffer(name.toLowerCase()); //HELLO_WORLD->HelloWorld 字段名有可能是全大写的

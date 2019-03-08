@@ -118,7 +118,7 @@ public class UpdateImpl extends AbstractToSql implements Update {
 	/**
 	 * 默认自动加 and default will automatically add and
 	 * 
-	 * @return
+	 * @return a reference to this object.
 	 */
 	public Update and() {
 		sql.append(" and ");
