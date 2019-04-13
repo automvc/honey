@@ -81,7 +81,7 @@ public class GenBean {
 		boolean clobFlag=true;
 		boolean arrayFlag=true;
 		
-		StringBuffer tostring=new StringBuffer();
+		StringBuffer tostr=new StringBuffer();
 		
 		if(config.isGenSerializable()){
 			importStr += "import java.io.Serializable;" + LINE_SEPARATOR;
@@ -126,7 +126,11 @@ public class GenBean {
 			} else if ("Array".equals(javaType) && arrayFlag) {
 				importStr += "import java.sql.Array;" + LINE_SEPARATOR;
 				arrayFlag = false;
-			}
+			} 
+//			else if(javaType.contains(".")){
+//				importStr += "import "+javaType+";" + LINE_SEPARATOR;
+//				arrayFlag = false;
+//			}//防止类名与上面的重复,还是直接用
 			
 
 			propertiesStr += "\t" + "private " + javaType + " " + propertyName
@@ -145,8 +149,8 @@ public class GenBean {
 					+ LINE_SEPARATOR + LINE_SEPARATOR;
 			
 			if(config.isGenToString()){  //toString()
-				tostring.append("\t\t str.append(\",").append(propertyName).append("=\").append(").append(propertyName).append(");");
-				tostring.append("\t\t "+LINE_SEPARATOR );
+				tostr.append("\t\t str.append(\",").append(propertyName).append("=\").append(").append(propertyName).append(");");
+				tostr.append("\t\t "+LINE_SEPARATOR );
 			}
 		}
 
@@ -187,20 +191,20 @@ public class GenBean {
 			// bw.write(LINE_SEPARATOR);
 			
 			if(config.isGenToString()){ //toString()
-				tostring.deleteCharAt(tostring.indexOf(","));
-				tostring.insert(0,"\t\t"+LINE_SEPARATOR );
+				tostr.deleteCharAt(tostr.indexOf(","));
+				tostr.insert(0,"\t\t"+LINE_SEPARATOR );
 //				tostring.insert(0,"\t");
 				
-				tostring.append("\t\t str.append(\"]\");\t");  tostring.append("\t\t "+LINE_SEPARATOR );
-				tostring.append("\t\t return str.toString();\t");  tostring.append("\t\t "+LINE_SEPARATOR );
-				tostring.append("\t }");  tostring.append("\t\t "+LINE_SEPARATOR );
+				tostr.append("\t\t str.append(\"]\");\t");  tostr.append("\t\t "+LINE_SEPARATOR );
+				tostr.append("\t\t return str.toString();\t");  tostr.append("\t\t "+LINE_SEPARATOR );
+				tostr.append("\t }");  tostr.append("\t\t "+LINE_SEPARATOR );
 				
 //				tostring.insert(0,"\t"+LINE_SEPARATOR ); 
-				tostring.insert(0, "\t\t str.append(\""+entityName+"[\");\t");   
-				tostring.insert(0,"\t"+LINE_SEPARATOR ); tostring.insert(0, "\t\t StringBuffer str=new StringBuffer();"); 
-				tostring.insert(0,"\t"+LINE_SEPARATOR ); tostring.insert(0, "\t public String toString(){");
+				tostr.insert(0, "\t\t str.append(\""+entityName+"[\");\t");   
+				tostr.insert(0,"\t"+LINE_SEPARATOR ); tostr.insert(0, "\t\t StringBuffer str=new StringBuffer();"); 
+				tostr.insert(0,"\t"+LINE_SEPARATOR ); tostr.insert(0, "\t public String toString(){");
 				
-				bw.write(tostring.toString());
+				bw.write(tostr.toString());
 			}
 		
 			
