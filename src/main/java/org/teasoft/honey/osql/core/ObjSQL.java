@@ -48,6 +48,25 @@ public class ObjSQL implements Suid {
 		list = getBeeSql().select(sql, entity); // 返回值用到泛型
 		return list;
 	}
+	
+	@Override
+	public <T> int update(T entity) {
+		// 当id为null时抛出异常  在转sql时抛出
+
+		if (entity == null) return 0;
+
+		String sql = "";
+		int updateNum = -1;
+		try {
+			sql = objToSQL.toUpdateSQL(entity);
+			Logger.logSQL("update SQL: ", sql);
+			updateNum = getBeeSql().modify(sql);
+		} catch (ObjSQLException e) {
+			throw e;
+		}
+
+		return updateNum;
+	}
 
 	@Override
 	public <T> int insert(T entity){
@@ -73,22 +92,4 @@ public class ObjSQL implements Suid {
 		return deleteNum;
 	}
 
-	@Override
-	public <T> int update(T entity) {
-		// 当id为null时抛出异常  在转sql时抛出
-
-		if (entity == null) return 0;
-
-		String sql = "";
-		int updateNum = -1;
-		try {
-			sql = objToSQL.toUpdateSQL(entity);
-			Logger.logSQL("update SQL: ", sql);
-			updateNum = getBeeSql().modify(sql);
-		} catch (ObjSQLException e) {
-			throw e;
-		}
-
-		return updateNum;
-	}
 }
