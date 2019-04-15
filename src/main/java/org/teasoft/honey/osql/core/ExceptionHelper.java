@@ -8,6 +8,7 @@ package org.teasoft.honey.osql.core;
 
 import java.sql.SQLException;
 
+import org.teasoft.bee.osql.BeeException;
 import org.teasoft.bee.osql.BeeSQLException;
 import org.teasoft.bee.osql.exception.BeeIllegalAccessException;
 import org.teasoft.bee.osql.exception.BeeInstantiationException;
@@ -29,5 +30,9 @@ public class ExceptionHelper {
 	
 	public static BeeInstantiationException convert(InstantiationException e) {
 		return new BeeInstantiationException(e.getMessage(), e);
+	}
+	
+	public static BeeException convert(Exception e) {
+		return new BeeException(e.getMessage(), e);
 	}
 }
