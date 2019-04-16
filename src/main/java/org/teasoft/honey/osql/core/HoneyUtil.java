@@ -318,7 +318,9 @@ public final class HoneyUtil {
 	}
 	
 	public static String genSerializableNum(){
-		return "159"+(Math.random()+"").substring(5)+"L";
+		String s=Math.random()+"";
+		int end=s.length()>12?12:s.length();
+		return "159"+s.substring(2,end)+"L";
 	}
 	
 	public static String deleteLastSemicolon(String sql){
