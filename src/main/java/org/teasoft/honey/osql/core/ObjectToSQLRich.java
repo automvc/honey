@@ -17,6 +17,7 @@ import org.teasoft.bee.osql.ObjSQLIllegalSQLStringException;
 import org.teasoft.bee.osql.ObjToSQLRich;
 import org.teasoft.bee.osql.OrderType;
 import org.teasoft.bee.osql.dialect.DbFeature;
+import org.teasoft.bee.osql.exception.BeeErrorFieldException;
 
 /**
  * @author Kingstar
@@ -53,44 +54,27 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		Logger.logSQL("select(entity,from,size) SQL:", sql);
 		return sql;
 	}
+	
+	@Override
+	public <T> String toSelectSQL(T entity,String selectFields,int from,int size){
+	
+		SqlValueWrap wrap = toSelectSQL_0(entity,selectFields);
+		String sql = wrap.getSql();
+		sql = dbFeature.toPageSql(sql, from, size)+";";
+
+		setPreparedValue(sql, wrap);
+
+		Logger.logSQL("select(entity,selectFields,from,size) SQL:", sql);
+		return sql;
+	}
+	
+	
 
 	@Override
 	public <T> String toSelectSQL(T entity, String fieldList) throws ObjSQLException {
-		Field fields[] = entity.getClass().getDeclaredFields();
-		String packageAndClassName = entity.getClass().getName();
-		String fieldNames = HoneyContext.getBeanField(packageAndClassName);
-		if (fieldNames == null) {
-			fieldNames = HoneyUtil.getBeanField(fields);//获取属性名对应的DB字段名
-			HoneyContext.addBeanField(packageAndClassName, fieldNames);
-		}
 
-		String errorField = "";
-		boolean isFirstError = true;
-		String selectFields[] = fieldList.split(",");
-		String newSelectFields = "";
-		boolean isFisrt = true;
-
-		for (String s : selectFields) {
-
-			if (!fieldNames.contains(transformStr(s))) {
-				if (isFirstError) {
-					errorField += s;
-					isFirstError = false;
-				} else {
-					errorField += "," + s;
-				}
-			}
-			if (isFisrt) {
-				newSelectFields += transformStr(s);
-				isFisrt = false;
-			} else {
-				newSelectFields += ", " + transformStr(s);
-			}
-
-		}//end for
-
-		if (!"".equals(errorField)) throw new ObjSQLException(" ObjSQLException, has errorField: " + errorField);
-
+		String newSelectFields=checkSelectField(entity,fieldList);
+		
 //		String sql=_ObjectToSQLHelper._toSelectSQL(entity);
 		String sql = _ObjectToSQLHelper._toSelectSQL(entity, newSelectFields);
 
@@ -117,7 +101,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 //		String sql=toSelectSQL(entity);
 		SqlValueWrap wrap=toSelectSQL_0(entity);
 		String sql=wrap.getSql();
-		sql=sql.replace(";", " ");
+//		sql=sql.replace(";", " "); //close on 2019-04-27
 		sql+="order by "+orderBy+" ;";
 		
 		setPreparedValue(sql,wrap);
@@ -142,7 +126,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		//		String sql=toSelectSQL(entity);
 		SqlValueWrap wrap = toSelectSQL_0(entity);
 		String sql = wrap.getSql();
-		sql = sql.replace(";", " ");
+//		sql = sql.replace(";", " "); //close on 2019-04-27
 		sql += "order by " + orderBy + " ;";
 
 		setPreparedValue(sql, wrap);
@@ -461,6 +445,9 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	}
 
 	private <T> SqlValueWrap toSelectSQL_0(T entity) {
+		return toSelectSQL_0(entity,null);
+	}
+	private <T> SqlValueWrap toSelectSQL_0(T entity,String selectField) {
 
 		StringBuffer sqlBuffer = new StringBuffer();
 		StringBuffer valueBuffer = new StringBuffer();
@@ -468,14 +455,17 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		try {
 			String tableName = ConverString.getTableName(entity);
 			Field fields[] = entity.getClass().getDeclaredFields(); //返回所有字段,包括公有和私有    
-
-			String packageAndClassName = entity.getClass().getName();
-			String fieldNames = HoneyContext.getBeanField(packageAndClassName);
-			if (fieldNames == null) {
-				fieldNames = HoneyUtil.getBeanField(fields);
-				HoneyContext.addBeanField(packageAndClassName, fieldNames);
+			String fieldNames ="";
+			if (selectField != null && !"".equals(selectField.trim())) {
+				fieldNames = checkSelectField(entity, selectField);
+			} else {
+				String packageAndClassName = entity.getClass().getName();
+				fieldNames = HoneyContext.getBeanField(packageAndClassName);
+				if (fieldNames == null) {
+					fieldNames = HoneyUtil.getBeanField(fields);
+					HoneyContext.addBeanField(packageAndClassName, fieldNames);
+				}
 			}
-
 			sqlBuffer.append("select " + fieldNames + " from ");
 			sqlBuffer.append(tableName);
 			boolean firstWhere = true;
@@ -509,7 +499,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 				}
 			}
 
-			sqlBuffer.append(";");
+//			sqlBuffer.append(";");   //close on 2019-04-27
 
 			if (valueBuffer.length() > 0) valueBuffer.deleteCharAt(0);
 
@@ -532,5 +522,44 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	private void setPreparedValue(String sql, SqlValueWrap wrap) {
 		HoneyContext.setPreparedValue(sql, wrap.getList());
 		HoneyContext.setSqlValue(sql, wrap.getValueBuffer().toString());
+	}
+	
+	private <T> String checkSelectField(T entity,String fieldList){
+		Field fields[] = entity.getClass().getDeclaredFields();
+		String packageAndClassName = entity.getClass().getName();
+		String fieldNames = HoneyContext.getBeanField(packageAndClassName);
+		if (fieldNames == null) {
+			fieldNames = HoneyUtil.getBeanField(fields);//获取属性名对应的DB字段名
+			HoneyContext.addBeanField(packageAndClassName, fieldNames);
+		}
+
+		String errorField = "";
+		boolean isFirstError = true;
+		String selectFields[] = fieldList.split(",");
+		String newSelectFields = "";
+		boolean isFisrt = true;
+
+		for (String s : selectFields) {
+
+			if (!fieldNames.contains(transformStr(s))) {
+				if (isFirstError) {
+					errorField += s;
+					isFirstError = false;
+				} else {
+					errorField += "," + s;
+				}
+			}
+			if (isFisrt) {
+				newSelectFields += transformStr(s);
+				isFisrt = false;
+			} else {
+				newSelectFields += ", " + transformStr(s);
+			}
+
+		}//end for
+
+		if (!"".equals(errorField)) throw new BeeErrorFieldException("ErrorField: " + errorField);
+		
+		return newSelectFields;
 	}
 }
