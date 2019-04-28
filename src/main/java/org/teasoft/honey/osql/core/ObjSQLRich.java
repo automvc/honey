@@ -53,6 +53,16 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	}
 
 	@Override
+	public <T> List<T> select(T entity, String selectFields, int from, int size) {
+		if (entity == null) return null;
+		List<T> list = null;
+		String sql = objToSQLRich.toSelectSQL(entity, selectFields,from,size);
+		list = getBeeSql().selectSomeField(sql, entity);
+
+		return list;
+	}
+
+	@Override
 	public <T> List<T> selectOrderBy(T entity, String orderFieldList) {
 		if (entity == null) return null;
 		List<T> list = null;
