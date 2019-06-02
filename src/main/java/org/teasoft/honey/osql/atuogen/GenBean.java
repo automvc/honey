@@ -16,6 +16,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.teasoft.honey.osql.constant.DatabaseConst;
+import org.teasoft.honey.osql.core.ExceptionHelper;
 import org.teasoft.honey.osql.core.HoneyConfig;
 import org.teasoft.honey.osql.core.HoneyUtil;
 import org.teasoft.honey.osql.core.Logger;
@@ -213,11 +214,12 @@ public class GenBean {
 			bw.close();
 		} catch (Exception e) {
 			e.printStackTrace();
+			throw ExceptionHelper.convert(e);
 		}
 
 	}
 
-	public void genAllBeanFile() throws IOException {
+	public void genAllBeanFile() {
 		Logger.print("Generating...");
 
 		List<Table> tables = getAllTables();
@@ -233,7 +235,7 @@ public class GenBean {
 	}
 	
 	
-	public void genSomeBeanFile(String tableList) throws IOException {
+	public void genSomeBeanFile(String tableList){// throws IOException {
 		
 		String [] tables=tableList.split(",");
 
@@ -253,6 +255,8 @@ public class GenBean {
 			if(e.getMessage().contains("You have an error in your SQL syntax;")&& e.getMessage().contains("where 1<>1")){
 				Logger.print("Maybe the table name is the database key work. Please rename the tableName and test again.",e.getMessage());
 			}
+			
+			throw ExceptionHelper.convert(e);
 		}
 		Logger.print("Generate Success!");
 		Logger.print("Please check: " + config.getBaseDir()+config.getPackagePath().replace(".", "\\"));
@@ -292,8 +296,9 @@ public class GenBean {
 			rs.close();
 			ps.close();
 			con.close();
-		} catch (Exception e) {
+		} catch (SQLException e) {
 			e.printStackTrace();
+			throw ExceptionHelper.convert(e);
 		}
 
 		return tables;

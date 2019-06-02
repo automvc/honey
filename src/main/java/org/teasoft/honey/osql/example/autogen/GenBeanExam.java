@@ -1,7 +1,5 @@
 package org.teasoft.honey.osql.example.autogen;
 
-import java.io.IOException;
-
 import org.teasoft.bee.osql.BeeException;
 import org.teasoft.honey.osql.atuogen.GenBean;
 import org.teasoft.honey.osql.atuogen.GenConfig;
@@ -12,7 +10,7 @@ import org.teasoft.honey.osql.core.HoneyConfig;
  * @since  1.0
  */
 public class GenBeanExam {
-		public static void main(String[] args) throws IOException {
+		public static void main(String[] args) {
 
 		 try{
 			String dbName=HoneyConfig.getHoneyConfig().getDbName();
