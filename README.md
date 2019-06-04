@@ -139,6 +139,13 @@ public class OsqlExamEN {
 }
 ```
 
+Rapid application development:
+=========	
+**Faster development of new combinations of Java Web：**  
+[Bee+Spring+SpringMVC](../../../../aiteasoft/bee-spring-springmvc)  
+
+**Faster development of new combinations of Spring Cloud microservices：**  
+[Bee + Spring Boot](../../../bee-springboot)  
 
 #### Author's email:    honeysoft@126.com  
 #### If you have any problem on bee, please let me know kindly! Thank you, so much!  
