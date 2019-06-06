@@ -141,6 +141,8 @@ public class OsqlExamEN {
 
 Rapid application development:
 =========	
+**Let Java more quicker programming than php and Rails.**  
+
 **Faster development of new combinations of Java Web：**  
 [Bee+Spring+SpringMVC](../../../../aiteasoft/bee-spring-springmvc)  
 
