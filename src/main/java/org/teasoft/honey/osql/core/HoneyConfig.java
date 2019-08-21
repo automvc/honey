@@ -32,7 +32,12 @@ public final class HoneyConfig {
 		setUnderScoreAndCamelTransform(Boolean.parseBoolean(BeeProp.getBeeProp("bee.osql.underScoreAndCamelTransform")));
 		setDbNamingToLowerCaseBefore(Boolean.parseBoolean(BeeProp.getBeeProp("bee.osql.dbNaming.toLowerCaseBefore")));
 		//		BeeProp.getBeeProp("bee.osql.delete.isAllowDeleteAllDataInOneTable");
-
+		setIgnoreNullInSelectJson(Boolean.parseBoolean(BeeProp.getBeeProp("bee.osql.selectJson.ignoreNull"))); //2019-08-17
+		setTimestampWithMillisecondInSelectJson(Boolean.parseBoolean(BeeProp.getBeeProp("bee.osql.selectJson.timestamp.withMillisecond")));
+		setDateWithMillisecondInSelectJson(Boolean.parseBoolean(BeeProp.getBeeProp("bee.osql.selectJson.date.withMillisecond")));
+		setTimeWithMillisecondInSelectJson(Boolean.parseBoolean(BeeProp.getBeeProp("bee.osql.selectJson.time.withMillisecond")));
+		setNullToEmptyStringInReturnStringList(Boolean.parseBoolean(BeeProp.getBeeProp("bee.osql.select.returnStringList.nullToEmptyString"))); 
+		
 		setDriverName(BeeProp.getBeeProp(DbConfigConst.DB_DRIVERNAME));
 		setUrl(BeeProp.getBeeProp(DbConfigConst.DB_URL));
 		setUsername(BeeProp.getBeeProp(DbConfigConst.DB_USERNAM));
@@ -46,6 +51,12 @@ public final class HoneyConfig {
 	private String dbName;
 	private boolean underScoreAndCamelTransform;
 	private boolean dbNamingToLowerCaseBefore;
+	
+	private boolean ignoreNullInSelectJson;//2019-08-17
+	private boolean timestampWithMillisecondInSelectJson;
+	private boolean dateWithMillisecondInSelectJson;
+	private boolean timeWithMillisecondInSelectJson;
+	private boolean nullToEmptyStringInReturnStringList;
 
 	private String driverName;
 	private String url;
@@ -131,6 +142,46 @@ public final class HoneyConfig {
 
 	public int getMaxResultSize() {
 		return maxResultSize;
+	}
+
+	public boolean isIgnoreNullInSelectJson() {
+		return ignoreNullInSelectJson;
+	}
+
+	private void setIgnoreNullInSelectJson(boolean ignoreNullInSelectJson) {
+		this.ignoreNullInSelectJson = ignoreNullInSelectJson;
+	}
+	
+	public boolean isTimestampWithMillisecondInSelectJson() {
+		return timestampWithMillisecondInSelectJson;
+	}
+
+	private void setTimestampWithMillisecondInSelectJson(boolean timestampWithMillisecondInSelectJson) {
+		this.timestampWithMillisecondInSelectJson = timestampWithMillisecondInSelectJson;
+	}
+
+	public boolean isDateWithMillisecondInSelectJson() {
+		return dateWithMillisecondInSelectJson;
+	}
+
+	private void setDateWithMillisecondInSelectJson(boolean dateWithMillisecondInSelectJson) {
+		this.dateWithMillisecondInSelectJson = dateWithMillisecondInSelectJson;
+	}
+
+	public boolean isTimeWithMillisecondInSelectJson() {
+		return timeWithMillisecondInSelectJson;
+	}
+
+	private void setTimeWithMillisecondInSelectJson(boolean timeWithMillisecondInSelectJson) {
+		this.timeWithMillisecondInSelectJson = timeWithMillisecondInSelectJson;
+	}
+
+	public boolean isNullToEmptyStringInReturnStringList() {
+		return nullToEmptyStringInReturnStringList;
+	}
+
+	private void setNullToEmptyStringInReturnStringList(boolean nullToEmptyStringInReturnStringList) {
+		this.nullToEmptyStringInReturnStringList = nullToEmptyStringInReturnStringList;
 	}
 
 }
