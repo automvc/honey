@@ -51,6 +51,8 @@ Add: chain programming(select&update)
 **V1.4**  
 Add: selectById,deleteById  
 Add: public <T> List<T> select(T entity,String selectFields,int from,int size)  
+Enhance: selectJson add config:ignoreNull;date,time,timestamp Wit hMillisecond format  
+Enhance: List<String[]> select(String sql), add config:nullToEmptyString  
 
 Quick Start:
 =========	
@@ -79,6 +81,7 @@ Create one database,default name is bee.
 Create the table and init the data by run the bee.sql file(it is mysql sql script).  
 
 ## 3. Update the database configuration in bee.properties if need  
+If no the bee.properties file, you can create it by yourself.
 
 bee.db.driverName = com.mysql.jdbc.Driver  
 bee.db.url =jdbc:mysql://localhost:3306/bee?characterEncoding=UTF-8  
