@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import org.teasoft.honey.osql.cache.CacheSuidStruct;
+
 /**
  * @author Kingstar
  * @since  1.0
@@ -15,15 +17,18 @@ public final class HoneyContext {
 
 	private static ConcurrentMap<String, String> beanMap;
 
-	private static ThreadLocal<Map<String, List<PreparedValue>>> sqlLocal;
+	private static ThreadLocal<Map<String, List<PreparedValue>>> sqlPreValueLocal;
 	private static ThreadLocal<Map<String, String>> sqlValueLocal;
+	
+	private static ThreadLocal<Map<String, CacheSuidStruct>> cacheLocal;
 
 	private static ThreadLocal<Connection> currentConnection;  //当前事务
 
 	static {
 		beanMap = new ConcurrentHashMap<>();
-		sqlLocal = new ThreadLocal<>();
+		sqlPreValueLocal = new ThreadLocal<>();
 		sqlValueLocal = new ThreadLocal<>();
+		cacheLocal = new ThreadLocal<>();
 
 		currentConnection = new ThreadLocal<>();
 	}
@@ -40,14 +45,14 @@ public final class HoneyContext {
 
 	public static void setPreparedValue(String sqlStr, List<PreparedValue> list) {
 		if (list == null || list.size() == 0) return;
-		Map<String, List<PreparedValue>> map = sqlLocal.get();
+		Map<String, List<PreparedValue>> map = sqlPreValueLocal.get();
 		if (null == map) map = new HashMap<>();
-		map.put(sqlStr, list);//TODO 覆盖??
-		sqlLocal.set(map);
+		map.put(sqlStr, list);
+		sqlPreValueLocal.set(map);
 	}
 
 	public static List<PreparedValue> getPreparedValue(String sqlStr) {
-		Map<String, List<PreparedValue>> map = sqlLocal.get();
+		Map<String, List<PreparedValue>> map = sqlPreValueLocal.get();
 		if (null == map) return null;
 
 		List<PreparedValue> list = map.get(sqlStr);
@@ -59,17 +64,43 @@ public final class HoneyContext {
 		if (value == null || "".equals(value.trim())) return;
 		Map<String, String> map = sqlValueLocal.get();
 		if (null == map) map = new HashMap<>();
-		map.put(sqlStr, value); //TODO 覆盖??
+		map.put(sqlStr, value); 
 		sqlValueLocal.set(map);
 	}
 
 	public static String getSqlValue(String sqlStr) {
 		Map<String, String> map = sqlValueLocal.get();
 		if (null == map) return null;
-
 		String s = map.get(sqlStr);
 		if (s != null) map.remove(sqlStr);
 		return s;
+	}
+	
+	
+	public static void setCacheInfo(String sqlStr, CacheSuidStruct cacheInfo) {
+		if (cacheInfo == null) return;
+		Map<String, CacheSuidStruct> map = cacheLocal.get();
+		if (null == map) map = new HashMap<>();
+		map.put(sqlStr, cacheInfo); 
+		cacheLocal.set(map);
+	}
+
+	public static CacheSuidStruct getCacheInfo(String sqlStr,boolean isDelete) {
+		Map<String, CacheSuidStruct> map = cacheLocal.get();
+		if (null == map) return null;
+		CacheSuidStruct struct=map.get(sqlStr);
+		if (isDelete && struct != null) map.remove(sqlStr);  
+		
+//		Map<String, CacheSuidStruct> map2 = cacheLocal.get();
+//		CacheSuidStruct struct2=map2.get(sqlStr);
+//		YES  已被删
+//		if(struct2==null)  System.out.println("--------  CacheSuidStruct  was already  deleted!"); 
+		
+		return  struct;
+	}
+	
+	public static CacheSuidStruct getCacheInfo(String sqlStr) {
+		return getCacheInfo(sqlStr,false);
 	}
 
 	public static String getDbDialect() {
