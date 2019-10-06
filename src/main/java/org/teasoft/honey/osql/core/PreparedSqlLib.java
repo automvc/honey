@@ -32,14 +32,14 @@ public class PreparedSqlLib implements PreparedSQL {
 	@Override
 	public <T> List<T> select(String sql, T entity, Object[] preValues) {
 
-		initPreparedValues(sql, preValues);
+		initPreparedValues(sql, preValues,entity);
 		Logger.logSQL("PreparedSqlLib select SQL: ", sql);
 		return getBeeSql().select(sql, entity);
 	}
 	
 	@Override
 	public <T> List<T> select(String sqlStr, T returnType, Map<String, Object> map) {
-		String sql=initPrepareValuesViaMap(sqlStr,map);
+		String sql=initPrepareValuesViaMap(sqlStr,map,returnType);
 		Logger.logSQL("PreparedSqlLib select SQL: ", sql);
 		return getBeeSql().select(sql, returnType);
 	}
@@ -47,14 +47,14 @@ public class PreparedSqlLib implements PreparedSQL {
 	@Override
 	public <T> List<T> selectSomeField(String sql, T entity, Object[] preValues) {
 
-		initPreparedValues(sql, preValues);
+		initPreparedValues(sql, preValues,entity);
 		Logger.logSQL("PreparedSqlLib selectSomeField SQL: ", sql);
 		return getBeeSql().selectSomeField(sql, entity);
 	}
 
 	@Override
 	public <T> List<T> selectSomeField(String sqlStr, T returnType, Map<String, Object> map) {
-		String sql=initPrepareValuesViaMap(sqlStr,map);
+		String sql=initPrepareValuesViaMap(sqlStr,map,returnType);
 		Logger.logSQL("PreparedSqlLib selectSomeField SQL: ", sql);
 		return getBeeSql().selectSomeField(sql, returnType);
 	}
@@ -117,7 +117,14 @@ public class PreparedSqlLib implements PreparedSQL {
 		return getBeeSql().selectJson(sql);
 	}
 	
-	private void initPreparedValues(String sql, Object[] preValues) {
+	private <T> void initPreparedValues(String sql, Object[] preValues, T entity) {
+		StringBuffer valueBuffer = initPreparedValues(sql, preValues);
+		if (valueBuffer.length() > 0) {
+			String tableName = ConverString.getTableName(entity);
+			addInContextForCache(sql, valueBuffer.toString(), tableName);
+		}
+	}
+	private StringBuffer initPreparedValues(String sql, Object[] preValues) {
 
 		PreparedValue preparedValue = null;
 		List<PreparedValue> list = new ArrayList<>();
@@ -137,6 +144,20 @@ public class PreparedSqlLib implements PreparedSQL {
 			HoneyContext.setPreparedValue(sql, list);
 			HoneyContext.setSqlValue(sql, valueBuffer.toString());
 		}
+		return valueBuffer;
+	}
+	
+	private <T> String initPrepareValuesViaMap(String sqlStr, Map<String, Object> map, T entity) {
+		SqlValueWrap wrap = processSql(sqlStr);
+		String sql = wrap.getSql();
+		StringBuffer valueBuffer = initPreparedValues(sql, wrap.getValueBuffer().toString(), map);
+
+		if (valueBuffer.length() > 0) {
+			String tableName = ConverString.getTableName(entity);
+			addInContextForCache(sql, valueBuffer.toString(), tableName);
+		}
+
+		return sql;
 	}
 	
 	private String initPrepareValuesViaMap(String sqlStr, Map<String, Object> map){
@@ -146,7 +167,7 @@ public class PreparedSqlLib implements PreparedSQL {
 		return sql;
 	}
 	
-	private void initPreparedValues(String sql, String paraList,Map<String,Object> map) {
+	private StringBuffer initPreparedValues(String sql, String paraList,Map<String,Object> map) {
 
 		PreparedValue preparedValue = null;
 		List<PreparedValue> list = new ArrayList<>();
@@ -193,10 +214,16 @@ public class PreparedSqlLib implements PreparedSQL {
 			HoneyContext.setPreparedValue(sql, list);
 			HoneyContext.setSqlValue(sql, valueBuffer.toString());
 		}
+		
+		return valueBuffer;
 	}
 
 	private SqlValueWrap  processSql(String sql){
 		return TokenUtil.process(sql, "#{", "}", "?");
+	}
+	
+	private static void addInContextForCache(String sql,String sqlValue, String tableName){
+		_ObjectToSQLHelper.addInContextForCache(sql, sqlValue, tableName);
 	}
 
 }
