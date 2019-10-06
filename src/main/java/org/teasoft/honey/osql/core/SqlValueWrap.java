@@ -10,6 +10,8 @@ class SqlValueWrap {
 	private String sql;
 	private List<PreparedValue> list;
 	private StringBuffer valueBuffer;
+	
+	private String tableNames; //v1.4  2019-09-29
 
 	public String getSql() {
 		return sql;
@@ -34,4 +36,13 @@ class SqlValueWrap {
 	public void setValueBuffer(StringBuffer valueBuffer) {
 		this.valueBuffer = valueBuffer;
 	}
+
+	public String getTableNames() {
+		return tableNames;
+	}
+
+	public void setTableNames(String tableNames) {
+		this.tableNames = tableNames;
+	}
+	
 }
