@@ -19,7 +19,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.teasoft.bee.osql.BeeSql;
+import org.teasoft.bee.osql.Cache;
 import org.teasoft.bee.osql.ObjSQLException;
+import org.teasoft.bee.osql.SuidType;
+import org.teasoft.honey.osql.cache.CacheSuidStruct;
 
 /**
  * 直接操作数据库，并返回结果.在该类中的sql字符串要是DB能识别的SQL语句
@@ -28,6 +31,8 @@ import org.teasoft.bee.osql.ObjSQLException;
  * @since  1.0
  */
 public class SqlLib implements BeeSql {
+	
+	private Cache cache=new DefaultCache();
 
 	public SqlLib() {}
 
@@ -51,6 +56,10 @@ public class SqlLib implements BeeSql {
 	@SuppressWarnings("unchecked")
 	public <T> List<T> select(String sql, T entity) {
 
+		updateInfoInCache(sql,"List<T>",SuidType.SELECT);
+		Object cacheObj=cache.get(sql);  //这里的sql还没带有值
+		if(cacheObj!=null) return (List<T>)cacheObj;
+		
 		Connection conn = null;
 		PreparedStatement pst = null;
 		T targetObj = null;
@@ -77,6 +86,9 @@ public class SqlLib implements BeeSql {
 				}
 				rsList.add(targetObj);
 			}
+			
+			addInCache(sql, rsList,"List<T>",SuidType.SELECT);
+			
 		} catch (SQLException e) {
 			throw ExceptionHelper.convert(e);
 		} catch (IllegalAccessException e) {
@@ -97,6 +109,10 @@ public class SqlLib implements BeeSql {
 	@SuppressWarnings("unchecked")
 	public <T> List<T> selectSomeField(String sql, T entity) {
 
+		updateInfoInCache(sql,"List<T>",SuidType.SELECT);
+		Object cacheObj=cache.get(sql);  //这里的sql还没带有值
+		if(cacheObj!=null) return (List<T>)cacheObj;
+		
 		Connection conn = null;
 		PreparedStatement pst = null;
 		T targetObj = null;
@@ -144,6 +160,8 @@ public class SqlLib implements BeeSql {
 				isFirst=false;
 			}
 
+			addInCache(sql, rsList,"List<T>",SuidType.SELECT);
+			
 		} catch (SQLException e) {
 			throw ExceptionHelper.convert(e);
 		} catch (IllegalAccessException e) {
@@ -166,6 +184,11 @@ public class SqlLib implements BeeSql {
 	 */
 	@Override
 	public String selectFun(String sql) throws ObjSQLException {
+		
+		updateInfoInCache(sql,"String",SuidType.SELECT);
+		Object cacheObj=cache.get(sql);  //这里的sql还没带有值
+		if(cacheObj!=null) return (String)cacheObj;
+		
 		String result = null;
 		Connection conn = null;
 		PreparedStatement pst = null;
@@ -189,6 +212,8 @@ public class SqlLib implements BeeSql {
 			if (rs.getRow() > 1) {
 				throw new ObjSQLException("ObjSQLException:The size of ResultSet more than 1.");
 			}
+			
+			addInCache(sql, result,"String",SuidType.SELECT);
 
 		} catch (SQLException e) {
 			throw ExceptionHelper.convert(e);
@@ -201,6 +226,11 @@ public class SqlLib implements BeeSql {
 
 	@Override
 	public List<String[]> select(String sql) {
+		
+		updateInfoInCache(sql,"List<String[]>",SuidType.SELECT);
+		Object cacheObj=cache.get(sql);  //这里的sql还没带有值
+		if(cacheObj!=null) return (List<String[]>)cacheObj;
+		
 		List<String[]> list = new ArrayList<String[]>();
 		Connection conn = null;
 		PreparedStatement pst = null;
@@ -226,6 +256,8 @@ public class SqlLib implements BeeSql {
 //			}
 
 			list=TransformResultSet.toStringsList(rs);
+			
+			addInCache(sql, list,"List<String[]>",SuidType.SELECT);
 			
 		} catch (SQLException e) {
 			throw ExceptionHelper.convert(e);
@@ -258,6 +290,11 @@ public class SqlLib implements BeeSql {
 		} finally {
 			checkClose(pst, conn);
 		}
+		
+		
+		//TODO  更改操作需要清除缓存
+		clearInCache(sql, "int",SuidType.MODIFY);
+		
 		return num;
 	}
 
@@ -266,6 +303,11 @@ public class SqlLib implements BeeSql {
 	 */
 	@Override
 	public String selectJson(String sql) {
+		
+		updateInfoInCache(sql,"StringJson",SuidType.SELECT);
+		Object cacheObj=cache.get(sql);  //这里的sql还没带有值
+		if(cacheObj!=null) return (String)cacheObj;
+		
 		StringBuffer json=new StringBuffer("");
 		Connection conn = null;
 		PreparedStatement pst = null;
@@ -279,6 +321,8 @@ public class SqlLib implements BeeSql {
 
 			rs = pst.executeQuery();
 			json = TransformResultSet.toJson(rs);
+			
+			addInCache(sql, json.toString(),"StringJson",SuidType.SELECT);
 
 		} catch (SQLException e) {
 			throw ExceptionHelper.convert(e);
@@ -291,7 +335,10 @@ public class SqlLib implements BeeSql {
 
 	@Override
 	public int[] batch(String sql[]) {
+		if(sql==null) return null;
 		int batchSize = HoneyConfig.getHoneyConfig().getBatchSize();
+		//更改操作需要清除缓存
+		clearInCache(sql[0]+ "[index0]", "int[]",SuidType.INSERT);
 		return batch(sql,batchSize);
 	}
 
@@ -344,7 +391,7 @@ public class SqlLib implements BeeSql {
 			setPreparedValues(pst, sql[0] + index1 + i + index2);
 			pst.addBatch();
 		}
-		a = pst.executeBatch(); //一次性提交      若两条数据,有一条插入不成功,返回0,0.  但实际上又有一第成功插入数据库(mysql测试,在自动提交的时候会有问题,不是自动提交不会)
+		a = pst.executeBatch(); //一次性提交      若两条数据,有一条插入不成功,返回0,0.  但实际上又有一条成功插入数据库(mysql测试,在自动提交的时候会有问题,不是自动提交不会)
 		conn.commit();
 
 		return a;
@@ -392,6 +439,36 @@ public class SqlLib implements BeeSql {
 	// 转成带下画线的
 	private String transformStr(String str) {
 		return HoneyUtil.transformStr(str);
+	}
+	
+	//add on 2019-10-01
+	private void addInCache(String sql, Object rs, String returnType, SuidType suidType) {
+		CacheSuidStruct struct = HoneyContext.getCacheInfo(sql);
+		if (struct != null) {
+			struct.setReturnType(returnType);
+			struct.setSuidType(suidType.getType());
+			HoneyContext.setCacheInfo(sql, struct);
+		}
+		cache.add(sql, rs);
+	}
+	
+	private void updateInfoInCache(String sql, String returnType, SuidType suidType) {
+		CacheSuidStruct struct = HoneyContext.getCacheInfo(sql);
+		if (struct != null) {
+			struct.setReturnType(returnType);
+			struct.setSuidType(suidType.getType());
+			HoneyContext.setCacheInfo(sql, struct);
+		}
+	}
+	
+	private void clearInCache(String sql, String returnType, SuidType suidType) {
+		CacheSuidStruct struct = HoneyContext.getCacheInfo(sql);
+		if (struct != null) {
+			struct.setReturnType(returnType);
+			struct.setSuidType(suidType.getType());
+			HoneyContext.setCacheInfo(sql, struct);
+		}
+		cache.clear(sql);
 	}
 
 }
