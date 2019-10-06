@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.teasoft.bee.osql.ObjSQLException;
+import org.teasoft.honey.osql.cache.CacheSuidStruct;
 
 /**
  * @author Kingstar
@@ -62,7 +63,7 @@ final class _ObjectToSQLHelper {
 			if (valueBuffer.length() > 0) valueBuffer.deleteCharAt(0);
 			HoneyContext.setPreparedValue(sql, list);
 			HoneyContext.setSqlValue(sql, valueBuffer.toString());
-
+			addInContextForCache(sql, valueBuffer.toString(), tableName);//2019-09-29
 		} catch (IllegalAccessException e) {
 			throw ExceptionHelper.convert(e);
 		}
@@ -130,7 +131,7 @@ final class _ObjectToSQLHelper {
 			if (valueBuffer.length() > 0) valueBuffer.deleteCharAt(0);
 			HoneyContext.setPreparedValue(sqlBuffer.toString(), list);
 			HoneyContext.setSqlValue(sqlBuffer.toString(), valueBuffer.toString()); //用于log显示
-
+			addInContextForCache(sqlBuffer.toString(), valueBuffer.toString(), tableName);//2019-09-29
 		} catch (IllegalAccessException e) {
 			throw ExceptionHelper.convert(e);
 		}
@@ -224,7 +225,7 @@ final class _ObjectToSQLHelper {
 		if (valueBuffer.length() > 0) valueBuffer.deleteCharAt(0);
 		HoneyContext.setPreparedValue(sql, list);
 		HoneyContext.setSqlValue(sql, valueBuffer.toString());
-
+		addInContextForCache(sqlBuffer.toString(), valueBuffer.toString(), tableName);//2019-09-29
 //		if(!isExistWhere) {sql="no where stament for filter!"; throw new ObjSQLException("no where stament for filter!"); }
 
 		return sql;
@@ -324,7 +325,7 @@ final class _ObjectToSQLHelper {
 		if (valueBuffer.length() > 0) valueBuffer.deleteCharAt(0);
 		HoneyContext.setPreparedValue(sql, list);
 		HoneyContext.setSqlValue(sql, valueBuffer.toString());
-
+		addInContextForCache(sqlBuffer.toString(), valueBuffer.toString(), tableName);//2019-09-29
 		//		if(!isExistWhere) {sql="no where stament for filter!"; throw new ObjSQLException("no where stament for filter!"); }
 
 		return sql;
@@ -395,7 +396,7 @@ final class _ObjectToSQLHelper {
 		if (valueBuffer.length() > 0) valueBuffer.deleteCharAt(0);
 		HoneyContext.setPreparedValue(sql, list);
 		HoneyContext.setSqlValue(sql, valueBuffer.toString());
-
+		addInContextForCache(sqlBuffer.toString(), valueBuffer.toString(), tableName);//2019-09-29
 		return sql;
 	}
 
@@ -410,7 +411,8 @@ final class _ObjectToSQLHelper {
 
 		boolean isFirst = true;
 		String tableName = ConverString.getTableName(entity);
-
+		wrap.setTableNames(tableName);//2019-09-29
+		
 		sqlBuffer.append(INSERT_INTO);
 		sqlBuffer.append(tableName);
 		sqlBuffer.append("(");
@@ -562,7 +564,7 @@ final class _ObjectToSQLHelper {
 			if (valueBuffer.length() > 0) valueBuffer.deleteCharAt(0);
 			HoneyContext.setPreparedValue(sql, list);
 			HoneyContext.setSqlValue(sql, valueBuffer.toString());
-
+			addInContextForCache(sqlBuffer.toString(), valueBuffer.toString(), tableName);//2019-09-29
 			//不允许删整张表
 			//if(!notFirstWhere) {sql="delete * from "+tableName + "where id='still do not set id'"; throw new SQLException(); }
 
@@ -594,5 +596,14 @@ final class _ObjectToSQLHelper {
 		}
 
 		return false;
+	}
+	
+    static void addInContextForCache(String sql,String sqlValue, String tableName){
+		CacheSuidStruct struct=new CacheSuidStruct();
+		struct.setSql(sql);
+		struct.setSqlValue(sqlValue);
+		struct.setTableNames(tableName);
+		
+		HoneyContext.setCacheInfo(sql, struct);  //同一线程内,sql是否可以标识区分
 	}
 }
