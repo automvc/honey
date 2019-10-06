@@ -52,10 +52,11 @@ public final class HoneyUtil {
 	    if(fields==null) return "";
 	    StringBuffer s=new StringBuffer();
 	    int len=fields.length;
+	    boolean b=HoneyConfig.getHoneyConfig().isUnderScoreAndCamelTransform();
 		for (int i = 0; i <len;  i++) {
 			if("serialVersionUID".equals(fields[i].getName())) continue;
 //			s.append(fields[i].getName());
-			if(HoneyConfig.getHoneyConfig().isUnderScoreAndCamelTransform()){
+			if(b){
 			   s.append(HoneyUtil.toUnderscoreNaming(fields[i].getName()));
 			}else{
 			   s.append(fields[i].getName());

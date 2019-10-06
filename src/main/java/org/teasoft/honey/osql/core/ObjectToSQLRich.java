@@ -238,6 +238,8 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			if (valueBuffer.length() > 0) valueBuffer.deleteCharAt(0);
 			HoneyContext.setPreparedValue(sql, list);
 			HoneyContext.setSqlValue(sql, valueBuffer.toString());
+			addInContextForCache(sql, valueBuffer.toString(), tableName);
+			
 
 			if (SqlStrFilter.checkFunSql(sql, funType)) {
 				throw new ObjSQLIllegalSQLStringException("ObjSQLIllegalSQLStringException:sql statement with function is illegal. " + sql);
@@ -316,7 +318,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 				wrap = _ObjectToSQLHelper._toInsertSQL_for_ValueList(entity[i], excludeFieldList); // i 默认包含null和空字符串.因为要用统一的sql作批处理
 				//				t_sql = wrap.getSql(); //  每个sql不一定一样,因为设值不一样,有些字段不用转换. 不采用;因为不利于批处理
 
-				setPreparedValue(sql[0] + index1 + i + index2, wrap);
+				setPreparedValue_ForArray(sql[0] + index1 + i + index2, wrap);
 				Logger.logSQL("insert[] SQL :", sql[0] + index1 + i + index2);
 			}
 		} catch (IllegalAccessException e) {
@@ -329,56 +331,66 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	@Override
 	public String toDeleteByIdSQL(Class c, Integer id) {
 		if(id==null) return null;
-		StringBuffer sqlBuffer=toDeleteByIdSQL0(c);
+		SqlValueWrap sqlBuffer=toDeleteByIdSQL0(c);
 		return _toSelectAndDeleteByIdSQL(sqlBuffer, id, "java.lang.Integer");
 	}
 	
 	@Override
 	public String toDeleteByIdSQL(Class c, Long id) {
 		if(id==null) return null;
-		StringBuffer sqlBuffer=toDeleteByIdSQL0(c);
+		SqlValueWrap sqlBuffer=toDeleteByIdSQL0(c);
 		return _toSelectAndDeleteByIdSQL(sqlBuffer, id, "java.lang.Long");
 	}
 
 	@Override
 	public String toDeleteByIdSQL(Class c, String ids) {
 		if(ids==null || "".equals(ids.trim())) return null;
-		StringBuffer sqlBuffer=toDeleteByIdSQL0(c);
+		SqlValueWrap sqlBuffer=toDeleteByIdSQL0(c);
 		return _toSelectAndDeleteByIdSQL(sqlBuffer,ids);
 	}
 
-	private  StringBuffer toDeleteByIdSQL0(Class c){
+	private  SqlValueWrap toDeleteByIdSQL0(Class c){
 		StringBuffer sqlBuffer = new StringBuffer();
+		SqlValueWrap wrap = new SqlValueWrap();
+		
 		String tableName = ConverString.getTableName(c);
 		
 		sqlBuffer.append("delete from ")
 		.append(tableName)
 		.append(" where ")
 		;
-		return sqlBuffer;
+		
+		wrap.setValueBuffer(sqlBuffer); //sqlBuffer
+		wrap.setTableNames(tableName);
+		
+		return wrap;
 	}
 	
 	@Override
 	public <T> String toSelectByIdSQL(T entity, Integer id) {
-		StringBuffer sqlBuffer = toSelectByIdSQL0(entity);
+		
+		SqlValueWrap sqlBuffer = toSelectByIdSQL0(entity);
 		return _toSelectAndDeleteByIdSQL(sqlBuffer, id, "java.lang.Integer");
 	}
 
 	@Override
 	public <T> String toSelectByIdSQL(T entity, Long id) {
-		StringBuffer sqlBuffer = toSelectByIdSQL0(entity);
+		SqlValueWrap sqlBuffer = toSelectByIdSQL0(entity);
 		return _toSelectAndDeleteByIdSQL(sqlBuffer, id, "java.lang.Long");
 	}
 
 	@Override
 	public <T> String toSelectByIdSQL(T entity, String ids) {
 		if(ids==null || "".equals(ids.trim())) return null;
-		StringBuffer sqlBuffer=toSelectByIdSQL0(entity);
+		SqlValueWrap sqlBuffer=toSelectByIdSQL0(entity);
 		return _toSelectAndDeleteByIdSQL(sqlBuffer,ids);
 	}
 
-	private <T> String _toSelectAndDeleteByIdSQL(StringBuffer sqlBuffer, Number id,String numType) {
+	private <T> String _toSelectAndDeleteByIdSQL(SqlValueWrap wrap, Number id,String numType) {
 		if(id==null) return null;
+		
+		StringBuffer sqlBuffer=wrap.getValueBuffer();  //sqlBuffer
+		
 //		StringBuffer sqlBuffer=toSelectByIdSQL0(entity);
 		sqlBuffer.append("id=").append("?").append(";");
 
@@ -391,11 +403,14 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		
 		HoneyContext.setPreparedValue(sqlBuffer.toString(), list);
 		HoneyContext.setSqlValue(sqlBuffer.toString(), id+""); //用于log显示
+		addInContextForCache(sqlBuffer.toString(), id+"", wrap.getTableNames());
 		
 		return sqlBuffer.toString();
 	}
 	
-	private <T> String _toSelectAndDeleteByIdSQL(StringBuffer sqlBuffer, String ids) {
+	private <T> String _toSelectAndDeleteByIdSQL(SqlValueWrap wrap, String ids) {
+		
+		StringBuffer sqlBuffer =wrap.getValueBuffer(); //sqlBuffer
 		
 		List<PreparedValue> list = new ArrayList<>();
 		PreparedValue preparedValue = null;
@@ -420,12 +435,15 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		
 		HoneyContext.setPreparedValue(sqlBuffer.toString(), list);
 		HoneyContext.setSqlValue(sqlBuffer.toString(), ids); //用于log显示
+		addInContextForCache(sqlBuffer.toString(), ids, wrap.getTableNames());
 		
 		return sqlBuffer.toString();
 	}
 	
-	private  <T> StringBuffer toSelectByIdSQL0(T entity){
+	private  <T> SqlValueWrap toSelectByIdSQL0(T entity){
 		StringBuffer sqlBuffer = new StringBuffer();
+		SqlValueWrap wrap = new SqlValueWrap();
+		
 //		StringBuffer valueBuffer = new StringBuffer();
 //		try {
 			String tableName = ConverString.getTableName(entity);
@@ -441,7 +459,11 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			sqlBuffer.append("select " + fieldNames + " from ");
 			sqlBuffer.append(tableName)
 			.append(" where ");
-		return sqlBuffer;
+			
+			wrap.setValueBuffer(sqlBuffer); //sqlBuffer
+			wrap.setTableNames(tableName);
+			
+		return wrap;
 	}
 
 	private <T> SqlValueWrap toSelectSQL_0(T entity) {
@@ -503,6 +525,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 
 			if (valueBuffer.length() > 0) valueBuffer.deleteCharAt(0);
 
+			wrap.setTableNames(tableName);//2019-09-29
 			wrap.setSql(sqlBuffer.toString());
 			wrap.setList(list);
 			wrap.setValueBuffer(valueBuffer);
@@ -522,6 +545,13 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	private void setPreparedValue(String sql, SqlValueWrap wrap) {
 		HoneyContext.setPreparedValue(sql, wrap.getList());
 		HoneyContext.setSqlValue(sql, wrap.getValueBuffer().toString());
+		addInContextForCache(sql, wrap.getValueBuffer().toString(), wrap.getTableNames());
+	}
+	
+	private void setPreparedValue_ForArray(String sql, SqlValueWrap wrap) {
+		HoneyContext.setPreparedValue(sql, wrap.getList());
+		HoneyContext.setSqlValue(sql, wrap.getValueBuffer().toString());
+//		addInContextForCache(sql, wrap.getValueBuffer().toString(), wrap.getTableNames());
 	}
 	
 	private <T> String checkSelectField(T entity,String fieldList){
@@ -561,5 +591,9 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		if (!"".equals(errorField)) throw new BeeErrorFieldException("ErrorField: " + errorField);
 		
 		return newSelectFields;
+	}
+	
+   private static void addInContextForCache(String sql,String sqlValue, String tableName){
+	   _ObjectToSQLHelper.addInContextForCache(sql, sqlValue, tableName);
 	}
 }
