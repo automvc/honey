@@ -53,7 +53,7 @@ public class ObjSQL implements Suid {
 	public <T> int update(T entity) {
 		// 当id为null时抛出异常  在转sql时抛出
 
-		if (entity == null) return 0;
+		if (entity == null) return -1;
 
 		String sql = "";
 		int updateNum = -1;
@@ -71,7 +71,7 @@ public class ObjSQL implements Suid {
 	@Override
 	public <T> int insert(T entity){
 
-		if (entity == null) return 0;
+		if (entity == null) return -1;
 
 		String sql = objToSQL.toInsertSQL(entity);
 		int insertNum = -1;
@@ -83,7 +83,7 @@ public class ObjSQL implements Suid {
 	@Override
 	public int delete(Object entity) {
 
-		if (entity == null) return 0;
+		if (entity == null) return -1;
 
 		String sql = objToSQL.toDeleteSQL(entity);
 		int deleteNum = -1;

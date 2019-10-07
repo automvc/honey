@@ -134,7 +134,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 
 	@Override
 	public <T> int update(T entity, String updateFieldList) {
-		if (entity == null) return 0;
+		if (entity == null) return -1;
 		int r = 0;
 		try {
 			String sql = objToSQLRich.toUpdateSQL(entity, updateFieldList);
@@ -172,7 +172,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 
 	@Override
 	public <T> int update(T entity, String updateFieldList, IncludeType includeType) {
-		if (entity == null) return 0;
+		if (entity == null) return -1;
 		int r = 0;
 		try {
 			String sql = objToSQLRich.toUpdateSQL(entity, updateFieldList, includeType);
@@ -195,7 +195,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 
 	@Override
 	public <T> int update(T entity, IncludeType includeType) {
-		if (entity == null) return 0;
+		if (entity == null) return -1;
 		String sql = objToSQLRich.toUpdateSQL(entity, includeType);
 		Logger.logSQL("update SQL: ", sql);
 		return getBeeSql().modify(sql);
@@ -203,7 +203,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 
 	@Override
 	public <T> int insert(T entity, IncludeType includeType) {
-		if (entity == null) return 0;
+		if (entity == null) return -1;
 		String sql = objToSQLRich.toInsertSQL(entity, includeType);
 		Logger.logSQL("insert SQL: ", sql);
 		return getBeeSql().modify(sql);
@@ -211,7 +211,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 
 	@Override
 	public <T> int delete(T entity, IncludeType includeType) {
-		if (entity == null) return 0;
+		if (entity == null) return -1;
 		String sql = objToSQLRich.toDeleteSQL(entity, includeType);
 		Logger.logSQL("delete SQL: ", sql);
 		return getBeeSql().modify(sql);
