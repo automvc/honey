@@ -28,7 +28,7 @@ public class CacheDeleteThread extends Thread {
 	}
 
 	public void begin() {
-		try {
+//		try {
 
 			if (finished) {
 				finished = false;
@@ -38,9 +38,9 @@ public class CacheDeleteThread extends Thread {
 ////				System.out.println("========in CacheDeleteThread==============" + Thread.currentThread().getName());
 //				System.out.println("========in CacheDeleteThread==============" + this.getName());
 			}
-		} catch (Exception e) {
-			System.err.println(e.getMessage());
-		}
+//		} catch (Exception e) {
+//			System.err.println(e.getMessage());
+//		}
 	}
 
 	@Override
