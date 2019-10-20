@@ -1,5 +1,6 @@
 package org.teasoft.honey.osql.core;
 
+import org.teasoft.bee.osql.annotation.SysValue;
 import org.teasoft.honey.osql.constant.DbConfigConst;
 
 /**
@@ -24,10 +25,10 @@ public final class HoneyConfig {
 	private void init() {
 		setDbName(BeeProp.getBeeProp("bee.databaseName"));
 		setShowSQL(Boolean.parseBoolean(BeeProp.getBeeProp("bee.osql.showSQL")));
-		String t_batchSize = BeeProp.getBeeProp("bee.osql.select.batchSize");
-		if (t_batchSize != null) setBatchSize(Integer.parseInt(t_batchSize));
-		String t_maxResultSize = BeeProp.getBeeProp("bee.osql.select.maxResultSize");
-		if (t_maxResultSize != null) setMaxResultSize(Integer.parseInt(t_maxResultSize));
+//		String t_batchSize = BeeProp.getBeeProp("bee.osql.select.batchSize");
+//		if (t_batchSize != null) setBatchSize(Integer.parseInt(t_batchSize));
+//		String t_maxResultSize = BeeProp.getBeeProp("bee.osql.select.maxResultSize");
+//		if (t_maxResultSize != null) setMaxResultSize(Integer.parseInt(t_maxResultSize));
 
 		setUnderScoreAndCamelTransform(Boolean.parseBoolean(BeeProp.getBeeProp("bee.osql.underScoreAndCamelTransform")));
 		setDbNamingToLowerCaseBefore(Boolean.parseBoolean(BeeProp.getBeeProp("bee.osql.dbNaming.toLowerCaseBefore")));
@@ -51,8 +52,8 @@ public final class HoneyConfig {
 		String t2 = BeeProp.getBeeProp("bee.osql.cache.timeout");//缓存保存时间(毫秒 ms)
 		if (t2 != null) setCacheTimeout(Integer.parseInt(t2));
 		
-		String t3 = BeeProp.getBeeProp("bee.osql.cache.work.resultSet.size"); //resultset超过一定的值将不会放缓存
-		if (t3 != null) setCacheWorkResultSetSize(Integer.parseInt(t3));
+//		String t3 = BeeProp.getBeeProp("bee.osql.cache.work.resultSet.size"); //resultset超过一定的值将不会放缓存
+//		if (t3 != null) setCacheWorkResultSetSize(Integer.parseInt(t3));
 		
 		String t4 = BeeProp.getBeeProp("bee.osql.cache.startDeleteCache.rate"); 
 		if (t4 != null) setStartDeleteCacheRate(Double.parseDouble(t4));
@@ -62,11 +63,14 @@ public final class HoneyConfig {
 		
 		String t6 = BeeProp.getBeeProp("bee.osql.cache.fullClearCache.rate"); 
 		if (t6 != null) setFullClearCacheRate(Double.parseDouble(t6));
+		
+		
+		SysValueProcessor.process(honeyConfig);
 	}
 
 	// 启动时动态获取
 	private boolean showSQL;
-	private int batchSize = 100; //不设置,默认100
+	
 	private String dbName;
 	private boolean underScoreAndCamelTransform;
 	private boolean dbNamingToLowerCaseBefore;
@@ -81,24 +85,47 @@ public final class HoneyConfig {
 	private String url;
 	private String username;
 	private String password;
-	private int maxResultSize;
+
 	
 	private int cacheTimeout;
-	private int cacheWorkResultSetSize;
 	private int cacheMapSize;
 	private String cacheType="FIFO";
 	
-	private static double startDeleteCacheRate;  //when timeout use
-	private static double cachefullUsedRate;      //when add element in cache use
-	private static double fullClearCacheRate;  //when add element in cache use
+	private double startDeleteCacheRate;  //when timeout use
+	private double cachefullUsedRate;      //when add element in cache use
+	private double fullClearCacheRate;  //when add element in cache use
+	
+	
+	
+	/////////////////
+	@SysValue("${bee.osql.select.maxResultSize}")
+	private int selectMaxResultSize;
+	
+	@SysValue("${bee.osql.select.batchSize}")
+	private int batchSize = 100; //不设置,默认100
+	
+	
+	@SysValue("${bee.osql.cache.work.resultSet.size}")
+	private int cacheWorkResultSetSize;
+	
+	@SysValue("${bee.osql.cache.never}")
+	private String neverCacheTableList ; 
+	
+	@SysValue("${bee.osql.cache.forever}")
+	private String foreverCacheTableList ; 
+	
+	@SysValue("${bee.osql.cache.forever.modifySyn}")
+	private String foreverCacheModifySynTableList ; 
+	
+	
 
 	private void setShowSQL(boolean showSQL) {
 		this.showSQL = showSQL;
 	}
 
-	private void setBatchSize(int batchSize) {
-		this.batchSize = batchSize;
-	}
+//	private void setBatchSize(int batchSize) {
+//		this.batchSize = batchSize;
+//	}
 
 	private void setDbName(String dbName) {
 		this.dbName = dbName;
@@ -126,10 +153,6 @@ public final class HoneyConfig {
 
 	private void setPassword(String password) {
 		this.password = password;
-	}
-
-	private void setMaxResultSize(int maxResultSize) {
-		this.maxResultSize = maxResultSize;
 	}
 
 	public boolean isShowSQL() {
@@ -168,10 +191,10 @@ public final class HoneyConfig {
 		return password;
 	}
 
-	public int getMaxResultSize() {
-		return maxResultSize;
+	public int getSelectMaxResultSize() {
+		return selectMaxResultSize;
 	}
-
+	
 	public boolean isIgnoreNullInSelectJson() {
 		return ignoreNullInSelectJson;
 	}
@@ -232,9 +255,9 @@ public final class HoneyConfig {
 		return cacheWorkResultSetSize;
 	}
 
-	private void setCacheWorkResultSetSize(int cacheWorkResultSetSize) {
-		this.cacheWorkResultSetSize = cacheWorkResultSetSize;
-	}
+//	private void setCacheWorkResultSetSize(int cacheWorkResultSetSize) {
+//		this.cacheWorkResultSetSize = cacheWorkResultSetSize;
+//	}
 
 	public String getCacheType() {
 		return cacheType;
@@ -244,28 +267,73 @@ public final class HoneyConfig {
 		this.cacheType = cacheType;
 	}
 
-	private static void setStartDeleteCacheRate(double startDeleteCacheRate) {
-		HoneyConfig.startDeleteCacheRate = startDeleteCacheRate;
-	}
-
-	private static void setCachefullUsedRate(double cachefullUsedRate) {
-		HoneyConfig.cachefullUsedRate = cachefullUsedRate;
-	}
-
-	private static void setFullClearCacheRate(double fullClearCacheRate) {
-		HoneyConfig.fullClearCacheRate = fullClearCacheRate;
-	}
-
-	public static double getStartDeleteCacheRate() {
+	public double getStartDeleteCacheRate() {
 		return startDeleteCacheRate;
 	}
 
-	public static double getCachefullUsedRate() {
+	private void setStartDeleteCacheRate(double startDeleteCacheRate) {
+		this.startDeleteCacheRate = startDeleteCacheRate;
+	}
+
+	public double getCachefullUsedRate() {
 		return cachefullUsedRate;
 	}
 
-	public static double getFullClearCacheRate() {
+	private void setCachefullUsedRate(double cachefullUsedRate) {
+		this.cachefullUsedRate = cachefullUsedRate;
+	}
+
+	public double getFullClearCacheRate() {
 		return fullClearCacheRate;
 	}
+
+	private void setFullClearCacheRate(double fullClearCacheRate) {
+		this.fullClearCacheRate = fullClearCacheRate;
+	}
+
+	public String getNeverCacheTableList() {
+		return neverCacheTableList;
+	}
+
+	public String getForeverCacheTableList() {
+		return foreverCacheTableList;
+	}
+
+	public String getForeverCacheModifySynTableList() {
+		return foreverCacheModifySynTableList;
+	}
 	
+/*	
+  //test
+	private void init(HoneyConfig t) {
+		SysValueProcessor.process(t);
+	}
+	public static void main(String[] args){
+		
+		
+//		System.out.println(HoneyConfig.getCachefullUsedRate());
+		System.out.println(HoneyConfig.getHoneyConfig().getStartDeleteCacheRate());
+		
+//		HoneyConfig t=new HoneyConfig();
+		HoneyConfig t=getHoneyConfig();
+		
+		System.out.println("-----------before:"+t.selectMaxResultSize);
+		System.out.println("-----------before:"+t.batchSize);
+		System.out.println("-----------before:"+t.neverCacheTableList);
+		System.out.println("-----------before:"+t.foreverCacheTableList);
+		System.out.println("-----------before:"+t.foreverCacheModifySynTableList);
+		System.out.println("-----------before:"+t.cacheWorkResultSetSize);
+		
+		System.out.println();
+//		t.init(t);
+		
+		System.out.println("-----------after:"+t.selectMaxResultSize);
+		System.out.println("-----------after:"+t.batchSize);
+		System.out.println("-----------after:"+t.neverCacheTableList);
+		System.out.println("-----------after:"+t.foreverCacheTableList);
+		System.out.println("-----------after:"+t.foreverCacheModifySynTableList);
+		System.out.println("-----------after:"+t.cacheWorkResultSetSize);
+		
+	}
+	*/
 }
