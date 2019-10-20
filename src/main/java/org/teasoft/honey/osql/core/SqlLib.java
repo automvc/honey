@@ -87,7 +87,7 @@ public class SqlLib implements BeeSql {
 				rsList.add(targetObj);
 			}
 			
-			addInCache(sql, rsList,"List<T>",SuidType.SELECT);
+			addInCache(sql, rsList,"List<T>",SuidType.SELECT,rsList.size());
 			
 		} catch (SQLException e) {
 			throw ExceptionHelper.convert(e);
@@ -160,7 +160,7 @@ public class SqlLib implements BeeSql {
 				isFirst=false;
 			}
 
-			addInCache(sql, rsList,"List<T>",SuidType.SELECT);
+			addInCache(sql, rsList,"List<T>",SuidType.SELECT,rsList.size());
 			
 		} catch (SQLException e) {
 			throw ExceptionHelper.convert(e);
@@ -213,7 +213,7 @@ public class SqlLib implements BeeSql {
 				throw new ObjSQLException("ObjSQLException:The size of ResultSet more than 1.");
 			}
 			
-			addInCache(sql, result,"String",SuidType.SELECT);
+			addInCache(sql, result,"String",SuidType.SELECT,1);
 
 		} catch (SQLException e) {
 			throw ExceptionHelper.convert(e);
@@ -257,7 +257,7 @@ public class SqlLib implements BeeSql {
 
 			list=TransformResultSet.toStringsList(rs);
 			
-			addInCache(sql, list,"List<String[]>",SuidType.SELECT);
+			addInCache(sql, list,"List<String[]>",SuidType.SELECT,list.size());
 			
 		} catch (SQLException e) {
 			throw ExceptionHelper.convert(e);
@@ -322,7 +322,7 @@ public class SqlLib implements BeeSql {
 			rs = pst.executeQuery();
 			json = TransformResultSet.toJson(rs);
 			
-			addInCache(sql, json.toString(),"StringJson",SuidType.SELECT);
+			addInCache(sql, json.toString(),"StringJson",SuidType.SELECT,-1);  //没有作最大结果集判断
 
 		} catch (SQLException e) {
 			throw ExceptionHelper.convert(e);
@@ -442,7 +442,15 @@ public class SqlLib implements BeeSql {
 	}
 	
 	//add on 2019-10-01
-	private void addInCache(String sql, Object rs, String returnType, SuidType suidType) {
+	private void addInCache(String sql, Object rs, String returnType, SuidType suidType,int resultSetSize) {
+		
+//		如果结果集超过一定的值则不放缓存
+		int cacheWorkResultSetSize=HoneyConfig.getHoneyConfig().getCacheWorkResultSetSize();
+		if(resultSetSize>cacheWorkResultSetSize){
+		   HoneyContext.deleteCacheInfo(sql);
+		   return;
+		}
+		
 		CacheSuidStruct struct = HoneyContext.getCacheInfo(sql);
 		if (struct != null) {
 			struct.setReturnType(returnType);
@@ -452,6 +460,7 @@ public class SqlLib implements BeeSql {
 		cache.add(sql, rs);
 	}
 	
+//	查缓存前需要先更新缓存信息,才能去查看是否在缓存
 	private void updateInfoInCache(String sql, String returnType, SuidType suidType) {
 		CacheSuidStruct struct = HoneyContext.getCacheInfo(sql);
 		if (struct != null) {
