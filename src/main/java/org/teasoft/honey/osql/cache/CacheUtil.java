@@ -7,6 +7,7 @@
 package org.teasoft.honey.osql.cache;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -38,6 +39,16 @@ public final class CacheUtil {
 	
 	private static ArrayIndex arrayIndex;
 	
+	private static Map<String,String> neverCacheTableMap=new HashMap<>();
+	private static Map<String,Integer> foreverCacheTableMap=new HashMap<>();
+	private static Map<String,Integer> foreverCacheModifySynTableMap=new HashMap<>();
+//	bee.osql.cache.forever.modifySyn
+	private static String NEVER="1";
+	private static Integer FOREVER=0;
+	
+	private static Map<String,Object> foreverCacheObjectMap=new HashMap<>();
+	private static Map<String,Object> foreverModifySynCacheObjectMap=new Hashtable<>();
+	
 	static {
 		MAX_SIZE=HoneyConfig.getHoneyConfig().getCacheMapSize();
 		
@@ -53,39 +64,63 @@ public final class CacheUtil {
 		timeout=HoneyConfig.getHoneyConfig().getCacheTimeout();
 		
 		arrayIndex=new ArrayIndex();
+		
+		initSpecialTable(HoneyConfig.getHoneyConfig().getNeverCacheTableList(), 
+				         HoneyConfig.getHoneyConfig().getForeverCacheTableList(),
+				         HoneyConfig.getHoneyConfig().getForeverCacheModifySynTableList()
+				);
 	}
 	
-	public static Object get(String sql){
-		String key=CacheKey.genKey(sql);	
-//		System.out.println("cache UsedSize: "+arrayIndex.getUsedSize());
-		
-		if(key==null) return null;
-		
-		Integer index=map.get(key);
-		if(index==null) {  //还没有缓存结果
-//			要清除缓存结构   不能清.   查了DB之后,放缓存还是要的
-			return null;
-		}
-		
-		if(_isTimeout(index)) {
-//			arrayIndex.setKnow(index); //标识已知超时的元素边界     删除时,才传入.  满时,不超时,也会删除一定比例
-			
-			if(! arrayIndex.isStartDelete()){
-				delCache(key);  //只删除一个
-			}else{
-				new CacheDeleteThread(index).begin(); //起一个线程执行
+	public static Object get(String sql) {
+		String key = CacheKey.genKey(sql);
+		//System.out.println("cache UsedSize: "+arrayIndex.getUsedSize());
+
+		if (key == null) return null;
+
+		Integer index = map.get(key);
+		if (index != null) { //已有缓存结果
+		//			要清除缓存结构   不能清.   查了DB之后,放缓存还是要的
+			if (_isTimeout(index)) {
+				//			arrayIndex.setKnow(index); //标识已知超时的元素边界     删除时,才传入.  满时,不超时,也会删除一定比例
+
+				if (!arrayIndex.isStartDelete()) {
+					delCache(key); //只删除一个
+				} else {
+					new CacheDeleteThread(index).begin(); //起一个线程执行
+				}
+				return null;
 			}
+			Logger.print("==========get from cache.");
+
+			// 要是能返回缓存的结果集,说明不用缓存结构信息的上下文了. 可以删
+			HoneyContext.getCacheInfo(sql, true);
+
+			return obj[index];
+		} else {
+
+			List<String> tableKeyList = CacheKey.genTabKeyList(sql); //支持多表的情况
+			//forever 判断是否在永久缓存表
+			if (tableKeyList != null && tableKeyList.size() == 1) {
+                Integer forever=foreverCacheTableMap.get(tableKeyList.get(0));
+				if ( forever != null && forever == 1) { //检测到是forever //并且已放缓存
+
+					return foreverCacheObjectMap.get(key);
+				}
+				
+				Integer foreverModifySyn=foreverCacheModifySynTableMap.get(tableKeyList.get(0));
+				
+				if (foreverModifySyn != null //检测到是forever modifySyn
+				 && foreverModifySyn == 1) { //并且已放缓存
+					return foreverModifySynCacheObjectMap.get(key);
+				}
+			}
+			
+			//到这表示缓存里还没有
 			return null;
 		}
-		Logger.print("==========get from cache.");
-		
-		// 要是能返回缓存的结果集,说明不用缓存结构信息的上下文了. 可以删
-		HoneyContext.getCacheInfo(sql,true);
-		
-		return obj[index];
 	}
 	
-	//通过key删除缓存
+	//通过key删除缓存  超时才会被调用
 	private static void delCache(String key){
 		if(key==null) return ;
 		Integer i=map.get(key); 
@@ -164,6 +199,40 @@ public final class CacheUtil {
 	
 	//TODO 添加缓存是否可以另起一个线程执行,不用影响到原来的.   但一次只能添加一个元素,作用不是很大.要考虑起线程的开销
 	 static void addInCache(String sql,Object rs){
+		 
+		 
+		 List<String> tableKeyList=CacheKey.genTabKeyList(sql);  //支持多表的情况
+		 
+		 //never 列表的不用放缓存       暂时只是用表名标识
+		 if(tableKeyList!=null && tableKeyList.size()==1){
+			if(neverCacheTableMap.get(tableKeyList.get(0)) !=null) { //检测到是never
+				return ;
+			}
+		 }
+		 
+		 //forever
+		 if(tableKeyList!=null && tableKeyList.size()==1){
+			if(foreverCacheTableMap.get(tableKeyList.get(0)) !=null   //检测到是forever
+			&& foreverCacheTableMap.get(tableKeyList.get(0))==0 ) {  //并且还没有放缓存
+				
+				foreverCacheTableMap.put(tableKeyList.get(0), 1);  //标记已放缓存
+				foreverCacheObjectMap.put(CacheKey.genKey(sql), rs);
+				
+				return ;
+			}
+			
+//			常驻缓存,但有更新时会清除缓存
+			if(foreverCacheModifySynTableMap.get(tableKeyList.get(0)) !=null   //检测到是forever
+			&& foreverCacheModifySynTableMap.get(tableKeyList.get(0))==0 ) {  //并且还没有放缓存
+				
+				foreverCacheModifySynTableMap.put(tableKeyList.get(0), 1);  //标记已放缓存
+				foreverModifySynCacheObjectMap.put(CacheKey.genKey(sql), rs);
+				
+				return ;
+			}
+			
+		 }
+		 
 		//满了,还要处理呢   满了后,一次删10%?  已在配置里设置
 		if(arrayIndex.isWouldbeFull()){
 //			System.out.println("==================== cache is wouldbe full ..");
@@ -177,7 +246,7 @@ public final class CacheUtil {
 		
 		String key=CacheKey.genKey(sql);
 		
-		List<String> tableKeyList=CacheKey.genTabKeyList(sql);  //支持多表的情况
+		
 		
 		int i=arrayIndex.getNext();  //要保证是线程安全的,否则可能会错
 		long ms=System.currentTimeMillis();
@@ -230,6 +299,14 @@ public final class CacheUtil {
 			set=null;
 			map_tableIndexSet.remove(tableKey);  //不能少
 		}
+		
+		//foreverModifySyn  常驻缓存,但有更新时会清除缓存
+		Integer i=foreverCacheModifySynTableMap.get(tableKey);
+		if(i !=null && i==1){
+			foreverCacheModifySynTableMap.put(tableKey, 0);  //标记清除缓存
+			foreverModifySynCacheObjectMap.remove(tableKey); //清除缓存
+		}
+
 	}
 	
 	 private static void _addIntableKeyList(String key,String tableKey){
@@ -256,6 +333,24 @@ public final class CacheUtil {
 		Set<Integer> set = map_tableIndexSet.get(tableKey);
 		if (set != null) {
 			set.remove(index);
+		}
+	}
+	
+	private static void initSpecialTable(String never,String forever,String foreverModifySyn){
+		String ns[]=never.split(",");
+		for (int i = 0; i < ns.length; i++) {
+			neverCacheTableMap.put(ns[i].trim(), NEVER);
+		}
+		
+		String fs[]=forever.split(",");
+		for (int i = 0; i < fs.length; i++) {
+			foreverCacheTableMap.put(fs[i].trim(), FOREVER);
+		}
+		
+//	         常驻缓存,但有更新时会清除缓存	
+		String fs_syn[]=foreverModifySyn.split(",");
+		for (int i = 0; i < fs.length; i++) {
+			foreverCacheModifySynTableMap.put(fs_syn[i].trim(), FOREVER);
 		}
 	}
 }
