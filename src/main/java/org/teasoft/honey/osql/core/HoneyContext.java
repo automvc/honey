@@ -35,7 +35,7 @@ public final class HoneyContext {
 
 	private HoneyContext() {}
 
-	public static String addBeanField(String key, String value) {
+	static String addBeanField(String key, String value) {
 		return beanMap.put(key, value);
 	}
 
@@ -43,7 +43,7 @@ public final class HoneyContext {
 		return beanMap.get(key);
 	}
 
-	public static void setPreparedValue(String sqlStr, List<PreparedValue> list) {
+	static void setPreparedValue(String sqlStr, List<PreparedValue> list) {
 		if (list == null || list.size() == 0) return;
 		Map<String, List<PreparedValue>> map = sqlPreValueLocal.get();
 		if (null == map) map = new HashMap<>();
@@ -60,7 +60,7 @@ public final class HoneyContext {
 		return list;
 	}
 
-	public static void setSqlValue(String sqlStr, String value) {
+    static void setSqlValue(String sqlStr, String value) {
 		if (value == null || "".equals(value.trim())) return;
 		Map<String, String> map = sqlValueLocal.get();
 		if (null == map) map = new HashMap<>();
@@ -77,7 +77,7 @@ public final class HoneyContext {
 	}
 	
 	
-	public static void setCacheInfo(String sqlStr, CacheSuidStruct cacheInfo) {
+	static void setCacheInfo(String sqlStr, CacheSuidStruct cacheInfo) {
 		if (cacheInfo == null) return;
 		Map<String, CacheSuidStruct> map = cacheLocal.get();
 		if (null == map) map = new HashMap<>();
@@ -97,6 +97,11 @@ public final class HoneyContext {
 //		if(struct2==null)  System.out.println("--------  CacheSuidStruct  was already  deleted!"); 
 		
 		return  struct;
+	}
+	
+	static void deleteCacheInfo(String sqlStr){
+		Map<String, CacheSuidStruct> map = cacheLocal.get();
+		map.remove(sqlStr);
 	}
 	
 	public static CacheSuidStruct getCacheInfo(String sqlStr) {
