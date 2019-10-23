@@ -4,7 +4,7 @@
 	<groupId>org.teasoft</groupId>
 	<artifactId>honey</artifactId>
 	<name>honey</name>
-	<version>1.4.32</version>
+	<version>1.4.35</version>
 	<packaging>jar</packaging>
 
 	<properties>
@@ -18,7 +18,7 @@
 		<dependency>
 			<groupId>org.teasoft</groupId>
 			<artifactId>bee</artifactId>
-			<version>1.4.8</version>
+			<version>1.4.9</version>
 		</dependency>
 
 	</dependencies>
