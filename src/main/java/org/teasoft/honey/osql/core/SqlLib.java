@@ -22,7 +22,6 @@ import org.teasoft.bee.osql.BeeSql;
 import org.teasoft.bee.osql.Cache;
 import org.teasoft.bee.osql.ObjSQLException;
 import org.teasoft.bee.osql.SuidType;
-import org.teasoft.honey.osql.cache.CacheSuidStruct;
 
 /**
  * 直接操作数据库，并返回结果.在该类中的sql字符串要是DB能识别的SQL语句
@@ -293,7 +292,8 @@ public class SqlLib implements BeeSql {
 		
 		
 		//TODO  更改操作需要清除缓存
-		clearInCache(sql, "int",SuidType.MODIFY);
+		if(num>0)
+		   clearInCache(sql, "int",SuidType.MODIFY);
 		
 		return num;
 	}
@@ -451,12 +451,6 @@ public class SqlLib implements BeeSql {
 		   return;
 		}
 		
-		CacheSuidStruct struct = HoneyContext.getCacheInfo(sql);
-		if (struct != null) {
-			struct.setReturnType(returnType);
-			struct.setSuidType(suidType.getType());
-			HoneyContext.setCacheInfo(sql, struct);
-		}
 		cache.add(sql, rs);
 	}
 	
