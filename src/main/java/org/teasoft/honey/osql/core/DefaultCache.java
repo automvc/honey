@@ -7,7 +7,6 @@
 package org.teasoft.honey.osql.core;
 
 import org.teasoft.bee.osql.Cache;
-import org.teasoft.honey.osql.cache.CacheUtil;
 
 /**
  * @author Kingstar

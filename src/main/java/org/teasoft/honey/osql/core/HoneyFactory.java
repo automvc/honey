@@ -92,8 +92,9 @@ public class HoneyFactory {
 	}
 
 	public DbFeature getDbDialect() {
-		if (DatabaseConst.MYSQL.equalsIgnoreCase((HoneyContext.getDbDialect())))
-			return new MySqlFeature();
+		if (DatabaseConst.MYSQL.equalsIgnoreCase((HoneyContext.getDbDialect()))
+		 || DatabaseConst.MariaDB.equalsIgnoreCase((HoneyContext.getDbDialect()))
+		   )return new MySqlFeature();
 		else if (DatabaseConst.ORACLE.equalsIgnoreCase((HoneyContext.getDbDialect())))
 			return new OracleFeature();
 		else if (DatabaseConst.SQLSERVER.equalsIgnoreCase((HoneyContext.getDbDialect())))

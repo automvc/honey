@@ -26,17 +26,15 @@ public class SysValueProcessor {
 				f[i].setAccessible(true);
 				value = sysValue.value();
 				if (value == null) {
-					System.out.println("value is null");
+//					System.out.println("value is null");
 				} else if ("".equals(value.trim())) {
-					System.out.println(" value is empty");
+//					System.out.println(" value is empty");
 				} else {
 
 					value = value.trim();
 					if (value.startsWith("${") && value.endsWith("}")) { //  ${bee.properties.key}
 						key = value.substring(2, value.length() - 1);
 						proValue = BeeProp.getBeeProp(key);
-						//						String t1 = BeeProp.getBeeProp("bee.osql.cache.map.size"); //缓存集数据量大小
-						//						if (t1 != null) setCacheMapSize(Integer.parseInt(t1));
 						if (proValue == null)
 							continue;
 						else

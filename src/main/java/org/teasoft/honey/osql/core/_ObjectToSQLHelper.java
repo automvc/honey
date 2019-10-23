@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.teasoft.bee.osql.ObjSQLException;
-import org.teasoft.honey.osql.cache.CacheSuidStruct;
 
 /**
  * @author Kingstar

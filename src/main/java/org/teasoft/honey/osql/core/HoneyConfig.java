@@ -302,38 +302,4 @@ public final class HoneyConfig {
 	public String getForeverCacheModifySynTableList() {
 		return foreverCacheModifySynTableList;
 	}
-	
-/*	
-  //test
-	private void init(HoneyConfig t) {
-		SysValueProcessor.process(t);
-	}
-	public static void main(String[] args){
-		
-		
-//		System.out.println(HoneyConfig.getCachefullUsedRate());
-		System.out.println(HoneyConfig.getHoneyConfig().getStartDeleteCacheRate());
-		
-//		HoneyConfig t=new HoneyConfig();
-		HoneyConfig t=getHoneyConfig();
-		
-		System.out.println("-----------before:"+t.selectMaxResultSize);
-		System.out.println("-----------before:"+t.batchSize);
-		System.out.println("-----------before:"+t.neverCacheTableList);
-		System.out.println("-----------before:"+t.foreverCacheTableList);
-		System.out.println("-----------before:"+t.foreverCacheModifySynTableList);
-		System.out.println("-----------before:"+t.cacheWorkResultSetSize);
-		
-		System.out.println();
-//		t.init(t);
-		
-		System.out.println("-----------after:"+t.selectMaxResultSize);
-		System.out.println("-----------after:"+t.batchSize);
-		System.out.println("-----------after:"+t.neverCacheTableList);
-		System.out.println("-----------after:"+t.foreverCacheTableList);
-		System.out.println("-----------after:"+t.foreverCacheModifySynTableList);
-		System.out.println("-----------after:"+t.cacheWorkResultSetSize);
-		
-	}
-	*/
 }

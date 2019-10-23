@@ -7,8 +7,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import org.teasoft.honey.osql.cache.CacheSuidStruct;
-
 /**
  * @author Kingstar
  * @since  1.0
@@ -85,17 +83,10 @@ public final class HoneyContext {
 		cacheLocal.set(map);
 	}
 
-	public static CacheSuidStruct getCacheInfo(String sqlStr,boolean isDelete) {
+	public static CacheSuidStruct getCacheInfo(String sqlStr) {
 		Map<String, CacheSuidStruct> map = cacheLocal.get();
 		if (null == map) return null;
 		CacheSuidStruct struct=map.get(sqlStr);
-		if (isDelete && struct != null) map.remove(sqlStr);  
-		
-//		Map<String, CacheSuidStruct> map2 = cacheLocal.get();
-//		CacheSuidStruct struct2=map2.get(sqlStr);
-//		YES  已被删
-//		if(struct2==null)  System.out.println("--------  CacheSuidStruct  was already  deleted!"); 
-		
 		return  struct;
 	}
 	
@@ -104,10 +95,6 @@ public final class HoneyContext {
 		map.remove(sqlStr);
 	}
 	
-	public static CacheSuidStruct getCacheInfo(String sqlStr) {
-		return getCacheInfo(sqlStr,false);
-	}
-
 	public static String getDbDialect() {
 		return HoneyConfig.getHoneyConfig().getDbName();
 	}
