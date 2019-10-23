@@ -38,4 +38,12 @@ public class Logger {
 				_println(hardStr, sql +"   [values]: "+ value);
 		}
 	}
+	
+	public static void error(String msg){
+		log.error(msg);
+	}
+	
+	public static void warn(String msg){
+		log.warn(msg);
+	}
 }
