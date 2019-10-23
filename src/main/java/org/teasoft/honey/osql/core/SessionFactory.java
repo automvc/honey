@@ -39,8 +39,18 @@ public final class SessionFactory {
 			} else {
 				conn = getBeeFactory().getDataSource().getConnection();
 			}
-
-		} catch (SQLException e) {
+		} 
+		catch (SQLException e) {
+//			System.err.println("==========================Have SQLException==="+e.getMessage());
+			//连接断了,也是在这抛出.
+			throw ExceptionHelper.convert(e);
+		}
+       catch (ClassNotFoundException e) {
+			Logger.error("Can not find the Database driver!  " + e.getMessage());
+			throw new NoConfigException("Can not find the Database driver(maybe miss the jar file).");
+		} 
+		catch (Exception e) {
+			Logger.error("==========================Have Exception when getConnection===: "+e.getMessage());
 			throw ExceptionHelper.convert(e);
 		}
 
@@ -58,7 +68,7 @@ public final class SessionFactory {
 		return tran;
 	}
 
-	private static Connection getOriginalConn(){
+	private static Connection getOriginalConn() throws ClassNotFoundException,SQLException{
 
 		String driverName = HoneyConfig.getHoneyConfig().getDriverName();
 		String url = HoneyConfig.getHoneyConfig().getUrl();
@@ -76,15 +86,17 @@ public final class SessionFactory {
 		}
 
 		Connection conn = null;
-		try {
+//		try {
 			Class.forName(driverName);
 			conn = DriverManager.getConnection(url, username, password);
-		} catch (ClassNotFoundException e) {
-			Logger.println("Can not find the Database driver", e.getMessage());
-			throw new NoConfigException("Can not find the Database driver.");
-		} catch (SQLException e) {
-			throw ExceptionHelper.convert(e);
-		}
+			
+//		} catch (ClassNotFoundException e) {
+//			Logger.error("Can not find the Database driver!  "+e.getMessage());
+//			throw new NoConfigException("Can not find the Database driver(maybe miss the config info).");
+//		} 
+//		catch (SQLException e) {
+//			throw ExceptionHelper.convert(e);
+//		}
 
 		return conn;
 	}
