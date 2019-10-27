@@ -14,7 +14,7 @@ import org.teasoft.honey.osql.chain.UnionSelectImpl;
 public class SelectExam {
 public static void main(String[] args) {
 	try{	
-	  SelectImpl joinSelect =new SelectImpl();
+	  Select joinSelect =new SelectImpl();
 		joinSelect.select("*")
 		.from("Orders,Orderitem")
 		.where("Orders.id=Orderitem.orderid")
