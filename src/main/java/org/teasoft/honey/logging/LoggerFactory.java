@@ -14,12 +14,16 @@ import org.teasoft.bee.logging.Log;
  */
 public class LoggerFactory {
 	private static Log log;
+	public final static Byte[] lock = new Byte[0];    
 	
 	private LoggerFactory(){}
 	
 	public static Log getLog() {
 		if(log==null) {
-			log = new SystemLogger();
+			synchronized(lock){
+				if(log==null)
+			      log = new SystemLogger();
+			}
 		}
 		return log;
 	}
