@@ -405,20 +405,26 @@ public final class CacheUtil {
 	}
 	
 	private static void initSpecialTable(String never,String forever,String foreverModifySyn){
-		String ns[]=never.split(",");
-		for (int i = 0; i < ns.length; i++) {
-			neverCacheTableMap.put(ns[i].trim(), NEVER);
+		if (never != null) {
+			String ns[] = never.split(",");
+			for (int i = 0; i < ns.length; i++) {
+				neverCacheTableMap.put(ns[i].trim(), NEVER);
+			}
 		}
-		
-		String fs[]=forever.split(",");
-		for (int i = 0; i < fs.length; i++) {
-			foreverCacheTableMap.put(fs[i].trim(), FOREVER);
+
+		if (forever != null) {
+			String fs[] = forever.split(",");
+			for (int i = 0; i < fs.length; i++) {
+				foreverCacheTableMap.put(fs[i].trim(), FOREVER);
+			}
 		}
-		
-//	         常驻缓存,但有更新时会清除缓存	
-		String fs_syn[]=foreverModifySyn.split(",");
-		for (int i = 0; i < fs.length; i++) {
-			foreverCacheModifySynTableMap.put(fs_syn[i].trim(), FOREVER);
+
+		if (foreverModifySyn != null) {
+			//	         常驻缓存,但有更新时会清除缓存	
+			String fs_syn[] = foreverModifySyn.split(",");
+			for (int i = 0; i < fs_syn.length; i++) {
+				foreverCacheModifySynTableMap.put(fs_syn[i].trim(), FOREVER);
+			}
 		}
 	}
 }
