@@ -18,6 +18,8 @@ import org.teasoft.bee.osql.ObjToSQLRich;
 import org.teasoft.bee.osql.OrderType;
 import org.teasoft.bee.osql.dialect.DbFeature;
 import org.teasoft.bee.osql.exception.BeeErrorFieldException;
+import org.teasoft.bee.osql.exception.BeeIllegalEntityException;
+import org.teasoft.honey.osql.core.name.NameUtil;
 
 /**
  * @author Kingstar
@@ -25,11 +27,14 @@ import org.teasoft.bee.osql.exception.BeeErrorFieldException;
  */
 public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 
-	private DbFeature dbFeature = BeeFactory.getHoneyFactory().getDbDialect();
+	private DbFeature dbFeature = BeeFactory.getHoneyFactory().getDbFeature();
 	private static final String ASC = "asc";
 
 	@Override
 	public <T> String toSelectSQL(T entity, int size) {
+		
+		checkPackage(entity);
+		
 //		String sql=dbFeature.toPageSql(toSelectSQL(entity), size);
 
 		SqlValueWrap wrap = toSelectSQL_0(entity);
@@ -43,6 +48,8 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 
 	@Override
 	public <T> String toSelectSQL(T entity, int from, int size) {
+		
+		checkPackage(entity);
 
 		// String sql=dbFeature.toPageSql(toSelectSQL(entity), from, size);
 		SqlValueWrap wrap = toSelectSQL_0(entity);
@@ -58,6 +65,8 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	@Override
 	public <T> String toSelectSQL(T entity,String selectFields,int from,int size){
 	
+		checkPackage(entity);
+		
 		SqlValueWrap wrap = toSelectSQL_0(entity,selectFields);
 		String sql = wrap.getSql();
 		sql = dbFeature.toPageSql(sql, from, size)+";";
@@ -73,6 +82,8 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	@Override
 	public <T> String toSelectSQL(T entity, String fieldList) throws ObjSQLException {
 
+		checkPackage(entity);
+		
 		String newSelectFields=checkSelectField(entity,fieldList);
 		
 //		String sql=_ObjectToSQLHelper._toSelectSQL(entity);
@@ -88,6 +99,8 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 
 	@Override
 	public <T> String toSelectOrderBySQL(T entity, String orderFieldList) throws ObjSQLException {
+		
+		checkPackage(entity);
 
 		String orderFields[] = orderFieldList.split(",");
 		int lenA = orderFields.length;
@@ -112,6 +125,8 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	@Override
 	public <T> String toSelectOrderBySQL(T entity, String orderFieldList, OrderType[] orderTypes) throws ObjSQLException {
 
+		checkPackage(entity);
+		
 		String orderFields[] = orderFieldList.split(",");
 		int lenA = orderFields.length;
 
@@ -137,6 +152,8 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	@Override
 	public <T> String toUpdateSQL(T entity, String updateFieldList) throws ObjSQLException {
 		if (updateFieldList == null) return null;
+		
+		checkPackage(entity);
 
 		String sql = "";
 		try {
@@ -154,7 +171,9 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	@Override
 	public <T> String toUpdateSQL(T entity, String updateFieldList, IncludeType includeType) throws ObjSQLException {
 		if (updateFieldList == null) return null;
-
+		
+		checkPackage(entity);
+		
 		String sql = "";
 		try {
 			String updateFields[] = updateFieldList.split(",");
@@ -175,19 +194,22 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 
 	//	 select max(bookPrice) from gen3 where =7 and name='newName' and =0.03 and aTest='test3-new' ;
 	private <T> String _toSelectFunSQL(T entity, String funType,String fieldForFun) throws ObjSQLException {
+		
+		checkPackage(entity);
+		
 		if (fieldForFun == null || funType == null) return null;
 		boolean isContainField = false;
 		StringBuffer sqlBuffer = new StringBuffer();
 		StringBuffer valueBuffer = new StringBuffer();
 		String sql = null;
 		try {
-			String tableName = ConverString.getTableName(entity);
+			String tableName =_toTableName(entity);
 			String selectAndFun;
 			if ("count".equalsIgnoreCase(funType) && "*".equals(fieldForFun))
 				//		    selectAndFun = " select " + funType + "(" + fieldForFun + ") from ";  //  count(*)
 				selectAndFun = "select count(*) from ";
 			else
-				selectAndFun = "select " + funType + "(" + transformStr(fieldForFun) + ") from ";
+				selectAndFun = "select " + funType + "(" + _toColumnName(fieldForFun) + ") from ";
 
 			sqlBuffer.append(selectAndFun);
 			sqlBuffer.append(tableName);
@@ -217,7 +239,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 					} else {
 						sqlBuffer.append(" and ");
 					}
-					sqlBuffer.append(transformStr(fields[i].getName()));
+					sqlBuffer.append(_toColumnName(fields[i].getName()));
 
 					sqlBuffer.append("=");
 					sqlBuffer.append("?");
@@ -331,6 +353,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	@Override
 	public String toDeleteByIdSQL(Class c, Integer id) {
 		if(id==null) return null;
+		checkPackageByClass(c);
 		SqlValueWrap sqlBuffer=toDeleteByIdSQL0(c);
 		return _toSelectAndDeleteByIdSQL(sqlBuffer, id, "java.lang.Integer");
 	}
@@ -338,6 +361,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	@Override
 	public String toDeleteByIdSQL(Class c, Long id) {
 		if(id==null) return null;
+		checkPackageByClass(c);
 		SqlValueWrap sqlBuffer=toDeleteByIdSQL0(c);
 		return _toSelectAndDeleteByIdSQL(sqlBuffer, id, "java.lang.Long");
 	}
@@ -345,6 +369,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	@Override
 	public String toDeleteByIdSQL(Class c, String ids) {
 		if(ids==null || "".equals(ids.trim())) return null;
+		checkPackageByClass(c);
 		SqlValueWrap sqlBuffer=toDeleteByIdSQL0(c);
 		return _toSelectAndDeleteByIdSQL(sqlBuffer,ids);
 	}
@@ -353,7 +378,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		StringBuffer sqlBuffer = new StringBuffer();
 		SqlValueWrap wrap = new SqlValueWrap();
 		
-		String tableName = ConverString.getTableName(c);
+		String tableName =_toTableNameByClass(c);
 		
 		sqlBuffer.append("delete from ")
 		.append(tableName)
@@ -446,17 +471,17 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		
 //		StringBuffer valueBuffer = new StringBuffer();
 //		try {
-			String tableName = ConverString.getTableName(entity);
+			String tableName =_toTableName(entity);
 			Field fields[] = entity.getClass().getDeclaredFields();
 
 			String packageAndClassName = entity.getClass().getName();
-			String fieldNames = HoneyContext.getBeanField(packageAndClassName);
-			if (fieldNames == null) {
-				fieldNames = HoneyUtil.getBeanField(fields);
-				HoneyContext.addBeanField(packageAndClassName, fieldNames);
+			String columnNames = HoneyContext.getBeanField(packageAndClassName);
+			if (columnNames == null) {
+				columnNames = HoneyUtil.getBeanField(fields);
+				HoneyContext.addBeanField(packageAndClassName, columnNames);
 			}
 
-			sqlBuffer.append("select " + fieldNames + " from ");
+			sqlBuffer.append("select " + columnNames + " from ");
 			sqlBuffer.append(tableName)
 			.append(" where ");
 			
@@ -475,7 +500,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		StringBuffer valueBuffer = new StringBuffer();
 		SqlValueWrap wrap = new SqlValueWrap();
 		try {
-			String tableName = ConverString.getTableName(entity);
+			String tableName =_toTableName(entity);
 			Field fields[] = entity.getClass().getDeclaredFields(); //返回所有字段,包括公有和私有    
 			String fieldNames ="";
 			if (selectField != null && !"".equals(selectField.trim())) {
@@ -506,8 +531,8 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 					} else {
 						sqlBuffer.append(" and ");
 					}
-					sqlBuffer.append(HoneyUtil.transformStr(fields[i].getName()));
-
+					sqlBuffer.append(_toColumnName(fields[i].getName()));
+					
 					sqlBuffer.append("=");
 					sqlBuffer.append("?");
 
@@ -537,11 +562,6 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		return wrap;
 	}
 
-	// 转成带下画线的
-	private String transformStr(String str) {
-		return HoneyUtil.transformStr(str);
-	}
-
 	private void setPreparedValue(String sql, SqlValueWrap wrap) {
 		HoneyContext.setPreparedValue(sql, wrap.getList());
 		HoneyContext.setSqlValue(sql, wrap.getValueBuffer().toString());
@@ -557,10 +577,10 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	private <T> String checkSelectField(T entity,String fieldList){
 		Field fields[] = entity.getClass().getDeclaredFields();
 		String packageAndClassName = entity.getClass().getName();
-		String fieldNames = HoneyContext.getBeanField(packageAndClassName);
-		if (fieldNames == null) {
-			fieldNames = HoneyUtil.getBeanField(fields);//获取属性名对应的DB字段名
-			HoneyContext.addBeanField(packageAndClassName, fieldNames);
+		String columnsdNames = HoneyContext.getBeanField(packageAndClassName);
+		if (columnsdNames == null) {
+			columnsdNames = HoneyUtil.getBeanField(fields);//获取属性名对应的DB字段名
+			HoneyContext.addBeanField(packageAndClassName, columnsdNames);
 		}
 
 		String errorField = "";
@@ -571,7 +591,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 
 		for (String s : selectFields) {
 
-			if (!fieldNames.contains(transformStr(s))) {
+			if (!columnsdNames.contains(_toColumnName(s))) {
 				if (isFirstError) {
 					errorField += s;
 					isFirstError = false;
@@ -580,10 +600,10 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 				}
 			}
 			if (isFisrt) {
-				newSelectFields += transformStr(s);
+				newSelectFields += _toColumnName(s);
 				isFisrt = false;
 			} else {
-				newSelectFields += ", " + transformStr(s);
+				newSelectFields += ", " + _toColumnName(s);
 			}
 
 		}//end for
@@ -595,5 +615,30 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	
    private static void addInContextForCache(String sql,String sqlValue, String tableName){
 	   _ObjectToSQLHelper.addInContextForCache(sql, sqlValue, tableName);
+	}
+   
+	private static <T> void checkPackage(T entity) {
+//		传入的实体可以过滤掉常用的包开头的,如:java., javax. ; 但spring开头不能过滤,否则spring想用bee就不行了.
+		HoneyUtil.checkPackage(entity);
+	}
+	
+	public static void checkPackageByClass(Class c){
+		if(c==null) return;
+		String packageName=c.getPackage().getName();
+		if(packageName.startsWith("java.") || packageName.startsWith("javax.")){
+			throw new BeeIllegalEntityException("BeeIllegalEntityException: Illegal Entity, "+c.getName());
+		}
+	}
+	
+	private String _toTableName(Object entity){
+		return NameTranslateHandle.toTableName(NameUtil.getClassFullName(entity));
+	}
+	
+	private String _toTableNameByClass(Class c){
+		return NameTranslateHandle.toTableName(c.getName());
+	}
+	
+	private static String _toColumnName(String fieldName){
+		return NameTranslateHandle.toColumnName(fieldName);
 	}
 }
