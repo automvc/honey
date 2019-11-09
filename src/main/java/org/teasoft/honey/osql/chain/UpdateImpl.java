@@ -114,6 +114,14 @@ public class UpdateImpl extends AbstractToSql implements Update {
 		isAddAnd = true;
 		return this;
 	}
+	
+	public Update op(String field, String value) {
+        return op(field, Op.eq, value);
+	}
+
+	public Update op(String field,Number value) {
+		return op(field, Op.eq, value);
+	}
 
 	/**
 	 * 默认自动加 and default will automatically add and
