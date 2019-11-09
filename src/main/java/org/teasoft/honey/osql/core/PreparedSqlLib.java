@@ -7,6 +7,7 @@ import java.util.Map;
 import org.teasoft.bee.osql.BeeSql;
 import org.teasoft.bee.osql.ObjSQLException;
 import org.teasoft.bee.osql.PreparedSQL;
+import org.teasoft.honey.osql.core.name.NameUtil;
 
 /**
  * 支持带占位符(?)的sql操作.sql语句是DB能识别的SQL,非面向对象的sql.
@@ -120,7 +121,7 @@ public class PreparedSqlLib implements PreparedSQL {
 	private <T> void initPreparedValues(String sql, Object[] preValues, T entity) {
 		StringBuffer valueBuffer = initPreparedValues(sql, preValues);
 		if (valueBuffer.length() > 0) {
-			String tableName = ConverString.getTableName(entity);
+			String tableName = _toTableName(entity);
 			addInContextForCache(sql, valueBuffer.toString(), tableName);
 		}
 	}
@@ -153,7 +154,7 @@ public class PreparedSqlLib implements PreparedSQL {
 		StringBuffer valueBuffer = initPreparedValues(sql, wrap.getValueBuffer().toString(), map);
 
 		if (valueBuffer.length() > 0) {
-			String tableName = ConverString.getTableName(entity);
+			String tableName = _toTableName(entity);
 			addInContextForCache(sql, valueBuffer.toString(), tableName);
 		}
 
@@ -224,6 +225,10 @@ public class PreparedSqlLib implements PreparedSQL {
 	
 	private static void addInContextForCache(String sql,String sqlValue, String tableName){
 		_ObjectToSQLHelper.addInContextForCache(sql, sqlValue, tableName);
+	}
+	
+	private static String _toTableName(Object entity){
+		return NameTranslateHandle.toTableName(NameUtil.getClassFullName(entity));
 	}
 
 }
