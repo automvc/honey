@@ -31,7 +31,7 @@ import org.teasoft.bee.osql.SuidType;
  */
 public class SqlLib implements BeeSql {
 	
-	private Cache cache=new DefaultCache();
+	private Cache cache=BeeFactory.getHoneyFactory().getCache();
 
 	public SqlLib() {}
 
@@ -81,7 +81,12 @@ public class SqlLib implements BeeSql {
 				for (int i = 0; i < columnCount; i++) {
 					if("serialVersionUID".equals(field[i].getName())) continue;
 					field[i].setAccessible(true);
-					field[i].set(targetObj, rs.getObject(transformStr(field[i].getName())));
+					try {
+						field[i].set(targetObj, rs.getObject(_toColumnName(field[i].getName())));
+					} catch (IllegalArgumentException e) {
+						field[i].set(targetObj,_getObject(rs,field[i]));
+					}
+					
 				}
 				rsList.add(targetObj);
 			}
@@ -140,7 +145,7 @@ public class SqlLib implements BeeSql {
 				for (int i = 0; i < columnCount; i++) {
 //					if("serialVersionUID".equals(field[i].getName())) continue;
 					try {
-						name=transformColumn(rmeta.getColumnName(i + 1));
+						name=_toFieldName(rmeta.getColumnName(i + 1));
 						if(isFirst){
 						field = entity.getClass().getDeclaredField(name);//可能会找不到Javabean的字段
 						map.put(name, field);
@@ -152,7 +157,12 @@ public class SqlLib implements BeeSql {
 						continue;
 					}
 					field.setAccessible(true);
-					field.set(targetObj, rs.getObject(i + 1)); //对相应Field设置
+					try {
+						field.set(targetObj, rs.getObject(i + 1)); //对相应Field设置
+					} catch (IllegalArgumentException e) {
+						field.set(targetObj, _getObjectByindex(rs,field,i+1));
+					}
+					
 
 				}
 				rsList.add(targetObj);
@@ -428,17 +438,23 @@ public class SqlLib implements BeeSql {
 			HoneyUtil.setPreparedValues(pst, k, i, list.get(i).getValue()); //i from 0
 		}
 	}
-
-	//to java naming
-	// 转成java命名规范  
-	private String transformColumn(String column) {
-		return HoneyUtil.transformColumn(column);
+	
+	private Object _getObject(ResultSet rs, Field field) throws SQLException{
+		return HoneyUtil.getResultObject(rs, field.getType().getName(), _toColumnName(field.getName()));
+		
+	}
+	
+	private Object _getObjectByindex(ResultSet rs,Field field, int index) throws SQLException{
+		return HoneyUtil.getResultObjectByIndex(rs, field.getType().getName(),index);
+	}
+	
+	
+	private static String _toColumnName(String fieldName) {
+		return NameTranslateHandle.toColumnName(fieldName);
 	}
 
-	//to db naming
-	// 转成带下画线的
-	private String transformStr(String str) {
-		return HoneyUtil.transformStr(str);
+	private static String _toFieldName(String columnName) {
+		return NameTranslateHandle.toFieldName(columnName);
 	}
 	
 	//add on 2019-10-01
