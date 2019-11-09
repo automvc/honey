@@ -31,7 +31,7 @@ public final class HoneyConfig {
 //		if (t_maxResultSize != null) setMaxResultSize(Integer.parseInt(t_maxResultSize));
 
 		setUnderScoreAndCamelTransform(Boolean.parseBoolean(BeeProp.getBeeProp("bee.osql.underScoreAndCamelTransform")));
-		setDbNamingToLowerCaseBefore(Boolean.parseBoolean(BeeProp.getBeeProp("bee.osql.dbNaming.toLowerCaseBefore")));
+//		setDbNamingToLowerCaseBefore(Boolean.parseBoolean(BeeProp.getBeeProp("bee.osql.dbNaming.toLowerCaseBefore")));
 		//		BeeProp.getBeeProp("bee.osql.delete.isAllowDeleteAllDataInOneTable");
 		setIgnoreNullInSelectJson(Boolean.parseBoolean(BeeProp.getBeeProp("bee.osql.selectJson.ignoreNull"))); //2019-08-17
 		setTimestampWithMillisecondInSelectJson(Boolean.parseBoolean(BeeProp.getBeeProp("bee.osql.selectJson.timestamp.withMillisecond")));
@@ -73,7 +73,9 @@ public final class HoneyConfig {
 	
 	private String dbName;
 	private boolean underScoreAndCamelTransform;
-	private boolean dbNamingToLowerCaseBefore;
+	
+	@SysValue("${bee.osql.dbNaming.toLowerCaseBefore}")
+	private boolean dbNamingToLowerCaseBefore=true;  //default : to LowerCase before
 	
 	private boolean ignoreNullInSelectJson;//2019-08-17
 	private boolean timestampWithMillisecondInSelectJson;
@@ -86,6 +88,11 @@ public final class HoneyConfig {
 	private String username;
 	private String password;
 
+//	@SysValue("${aaa}")
+	
+	@SysValue("${bee.osql.name.mapping.entity2table}")
+	private String entity2tableMappingList;
+	
 	
 	private int cacheTimeout;
 	private int cacheMapSize;
@@ -135,9 +142,9 @@ public final class HoneyConfig {
 		this.underScoreAndCamelTransform = underScoreAndCamelTransform;
 	}
 
-	private void setDbNamingToLowerCaseBefore(boolean dbNamingToLowerCaseBefore) {
-		this.dbNamingToLowerCaseBefore = dbNamingToLowerCaseBefore;
-	}
+//	private void setDbNamingToLowerCaseBefore(boolean dbNamingToLowerCaseBefore) {
+//		this.dbNamingToLowerCaseBefore = dbNamingToLowerCaseBefore;
+//	}
 
 	private void setDriverName(String driverName) {
 		this.driverName = driverName;
@@ -153,6 +160,10 @@ public final class HoneyConfig {
 
 	private void setPassword(String password) {
 		this.password = password;
+	}
+	
+	public String getEntity2tableMappingList() {
+		return entity2tableMappingList;
 	}
 
 	public boolean isShowSQL() {
