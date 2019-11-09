@@ -3,7 +3,6 @@ package org.teasoft.honey.osql.atuogen;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -17,9 +16,9 @@ import java.util.List;
 
 import org.teasoft.honey.osql.constant.DatabaseConst;
 import org.teasoft.honey.osql.core.ExceptionHelper;
-import org.teasoft.honey.osql.core.HoneyConfig;
 import org.teasoft.honey.osql.core.HoneyUtil;
 import org.teasoft.honey.osql.core.Logger;
+import org.teasoft.honey.osql.core.NameTranslateHandle;
 import org.teasoft.honey.osql.core.SessionFactory;
 
 //TODO 是否覆盖文件,       支持写生成其中一个文件或几个文件(已实现)
@@ -43,12 +42,7 @@ public class GenBean {
 		// 表名对应的实体类名
 		String entityName ="";
 		
-		if(HoneyConfig.getHoneyConfig().isUnderScoreAndCamelTransform()){
-			entityName=HoneyUtil.toCamelNaming(tableName.toLowerCase());
-		}else{
-			entityName=tableName;
-		}
-		entityName=HoneyUtil.firstLetterToUpperCase(entityName);
+		entityName=NameTranslateHandle.toEntityName(tableName);
 		
 		Logger.print("The Honey gen the JavaBean: " + config.getPackagePath() +"."+entityName);
 		
@@ -74,6 +68,7 @@ public class GenBean {
 		String getsetProNameStr = "";
 		String javaType = ""; // 数据库对应的java类型
 		
+		boolean bigIntegerFlag=true;
 		boolean bigDecimalFlag=true;
 		boolean dateFlag=true;
 		boolean timeFlag=true;
@@ -92,23 +87,18 @@ public class GenBean {
 			String columnName = columnNames.get(i);
 			String columnType = columTypes.get(i);
 			
-			if(HoneyConfig.getHoneyConfig().isDbNamingToLowerCaseBefore()){
-				columnName=columnName.toLowerCase();
-			}
-			
-			if(HoneyConfig.getHoneyConfig().isUnderScoreAndCamelTransform()){
-				propertyName=HoneyUtil.toCamelNaming(columnName);
-			}else{
-				propertyName=columnName;
-			}
+			propertyName=NameTranslateHandle.toFieldName(columnName);
 			
 			getsetProNameStr = HoneyUtil.firstLetterToUpperCase(propertyName);
 			javaType = HoneyUtil.getFieldType(columnType);
 			
 			//import
-			if ("BigDecimal".equals(javaType) && bigDecimalFlag) {
+            if ("BigDecimal".equals(javaType) && bigDecimalFlag) {
 				importStr += "import java.math.BigDecimal;" + LINE_SEPARATOR;
 				bigDecimalFlag = false;
+			} else if ("BigInteger".equals(javaType) && bigIntegerFlag) {
+				importStr += "import java.math.BigInteger;" + LINE_SEPARATOR;
+				bigIntegerFlag = false;
 			} else if ("Date".equals(javaType) && dateFlag) {
 				importStr += "import java.sql.Date;" + LINE_SEPARATOR;
 				dateFlag = false;
@@ -306,7 +296,7 @@ public class GenBean {
 
 	private Table getTable(String tableName, Connection con)
 			throws SQLException {
-		PreparedStatement ps = con.prepareStatement("select * from "+ tableName + " where 1<>1;");
+		PreparedStatement ps = con.prepareStatement("select * from "+ tableName + " where 1<>1"); //delete ;
 		ResultSet rs = ps.executeQuery();
 		ResultSetMetaData rmeta = rs.getMetaData();
 		
