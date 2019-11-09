@@ -51,7 +51,12 @@ public class CallableSqlLib implements CallableSQL {
 				for (int i = 0; i < columnCount; i++) {
 					if ("serialVersionUID".equals(field[i].getName())) continue;
 					field[i].setAccessible(true);
-					field[i].set(targetObj, rs.getObject(transformStr(field[i].getName())));
+					try {
+						field[i].set(targetObj, rs.getObject(_toColumnName(field[i].getName())));
+					} catch (IllegalArgumentException e) {
+						field[i].set(targetObj,_getObject(rs,field[i]));
+					}
+					
 				}
 				rsList.add(targetObj);
 			}
@@ -264,10 +269,11 @@ public class CallableSqlLib implements CallableSQL {
 		}
 	}
 	
-	//to db naming
-	// 转成带下画线的
-	private String transformStr(String str) {
-		return HoneyUtil.transformStr(str);
+	private static String _toColumnName(String fieldName){
+		return NameTranslateHandle.toColumnName(fieldName);
 	}
 	
+	private Object _getObject(ResultSet rs, Field field) throws SQLException{
+		return HoneyUtil.getResultObject(rs, field.getType().getName(), _toColumnName(field.getName()));
+	}
 }

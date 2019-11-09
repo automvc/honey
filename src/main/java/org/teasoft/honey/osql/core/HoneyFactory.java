@@ -1,7 +1,9 @@
 package org.teasoft.honey.osql.core;
 
 import org.teasoft.bee.osql.BeeSql;
+import org.teasoft.bee.osql.Cache;
 import org.teasoft.bee.osql.CallableSQL;
+import org.teasoft.bee.osql.NameTranslate;
 import org.teasoft.bee.osql.ObjToSQL;
 import org.teasoft.bee.osql.ObjToSQLRich;
 import org.teasoft.bee.osql.PreparedSQL;
@@ -10,6 +12,7 @@ import org.teasoft.bee.osql.SuidRich;
 import org.teasoft.bee.osql.dialect.DbFeature;
 import org.teasoft.bee.osql.exception.NoConfigException;
 import org.teasoft.honey.osql.constant.DatabaseConst;
+import org.teasoft.honey.osql.core.name.UnderScoreAndCamelName;
 import org.teasoft.honey.osql.dialect.mysql.MySqlFeature;
 import org.teasoft.honey.osql.dialect.oracle.OracleFeature;
 import org.teasoft.honey.osql.dialect.sqlserver.SqlServerFeature;
@@ -27,10 +30,14 @@ public class HoneyFactory {
 	private ObjToSQLRich objToSQLRich;
 	private PreparedSQL preparedSQL;
 	private CallableSQL callableSQL;
+	
+	private DbFeature dbFeature;
+	private NameTranslate nameTranslate;
+	private Cache cache;
 
 	public Suid getSuid() {
 		if(suid==null) return new ObjSQL();
-		else return suid;                      //可以通过配置spring bean的方式注入
+		else return suid; //可以通过配置spring bean的方式注入
 	}
 
 	public void setSuid(Suid suid) {
@@ -91,7 +98,7 @@ public class HoneyFactory {
 		this.callableSQL = callableSQL;
 	}
 
-	public DbFeature getDbDialect() {
+	private DbFeature getDbDialect() {
 		if (DatabaseConst.MYSQL.equalsIgnoreCase((HoneyContext.getDbDialect()))
 		 || DatabaseConst.MariaDB.equalsIgnoreCase((HoneyContext.getDbDialect()))
 		   )return new MySqlFeature();
@@ -103,4 +110,35 @@ public class HoneyFactory {
 			throw new NoConfigException("Error: Do not set the database name. ");
 		}
 	}
+
+	public DbFeature getDbFeature() {
+		if(dbFeature!=null) return dbFeature;
+		else return getDbDialect();
+	}
+
+	public void setDbFeature(DbFeature dbFeature) {
+		this.dbFeature = dbFeature;
+	}
+	
+	public NameTranslate getNameTranslate() {
+		if(nameTranslate==null) return new UnderScoreAndCamelName();
+		else return nameTranslate;
+	}
+
+	public void setNameTranslate(NameTranslate nameTranslate) {
+		this.nameTranslate = nameTranslate;
+	}
+
+	public Cache getCache() {
+		
+		if(cache==null){
+			return new DefaultCache();
+		}
+		else return cache;
+	}
+
+//	public void setCache(Cache cache) {
+//		this.cache = cache;
+//	}
+	
 }

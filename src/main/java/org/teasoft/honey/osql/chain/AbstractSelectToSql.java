@@ -28,7 +28,7 @@ public class AbstractSelectToSql extends AbstractToSql{
 			return addPage(sql.toString())+";";
 		}
 	}
-	private DbFeature dbFeature = BeeFactory.getHoneyFactory().getDbDialect();
+	private DbFeature dbFeature = BeeFactory.getHoneyFactory().getDbFeature();
 	private String addPage(String sql){
 		if (this.start != 0 && size != 0) {
 			sql= dbFeature.toPageSql(sql, start,size);
