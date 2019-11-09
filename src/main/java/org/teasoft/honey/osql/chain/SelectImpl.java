@@ -370,6 +370,14 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 		isAddAnd = true;
 		return this;
 	}
+	
+	public Select op(String field, String value) {
+		return op(field, Op.eq, value);
+	}
+	
+	public Select op(String field, Number value) {
+		return op(field, Op.eq, value);
+	}
 
 	/**
 	 * 默认自动加 and default will automatically add and
