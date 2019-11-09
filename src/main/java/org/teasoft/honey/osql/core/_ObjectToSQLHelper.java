@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.teasoft.bee.osql.ObjSQLException;
+import org.teasoft.honey.osql.core.name.NameUtil;
 
 /**
  * @author Kingstar
@@ -15,13 +16,15 @@ final class _ObjectToSQLHelper {
 	private final static String INSERT_INTO = "insert into ";
 
 	private _ObjectToSQLHelper() {}
-
+	
 	static <T> String _toSelectSQL(T entity, String fieldNameList) {
+		checkPackage(entity);
+		
 		String sql = "";
 		StringBuffer sqlBuffer = new StringBuffer();
 		StringBuffer valueBuffer = new StringBuffer();
 		try {
-			String tableName = ConverString.getTableName(entity);
+			String tableName = _toTableName(entity);
 			Field fields[] = entity.getClass().getDeclaredFields();
 
 			sqlBuffer.append("select " + fieldNameList + " from "); //need replace
@@ -42,7 +45,7 @@ final class _ObjectToSQLHelper {
 						sqlBuffer.append(" and ");
 					}
 
-					sqlBuffer.append(transformStr(fields[i].getName()));
+					sqlBuffer.append(_toColumnName(fields[i].getName()));
 					sqlBuffer.append("=");
 					sqlBuffer.append("?");
 
@@ -72,21 +75,22 @@ final class _ObjectToSQLHelper {
 	}
 
 	static <T> String _toSelectSQL(T entity, int includeType) {
-
+		checkPackage(entity);
+		
 		StringBuffer sqlBuffer = new StringBuffer();
 		StringBuffer valueBuffer = new StringBuffer();
 		try {
-			String tableName = ConverString.getTableName(entity);
+			String tableName = _toTableName(entity);
 			Field fields[] = entity.getClass().getDeclaredFields(); //返回所有字段,包括公有和私有     //改为以最高权限访问？2012-07-15 no
 
 			String packageAndClassName = entity.getClass().getName();
-			String fieldNames = HoneyContext.getBeanField(packageAndClassName);
-			if (fieldNames == null) {
-				fieldNames = HoneyUtil.getBeanField(fields);
-				HoneyContext.addBeanField(packageAndClassName, fieldNames);
+			String columnNames = HoneyContext.getBeanField(packageAndClassName);
+			if (columnNames == null) {
+				columnNames = HoneyUtil.getBeanField(fields);
+				HoneyContext.addBeanField(packageAndClassName, columnNames);
 			}
 
-			sqlBuffer.append("select " + fieldNames + " from ");
+			sqlBuffer.append("select " + columnNames + " from ");
 			sqlBuffer.append(tableName);
 			boolean firstWhere = true;
 			int len = fields.length;
@@ -107,7 +111,8 @@ final class _ObjectToSQLHelper {
 					} else {
 						sqlBuffer.append(" and ");
 					}
-					sqlBuffer.append(HoneyUtil.transformStr(fields[i].getName()));
+					sqlBuffer.append(_toColumnName(fields[i].getName()));
+					
 					if (fields[i].get(entity) == null) {
 						sqlBuffer.append(" is null");
 					} else {
@@ -139,6 +144,8 @@ final class _ObjectToSQLHelper {
 	}
 
 	static <T> String _toUpdateSQL(T entity, String whereColmn, int includeType) throws ObjSQLException, IllegalAccessException {
+		checkPackage(entity);
+		
 		String sql = "";
 		StringBuffer sqlBuffer = new StringBuffer();
 		StringBuffer valueBuffer = new StringBuffer();
@@ -146,7 +153,7 @@ final class _ObjectToSQLHelper {
 		boolean firstSet = true;
 		boolean isExistWhere = false; //don't delete
 		StringBuffer whereStament = new StringBuffer();
-		String tableName = ConverString.getTableName(entity);
+		String tableName = _toTableName(entity);
 		sqlBuffer.append(" update ");
 		sqlBuffer.append(tableName);
 		sqlBuffer.append(" set ");
@@ -166,7 +173,7 @@ final class _ObjectToSQLHelper {
 			} else {
 				if (whereColmn.equalsIgnoreCase(fields[i].getName())) { //java.lang.ClassCastException: java.lang.Integer cannot be cast to java.lang.String
 					whereStament.append(" where ");
-					whereStament.append(transformStr(fields[i].getName()));
+					whereStament.append(_toColumnName(fields[i].getName()));
 
 					if (fields[i].get(entity) == null) {
 						whereValueBuffer.append(" is null");
@@ -195,7 +202,7 @@ final class _ObjectToSQLHelper {
 						sqlBuffer.append(" , ");
 					}
 
-					sqlBuffer.append(transformStr(fields[i].getName()));
+					sqlBuffer.append(_toColumnName(fields[i].getName()));
 					if (fields[i].get(entity) == null) {
 						sqlBuffer.append(" =null"); //  =
 					} else {
@@ -231,6 +238,8 @@ final class _ObjectToSQLHelper {
 	}
 
 	static <T> String _toUpdateSQL(T entity, String setColmn[], int includeType) throws IllegalAccessException {
+		checkPackage(entity);
+		
 		String sql = "";
 		StringBuffer sqlBuffer = new StringBuffer();
 		StringBuffer valueBuffer = new StringBuffer();
@@ -239,7 +248,7 @@ final class _ObjectToSQLHelper {
 		boolean firstWhere = true;
 		boolean isExistWhere = false;
 		StringBuffer whereStament = new StringBuffer();
-		String tableName = ConverString.getTableName(entity);
+		String tableName = _toTableName(entity);
 		sqlBuffer.append(" update ");
 		sqlBuffer.append(tableName);
 		sqlBuffer.append(" set ");
@@ -261,7 +270,7 @@ final class _ObjectToSQLHelper {
 					//  sqlBuffer.append(" and "); //update 的set部分不是用and  ，而是用逗号的
 					sqlBuffer.append(" , ");
 				}
-				sqlBuffer.append(transformStr(fields[i].getName()));
+				sqlBuffer.append(_toColumnName(fields[i].getName()));
 
 				if (fields[i].get(entity) == null) {
 					sqlBuffer.append(" =null"); //  =
@@ -292,7 +301,7 @@ final class _ObjectToSQLHelper {
 					} else {
 						whereStament.append(" and ");
 					}
-					whereStament.append(transformStr(fields[i].getName()));
+					whereStament.append(_toColumnName(fields[i].getName()));
 
 					if (fields[i].get(entity) == null) {
 						whereStament.append(" is null");
@@ -331,13 +340,14 @@ final class _ObjectToSQLHelper {
 	}
 
 	static <T> String _toInsertSQL(T entity, int includeType) throws IllegalAccessException {
-
+		checkPackage(entity);
+		
 		StringBuffer sqlBuffer = new StringBuffer();
 		StringBuffer sqlValue = new StringBuffer(") values (");
 		StringBuffer valueBuffer = new StringBuffer();
 		String sql = "";
 		boolean isFirst = true;
-		String tableName = ConverString.getTableName(entity);
+		String tableName = _toTableName(entity);
 
 		sqlBuffer.append(INSERT_INTO);
 		sqlBuffer.append(tableName);
@@ -368,7 +378,7 @@ final class _ObjectToSQLHelper {
 					sqlValue.append(",");
 				}
 
-				sqlBuffer.append(transformStr(fields[i].getName()));
+				sqlBuffer.append(_toColumnName(fields[i].getName()));
 
 				if (fields[i].get(entity) == null) {
 					sqlValue.append("null");
@@ -401,7 +411,8 @@ final class _ObjectToSQLHelper {
 
 	//	 * for entity[]
 	static <T> SqlValueWrap _toInsertSQL0(T entity, int includeType, String excludeFieldList) throws IllegalAccessException {
-
+		checkPackage(entity);
+		
 		StringBuffer sqlBuffer = new StringBuffer();
 		StringBuffer sqlValue = new StringBuffer(") values (");
 		StringBuffer valueBuffer = new StringBuffer();
@@ -409,7 +420,7 @@ final class _ObjectToSQLHelper {
 		SqlValueWrap wrap = new SqlValueWrap();
 
 		boolean isFirst = true;
-		String tableName = ConverString.getTableName(entity);
+		String tableName = _toTableName(entity);
 		wrap.setTableNames(tableName);//2019-09-29
 		
 		sqlBuffer.append(INSERT_INTO);
@@ -443,7 +454,7 @@ final class _ObjectToSQLHelper {
 					sqlValue.append(",");
 				}
 
-				sqlBuffer.append(transformStr(fields[i].getName()));
+				sqlBuffer.append(_toColumnName(fields[i].getName()));
 
 //					if(fields[i].get(entity) == null){
 //						sqlValue.append("null");
@@ -474,7 +485,8 @@ final class _ObjectToSQLHelper {
 	}
 
 	static <T> SqlValueWrap _toInsertSQL_for_ValueList(T entity, String excludeFieldList) throws IllegalAccessException {
-
+		checkPackage(entity);
+		
 		StringBuffer valueBuffer = new StringBuffer();
 		SqlValueWrap wrap = new SqlValueWrap();
 
@@ -508,12 +520,14 @@ final class _ObjectToSQLHelper {
 	}
 
 	static <T> String _toDeleteSQL(T entity, int includeType) {
+		checkPackage(entity);
+		
 		String sql = "";
 		StringBuffer sqlBuffer = new StringBuffer();
 		StringBuffer valueBuffer = new StringBuffer();
 		boolean firstWhere = true;
 		try {
-			String tableName = ConverString.getTableName(entity);
+			String tableName = _toTableName(entity);
 
 			sqlBuffer.append("delete from ");
 			sqlBuffer.append(tableName);
@@ -538,8 +552,8 @@ final class _ObjectToSQLHelper {
 					} else {
 						sqlBuffer.append(" and ");
 					}
-					sqlBuffer.append(HoneyUtil.transformStr(fields[i].getName()));
-
+					sqlBuffer.append(_toColumnName(fields[i].getName()));
+					
 					if (fields[i].get(entity) == null) {
 						sqlBuffer.append(" is null");
 					} else {
@@ -583,10 +597,6 @@ final class _ObjectToSQLHelper {
 		return false;
 	}
 
-	//转成带下画线的
-	private static String transformStr(String str) {
-		return HoneyUtil.transformStr(str);
-	}
 
 	private static boolean isExcludeField(String excludeFieldList, String checkField) {
 		String excludeFields[] = excludeFieldList.split(",");
@@ -604,5 +614,17 @@ final class _ObjectToSQLHelper {
 		struct.setTableNames(tableName);
 		
 		HoneyContext.setCacheInfo(sql, struct);  //同一线程内,sql是否可以标识区分
+	}
+    
+	private static <T> void checkPackage(T entity) {
+		HoneyUtil.checkPackage(entity);
+	}
+	
+	private static String _toTableName(Object entity){
+		return NameTranslateHandle.toTableName(NameUtil.getClassFullName(entity));
+	}
+	
+	private static String _toColumnName(String fieldName){
+		return NameTranslateHandle.toColumnName(fieldName);
 	}
 }
