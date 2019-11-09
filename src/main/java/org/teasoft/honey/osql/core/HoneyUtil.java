@@ -5,16 +5,22 @@ import java.math.BigDecimal;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
+import java.sql.NClob;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.RowId;
 import java.sql.SQLException;
+import java.sql.SQLXML;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.teasoft.bee.osql.exception.BeeIllegalEntityException;
 import org.teasoft.honey.osql.constant.DatabaseConst;
 import org.teasoft.honey.osql.constant.NullEmpty;
+import org.teasoft.honey.osql.core.name.NameUtil;
 import org.teasoft.honey.osql.util.PropertiesReader;
 
 /**
@@ -27,10 +33,16 @@ public final class HoneyUtil {
 	private static Map<String,Integer> javaTypeMap=new HashMap<String,Integer>();
 	
 	private static PropertiesReader jdbcTypeCustomProp = new PropertiesReader("/jdbcTypeToFieldType.properties");
+	private static PropertiesReader jdbcTypeCustomProp_specificalDB =null;
 	
 	static{
+		
+		String proFileName="/jdbcTypeToFieldType-{DbName}.properties";
+		jdbcTypeCustomProp_specificalDB=new PropertiesReader(proFileName.replace("{DbName}", HoneyConfig.getHoneyConfig().getDbName()));
+		
 		initJdbcTypeMap();
 		appendJdbcTypeCustomProp();
+		appendJdbcTypeCustomProp_specificalDB();
 		
 		initJavaTypeMap();
 	}
@@ -52,15 +64,9 @@ public final class HoneyUtil {
 	    if(fields==null) return "";
 	    StringBuffer s=new StringBuffer();
 	    int len=fields.length;
-	    boolean b=HoneyConfig.getHoneyConfig().isUnderScoreAndCamelTransform();
 		for (int i = 0; i <len;  i++) {
 			if("serialVersionUID".equals(fields[i].getName())) continue;
-//			s.append(fields[i].getName());
-			if(b){
-			   s.append(HoneyUtil.toUnderscoreNaming(fields[i].getName()));
-			}else{
-			   s.append(fields[i].getName());
-			}
+			 s.append(NameTranslateHandle.toColumnName(fields[i].getName()));
 			if(i<len-1) s.append(",");
 		}
 		return s.toString();
@@ -86,12 +92,21 @@ public final class HoneyUtil {
 	 */
 	public static String getFieldType(String jdbcType) {
 
-		String javaType = "";
+		String javaType = jdbcTypeMap.get(jdbcType);
 
-		if (null == jdbcTypeMap.get(jdbcType))
+		if(javaType!=null) return javaType;
+		
+		if (null == jdbcTypeMap.get(jdbcType)){
+			
+		    //fix UNSIGNED,  like :TINYINT UNSIGNED 
+			String tempType=jdbcType.trim();
+			if(tempType.endsWith(" UNSIGNED")){
+				int i=tempType.indexOf(" ");
+				javaType=jdbcTypeMap.get(tempType.substring(0,i));
+				if(javaType!=null) return javaType;
+			}
 			javaType = "[UNKNOWN TYPE]" + jdbcType;
-		else
-			javaType = jdbcTypeMap.get(jdbcType);
+		}
 
 		return javaType;
 	}
@@ -99,18 +114,26 @@ public final class HoneyUtil {
 	private static void initJdbcTypeMap() {
 
 		//url: https://docs.oracle.com/javase/1.5.0/docs/guide/jdbc/getstart/mapping.html
-
+//		https://docs.oracle.com/javadb/10.8.3.0/ref/rrefjdbc20377.html
+//		https://docs.oracle.com/javase/8/docs/api/java/sql/package-summary.html
 		jdbcTypeMap.put("CHAR", "String");
 		jdbcTypeMap.put("VARCHAR", "String");
 		jdbcTypeMap.put("LONGVARCHAR", "String");
-
+		
+		jdbcTypeMap.put("NVARCHAR", "String");
+		jdbcTypeMap.put("NCHAR", "String");
+		
 		jdbcTypeMap.put("NUMERIC", "BigDecimal");
 		jdbcTypeMap.put("DECIMAL", "BigDecimal");
 
 		jdbcTypeMap.put("BIT", "Boolean");
 
+		//rs.getObject(int index)  bug   
+		//pst.setByte(i+1,(Byte)value); break;设置查询没问题,结果也能返回,用rs.getObject拿结果时才报错
 		jdbcTypeMap.put("TINYINT", "Byte");
 		jdbcTypeMap.put("SMALLINT", "Short");
+//		jdbcTypeMap.put("TINYINT", "Integer");
+//		jdbcTypeMap.put("SMALLINT", "Integer");
 
 		jdbcTypeMap.put("INT", "Integer");
 		jdbcTypeMap.put("INTEGER", "Integer");
@@ -132,7 +155,17 @@ public final class HoneyUtil {
 		jdbcTypeMap.put("CLOB", "Clob");
 		jdbcTypeMap.put("BLOB", "Blob");
 		jdbcTypeMap.put("ARRAY", "Array");
-
+		
+		jdbcTypeMap.put("NCLOB", "java.sql.NClob");//JDK6
+		jdbcTypeMap.put("ROWID","java.sql.RowId"); //JDK6
+		jdbcTypeMap.put("SQLXML","java.sql.SQLXML"); //JDK6
+		
+//		
+		// JDBC 4.2 JDK8
+		jdbcTypeMap.put("TIMESTAMP_WITH_TIMEZONE", "Timestamp");
+		jdbcTypeMap.put("TIMESTAMP WITH TIME ZONE", "Timestamp"); //test in oralce 11g
+		jdbcTypeMap.put("TIMESTAMP WITH LOCAL TIME ZONE", "Timestamp");//test in oralce 11g
+						
 		String dbName = HoneyConfig.getHoneyConfig().getDbName();
 
 		if (DatabaseConst.MYSQL.equalsIgnoreCase(dbName) 
@@ -143,11 +176,31 @@ public final class HoneyUtil {
 			jdbcTypeMap.put("TINYBLOB", "Blob");
 			jdbcTypeMap.put("MEDIUMBLOB", "Blob");
 			jdbcTypeMap.put("LONGBLOB", "Blob");
-			jdbcTypeMap.put("YEAR", "Integer");
+			jdbcTypeMap.put("YEAR", "Integer");  //TODO 
+			
+			jdbcTypeMap.put("INT UNSIGNED", "Long");
+			jdbcTypeMap.put("BIGINT UNSIGNED", "BigInteger");
 		} else if (DatabaseConst.ORACLE.equalsIgnoreCase(dbName)) {
-			//TODO
+//			https://docs.oracle.com/cd/B12037_01/java.101/b10983/datamap.htm
+//			https://docs.oracle.com/cd/B19306_01/java.102/b14188/datamap.htm
+			jdbcTypeMap.put("LONG","String");
+			jdbcTypeMap.put("VARCHAR2","String");
+			jdbcTypeMap.put("NVARCHAR2","String");
+			jdbcTypeMap.put("NUMBER", "BigDecimal"); //oracle TODO
+			jdbcTypeMap.put("RAW", "byte[]");
+
+			jdbcTypeMap.put("INTERVALYM","String"); //11g 
+			jdbcTypeMap.put("INTERVALDS","String"); //11g
+			jdbcTypeMap.put("INTERVAL YEAR TO MONTH","String"); //just Prevention
+			jdbcTypeMap.put("INTERVAL DAY TO SECOND","String");//just Prevention
+//			jdbcTypeMap.put("TIMESTAMP", "Timestamp");   exist in comm
+			
 		} else if (DatabaseConst.SQLSERVER.equalsIgnoreCase(dbName)) {
-			//TODO
+			jdbcTypeMap.put("SMALLINT", "Short");
+			jdbcTypeMap.put("TINYINT", "Short");
+//			jdbcTypeMap.put("TIME","java.sql.Time");  exist in comm
+//			 DATETIMEOFFSET // SQL Server 2008  microsoft.sql.DateTimeOffset
+			jdbcTypeMap.put("DATETIMEOFFSET","microsoft.sql.DateTimeOffset");
 		}
 
 	}
@@ -155,6 +208,13 @@ public final class HoneyUtil {
 	private static void appendJdbcTypeCustomProp() {
 		for (String s : jdbcTypeCustomProp.getKeys()) {
 			jdbcTypeMap.put(s, jdbcTypeCustomProp.getValue(s));
+		}
+	}
+	
+	private static void appendJdbcTypeCustomProp_specificalDB() {
+//		System.out.println(jdbcTypeCustomProp_specificalDB.getKeys());
+		for (String s : jdbcTypeCustomProp_specificalDB.getKeys()) {
+			jdbcTypeMap.put(s, jdbcTypeCustomProp_specificalDB.getValue(s));
 		}
 	}
 	
@@ -178,6 +238,13 @@ public final class HoneyUtil {
 		javaTypeMap.put("java.sql.Timestamp", 13);
 		javaTypeMap.put("java.sql.Blob", 14);
 		javaTypeMap.put("java.sql.Clob", 15);
+		
+		javaTypeMap.put("java.sql.NClob", 16);
+		javaTypeMap.put("java.sql.RowId", 17);
+		javaTypeMap.put("java.sql.SQLXML", 18);
+		
+		javaTypeMap.put("java.math.BigInteger", 19);
+		
 	}
 	
     public static int getJavaTypeIndex(String javaType){
@@ -185,75 +252,15 @@ public final class HoneyUtil {
     	return javaTypeMap.get(javaType)==null?-1:javaTypeMap.get(javaType);
     }
     
-	/**
-	 * @param name
-	 * @return UnderscoreNaming String
-	 * eg: bee_name->beeName,bee_t_name->beeTName
-	 */
-	public static String toUnderscoreNaming(String name) {
-		StringBuffer buf = new StringBuffer(name);
-		for (int i = 1; i < buf.length() - 1; i++) {
-			if (Character.isUpperCase(buf.charAt(i))) {
-				buf.insert(i++, '_');
-			}
-		}
-		return buf.toString().toLowerCase();
-	}
-	
-	/**
-	 * @param name
-	 * @return a string of CamelNaming
-	 * eg:  beeName->bee_name,beeTName->bee_t_name
-	 */
-	public static String toCamelNaming(String name){
-//		StringBuffer buf = new StringBuffer(name.toLowerCase()); //HELLO_WORLD->HelloWorld 字段名有可能是全大写的
-		StringBuffer buf = new StringBuffer(name.trim());
-		char temp;
-		for (int i = 1; i < buf.length() - 1; i++) {
-			temp=buf.charAt(i);
-			if (buf.charAt(i)=='_') {
-				buf.deleteCharAt(i);
-				temp=buf.charAt(i);
-				if(temp>='a' && temp<='z')
-				    buf.setCharAt(i, (char)(temp-32));
-			}
-		}
-		return buf.toString();
-	}
 	
 	/*
 	 * 首字母转换成大写
 	 */
 	public static  String firstLetterToUpperCase(String str) {
-		String result = "";
-		if (str.length() > 1) {
-			result = str.substring(0, 1).toUpperCase()+ str.substring(1);
-		} else {
-			result = str.toUpperCase();
-		}
-
-		return result;
+         return NameUtil.firstLetterToUpperCase(str);
 	}
 	
-    //从列名转成java命名规范
-	public static String transformColumn(String column) {  
-		if (HoneyConfig.getHoneyConfig().isUnderScoreAndCamelTransform()) {
-			return HoneyUtil.toCamelNaming(column);
-		} else {
-			return column;
-		}
-	}
-	
-    //转成带下画线的
-	public static String transformStr(String str) {  
-		if (HoneyConfig.getHoneyConfig().isUnderScoreAndCamelTransform()) {
-			return HoneyUtil.toUnderscoreNaming(str);
-		} else {
-			return str;
-		}
-	}
-	
-	public static boolean isContinue(int includeType,Object object,String fieldName){
+	static boolean isContinue(int includeType,Object object,String fieldName){
 		return (
 				( (includeType==NullEmpty.EXCLUDE || includeType==NullEmpty.EMPTY_STRING ) && object == null)
 				|| ( (includeType==NullEmpty.EXCLUDE ||includeType==NullEmpty.NULL) && "".equals(object) ) //TODO "  "也要排除
@@ -269,7 +276,7 @@ public final class HoneyUtil {
 	 * @param value
 	 * @throws SQLException
 	 */
-	public static void setPreparedValues(PreparedStatement pst,int objTypeIndex,int i,Object value) throws SQLException{
+	static void setPreparedValues(PreparedStatement pst,int objTypeIndex,int i,Object value) throws SQLException{
 		 
 		if(null==value) {
 			setPreparedNull(pst,objTypeIndex,i);  
@@ -293,7 +300,6 @@ public final class HoneyUtil {
 	        	pst.setByte(i+1,(Byte)value); break;
 	        case 8:
 	        	pst.setBytes(i+1,(byte[])value); break;
-//	        	pst.setBytes(i+1,column31); break;
 	        case 9:
 	        	pst.setBoolean(i+1,(Boolean)value); break;
 	        case 10:	
@@ -308,10 +314,118 @@ public final class HoneyUtil {
 	        	pst.setBlob(i+1,(Blob)value); break;
 	        case 15: 
 	        	pst.setClob(i+1,(Clob)value); break;
-	        default:	
+	        case 16: 
+	        	pst.setNClob(i+1, (NClob)value);break;
+	        case 17: 
+	        	pst.setRowId(i+1, (RowId)value);break;	
+	        case 18: 
+	        	pst.setSQLXML(i+1, (SQLXML)value);break;	
+	        case 19: 
+//	        	pst.setBigInteger(i+1, (BigInteger)value);break;
+	        default:
 	        	pst.setObject(i+1,value);
 		} //end switch
 	}
+	
+	
+	 static Object getResultObject(ResultSet rs, String typeName,String columnName) throws SQLException{
+		
+		int k = HoneyUtil.getJavaTypeIndex(typeName);
+		
+		switch(k){
+	        case 1:
+	        	return rs.getString(columnName); 
+	        case 2:	
+	        	return rs.getInt(columnName);
+	        case 3:	
+	        	return rs.getLong(columnName);
+	        case 4:	
+	        	return rs.getDouble(columnName);
+	        case 5:	
+	        	return rs.getFloat(columnName);
+	        case 6:	
+	        	return rs.getShort(columnName);
+	        case 7:
+	        	return rs.getByte(columnName);
+	        case 8:
+	        	return rs.getBytes(columnName);
+	        case 9:
+	        	return rs.getBoolean(columnName);
+	        case 10:	
+	        	return rs.getBigDecimal(columnName);
+	        case 11:
+	        	return rs.getDate(columnName);
+	        case 12:
+	        	return rs.getTime(columnName);
+	        case 13:
+	        	return rs.getTimestamp(columnName); 
+	        case 14: 	
+	        	return rs.getBlob(columnName); 
+	        case 15: 
+	        	return rs.getClob(columnName); 
+	        case 16: 
+	        	return rs.getNClob(columnName);
+	        case 17: 
+	        	return rs.getRowId(columnName);
+	        case 18: 
+	        	return rs.getSQLXML(columnName);
+	        case 19: 
+//	        	no  getBigInteger
+	        default:
+	        	return rs.getObject(columnName);
+		} //end switch
+		
+	}
+	 
+	 static Object getResultObjectByIndex(ResultSet rs, String typeName,int index) throws SQLException{
+			
+		int k = HoneyUtil.getJavaTypeIndex(typeName);
+		
+		switch(k){
+	        case 1:
+	        	return rs.getString(index); 
+	        case 2:	
+	        	return rs.getInt(index);
+	        case 3:	
+	        	return rs.getLong(index);
+	        case 4:	
+	        	return rs.getDouble(index);
+	        case 5:	
+	        	return rs.getFloat(index);
+	        case 6:	
+	        	return rs.getShort(index);
+	        case 7:
+	        	return rs.getByte(index);
+	        case 8:
+	        	return rs.getBytes(index);
+	        case 9:
+	        	return rs.getBoolean(index);
+	        case 10:	
+	        	return rs.getBigDecimal(index);
+	        case 11:
+	        	return rs.getDate(index);
+	        case 12:
+	        	return rs.getTime(index);
+	        case 13:
+	        	return rs.getTimestamp(index); 
+	        case 14: 	
+	        	return rs.getBlob(index); 
+	        case 15: 
+	        	return rs.getClob(index); 
+	        case 16: 
+	        	return rs.getNClob(index);
+	        case 17: 
+	        	return rs.getRowId(index);
+	        case 18: 
+	        	return rs.getSQLXML(index);
+	        case 19: 
+//	        	no  getBigInteger
+	        default:
+	        	return rs.getObject(index);
+		} //end switch
+		
+	}
+	
 	
 	public static void setPreparedNull(PreparedStatement pst,int objTypeIndex,int i) throws SQLException{
 		
@@ -329,5 +443,14 @@ public final class HoneyUtil {
 		if(sql.endsWith(";"))
 			sql=sql.substring(0, sql.length()-1);
 		return sql;
+	}
+	
+	public static <T> void checkPackage(T entity){
+		if(entity==null) return;
+		String packageName=entity.getClass().getPackage().getName();
+//		传入的实体可以过滤掉常用的包开头的,如:java., javax. ; 但spring开头不能过滤,否则spring想用bee就不行了.
+		if(packageName.startsWith("java.") || packageName.startsWith("javax.")){
+			throw new BeeIllegalEntityException("BeeIllegalEntityException: Illegal Entity, "+entity.getClass().getName());
+		}
 	}
 }
