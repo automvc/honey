@@ -20,8 +20,8 @@ public class PropertiesReader {
 			prop = new Properties();
 			InputStream in = PropertiesReader.class.getResourceAsStream(fileName);
 			prop.load(in);
-		} catch (IOException e) {
-			Logger.print("  In PropertiesReader" + e.getMessage());
+		} catch (IOException | NullPointerException e) {
+			Logger.warn("  In PropertiesReader not found the file :"+fileName+"  .  " + e.getMessage());
 		}
 	}
 
