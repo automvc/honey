@@ -17,7 +17,8 @@ public abstract class AbstractToSql implements ToSql{
 	protected StringBuffer sql = new StringBuffer();
 	
 	public String toSQL() {
-		return toSQL(false);
+//		return toSQL(false);
+		return toSQL(true); //oracle用jdbc不允许有分号
 	}
 
 	public String toSQL(boolean noSemicolon) {
