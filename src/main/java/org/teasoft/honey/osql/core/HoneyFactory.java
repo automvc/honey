@@ -2,11 +2,11 @@ package org.teasoft.honey.osql.core;
 
 import org.teasoft.bee.osql.BeeSql;
 import org.teasoft.bee.osql.Cache;
-import org.teasoft.bee.osql.CallableSQL;
+import org.teasoft.bee.osql.CallableSql;
 import org.teasoft.bee.osql.NameTranslate;
 import org.teasoft.bee.osql.ObjToSQL;
 import org.teasoft.bee.osql.ObjToSQLRich;
-import org.teasoft.bee.osql.PreparedSQL;
+import org.teasoft.bee.osql.PreparedSql;
 import org.teasoft.bee.osql.Suid;
 import org.teasoft.bee.osql.SuidRich;
 import org.teasoft.bee.osql.dialect.DbFeature;
@@ -28,8 +28,8 @@ public class HoneyFactory {
 	private BeeSql beeSql;
 	private ObjToSQL objToSQL;
 	private ObjToSQLRich objToSQLRich;
-	private PreparedSQL preparedSQL;
-	private CallableSQL callableSQL;
+	private PreparedSql preparedSql;
+	private CallableSql callableSql;
 	
 	private DbFeature dbFeature;
 	private NameTranslate nameTranslate;
@@ -80,22 +80,22 @@ public class HoneyFactory {
 		this.objToSQLRich = objToSQLRich;
 	}
 
-	public PreparedSQL getPreparedSQL() {
-		if(preparedSQL==null) return new PreparedSqlLib();
-		else return preparedSQL;
+	public PreparedSql getPreparedSql() {
+		if(preparedSql==null) return new PreparedSqlLib();
+		else return preparedSql;
 	}
 
-	public void setPreparedSQL(PreparedSQL preparedSQL) {
-		this.preparedSQL = preparedSQL;
+	public void setPreparedSql(PreparedSql preparedSql) {
+		this.preparedSql = preparedSql;
 	}
 
-	public CallableSQL getCallableSQL() {
-		if(callableSQL==null) return new CallableSqlLib();
-		else return callableSQL;
+	public CallableSql getCallableSql() {
+		if(callableSql==null) return new CallableSqlLib();
+		else return callableSql;
 	}
 
-	public void setCallableSQL(CallableSQL callableSQL) {
-		this.callableSQL = callableSQL;
+	public void setCallableSql(CallableSql callableSql) {
+		this.callableSql = callableSql;
 	}
 
 	private DbFeature getDbDialect() {
