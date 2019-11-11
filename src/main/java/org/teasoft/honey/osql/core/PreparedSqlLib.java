@@ -6,7 +6,7 @@ import java.util.Map;
 
 import org.teasoft.bee.osql.BeeSql;
 import org.teasoft.bee.osql.ObjSQLException;
-import org.teasoft.bee.osql.PreparedSQL;
+import org.teasoft.bee.osql.PreparedSql;
 import org.teasoft.honey.osql.core.name.NameUtil;
 
 /**
@@ -17,7 +17,7 @@ import org.teasoft.honey.osql.core.name.NameUtil;
  * 支持如name=#{name}的map参数形式
  * @since  1.2
  */
-public class PreparedSqlLib implements PreparedSQL {
+public class PreparedSqlLib implements PreparedSql {
 
 	private BeeSql beeSql;// = BeeFactory.getHoneyFactory().getBeeSql();
 
