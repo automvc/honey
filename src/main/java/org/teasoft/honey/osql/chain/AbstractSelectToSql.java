@@ -18,7 +18,8 @@ public class AbstractSelectToSql extends AbstractToSql{
 	protected int size;
 	
 	public String toSQL() {
-		return toSQL(false);
+//		return toSQL(false);
+		return toSQL(true);  //oracle用jdbc不允许有分号
 	}
 
 	public String toSQL(boolean noSemicolon) {
