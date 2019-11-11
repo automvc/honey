@@ -8,17 +8,16 @@ import org.teasoft.honey.osql.util.PropertiesReader;
  * @author Kingstar
  * @since  1.0
  */
-public class CustomSqlLib { //implements CustomSQL{
+public class CustomSql {
 	
-	private static PropertiesReader customSql;
+	private static PropertiesReader customSqlProp;
 	
 	static {
-		customSql=new PropertiesReader("/bee.sql.properties");
+		customSqlProp=new PropertiesReader("/bee.sql.properties");
 	}
 	
-//	@Override
 	public static String getCustomSql(String sqlId){
-		return customSql.getValue(sqlId);
+		return customSqlProp.getValue(sqlId);
 	}
 
 }
