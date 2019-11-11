@@ -59,7 +59,7 @@ final class _ObjectToSQLHelper {
 				}
 			}
 
-			sqlBuffer.append(" ;");
+//			sqlBuffer.append(" ;");
 
 			sql = sqlBuffer.toString();
 			if (valueBuffer.length() > 0) valueBuffer.deleteCharAt(0);
@@ -130,7 +130,7 @@ final class _ObjectToSQLHelper {
 				}
 			}
 
-			sqlBuffer.append(";");
+//			sqlBuffer.append(";");
 
 			if (valueBuffer.length() > 0) valueBuffer.deleteCharAt(0);
 			HoneyContext.setPreparedValue(sqlBuffer.toString(), list);
@@ -222,7 +222,7 @@ final class _ObjectToSQLHelper {
 			}
 		}//end for
 		sqlBuffer.append(whereStament);
-		sqlBuffer.append(" ;");
+//		sqlBuffer.append(" ;");
 		sql = sqlBuffer.toString();
 
 		list.addAll(whereList);
@@ -323,7 +323,7 @@ final class _ObjectToSQLHelper {
 			}//end else
 		}//end for
 		sqlBuffer.append(whereStament);
-		sqlBuffer.append(" ;");
+//		sqlBuffer.append(" ;");
 		sql = sqlBuffer.toString();
 
 		list.addAll(whereList);
@@ -398,7 +398,7 @@ final class _ObjectToSQLHelper {
 
 		sqlBuffer.append(sqlValue);
 		sqlBuffer.append(")");
-		sqlBuffer.append(" ;");
+//		sqlBuffer.append(" ;");
 
 		sql = sqlBuffer.toString();
 
@@ -473,7 +473,7 @@ final class _ObjectToSQLHelper {
 
 		sqlBuffer.append(sqlValue);
 		sqlBuffer.append(")");
-		sqlBuffer.append(" ;");
+//		sqlBuffer.append(" ;");
 
 		if (valueBuffer.length() > 0) valueBuffer.deleteCharAt(0);
 
@@ -571,7 +571,7 @@ final class _ObjectToSQLHelper {
 					}
 				}
 			}//end for
-			sqlBuffer.append(" ;");
+//			sqlBuffer.append(" ;");
 			sql = sqlBuffer.toString();
 
 			if (valueBuffer.length() > 0) valueBuffer.deleteCharAt(0);
