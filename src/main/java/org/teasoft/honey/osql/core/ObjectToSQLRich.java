@@ -39,7 +39,8 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 
 		SqlValueWrap wrap = toSelectSQL_0(entity);
 		String sql = wrap.getSql();
-		sql = dbFeature.toPageSql(sql, size)+";";
+//		sql = dbFeature.toPageSql(sql, size)+";";
+		sql = dbFeature.toPageSql(sql, size);
 
 		setPreparedValue(sql, wrap);
 		Logger.logSQL("select SQL(entity,size): ", sql);
@@ -54,7 +55,8 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		// String sql=dbFeature.toPageSql(toSelectSQL(entity), from, size);
 		SqlValueWrap wrap = toSelectSQL_0(entity);
 		String sql = wrap.getSql();
-		sql = dbFeature.toPageSql(sql, from, size)+";";
+//		sql = dbFeature.toPageSql(sql, from, size)+";";
+		sql = dbFeature.toPageSql(sql, from, size);
 
 		setPreparedValue(sql, wrap);
 
@@ -69,7 +71,8 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		
 		SqlValueWrap wrap = toSelectSQL_0(entity,selectFields);
 		String sql = wrap.getSql();
-		sql = dbFeature.toPageSql(sql, from, size)+";";
+//		sql = dbFeature.toPageSql(sql, from, size)+";";
+		sql = dbFeature.toPageSql(sql, from, size);
 
 		setPreparedValue(sql, wrap);
 
@@ -254,7 +257,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 				}
 			}
 
-			sqlBuffer.append(" ;");
+//			sqlBuffer.append(" ;");
 			sql = sqlBuffer.toString();
 
 			if (valueBuffer.length() > 0) valueBuffer.deleteCharAt(0);
@@ -417,7 +420,8 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		StringBuffer sqlBuffer=wrap.getValueBuffer();  //sqlBuffer
 		
 //		StringBuffer sqlBuffer=toSelectByIdSQL0(entity);
-		sqlBuffer.append("id=").append("?").append(";");
+//		sqlBuffer.append("id=").append("?").append(";");
+		sqlBuffer.append("id=").append("?");
 
 		List<PreparedValue> list = new ArrayList<>();
 		PreparedValue preparedValue = null;
@@ -456,7 +460,8 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			list.add(preparedValue);
 		}
 		
-		sqlBuffer.append(t_ids).append(";");
+//		sqlBuffer.append(t_ids).append(";");
+		sqlBuffer.append(t_ids);
 		
 		HoneyContext.setPreparedValue(sqlBuffer.toString(), list);
 		HoneyContext.setSqlValue(sqlBuffer.toString(), ids); //用于log显示
