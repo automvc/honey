@@ -437,11 +437,11 @@ public final class HoneyUtil {
 		int end=s.length()>12?12:s.length();
 		return "159"+s.substring(2,end)+"L";
 	}
-	
+
 	public static String deleteLastSemicolon(String sql){
-		sql=sql.trim();
-		if(sql.endsWith(";"))
-			sql=sql.substring(0, sql.length()-1);
+		String new_sql=sql.trim();
+		if(new_sql.endsWith(";"))
+			return new_sql.substring(0, new_sql.length()-1); //fix oracle ORA-00911 bug.oracle用jdbc不能有分号
 		return sql;
 	}
 	
