@@ -4,7 +4,7 @@
  * The license,see the LICENSE file.
  */
 
-package org.teasoft.honey.osql.core.name;
+package org.teasoft.honey.osql.name;
 
 
 /**
