@@ -23,7 +23,7 @@ public final class HoneyContext {
 	private static ThreadLocal<Connection> currentConnection;  //当前事务的
 	
 	private static ConcurrentMap<String,String> entity2table;
-	private static ConcurrentMap<String,String> table2entity; //for creat Javabean (just one to one can work well)
+	private static ConcurrentMap<String,String> table2entity=null; //for creat Javabean (just one to one can work well)
 
 	static {
 		beanMap = new ConcurrentHashMap<>();
@@ -34,21 +34,27 @@ public final class HoneyContext {
 		currentConnection = new ThreadLocal<>();
 		
 		entity2table=new ConcurrentHashMap<>();
-		table2entity=new ConcurrentHashMap<>();
-		initEntity2table();
+//		table2entity=new ConcurrentHashMap<>();
+		initEntity2Table();
 	}
 
 	private HoneyContext() {}
 	
 	static ConcurrentMap<String,String> getEntity2tableMap(){
+		System.out.println(table2entity);
 		return entity2table;
 	}
 	
-	static ConcurrentMap<String,String> getTable2entityMap(){
+	static ConcurrentMap<String,String> getTable2entityMap(){ //just create the Javabean files would use
+		if(table2entity==null){
+			table2entity=new ConcurrentHashMap<>();
+			initTable2Entity();
+		}
+		
 		return table2entity;
 	}
 	
-	private static void initEntity2table(){
+	private static void initEntity2Table(){
 		String entity2tableMappingList=HoneyConfig.getHoneyConfig().getEntity2tableMappingList();
 		if(entity2tableMappingList!=null){
 			String entity2table_array[]=entity2tableMappingList.split(",");
@@ -59,6 +65,27 @@ public final class HoneyContext {
 					Logger.error("["+entity2table_array[i].trim()+"] wrong formatter,separate option is not colon(:). (in bee.properties file, key: bee.osql.name.mapping.entity2table)");
 				}else{
 					entity2table.put(item[0].trim(), item[1].trim());
+					
+//					if(table2entity.containsKey(item[1].trim())){ //check
+//						Logger.warn(table2entity.get(item[1].trim()) +" and "+ item[0].trim() +" mapping same table: "+item[1].trim());
+//					}
+//					table2entity.put(item[1].trim(), item[0].trim());
+				}
+			}
+		}
+	}
+	
+	private static void initTable2Entity(){
+		String entity2tableMappingList=HoneyConfig.getHoneyConfig().getEntity2tableMappingList();
+		if(entity2tableMappingList!=null){
+			String entity2table_array[]=entity2tableMappingList.split(",");
+			String item[];
+			for (int i = 0; i < entity2table_array.length; i++) {
+				item=entity2table_array[i].trim().split(":");  //User2:temp_user,com.abc.user.User:temp_user
+				if(item.length!=2){
+					Logger.error("["+entity2table_array[i].trim()+"] wrong formatter,separate option is not colon(:). (in bee.properties file, key: bee.osql.name.mapping.entity2table)");
+				}else{
+//					entity2table.put(item[0].trim(), item[1].trim());
 					
 					if(table2entity.containsKey(item[1].trim())){ //check
 						Logger.warn(table2entity.get(item[1].trim()) +" and "+ item[0].trim() +" mapping same table: "+item[1].trim());

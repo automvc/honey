@@ -17,10 +17,10 @@ import org.teasoft.bee.osql.NameTranslate;
 public class NameTranslateHandle {
 	private static NameTranslate nameTranslat = BeeFactory.getHoneyFactory().getNameTranslate();
 	private static ConcurrentMap<String,String> entity2tableMap;
-	private static ConcurrentMap<String,String> table2entityMap;
+	private static ConcurrentMap<String,String> table2entityMap=null;
 	static{
 		entity2tableMap=HoneyContext.getEntity2tableMap();
-		table2entityMap=HoneyContext.getTable2entityMap();
+//		table2entityMap=HoneyContext.getTable2entityMap();
 	}
 
 	public static String toTableName(String entityName) {
@@ -45,7 +45,9 @@ public class NameTranslateHandle {
 	}
 
 	public static String toEntityName(String tableName) {
-		
+		if(table2entityMap==null){
+			table2entityMap=HoneyContext.getTable2entityMap();
+		}
 		//special one, config in :bee.osql.name.mapping.entity2table
 		String entityName=table2entityMap.get(tableName);
 		if(entityName!=null && "".equals(entityName.trim())) return entityName;
