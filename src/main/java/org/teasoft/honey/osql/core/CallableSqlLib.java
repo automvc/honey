@@ -11,13 +11,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.teasoft.bee.osql.CallableSQL;
+import org.teasoft.bee.osql.CallableSql;
 
 /**
  * @author Kingstar
  * @since  1.0
  */
-public class CallableSqlLib implements CallableSQL {
+public class CallableSqlLib implements CallableSql {
 
 	public static ThreadLocal<Connection> connLocal2 = new ThreadLocal<>();
 
@@ -213,9 +213,7 @@ public class CallableSqlLib implements CallableSQL {
 	}
 
 	private String getIdString(CallableStatement cstmt) {
-		String s = cstmt.toString();
-		int index = cstmt.toString().indexOf(":");
-		return s.substring(0, index);
+		return cstmt.toString();
 	}
 
 	private StringBuffer initPreparedValues(CallableStatement cstmt, Object[] preValues) throws SQLException {
