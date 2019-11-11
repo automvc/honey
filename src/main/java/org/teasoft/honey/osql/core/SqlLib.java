@@ -65,8 +65,9 @@ public class SqlLib implements BeeSql {
 		List<T> rsList = null;
 		try {
 			conn = getConn();
-			pst = conn.prepareStatement(sql);
-
+			String exe_sql=HoneyUtil.deleteLastSemicolon(sql);
+			pst = conn.prepareStatement(exe_sql);
+			
 			setPreparedValues(pst, sql);
 
 			ResultSet rs = pst.executeQuery();
@@ -124,7 +125,8 @@ public class SqlLib implements BeeSql {
 		Map<String,Field> map=null;
 		try {
 			conn = getConn();
-			pst = conn.prepareStatement(sql);
+			String exe_sql=HoneyUtil.deleteLastSemicolon(sql);
+			pst = conn.prepareStatement(exe_sql);
 
 			setPreparedValues(pst, sql);
 
@@ -204,7 +206,8 @@ public class SqlLib implements BeeSql {
 		ResultSet rs = null;
 		try {
 			conn = getConn();
-			pst = conn.prepareStatement(sql);
+			String exe_sql=HoneyUtil.deleteLastSemicolon(sql);
+			pst = conn.prepareStatement(exe_sql);
 
 			setPreparedValues(pst, sql);
 
@@ -247,7 +250,8 @@ public class SqlLib implements BeeSql {
 
 		try {
 			conn = getConn();
-			pst = conn.prepareStatement(sql);
+			String exe_sql=HoneyUtil.deleteLastSemicolon(sql);
+			pst = conn.prepareStatement(exe_sql);
 
 			setPreparedValues(pst, sql);
 
@@ -288,7 +292,8 @@ public class SqlLib implements BeeSql {
 		PreparedStatement pst = null;
 		try {
 			conn = getConn();
-			pst = conn.prepareStatement(sql);
+			String exe_sql=HoneyUtil.deleteLastSemicolon(sql);
+			pst = conn.prepareStatement(exe_sql);
 
 			setPreparedValues(pst, sql);
 
@@ -325,7 +330,8 @@ public class SqlLib implements BeeSql {
 
 		try {
 			conn = getConn();
-			pst = conn.prepareStatement(sql);
+			String exe_sql=HoneyUtil.deleteLastSemicolon(sql);
+			pst = conn.prepareStatement(exe_sql);
 
 			setPreparedValues(pst, sql);
 
@@ -364,7 +370,8 @@ public class SqlLib implements BeeSql {
 			conn = getConn();
 			boolean oldAutoCommit=conn.getAutoCommit();
 			conn.setAutoCommit(false);
-			pst = conn.prepareStatement(sql[0]);
+			String exe_sql=HoneyUtil.deleteLastSemicolon(sql[0]);
+			pst = conn.prepareStatement(exe_sql);
 		
 		if (len <= batchSize){
 			total=batch(sql,0,len,conn,pst);
