@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.teasoft.bee.osql.ObjSQLException;
-import org.teasoft.honey.osql.core.name.NameUtil;
+import org.teasoft.honey.osql.name.NameUtil;
 
 /**
  * @author Kingstar

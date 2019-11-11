@@ -20,7 +20,7 @@ import java.util.Map;
 import org.teasoft.bee.osql.exception.BeeIllegalEntityException;
 import org.teasoft.honey.osql.constant.DatabaseConst;
 import org.teasoft.honey.osql.constant.NullEmpty;
-import org.teasoft.honey.osql.core.name.NameUtil;
+import org.teasoft.honey.osql.name.NameUtil;
 import org.teasoft.honey.osql.util.PropertiesReader;
 
 /**

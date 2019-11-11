@@ -7,7 +7,7 @@ import java.util.Map;
 import org.teasoft.bee.osql.BeeSql;
 import org.teasoft.bee.osql.ObjSQLException;
 import org.teasoft.bee.osql.PreparedSql;
-import org.teasoft.honey.osql.core.name.NameUtil;
+import org.teasoft.honey.osql.name.NameUtil;
 
 /**
  * 支持带占位符(?)的sql操作.sql语句是DB能识别的SQL,非面向对象的sql.

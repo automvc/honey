@@ -19,7 +19,7 @@ import org.teasoft.bee.osql.OrderType;
 import org.teasoft.bee.osql.dialect.DbFeature;
 import org.teasoft.bee.osql.exception.BeeErrorFieldException;
 import org.teasoft.bee.osql.exception.BeeIllegalEntityException;
-import org.teasoft.honey.osql.core.name.NameUtil;
+import org.teasoft.honey.osql.name.NameUtil;
 
 /**
  * @author Kingstar

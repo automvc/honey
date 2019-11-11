@@ -12,10 +12,10 @@ import org.teasoft.bee.osql.SuidRich;
 import org.teasoft.bee.osql.dialect.DbFeature;
 import org.teasoft.bee.osql.exception.NoConfigException;
 import org.teasoft.honey.osql.constant.DatabaseConst;
-import org.teasoft.honey.osql.core.name.UnderScoreAndCamelName;
 import org.teasoft.honey.osql.dialect.mysql.MySqlFeature;
 import org.teasoft.honey.osql.dialect.oracle.OracleFeature;
 import org.teasoft.honey.osql.dialect.sqlserver.SqlServerFeature;
+import org.teasoft.honey.osql.name.UnderScoreAndCamelName;
 
 /**
  * @author Kingstar
