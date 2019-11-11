@@ -34,7 +34,7 @@ public final class CacheUtil {
 	
 	private static Map<String,List<String>> map_tableKeyList;  //<key,tableKey's list>  通过缓存的key找到表的key
 	
-	private static ArrayIndex arrayIndex;
+	private static CacheArrayIndex arrayIndex;
 	
 	private static Map<String,String> neverCacheTableMap=new HashMap<>();
 	private static Map<String,Integer> foreverCacheTableMap=new HashMap<>();  //table is forever or not
@@ -63,7 +63,7 @@ public final class CacheUtil {
 		
 		timeout=HoneyConfig.getHoneyConfig().getCacheTimeout();
 		
-		arrayIndex=new ArrayIndex();
+		arrayIndex=new CacheArrayIndex();
 		
 		initSpecialTable(HoneyConfig.getHoneyConfig().getNeverCacheTableList(), 
 				         HoneyConfig.getHoneyConfig().getForeverCacheTableList(),
