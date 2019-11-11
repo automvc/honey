@@ -15,7 +15,6 @@ public class SqlServerFeature implements DbFeature {
 		}
 		
 		public String toPageSql(String sql, int size) {
-//			sql=sql.replace(";", ""); //去掉原来有的分号,如果有
 			sql=HoneyUtil.deleteLastSemicolon(sql);
 			sql = "top "+size+" "+sql;
 			return sql;
