@@ -11,7 +11,7 @@ package org.teasoft.honey.osql.core;
  * @author Kingstar
  * @since  1.4
  */
-public class ArrayIndex {
+public class CacheArrayIndex {
 	
 
 	private int low;  //低对应的是较久的
@@ -32,7 +32,7 @@ public class ArrayIndex {
 		fullClearCacheSize=(int) (HoneyConfig.getHoneyConfig().getFullClearCacheRate() *size);
 	}
 	
-	public ArrayIndex(){}
+	public CacheArrayIndex(){}
 	
 	public int getLow() {
 		return low;
