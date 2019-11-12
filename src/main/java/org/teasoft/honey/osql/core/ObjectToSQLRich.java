@@ -33,8 +33,6 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	@Override
 	public <T> String toSelectSQL(T entity, int size) {
 		
-		checkPackage(entity);
-		
 //		String sql=dbFeature.toPageSql(toSelectSQL(entity), size);
 
 		SqlValueWrap wrap = toSelectSQL_0(entity);
@@ -49,8 +47,6 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 
 	@Override
 	public <T> String toSelectSQL(T entity, int from, int size) {
-		
-		checkPackage(entity);
 
 		// String sql=dbFeature.toPageSql(toSelectSQL(entity), from, size);
 		SqlValueWrap wrap = toSelectSQL_0(entity);
@@ -66,8 +62,6 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	
 	@Override
 	public <T> String toSelectSQL(T entity,String selectFields,int from,int size){
-	
-		checkPackage(entity);
 		
 		SqlValueWrap wrap = toSelectSQL_0(entity,selectFields);
 		String sql = wrap.getSql();
@@ -84,12 +78,10 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 
 	@Override
 	public <T> String toSelectSQL(T entity, String fieldList) throws ObjSQLException {
-
-		checkPackage(entity);
 		
 		String newSelectFields=checkSelectField(entity,fieldList);
 		
-//		String sql=_ObjectToSQLHelper._toSelectSQL(entity);
+//		String sql = _ObjectToSQLHelper._toSelectSQL(entity);
 		String sql = _ObjectToSQLHelper._toSelectSQL(entity, newSelectFields);
 
 //		sql=sql.replace("#fieldNames#", fieldList);
@@ -102,8 +94,6 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 
 	@Override
 	public <T> String toSelectOrderBySQL(T entity, String orderFieldList) throws ObjSQLException {
-		
-		checkPackage(entity);
 
 		String orderFields[] = orderFieldList.split(",");
 		int lenA = orderFields.length;
@@ -127,8 +117,6 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 
 	@Override
 	public <T> String toSelectOrderBySQL(T entity, String orderFieldList, OrderType[] orderTypes) throws ObjSQLException {
-
-		checkPackage(entity);
 		
 		String orderFields[] = orderFieldList.split(",");
 		int lenA = orderFields.length;
@@ -155,8 +143,6 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	@Override
 	public <T> String toUpdateSQL(T entity, String updateFieldList) throws ObjSQLException {
 		if (updateFieldList == null) return null;
-		
-		checkPackage(entity);
 
 		String sql = "";
 		try {
@@ -174,8 +160,6 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	@Override
 	public <T> String toUpdateSQL(T entity, String updateFieldList, IncludeType includeType) throws ObjSQLException {
 		if (updateFieldList == null) return null;
-		
-		checkPackage(entity);
 		
 		String sql = "";
 		try {
@@ -195,7 +179,6 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		return _toSelectFunSQL(entity,functionType.getName(),fieldForFun);
 	}
 
-	//	 select max(bookPrice) from gen3 where =7 and name='newName' and =0.03 and aTest='test3-new' ;
 	private <T> String _toSelectFunSQL(T entity, String funType,String fieldForFun) throws ObjSQLException {
 		
 		checkPackage(entity);

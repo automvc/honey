@@ -141,7 +141,7 @@ public final class HoneyUtil {
 		jdbcTypeMap.put("BIGINT", "Long");
 		jdbcTypeMap.put("REAL", "Float");
 //		jdbcTypeMap.put("FLOAT", "Double");
-		jdbcTypeMap.put("FLOAT", "Float");
+		jdbcTypeMap.put("FLOAT", "Float");  //notice: mysql在创表时,要指定float的小数位数,否则查询时不能用=精确查询
 		jdbcTypeMap.put("DOUBLE", "Double");
 
 		jdbcTypeMap.put("BINARY", "byte[]");
