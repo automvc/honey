@@ -41,7 +41,6 @@ public final class HoneyContext {
 	private HoneyContext() {}
 	
 	static ConcurrentMap<String,String> getEntity2tableMap(){
-		System.out.println(table2entity);
 		return entity2table;
 	}
 	
