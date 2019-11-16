@@ -212,7 +212,6 @@ public final class HoneyUtil {
 	}
 	
 	private static void appendJdbcTypeCustomProp_specificalDB() {
-//		System.out.println(jdbcTypeCustomProp_specificalDB.getKeys());
 		for (String s : jdbcTypeCustomProp_specificalDB.getKeys()) {
 			jdbcTypeMap.put(s, jdbcTypeCustomProp_specificalDB.getValue(s));
 		}
@@ -295,7 +294,7 @@ public final class HoneyUtil {
 	        case 5:	
 	        	pst.setFloat(i+1,(Float)value); break;
 	        case 6:	
-	        	pst.setShort(i+1,(Byte)value); break;
+	        	pst.setShort(i+1,(Short)value); break;
 	        case 7:
 	        	pst.setByte(i+1,(Byte)value); break;
 	        case 8:
