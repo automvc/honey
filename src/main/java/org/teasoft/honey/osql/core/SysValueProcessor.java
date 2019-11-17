@@ -23,7 +23,7 @@ public class SysValueProcessor {
 		for (int i = 0; i < f.length; i++) {
 			if (f[i].isAnnotationPresent(SysValue.class)) {
 				SysValue sysValue = f[i].getAnnotation(SysValue.class);
-				f[i].setAccessible(true);
+				
 				value = sysValue.value();
 				if (value == null) {
 //					System.out.println("value is null");
@@ -42,6 +42,7 @@ public class SysValueProcessor {
 					}
                    try{
 					Class c = f[i].getType();
+					f[i].setAccessible(true);
 					if (c.equals(String.class)) {
 						f[i].set(obj, value);
 					} else if (c.equals(int.class) || c.equals(Integer.class))
