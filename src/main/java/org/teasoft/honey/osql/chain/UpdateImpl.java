@@ -71,13 +71,15 @@ public class UpdateImpl extends AbstractToSql implements Update {
 	}
 	
 	//Condition<<=============
+	@Override
 	public Update where() {
 		sql.append(" where ");
 		isStartWhere = false;
 
 		return this;
 	}
-
+	
+	@Override
 	public Update where(String expression) {
 		if (isStartWhere) {
 			sql.append(" where ");
@@ -92,6 +94,7 @@ public class UpdateImpl extends AbstractToSql implements Update {
 		return this;
 	}
 
+	@Override
 	public Update op(String field, Op opType, String value) {
 
 		if (isAddAnd) sql.append(" and ");
@@ -105,6 +108,7 @@ public class UpdateImpl extends AbstractToSql implements Update {
 		return this;
 	}
 
+	@Override
 	public Update op(String field, Op opType, Number value) {
 
 		if (isAddAnd) sql.append(" and ");
@@ -115,10 +119,12 @@ public class UpdateImpl extends AbstractToSql implements Update {
 		return this;
 	}
 	
+	@Override
 	public Update op(String field, String value) {
         return op(field, Op.eq, value);
 	}
 
+	@Override
 	public Update op(String field,Number value) {
 		return op(field, Op.eq, value);
 	}
@@ -128,12 +134,14 @@ public class UpdateImpl extends AbstractToSql implements Update {
 	 * 
 	 * @return a reference to this object.
 	 */
+	@Override
 	public Update and() {
 		sql.append(" and ");
 		isAddAnd = false;
 		return this;
 	}
 
+	@Override
 	public Update or() {
 		sql.append(" or ");
 		isAddAnd = false;
