@@ -37,18 +37,22 @@ public class UnionSelectImpl extends AbstractSelectToSql implements UnionSelect 
 		return this;
 	}
 
+	@Override
 	public UnionSelect union(Select subSelect1, Select subSelect2) {
 		return union(subSelect1.toSQL(true), subSelect2.toSQL(true));
 	}
 
+	@Override
 	public UnionSelect union(String subSelect1, String subSelect2) {
 		return useUnionSelect("union", subSelect1, subSelect2);
 	}
 
+	@Override
 	public UnionSelect unionAll(Select subSelect1, Select subSelect2) {
 		return unionAll(subSelect1.toSQL(true), subSelect2.toSQL(true));
 	}
 
+	@Override
 	public UnionSelect unionAll(String subSelect1, String subSelect2) {
 		return useUnionSelect("union all", subSelect1, subSelect2);
 	}
