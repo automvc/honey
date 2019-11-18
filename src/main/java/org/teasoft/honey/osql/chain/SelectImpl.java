@@ -41,6 +41,7 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 //	private int start;
 //	private int size;
 
+	@Override
 	public Select select() {
 		if (isStartField) {
 			sql.append(STAR);
@@ -49,6 +50,7 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 		return this;
 	}
 
+	@Override
 	public Select select(String column) {
 		if (isStartField) {
 			sql.append(column);
@@ -61,6 +63,7 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 		return this;
 	}
 
+	@Override
 	public Select distinct(String field) {
 		return select(DISTINCT + L_PARENTHESES + field + R_PARENTHESES); // DISTINCT(field)
 	}
@@ -71,36 +74,42 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 	// R_PARENTHESES; // eg. sum(price)
 	// }
 
+	@Override
 	public Select from(String table) {
 		sql.append(" from ");
 		sql.append(table);
 		return this;
 	}
 
+	@Override
 	public Select join(String anotherTable) {
 		sql.append(" join ");
 		sql.append(anotherTable);
 		return this;
 	}
 
+	@Override
 	public Select innerjoin(String anotherTable) {
 		sql.append(" inner join ");
 		sql.append(anotherTable);
 		return this;
 	}
 
+	@Override
 	public Select leftjoin(String anotherTable) {
 		sql.append(" left join ");
 		sql.append(anotherTable);
 		return this;
 	}
 
+	@Override
 	public Select rightjoin(String anotherTable) {
 		sql.append(" right join ");
 		sql.append(anotherTable);
 		return this;
 	}
 
+	@Override
 	public Select on() {
 		sql.append(" on ");
 		isStartOn = false;
@@ -108,6 +117,7 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 		return this;
 	}
 
+	@Override
 	public Select on(String expression) {
 		if (isStartOn) {
 			sql.append(" on ");
@@ -122,7 +132,7 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 		return this;
 	}
 
-
+	@Override
 	public Select between(String field, Number low, Number high) {
 
 		if (isAddAnd) sql.append(" and ");
@@ -136,6 +146,7 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 		return this;
 	}
 
+	@Override
 	public Select notBetween(String field, Number low, Number high) {
 
 		if (isAddAnd) sql.append(" and ");
@@ -149,18 +160,21 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 		return this;
 	}
 
+	@Override
 	public Select isNull(String field) {
 		if (isAddAnd) sql.append(" and ");
 		sql.append(field + " is null ");
 		return this;
 	}
 
+	@Override
 	public Select isNotNull(String field) {
 		if (isAddAnd) sql.append(" and ");
 		sql.append(field + " is not null ");
 		return this;
 	}
 
+	@Override
 	public Select in(String field, Number... valueList) {
 		return inOrNotIn(field, "in", valueList);
 	}
@@ -182,10 +196,12 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 		return this;
 	}
 
+	@Override
 	public Select in(String field, String valueList) {
 		return inOrNotIn(field, "in", valueList);
 	}
 
+	@Override
 	public Select notIn(String field, String valueList) {
 		return inOrNotIn(field, "not in", valueList);
 	}
@@ -197,6 +213,7 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 		return this;
 	}
 
+	@Override
 	public Select groupBy(String field) {
 		if (isStartGroupBy) {
 			sql.append(" group by ");
@@ -210,6 +227,7 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 		return this;
 	}
 
+	@Override
 	public Select having(String expression) {
 		// if(isStartGroupBy) //throw Exception;
 		// throw new Exception();
@@ -226,6 +244,7 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 		return this;
 	}
 
+	@Override
 	public Select orderBy(String field) {
 
 		if (isStartOrderBy) {
@@ -240,6 +259,7 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 		return this;
 	}
 
+	@Override
 	public Select orderBy(String field, OrderType orderType) {
 		if (isStartOrderBy) {
 			sql.append(" order by ");
@@ -267,6 +287,7 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 		return this;
 	}
 
+	@Override
 	public Select exists(Select subSelect) {
 		return exists(subSelect.toSQL(true));
 	}
@@ -275,45 +296,55 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 		return useSubSelect("exists", subSelect);
 	}
 
+	@Override
 	public Select notExists(Select subSelect) {
 		return notExists(subSelect.toSQL(true));
 	}
 
+	@Override
 	public Select notExists(String subSelect) {
 		return useSubSelect("not exists", subSelect);
 	}
 
+	@Override
 	public Select in(Select subSelect) {
 		return in(subSelect.toSQL(true));
 	}
 
+	@Override
 	public Select in(String subSelect) {
 		return useSubSelect("in", subSelect);
 	}
 
+	@Override
 	public Select notIn(Select subSelect) {
 		return notIn(subSelect.toSQL(true));
 	}
 
+	@Override
 	public Select notIn(String subSelect) {
 		return useSubSelect("not in", subSelect);
 	}
 
+	@Override
 	public Select start(int start) {
 		this.start=start;
 		return this;
 	}
 
+	@Override
 	public Select size(int size) {
 		this.size=size;
 		return this;
 	}
 	
+	@Override
 	public Select lParentheses() {
 		sql.append(L_PARENTHESES);
 		return this;
 	}
 
+	@Override
 	public Select rParentheses() {
 		sql.append(R_PARENTHESES);
 		return this;
@@ -321,6 +352,7 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 	
 	
  //Condition<<=============
+	@Override
 	public Select where() {
 		sql.append(" where ");
 		isStartWhere = false;
@@ -343,6 +375,7 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 		return this;
 	}
 
+	@Override
 	public Select op(String field, Op opType, String value) {
 
 		if (opType == Op.in) return in(field, value);
@@ -359,6 +392,7 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 		return this;
 	}
 
+	@Override
 	public Select op(String field, Op opType, Number value) {
 		if (opType == Op.in) return in(field, value);
 		if (opType == Op.notIn) return notIn(field, value);
@@ -371,10 +405,12 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 		return this;
 	}
 	
+	@Override
 	public Select op(String field, String value) {
 		return op(field, Op.eq, value);
 	}
 	
+	@Override
 	public Select op(String field, Number value) {
 		return op(field, Op.eq, value);
 	}
@@ -384,12 +420,14 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 	 * 
 	 * @return a reference to this object.
 	 */
+	@Override
 	public Select and() {
 		sql.append(" and ");
 		isAddAnd = false;
 		return this;
 	}
 
+	@Override
 	public Select or() {
 		sql.append(" or ");
 		isAddAnd = false;
