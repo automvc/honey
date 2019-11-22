@@ -14,6 +14,7 @@ import org.teasoft.bee.osql.ObjSQLException;
 import org.teasoft.bee.osql.ObjToSQLRich;
 import org.teasoft.bee.osql.OrderType;
 import org.teasoft.bee.osql.SuidRich;
+import org.teasoft.bee.osql.exception.BeeIllegalParameterException;
 
 /**
  * @author Kingstar
@@ -27,6 +28,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Override
 	public <T> List<T> select(T entity, int size) {
 		if (entity == null) return null;
+		if(size<=0) throw new BeeIllegalParameterException("Parameter 'size' need great than 0!");
 		String sql = objToSQLRich.toSelectSQL(entity, size);
 		return getBeeSql().select(sql, entity);
 	}
@@ -34,6 +36,8 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Override
 	public <T> List<T> select(T entity, int from, int size) {
 		if (entity == null) return null;
+		if(size<=0) throw new BeeIllegalParameterException("Parameter 'size' need great than 0!");
+		if(from<0) throw new BeeIllegalParameterException("Parameter 'from' need great equal 0!");
 		String sql = objToSQLRich.toSelectSQL(entity, from, size);
 		return getBeeSql().select(sql, entity);
 	}
