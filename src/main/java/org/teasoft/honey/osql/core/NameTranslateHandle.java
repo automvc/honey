@@ -22,6 +22,14 @@ public class NameTranslateHandle {
 		entity2tableMap=HoneyContext.getEntity2tableMap();
 //		table2entityMap=HoneyContext.getTable2entityMap();
 	}
+	
+	/**
+	 * 指定命名转换实现类
+	 * @param nameTranslat
+	 */
+	public static void setNameTranslat(NameTranslate nameTranslat) {
+		NameTranslateHandle.nameTranslat = nameTranslat;
+	}
 
 	public static String toTableName(String entityName) {
 		//entityName maybe include package name
