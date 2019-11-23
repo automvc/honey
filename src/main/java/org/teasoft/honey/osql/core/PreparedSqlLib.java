@@ -184,7 +184,7 @@ public class PreparedSqlLib implements PreparedSql {
 			
 			int len=keys[i].length();
 			if(keys[i].startsWith("%")){
-				if(keys[i].endsWith("%")){  //    %para$
+				if(keys[i].endsWith("%")){  //    %para%
 					keys[i]=keys[i].substring(1,len-1);
 					value="%"+map.get(keys[i])+"%";
 					preparedValue.setValue(value);
