@@ -6,6 +6,7 @@
 
 package org.teasoft.honey.osql.core;
 
+import org.teasoft.bee.osql.Condition;
 import org.teasoft.bee.osql.ObjSQLException;
 import org.teasoft.bee.osql.ObjToSQL;
 
@@ -50,4 +51,9 @@ public class ObjectToSQL implements ObjToSQL {
 		return sql;
 	}
 
+	@Override
+	public <T> String toSelectSQL(T entity, Condition condition) {
+		return _ObjectToSQLHelper._toSelectSQL(entity, -1,condition); // 过滤NULL和空字符串
+	}
+	
 }
