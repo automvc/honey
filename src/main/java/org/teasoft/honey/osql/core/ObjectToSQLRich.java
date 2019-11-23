@@ -46,31 +46,31 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	}
 
 	@Override
-	public <T> String toSelectSQL(T entity, int from, int size) {
+	public <T> String toSelectSQL(T entity, int start, int size) {
 
-		// String sql=dbFeature.toPageSql(toSelectSQL(entity), from, size);
+		// String sql=dbFeature.toPageSql(toSelectSQL(entity), start, size);
 		SqlValueWrap wrap = toSelectSQL_0(entity);
 		String sql = wrap.getSql();
-//		sql = dbFeature.toPageSql(sql, from, size)+";";
-		sql = dbFeature.toPageSql(sql, from, size);
+//		sql = dbFeature.toPageSql(sql, start, size)+";";
+		sql = dbFeature.toPageSql(sql, start, size);
 
 		setPreparedValue(sql, wrap);
 
-		Logger.logSQL("select(entity,from,size) SQL:", sql);
+		Logger.logSQL("select(entity,start,size) SQL:", sql);
 		return sql;
 	}
 	
 	@Override
-	public <T> String toSelectSQL(T entity,String selectFields,int from,int size){
+	public <T> String toSelectSQL(T entity,String selectFields,int start,int size){
 		
 		SqlValueWrap wrap = toSelectSQL_0(entity,selectFields);
 		String sql = wrap.getSql();
-//		sql = dbFeature.toPageSql(sql, from, size)+";";
-		sql = dbFeature.toPageSql(sql, from, size);
+//		sql = dbFeature.toPageSql(sql, start, size)+";";
+		sql = dbFeature.toPageSql(sql, start, size);
 
 		setPreparedValue(sql, wrap);
 
-		Logger.logSQL("select(entity,selectFields,from,size) SQL:", sql);
+		Logger.logSQL("select(entity,selectFields,start,size) SQL:", sql);
 		return sql;
 	}
 	
