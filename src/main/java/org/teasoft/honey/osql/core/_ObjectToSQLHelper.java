@@ -3,8 +3,11 @@ package org.teasoft.honey.osql.core;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
+import org.teasoft.bee.osql.Condition;
 import org.teasoft.bee.osql.ObjSQLException;
+import org.teasoft.bee.osql.SuidType;
 import org.teasoft.honey.osql.name.NameUtil;
 
 /**
@@ -73,15 +76,18 @@ final class _ObjectToSQLHelper {
 		return sql;
 
 	}
-
-	static <T> String _toSelectSQL(T entity, int includeType) {
+	
+	static <T> String _toSelectSQL(T entity, int includeType,Condition condition) {
 		checkPackage(entity);
+		
+		Set conditionFieldSet=null;
+		if(condition!=null) conditionFieldSet=condition.getFieldSet();
 		
 		StringBuffer sqlBuffer = new StringBuffer();
 		StringBuffer valueBuffer = new StringBuffer();
 		try {
 			String tableName = _toTableName(entity);
-			Field fields[] = entity.getClass().getDeclaredFields(); //返回所有字段,包括公有和私有     //改为以最高权限访问？2012-07-15 no
+			Field fields[] = entity.getClass().getDeclaredFields(); 
 
 			String packageAndClassName = entity.getClass().getName();
 			String columnNames = HoneyContext.getBeanField(packageAndClassName);
@@ -101,9 +107,12 @@ final class _ObjectToSQLHelper {
 				if (HoneyUtil.isContinue(includeType, fields[i].get(entity),fields[i].getName())) {
 					continue;
 				} else {
-
+					
 					if (fields[i].get(entity) == null && "id".equalsIgnoreCase(fields[i].getName())) 
 						continue; //id=null不作为过滤条件
+					
+					if(conditionFieldSet!=null && conditionFieldSet.contains(fields[i].getName())) 
+						continue; //Condition已包含的,不再遍历
 
 					if (firstWhere) {
 						sqlBuffer.append(" where ");
@@ -128,8 +137,12 @@ final class _ObjectToSQLHelper {
 						list.add(k++, preparedValue);
 					}
 				}
+			}//end for
+			
+			if(condition!=null){
+				 condition.setSuidType(SuidType.SELECT);
+			     ConditionHelper.processCondition(sqlBuffer, valueBuffer, list, condition, firstWhere);
 			}
-
 //			sqlBuffer.append(";");
 
 			if (valueBuffer.length() > 0) valueBuffer.deleteCharAt(0);
@@ -142,8 +155,12 @@ final class _ObjectToSQLHelper {
 
 		return sqlBuffer.toString();
 	}
+	
+	static <T> String _toSelectSQL(T entity, int includeType) {
+         return _toSelectSQL(entity, includeType, null);
+	}
 
-	static <T> String _toUpdateSQL(T entity, String whereColmn, int includeType) throws ObjSQLException, IllegalAccessException {
+	static <T> String _toUpdateSQL(T entity, String whereColumn, int includeType) throws ObjSQLException, IllegalAccessException {
 		checkPackage(entity);
 		
 		String sql = "";
@@ -165,13 +182,13 @@ final class _ObjectToSQLHelper {
 		PreparedValue preparedValue = null;
 		for (int i = 0, k = 0, w = 0; i < len; i++) {
 			fields[i].setAccessible(true);
-			if ("id".equalsIgnoreCase(whereColmn) && fields[i].get(entity) == null && "id".equalsIgnoreCase(fields[i].getName()))
+			if ("id".equalsIgnoreCase(whereColumn) && fields[i].get(entity) == null && "id".equalsIgnoreCase(fields[i].getName()))
 				throw new ObjSQLException("ObjSQLException: in the update(T entity), the id field of entity must not be null !");
 			//			if (fields[i].get(entity) == null || "serialVersionUID".equals(fields[i].getName()))
 			if (HoneyUtil.isContinue(includeType, fields[i].get(entity),fields[i].getName())) {
 				continue;
 			} else {
-				if (whereColmn.equalsIgnoreCase(fields[i].getName())) { //java.lang.ClassCastException: java.lang.Integer cannot be cast to java.lang.String
+				if (whereColumn.equalsIgnoreCase(fields[i].getName())) { //java.lang.ClassCastException: java.lang.Integer cannot be cast to java.lang.String
 					whereStament.append(" where ");
 					whereStament.append(_toColumnName(fields[i].getName()));
 
