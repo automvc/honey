@@ -9,6 +9,7 @@ package org.teasoft.honey.osql.core;
 import java.util.List;
 
 import org.teasoft.bee.osql.BeeSql;
+import org.teasoft.bee.osql.Condition;
 import org.teasoft.bee.osql.ObjSQLException;
 import org.teasoft.bee.osql.ObjToSQL;
 import org.teasoft.bee.osql.Suid;
@@ -90,6 +91,17 @@ public class ObjSQL implements Suid {
 		Logger.logSQL("delete SQL: ", sql);
 		deleteNum = getBeeSql().modify(sql);
 		return deleteNum;
+	}
+
+	@Override
+	public <T> List<T> select(T entity, Condition condition) {
+		if (entity == null) return null;
+
+		List<T> list = null;
+		String sql = objToSQL.toSelectSQL(entity,condition);
+		Logger.logSQL("select SQL: ", sql);
+		list = getBeeSql().select(sql, entity); 
+		return list;
 	}
 
 }
