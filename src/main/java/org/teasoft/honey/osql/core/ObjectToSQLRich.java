@@ -402,6 +402,33 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	public <T> String toSelectSQL(T entity, IncludeType includeType, Condition condition) {
 		return _ObjectToSQLHelper._toSelectSQL(entity, includeType.getValue(),condition); 
 	}
+	
+	private <T> String _toUpdateBySQL(T entity, String whereFieldList,int includeType) {
+		if (whereFieldList == null) return null;
+
+		String sql = "";
+		try {
+			String whereFields[] = whereFieldList.split(",");
+
+			if (whereFields.length == 0 || "".equals(whereFieldList.trim())) throw new ObjSQLException("ObjSQLException:whereFieldList at least include one field.");
+
+//			sql = _ObjectToSQLHelper._toUpdateBySQL(entity, whereFields, -1);
+			sql = _ObjectToSQLHelper._toUpdateBySQL(entity, whereFields, includeType);
+		} catch (IllegalAccessException e) {
+			throw ExceptionHelper.convert(e);
+		}
+		return sql;
+	}
+	
+	@Override
+	public <T> String toUpdateBySQL(T entity, String whereFieldList) {
+	    return _toUpdateBySQL(entity, whereFieldList, -1);
+	}
+
+	@Override
+	public <T> String toUpdateBySQL(T entity, String whereFieldList, IncludeType includeType) {
+		return _toUpdateBySQL(entity, whereFieldList, includeType.getValue());
+	}
 
 	private <T> String _toSelectAndDeleteByIdSQL(SqlValueWrap wrap, Number id,String numType) {
 		if(id==null) return null;
