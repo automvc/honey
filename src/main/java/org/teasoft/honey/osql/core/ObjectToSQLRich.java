@@ -10,6 +10,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.teasoft.bee.osql.Condition;
 import org.teasoft.bee.osql.FunctionType;
 import org.teasoft.bee.osql.IncludeType;
 import org.teasoft.bee.osql.ObjSQLException;
@@ -395,6 +396,11 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		if(ids==null || "".equals(ids.trim())) return null;
 		SqlValueWrap sqlBuffer=toSelectByIdSQL0(entity);
 		return _toSelectAndDeleteByIdSQL(sqlBuffer,ids);
+	}
+
+	@Override
+	public <T> String toSelectSQL(T entity, IncludeType includeType, Condition condition) {
+		return _ObjectToSQLHelper._toSelectSQL(entity, includeType.getValue(),condition); 
 	}
 
 	private <T> String _toSelectAndDeleteByIdSQL(SqlValueWrap wrap, Number id,String numType) {
