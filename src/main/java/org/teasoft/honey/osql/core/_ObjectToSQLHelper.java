@@ -355,6 +355,117 @@ final class _ObjectToSQLHelper {
 
 		return sql;
 	}
+	
+	//for updateBy
+	static <T> String _toUpdateBySQL(T entity, String whereColumn[], int includeType) throws IllegalAccessException {
+		checkPackage(entity);
+		
+		String sql = "";
+		StringBuffer sqlBuffer = new StringBuffer();
+		StringBuffer valueBuffer = new StringBuffer();
+		StringBuffer whereValueBuffer = new StringBuffer();
+		boolean firstSet = true;
+		boolean firstWhere = true;
+		boolean isExistWhere = false;
+		StringBuffer whereStament = new StringBuffer();
+		String tableName = _toTableName(entity);
+		sqlBuffer.append(" update ");
+		sqlBuffer.append(tableName);
+		sqlBuffer.append(" set ");
+
+		Field fields[] = entity.getClass().getDeclaredFields();
+		int len = fields.length;
+		List<PreparedValue> list = new ArrayList<>();
+		List<PreparedValue> whereList = new ArrayList<>();
+
+		PreparedValue preparedValue = null;
+		for (int i = 0, k = 0, w = 0; i < len; i++) {
+			fields[i].setAccessible(true);
+			if (! isContainField(whereColumn, fields[i].getName())) { //set value
+				
+				//set 字段根据includeType过滤
+				if (HoneyUtil.isContinue(includeType, fields[i].get(entity),fields[i].getName())) {
+					continue;
+				}
+				if (fields[i].get(entity) == null && "id".equalsIgnoreCase(fields[i].getName()))
+					continue; //id=null跳过,id不更改.
+
+				if (firstSet) {
+					sqlBuffer.append(" ");
+					firstSet = false;
+				} else {
+					//  sqlBuffer.append(" and "); //update 的set部分不是用and  ，而是用逗号的
+					sqlBuffer.append(" , ");
+				}
+				sqlBuffer.append(_toColumnName(fields[i].getName()));
+
+				if (fields[i].get(entity) == null) {
+					sqlBuffer.append(" =null"); //  =
+				} else {
+
+					sqlBuffer.append("=");
+					sqlBuffer.append("?");
+
+					valueBuffer.append(",");
+					valueBuffer.append(fields[i].get(entity));
+
+					preparedValue = new PreparedValue();
+					preparedValue.setType(fields[i].getType().getName());
+					preparedValue.setValue(fields[i].get(entity));
+					list.add(k++, preparedValue);
+				}
+			} else {
+
+//				if (HoneyUtil.isContinue(includeType, fields[i].get(entity),fields[i].getName())) {
+//					continue;
+//				} else {
+				
+				//指定作为条件的,都转换
+					if (fields[i].get(entity) == null && "id".equalsIgnoreCase(fields[i].getName()))
+						continue; //id=null不作为过滤条件
+					if (firstWhere) {
+						whereStament.append(" where ");
+						firstWhere = false;
+					} else {
+						whereStament.append(" and ");
+					}
+					whereStament.append(_toColumnName(fields[i].getName()));
+
+					if (fields[i].get(entity) == null) {
+						whereStament.append(" is null");
+					} else {
+
+						whereStament.append("=");
+						whereStament.append("?");
+
+						whereValueBuffer.append(",");
+						whereValueBuffer.append(fields[i].get(entity));
+
+						preparedValue = new PreparedValue();
+						preparedValue.setType(fields[i].getType().getName());
+						preparedValue.setValue(fields[i].get(entity));
+						whereList.add(w++, preparedValue);
+					}
+					isExistWhere = true;
+//				}
+			}//end else
+		}//end for
+		sqlBuffer.append(whereStament);
+//		sqlBuffer.append(" ;");
+		sql = sqlBuffer.toString();
+
+		list.addAll(whereList);
+
+		valueBuffer.append(whereValueBuffer);
+
+		if (valueBuffer.length() > 0) valueBuffer.deleteCharAt(0);
+		HoneyContext.setPreparedValue(sql, list);
+		HoneyContext.setSqlValue(sql, valueBuffer.toString());
+		addInContextForCache(sqlBuffer.toString(), valueBuffer.toString(), tableName);//2019-09-29
+		//		if(!isExistWhere) {sql="no where stament for filter!"; throw new ObjSQLException("no where stament for filter!"); }
+
+		return sql;
+	}
 
 	static <T> String _toInsertSQL(T entity, int includeType) throws IllegalAccessException {
 		checkPackage(entity);
