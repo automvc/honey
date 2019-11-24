@@ -7,6 +7,7 @@ import java.util.Map;
 import org.teasoft.bee.osql.BeeSql;
 import org.teasoft.bee.osql.ObjSQLException;
 import org.teasoft.bee.osql.PreparedSql;
+import org.teasoft.bee.osql.exception.SqlNullException;
 import org.teasoft.honey.osql.name.NameUtil;
 
 /**
@@ -126,6 +127,10 @@ public class PreparedSqlLib implements PreparedSql {
 		}
 	}
 	private StringBuffer initPreparedValues(String sql, Object[] preValues) {
+		
+		if(sql==null || "".equals(sql.trim())) {
+			throw new SqlNullException("sql statement string is Null !");
+		}
 
 		PreparedValue preparedValue = null;
 		List<PreparedValue> list = new ArrayList<>();
@@ -149,6 +154,11 @@ public class PreparedSqlLib implements PreparedSql {
 	}
 	
 	private <T> String initPrepareValuesViaMap(String sqlStr, Map<String, Object> map, T entity) {
+		
+		if(sqlStr==null || "".equals(sqlStr.trim())) {
+			throw new SqlNullException("sql statement string is Null !");
+		}
+		
 		SqlValueWrap wrap = processSql(sqlStr);
 		String sql = wrap.getSql();
 		StringBuffer valueBuffer = initPreparedValues(sql, wrap.getValueBuffer().toString(), map);
@@ -162,6 +172,11 @@ public class PreparedSqlLib implements PreparedSql {
 	}
 	
 	private String initPrepareValuesViaMap(String sqlStr, Map<String, Object> map){
+		
+		if(sqlStr==null || "".equals(sqlStr.trim())) {
+			throw new SqlNullException("sql statement string is Null !");
+		}
+		
 		SqlValueWrap wrap=processSql(sqlStr);
 		String sql=wrap.getSql();
 		initPreparedValues(sql,wrap.getValueBuffer().toString(), map);
