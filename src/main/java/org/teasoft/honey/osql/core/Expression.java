@@ -19,6 +19,8 @@ public final class Expression {
 	Object value;
 	int opNum;
 	Object value2;
+	Object value3;
+	Object value4; //for having
 
 	public Expression() {}
 
@@ -76,4 +78,20 @@ public final class Expression {
 		this.value2 = value2;
 	}
 
+	public Object getValue3() {
+		return value3;
+	}
+
+	public void setValue3(Object value3) {
+		this.value3 = value3;
+	}
+
+	public Object getValue4() {
+		return value4;
+	}
+
+	public void setValue4(Object value4) {
+		this.value4 = value4;
+	}
+	
 }
