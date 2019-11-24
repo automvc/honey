@@ -344,14 +344,32 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 
 	@Override
 	public <T> int updateBy(T entity, String whereFieldList) {
-		// TODO Auto-generated method stub
-		return 0;
+		if (entity == null) return -1;
+		int r = 0;
+		try {
+			String sql = objToSQLRich.toUpdateBySQL(entity, whereFieldList);  //updateBy
+			Logger.logSQL("update SQL(whereFieldList) :", sql);
+			r = getBeeSql().modify(sql);
+		} catch (ObjSQLException e) {
+			throw e;
+		}
+
+		return r;
 	}
 
 	@Override
 	public <T> int updateBy(T entity, String whereFieldList, IncludeType includeType) {
-		// TODO Auto-generated method stub
-		return 0;
+		if (entity == null) return -1;
+		int r = 0;
+		try {
+			String sql = objToSQLRich.toUpdateBySQL(entity, whereFieldList, includeType);//updateBy
+			Logger.logSQL("update SQL(whereFieldList) :", sql);
+			r = getBeeSql().modify(sql);
+		} catch (ObjSQLException e) {
+			throw e;
+		}
+
+		return r;
 	}
 
 }
