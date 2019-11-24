@@ -12,9 +12,11 @@ import java.util.List;
 import java.util.Set;
 
 import org.teasoft.bee.osql.Condition;
+import org.teasoft.bee.osql.FunctionType;
 import org.teasoft.bee.osql.Op;
 import org.teasoft.bee.osql.OrderType;
 import org.teasoft.bee.osql.SuidType;
+import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
 
 /**
  * @author Kingstar
@@ -82,7 +84,7 @@ public class ConditionImpl implements Condition {
 	@Override
 	public Condition lParentheses() {
 		Expression exp = new Expression();
-		exp.setOpNum(-1);
+		exp.setOpNum(-2);
 		exp.value = "(";
 		list.add(exp);
 
@@ -92,7 +94,7 @@ public class ConditionImpl implements Condition {
 	@Override
 	public Condition rParentheses() {
 		Expression exp = new Expression();
-		exp.setOpNum(0);
+		exp.setOpNum(-1);
 		exp.value = ")";
 		list.add(exp);
 
@@ -102,20 +104,14 @@ public class ConditionImpl implements Condition {
 	@Override
 	public Condition groupBy(String field) {
 		Expression exp = new Expression();
+		exp.fieldName = field;
+		exp.opType = "groupBy";
+		
 		if (isStartGroupBy) {
-			//			sql.append(" group by ");
-			//			sql.append(field);
-
 			isStartGroupBy = false;
-
-			exp.fieldName = field;
-			exp.opType = "groupBy";
+			exp.value =" group by ";
 		} else {
-			//			sql.append(COMMA);
-			//			sql.append(field);
-			//			exp.fieldName=","+field; //不能这样写,field需要转换
-			exp.fieldName = field;
-			exp.opType = "groupBy";
+			//exp.fieldName=","+field; //不能这样写,field需要转换
 			exp.value = COMMA;
 		}
 		list.add(exp);
@@ -123,17 +119,45 @@ public class ConditionImpl implements Condition {
 	}
 
 	@Override
-	public Condition having(String expression) {
+	public Condition having(String expressionStr) {
+		Expression exp = new Expression();
+		exp.opType = "having";
+		//exp.value
+		exp.opNum = 2;
+		exp.value2=expressionStr;
+		
 		if (isStartHaving) {
-			//			sql.append(" having ");
-			//			sql.append(expression);
-			//TODO 是否受到字段转换的影响
+			if(isStartGroupBy) throw new BeeErrorGrammarException("The 'having' must be after 'group by' !");
 			isStartHaving = false;
+			exp.value = " having ";
 		} else {
-			//			sql.append(" and ");
-			//			sql.append(expression);
+			exp.value = " and ";
 		}
-		//		list.add(exp);
+				
+		list.add(exp);
+		return this;
+	}
+
+	@Override
+	public Condition having(FunctionType functionType, String field, Op Op, Number value) {
+		Expression exp = new Expression();
+		exp.opType = "having";
+		//exp.value
+		exp.fieldName=field;
+		exp.value2=value;
+		exp.value3=functionType.getName();
+		exp.opNum = 5;
+		exp.value4=Op.getOperator();
+		
+		if (isStartHaving) {
+			if(isStartGroupBy) throw new BeeErrorGrammarException("The 'having' must be after 'group by' !");
+			isStartHaving = false;
+			exp.value = " having ";
+		} else {
+			exp.value = " and ";
+		}
+				
+		list.add(exp);
 		return this;
 	}
 
@@ -175,7 +199,68 @@ public class ConditionImpl implements Condition {
 		list.add(exp);
 		return this;
 	}
+	
+	@Override
+	public Condition orderBy(FunctionType functionType, String field, OrderType orderType) {
+		Expression exp = new Expression();
+		exp.opType = "orderBy";
+		//		exp.value
+		exp.fieldName = field;
+		exp.value2 = orderType.getName();
+		exp.value3=functionType.getName();
+		exp.opNum = 4;
 
+		if (isStartOrderBy) {
+			isStartOrderBy = false;
+			exp.value = " order by ";
+		} else {
+			exp.value = COMMA;
+		}
+		list.add(exp);
+		return this;
+	}
+	
+	private void setForBetween(String field, Object low, Object high,String type){
+		Expression exp = new Expression();
+		exp.fieldName = field;
+//		exp.opType = "between";
+		exp.opType =type;
+		exp.value=low;
+		exp.value2=high;
+		exp.opNum=3;  //即使不用也不能省,因为默认值是0会以为是其它的
+		
+		list.add(exp);
+	}
+	
+	@Override
+	public Condition between(String field, Number low, Number high) {
+		
+		setForBetween(field, low, high, " between ");
+		
+		return this;
+	}
+
+	@Override
+	public Condition notBetween(String field, Number low, Number high) {
+		setForBetween(field, low, high, " not between ");
+		
+		return this;
+	}
+
+	@Override
+	public Condition between(String field, String low, String high) {
+		setForBetween(field, low, high, " between ");
+		
+		return this;
+	}
+
+	@Override
+	public Condition notBetween(String field, String low, String high) {
+		setForBetween(field, low, high, " not between ");
+		
+		return this;
+	}
+	
 	@Override
 	public void setSuidType(SuidType suidType) {
 		this.suidType = suidType;
