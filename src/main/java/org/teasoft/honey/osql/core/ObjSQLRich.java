@@ -8,6 +8,7 @@ package org.teasoft.honey.osql.core;
 
 import java.util.List;
 
+import org.teasoft.bee.osql.Condition;
 import org.teasoft.bee.osql.FunctionType;
 import org.teasoft.bee.osql.IncludeType;
 import org.teasoft.bee.osql.ObjSQLException;
@@ -321,6 +322,36 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		String sql = objToSQLRich.toDeleteByIdSQL(c, ids);
 		Logger.logSQL("deleteById SQL: ", sql);
 		return getBeeSql().modify(sql);
+	}
+
+	@Override
+	public <T> List<T> select(T entity, IncludeType includeType, Condition condition) {
+		if (entity == null) return null;
+		String sql = objToSQLRich.toSelectSQL(entity, includeType,condition);
+		Logger.logSQL("select SQL: ", sql);
+		return getBeeSql().select(sql, entity);
+	}
+
+	@Override
+	public <T> String selectJson(T entity, IncludeType includeType, Condition condition) {
+		if (entity == null) return null;
+		
+		String sql = objToSQLRich.toSelectSQL(entity, includeType,condition);
+		Logger.logSQL("selectJson SQL: ", sql);
+		
+		return getBeeSql().selectJson(sql);
+	}
+
+	@Override
+	public <T> int updateBy(T entity, String whereFieldList) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public <T> int updateBy(T entity, String whereFieldList, IncludeType includeType) {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 }
