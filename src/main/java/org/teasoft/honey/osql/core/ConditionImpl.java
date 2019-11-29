@@ -57,7 +57,7 @@ public class ConditionImpl implements Condition {
 	}
 
 	@Override
-	public Set getFieldSet() {
+	public Set<String> getFieldSet() {
 		return fieldSet;
 	}
 
@@ -228,6 +228,8 @@ public class ConditionImpl implements Condition {
 		exp.value=low;
 		exp.value2=high;
 		exp.opNum=3;  //即使不用也不能省,因为默认值是0会以为是其它的
+		
+		this.fieldSet.add(field);
 		
 		list.add(exp);
 	}
