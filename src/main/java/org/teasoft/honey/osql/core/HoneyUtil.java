@@ -452,4 +452,29 @@ public final class HoneyUtil {
 			throw new BeeIllegalEntityException("BeeIllegalEntityException: Illegal Entity, "+entity.getClass().getName());
 		}
 	}
+	
+	//将非null的字段值以Map形式返回
+	public static <T> Map<String, Object> getColumnMapByEntity(T entity) {
+		Map<String, Object> map = new HashMap<>();
+		Field fields[] = entity.getClass().getDeclaredFields();
+		int len = fields.length;
+		try {
+			for (int i = 0; i < len; i++) {
+				fields[i].setAccessible(true);
+				if (fields[i].get(entity) == null || "serialVersionUID".equals(fields[i].getName()))
+					continue;
+				else {
+					map.put(_toColumnName(fields[i].getName()), fields[i].get(entity));
+				}
+			}
+		} catch (IllegalAccessException e) {
+			throw ExceptionHelper.convert(e);
+		}
+
+		return map;
+	}
+
+	private static String _toColumnName(String fieldName) {
+		return NameTranslateHandle.toColumnName(fieldName);
+	}
 }
