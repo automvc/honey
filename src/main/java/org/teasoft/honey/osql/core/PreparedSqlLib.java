@@ -7,6 +7,8 @@ import java.util.Map;
 import org.teasoft.bee.osql.BeeSql;
 import org.teasoft.bee.osql.ObjSQLException;
 import org.teasoft.bee.osql.PreparedSql;
+import org.teasoft.bee.osql.dialect.DbFeature;
+import org.teasoft.bee.osql.exception.BeeIllegalParameterException;
 import org.teasoft.bee.osql.exception.SqlNullException;
 import org.teasoft.honey.osql.name.NameUtil;
 
@@ -15,12 +17,14 @@ import org.teasoft.honey.osql.name.NameUtil;
  * 若是简单的操作,建议用面向对象的操作方式,ObjSQL和ObjSQLRich.
  * @author Kingstar
  * @since  1.0
- * 支持如name=#{name}的map参数形式
+ * 支持如name=#{name},name like #{name%}的map参数形式
  * @since  1.2
  */
 public class PreparedSqlLib implements PreparedSql {
 
 	private BeeSql beeSql;// = BeeFactory.getHoneyFactory().getBeeSql();
+	
+	private DbFeature dbFeature = BeeFactory.getHoneyFactory().getDbFeature();
 
 	public BeeSql getBeeSql() {
 		if(this.beeSql==null) beeSql = BeeFactory.getHoneyFactory().getBeeSql();
@@ -33,17 +37,43 @@ public class PreparedSqlLib implements PreparedSql {
 	
 	@Override
 	public <T> List<T> select(String sql, T entity, Object[] preValues) {
-
+		
 		initPreparedValues(sql, preValues,entity);
 		Logger.logSQL("PreparedSqlLib select SQL: ", sql);
 		return getBeeSql().select(sql, entity);
 	}
 	
 	@Override
-	public <T> List<T> select(String sqlStr, T returnType, Map<String, Object> map) {
-		String sql=initPrepareValuesViaMap(sqlStr,map,returnType);
+	public <T> List<T> select(String sql, T entity, Object[] preValues,int start,int size) {
+		if(size<=0) throw new BeeIllegalParameterException("Parameter 'size' need great than 0!");
+		if(start<0) throw new BeeIllegalParameterException("Parameter 'start' need great equal 0!");
+		
+		initPreparedValues(sql, preValues,entity);
+		
+		sql = dbFeature.toPageSql(sql, start, size);
+		
 		Logger.logSQL("PreparedSqlLib select SQL: ", sql);
-		return getBeeSql().select(sql, returnType);
+		return getBeeSql().select(sql, entity);
+	}
+	
+	@Override
+	public <T> List<T> select(String sqlStr, T entity, Map<String, Object> map) {
+		String sql=initPrepareValuesViaMap(sqlStr,map,entity);
+		Logger.logSQL("PreparedSqlLib select SQL: ", sql);
+		return getBeeSql().select(sql, entity);
+	}
+	
+	@Override
+	public <T> List<T> select(String sqlStr, T entity, Map<String, Object> map,int start,int size) {
+		if(size<=0) throw new BeeIllegalParameterException("Parameter 'size' need great than 0!");
+		if(start<0) throw new BeeIllegalParameterException("Parameter 'start' need great equal 0!");
+		
+		String sql=initPrepareValuesViaMap(sqlStr,map,entity);
+		
+		sql = dbFeature.toPageSql(sql, start, size);
+		
+		Logger.logSQL("PreparedSqlLib select SQL: ", sql);
+		return getBeeSql().select(sql, entity);
 	}
 	
 	@Override
@@ -53,12 +83,37 @@ public class PreparedSqlLib implements PreparedSql {
 		Logger.logSQL("PreparedSqlLib selectSomeField SQL: ", sql);
 		return getBeeSql().selectSomeField(sql, entity);
 	}
+	
+	@Override
+	public <T> List<T> selectSomeField(String sql, T entity, Object[] preValues,int start,int size) {
+		if(size<=0) throw new BeeIllegalParameterException("Parameter 'size' need great than 0!");
+		if(start<0) throw new BeeIllegalParameterException("Parameter 'start' need great equal 0!");
+
+		initPreparedValues(sql, preValues,entity);
+		
+		sql = dbFeature.toPageSql(sql, start, size);
+		
+		Logger.logSQL("PreparedSqlLib selectSomeField SQL: ", sql);
+		return getBeeSql().selectSomeField(sql, entity);
+	}
 
 	@Override
-	public <T> List<T> selectSomeField(String sqlStr, T returnType, Map<String, Object> map) {
-		String sql=initPrepareValuesViaMap(sqlStr,map,returnType);
+	public <T> List<T> selectSomeField(String sqlStr, T entity, Map<String, Object> map) {
+		String sql=initPrepareValuesViaMap(sqlStr,map,entity);
 		Logger.logSQL("PreparedSqlLib selectSomeField SQL: ", sql);
-		return getBeeSql().selectSomeField(sql, returnType);
+		return getBeeSql().selectSomeField(sql, entity);
+	}
+	
+	@Override
+	public <T> List<T> selectSomeField(String sqlStr, T entity, Map<String, Object> map,int start,int size) {
+		if(size<=0) throw new BeeIllegalParameterException("Parameter 'size' need great than 0!");
+		if(start<0) throw new BeeIllegalParameterException("Parameter 'start' need great equal 0!");
+		
+		String sql=initPrepareValuesViaMap(sqlStr,map,entity);
+		sql = dbFeature.toPageSql(sql, start, size);
+		
+		Logger.logSQL("PreparedSqlLib selectSomeField SQL: ", sql);
+		return getBeeSql().selectSomeField(sql, entity);
 	}
 
 	@Override
@@ -83,6 +138,18 @@ public class PreparedSqlLib implements PreparedSql {
 		return getBeeSql().select(sql);
 	}
 	
+	@Override
+	public List<String[]> select(String sql, Object[] preValues,int start,int size) {
+		if(size<=0) throw new BeeIllegalParameterException("Parameter 'size' need great than 0!");
+		if(start<0) throw new BeeIllegalParameterException("Parameter 'start' need great equal 0!");
+		
+		initPreparedValues(sql, preValues);
+		sql = dbFeature.toPageSql(sql, start, size);
+		
+		Logger.logSQL("PreparedSqlLib select SQL: ", sql);
+		return getBeeSql().select(sql);
+	}
+	
 
 	@Override
 	public List<String[]> select(String sqlStr, Map<String, Object> map) {
@@ -90,8 +157,21 @@ public class PreparedSqlLib implements PreparedSql {
 		Logger.logSQL("PreparedSqlLib select SQL: ", sql);
 		return getBeeSql().select(sql);
 	}
+	
+	@Override
+	public List<String[]> select(String sqlStr, Map<String, Object> map,int start,int size) {
+		if(size<=0) throw new BeeIllegalParameterException("Parameter 'size' need great than 0!");
+		if(start<0) throw new BeeIllegalParameterException("Parameter 'start' need great equal 0!");
+		
+		String sql=initPrepareValuesViaMap(sqlStr,map);
+		sql = dbFeature.toPageSql(sql, start, size);
+		
+		Logger.logSQL("PreparedSqlLib select SQL: ", sql);
+		return getBeeSql().select(sql);
+	}
 
 	@Override
+	@Deprecated
 	public int modify(String sql, Object[] preValues) {
 		initPreparedValues(sql, preValues);
 		Logger.logSQL("PreparedSqlLib modify SQL: ", sql);
@@ -99,6 +179,7 @@ public class PreparedSqlLib implements PreparedSql {
 	}
 
 	@Override
+	@Deprecated
 	public int modify(String sqlStr, Map<String, Object> map) {
 		String sql=initPrepareValuesViaMap(sqlStr,map);
 		Logger.logSQL("PreparedSqlLib modify SQL: ", sql);
@@ -113,8 +194,32 @@ public class PreparedSqlLib implements PreparedSql {
 	}
 	
 	@Override
+	public String selectJson(String sql, Object[] preValues,int start,int size) {
+		if(size<=0) throw new BeeIllegalParameterException("Parameter 'size' need great than 0!");
+		if(start<0) throw new BeeIllegalParameterException("Parameter 'start' need great equal 0!");
+		
+		initPreparedValues(sql, preValues);
+		sql = dbFeature.toPageSql(sql, start, size);
+		
+		Logger.logSQL("PreparedSqlLib selectJson SQL: ", sql);
+		return getBeeSql().selectJson(sql);
+	}
+	
+	@Override
 	public String selectJson(String sqlStr, Map<String, Object> map) {
 		String sql=initPrepareValuesViaMap(sqlStr,map);
+		Logger.logSQL("PreparedSqlLib selectJson SQL: ", sql);
+		return getBeeSql().selectJson(sql);
+	}
+	
+	@Override
+	public String selectJson(String sqlStr, Map<String, Object> map,int start,int size) {
+		if(size<=0) throw new BeeIllegalParameterException("Parameter 'size' need great than 0!");
+		if(start<0) throw new BeeIllegalParameterException("Parameter 'start' need great equal 0!");
+		
+		String sql=initPrepareValuesViaMap(sqlStr,map);
+		sql = dbFeature.toPageSql(sql, start, size);
+		
 		Logger.logSQL("PreparedSqlLib selectJson SQL: ", sql);
 		return getBeeSql().selectJson(sql);
 	}
@@ -153,15 +258,24 @@ public class PreparedSqlLib implements PreparedSql {
 		return valueBuffer;
 	}
 	
-	private <T> String initPrepareValuesViaMap(String sqlStr, Map<String, Object> map, T entity) {
+	private <T> Map<String, Object> mergeMap(Map<String, Object> prameterMap, T entity){
+		Map<String, Object> columnMap=HoneyUtil.getColumnMapByEntity(entity);
+		columnMap.putAll(prameterMap);  //merge, prameterMap will override columnMap,if have same key.
+		return columnMap;
+	}
+	
+	private <T> String initPrepareValuesViaMap(String sqlStr, Map<String, Object> parameterMap, T entity) {
 		
 		if(sqlStr==null || "".equals(sqlStr.trim())) {
 			throw new SqlNullException("sql statement string is Null !");
 		}
 		
+		parameterMap=mergeMap(parameterMap,entity);
+		
 		SqlValueWrap wrap = processSql(sqlStr);
 		String sql = wrap.getSql();
-		StringBuffer valueBuffer = initPreparedValues(sql, wrap.getValueBuffer().toString(), map);
+		String mapKeys=wrap.getValueBuffer().toString(); //wrap.getValueBuffer() is :map's key , get from like: #{name}
+		StringBuffer valueBuffer = _initPreparedValues(sql, mapKeys, parameterMap); 
 
 		if (valueBuffer.length() > 0) {
 			String tableName = _toTableName(entity);
@@ -179,18 +293,19 @@ public class PreparedSqlLib implements PreparedSql {
 		
 		SqlValueWrap wrap=processSql(sqlStr);
 		String sql=wrap.getSql();
-		initPreparedValues(sql,wrap.getValueBuffer().toString(), map);
+		String mapKeys=wrap.getValueBuffer().toString(); //wrap.getValueBuffer() is :map's key , get from like: #{name}
+		_initPreparedValues(sql,mapKeys, map); 
 		return sql;
 	}
 	
-	private StringBuffer initPreparedValues(String sql, String paraList,Map<String,Object> map) {
+	private StringBuffer _initPreparedValues(String sql, String mapKeys,Map<String,Object> map) {
 
 		PreparedValue preparedValue = null;
 		List<PreparedValue> list = new ArrayList<>();
 		StringBuffer valueBuffer = new StringBuffer();
 		Object value;
 		
-		String keys[]=paraList.split(",");  //map's key
+		String keys[]=mapKeys.split(",");  //map's key
 		
 		
 		for (int i = 0, k = 0; i < keys.length; i++) {
