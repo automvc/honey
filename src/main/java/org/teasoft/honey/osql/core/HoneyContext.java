@@ -14,11 +14,15 @@ import java.util.concurrent.ConcurrentMap;
 public final class HoneyContext {
 
 	private static ConcurrentMap<String, String> beanMap;
+//	since v1.7.0
+	private static ConcurrentMap<String, MoreTableStruct[]> moreTableStructMap;
 
 	private static ThreadLocal<Map<String, List<PreparedValue>>> sqlPreValueLocal;
 	private static ThreadLocal<Map<String, String>> sqlValueLocal;
 	
 	private static ThreadLocal<Map<String, CacheSuidStruct>> cacheLocal;
+	
+	
 
 	private static ThreadLocal<Connection> currentConnection;  //当前事务的
 	
@@ -27,6 +31,8 @@ public final class HoneyContext {
 
 	static {
 		beanMap = new ConcurrentHashMap<>();
+		moreTableStructMap= new ConcurrentHashMap<>();
+		
 		sqlPreValueLocal = new ThreadLocal<>();
 		sqlValueLocal = new ThreadLocal<>();
 		cacheLocal = new ThreadLocal<>();
@@ -101,6 +107,14 @@ public final class HoneyContext {
 
 	public static String getBeanField(String key) {
 		return beanMap.get(key);
+	}
+	
+	static MoreTableStruct[] addMoreTableStructs(String key, MoreTableStruct[] value) {
+		return moreTableStructMap.put(key, value);
+	}
+
+	public static MoreTableStruct[] getMoreTableStructs(String key) {
+		return moreTableStructMap.get(key);
 	}
 
 	static void setPreparedValue(String sqlStr, List<PreparedValue> list) {
