@@ -252,6 +252,12 @@ public class ConditionHelper {
 	}
 
 	private static String _toColumnName(String fieldName) {
+		String t_name="";
+		int index=fieldName.indexOf(".");
+		if(index>-1){
+			t_name=fieldName.substring(index+1);
+			return fieldName.substring(0,index+1)+NameTranslateHandle.toColumnName(t_name);
+		}
 		return NameTranslateHandle.toColumnName(fieldName);
 	}
 
