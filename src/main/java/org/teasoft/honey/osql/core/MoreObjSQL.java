@@ -57,17 +57,20 @@ public class MoreObjSQL implements MoreTable{
 	}
 
 	@Override
+	public <T> List<T> select(T entity, Condition condition) {
+		if (entity == null) return null;
+
+		String sql = moreObjToSQL.toSelectSQL(entity,condition);
+		Logger.logSQL("select SQL: ", sql);
+		return getBeeSql().moreTableSelect(sql, entity); 
+	}
+
+	@Override
 	public <T> String selectJson(T entity) {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
-	@Override
-	public <T> List<T> select(T entity, Condition condition) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
+	
 	@Override
 	public <T> String selectJson(T entity, Condition condition) {
 		// TODO Auto-generated method stub
