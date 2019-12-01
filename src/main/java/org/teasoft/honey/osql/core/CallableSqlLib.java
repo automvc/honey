@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.teasoft.bee.osql.CallableSql;
+import org.teasoft.bee.osql.annotation.JoinTable;
 
 /**
  * @author Kingstar
@@ -50,6 +51,7 @@ public class CallableSqlLib implements CallableSql {
 				targetObj = (T) entity.getClass().newInstance();
 				for (int i = 0; i < columnCount; i++) {
 					if ("serialVersionUID".equals(field[i].getName())) continue;
+					if (field[i]!= null && field[i].isAnnotationPresent(JoinTable.class)) continue;
 					field[i].setAccessible(true);
 					try {
 						field[i].set(targetObj, rs.getObject(_toColumnName(field[i].getName())));
