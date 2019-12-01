@@ -53,7 +53,11 @@ public class ObjectToSQL implements ObjToSQL {
 
 	@Override
 	public <T> String toSelectSQL(T entity, Condition condition) {
-		return _ObjectToSQLHelper._toSelectSQL(entity, -1,condition); // 过滤NULL和空字符串
+		
+		if(condition==null || condition.getIncludeType()==null)
+		  return _ObjectToSQLHelper._toSelectSQL(entity, -1,condition); // 过滤NULL和空字符串
+		else
+		  return _ObjectToSQLHelper._toSelectSQL(entity, condition.getIncludeType().getValue(),condition); //v1.7.0	
 	}
 	
 }
