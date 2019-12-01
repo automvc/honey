@@ -27,7 +27,7 @@ public class MoreObjectToSQL implements MoreObjToSQL{
 
 	@Override
 	public <T> String toSelectSQL(T entity, Condition condition) {
-		return _MoreObjectToSQLHelper._toSelectSQL(entity); // 若condition没有设置IncludeType,默认过滤NULL和空字符串
+		return _MoreObjectToSQLHelper._toSelectSQL(entity,condition); // 若condition没有设置IncludeType,默认过滤NULL和空字符串
 	}
 	
 }
