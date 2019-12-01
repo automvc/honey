@@ -17,6 +17,7 @@ import org.teasoft.bee.osql.ObjSQLException;
 import org.teasoft.bee.osql.ObjSQLIllegalSQLStringException;
 import org.teasoft.bee.osql.ObjToSQLRich;
 import org.teasoft.bee.osql.OrderType;
+import org.teasoft.bee.osql.annotation.JoinTable;
 import org.teasoft.bee.osql.dialect.DbFeature;
 import org.teasoft.bee.osql.exception.BeeErrorFieldException;
 import org.teasoft.bee.osql.exception.BeeIllegalEntityException;
@@ -206,9 +207,11 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			List<PreparedValue> list = new ArrayList<>();
 			PreparedValue preparedValue = null;
 			for (int i = 0, k = 0; i < len; i++) {
-				fields[i].setAccessible(true);
-
-			if (fields[i].get(entity) == null|| "serialVersionUID".equals(fields[i].getName())) {// 要排除没有设值的情况
+			  fields[i].setAccessible(true);
+			  if (fields[i]!= null && fields[i].isAnnotationPresent(JoinTable.class)){//v1.7.0 排除多表的实体字段
+				continue;
+			  }
+			  if (fields[i].get(entity) == null|| "serialVersionUID".equals(fields[i].getName())) {// 要排除没有设值的情况
 //				if (fields[i].getName().equals(fieldForFun)) {
 				if ( (fields[i].getName().equals(fieldForFun))
 			     || ("count".equalsIgnoreCase(funType) && "*".equals(fieldForFun)) ) {  //排除count(*)
@@ -542,9 +545,10 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			PreparedValue preparedValue = null;
 			for (int i = 0, k = 0; i < len; i++) {
 				fields[i].setAccessible(true);
-				if (fields[i].get(entity) == null || "serialVersionUID".equals(fields[i].getName()))
+				if (fields[i].get(entity) == null || "serialVersionUID".equals(fields[i].getName())
+				 || fields[i].isAnnotationPresent(JoinTable.class)){
 					continue;
-				else {
+				}else {
 
 					if (firstWhere) {
 						sqlBuffer.append(" where ");
