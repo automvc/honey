@@ -71,6 +71,15 @@ public final class HoneyConfig {
 	// 启动时动态获取
 	private boolean showSQL;
 	
+	@SysValue("${bee.osql.showSQL.donotPrint.currentDate}")
+	private boolean showSQL_donotPrint_currentDate;  //v1.7.0
+	
+	@SysValue("${bee.osql.moreTable.columnListWithStar}")
+	private boolean moreTable_columnListWithStar;
+	
+	@SysValue("${bee.osql.sqlGenerate.moreTableSelect.2tablesWithJoinOnStyle}")
+	private boolean tablesWithJoinOnStyle;
+	
 	private String dbName;
 	private boolean underScoreAndCamelTransform;
 	
@@ -92,7 +101,6 @@ public final class HoneyConfig {
 	
 	@SysValue("${bee.osql.name.mapping.entity2table}")
 	private String entity2tableMappingList;
-	
 	
 	private int cacheTimeout;
 	private int cacheMapSize;
@@ -168,6 +176,18 @@ public final class HoneyConfig {
 
 	public boolean isShowSQL() {
 		return showSQL;
+	}
+	
+	public boolean isShowSQL_donotPrint_currentDate() {
+		return showSQL_donotPrint_currentDate;
+	}
+
+	public boolean isMoreTable_columnListWithStar() {
+		return moreTable_columnListWithStar;
+	}
+	
+	public boolean isTablesWithJoinOnStyle() {
+		return tablesWithJoinOnStyle;
 	}
 
 	public int getBatchSize() {
