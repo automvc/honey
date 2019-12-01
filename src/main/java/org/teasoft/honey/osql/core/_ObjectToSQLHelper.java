@@ -8,6 +8,7 @@ import java.util.Set;
 import org.teasoft.bee.osql.Condition;
 import org.teasoft.bee.osql.ObjSQLException;
 import org.teasoft.bee.osql.SuidType;
+import org.teasoft.bee.osql.annotation.JoinTable;
 import org.teasoft.honey.osql.name.NameUtil;
 
 /**
@@ -38,9 +39,10 @@ final class _ObjectToSQLHelper {
 			PreparedValue preparedValue = null;
 			for (int i = 0, k = 0; i < len; i++) {
 				fields[i].setAccessible(true);
-				if (fields[i].get(entity) == null || "serialVersionUID".equals(fields[i].getName()))
+				if (fields[i].get(entity) == null || "serialVersionUID".equals(fields[i].getName()) 
+				 || fields[i].isAnnotationPresent(JoinTable.class)){
 					continue;
-				else {
+				}else {
 					if (firstWhere) {
 						sqlBuffer.append(" where ");
 						firstWhere = false;
@@ -80,7 +82,7 @@ final class _ObjectToSQLHelper {
 	static <T> String _toSelectSQL(T entity, int includeType,Condition condition) {
 		checkPackage(entity);
 		
-		Set conditionFieldSet=null;
+		Set<String> conditionFieldSet=null;
 		if(condition!=null) conditionFieldSet=condition.getFieldSet();
 		
 		StringBuffer sqlBuffer = new StringBuffer();
@@ -104,7 +106,7 @@ final class _ObjectToSQLHelper {
 			PreparedValue preparedValue = null;
 			for (int i = 0, k = 0; i < len; i++) {
 				fields[i].setAccessible(true);
-				if (HoneyUtil.isContinue(includeType, fields[i].get(entity),fields[i].getName())) {
+				if (HoneyUtil.isContinue(includeType, fields[i].get(entity),fields[i])) {
 					continue;
 				} else {
 					
@@ -171,7 +173,7 @@ final class _ObjectToSQLHelper {
 		boolean isExistWhere = false; //don't delete
 		StringBuffer whereStament = new StringBuffer();
 		String tableName = _toTableName(entity);
-		sqlBuffer.append(" update ");
+		sqlBuffer.append("update ");
 		sqlBuffer.append(tableName);
 		sqlBuffer.append(" set ");
 
@@ -185,7 +187,7 @@ final class _ObjectToSQLHelper {
 			if ("id".equalsIgnoreCase(whereColumn) && fields[i].get(entity) == null && "id".equalsIgnoreCase(fields[i].getName()))
 				throw new ObjSQLException("ObjSQLException: in the update(T entity), the id field of entity must not be null !");
 			//			if (fields[i].get(entity) == null || "serialVersionUID".equals(fields[i].getName()))
-			if (HoneyUtil.isContinue(includeType, fields[i].get(entity),fields[i].getName())) {
+			if (HoneyUtil.isContinue(includeType, fields[i].get(entity),fields[i])) {
 				continue;
 			} else {
 				if (whereColumn.equalsIgnoreCase(fields[i].getName())) { //java.lang.ClassCastException: java.lang.Integer cannot be cast to java.lang.String
@@ -266,7 +268,7 @@ final class _ObjectToSQLHelper {
 		boolean isExistWhere = false;
 		StringBuffer whereStament = new StringBuffer();
 		String tableName = _toTableName(entity);
-		sqlBuffer.append(" update ");
+		sqlBuffer.append("update ");
 		sqlBuffer.append(tableName);
 		sqlBuffer.append(" set ");
 
@@ -306,7 +308,7 @@ final class _ObjectToSQLHelper {
 				}
 			} else {
 
-				if (HoneyUtil.isContinue(includeType, fields[i].get(entity),fields[i].getName())) {
+				if (HoneyUtil.isContinue(includeType, fields[i].get(entity),fields[i])) {
 					continue;
 				} else {
 
@@ -369,7 +371,7 @@ final class _ObjectToSQLHelper {
 		boolean isExistWhere = false;
 		StringBuffer whereStament = new StringBuffer();
 		String tableName = _toTableName(entity);
-		sqlBuffer.append(" update ");
+		sqlBuffer.append("update ");
 		sqlBuffer.append(tableName);
 		sqlBuffer.append(" set ");
 
@@ -384,7 +386,7 @@ final class _ObjectToSQLHelper {
 			if (! isContainField(whereColumn, fields[i].getName())) { //set value
 				
 				//set 字段根据includeType过滤
-				if (HoneyUtil.isContinue(includeType, fields[i].get(entity),fields[i].getName())) {
+				if (HoneyUtil.isContinue(includeType, fields[i].get(entity),fields[i])) {
 					continue;
 				}
 				if (fields[i].get(entity) == null && "id".equalsIgnoreCase(fields[i].getName()))
@@ -416,7 +418,7 @@ final class _ObjectToSQLHelper {
 				}
 			} else {
 
-//				if (HoneyUtil.isContinue(includeType, fields[i].get(entity),fields[i].getName())) {
+//				if (HoneyUtil.isContinue(includeType, fields[i].get(entity),fields[i])) {
 //					continue;
 //				} else {
 				
@@ -495,7 +497,7 @@ final class _ObjectToSQLHelper {
 								continue;
 							}
 						}*/
-			if (HoneyUtil.isContinue(includeType, fields[i].get(entity),fields[i].getName())) {
+			if (HoneyUtil.isContinue(includeType, fields[i].get(entity),fields[i])) {
 				continue;
 			} else {
 
@@ -569,7 +571,7 @@ final class _ObjectToSQLHelper {
 								continue;
 							}
 						}*/
-			if (HoneyUtil.isContinue(includeType, fields[i].get(entity),fields[i].getName())) {
+			if (HoneyUtil.isContinue(includeType, fields[i].get(entity),fields[i])) {
 				continue;
 			} else {
 
@@ -625,9 +627,11 @@ final class _ObjectToSQLHelper {
 		for (int i = 0, k = 0; i < len; i++) {
 			fields[i].setAccessible(true);
 
-			if ("serialVersionUID".equals(fields[i].getName()))
+			if ("serialVersionUID".equals(fields[i].getName())){
 				continue;
-			else if (!"".equals(excludeFieldList) && isExcludeField(excludeFieldList, fields[i].getName())) continue;
+			}else if (fields[i]!= null && fields[i].isAnnotationPresent(JoinTable.class)){
+				continue;
+			}else if (!"".equals(excludeFieldList) && isExcludeField(excludeFieldList, fields[i].getName())) continue;
 
 			valueBuffer.append(",");
 			valueBuffer.append(fields[i].get(entity));
@@ -667,7 +671,7 @@ final class _ObjectToSQLHelper {
 			for (int i = 0, k = 0; i < len; i++) {
 				fields[i].setAccessible(true);
 
-				if (HoneyUtil.isContinue(includeType, fields[i].get(entity),fields[i].getName())) {
+				if (HoneyUtil.isContinue(includeType, fields[i].get(entity),fields[i])) {
 					continue;
 				} else {
 
