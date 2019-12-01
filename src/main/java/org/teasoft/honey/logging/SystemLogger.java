@@ -7,6 +7,7 @@
 package org.teasoft.honey.logging;
 
 import org.teasoft.bee.logging.Log;
+import org.teasoft.honey.osql.core.HoneyConfig;
 import org.teasoft.honey.osql.util.DateUtil;
 
 /**
@@ -23,6 +24,8 @@ public class SystemLogger implements Log{
 	private static String APACE=" ";
 	private static String LEFT="[";
 	private static String RIGHT="]";
+	
+	private static boolean donotPrintCurrentDate=HoneyConfig.getHoneyConfig().isShowSQL_donotPrint_currentDate();
 	
 	public SystemLogger(){
 	}
@@ -106,9 +109,16 @@ public class SystemLogger implements Log{
 
 
 	private void print(String level,String msg){
-		StringBuffer b=new StringBuffer(DateUtil.currentDate());
-		b.append(APACE)
-		 .append(LEFT)
+		StringBuffer b=new StringBuffer();
+		
+		if (donotPrintCurrentDate) {
+			//nothing
+		} else {
+			b.append(DateUtil.currentDate());
+			b.append(APACE);
+		}
+		
+		b.append(LEFT)
 		 .append(level)
 		 .append(RIGHT)
 		 .append(APACE)
@@ -122,9 +132,16 @@ public class SystemLogger implements Log{
 	}
 	
 	private void print(String level,String msg,String className){
-		StringBuffer b=new StringBuffer(DateUtil.currentDate());
-		b.append(APACE)
-		 .append(LEFT)
+		StringBuffer b=new StringBuffer();
+		
+		if (donotPrintCurrentDate) {
+			//nothing
+		} else {
+			b.append(DateUtil.currentDate());
+			b.append(APACE);
+		}
+		
+		b.append(LEFT)
 		 .append(level)
 		 .append(RIGHT)
 		 .append(APACE)
