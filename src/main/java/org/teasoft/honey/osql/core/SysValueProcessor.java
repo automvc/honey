@@ -26,9 +26,9 @@ public class SysValueProcessor {
 				
 				value = sysValue.value();
 				if (value == null) {
-//					System.out.println("value is null");
+//					Logger.info("value is null");
 				} else if ("".equals(value.trim())) {
-//					System.out.println(" value is empty");
+//					Logger.info(" value is empty");
 				} else {
 
 					value = value.trim();

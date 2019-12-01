@@ -74,21 +74,21 @@ public class NameUtil {
 	
 	
 /*	public static void main(String[] args) {
-		System.out.println(getClassFullName(Class.class));
+		Logger.info(getClassFullName(Class.class));
 		
-		System.out.println(getClassFullName(User.class));
-		System.out.println(getClassFullName(new User()));
+		Logger.info(getClassFullName(User.class));
+		Logger.info(getClassFullName(new User()));
 		
 //		beeName->bee_name,beeTName->bee_t_name
-		System.out.println(toUnderscoreNaming("beeName"));
-		System.out.println(toUnderscoreNaming("beeTName"));
+		Logger.info(toUnderscoreNaming("beeName"));
+		Logger.info(toUnderscoreNaming("beeTName"));
 		
 //		bee_name->beeName,bee_t_name->beeTName
-		System.out.println(toCamelNaming("bee_name"));
-		System.out.println(toCamelNaming("bee_t_name"));
+		Logger.info(toCamelNaming("bee_name"));
+		Logger.info(toCamelNaming("bee_t_name"));
 		
-		System.out.println(toCamelNaming("BEE_NAME"));
-		System.out.println(toCamelNaming("BEE_T_NAME"));
+		Logger.info(toCamelNaming("BEE_NAME"));
+		Logger.info(toCamelNaming("BEE_T_NAME"));
 	}*/
 
 }
