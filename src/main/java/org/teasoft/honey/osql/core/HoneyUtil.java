@@ -197,7 +197,9 @@ public final class HoneyUtil {
 				} else {
 					useSubTableName = subTableName[j];
 				}
-				moreTableStruct[1 + j].joinExpression = tableName + "." + mainColumn + "=" + useSubTableName + "." + subColumn;
+				if(!"".equals(mainColumn) && !"".equals(subColumn)){
+				   moreTableStruct[1 + j].joinExpression = tableName + "." + mainColumn + "=" + useSubTableName + "." + subColumn;
+				}
 				moreTableStruct[1 + j].useSubTableName = useSubTableName;
 				try {
 					subField[j].setAccessible(true);
