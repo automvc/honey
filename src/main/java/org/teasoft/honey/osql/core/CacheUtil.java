@@ -140,7 +140,7 @@ public final class CacheUtil {
 			time[i] = -1;
 			obj[i] = null;
 			keys[i] = null; //TODO是否需要?
-//			System.out.println("------------------delCache cache "+i);
+//			Logger.info("------------------delCache cache "+i);
 			//要考虑维护表相关的index
 			_delTableKeyListByKey(key,i);
 		}
@@ -154,15 +154,15 @@ public final class CacheUtil {
 		int know = knowIndex;
 		if (low <= high) {
 			//删除low与know之间的
-//			System.out.println("删除缓存,low:"+low+",knowIndex: "+know+", high: "+high);
-//			System.out.println("删除缓存从:"+low+",到: "+know);
+//			Logger.info("删除缓存,low:"+low+",knowIndex: "+know+", high: "+high);
+//			Logger.info("删除缓存从:"+low+",到: "+know);
 			for (int i = low; i <= know; i++) {  //i <= know    ,not high
 				_deleteCacheByIndex(i);
 			}
 			arrayIndex.setLow(know + 1);
 		} else { //循环的情况  low >high
-//			System.out.println("(循环)删除缓存,low:"+low+",knowIndex: "+know+", high: "+high);
-//			System.out.println("(循环)删除缓存从:"+low+",到: "+know);
+//			Logger.info("(循环)删除缓存,low:"+low+",knowIndex: "+know+", high: "+high);
+//			Logger.info("(循环)删除缓存从:"+low+",到: "+know);
 			if ( low < know) { //all:0-99;  low 80    know:90   99, 0  20:high
 				for (int i = low; i <= know; i++) {
 					_deleteCacheByIndex(i);
@@ -252,7 +252,8 @@ public final class CacheUtil {
 		 
 		//满了,还要处理呢   满了后,一次删10%?  已在配置里设置
 		if(arrayIndex.isWouldbeFull()){
-//			System.out.println("==================== cache is wouldbe full ..");
+//			Logger.info("==================== cache is wouldbe full ..");
+			Logger.warn("==========Cache would be full!");
 //			满了后,起一个线程,一次删除一部分,如10%;然后立即返回,本次不放缓存
 //			new CacheClearThread(arrayIndex.getDeleteCacheIndex()).start();  //起一个线程执行
 			new CacheDeleteThread(arrayIndex.getDeleteCacheIndex()).begin();  //快满了,删除一定比例最先存入的
@@ -260,6 +261,7 @@ public final class CacheUtil {
 			//快满就清除,还是可以放部分的,所以不用立即返回  --> 要是剩下的位置不多,来的数据就足够快,还是有危险.直接返回会安全些
 			
 			if(arrayIndex.getUsedRate() >=90) {
+				Logger.warn("==========Cache already used more than 90% !");
 				HoneyContext.deleteCacheInfo(sql);//要清除cacheStruct
 				return ;  //快满了,本次不放缓存,直接返回
 			}
@@ -276,7 +278,7 @@ public final class CacheUtil {
 		obj[i] = rs;
 		keys[i] = key; 
 		
-//		System.out.println("==========================add in cache i:"+i);
+//		Logger.info("==========================add in cache i:"+i);
 		//TODO NULL
 		for (int k = 0; k < tableKeyList.size(); k++) {
 			_regTabCache(tableKeyList.get(k),i);
@@ -350,7 +352,7 @@ public final class CacheUtil {
 			//清除相关index
 			for(String i : set){
 				foreverModifySynCacheObjectMap.remove(i);
-//				System.out.println("------------------clear cause by modify (forever syn)---");
+//				Logger.info("------------------clear cause by modify (forever syn)---");
 			}
 			//最后将set=null;
 			set=null;
@@ -366,7 +368,7 @@ public final class CacheUtil {
 		if(set!=null){
 			//清除相关index
 			for(Integer i : set){
-//				System.out.println("------------------clear cause by modify-----delete i: "+i);
+//				Logger.info("------------------clear cause by modify-----delete i: "+i);
 				_deleteCacheByIndex(i,false);  //将有查询到该表的缓存都删除
 			}
 			//最后将set=null;
