@@ -3,6 +3,8 @@ package org.teasoft.honey.osql.core;
 import org.teasoft.bee.osql.BeeSql;
 import org.teasoft.bee.osql.Cache;
 import org.teasoft.bee.osql.CallableSql;
+import org.teasoft.bee.osql.MoreObjToSQL;
+import org.teasoft.bee.osql.MoreTable;
 import org.teasoft.bee.osql.NameTranslate;
 import org.teasoft.bee.osql.ObjToSQL;
 import org.teasoft.bee.osql.ObjToSQLRich;
@@ -34,6 +36,11 @@ public class HoneyFactory {
 	private DbFeature dbFeature;
 	private NameTranslate nameTranslate;
 	private Cache cache;
+	
+	//@since  1.7
+	private MoreObjToSQL moreObjToSQL;
+	
+	private MoreTable moreTable;
 
 	public Suid getSuid() {
 		if(suid==null) return new ObjSQL();
@@ -51,6 +58,16 @@ public class HoneyFactory {
 
 	public void setSuidRich(SuidRich suidRich) {
 		this.suidRich = suidRich;
+	}
+	
+	public MoreTable getMoreTable() {
+//		return moreTable;
+		if(moreTable==null) return new MoreObjSQL();
+		else return moreTable;
+	}
+
+	public void setMoreTable(MoreTable moreTable) {
+		this.moreTable = moreTable;
 	}
 
 	public BeeSql getBeeSql() {
@@ -78,6 +95,15 @@ public class HoneyFactory {
 
 	public void setObjToSQLRich(ObjToSQLRich objToSQLRich) {
 		this.objToSQLRich = objToSQLRich;
+	}
+
+	public MoreObjToSQL getMoreObjToSQL() {
+		if(moreObjToSQL==null) return new MoreObjectToSQL();
+		else return moreObjToSQL;
+	}
+
+	public void setMoreObjToSQL(MoreObjToSQL moreObjToSQL) {
+		this.moreObjToSQL = moreObjToSQL;
 	}
 
 	public PreparedSql getPreparedSql() {
