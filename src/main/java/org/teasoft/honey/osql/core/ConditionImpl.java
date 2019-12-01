@@ -13,6 +13,7 @@ import java.util.Set;
 
 import org.teasoft.bee.osql.Condition;
 import org.teasoft.bee.osql.FunctionType;
+import org.teasoft.bee.osql.IncludeType;
 import org.teasoft.bee.osql.Op;
 import org.teasoft.bee.osql.OrderType;
 import org.teasoft.bee.osql.SuidType;
@@ -27,6 +28,7 @@ public class ConditionImpl implements Condition {
 	private SuidType suidType;
 	public List<Expression> list = new ArrayList<>();
 	private Set<String> fieldSet = new HashSet<>();
+	private IncludeType includeType;
 
 	private boolean isStartGroupBy = true;
 	private boolean isStartHaving = true;
@@ -46,6 +48,17 @@ public class ConditionImpl implements Condition {
 	@Override
 	public Condition size(Integer size) {
 		this.size = size;
+		return this;
+	}
+	
+	@Override
+	public IncludeType getIncludeType() {
+		return includeType;
+	}
+
+	@Override
+	public Condition setIncludeType(IncludeType includeType) {
+		this.includeType = includeType;
 		return this;
 	}
 
