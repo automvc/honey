@@ -35,11 +35,11 @@ public class CacheDeleteThread extends Thread {
 //				new CacheDeleteThread("CacheDeleteThread start thread" + (num++)).start(); //不能再用new
 //				this.setName("CacheDeleteThread" + (num++));
 				this.start();
-////				System.out.println("========in CacheDeleteThread==============" + Thread.currentThread().getName());
-//				System.out.println("========in CacheDeleteThread==============" + this.getName());
+////				Logger.info("========in CacheDeleteThread==============" + Thread.currentThread().getName());
+//				Logger.info("========in CacheDeleteThread==============" + this.getName());
 			}
 //		} catch (Exception e) {
-//			System.err.println(e.getMessage());
+//			Logger.error(e.getMessage());
 //		}
 	}
 

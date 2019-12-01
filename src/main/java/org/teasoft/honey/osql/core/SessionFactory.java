@@ -41,7 +41,7 @@ public final class SessionFactory {
 			}
 		} 
 		catch (SQLException e) {
-//			System.err.println("==========================Have SQLException==="+e.getMessage());
+//			Logger.info("==========================Have SQLException==="+e.getMessage());
 			//连接断了,也是在这抛出.
 			throw ExceptionHelper.convert(e);
 		}
