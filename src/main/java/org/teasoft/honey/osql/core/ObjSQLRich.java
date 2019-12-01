@@ -325,6 +325,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	}
 
 	@Override
+	@Deprecated
 	public <T> List<T> select(T entity, IncludeType includeType, Condition condition) {
 		if (entity == null) return null;
 		String sql = objToSQLRich.toSelectSQL(entity, includeType,condition);
