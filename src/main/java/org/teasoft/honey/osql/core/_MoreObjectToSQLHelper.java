@@ -47,7 +47,7 @@ public class _MoreObjectToSQLHelper {
 	private static <T> String _toSelectSQL(T entity, int includeType,Condition condition, int start, int size) {
 			
 		checkPackage(entity);
-		
+		String sql="";
 		Set<String> conditionFieldSet=null;
 		if(condition!=null) conditionFieldSet=condition.getFieldSet();
 		StringBuffer sqlBuffer = new StringBuffer();
@@ -87,13 +87,16 @@ public class _MoreObjectToSQLHelper {
 						sqlBuffer.append(ONE_SPACE);
 						sqlBuffer.append(moreTableStruct[s].subAlias);
 					}
-					if (firstWhere) {
-						sqlBuffer2.append(" where ");
-						firstWhere = false;
-					} else {
-						sqlBuffer2.append(" and ");
+
+					if (moreTableStruct[s].joinExpression != null && !"".equals(moreTableStruct[s].joinExpression)) {
+						if (firstWhere) {
+							sqlBuffer2.append(" where ");
+							firstWhere = false;
+						} else {
+							sqlBuffer2.append(" and ");
+						}
+						sqlBuffer2.append(moreTableStruct[s].joinExpression);
 					}
-					sqlBuffer2.append(moreTableStruct[s].joinExpression);
 				}
 			}
 			
@@ -155,7 +158,6 @@ public class _MoreObjectToSQLHelper {
 			     ConditionHelper.processCondition(sqlBuffer, valueBuffer, list, condition, firstWhere);
 			}
 			
-			String sql;
 			if(start!=-1 && size!=-1){
 				sql=dbFeature.toPageSql(sqlBuffer.toString(), start, size);
 			}else{
@@ -166,13 +168,14 @@ public class _MoreObjectToSQLHelper {
 
 			if (valueBuffer.length() > 0) valueBuffer.deleteCharAt(0);
 			HoneyContext.setPreparedValue(sql, list);
-			HoneyContext.setSqlValue(sqlBuffer.toString(), valueBuffer.toString()); //用于log显示
+			HoneyContext.setSqlValue(sql, valueBuffer.toString()); //用于log显示
 			addInContextForCache(sql, valueBuffer.toString(), tableName);//TODO tableName还要加上多表的.
 		} catch (IllegalAccessException e) {
 			throw ExceptionHelper.convert(e);
 		}
 
-		return sqlBuffer.toString();
+//		return sqlBuffer.toString();//bug
+		return sql;
 	}
 	
 	private static void parseSubObject(StringBuffer sqlBuffer2, StringBuffer valueBuffer, 
