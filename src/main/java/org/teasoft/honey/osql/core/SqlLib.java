@@ -22,6 +22,8 @@ import org.teasoft.bee.osql.BeeSql;
 import org.teasoft.bee.osql.Cache;
 import org.teasoft.bee.osql.ObjSQLException;
 import org.teasoft.bee.osql.SuidType;
+import org.teasoft.bee.osql.annotation.JoinTable;
+import org.teasoft.honey.osql.name.NameUtil;
 
 /**
  * 直接操作数据库，并返回结果.在该类中的sql字符串要是DB能识别的SQL语句
@@ -81,6 +83,7 @@ public class SqlLib implements BeeSql {
 				targetObj = (T) entity.getClass().newInstance();
 				for (int i = 0; i < columnCount; i++) {
 					if("serialVersionUID".equals(field[i].getName())) continue;
+					if (field[i]!= null && field[i].isAnnotationPresent(JoinTable.class)) continue;
 					field[i].setAccessible(true);
 					try {
 						field[i].set(targetObj, rs.getObject(_toColumnName(field[i].getName())));
@@ -432,6 +435,140 @@ public class SqlLib implements BeeSql {
 			throw ExceptionHelper.convert(e);
 		}
 	}
+	
+	@Override
+	@SuppressWarnings("unchecked")
+	public <T> List<T> moreTableSelect(String sql, T entity) {
+		
+		updateInfoInCache(sql,"List<T>",SuidType.SELECT);
+		Object cacheObj=cache.get(sql);  //这里的sql还没带有值
+		if(cacheObj!=null) return (List<T>)cacheObj;
+		
+		Connection conn = null;
+		PreparedStatement pst = null;
+		T targetObj = null;
+		List<T> rsList = null;
+		try {
+			conn = getConn();
+			String exe_sql=HoneyUtil.deleteLastSemicolon(sql);
+			pst = conn.prepareStatement(exe_sql);
+			
+			setPreparedValues(pst, sql);
+
+			ResultSet rs = pst.executeQuery();
+			rsList = new ArrayList<T>();
+
+			Field field[] = entity.getClass().getDeclaredFields();
+			int columnCount = field.length;
+			
+			MoreTableStruct moreTableStruct[]=HoneyUtil.getMoreTableStructAndCheckBefore(entity);
+			Field subField[] = new Field[2];
+			String subUseTable[]=new String[2];
+			String variableName[]=new String[2];
+			Class subEntityFieldClass[]=new Class[2];
+			for (int i = 1; i <= 2; i++) {
+				if(moreTableStruct[i]!=null){
+					subField[i-1]=moreTableStruct[i].subEntityField;
+					variableName[i-1]=subField[i-1].getName();
+					subEntityFieldClass[i-1] = subField[i-1].getType();
+//					if(moreTableStruct[i].hasSubAlias){
+//						subUseTable[i-1]=moreTableStruct[i].subAlias;
+//					}else{
+//						subUseTable[i-1]=moreTableStruct[i].tableName;
+//					}
+					subUseTable[i-1]=moreTableStruct[i].useSubTableName;
+				}
+			}
+			
+			Field fields1[] = subEntityFieldClass[0].getDeclaredFields();
+			Field fields2[] =null;
+			
+            if(subField[1]!=null){
+            	fields2=subEntityFieldClass[1].getDeclaredFields();
+            }
+			
+			String tableName=_toTableName(entity);
+			while (rs.next()) {
+				
+				//从表1设置
+				Object subObj1 = subEntityFieldClass[0].newInstance();
+				for (int i = 0; i < fields1.length; i++) {
+					
+					if("serialVersionUID".equals(fields1[i].getName())) {
+						continue;
+					}
+					if (fields1[i]!= null && fields1[i].isAnnotationPresent(JoinTable.class)) continue;
+					
+					fields1[i].setAccessible(true);
+					try {
+						fields1[i].set(subObj1, rs.getObject(subUseTable[0]+"."+_toColumnName(fields1[i].getName())));
+					} catch (IllegalArgumentException e) {
+						fields1[i].set(subObj1,_getObjectForMoreTable(rs,subUseTable[0],fields1[i]));
+					}
+				}
+				
+				//从表2设置(如果有)
+				Object subObj2=null;
+				if(subField[1]!=null){
+					 subObj2 = subEntityFieldClass[1].newInstance();
+					for (int i = 0; i < fields2.length; i++) {
+						
+						if("serialVersionUID".equals(fields2[i].getName())) {
+							continue;
+						}
+						if (fields2[i]!= null && fields2[i].isAnnotationPresent(JoinTable.class)) continue;
+						
+						fields2[i].setAccessible(true);
+						try {
+							fields2[i].set(subObj2, rs.getObject(subUseTable[1]+"."+_toColumnName(fields2[i].getName())));
+						} catch (IllegalArgumentException e) {
+							fields2[i].set(subObj2,_getObjectForMoreTable(rs,subUseTable[1],fields2[i]));
+						}
+					}
+				}
+				
+				//主表设置
+				targetObj = (T) entity.getClass().newInstance();
+				for (int i = 0; i < columnCount; i++) {
+					if("serialVersionUID".equals(field[i].getName())) continue;
+					if (field[i]!= null && field[i].isAnnotationPresent(JoinTable.class)) {
+						field[i].setAccessible(true);
+						if(field[i].getName().equals(variableName[0])){
+							field[i].set(targetObj,subObj1); //设置子表1的对象
+						}else if(subField[1]!=null && field[i].getName().equals(variableName[1])){
+							field[i].set(targetObj,subObj2); //设置子表2的对象
+						}
+						continue;
+					}
+					field[i].setAccessible(true);
+					try {
+						field[i].set(targetObj, rs.getObject(tableName+"."+_toColumnName(field[i].getName())));
+					} catch (IllegalArgumentException e) {
+						field[i].set(targetObj,_getObjectForMoreTable(rs,tableName,field[i]));
+					}
+				}
+				
+				rsList.add(targetObj);
+			}
+			
+			addInCache(sql, rsList,"List<T>",SuidType.SELECT,rsList.size());
+			
+		} catch (SQLException e) {
+			throw ExceptionHelper.convert(e);
+		} catch (IllegalAccessException e) {
+			throw ExceptionHelper.convert(e);
+		} catch (InstantiationException e) {
+			throw ExceptionHelper.convert(e);
+		} finally {
+			checkClose(pst, conn);
+		}
+
+		entity = null;
+		targetObj = null;
+
+		return rsList;
+	}
+	
 
 	private void setPreparedValues(PreparedStatement pst, String sql) throws SQLException {
 		List<PreparedValue> list = HoneyContext.getPreparedValue(sql);
@@ -451,10 +588,18 @@ public class SqlLib implements BeeSql {
 		
 	}
 	
+	private Object _getObjectForMoreTable(ResultSet rs, String tableName,Field field) throws SQLException{
+		return HoneyUtil.getResultObject(rs, field.getType().getName(), tableName+"."+ _toColumnName(field.getName()));
+		
+	}
+	
 	private Object _getObjectByindex(ResultSet rs,Field field, int index) throws SQLException{
 		return HoneyUtil.getResultObjectByIndex(rs, field.getType().getName(),index);
 	}
 	
+	private static String _toTableName(Object entity){
+		return NameTranslateHandle.toTableName(NameUtil.getClassFullName(entity));
+	}
 	
 	private static String _toColumnName(String fieldName) {
 		return NameTranslateHandle.toColumnName(fieldName);
