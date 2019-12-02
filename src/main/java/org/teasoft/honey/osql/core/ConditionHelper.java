@@ -24,9 +24,15 @@ public class ConditionHelper {
 	private static String ONE_SPACE = " ";
 
 	private static DbFeature dbFeature = BeeFactory.getHoneyFactory().getDbFeature();
-
+	
 	static void processCondition(StringBuffer sqlBuffer, StringBuffer valueBuffer, 
 			List<PreparedValue> list, Condition condition, boolean firstWhere) {
+		
+		 processCondition(sqlBuffer, valueBuffer, list, condition, firstWhere, null);
+	}
+
+	static void processCondition(StringBuffer sqlBuffer, StringBuffer valueBuffer, 
+			List<PreparedValue> list, Condition condition, boolean firstWhere,String useSubTableNames[]) {
 		PreparedValue preparedValue = null;
 
 		ConditionImpl conditionImpl = (ConditionImpl) condition;
@@ -48,7 +54,7 @@ public class ConditionHelper {
 			//			} else {
 			if (Op.in.getOperator().equalsIgnoreCase(opType) || Op.notIn.getOperator().equalsIgnoreCase(opType)) {
 				adjustAnd(sqlBuffer);
-				sqlBuffer.append(_toColumnName(expression.getFieldName()));
+				sqlBuffer.append(_toColumnName(expression.getFieldName(),useSubTableNames));
 				sqlBuffer.append(" ");
 				sqlBuffer.append(expression.getOpType());
 				sqlBuffer.append(" (");
@@ -79,7 +85,7 @@ public class ConditionHelper {
 				//				else if (opType == Op.like  || opType == Op.notLike) {
 				adjustAnd(sqlBuffer);
 
-				sqlBuffer.append(_toColumnName(expression.getFieldName()));
+				sqlBuffer.append(_toColumnName(expression.getFieldName(),useSubTableNames));
 				sqlBuffer.append(expression.getOpType());
 				sqlBuffer.append("?");
 
@@ -97,7 +103,7 @@ public class ConditionHelper {
 
 				adjustAnd(sqlBuffer);
 
-				sqlBuffer.append(_toColumnName(expression.getFieldName()));
+				sqlBuffer.append(_toColumnName(expression.getFieldName(),useSubTableNames));
 				sqlBuffer.append(opType);
 				sqlBuffer.append("?");
 				sqlBuffer.append(" and ");
@@ -127,7 +133,7 @@ public class ConditionHelper {
 				}
 
 				sqlBuffer.append(expression.getValue());//group by或者,
-				sqlBuffer.append(_toColumnName(expression.getFieldName()));
+				sqlBuffer.append(_toColumnName(expression.getFieldName(),useSubTableNames));
 
 				continue;
 			} else if ("having".equalsIgnoreCase(opType)) {
@@ -145,7 +151,7 @@ public class ConditionHelper {
 					if (FunctionType.COUNT.getName().equals(expression.getValue3()) && expression.getFieldName() != null && "*".equals(expression.getFieldName().trim())) {
 						sqlBuffer.append("*");
 					} else {
-						sqlBuffer.append(_toColumnName(expression.getFieldName()));
+						sqlBuffer.append(_toColumnName(expression.getFieldName(),useSubTableNames));
 					}
 
 					sqlBuffer.append(")");
@@ -175,10 +181,10 @@ public class ConditionHelper {
 				if (4 == expression.getOpNum()) { //order by max(total) desc
 					sqlBuffer.append(expression.getValue3());
 					sqlBuffer.append("(");
-					sqlBuffer.append(_toColumnName(expression.getFieldName()));
+					sqlBuffer.append(_toColumnName(expression.getFieldName(),useSubTableNames));
 					sqlBuffer.append(")");
 				} else {
-					sqlBuffer.append(_toColumnName(expression.getFieldName()));
+					sqlBuffer.append(_toColumnName(expression.getFieldName(),useSubTableNames));
 				}
 
 				if (3 == expression.getOpNum() || 4 == expression.getOpNum()) { //指定 desc,asc
@@ -209,7 +215,7 @@ public class ConditionHelper {
 
 			//}
 
-			sqlBuffer.append(_toColumnName(expression.getFieldName()));
+			sqlBuffer.append(_toColumnName(expression.getFieldName(),useSubTableNames));
 
 			if (expression.getValue() == null) {
 				sqlBuffer.append(" is null");
@@ -252,11 +258,32 @@ public class ConditionHelper {
 	}
 
 	private static String _toColumnName(String fieldName) {
-		String t_name="";
+		return NameTranslateHandle.toColumnName(fieldName);
+	}
+			
+	private static String _toColumnName(String fieldName,String useSubTableNames[]) {
+		
+		if(useSubTableNames==null) return _toColumnName(fieldName);   //one table type
+		
+		String t_fieldName="";
+		String t_tableName="";
+		String t_tableName_dot;
+		String find_tableName="";
 		int index=fieldName.indexOf(".");
 		if(index>-1){
-			t_name=fieldName.substring(index+1);
-			return fieldName.substring(0,index+1)+NameTranslateHandle.toColumnName(t_name);
+			t_fieldName=fieldName.substring(index+1);
+			t_tableName=fieldName.substring(0,index);
+			t_tableName_dot=fieldName.substring(0,index+1);
+			// check whether is useSubTableName
+			if(useSubTableNames[0]!=null && useSubTableNames[0].startsWith(t_tableName_dot)){
+				find_tableName=t_tableName;
+			}else if(useSubTableNames[1]!=null && useSubTableNames[1].startsWith(t_tableName_dot)){
+				find_tableName=t_tableName;
+			}else{
+				find_tableName=NameTranslateHandle.toTableName(t_tableName);
+			}
+			
+			return find_tableName+"."+NameTranslateHandle.toColumnName(t_fieldName);
 		}
 		return NameTranslateHandle.toColumnName(fieldName);
 	}
