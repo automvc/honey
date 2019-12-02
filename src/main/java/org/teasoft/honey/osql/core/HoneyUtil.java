@@ -18,7 +18,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.teasoft.bee.osql.annotation.JoinTable;
+import org.teasoft.bee.osql.annotation.JoinType;
 import org.teasoft.bee.osql.exception.BeeIllegalEntityException;
+import org.teasoft.bee.osql.exception.JoinTableException;
 import org.teasoft.bee.osql.exception.JoinTableParameterException;
 import org.teasoft.honey.osql.constant.DatabaseConst;
 import org.teasoft.honey.osql.constant.NullEmpty;
@@ -56,7 +58,7 @@ public final class HoneyUtil {
 				total[start + i] = part[i];
 			}
 		} catch (Exception e) {
-			Logger.print(" HoneyUtil.mergeArray() " + e.getMessage());
+			Logger.error(" HoneyUtil.mergeArray() " + e.getMessage());
 		}
 
 		return total;
@@ -101,7 +103,7 @@ public final class HoneyUtil {
 		if (entity == null) return null;
 
 		String entityFullName = entity.getClass().getName();
-
+		
 		Field field[] = entity.getClass().getDeclaredFields();
 
 		MoreTableStruct moreTableStruct[] = new MoreTableStruct[3];
@@ -134,22 +136,22 @@ public final class HoneyUtil {
 		}// main table for end
 
 		if (subEntityFieldNum > 2) { //只支持一个实体里最多关联两个实体
-			//TODO 抛异常
-			Logger.error("One entity only supports two JoinTable at most! " + entityFullName + " has " + subEntityFieldNum + " JoinTable now !");
+			throw new JoinTableException("One entity only supports two JoinTable at most! " + entityFullName + " has " + subEntityFieldNum + " JoinTable now !");
 		}
 
 		JoinTable joinTable[] = new JoinTable[2];
 		String subTableName[] = new String[2];
+		
+		boolean hasOtherJoin=false; 
 
 		if (subField[0] != null) {
 			joinTable[0] = subField[0].getAnnotation(JoinTable.class);
 
 			String errorMsg = checkJoinTable(joinTable[0]);
 			if (!"".equals(errorMsg)) {
-//				Logger.error("Error: mainField and subField can not just use only one." + errorMsg);
-				//TODO 抛出一个异常
 				throw new JoinTableParameterException("Error: mainField and subField can not just use only one." + errorMsg);
 			}
+			if(joinTable[0].joinType()!=JoinType.JOIN) hasOtherJoin=true;
 		}
 
 		if (subField[1] != null) {
@@ -157,16 +159,19 @@ public final class HoneyUtil {
 
 			String errorMsg = checkJoinTable(joinTable[1]);
 			if (!"".equals(errorMsg)) {
-//				Logger.error("Error: mainField and subField can not just use only one." + errorMsg);
-				//TODO 抛出一个异常
 				throw new JoinTableParameterException("Error: mainField and subField can not just use only one." + errorMsg);
 			}
+			if(joinTable[1].joinType()!=JoinType.JOIN) hasOtherJoin=true;
 		}
+		
+		if(hasOtherJoin && subEntityFieldNum==2)
+		       throw new JoinTableException("Just support JoinType.JOIN in this version when a entity has two JoinTable annotation fields!");
 		
 		//if no exception , set for main table
 		moreTableStruct[0].tableName = tableName;
 		moreTableStruct[0].entityFullName = entityFullName;
 		moreTableStruct[0].entityName = entity.getClass().getSimpleName();
+		moreTableStruct[0].joinTableNum=subEntityFieldNum;  //一个实体包含关联的子表数
 		//moreTableStruct[0].columnsFull = columns.toString();  //还要子表列
 
 		//set for subTable1 and subTable2
@@ -208,7 +213,7 @@ public final class HoneyUtil {
 					throw ExceptionHelper.convert(e);
 				}
 
-				StringBuffer subColumns = _getBeanFullField_0(subField[j], useSubTableName);
+				StringBuffer subColumns = _getBeanFullField_0(subField[j], useSubTableName,entityFullName);
 				moreTableStruct[1 + j].columnsFull = subColumns.toString();
 
 				columns.append(",");
@@ -222,7 +227,8 @@ public final class HoneyUtil {
 		return moreTableStruct;
 	}
 
-	static StringBuffer _getBeanFullField_0(Field entityField, String tableName) {
+	static StringBuffer _getBeanFullField_0(Field entityField, String tableName,String entityFullName) {
+//		entityFullName just for tip
 		//		    if(entityField==null) return "";
 		//		    Field field[] = entity.getClass().getDeclaredFields(); //error
 
@@ -236,7 +242,9 @@ public final class HoneyUtil {
 			if ("serialVersionUID".equals(field[i].getName())) continue;
 			if (field[i] != null && field[i].isAnnotationPresent(JoinTable.class)) {
 //				Logger.error("注解字段的实体: " + entityField.getType().getName() + "里面又包含了注解:" + field[i].getType());
-				Logger.warn("Annotation JoinTable field entity : " + entityField.getType().getName() + " include JoinTable:" + field[i].getType() + " . " + field[i].getType() + " would be ignored!");
+				if(!entityField.getType().getName().equals(field[i].getType().getName())){
+				   Logger.warn("Annotation JoinTable field: " +entityField.getName()+"(in "+ entityFullName + ") still include JoinTable field:" + field[i].getName() + "(will be ignored)!");
+				}
 				continue;
 			}
 
@@ -715,11 +723,5 @@ public final class HoneyUtil {
         if(errorCount==1)
 		    return errorMsg;
         else return "";
-	}
-
-	public static void main(String[] args) {
-		MoreTableStruct moreTableStruct[] = new MoreTableStruct[3];
-		moreTableStruct[0] = new MoreTableStruct();
-		System.out.println(moreTableStruct[0] == null);
 	}
 }
