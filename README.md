@@ -58,7 +58,7 @@ Cache support: never,forever,forever and modify Syn,resultSet's size control.
 Add: SysValue annotation  
 
 **V1.5**  
-1.add NameTranslate interface and default implement class,support customize translation rule of  DB and   Java naming.  
+1.add NameTranslate interface and default implement class,support customize translation rule of DB and Java naming.  
 2.support jdbcTypeToFieldType-{DbName}.properties,define DB's column type map java type.  
 3.enhance Oracle's type translation；other DB can define the column type and java type.  
 mapping in file: jdbcTypeToFieldType-{DbName}.properties.  
@@ -88,6 +88,9 @@ V1.6.1
 2.add Deprecated to modify method in PreparedSql.  
 3.update getFieldSet method's return type with Java generics.  
 4.fix bug.ConditionImpl's fieldSet need record the field in between method.  
+
+**V1.7**  
+more tables select oriented object support.  
 
 Quick Start:
 =========	
