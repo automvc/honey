@@ -19,8 +19,6 @@ import org.teasoft.bee.osql.exception.BeeIllegalParameterException;
  * @since  1.7
  */
 public class MoreObjSQL implements MoreTable{
-	
-	
 
 	private BeeSql beeSql;// = BeeFactory.getHoneyFactory().getBeeSql();
 	private MoreObjToSQL moreObjToSQL = BeeFactory.getHoneyFactory().getMoreObjToSQL();
@@ -63,18 +61,6 @@ public class MoreObjSQL implements MoreTable{
 		String sql = moreObjToSQL.toSelectSQL(entity,condition);
 		Logger.logSQL("select SQL: ", sql);
 		return getBeeSql().moreTableSelect(sql, entity); 
-	}
-
-	@Override
-	public <T> String selectJson(T entity) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	@Override
-	public <T> String selectJson(T entity, Condition condition) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 }

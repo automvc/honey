@@ -22,6 +22,8 @@ class MoreTableStruct {
 	 String subAlias;  //从表别名
 	//main table don't record above 4 fields.
 	 
+	 int joinTableNum;  //just record in mainTable
+	 
 	 boolean hasSubAlias;
 	
 	 String tableName;
