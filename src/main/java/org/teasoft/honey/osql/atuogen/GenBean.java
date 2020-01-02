@@ -12,8 +12,11 @@ import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.teasoft.bee.osql.BeeException;
 import org.teasoft.honey.osql.constant.DatabaseConst;
 import org.teasoft.honey.osql.core.ExceptionHelper;
 import org.teasoft.honey.osql.core.HoneyUtil;
@@ -38,21 +41,28 @@ public class GenBean {
 		String tableName = table.getTableName();
 		List<String> columnNames = table.getColumNames();
 		List<String> columTypes = table.getColumTypes();  //jdbcType
+		
+		Map<String,String> commentMap=table.getCommentMap();
 
 		// 表名对应的实体类名
 		String entityName ="";
 		
 		entityName=NameTranslateHandle.toEntityName(tableName);
 		
+		if(config.getEntityNamePre()!=null) entityName=config.getEntityNamePre()+entityName;
+		
 		Logger.print("The Honey gen the JavaBean: " + config.getPackagePath() +"."+entityName);
 		
-		String authorComment="/**"+ LINE_SEPARATOR;
-//		       authorComment+="*@author Bee"+ LINE_SEPARATOR;
-		       authorComment+="*@author Honey"+ LINE_SEPARATOR;
-		       authorComment+="*Create on "+format.format(new Date())+ LINE_SEPARATOR;
-		       authorComment+="*/";
-
+		String tableComment="";
+		if(config.isGenComment()) tableComment=commentMap.get(table.getTableName());
 		
+		String authorComment="/**"+ LINE_SEPARATOR;
+		if(config.isGenComment() && !"".equals(tableComment)) authorComment+="*"+tableComment+ LINE_SEPARATOR;
+//		 authorComment+="*@author Bee"+ LINE_SEPARATOR;
+		 authorComment+="*@author Honey"+ LINE_SEPARATOR;
+		 authorComment+="*Create on "+format.format(new Date())+ LINE_SEPARATOR;
+		 authorComment+="*/";
+
 		String packageStr = "package " + config.getPackagePath() + ";"+ LINE_SEPARATOR;
 		
 		String importStr ="";
@@ -86,6 +96,8 @@ public class GenBean {
 		for (int i = 0; i < columnNames.size(); i++) {
 			String columnName = columnNames.get(i);
 			String columnType = columTypes.get(i);
+			String comment="";
+			String getOrIs="get";
 			
 			propertyName=NameTranslateHandle.toFieldName(columnName);
 			
@@ -122,13 +134,25 @@ public class GenBean {
 //				importStr += "import "+javaType+";" + LINE_SEPARATOR;
 //				arrayFlag = false;
 //			}//防止类名与上面的重复,还是直接用
+            
+            if("boolean".equals(javaType))  getOrIs="is";
 			
-
-			propertiesStr += "\t" + "private " + javaType + " " + propertyName
-					+ ";" + LINE_SEPARATOR;
+			if (config.isGenComment() && commentMap!=null) {
+				comment=commentMap.get(columnName);
+				if(config.getCommentPlace()==2){
+					if(!"".equals(comment)) propertiesStr += "\t" + "// " + comment+ LINE_SEPARATOR;
+					propertiesStr += "\t" + "private " + javaType + " " + propertyName + ";" + LINE_SEPARATOR;
+				}else{
+					propertiesStr += "\t" + "private " + javaType + " " + propertyName + ";";
+					if(!"".equals(comment))  propertiesStr +="//"+comment;
+					propertiesStr += LINE_SEPARATOR;
+				}
+			} else {
+				propertiesStr += "\t" + "private " + javaType + " " + propertyName + ";" + LINE_SEPARATOR;
+			}
 
 			getsetStr += "\t" + "public " + javaType
-					+ " get" + getsetProNameStr + "() {"
+					+ " "+getOrIs + getsetProNameStr + "() {"
 					+ LINE_SEPARATOR + "\t\t" + "return " + propertyName
 					+ ";" + LINE_SEPARATOR + "\t}" + LINE_SEPARATOR
 					+ LINE_SEPARATOR +
@@ -249,7 +273,7 @@ public class GenBean {
 			throw ExceptionHelper.convert(e);
 		}
 		Logger.print("Generate Success!");
-		Logger.print("Please check: " + config.getBaseDir()+config.getPackagePath().replace(".", "\\"));
+		Logger.print("Please check folder: " + config.getBaseDir()+config.getPackagePath().replace(".", "\\"));
 	}
 
     // 获取所有表信息
@@ -272,6 +296,8 @@ public class GenBean {
 				showTablesSql = "select table_name from user_tables";
 			} else if (config.getDbName().equalsIgnoreCase(DatabaseConst.SQLSERVER)) {
 				showTablesSql = "select table_name from edp.information_schema.tables where table_type='base table'"; // SQLServer查询所有表格名称命令
+			}else{
+				throw new BeeException("There are not default sql, please check the bee.databaseName in bee.properties is right or not, or define queryTableSql in GenConfig!");
 			}
 
 			ps = con.prepareStatement(showTablesSql);
@@ -306,6 +332,7 @@ public class GenBean {
 		//该方法不可取.因为要是用关键字作表名,别的suid操作都是要带数据库名.
 		
 		table.setTableName(tableName);
+		table.setSchema(rmeta.getCatalogName(1));
 
 		int columCount = rmeta.getColumnCount();
 		for (int i = 1; i <=columCount; i++) {
@@ -315,8 +342,65 @@ public class GenBean {
 
 		rs.close();
 		ps.close();
-
+		
+		//set comment
+		initComment(table, con);
 		return table;
+	}
+	
+	
+	private void initComment(Table table,Connection con) throws SQLException {
+		
+		String sql="";
+		String t_sql=config.getQueryColumnCommnetSql();
+		if (t_sql != null)
+			sql = t_sql;
+		else if (config.getDbName().equalsIgnoreCase(DatabaseConst.MYSQL) ||
+				 config.getDbName().equalsIgnoreCase(DatabaseConst.MariaDB)) {
+		   sql="select column_name,column_comment from information_schema.COLUMNS where TABLE_SCHEMA='"+table.getSchema()+"' and TABLE_NAME=?";  //the first select column is column name, second is comment
+		} else if (config.getDbName().equalsIgnoreCase(DatabaseConst.ORACLE)) {
+			 sql="select column_name,comments from user_col_comments where table_name=?";
+		} else{
+			throw new BeeException("There are not default sql, please check the bee.databaseName in bee.properties is right or not, or define queryColumnCommnetSql in GenConfig!");
+		}
+		PreparedStatement ps = con.prepareStatement(sql); 
+		ps.setString(1, table.getTableName());
+		Map<String,String> map=getCommentMap(ps);
+		
+		String sql2="";
+		String t_sql2=config.getQueryTableCommnetSql();
+		if(t_sql2!=null) sql2=t_sql2;
+		else if (config.getDbName().equalsIgnoreCase(DatabaseConst.MYSQL) ||
+				 config.getDbName().equalsIgnoreCase(DatabaseConst.MariaDB)) {
+			sql2="select TABLE_NAME,TABLE_COMMENT from information_schema.TABLES where TABLE_SCHEMA='"+table.getSchema()+"' and TABLE_NAME=?";
+		} else if (config.getDbName().equalsIgnoreCase(DatabaseConst.ORACLE)) {
+			sql2="select column_name,comments from user_tab_comments where table_name=?";
+		} else{
+			throw new BeeException("There are not default sql, please check the bee.databaseName in bee.properties is right or not, or define queryTableCommnetSql in GenConfig!");
+		}
+		PreparedStatement ps2 = con.prepareStatement(sql2); 
+		ps2.setString(1, table.getTableName());
+		Map<String,String> map2=getCommentMap(ps2);
+		
+		map2.putAll(map);
+		table.setCommentMap(map2);
+	}
+	
+	
+	private Map<String,String> getCommentMap(PreparedStatement ps)throws SQLException{
+        ResultSet rs = ps.executeQuery();
+		
+		Map<String,String> map=new HashMap<>();
+		String column_comment;
+		int i=0;
+		while (rs.next()) {
+			i++;
+			column_comment=rs.getString(2);
+			if(column_comment==null) column_comment="";
+			map.put(rs.getString(1), column_comment);
+		}
+		
+		return map;
 	}
 
 }
@@ -325,6 +409,9 @@ class Table {
 	private String tableName; // 表名
 	private List<String> columNames = new ArrayList<String>(); // 列名集合
 	private List<String> columTypes = new ArrayList<String>(); // 列类型集合，列类型严格对应java类型
+	
+	private Map<String,String> commentMap;  // tableName/ColumnName:comment
+	private String schema;  //DB库名
 
 	public String getTableName() {
 		return tableName;
@@ -342,4 +429,20 @@ class Table {
 		return columTypes;
 	}
 
+	public Map<String, String> getCommentMap() {
+		return commentMap;
+	}
+
+	public void setCommentMap(Map<String, String> commentMap) {
+		this.commentMap = commentMap;
+	}
+
+	public String getSchema() {
+		return schema;
+	}
+
+	public void setSchema(String schema) {
+		this.schema = schema;
+	}
+	
 }
