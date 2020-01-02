@@ -9,6 +9,12 @@ public class GenConfig {
 	private String queryTableSql = ""; // 查询所有表名的SQL语句，mysqll,oracle和sql server不用设置
 	private boolean genToString;
 	private boolean genSerializable;
+	
+	private String queryColumnCommnetSql;
+	private String queryTableCommnetSql;
+	private boolean genComment;
+	private int commentPlace; //1:after field name at the same line; 2:last line
+	private String entityNamePre;
 
 	public String getEncode() {
 		return encode;
@@ -66,4 +72,64 @@ public class GenConfig {
 		this.genSerializable = genSerializable;
 	}
 
+	
+	public boolean isGenComment() {
+		return genComment;
+	}
+
+	public void setGenComment(boolean genComment) {
+		this.genComment = genComment;
+	}
+
+	public int getCommentPlace() {
+		return commentPlace;
+	}
+
+	/**
+	 * set comment place,If genComment is true;
+	 * @param commentPlace 1:after field name at the same line; 2:last line.  default is 1.
+	 */
+	public void setCommentPlace(int commentPlace) {
+		this.commentPlace = commentPlace;
+	}
+
+	/**
+	 * !!!Automatic translation is highly recommended
+	 */
+	@Deprecated
+	public String getEntityNamePre() {
+		return entityNamePre;
+	}
+
+	/**
+	 * !!!Automatic translation is highly recommended
+	 * @param entityNamePre  prefix of entityName
+	 */
+	@Deprecated
+	public void setEntityNamePre(String entityNamePre) {
+		this.entityNamePre = entityNamePre;
+	}
+
+	public String getQueryColumnCommnetSql() {
+		return queryColumnCommnetSql;
+	}
+
+	/**
+	 * @param queryColumnCommnetSql the first select column is column name, second is comment;parameter table_name=?(use placeholder)
+	 */
+	public void setQueryColumnCommnetSql(String queryColumnCommnetSql) {
+		this.queryColumnCommnetSql = queryColumnCommnetSql;
+	}
+
+	public String getQueryTableCommnetSql() {
+		return queryTableCommnetSql;
+	}
+
+	/**
+	 * @param queryTableCommnetSql the first select column is column name, second is comment;parameter table_name=?(use placeholder)
+	 */
+	public void setQueryTableCommnetSql(String queryTableCommnetSql) {
+		this.queryTableCommnetSql = queryTableCommnetSql;
+	}
+	
 }
