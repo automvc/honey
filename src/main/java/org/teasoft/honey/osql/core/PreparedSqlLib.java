@@ -48,9 +48,8 @@ public class PreparedSqlLib implements PreparedSql {
 		if(size<=0) throw new BeeIllegalParameterException("Parameter 'size' need great than 0!");
 		if(start<0) throw new BeeIllegalParameterException("Parameter 'start' need great equal 0!");
 		
-		initPreparedValues(sql, preValues,entity);
-		
 		sql = dbFeature.toPageSql(sql, start, size);
+		initPreparedValues(sql, preValues,entity);
 		
 		Logger.logSQL("PreparedSqlLib select SQL: ", sql);
 		return getBeeSql().select(sql, entity);
@@ -68,9 +67,8 @@ public class PreparedSqlLib implements PreparedSql {
 		if(size<=0) throw new BeeIllegalParameterException("Parameter 'size' need great than 0!");
 		if(start<0) throw new BeeIllegalParameterException("Parameter 'start' need great equal 0!");
 		
-		String sql=initPrepareValuesViaMap(sqlStr,map,entity);
-		
-		sql = dbFeature.toPageSql(sql, start, size);
+		String pageSql = dbFeature.toPageSql(sqlStr, start, size);
+		String sql=initPrepareValuesViaMap(pageSql,map,entity);
 		
 		Logger.logSQL("PreparedSqlLib select SQL: ", sql);
 		return getBeeSql().select(sql, entity);
@@ -89,9 +87,8 @@ public class PreparedSqlLib implements PreparedSql {
 		if(size<=0) throw new BeeIllegalParameterException("Parameter 'size' need great than 0!");
 		if(start<0) throw new BeeIllegalParameterException("Parameter 'start' need great equal 0!");
 
-		initPreparedValues(sql, preValues,entity);
-		
 		sql = dbFeature.toPageSql(sql, start, size);
+		initPreparedValues(sql, preValues,entity);
 		
 		Logger.logSQL("PreparedSqlLib selectSomeField SQL: ", sql);
 		return getBeeSql().selectSomeField(sql, entity);
@@ -109,8 +106,8 @@ public class PreparedSqlLib implements PreparedSql {
 		if(size<=0) throw new BeeIllegalParameterException("Parameter 'size' need great than 0!");
 		if(start<0) throw new BeeIllegalParameterException("Parameter 'start' need great equal 0!");
 		
-		String sql=initPrepareValuesViaMap(sqlStr,map,entity);
-		sql = dbFeature.toPageSql(sql, start, size);
+		String pageSql = dbFeature.toPageSql(sqlStr, start, size);
+		String sql=initPrepareValuesViaMap(pageSql,map,entity);
 		
 		Logger.logSQL("PreparedSqlLib selectSomeField SQL: ", sql);
 		return getBeeSql().selectSomeField(sql, entity);
@@ -143,8 +140,8 @@ public class PreparedSqlLib implements PreparedSql {
 		if(size<=0) throw new BeeIllegalParameterException("Parameter 'size' need great than 0!");
 		if(start<0) throw new BeeIllegalParameterException("Parameter 'start' need great equal 0!");
 		
-		initPreparedValues(sql, preValues);
 		sql = dbFeature.toPageSql(sql, start, size);
+		initPreparedValues(sql, preValues);
 		
 		Logger.logSQL("PreparedSqlLib select SQL: ", sql);
 		return getBeeSql().select(sql);
@@ -163,8 +160,8 @@ public class PreparedSqlLib implements PreparedSql {
 		if(size<=0) throw new BeeIllegalParameterException("Parameter 'size' need great than 0!");
 		if(start<0) throw new BeeIllegalParameterException("Parameter 'start' need great equal 0!");
 		
-		String sql=initPrepareValuesViaMap(sqlStr,map);
-		sql = dbFeature.toPageSql(sql, start, size);
+		String pageSql = dbFeature.toPageSql(sqlStr, start, size);
+		String sql=initPrepareValuesViaMap(pageSql,map);
 		
 		Logger.logSQL("PreparedSqlLib select SQL: ", sql);
 		return getBeeSql().select(sql);
@@ -198,8 +195,8 @@ public class PreparedSqlLib implements PreparedSql {
 		if(size<=0) throw new BeeIllegalParameterException("Parameter 'size' need great than 0!");
 		if(start<0) throw new BeeIllegalParameterException("Parameter 'start' need great equal 0!");
 		
-		initPreparedValues(sql, preValues);
 		sql = dbFeature.toPageSql(sql, start, size);
+		initPreparedValues(sql, preValues);
 		
 		Logger.logSQL("PreparedSqlLib selectJson SQL: ", sql);
 		return getBeeSql().selectJson(sql);
@@ -217,8 +214,8 @@ public class PreparedSqlLib implements PreparedSql {
 		if(size<=0) throw new BeeIllegalParameterException("Parameter 'size' need great than 0!");
 		if(start<0) throw new BeeIllegalParameterException("Parameter 'start' need great equal 0!");
 		
-		String sql=initPrepareValuesViaMap(sqlStr,map);
-		sql = dbFeature.toPageSql(sql, start, size);
+		String pageSql = dbFeature.toPageSql(sqlStr, start, size);
+		String sql=initPrepareValuesViaMap(pageSql,map);
 		
 		Logger.logSQL("PreparedSqlLib selectJson SQL: ", sql);
 		return getBeeSql().selectJson(sql);
@@ -298,7 +295,7 @@ public class PreparedSqlLib implements PreparedSql {
 			throw new SqlNullException("sql statement string is Null !");
 		}
 		
-		SqlValueWrap wrap=processSql(sqlStr);
+		SqlValueWrap wrap=processSql(sqlStr); //bug.  wrap maybe null
 		String sql=wrap.getSql();
 		String mapKeys=wrap.getValueBuffer().toString(); //wrap.getValueBuffer() is :map's key , get from like: #{name}
 		_initPreparedValues(sql,mapKeys, map); 
