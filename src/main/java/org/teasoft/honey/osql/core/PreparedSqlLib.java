@@ -226,10 +226,10 @@ public class PreparedSqlLib implements PreparedSql {
 	
 	private <T> void initPreparedValues(String sql, Object[] preValues, T entity) {
 		StringBuffer valueBuffer = initPreparedValues(sql, preValues);
-		if (valueBuffer.length() > 0) {
+//		if (valueBuffer.length() > 0) {//bug. no placeholder will have problem.
 			String tableName = _toTableName(entity);
 			addInContextForCache(sql, valueBuffer.toString(), tableName);
-		}
+//		}
 	}
 	private StringBuffer initPreparedValues(String sql, Object[] preValues) {
 		
@@ -272,17 +272,24 @@ public class PreparedSqlLib implements PreparedSql {
 		
 		parameterMap=mergeMap(parameterMap,entity);
 		
-		SqlValueWrap wrap = processSql(sqlStr);
-		String sql = wrap.getSql();
-		String mapKeys=wrap.getValueBuffer().toString(); //wrap.getValueBuffer() is :map's key , get from like: #{name}
-		StringBuffer valueBuffer = _initPreparedValues(sql, mapKeys, parameterMap); 
+		SqlValueWrap wrap = processSql(sqlStr); //will return null when sql no placeholder like: select * from tableName
+		if (wrap == null) {
+			String tableName = _toTableName(entity);
+			addInContextForCache(sqlStr, null, tableName);
+			return sqlStr;
+		} else {
 
-		if (valueBuffer.length() > 0) {
+			String sql = wrap.getSql();
+			String mapKeys = wrap.getValueBuffer().toString(); //wrap.getValueBuffer() is :map's key , get from like: #{name}
+			StringBuffer valueBuffer = _initPreparedValues(sql, mapKeys, parameterMap);
+
+			//if (valueBuffer.length() > 0) {
 			String tableName = _toTableName(entity);
 			addInContextForCache(sql, valueBuffer.toString(), tableName);
+			//}
+			return sql;
 		}
 
-		return sql;
 	}
 	
 	private String initPrepareValuesViaMap(String sqlStr, Map<String, Object> map){
