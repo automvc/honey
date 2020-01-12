@@ -745,7 +745,7 @@ final class _ObjectToSQLHelper {
 		struct.setSqlValue(sqlValue);
 		struct.setTableNames(tableName);
 		
-		HoneyContext.setCacheInfo(sql, struct);  //同一线程内,sql是否可以标识区分
+		HoneyContext.setCacheInfo(sql, struct);
 	}
     
 	private static <T> void checkPackage(T entity) {
