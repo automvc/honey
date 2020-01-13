@@ -168,7 +168,8 @@ public final class HoneyContext {
 	
 	static void deleteCacheInfo(String sqlStr){
 		Map<String, CacheSuidStruct> map = cacheLocal.get();
-		map.remove(sqlStr);
+//		map.remove(sqlStr); //bug
+		if(map!=null) map.remove(sqlStr); 
 	}
 	
 	public static String getDbDialect() {
