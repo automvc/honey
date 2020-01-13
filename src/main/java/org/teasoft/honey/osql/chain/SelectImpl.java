@@ -35,7 +35,8 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 	private boolean isStartOrderBy = true;
 	
 	public SelectImpl(){
-		sql.append("select ");
+// some one maybe just need where part
+//		sql.append("select ");
 	}
 	
 //	private int start;
@@ -44,6 +45,7 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 	@Override
 	public Select select() {
 		if (isStartField) {
+			sql.append("select ");
 			sql.append(STAR);
 			isStartField = false;
 		}
@@ -53,6 +55,7 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 	@Override
 	public Select select(String column) {
 		if (isStartField) {
+			sql.append("select ");
 			sql.append(column);
 			isStartField = false;
 		} else {
@@ -366,6 +369,7 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 			sql.append(" where ");
 			sql.append(expression);
 			isStartWhere = false;
+			isAddAnd = true; //fix on 2020-01-13
 		} else {
 			if (isAddAnd) sql.append(" and ");
 			sql.append(expression);
