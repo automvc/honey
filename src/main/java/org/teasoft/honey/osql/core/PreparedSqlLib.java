@@ -237,11 +237,11 @@ public class PreparedSqlLib implements PreparedSql {
 		PreparedValue preparedValue = null;
 		List<PreparedValue> list = new ArrayList<>();
 		StringBuffer valueBuffer = new StringBuffer();
-		for (int i = 0, k = 0; i < preValues.length; i++) {
+		for (int i = 0; i < preValues.length; i++) {
 			preparedValue = new PreparedValue();
 			preparedValue.setType(preValues[i].getClass().getName());
 			preparedValue.setValue(preValues[i]);
-			list.add(k++, preparedValue);
+			list.add(preparedValue);
 
 			valueBuffer.append(",");
 			valueBuffer.append(preValues[i]);
@@ -296,6 +296,7 @@ public class PreparedSqlLib implements PreparedSql {
 		}
 		
 		SqlValueWrap wrap=processSql(sqlStr); //bug.  wrap maybe null
+		if(wrap==null) return sqlStr;  //fix null bug
 		String sql=wrap.getSql();
 		String mapKeys=wrap.getValueBuffer().toString(); //wrap.getValueBuffer() is :map's key , get from like: #{name}
 		_initPreparedValues(sql,mapKeys, map); 
