@@ -56,10 +56,13 @@ public class SqlLib implements BeeSql {
 	@Override
 	@SuppressWarnings("unchecked")
 	public <T> List<T> select(String sql, T entity) {
-
-		updateInfoInCache(sql,"List<T>",SuidType.SELECT);
+		
+		//要是没有更新缓存,证明之前还没有登记过缓存,就不能去查缓存.
+		boolean isReg=updateInfoInCache(sql,"List<T>",SuidType.SELECT);
+		if(isReg){
 		Object cacheObj=cache.get(sql);  //这里的sql还没带有值
 		if(cacheObj!=null) return (List<T>)cacheObj;
+		}
 		
 		Connection conn = null;
 		PreparedStatement pst = null;
@@ -117,9 +120,11 @@ public class SqlLib implements BeeSql {
 	@SuppressWarnings("unchecked")
 	public <T> List<T> selectSomeField(String sql, T entity) {
 
-		updateInfoInCache(sql,"List<T>",SuidType.SELECT);
+		boolean isReg=updateInfoInCache(sql,"List<T>",SuidType.SELECT);
+		if(isReg){
 		Object cacheObj=cache.get(sql);  //这里的sql还没带有值
 		if(cacheObj!=null) return (List<T>)cacheObj;
+		}
 		
 		Connection conn = null;
 		PreparedStatement pst = null;
@@ -199,9 +204,11 @@ public class SqlLib implements BeeSql {
 	@Override
 	public String selectFun(String sql) throws ObjSQLException {
 		
-		updateInfoInCache(sql,"String",SuidType.SELECT);
+		boolean isReg=updateInfoInCache(sql,"String",SuidType.SELECT);
+		if(isReg){
 		Object cacheObj=cache.get(sql);  //这里的sql还没带有值
 		if(cacheObj!=null) return (String)cacheObj;
+		}
 		
 		String result = null;
 		Connection conn = null;
@@ -242,9 +249,11 @@ public class SqlLib implements BeeSql {
 	@Override
 	public List<String[]> select(String sql) {
 		
-		updateInfoInCache(sql,"List<String[]>",SuidType.SELECT);
+		boolean isReg=updateInfoInCache(sql,"List<String[]>",SuidType.SELECT);
+		if(isReg){
 		Object cacheObj=cache.get(sql);  //这里的sql还没带有值
 		if(cacheObj!=null) return (List<String[]>)cacheObj;
+		}
 		
 		List<String[]> list = new ArrayList<String[]>();
 		Connection conn = null;
@@ -322,9 +331,11 @@ public class SqlLib implements BeeSql {
 	@Override
 	public String selectJson(String sql) {
 		
-		updateInfoInCache(sql,"StringJson",SuidType.SELECT);
+		boolean isReg=updateInfoInCache(sql,"StringJson",SuidType.SELECT);
+		if(isReg){
 		Object cacheObj=cache.get(sql);  //这里的sql还没带有值
 		if(cacheObj!=null) return (String)cacheObj;
+		}
 		
 		StringBuffer json=new StringBuffer("");
 		Connection conn = null;
@@ -440,9 +451,11 @@ public class SqlLib implements BeeSql {
 	@SuppressWarnings("unchecked")
 	public <T> List<T> moreTableSelect(String sql, T entity) {
 		
-		updateInfoInCache(sql,"List<T>",SuidType.SELECT);
+		boolean isReg=updateInfoInCache(sql,"List<T>",SuidType.SELECT);
+		if(isReg){
 		Object cacheObj=cache.get(sql);  //这里的sql还没带有值
 		if(cacheObj!=null) return (List<T>)cacheObj;
+		}
 		
 		Connection conn = null;
 		PreparedStatement pst = null;
@@ -619,17 +632,24 @@ public class SqlLib implements BeeSql {
 		   return;
 		}
 		
-		cache.add(sql, rs);
+		CacheSuidStruct struct = HoneyContext.getCacheInfo(sql);
+		if (struct != null) { //之前已定义有表结构,才放缓存.否则放入缓存,可能会产生脏数据.  不判断的话,自定义的查询也可以放缓存
+		  cache.add(sql, rs);
+		}
 	}
 	
 //	查缓存前需要先更新缓存信息,才能去查看是否在缓存
-	private void updateInfoInCache(String sql, String returnType, SuidType suidType) {
+//	private void updateInfoInCache(String sql, String returnType, SuidType suidType) {
+	private boolean updateInfoInCache(String sql, String returnType, SuidType suidType) {
 		CacheSuidStruct struct = HoneyContext.getCacheInfo(sql);
 		if (struct != null) {
 			struct.setReturnType(returnType);
 			struct.setSuidType(suidType.getType());
 			HoneyContext.setCacheInfo(sql, struct);
+			return true;
 		}
+		//要是没有更新缓存,证明之前还没有登记过缓存,就不能去查缓存.
+		return false;
 	}
 	
 	private void clearInCache(String sql, String returnType, SuidType suidType) {
