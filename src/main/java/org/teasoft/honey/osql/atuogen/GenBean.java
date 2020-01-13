@@ -35,7 +35,7 @@ public class GenBean {
 	public GenBean(GenConfig config) {
 		this.config = config;
 	}
-
+ 
 //	生成指定表对象对应的类文件
 	private void genBeanFile(Table table) {
 		String tableName = table.getTableName();
@@ -367,6 +367,7 @@ public class GenBean {
 		ps.setString(1, table.getTableName());
 		Map<String,String> map=getCommentMap(ps);
 		
+		//get table comment
 		String sql2="";
 		String t_sql2=config.getQueryTableCommnetSql();
 		if(t_sql2!=null) sql2=t_sql2;
@@ -374,7 +375,7 @@ public class GenBean {
 				 config.getDbName().equalsIgnoreCase(DatabaseConst.MariaDB)) {
 			sql2="select TABLE_NAME,TABLE_COMMENT from information_schema.TABLES where TABLE_SCHEMA='"+table.getSchema()+"' and TABLE_NAME=?";
 		} else if (config.getDbName().equalsIgnoreCase(DatabaseConst.ORACLE)) {
-			sql2="select column_name,comments from user_tab_comments where table_name=?";
+			sql2="select table_name,comments from user_tab_comments where table_name=?";
 		} else{
 			throw new BeeException("There are not default sql, please check the bee.databaseName in bee.properties is right or not, or define queryTableCommnetSql in GenConfig!");
 		}
@@ -392,15 +393,56 @@ public class GenBean {
 		
 		Map<String,String> map=new HashMap<>();
 		String column_comment;
-		int i=0;
 		while (rs.next()) {
-			i++;
 			column_comment=rs.getString(2);
 			if(column_comment==null) column_comment="";
 			map.put(rs.getString(1), column_comment);
 		}
 		
+		rs.close();
+		ps.close();
 		return map;
+	}
+	
+	
+	private Table getTalbe(String tableName){
+		Connection con = null;
+		Table table = null;
+		try {
+			con = SessionFactory.getConnection();
+			table = getTable(tableName, con);
+			con.close();
+
+		} catch (Exception e) {
+			Logger.print(e.getMessage());
+			if (e.getMessage().contains("You have an error in your SQL syntax;") && e.getMessage().contains("where 1<>1")) {
+				Logger.print("Maybe the table name is the database key work. Please rename the tableName and test again.", e.getMessage());
+			}
+			throw ExceptionHelper.convert(e);
+		}
+		return table;
+	}
+	
+	public List<String> getColumnNames(String tableName) {
+		Table table=getTalbe(tableName);
+		if(table!=null){
+			return table.getColumNames();
+		}
+
+		return null;
+	}
+	
+	public List<String> getFieldNames(String tableName){
+		
+		List<String> columnNames=getColumnNames(tableName);
+		if(columnNames==null) return null;
+		
+		List<String> fieldNames=new ArrayList<>();
+		for (int i = 0; i < columnNames.size(); i++) {
+			fieldNames.add(NameTranslateHandle.toFieldName(columnNames.get(i)));
+		}
+		
+		return fieldNames;
 	}
 
 }
