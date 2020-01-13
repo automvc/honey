@@ -72,6 +72,20 @@ public class NameUtil {
 		return result;
 	}
 	
+	/*
+	 * 首字母转换成小写
+	 */
+	public static  String firstLetterToLowerCase(String str) {
+		String result = "";
+		if (str.length() > 1) {
+			result = str.substring(0, 1).toLowerCase()+ str.substring(1);
+		} else {
+			result = str.toLowerCase();
+		}
+
+		return result;
+	}
+	
 	
 /*	public static void main(String[] args) {
 		Logger.info(getClassFullName(Class.class));
