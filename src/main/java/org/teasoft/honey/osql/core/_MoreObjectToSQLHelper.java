@@ -80,10 +80,15 @@ public class _MoreObjectToSQLHelper {
 			
 			String useSubTableNames[]=new String[2];
 			
+			//v1.7.1 当有两个子表时,即使配置了用join..on,也会解析成where m1=sub1f1 and m2=sub2f1
+			if(moreTableStruct[0].joinTableNum>1 && twoTablesWithJoinOnStyle && moreTableStruct[1].joinType==JoinType.JOIN){
+				Logger.warn("SQL grammar type will use 'where ... =' replace 'join .. on' !");
+			}
+			
 			//只有一个子表关联,且选用join type
-			if((twoTablesWithJoinOnStyle && moreTableStruct[0].joinTableNum==1)
+			if( (moreTableStruct[1].joinType!=JoinType.JOIN || (twoTablesWithJoinOnStyle && moreTableStruct[0].joinTableNum==1) )
 			 &&(moreTableStruct[1].joinExpression != null && !"".equals(moreTableStruct[1].joinExpression))){ //需要有表达式
-				
+			
 				if(moreTableStruct[1].joinType==JoinType.FULL_JOIN){
 					Logger.warn("Pleae confirm the Database supports 'full join' type!");
 				}
