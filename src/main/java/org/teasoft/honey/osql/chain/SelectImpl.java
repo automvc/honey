@@ -195,7 +195,7 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 			else
 				value += "," + valueList[i];
 		}
-		sql.append(field + " " + op + " (" + value + ")"); // in (99,18)
+		sql.append(field + " " + op + " (" + value + ")"); // eg: in (99,18)
 		return this;
 	}
 
