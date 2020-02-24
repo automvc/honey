@@ -6,45 +6,30 @@
 
 package org.teasoft.honey.osql.util;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStreamWriter;
-
-import org.teasoft.honey.osql.core.Logger;
+import org.teasoft.bee.file.FileCreator;
+import org.teasoft.honey.file.FileHandle;
 
 /**
  * @author Kingstar
  * @since  1.5
  */
 public class FileUtil {
+	private static FileCreator fileCreator=null;
+	static{
+		 fileCreator=new FileHandle();
+	}
 
+	public static void genFile(String fullPathAndName, String content) {
+		fileCreator.genFile(fullPathAndName, content);
+	}
+	
 	public static void genFile(String fullPath, String fileName, String content) {
-		
 		// 生成文件
-		if (!fullPath.endsWith(File.separator)) fullPath += File.separator;
-		File folder = new File(fullPath);
-		if (!folder.exists()) {
-			folder.mkdirs();
-		}
-
-		File entityFile = new File(fullPath + fileName);
-		BufferedWriter bw;
-		try {
-			bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(entityFile)));
-			bw.write(content);
-			bw.flush();
-			bw.close();
-			Logger.info("Create file: "+fullPath + fileName);
-		} catch (Exception e) {
-			Logger.error(e.getMessage());
-		}
+		fileCreator.genFile(fullPath, fileName, content);
 	}
 	
 	public static void genFile(String basePath,String packagePath, String fileName, String content) {
-		if (!basePath.endsWith(File.separator)) basePath += File.separator;
-		String fullPath = basePath + packagePath.replace(".", File.separator) + File.separator;
-		genFile( fullPath,  fileName,  content);
+		fileCreator.genFile(basePath, packagePath, fileName, content);
 	}
 
 }
