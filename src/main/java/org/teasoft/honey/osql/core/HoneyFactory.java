@@ -39,7 +39,7 @@ public class HoneyFactory {
 	
 	//@since  1.7
 	private MoreObjToSQL moreObjToSQL;
-	
+	//@since  1.7
 	private MoreTable moreTable;
 
 	public Suid getSuid() {

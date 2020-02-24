@@ -86,6 +86,7 @@ public class _MoreObjectToSQLHelper {
 			}
 			
 			//只有一个子表关联,且选用join type
+			//排除以下情况: where m1=sub1f1 and m2=sub2f1 (放到else处理)
 			if( (moreTableStruct[1].joinType!=JoinType.JOIN || (twoTablesWithJoinOnStyle && moreTableStruct[0].joinTableNum==1) )
 			 &&(moreTableStruct[1].joinExpression != null && !"".equals(moreTableStruct[1].joinExpression))){ //需要有表达式
 			
