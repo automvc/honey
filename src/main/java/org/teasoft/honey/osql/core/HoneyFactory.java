@@ -17,7 +17,9 @@ import org.teasoft.honey.osql.constant.DatabaseConst;
 import org.teasoft.honey.osql.dialect.mysql.MySqlFeature;
 import org.teasoft.honey.osql.dialect.oracle.OracleFeature;
 import org.teasoft.honey.osql.dialect.sqlserver.SqlServerFeature;
+import org.teasoft.honey.osql.name.OriginalName;
 import org.teasoft.honey.osql.name.UnderScoreAndCamelName;
+import org.teasoft.honey.osql.name.UpperCaseUnderScoreAndCamelName;
 
 /**
  * @author Kingstar
@@ -147,7 +149,15 @@ public class HoneyFactory {
 	}
 	
 	public NameTranslate getNameTranslate() {
-		if(nameTranslate==null) return new UnderScoreAndCamelName();
+		if(nameTranslate==null) {
+			//since 1.7.2
+			int translateType=HoneyConfig.getHoneyConfig().getNamingTranslateType();
+			if(translateType==1) nameTranslate=new UnderScoreAndCamelName();
+			else if(translateType==2) nameTranslate=new UpperCaseUnderScoreAndCamelName();
+			else if(translateType==3) nameTranslate=new OriginalName();
+			
+			return nameTranslate;
+		}
 		else return nameTranslate;
 	}
 
