@@ -7,6 +7,7 @@
 package org.teasoft.honey.osql.name;
 
 /**
+ * DB<-->Java,eg: ORDER_NO<-->orderNo.
  * @author Kingstar
  * @since  1.5
  */

@@ -10,8 +10,9 @@ import org.teasoft.bee.osql.NameTranslate;
 import org.teasoft.honey.osql.core.HoneyConfig;
 
 /**
- * Java Camel and UnderScore transform.
  * Java驼峰命名与DB下划线命名互转
+ * Java Camel and UnderScore transform.
+ * DB<-->Java,eg: order_no<-->orderNo.
  * @author Kingstar
  * @since  1.5
  */

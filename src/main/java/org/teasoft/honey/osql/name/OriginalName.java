@@ -9,8 +9,8 @@ package org.teasoft.honey.osql.name;
 import org.teasoft.bee.osql.NameTranslate;
 
 /**
- * return original name
  * 返回原名称
+ * return original name
  * @author Kingstar
  * @since  1.5
  */
