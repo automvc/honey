@@ -86,6 +86,9 @@ public final class HoneyConfig {
 	@SysValue("${bee.osql.dbNaming.toLowerCaseBefore}")
 	private boolean dbNamingToLowerCaseBefore=true;  //default : to LowerCase before
 	
+	@SysValue("${bee.osql.naming.translate.type}")
+	private int namingTranslateType =1;
+	
 	private boolean ignoreNullInSelectJson;//2019-08-17
 	private boolean timestampWithMillisecondInSelectJson;
 	private boolean dateWithMillisecondInSelectJson;
@@ -204,6 +207,10 @@ public final class HoneyConfig {
 
 	public boolean isDbNamingToLowerCaseBefore() {
 		return dbNamingToLowerCaseBefore;
+	}
+	
+	public int getNamingTranslateType() {
+		return namingTranslateType;
 	}
 
 	public String getDriverName() {
