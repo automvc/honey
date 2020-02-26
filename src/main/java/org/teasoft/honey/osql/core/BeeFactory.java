@@ -8,11 +8,19 @@ import org.teasoft.bee.osql.BeeAbstractFactory;
  */
 public class BeeFactory extends BeeAbstractFactory {
 
+	private static HoneyFactory honeyFactory = null;
+
+	public void setHoneyFactory(HoneyFactory honeyFactory) {
+		this.honeyFactory = honeyFactory;
+	}
+
 	public static HoneyFactory getHoneyFactory() {
-		return new HoneyFactory();
+		if (honeyFactory == null) {
+			honeyFactory = new HoneyFactory();
+		}
+		return honeyFactory;
 	}
-	
-	public BeeFactory(){
-	}
+
+	public BeeFactory() {}
 
 }
