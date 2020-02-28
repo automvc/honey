@@ -49,7 +49,9 @@ public class SysValueProcessor {
 						f[i].set(obj, Integer.parseInt(value));
 					else if (c.equals(double.class) || c.equals(Double.class)) { //ok
 						f[i].set(obj, Double.parseDouble(value));
-					} else if (c.equals(boolean.class) || c.equals(Boolean.class)) { //ok
+					}else if (c.equals(long.class) || c.equals(Long.class)) {
+						f[i].set(obj, Long.parseLong(value));
+					}else if (c.equals(boolean.class) || c.equals(Boolean.class)) { //ok
 						f[i].set(obj, Boolean.parseBoolean(value));
 					}
            		  } catch (IllegalAccessException e) {
