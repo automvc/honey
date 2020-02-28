@@ -23,6 +23,7 @@ import org.teasoft.honey.osql.core.HoneyUtil;
 import org.teasoft.honey.osql.core.Logger;
 import org.teasoft.honey.osql.core.NameTranslateHandle;
 import org.teasoft.honey.osql.core.SessionFactory;
+import org.teasoft.honey.osql.util.DateUtil;
 
 //TODO 是否覆盖文件,       支持写生成其中一个文件或几个文件(已实现)
 public class GenBean {
@@ -30,7 +31,7 @@ public class GenBean {
 	private GenConfig config;
 	private String LINE_SEPARATOR = System.getProperty("line.separator"); // 换行符
 	
-	SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//	SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 	public GenBean(GenConfig config) {
 		this.config = config;
@@ -60,7 +61,8 @@ public class GenBean {
 		if(config.isGenComment() && !"".equals(tableComment)) authorComment+="*"+tableComment+ LINE_SEPARATOR;
 //		 authorComment+="*@author Bee"+ LINE_SEPARATOR;
 		 authorComment+="*@author Honey"+ LINE_SEPARATOR;
-		 authorComment+="*Create on "+format.format(new Date())+ LINE_SEPARATOR;
+//		 authorComment+="*Create on "+format.format(new Date())+ LINE_SEPARATOR;
+		 authorComment+="*Create on "+DateUtil.currentDate()+ LINE_SEPARATOR; //v1.7.2
 		 authorComment+="*/";
 
 		String packageStr = "package " + config.getPackagePath() + ";"+ LINE_SEPARATOR;
