@@ -118,9 +118,10 @@ public class SystemLogger implements Log{
 			b.append(APACE);
 		}
 		
-		b.append(LEFT)
+		b
+//		 .append(LEFT)
 		 .append(level)
-		 .append(RIGHT)
+//		 .append(RIGHT)
 		 .append(APACE)
 		 .append(msg);
 		
@@ -141,9 +142,10 @@ public class SystemLogger implements Log{
 			b.append(APACE);
 		}
 		
-		b.append(LEFT)
+		b
+//		 .append(LEFT)
 		 .append(level)
-		 .append(RIGHT)
+//		 .append(RIGHT)
 		 .append(APACE)
 		
 		 .append(LEFT)
