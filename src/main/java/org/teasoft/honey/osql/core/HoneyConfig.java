@@ -74,6 +74,9 @@ public final class HoneyConfig {
 	@SysValue("${bee.osql.showSQL.donotPrint.currentDate}")
 	private boolean showSQL_donotPrint_currentDate;  //v1.7.0
 	
+	@SysValue("${bee.osql.date.format}")
+	private String dateFormat;  //v1.7.2
+	
 	@SysValue("${bee.osql.moreTable.columnListWithStar}")
 	private boolean moreTable_columnListWithStar;
 	
@@ -183,6 +186,10 @@ public final class HoneyConfig {
 	
 	public boolean isShowSQL_donotPrint_currentDate() {
 		return showSQL_donotPrint_currentDate;
+	}
+	
+	public String getDateFormat() {
+		return dateFormat;
 	}
 
 	public boolean isMoreTable_columnListWithStar() {
