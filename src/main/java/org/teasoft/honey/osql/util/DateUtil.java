@@ -9,6 +9,9 @@ package org.teasoft.honey.osql.util;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.teasoft.honey.osql.core.HoneyConfig;
+import org.teasoft.honey.osql.core.Logger;
+
 /**
  * @author Kingstar
  * @since  1.4
@@ -18,6 +21,18 @@ public class DateUtil {
 	
 	private static SimpleDateFormat defaultFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	private static SimpleDateFormat format =null;
+	
+	static { //since v1.7.2
+		String dateFormatStr = HoneyConfig.getHoneyConfig().getDateFormat();
+		if (dateFormatStr != null && !"".equals(dateFormatStr.trim())) {
+			try {
+				defaultFormat = new SimpleDateFormat(dateFormatStr);
+			} catch (Exception e) {
+				Logger.warn("In DateUtil: it is error date format String :"+dateFormatStr);
+				defaultFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			}
+		}
+	}
 	
 	public static String currentDate(){
 		return defaultFormat.format(new Date());
