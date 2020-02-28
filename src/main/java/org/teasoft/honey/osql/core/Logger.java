@@ -29,13 +29,14 @@ public class Logger {
 		log.info(s1+"\n"  +s2);
 	}
 	
+	//专门用于Bee框架输出SQL日志.
 	public static void logSQL(String hardStr,String sql){
 		if(showSQL){
 			String value = HoneyContext.getSqlValue(sql);
 			if (value == null || "".equals(value.trim()))
-				_println(hardStr, sql);
+				_println("[Bee] "+hardStr, sql);
 			else
-				_println(hardStr, sql +"   [values]: "+ value);
+				_println("[Bee] "+hardStr, sql +"   [values]: "+ value);
 		}
 	}
 	
