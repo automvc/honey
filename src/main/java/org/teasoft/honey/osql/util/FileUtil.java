@@ -31,5 +31,8 @@ public class FileUtil {
 	public static void genFile(String basePath,String packagePath, String fileName, String content) {
 		fileCreator.genFile(basePath, packagePath, fileName, content);
 	}
-
+	
+	public static void genAppendFile(String fullPathAndName, String content) {
+		fileCreator.genAppendFile(fullPathAndName, content);
+	}
 }
