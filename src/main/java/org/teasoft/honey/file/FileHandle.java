@@ -27,6 +27,7 @@ public class FileHandle implements FileCreator{
 		if (!f.exists()) {
 			String substr=fullPathAndName.substring(0,fullPathAndName.lastIndexOf(File.separator));
 			new File(substr).mkdirs();
+			Logger.info("Create file: "+fullPathAndName);
 		}
 		
 		BufferedWriter bw;
@@ -35,7 +36,6 @@ public class FileHandle implements FileCreator{
 			bw.write(content);
 			bw.flush();
 			bw.close();
-			Logger.info("Create file: "+fullPathAndName);
 		} catch (Exception e) {
 			Logger.error(e.getMessage());
 		}
@@ -50,6 +50,7 @@ public class FileHandle implements FileCreator{
 		File folder = new File(fullPath);
 		if (!folder.exists()) {
 			folder.mkdirs();
+			Logger.info("Create file: "+fullPath + fileName);
 		}
 
 		File entityFile = new File(fullPath + fileName);
@@ -59,7 +60,6 @@ public class FileHandle implements FileCreator{
 			bw.write(content);
 			bw.flush();
 			bw.close();
-			Logger.info("Create file: "+fullPath + fileName);
 		} catch (Exception e) {
 			Logger.error(e.getMessage());
 		}
@@ -73,4 +73,29 @@ public class FileHandle implements FileCreator{
 		genFile( fullPath,  fileName,  content);
 	}
 	
+	
+	private String LINE_SEPARATOR = System.getProperty("line.separator"); // 换行符
+	
+	@Override
+	public void genAppendFile(String fullPathAndName, String content) {
+		File f = new File(fullPathAndName);
+		
+		if (!f.exists()) {
+			String substr=fullPathAndName.substring(0,fullPathAndName.lastIndexOf(File.separator));
+			new File(substr).mkdirs();
+		}
+		
+		BufferedWriter bw;
+		try {
+			bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f,true)));//true,追加的方式
+			bw.write(content);
+			bw.append(LINE_SEPARATOR);
+			bw.flush();
+			bw.close();
+			
+		} catch (Exception e) {
+			Logger.error(e.getMessage());
+		}
+		
+	}
 }
