@@ -40,6 +40,10 @@ public class Logger {
 		}
 	}
 	
+	public static void debug(String msg){
+		log.debug(msg);
+	}
+	
 	public static void info(String msg){
 		log.info(msg);
 	}
