@@ -14,9 +14,15 @@ import org.teasoft.bee.logging.Log;
  */
 public class LoggerFactory {
 	private static Log log;
-	public final static Byte[] lock = new Byte[0];    
+	public final static Byte[] lock = new Byte[0]; 
+	
+	private static LoggerFactory instance=new LoggerFactory();
 	
 	private LoggerFactory(){}
+	
+	public static LoggerFactory getLoggerFactory(){
+		return instance;
+	}
 	
 	public static Log getLog() {
 		if(log==null) {
