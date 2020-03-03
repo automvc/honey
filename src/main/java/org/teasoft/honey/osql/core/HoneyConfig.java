@@ -74,6 +74,10 @@ public final class HoneyConfig {
 	@SysValue("${bee.osql.showSQL.donotPrint.currentDate}")
 	private boolean showSQL_donotPrint_currentDate;  //v1.7.0
 	
+	@SysValue("${bee.osql.log.donotPrint.level}")
+	private boolean log_donotPrint_level;  //v1.7.2
+	
+	
 	@SysValue("${bee.osql.date.format}")
 	private String dateFormat;  //v1.7.2
 	
@@ -188,6 +192,10 @@ public final class HoneyConfig {
 		return showSQL_donotPrint_currentDate;
 	}
 	
+	public boolean isLog_donotPrint_level() {
+		return log_donotPrint_level;
+	}
+
 	public String getDateFormat() {
 		return dateFormat;
 	}
