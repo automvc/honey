@@ -26,6 +26,7 @@ public class SystemLogger implements Log{
 	private static String RIGHT="]";
 	
 	private static boolean donotPrintCurrentDate=HoneyConfig.getHoneyConfig().isShowSQL_donotPrint_currentDate();
+	private static boolean donotPrintLevel=HoneyConfig.getHoneyConfig().isLog_donotPrint_level();
 	
 	public SystemLogger(){
 	}
@@ -118,12 +119,14 @@ public class SystemLogger implements Log{
 			b.append(APACE);
 		}
 		
-		b
-//		 .append(LEFT)
-		 .append(level)
-//		 .append(RIGHT)
-		 .append(APACE)
-		 .append(msg);
+		if(donotPrintLevel){
+			//nothing
+		}else{
+			b.append(level)
+			 .append(APACE);
+		}
+		
+		b.append(msg);
 		
 		if(ERROR.equals(level) || WARN.equals(level))
 			System.err.println(b.toString());
@@ -142,12 +145,14 @@ public class SystemLogger implements Log{
 			b.append(APACE);
 		}
 		
-		b
-//		 .append(LEFT)
-		 .append(level)
-//		 .append(RIGHT)
-		 .append(APACE)
+		if(donotPrintLevel){
+			//nothing
+		}else{
+			b.append(level)
+			 .append(APACE);
+		}
 		
+		b
 		 .append(LEFT)
 		 .append(className)
 		 .append(RIGHT)
