@@ -43,17 +43,21 @@ public class SysValueProcessor {
                    try{
 					Class c = f[i].getType();
 					f[i].setAccessible(true);
-					if (c.equals(String.class)) {
-						f[i].set(obj, value);
-					} else if (c.equals(int.class) || c.equals(Integer.class))
-						f[i].set(obj, Integer.parseInt(value));
-					else if (c.equals(double.class) || c.equals(Double.class)) { //ok
-						f[i].set(obj, Double.parseDouble(value));
-					}else if (c.equals(long.class) || c.equals(Long.class)) {
-						f[i].set(obj, Long.parseLong(value));
-					}else if (c.equals(boolean.class) || c.equals(Boolean.class)) { //ok
-						f[i].set(obj, Boolean.parseBoolean(value));
-					}
+						if (c.equals(String.class)) {
+							f[i].set(obj, value);
+						} else if (c.equals(int.class) || c.equals(Integer.class)) {
+							f[i].set(obj, Integer.parseInt(value));
+						} else if (c.equals(short.class) || c.equals(Short.class)) {
+							f[i].set(obj, Short.parseShort(value));
+						} else if (c.equals(byte.class) || c.equals(Byte.class)) {
+							f[i].set(obj, Byte.parseByte(value));
+						} else if (c.equals(double.class) || c.equals(Double.class)) { //ok
+							f[i].set(obj, Double.parseDouble(value));
+						} else if (c.equals(long.class) || c.equals(Long.class)) {
+							f[i].set(obj, Long.parseLong(value));
+						} else if (c.equals(boolean.class) || c.equals(Boolean.class)) { //ok
+							f[i].set(obj, Boolean.parseBoolean(value));
+						}
            		  } catch (IllegalAccessException e) {
         		 	throw ExceptionHelper.convert(e);
         		  }
