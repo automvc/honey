@@ -41,15 +41,9 @@
 
 		<plugins>
 			<plugin>
-
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
 				<version>3.0.0</version>
-				<configuration>
-					<excludes> <!-- org.teasoft.honey.osql.example包下的文件不要打包 -->
-						<exclude>/org/teasoft/honey/osql/example/**</exclude>
-					</excludes>
-				</configuration>
 			</plugin>
 
 			<!--配置生成源码包 -->
@@ -65,12 +59,6 @@
 						</goals>
 					</execution>
 				</executions>
-
-				<configuration>
-					<excludes>
-						<exclude>/org/teasoft/honey/osql/example/**</exclude>
-					</excludes>
-				</configuration>
 			</plugin>
 
 		</plugins>
