@@ -13,16 +13,26 @@ public class MySqlFeature implements DbFeature {
 //		sql=sql.replace(";", ""); //去掉原来有的分号   只能去掉最后一个
 		sql=HoneyUtil.deleteLastSemicolon(sql);
 		
+		String forUpdateClause = null;
+		boolean isForUpdate = false;
+		final int forUpdateIndex = sql.toLowerCase().lastIndexOf("for update");
+		if (forUpdateIndex > -1) {
+			forUpdateClause = sql.substring(forUpdateIndex);
+			sql = sql.substring(0, forUpdateIndex - 1);
+			isForUpdate = true;
+		}
+		
 		String limitStament = " limit " + start + "," + size;
 		sql += limitStament;
+		
+		if (isForUpdate) {
+			sql+=" "+forUpdateClause;
+		}
+		
 		return sql;
 	}
 	
 	public String toPageSql(String sql, int size) {
-//		sql=sql.replace(";", ""); //去掉原来有的分号
-		sql=HoneyUtil.deleteLastSemicolon(sql);
-		String limitStament = " limit 0," + size;
-		sql += limitStament;
-		return sql;
+		return toPageSql(sql, 0, size);
 	}
 }
