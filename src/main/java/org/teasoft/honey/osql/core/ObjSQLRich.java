@@ -60,6 +60,9 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Override
 	public <T> List<T> select(T entity, String selectFields, int start, int size) {
 		if (entity == null) return null;
+		if(size<=0) throw new BeeIllegalParameterException("Parameter 'size' need great than 0!");
+		if(start<0) throw new BeeIllegalParameterException("Parameter 'start' need great equal 0!");
+		
 		List<T> list = null;
 		String sql = objToSQLRich.toSelectSQL(entity, selectFields,start,size);
 		list = getBeeSql().selectSomeField(sql, entity);
