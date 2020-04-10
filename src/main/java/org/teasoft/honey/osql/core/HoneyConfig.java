@@ -30,7 +30,7 @@ public final class HoneyConfig {
 //		String t_maxResultSize = BeeProp.getBeeProp("bee.osql.select.maxResultSize");
 //		if (t_maxResultSize != null) setMaxResultSize(Integer.parseInt(t_maxResultSize));
 
-		setUnderScoreAndCamelTransform(Boolean.parseBoolean(BeeProp.getBeeProp("bee.osql.underScoreAndCamelTransform")));
+//		setUnderScoreAndCamelTransform(Boolean.parseBoolean(BeeProp.getBeeProp("bee.osql.underScoreAndCamelTransform")));
 //		setDbNamingToLowerCaseBefore(Boolean.parseBoolean(BeeProp.getBeeProp("bee.osql.dbNaming.toLowerCaseBefore")));
 		//		BeeProp.getBeeProp("bee.osql.delete.isAllowDeleteAllDataInOneTable");
 		setIgnoreNullInSelectJson(Boolean.parseBoolean(BeeProp.getBeeProp("bee.osql.selectJson.ignoreNull"))); //2019-08-17
@@ -88,7 +88,7 @@ public final class HoneyConfig {
 	private boolean tablesWithJoinOnStyle;
 	
 	private String dbName;
-	private boolean underScoreAndCamelTransform;
+//	private boolean underScoreAndCamelTransform;//closed since v1.7
 	
 	@SysValue("${bee.osql.dbNaming.toLowerCaseBefore}")
 	private boolean dbNamingToLowerCaseBefore=true;  //default : to LowerCase before
@@ -156,9 +156,9 @@ public final class HoneyConfig {
 		this.dbName = dbName;
 	}
 
-	private void setUnderScoreAndCamelTransform(boolean underScoreAndCamelTransform) {
-		this.underScoreAndCamelTransform = underScoreAndCamelTransform;
-	}
+//	private void setUnderScoreAndCamelTransform(boolean underScoreAndCamelTransform) {
+//		this.underScoreAndCamelTransform = underScoreAndCamelTransform;
+//	}
 
 //	private void setDbNamingToLowerCaseBefore(boolean dbNamingToLowerCaseBefore) {
 //		this.dbNamingToLowerCaseBefore = dbNamingToLowerCaseBefore;
@@ -216,9 +216,9 @@ public final class HoneyConfig {
 		return dbName;
 	}
 
-	public boolean isUnderScoreAndCamelTransform() {
-		return underScoreAndCamelTransform;
-	}
+//	public boolean isUnderScoreAndCamelTransform() {
+//		return underScoreAndCamelTransform;
+//	}
 
 	public boolean isDbNamingToLowerCaseBefore() {
 		return dbNamingToLowerCaseBefore;
