@@ -6,9 +6,12 @@
 
 package org.teasoft.honey.file;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
 import java.io.OutputStreamWriter;
 
 import org.teasoft.bee.file.FileCreator;
@@ -98,4 +101,17 @@ public class FileHandle implements FileCreator{
 		}
 		
 	}
+
+	@Override
+	public BufferedReader readFile(String fullPathAndName) {
+		File file = new File(fullPathAndName);
+		BufferedReader reader = null;
+		try {
+			reader = new BufferedReader(new FileReader(file));
+		} catch (IOException e) {
+			Logger.error(e.getMessage());
+		}
+		return reader;
+	}
+	
 }
