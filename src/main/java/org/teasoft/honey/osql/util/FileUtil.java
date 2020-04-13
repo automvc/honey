@@ -6,6 +6,8 @@
 
 package org.teasoft.honey.osql.util;
 
+import java.io.BufferedReader;
+
 import org.teasoft.bee.file.FileCreator;
 import org.teasoft.honey.file.FileHandle;
 
@@ -35,4 +37,9 @@ public class FileUtil {
 	public static void genAppendFile(String fullPathAndName, String content) {
 		fileCreator.genAppendFile(fullPathAndName, content);
 	}
+	
+	public static BufferedReader readFile(String fullPathAndName) {
+		return fileCreator.readFile(fullPathAndName);
+	}
+	
 }
