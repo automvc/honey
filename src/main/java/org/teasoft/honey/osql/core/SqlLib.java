@@ -434,7 +434,7 @@ public class SqlLib implements BeeSql {
 			try {
 				stmt.close();
 			} catch (SQLException e) {
-				e.printStackTrace();
+//				e.printStackTrace();
 				throw ExceptionHelper.convert(e);
 			}
 		}
