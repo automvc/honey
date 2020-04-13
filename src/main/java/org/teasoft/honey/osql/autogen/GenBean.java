@@ -1,4 +1,4 @@
-package org.teasoft.honey.osql.atuogen;
+package org.teasoft.honey.osql.autogen;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -227,7 +227,8 @@ public class GenBean {
 			bw.flush();
 			bw.close();
 		} catch (Exception e) {
-			e.printStackTrace();
+//			e.printStackTrace();
+			Logger.error(e.getMessage());
 			throw ExceptionHelper.convert(e);
 		}
 
@@ -313,7 +314,8 @@ public class GenBean {
 			ps.close();
 			con.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
+//			e.printStackTrace();
+			Logger.error(e.getMessage());
 			throw ExceptionHelper.convert(e);
 		}
 

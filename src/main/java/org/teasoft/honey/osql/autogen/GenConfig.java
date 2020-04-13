@@ -1,4 +1,4 @@
-package org.teasoft.honey.osql.atuogen;
+package org.teasoft.honey.osql.autogen;
 
 public class GenConfig {
 	private String encode = "UTF-8"; // 字符编码
