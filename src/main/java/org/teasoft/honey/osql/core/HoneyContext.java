@@ -119,6 +119,7 @@ public final class HoneyContext {
 
 	static void setPreparedValue(String sqlStr, List<PreparedValue> list) {
 		if (list == null || list.size() == 0) return;
+		if(sqlStr==null || "".equals(sqlStr.trim())) return;
 		Map<String, List<PreparedValue>> map = sqlPreValueLocal.get();
 		if (null == map) map = new HashMap<>();
 		map.put(sqlStr, list);
@@ -136,6 +137,7 @@ public final class HoneyContext {
 
     static void setSqlValue(String sqlStr, String value) {
 		if (value == null || "".equals(value.trim())) return;
+		if(sqlStr==null || "".equals(sqlStr.trim())) return;
 		Map<String, String> map = sqlValueLocal.get();
 		if (null == map) map = new HashMap<>();
 		map.put(sqlStr, value); 
@@ -153,6 +155,7 @@ public final class HoneyContext {
 	
 	static void setCacheInfo(String sqlStr, CacheSuidStruct cacheInfo) {
 		if (cacheInfo == null) return;
+		if(sqlStr==null || "".equals(sqlStr.trim())) return;
 		Map<String, CacheSuidStruct> map = cacheLocal.get();
 		if (null == map) map = new HashMap<>();
 		map.put(sqlStr, cacheInfo); 
