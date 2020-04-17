@@ -60,4 +60,13 @@ public class ObjectToSQL implements ObjToSQL {
 		  return _ObjectToSQLHelper._toSelectSQL(entity, condition.getIncludeType().getValue(),condition); //v1.7.0	
 	}
 	
+	//v1.7.2
+	@Override
+	public <T> String toDeleteSQL(T entity, Condition condition) {
+		if(condition==null || condition.getIncludeType()==null)
+			  return _ObjectToSQLHelper._toDeleteSQL(entity, -1,condition); // 过滤NULL和空字符串
+			else
+			  return _ObjectToSQLHelper._toDeleteSQL(entity, condition.getIncludeType().getValue(),condition); 
+	}
+	
 }
