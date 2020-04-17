@@ -77,6 +77,8 @@ public final class HoneyConfig {
 	@SysValue("${bee.osql.log.donotPrint.level}")
 	private boolean log_donotPrint_level;  //v1.7.2
 	
+	@SysValue("${bee.osql.donot.allowed.deleteWholeRecords}")
+	private boolean notDeleteWholeRecords;  //v1.7.2
 	
 	@SysValue("${bee.osql.date.format}")
 	private String dateFormat;  //v1.7.2
@@ -194,6 +196,10 @@ public final class HoneyConfig {
 	
 	public boolean isLog_donotPrint_level() {
 		return log_donotPrint_level;
+	}
+
+	public boolean isNotDeleteWholeRecords() {
+		return notDeleteWholeRecords;
 	}
 
 	public String getDateFormat() {
