@@ -104,4 +104,17 @@ public class ObjSQL implements Suid {
 		return list;
 	}
 
+	@Override
+	public <T> int delete(T entity, Condition condition) {
+		if (entity == null) return -1;
+
+		String sql = objToSQL.toDeleteSQL(entity,condition);
+		int deleteNum = -1;
+		if (!"".equals(sql)) {
+			Logger.logSQL("delete SQL: ", sql);
+		}
+		deleteNum = getBeeSql().modify(sql);
+		return deleteNum;
+	}
+
 }
