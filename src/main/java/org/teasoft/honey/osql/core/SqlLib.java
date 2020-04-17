@@ -57,6 +57,8 @@ public class SqlLib implements BeeSql {
 	@SuppressWarnings("unchecked")
 	public <T> List<T> select(String sql, T entity) {
 		
+		if(sql==null || "".equals(sql.trim())) return null;
+		
 		//要是没有更新缓存,证明之前还没有登记过缓存,就不能去查缓存.
 		boolean isReg=updateInfoInCache(sql,"List<T>",SuidType.SELECT);
 		if(isReg){
@@ -119,6 +121,8 @@ public class SqlLib implements BeeSql {
 	@Override
 	@SuppressWarnings("unchecked")
 	public <T> List<T> selectSomeField(String sql, T entity) {
+		
+		if(sql==null || "".equals(sql.trim())) return null;
 
 		boolean isReg=updateInfoInCache(sql,"List<T>",SuidType.SELECT);
 		if(isReg){
@@ -204,6 +208,8 @@ public class SqlLib implements BeeSql {
 	@Override
 	public String selectFun(String sql) throws ObjSQLException {
 		
+		if(sql==null || "".equals(sql.trim())) return null;
+		
 		boolean isReg=updateInfoInCache(sql,"String",SuidType.SELECT);
 		if(isReg){
 		Object cacheObj=cache.get(sql);  //这里的sql还没带有值
@@ -248,6 +254,8 @@ public class SqlLib implements BeeSql {
 
 	@Override
 	public List<String[]> select(String sql) {
+		
+		if(sql==null || "".equals(sql.trim())) return null;
 		
 		boolean isReg=updateInfoInCache(sql,"List<String[]>",SuidType.SELECT);
 		if(isReg){
@@ -299,6 +307,9 @@ public class SqlLib implements BeeSql {
 	//对应jdbc的executeUpdate方法
 	@Override
 	public int modify(String sql) {
+		
+		if(sql==null || "".equals(sql)) return -2;
+		
 		int num = 0;
 		Connection conn = null;
 		PreparedStatement pst = null;
@@ -330,6 +341,8 @@ public class SqlLib implements BeeSql {
 	 */
 	@Override
 	public String selectJson(String sql) {
+		
+		if(sql==null || "".equals(sql.trim())) return null;
 		
 		boolean isReg=updateInfoInCache(sql,"StringJson",SuidType.SELECT);
 		if(isReg){
@@ -374,6 +387,9 @@ public class SqlLib implements BeeSql {
 
 	@Override
 	public int[] batch(String sql[], int batchSize) {
+		
+		if(sql==null) return null;
+		
 		int len = sql.length;
 		int total[] = new int[len];
 		int part[] = new int[batchSize];
@@ -450,6 +466,8 @@ public class SqlLib implements BeeSql {
 	@Override
 	@SuppressWarnings("unchecked")
 	public <T> List<T> moreTableSelect(String sql, T entity) {
+		
+		if(sql==null || "".equals(sql.trim())) return null;
 		
 		boolean isReg=updateInfoInCache(sql,"List<T>",SuidType.SELECT);
 		if(isReg){
