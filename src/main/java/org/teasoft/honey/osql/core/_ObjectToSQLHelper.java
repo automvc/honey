@@ -9,6 +9,7 @@ import org.teasoft.bee.osql.Condition;
 import org.teasoft.bee.osql.ObjSQLException;
 import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.annotation.JoinTable;
+import org.teasoft.bee.osql.exception.BeeIllegalBusinessException;
 import org.teasoft.honey.osql.name.NameUtil;
 
 /**
@@ -79,7 +80,7 @@ final class _ObjectToSQLHelper {
 
 	}
 	
-	static <T> String _toSelectSQL(T entity, int includeType,Condition condition) {
+	static <T> String _toSelectSQL(T entity, int includeType, Condition condition) {
 		checkPackage(entity);
 		
 		Set<String> conditionFieldSet=null;
@@ -650,9 +651,16 @@ final class _ObjectToSQLHelper {
 
 		return wrap;
 	}
-
+	
 	static <T> String _toDeleteSQL(T entity, int includeType) {
+		return _toDeleteSQL(entity, includeType,null);
+	}
+
+	static <T> String _toDeleteSQL(T entity, int includeType, Condition condition) {
 		checkPackage(entity);
+		
+		Set<String> conditionFieldSet=null;
+		if(condition!=null) conditionFieldSet=condition.getFieldSet();
 		
 		String sql = "";
 		StringBuffer sqlBuffer = new StringBuffer();
@@ -677,6 +685,9 @@ final class _ObjectToSQLHelper {
 
 					if (fields[i].get(entity) == null && "id".equalsIgnoreCase(fields[i].getName())) 
 						continue; //id=null不作为过滤条件
+					
+					if(conditionFieldSet!=null && conditionFieldSet.contains(fields[i].getName())) 
+						continue; //Condition已包含的,不再遍历
 
 					if (firstWhere) {
 						sqlBuffer.append(" where ");
@@ -704,15 +715,33 @@ final class _ObjectToSQLHelper {
 				}
 			}//end for
 //			sqlBuffer.append(" ;");
+			
+			
+			if(condition!=null){
+				 condition.setSuidType(SuidType.DELETE); //delete
+				 firstWhere= ConditionHelper.processCondition(sqlBuffer, valueBuffer, list, condition, firstWhere);
+			}
+			
+			
 			sql = sqlBuffer.toString();
 
 			if (valueBuffer.length() > 0) valueBuffer.deleteCharAt(0);
 			HoneyContext.setPreparedValue(sql, list);
 			HoneyContext.setSqlValue(sql, valueBuffer.toString());
-			addInContextForCache(sqlBuffer.toString(), valueBuffer.toString(), tableName);//2019-09-29
+			addInContextForCache(sql, valueBuffer.toString(), tableName);//2019-09-29
+			
+			
 			//不允许删整张表
-			//if(!notFirstWhere) {sql="delete * from "+tableName + "where id='still do not set id'"; throw new SQLException(); }
-
+			//v1.7.2 只支持是否带where检测
+			if (firstWhere) {
+				boolean notDeleteWholeRecords = HoneyConfig.getHoneyConfig().isNotDeleteWholeRecords();
+				if (notDeleteWholeRecords) {
+					Logger.logSQL("delete SQL: ", sql);
+					throw new BeeIllegalBusinessException("BeeIllegalBusinessException: It is not allowed delete whole records in one table.");
+					//return "";
+				}
+			}
+			
 		} catch (IllegalAccessException e) {
 			throw ExceptionHelper.convert(e);
 		}
