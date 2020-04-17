@@ -25,30 +25,49 @@ public class ConditionHelper {
 
 	private static DbFeature dbFeature = BeeFactory.getHoneyFactory().getDbFeature();
 	
-	static void processCondition(StringBuffer sqlBuffer, StringBuffer valueBuffer, 
+	//v1.7.2  add return value for delete control
+	static boolean processCondition(StringBuffer sqlBuffer, StringBuffer valueBuffer, 
 			List<PreparedValue> list, Condition condition, boolean firstWhere) {
 		
-		 processCondition(sqlBuffer, valueBuffer, list, condition, firstWhere, null);
+		 return processCondition(sqlBuffer, valueBuffer, list, condition, firstWhere, null);
 	}
-
-	static void processCondition(StringBuffer sqlBuffer, StringBuffer valueBuffer, 
+	//v1.7.2  add return value for delete control
+	static boolean processCondition(StringBuffer sqlBuffer, StringBuffer valueBuffer, 
 			List<PreparedValue> list, Condition condition, boolean firstWhere,String useSubTableNames[]) {
 		PreparedValue preparedValue = null;
+		
+		boolean isFirstWhere=firstWhere; //v1.7.2 return for control whether allow to delete whole records in one table
 
 		ConditionImpl conditionImpl = (ConditionImpl) condition;
 		List<Expression> expList = conditionImpl.getExpList();
 		Expression expression = null;
+		
+		Integer start = conditionImpl.getStart();
+		
+		if (start!=null && SuidType.SELECT != conditionImpl.getSuidType()) {
+			throw new BeeErrorGrammarException(conditionImpl.getSuidType() + " do not support paging with start !");
+		} 
+		
+		
 		for (int j = 0; j < expList.size(); j++) {
 			expression = expList.get(j);
 			String opType = expression.getOpType();
+			
+			if ( "groupBy".equalsIgnoreCase(opType) || "having".equalsIgnoreCase(opType) ) {
+				if (SuidType.SELECT != conditionImpl.getSuidType()) {
+					throw new BeeErrorGrammarException(conditionImpl.getSuidType() + " do not support the opType: "+opType+"!");
+				} 
+			}
+			//mysql's delete,update can use order by.
 
 			if (firstWhere) {
-				if ("orderBy".equalsIgnoreCase(opType) || "groupBy".equalsIgnoreCase(opType) || "having".equalsIgnoreCase(opType)) {
+				if ( "groupBy".equalsIgnoreCase(opType) || "having".equalsIgnoreCase(opType) || "orderBy".equalsIgnoreCase(opType)) {
 					firstWhere = false;
 				} else {
 					sqlBuffer.append(" where ");
 					firstWhere = false;
 					isNeedAnd = false;
+					isFirstWhere=false; //for return.where过滤条件
 				}
 			}
 			//			} else {
@@ -129,7 +148,7 @@ public class ConditionHelper {
 
 			} else if ("groupBy".equalsIgnoreCase(opType)) {
 				if (SuidType.SELECT != conditionImpl.getSuidType()) {
-					throw new BeeErrorGrammarException(conditionImpl.getSuidType() + " do not support 'group by' !");
+					throw new BeeErrorGrammarException("BeeErrorGrammarException: "+conditionImpl.getSuidType() + " do not support 'group by' !");
 				}
 
 				sqlBuffer.append(expression.getValue());//group by或者,
@@ -236,11 +255,11 @@ public class ConditionHelper {
 		} //end expList for 
 
 		//>>>>>>>>>>>>>>>>>>>paging
-		if (SuidType.SELECT != conditionImpl.getSuidType()) {
-			throw new BeeErrorGrammarException(conditionImpl.getSuidType() + " do not support paging !");
-		} else {
-			Integer start = conditionImpl.getStart();
+		
+		if (SuidType.SELECT == conditionImpl.getSuidType()) {
+			
 			Integer size = conditionImpl.getSize();
+			
 			String sql = "";
 			if (start != null && size != null) {
 				sql = dbFeature.toPageSql(sqlBuffer.toString(), start, size);
@@ -255,6 +274,8 @@ public class ConditionHelper {
 			}
 		}
 		//>>>>>>>>>>>>>>>>>>>paging
+		
+		return isFirstWhere;
 	}
 
 	private static String _toColumnName(String fieldName) {
