@@ -285,7 +285,7 @@ public class ConditionImpl implements Condition {
 		return suidType;
 	}
 
-	public List getExpList() {
+	public List<Expression> getExpList() {
 		return list;
 	}
 
