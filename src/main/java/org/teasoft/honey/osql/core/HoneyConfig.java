@@ -114,13 +114,13 @@ public final class HoneyConfig {
 	@SysValue("${bee.osql.name.mapping.entity2table}")
 	private String entity2tableMappingList;
 	
-	private int cacheTimeout;
-	private int cacheMapSize;
+	private int cacheTimeout=10000;
+	private int cacheMapSize=1000;
 	private String cacheType="FIFO";
 	
-	private double startDeleteCacheRate;  //when timeout use
-	private double cachefullUsedRate;      //when add element in cache use
-	private double fullClearCacheRate;  //when add element in cache use
+	private double startDeleteCacheRate=0.6;  //when timeout use
+	private double cachefullUsedRate=0.8;      //when add element in cache use
+	private double fullClearCacheRate=0.2;  //when add element in cache use
 	
 	
 	
@@ -133,7 +133,7 @@ public final class HoneyConfig {
 	
 	
 	@SysValue("${bee.osql.cache.work.resultSet.size}")
-	private int cacheWorkResultSetSize;
+	private int cacheWorkResultSetSize=300;
 	
 	@SysValue("${bee.osql.cache.never}")
 	private String neverCacheTableList ; 
