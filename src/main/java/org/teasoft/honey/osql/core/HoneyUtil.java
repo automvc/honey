@@ -657,6 +657,8 @@ public final class HoneyUtil {
 
 	public static <T> void checkPackage(T entity) {
 		if (entity == null) return;
+		if(entity.getClass().getPackage()==null) return ; //2020-04-19 if it is default package or empty package, do not check. Suggest by:pcode
+		
 		String packageName = entity.getClass().getPackage().getName();
 		//		传入的实体可以过滤掉常用的包开头的,如:java., javax. ; 但spring开头不能过滤,否则spring想用bee就不行了.
 		if (packageName.startsWith("java.") || packageName.startsWith("javax.")) {
