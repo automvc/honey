@@ -29,7 +29,10 @@ public class ConditionImpl implements Condition {
 	public List<Expression> list = new ArrayList<>();
 	private Set<String> fieldSet = new HashSet<>();
 	private IncludeType includeType;
-
+	
+	private List<Expression> updateSetList = new ArrayList<>();
+	private Set<String> updatefieldSet = new HashSet<>();
+	
 	private boolean isStartGroupBy = true;
 	private boolean isStartHaving = true;
 	private boolean isStartOrderBy = true;
@@ -296,5 +299,39 @@ public class ConditionImpl implements Condition {
 	public Integer getSize() {
 		return size;
 	}
+	
+	private static String setAdd="setAdd";
+	private static String setMultiply="setMultiply";
 
+	@Override
+	public Condition setAdd(String field, double num) {
+        return forUpdateSet(field, num, setAdd);
+	}
+
+	@Override
+	public Condition setMultiply(String field, double num) {
+		 return forUpdateSet(field, num, setMultiply);
+	}
+	
+	public List<Expression> getUpdateExpList() {
+		return updateSetList;
+	}
+	
+	private Condition forUpdateSet(String field, double num,String opType){
+		Expression exp = new Expression();
+		exp.fieldName = field;
+		exp.opType =opType; //"setAdd" or "setMultiply";
+		exp.value=num;
+		exp.opNum=1;  
+		
+		this.updatefieldSet.add(field);
+		updateSetList.add(exp);
+		
+		return this;
+	}
+	
+	@Override
+	public Set<String> getUpdatefieldSet() {
+		return updatefieldSet;
+	}
 }
