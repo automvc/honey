@@ -88,8 +88,10 @@ final class _ObjectToSQLHelper {
 		
 		StringBuffer sqlBuffer = new StringBuffer();
 		StringBuffer valueBuffer = new StringBuffer();
+		String tableName = _toTableName(entity);
+		List<PreparedValue> list = new ArrayList<>();
+		boolean firstWhere = true;
 		try {
-			String tableName = _toTableName(entity);
 			Field fields[] = entity.getClass().getDeclaredFields(); 
 
 			String packageAndClassName = entity.getClass().getName();
@@ -101,9 +103,9 @@ final class _ObjectToSQLHelper {
 
 			sqlBuffer.append("select " + columnNames + " from ");
 			sqlBuffer.append(tableName);
-			boolean firstWhere = true;
+			
 			int len = fields.length;
-			List<PreparedValue> list = new ArrayList<>();
+			
 			PreparedValue preparedValue = null;
 			for (int i = 0, k = 0; i < len; i++) {
 				fields[i].setAccessible(true);
@@ -142,6 +144,10 @@ final class _ObjectToSQLHelper {
 				}
 			}//end for
 			
+		} catch (IllegalAccessException e) {
+			throw ExceptionHelper.convert(e);
+		}
+			
 			if(condition!=null){
 				 condition.setSuidType(SuidType.SELECT);
 			     ConditionHelper.processCondition(sqlBuffer, valueBuffer, list, condition, firstWhere);
@@ -152,9 +158,7 @@ final class _ObjectToSQLHelper {
 			HoneyContext.setPreparedValue(sqlBuffer.toString(), list);
 			HoneyContext.setSqlValue(sqlBuffer.toString(), valueBuffer.toString()); //用于log显示
 			addInContextForCache(sqlBuffer.toString(), valueBuffer.toString(), tableName);//2019-09-29
-		} catch (IllegalAccessException e) {
-			throw ExceptionHelper.convert(e);
-		}
+
 
 		return sqlBuffer.toString();
 	}
@@ -162,8 +166,8 @@ final class _ObjectToSQLHelper {
 	static <T> String _toSelectSQL(T entity, int includeType) {
          return _toSelectSQL(entity, includeType, null);
 	}
-
-	static <T> String _toUpdateSQL(T entity, String whereColumn, int includeType) throws ObjSQLException, IllegalAccessException {
+	
+/*	static <T> String _toUpdateSQL(T entity, String whereColumn, int includeType) throws ObjSQLException, IllegalAccessException {
 		checkPackage(entity);
 		
 		String sql = "";
@@ -255,10 +259,34 @@ final class _ObjectToSQLHelper {
 //		if(!isExistWhere) {sql="no where stament for filter!"; throw new ObjSQLException("no where stament for filter!"); }
 
 		return sql;
+	}*/
+	
+//	static <T> String _toUpdateSQL(T entity, String whereColumn, int includeType) {
+	static <T> String _toUpdateSQL(T entity, int includeType) { //whereColumn is id
+		checkPackage(entity);
+		Field field = null;
+		try {
+			field = entity.getClass().getDeclaredField("id");
+		} catch (Exception e) {
+			//if have exception, express "id".equalsIgnoreCase(whereColumn) is false.
+		}
+		if (field == null) {
+			throw new ObjSQLException("ObjSQLException: in the update(T entity) or update(T entity,IncludeType includeType), the id field of entity must not be null !");
+		}
+//		UpdateBy id
+		return _toUpdateBySQL(entity, new String[]{"id"}, includeType); // update by whereColumn(now is id)
+	}
+	
+	static <T> String _toUpdateSQL(T entity, String setColmn[], int includeType) {
+		return _toUpdateSQL(entity, setColmn, includeType, null);
 	}
 
-	static <T> String _toUpdateSQL(T entity, String setColmn[], int includeType) throws IllegalAccessException {
+	//v1.7.2 add para Condition condition
+	static <T> String _toUpdateSQL(T entity, String setColmns[], int includeType, Condition condition) {
 		checkPackage(entity);
+		
+		Set<String> conditionFieldSet=null;
+		if(condition!=null) conditionFieldSet=condition.getFieldSet();
 		
 		String sql = "";
 		StringBuffer sqlBuffer = new StringBuffer();
@@ -268,20 +296,31 @@ final class _ObjectToSQLHelper {
 		boolean firstWhere = true;
 		boolean isExistWhere = false;
 		StringBuffer whereStament = new StringBuffer();
+		List<PreparedValue> list = new ArrayList<>();
 		String tableName = _toTableName(entity);
+		try{
+		
 		sqlBuffer.append("update ");
 		sqlBuffer.append(tableName);
 		sqlBuffer.append(" set ");
+		
+//		String setExpression="";
+//		//v1.7.2
+//		if(setExpression!=null && !"".equals(setExpression.trim())){
+//			sqlBuffer.append(" ");
+//			sqlBuffer.append(setExpression);//TODO use ?
+//			firstSet = false;
+//		}
 
 		Field fields[] = entity.getClass().getDeclaredFields();
 		int len = fields.length;
-		List<PreparedValue> list = new ArrayList<>();
+		
 		List<PreparedValue> whereList = new ArrayList<>();
 
 		PreparedValue preparedValue = null;
 		for (int i = 0, k = 0, w = 0; i < len; i++) {
 			fields[i].setAccessible(true);
-			if (isContainField(setColmn, fields[i].getName())) { //set value
+			if (isContainField(setColmns, fields[i].getName())) { //set value.setColmn不受includeType影响,都会转换
 
 				if (firstSet) {
 					sqlBuffer.append(" ");
@@ -307,7 +346,7 @@ final class _ObjectToSQLHelper {
 					preparedValue.setValue(fields[i].get(entity));
 					list.add(k++, preparedValue);
 				}
-			} else {
+			} else {//where
 
 				if (HoneyUtil.isContinue(includeType, fields[i].get(entity),fields[i])) {
 					continue;
@@ -315,6 +354,10 @@ final class _ObjectToSQLHelper {
 
 					if (fields[i].get(entity) == null && "id".equalsIgnoreCase(fields[i].getName()))
 						continue; //id=null不作为过滤条件
+//					v1.7.2
+					if(conditionFieldSet!=null && conditionFieldSet.contains(fields[i].getName())) 
+						continue; //Condition已包含的,不再遍历
+					
 					if (firstWhere) {
 						whereStament.append(" where ");
 						firstWhere = false;
@@ -344,24 +387,54 @@ final class _ObjectToSQLHelper {
 		}//end for
 		sqlBuffer.append(whereStament);
 //		sqlBuffer.append(" ;");
-		sql = sqlBuffer.toString();
 
 		list.addAll(whereList);
-
 		valueBuffer.append(whereValueBuffer);
+		
+		} catch (IllegalAccessException e) {
+			throw ExceptionHelper.convert(e);
+		}
+		
+		if(condition!=null){
+			 condition.setSuidType(SuidType.UPDATE); //UPDATE
+			 //即使condition包含的字段是whereColumn里的字段也会转化到sql语句.
+			 firstWhere= ConditionHelper.processCondition(sqlBuffer, valueBuffer, list, condition, firstWhere);
+		}
+		
+		sql = sqlBuffer.toString();
 
 		if (valueBuffer.length() > 0) valueBuffer.deleteCharAt(0);
 		HoneyContext.setPreparedValue(sql, list);
 		HoneyContext.setSqlValue(sql, valueBuffer.toString());
 		addInContextForCache(sqlBuffer.toString(), valueBuffer.toString(), tableName);//2019-09-29
-		//		if(!isExistWhere) {sql="no where stament for filter!"; throw new ObjSQLException("no where stament for filter!"); }
 
+		
+		//不允许更新一个表的所有数据
+		//v1.7.2 只支持是否带where检测
+		if (firstWhere) {
+			boolean notUpdateWholeRecords = HoneyConfig.getHoneyConfig().isNotUpdateWholeRecords();
+			if (notUpdateWholeRecords) {
+				Logger.logSQL("update SQL: ", sql);
+				throw new BeeIllegalBusinessException("BeeIllegalBusinessException: It is not allowed update whole records in one table.");
+				//return "";
+			}
+		}
+		
 		return sql;
 	}
 	
 	//for updateBy
-	static <T> String _toUpdateBySQL(T entity, String whereColumn[], int includeType) throws IllegalAccessException {
+	static <T> String _toUpdateBySQL(T entity, String whereColumns[], int includeType){
+		return _toUpdateBySQL(entity, whereColumns, includeType, null);
+	}
+	
+	//for updateBy
+	//v1.7.2 add para Condition condition
+	static <T> String _toUpdateBySQL(T entity, String whereColumns[], int includeType, Condition condition){
 		checkPackage(entity);
+		
+		Set<String> conditionFieldSet=null;
+		if(condition!=null) conditionFieldSet=condition.getFieldSet();
 		
 		String sql = "";
 		StringBuffer sqlBuffer = new StringBuffer();
@@ -372,19 +445,23 @@ final class _ObjectToSQLHelper {
 		boolean isExistWhere = false;
 		StringBuffer whereStament = new StringBuffer();
 		String tableName = _toTableName(entity);
+		List<PreparedValue> list = new ArrayList<>();
+		
+		try{
+		
 		sqlBuffer.append("update ");
 		sqlBuffer.append(tableName);
 		sqlBuffer.append(" set ");
 
 		Field fields[] = entity.getClass().getDeclaredFields();
 		int len = fields.length;
-		List<PreparedValue> list = new ArrayList<>();
+		
 		List<PreparedValue> whereList = new ArrayList<>();
 
 		PreparedValue preparedValue = null;
 		for (int i = 0, k = 0, w = 0; i < len; i++) {
 			fields[i].setAccessible(true);
-			if (! isContainField(whereColumn, fields[i].getName())) { //set value
+			if (! isContainField(whereColumns, fields[i].getName())) { //set value.  不属性whereColumn的,将考虑转为set.  同一个实体的某个属性的值,若用于set部分了,再用于where部分就没有意义.
 				
 				//set 字段根据includeType过滤
 				if (HoneyUtil.isContinue(includeType, fields[i].get(entity),fields[i])) {
@@ -392,7 +469,7 @@ final class _ObjectToSQLHelper {
 				}
 				if (fields[i].get(entity) == null && "id".equalsIgnoreCase(fields[i].getName()))
 					continue; //id=null跳过,id不更改.
-
+				
 				if (firstSet) {
 					sqlBuffer.append(" ");
 					firstSet = false;
@@ -417,11 +494,15 @@ final class _ObjectToSQLHelper {
 					preparedValue.setValue(fields[i].get(entity));
 					list.add(k++, preparedValue);
 				}
-			} else {
+			} else {// where .   此部分只会有whereColumn的字段
 
 //				if (HoneyUtil.isContinue(includeType, fields[i].get(entity),fields[i])) {
 //					continue;
 //				} else {
+				
+//				v1.7.2
+				if(conditionFieldSet!=null && conditionFieldSet.contains(fields[i].getName())) 
+					continue; //Condition已包含的,不再遍历
 				
 				//指定作为条件的,都转换
 					if (fields[i].get(entity) == null && "id".equalsIgnoreCase(fields[i].getName()))
@@ -455,18 +536,39 @@ final class _ObjectToSQLHelper {
 		}//end for
 		sqlBuffer.append(whereStament);
 //		sqlBuffer.append(" ;");
-		sql = sqlBuffer.toString();
-
+		
 		list.addAll(whereList);
-
 		valueBuffer.append(whereValueBuffer);
+
+		
+		} catch (IllegalAccessException e) {
+			throw ExceptionHelper.convert(e);
+		}
+		
+		if(condition!=null){
+			 condition.setSuidType(SuidType.UPDATE); //UPDATE
+			 //即使condition包含的字段是whereColumn里的字段也会转化到sql语句.
+			 firstWhere= ConditionHelper.processCondition(sqlBuffer, valueBuffer, list, condition, firstWhere);
+		}
+		
+		sql = sqlBuffer.toString();
 
 		if (valueBuffer.length() > 0) valueBuffer.deleteCharAt(0);
 		HoneyContext.setPreparedValue(sql, list);
 		HoneyContext.setSqlValue(sql, valueBuffer.toString());
 		addInContextForCache(sqlBuffer.toString(), valueBuffer.toString(), tableName);//2019-09-29
-		//		if(!isExistWhere) {sql="no where stament for filter!"; throw new ObjSQLException("no where stament for filter!"); }
 
+		//不允许更新一个表的所有数据
+		//v1.7.2 只支持是否带where检测
+		if (firstWhere) {
+			boolean notUpdateWholeRecords = HoneyConfig.getHoneyConfig().isNotUpdateWholeRecords();
+			if (notUpdateWholeRecords) {
+				Logger.logSQL("update SQL: ", sql);
+				throw new BeeIllegalBusinessException("BeeIllegalBusinessException: It is not allowed update whole records in one table.");
+				//return "";
+			}
+		}
+		
 		return sql;
 	}
 
@@ -748,10 +850,10 @@ final class _ObjectToSQLHelper {
 		return sql;
 	}
 
-	private static boolean isContainField(String fields[], String fieldName) {
-		int len = fields.length;
+	private static boolean isContainField(String checkFields[], String fieldName) {
+		int len = checkFields.length;
 		for (int i = 0; i < len; i++) {
-			if (fields[i].equalsIgnoreCase(fieldName)) {
+			if (checkFields[i].equalsIgnoreCase(fieldName)) {
 				return true;
 			}
 		}
