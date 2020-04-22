@@ -273,8 +273,8 @@ final class _ObjectToSQLHelper {
 		if (field == null) {
 			throw new ObjSQLException("ObjSQLException: in the update(T entity) or update(T entity,IncludeType includeType), the id field of entity must not be null !");
 		}
-//		UpdateBy id
-		return _toUpdateBySQL(entity, new String[]{"id"}, includeType); // update by whereColumn(now is id)
+		//		UpdateBy id
+		return _toUpdateBySQL(entity, new String[] { "id" }, includeType); // update by whereColumn(now is id)
 	}
 	
 	static <T> String _toUpdateSQL(T entity, String setColmn[], int includeType) {
@@ -284,10 +284,10 @@ final class _ObjectToSQLHelper {
 	//v1.7.2 add para Condition condition
 	static <T> String _toUpdateSQL(T entity, String setColmns[], int includeType, Condition condition) {
 		checkPackage(entity);
-		
-		Set<String> conditionFieldSet=null;
-		if(condition!=null) conditionFieldSet=condition.getFieldSet();
-		
+
+		Set<String> conditionFieldSet = null;
+		if (condition != null) conditionFieldSet = condition.getFieldSet();
+
 		String sql = "";
 		StringBuffer sqlBuffer = new StringBuffer();
 		StringBuffer valueBuffer = new StringBuffer();
@@ -298,109 +298,107 @@ final class _ObjectToSQLHelper {
 		StringBuffer whereStament = new StringBuffer();
 		List<PreparedValue> list = new ArrayList<>();
 		String tableName = _toTableName(entity);
-		try{
-		
-		sqlBuffer.append("update ");
-		sqlBuffer.append(tableName);
-		sqlBuffer.append(" set ");
-		
-//		String setExpression="";
-//		//v1.7.2
-//		if(setExpression!=null && !"".equals(setExpression.trim())){
-//			sqlBuffer.append(" ");
-//			sqlBuffer.append(setExpression);//TODO use ?
-//			firstSet = false;
-//		}
+		try {
 
-		Field fields[] = entity.getClass().getDeclaredFields();
-		int len = fields.length;
-		
-		List<PreparedValue> whereList = new ArrayList<>();
+			sqlBuffer.append("update ");
+			sqlBuffer.append(tableName);
+			sqlBuffer.append(" set ");
 
-		PreparedValue preparedValue = null;
-		for (int i = 0, k = 0, w = 0; i < len; i++) {
-			fields[i].setAccessible(true);
-			if (isContainField(setColmns, fields[i].getName())) { //set value.setColmn不受includeType影响,都会转换
+//					String setExpression="";
+//					//v1.7.2
+//					if(setExpression!=null && !"".equals(setExpression.trim())){
+//						sqlBuffer.append(" ");
+//						sqlBuffer.append(setExpression);//TODO use ?
+//						firstSet = false;
+//					}
 
-				if (firstSet) {
-					sqlBuffer.append(" ");
-					firstSet = false;
-				} else {
-					//  sqlBuffer.append(" and "); //update 的set部分不是用and  ，而是用逗号的
-					sqlBuffer.append(" , ");
-				}
-				sqlBuffer.append(_toColumnName(fields[i].getName()));
+			Field fields[] = entity.getClass().getDeclaredFields();
+			int len = fields.length;
 
-				if (fields[i].get(entity) == null) {
-					sqlBuffer.append(" =null"); //  =
-				} else {
+			List<PreparedValue> whereList = new ArrayList<>();
 
-					sqlBuffer.append("=");
-					sqlBuffer.append("?");
+			PreparedValue preparedValue = null;
+			for (int i = 0, k = 0, w = 0; i < len; i++) {
+				fields[i].setAccessible(true);
+				if (isContainField(setColmns, fields[i].getName())) { //set value.setColmn不受includeType影响,都会转换
 
-					valueBuffer.append(",");
-					valueBuffer.append(fields[i].get(entity));
-
-					preparedValue = new PreparedValue();
-					preparedValue.setType(fields[i].getType().getName());
-					preparedValue.setValue(fields[i].get(entity));
-					list.add(k++, preparedValue);
-				}
-			} else {//where
-
-				if (HoneyUtil.isContinue(includeType, fields[i].get(entity),fields[i])) {
-					continue;
-				} else {
-
-					if (fields[i].get(entity) == null && "id".equalsIgnoreCase(fields[i].getName()))
-						continue; //id=null不作为过滤条件
-//					v1.7.2
-					if(conditionFieldSet!=null && conditionFieldSet.contains(fields[i].getName())) 
-						continue; //Condition已包含的,不再遍历
-					
-					if (firstWhere) {
-						whereStament.append(" where ");
-						firstWhere = false;
+					if (firstSet) {
+						sqlBuffer.append(" ");
+						firstSet = false;
 					} else {
-						whereStament.append(" and ");
+						//  sqlBuffer.append(" and "); //update 的set部分不是用and  ，而是用逗号的
+						sqlBuffer.append(" , ");
 					}
-					whereStament.append(_toColumnName(fields[i].getName()));
+					sqlBuffer.append(_toColumnName(fields[i].getName()));
 
 					if (fields[i].get(entity) == null) {
-						whereStament.append(" is null");
+						sqlBuffer.append(" =null"); //  =
 					} else {
 
-						whereStament.append("=");
-						whereStament.append("?");
+						sqlBuffer.append("=");
+						sqlBuffer.append("?");
 
-						whereValueBuffer.append(",");
-						whereValueBuffer.append(fields[i].get(entity));
+						valueBuffer.append(",");
+						valueBuffer.append(fields[i].get(entity));
 
 						preparedValue = new PreparedValue();
 						preparedValue.setType(fields[i].getType().getName());
 						preparedValue.setValue(fields[i].get(entity));
-						whereList.add(w++, preparedValue);
+						list.add(k++, preparedValue);
 					}
-					isExistWhere = true;
-				}
-			}//end else
-		}//end for
-		sqlBuffer.append(whereStament);
-//		sqlBuffer.append(" ;");
+				} else {//where
 
-		list.addAll(whereList);
-		valueBuffer.append(whereValueBuffer);
-		
+					if (HoneyUtil.isContinue(includeType, fields[i].get(entity), fields[i])) {
+						continue;
+					} else {
+
+						if (fields[i].get(entity) == null && "id".equalsIgnoreCase(fields[i].getName())) continue; //id=null不作为过滤条件
+							//					v1.7.2
+						if (conditionFieldSet != null && conditionFieldSet.contains(fields[i].getName())) continue; //Condition已包含的,不再遍历
+
+						if (firstWhere) {
+							whereStament.append(" where ");
+							firstWhere = false;
+						} else {
+							whereStament.append(" and ");
+						}
+						whereStament.append(_toColumnName(fields[i].getName()));
+
+						if (fields[i].get(entity) == null) {
+							whereStament.append(" is null");
+						} else {
+
+							whereStament.append("=");
+							whereStament.append("?");
+
+							whereValueBuffer.append(",");
+							whereValueBuffer.append(fields[i].get(entity));
+
+							preparedValue = new PreparedValue();
+							preparedValue.setType(fields[i].getType().getName());
+							preparedValue.setValue(fields[i].get(entity));
+							whereList.add(w++, preparedValue);
+						}
+						isExistWhere = true;
+					}
+				}//end else
+			}//end for
+			sqlBuffer.append(whereStament);
+			//		sqlBuffer.append(" ;");
+
+			list.addAll(whereList);
+			valueBuffer.append(whereValueBuffer);
+
 		} catch (IllegalAccessException e) {
 			throw ExceptionHelper.convert(e);
 		}
-		
-		if(condition!=null){
-			 condition.setSuidType(SuidType.UPDATE); //UPDATE
-			 //即使condition包含的字段是whereColumn里的字段也会转化到sql语句.
-			 firstWhere= ConditionHelper.processCondition(sqlBuffer, valueBuffer, list, condition, firstWhere);
+
+		if (condition != null) {
+			condition.setSuidType(SuidType.UPDATE); //UPDATE
+			//即使condition包含的字段是whereColumn里的字段也会转化到sql语句.
+			firstWhere = ConditionHelper.processCondition(sqlBuffer, valueBuffer, list, condition, firstWhere);
 		}
-		
+
 		sql = sqlBuffer.toString();
 
 		if (valueBuffer.length() > 0) valueBuffer.deleteCharAt(0);
@@ -408,7 +406,6 @@ final class _ObjectToSQLHelper {
 		HoneyContext.setSqlValue(sql, valueBuffer.toString());
 		addInContextForCache(sqlBuffer.toString(), valueBuffer.toString(), tableName);//2019-09-29
 
-		
 		//不允许更新一个表的所有数据
 		//v1.7.2 只支持是否带where检测
 		if (firstWhere) {
@@ -419,12 +416,12 @@ final class _ObjectToSQLHelper {
 				//return "";
 			}
 		}
-		
+
 		return sql;
 	}
 	
 	//for updateBy
-	static <T> String _toUpdateBySQL(T entity, String whereColumns[], int includeType){
+	static <T> String _toUpdateBySQL(T entity, String whereColumns[], int includeType) {
 		return _toUpdateBySQL(entity, whereColumns, includeType, null);
 	}
 	
