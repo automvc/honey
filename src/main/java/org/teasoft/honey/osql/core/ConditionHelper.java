@@ -25,18 +25,18 @@ public class ConditionHelper {
 
 	private static DbFeature dbFeature = BeeFactory.getHoneyFactory().getDbFeature();
 	
-	//v1.7.2  add return value for delete control
+	//v1.7.2  add return value for delete/update control
 	static boolean processCondition(StringBuffer sqlBuffer, StringBuffer valueBuffer, 
 			List<PreparedValue> list, Condition condition, boolean firstWhere) {
 		
 		 return processCondition(sqlBuffer, valueBuffer, list, condition, firstWhere, null);
 	}
-	//v1.7.2  add return value for delete control
+	//v1.7.2  add return value for delete/update control
 	static boolean processCondition(StringBuffer sqlBuffer, StringBuffer valueBuffer, 
 			List<PreparedValue> list, Condition condition, boolean firstWhere,String useSubTableNames[]) {
 		PreparedValue preparedValue = null;
 		
-		boolean isFirstWhere=firstWhere; //v1.7.2 return for control whether allow to delete whole records in one table
+		boolean isFirstWhere=firstWhere; //v1.7.2 return for control whether allow to delete/update whole records in one table
 
 		ConditionImpl conditionImpl = (ConditionImpl) condition;
 		List<Expression> expList = conditionImpl.getExpList();
@@ -67,7 +67,7 @@ public class ConditionHelper {
 					sqlBuffer.append(" where ");
 					firstWhere = false;
 					isNeedAnd = false;
-					isFirstWhere=false; //for return.where过滤条件
+					isFirstWhere=false; //for return. where过滤条件
 				}
 			}
 			//			} else {
