@@ -168,6 +168,8 @@ public class HoneyFactory {
 	public Cache getCache() {
 		
 		if(cache==null){
+			boolean nocache=HoneyConfig.getHoneyConfig().isNocache();
+			if(nocache) return new NoCache();  //v1.7.2
 			return new DefaultCache();
 		}
 		else return cache;
