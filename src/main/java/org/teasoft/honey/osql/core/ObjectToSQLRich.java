@@ -79,9 +79,9 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	
 
 	@Override
-	public <T> String toSelectSQL(T entity, String fieldList) throws ObjSQLException {
+	public <T> String toSelectSQL(T entity, String fields) throws ObjSQLException {
 		
-		String newSelectFields=checkSelectField(entity,fieldList);
+		String newSelectFields=checkSelectField(entity,fields);
 		
 //		String sql = _ObjectToSQLHelper._toSelectSQL(entity);
 		String sql = _ObjectToSQLHelper._toSelectSQL(entity, newSelectFields);
