@@ -9,6 +9,7 @@ import org.teasoft.bee.osql.Condition;
 import org.teasoft.bee.osql.ObjSQLException;
 import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.annotation.JoinTable;
+import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
 import org.teasoft.bee.osql.exception.BeeIllegalBusinessException;
 import org.teasoft.honey.osql.name.NameUtil;
 
@@ -287,6 +288,9 @@ final class _ObjectToSQLHelper {
 
 		Set<String> conditionFieldSet = null;
 		if (condition != null) conditionFieldSet = condition.getFieldSet();
+		
+		Set<String> updatefieldSet=null;
+		if (condition != null) updatefieldSet=condition.getUpdatefieldSet();
 
 		String sql = "";
 		StringBuffer sqlBuffer = new StringBuffer();
@@ -298,19 +302,18 @@ final class _ObjectToSQLHelper {
 		StringBuffer whereStament = new StringBuffer();
 		List<PreparedValue> list = new ArrayList<>();
 		String tableName = _toTableName(entity);
+		
 		try {
 
 			sqlBuffer.append("update ");
 			sqlBuffer.append(tableName);
 			sqlBuffer.append(" set ");
 
-//					String setExpression="";
-//					//v1.7.2
-//					if(setExpression!=null && !"".equals(setExpression.trim())){
-//						sqlBuffer.append(" ");
-//						sqlBuffer.append(setExpression);//TODO use ?
-//						firstSet = false;
-//					}
+			//v1.7.2
+			if (condition != null) {
+				condition.setSuidType(SuidType.UPDATE); //UPDATE
+				firstSet = ConditionHelper.processConditionForUpdateSet(sqlBuffer, whereValueBuffer, list, condition);
+			}
 
 			Field fields[] = entity.getClass().getDeclaredFields();
 			int len = fields.length;
@@ -318,9 +321,13 @@ final class _ObjectToSQLHelper {
 			List<PreparedValue> whereList = new ArrayList<>();
 
 			PreparedValue preparedValue = null;
-			for (int i = 0, k = 0, w = 0; i < len; i++) {
+			for (int i = 0, w = 0; i < len; i++) {//delete:k = 0,
 				fields[i].setAccessible(true);
 				if (isContainField(setColmns, fields[i].getName())) { //set value.setColmn不受includeType影响,都会转换
+					
+					//v1.7.2
+					if (updatefieldSet != null && updatefieldSet.contains(fields[i].getName())) 
+						continue; //Condition已包含的set条件,不再作转换处理
 
 					if (firstSet) {
 						sqlBuffer.append(" ");
@@ -344,17 +351,20 @@ final class _ObjectToSQLHelper {
 						preparedValue = new PreparedValue();
 						preparedValue.setType(fields[i].getType().getName());
 						preparedValue.setValue(fields[i].get(entity));
-						list.add(k++, preparedValue);
+//						list.add(k++, preparedValue);
+						list.add(preparedValue);
 					}
 				} else {//where
 
 					if (HoneyUtil.isContinue(includeType, fields[i].get(entity), fields[i])) {
 						continue;
 					} else {
-
-						if (fields[i].get(entity) == null && "id".equalsIgnoreCase(fields[i].getName())) continue; //id=null不作为过滤条件
-							//					v1.7.2
-						if (conditionFieldSet != null && conditionFieldSet.contains(fields[i].getName())) continue; //Condition已包含的,不再遍历
+						if (fields[i].get(entity) == null && "id".equalsIgnoreCase(fields[i].getName())) 
+							continue; //id=null不作为过滤条件
+						
+						//v1.7.2
+						if (conditionFieldSet != null && conditionFieldSet.contains(fields[i].getName())) 
+							continue; //Condition已包含的,不再遍历
 
 						if (firstWhere) {
 							whereStament.append(" where ");
@@ -383,11 +393,17 @@ final class _ObjectToSQLHelper {
 					}
 				}//end else
 			}//end for
+			
 			sqlBuffer.append(whereStament);
-			//		sqlBuffer.append(" ;");
+			//sqlBuffer.append(" ;");
 
 			list.addAll(whereList);
 			valueBuffer.append(whereValueBuffer);
+			
+			if(firstSet) {
+				Logger.logSQL("update SQL(updateFields) :", sql);
+				throw new BeeErrorGrammarException("BeeErrorGrammarException: the SQL update set part is empty!");
+			}
 
 		} catch (IllegalAccessException e) {
 			throw ExceptionHelper.convert(e);
@@ -433,6 +449,9 @@ final class _ObjectToSQLHelper {
 		Set<String> conditionFieldSet=null;
 		if(condition!=null) conditionFieldSet=condition.getFieldSet();
 		
+		Set<String> updatefieldSet=null;
+		if (condition != null) updatefieldSet=condition.getUpdatefieldSet();
+		
 		String sql = "";
 		StringBuffer sqlBuffer = new StringBuffer();
 		StringBuffer valueBuffer = new StringBuffer();
@@ -449,6 +468,12 @@ final class _ObjectToSQLHelper {
 		sqlBuffer.append("update ");
 		sqlBuffer.append(tableName);
 		sqlBuffer.append(" set ");
+		
+		//v1.7.2
+		if (condition != null) {
+			condition.setSuidType(SuidType.UPDATE); //UPDATE
+			firstSet = ConditionHelper.processConditionForUpdateSet(sqlBuffer, whereValueBuffer, list, condition);
+		}
 
 		Field fields[] = entity.getClass().getDeclaredFields();
 		int len = fields.length;
@@ -456,7 +481,7 @@ final class _ObjectToSQLHelper {
 		List<PreparedValue> whereList = new ArrayList<>();
 
 		PreparedValue preparedValue = null;
-		for (int i = 0, k = 0, w = 0; i < len; i++) {
+		for (int i = 0,  w = 0; i < len; i++) { //delete:k = 0,
 			fields[i].setAccessible(true);
 			if (! isContainField(whereColumns, fields[i].getName())) { //set value.  不属性whereColumn的,将考虑转为set.  同一个实体的某个属性的值,若用于set部分了,再用于where部分就没有意义.
 				
@@ -466,6 +491,10 @@ final class _ObjectToSQLHelper {
 				}
 				if (fields[i].get(entity) == null && "id".equalsIgnoreCase(fields[i].getName()))
 					continue; //id=null跳过,id不更改.
+				
+				//v1.7.2
+				if (updatefieldSet != null && updatefieldSet.contains(fields[i].getName())) 
+					continue; //Condition已包含的set条件,不再作转换处理
 				
 				if (firstSet) {
 					sqlBuffer.append(" ");
@@ -489,7 +518,8 @@ final class _ObjectToSQLHelper {
 					preparedValue = new PreparedValue();
 					preparedValue.setType(fields[i].getType().getName());
 					preparedValue.setValue(fields[i].get(entity));
-					list.add(k++, preparedValue);
+//					list.add(k++, preparedValue);
+					list.add(preparedValue);
 				}
 			} else {// where .   此部分只会有whereColumn的字段
 
@@ -537,6 +567,10 @@ final class _ObjectToSQLHelper {
 		list.addAll(whereList);
 		valueBuffer.append(whereValueBuffer);
 
+		if(firstSet) {
+			Logger.logSQL("update SQL(updateFields) :", sql);
+			throw new BeeErrorGrammarException("BeeErrorGrammarException: the SQL update set part is empty!");
+		}
 		
 		} catch (IllegalAccessException e) {
 			throw ExceptionHelper.convert(e);
