@@ -71,11 +71,11 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	}
 
 	@Override
-	public <T> List<T> selectOrderBy(T entity, String orderFieldList) {
+	public <T> List<T> selectOrderBy(T entity, String orderFields) {
 		if (entity == null) return null;
 		List<T> list = null;
 		try {
-			String sql = objToSQLRich.toSelectOrderBySQL(entity, orderFieldList);
+			String sql = objToSQLRich.toSelectOrderBySQL(entity, orderFields);
 			Logger.logSQL("selectOrderBy SQL: ", sql);
 			list = getBeeSql().select(sql, entity);
 		} catch (ObjSQLException e) {
@@ -86,11 +86,11 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	}
 
 	@Override
-	public <T> List<T> selectOrderBy(T entity, String orderFieldList, OrderType[] orderTypes) {
+	public <T> List<T> selectOrderBy(T entity, String orderFields, OrderType[] orderTypes) {
 		if (entity == null) return null;
 		List<T> list = null;
 		try {
-			String sql = objToSQLRich.toSelectOrderBySQL(entity, orderFieldList, orderTypes);
+			String sql = objToSQLRich.toSelectOrderBySQL(entity, orderFields, orderTypes);
 			Logger.logSQL("selectOrderBy SQL: ", sql);
 			list = getBeeSql().select(sql, entity);
 		} catch (ObjSQLException e) {
@@ -111,11 +111,11 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	}
 
 	@Override
-	public <T> int[] insert(T entity[], String excludeFieldList) {
+	public <T> int[] insert(T entity[], String excludeFields) {
 		if (entity == null) return null;
 		int len = entity.length;
 		String insertSql[] = new String[len];
-		insertSql = objToSQLRich.toInsertSQL(entity, excludeFieldList);
+		insertSql = objToSQLRich.toInsertSQL(entity, excludeFields);
 
 		return getBeeSql().batch(insertSql);
 	}
@@ -131,26 +131,26 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	}
 
 	@Override
-	public <T> int[] insert(T entity[], int batchSize, String excludeFieldList) {
+	public <T> int[] insert(T entity[], int batchSize, String excludeFields) {
 		if (entity == null) return null;
 		int len = entity.length;
 		String insertSql[] = new String[len];
-		insertSql = objToSQLRich.toInsertSQL(entity, excludeFieldList);
+		insertSql = objToSQLRich.toInsertSQL(entity, excludeFields);
 
 		return getBeeSql().batch(insertSql, batchSize);
 	}
 
 	@Override
-	public <T> int update(T entity, String updateFieldList) {
+	public <T> int update(T entity, String updateFields) {
 		if (entity == null) return -1;
 		int r = 0;
-		try {
-			String sql = objToSQLRich.toUpdateSQL(entity, updateFieldList);
-			Logger.logSQL("update SQL(updateFieldList) :", sql);
+//		try {
+			String sql = objToSQLRich.toUpdateSQL(entity, updateFields);
+			Logger.logSQL("update SQL(updateFields) :", sql);
 			r = getBeeSql().modify(sql);
-		} catch (ObjSQLException e) {
-			throw e;
-		}
+//		} catch (ObjSQLException e) {
+//			throw e;
+//		}
 
 		return r;
 	}
@@ -179,16 +179,16 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	}
 
 	@Override
-	public <T> int update(T entity, String updateFieldList, IncludeType includeType) {
+	public <T> int update(T entity, String updateFields, IncludeType includeType) {
 		if (entity == null) return -1;
 		int r = 0;
-		try {
-			String sql = objToSQLRich.toUpdateSQL(entity, updateFieldList, includeType);
-			Logger.logSQL("update SQL(updateFieldList) :", sql);
+//		try {
+			String sql = objToSQLRich.toUpdateSQL(entity, updateFields, includeType);
+			Logger.logSQL("update SQL(updateFields) :", sql);
 			r = getBeeSql().modify(sql);
-		} catch (ObjSQLException e) {
-			throw e;
-		}
+//		} catch (ObjSQLException e) {
+//			throw e;
+//		}
 
 		return r;
 	}
@@ -347,33 +347,54 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	}
 
 	@Override
-	public <T> int updateBy(T entity, String whereFieldList) {
+	public <T> int updateBy(T entity, String whereFields) {
 		if (entity == null) return -1;
 		int r = 0;
-		try {
-			String sql = objToSQLRich.toUpdateBySQL(entity, whereFieldList);  //updateBy
-			Logger.logSQL("update SQL(whereFieldList) :", sql);
+//		try {
+			String sql = objToSQLRich.toUpdateBySQL(entity, whereFields);  //updateBy
+			Logger.logSQL("update SQL(whereFields) :", sql);
 			r = getBeeSql().modify(sql);
-		} catch (ObjSQLException e) {
-			throw e;
-		}
+//		} catch (ObjSQLException e) {
+//			throw e;
+//		}
 
 		return r;
 	}
 
 	@Override
-	public <T> int updateBy(T entity, String whereFieldList, IncludeType includeType) {
+	public <T> int updateBy(T entity, String whereFields, IncludeType includeType) {
 		if (entity == null) return -1;
 		int r = 0;
-		try {
-			String sql = objToSQLRich.toUpdateBySQL(entity, whereFieldList, includeType);//updateBy
-			Logger.logSQL("update SQL(whereFieldList) :", sql);
-			r = getBeeSql().modify(sql);
-		} catch (ObjSQLException e) {
-			throw e;
-		}
+		String sql = objToSQLRich.toUpdateBySQL(entity, whereFields, includeType);//updateBy
+		Logger.logSQL("update SQL(whereFields) :", sql);
+		r = getBeeSql().modify(sql);
 
 		return r;
 	}
+	
+	//v1.7.2
+	@Override
+	public <T> int updateBy(T entity, String whereFields, Condition condition) {
+		if (entity == null) return -1;
+		int r = 0;
+		String sql = objToSQLRich.toUpdateBySQL(entity, whereFields, condition);//updateBy
+		Logger.logSQL("update SQL(whereFields) :", sql);
+		r = getBeeSql().modify(sql);
+
+		return r;
+	}
+
+	//v1.7.2
+	@Override
+	public <T> int update(T entity, String updateFields, Condition condition) {
+		if (entity == null) return -1;
+		int r = 0;
+		String sql = objToSQLRich.toUpdateSQL(entity, updateFields, condition);
+		Logger.logSQL("update SQL(updateFields) :", sql);
+		r = getBeeSql().modify(sql);
+		
+		return r;
+	}
+	
 
 }
