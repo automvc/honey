@@ -80,6 +80,9 @@ public final class HoneyConfig {
 	@SysValue("${bee.osql.donot.allowed.deleteWholeRecords}")
 	private boolean notDeleteWholeRecords;  //v1.7.2
 	
+	@SysValue("${bee.osql.donot.allowed.updateWholeRecords}")
+	private boolean notUpdateWholeRecords;  //v1.7.2
+	
 	@SysValue("${bee.osql.date.format}")
 	private String dateFormat;  //v1.7.2
 	
@@ -122,6 +125,8 @@ public final class HoneyConfig {
 	private double cachefullUsedRate=0.8;      //when add element in cache use
 	private double fullClearCacheRate=0.2;  //when add element in cache use
 	
+	@SysValue("${bee.osql.cache.nocache}")
+	private boolean nocache;    //v1.7.2
 	
 	
 	/////////////////
@@ -200,6 +205,10 @@ public final class HoneyConfig {
 
 	public boolean isNotDeleteWholeRecords() {
 		return notDeleteWholeRecords;
+	}
+	
+	public boolean isNotUpdateWholeRecords() {
+		return notUpdateWholeRecords;
 	}
 
 	public String getDateFormat() {
@@ -360,5 +369,9 @@ public final class HoneyConfig {
 
 	public String getForeverCacheModifySynTableList() {
 		return foreverCacheModifySynTableList;
+	}
+
+	public boolean isNocache() {
+		return nocache;
 	}
 }
