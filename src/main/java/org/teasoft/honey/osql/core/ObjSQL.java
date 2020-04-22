@@ -10,7 +10,6 @@ import java.util.List;
 
 import org.teasoft.bee.osql.BeeSql;
 import org.teasoft.bee.osql.Condition;
-import org.teasoft.bee.osql.ObjSQLException;
 import org.teasoft.bee.osql.ObjToSQL;
 import org.teasoft.bee.osql.Suid;
 
@@ -58,13 +57,9 @@ public class ObjSQL implements Suid {
 
 		String sql = "";
 		int updateNum = -1;
-		try {
-			sql = objToSQL.toUpdateSQL(entity);
-			Logger.logSQL("update SQL: ", sql);
-			updateNum = getBeeSql().modify(sql);
-		} catch (ObjSQLException e) {
-			throw e;
-		}
+		sql = objToSQL.toUpdateSQL(entity);
+		Logger.logSQL("update SQL: ", sql);
+		updateNum = getBeeSql().modify(sql);
 
 		return updateNum;
 	}
