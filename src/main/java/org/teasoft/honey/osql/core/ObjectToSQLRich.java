@@ -143,36 +143,36 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	}
 
 	@Override
-	public <T> String toUpdateSQL(T entity, String updateFieldList) throws ObjSQLException {
+	public <T> String toUpdateSQL(T entity, String updateFieldList) {
 		if (updateFieldList == null) return null;
 
 		String sql = "";
-		try {
+//		try {
 			String updateFields[] = updateFieldList.split(",");
 
 			if (updateFields.length == 0 || "".equals(updateFieldList.trim())) throw new ObjSQLException("ObjSQLException:updateFieldList at least include one field.");
 
 			sql = _ObjectToSQLHelper._toUpdateSQL(entity, updateFields, -1);
-		} catch (IllegalAccessException e) {
-			throw ExceptionHelper.convert(e);
-		}
+//		} catch (IllegalAccessException e) {
+//			throw ExceptionHelper.convert(e);
+//		}
 		return sql;
 	}
 
 	@Override
-	public <T> String toUpdateSQL(T entity, String updateFieldList, IncludeType includeType) throws ObjSQLException {
+	public <T> String toUpdateSQL(T entity, String updateFieldList, IncludeType includeType) {
 		if (updateFieldList == null) return null;
 		
 		String sql = "";
-		try {
+//		try {
 			String updateFields[] = updateFieldList.split(",");
 
 			if (updateFields.length == 0 || "".equals(updateFieldList.trim())) throw new ObjSQLException("ObjSQLException:updateFieldList at least include one field.");
 
 			sql = _ObjectToSQLHelper._toUpdateSQL(entity, updateFields, includeType.getValue());
-		} catch (IllegalAccessException e) {
-			throw ExceptionHelper.convert(e);
-		}
+//		} catch (IllegalAccessException e) {
+//			throw ExceptionHelper.convert(e);
+//		}
 		return sql;
 	}
 
@@ -291,13 +291,14 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	@Override
 	public <T> String toUpdateSQL(T entity, IncludeType includeType) {
 		String sql = "";
-		try {
-			sql = _ObjectToSQLHelper._toUpdateSQL(entity, "id", includeType.getValue());
-		} catch (IllegalAccessException e) {
-			throw ExceptionHelper.convert(e);
-		} catch (ObjSQLException e) {
-			throw e;
-		}
+//		try {
+//			sql = _ObjectToSQLHelper._toUpdateSQL(entity, "id", includeType.getValue());
+			sql = _ObjectToSQLHelper._toUpdateSQL(entity, includeType.getValue());
+//		} catch (IllegalAccessException e) {
+//			throw ExceptionHelper.convert(e);
+//		} catch (ObjSQLException e) {
+//			throw e;
+//		}
 		return sql;
 
 	}
@@ -410,16 +411,17 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		if (whereFieldList == null) return null;
 
 		String sql = "";
-		try {
+//		try {
 			String whereFields[] = whereFieldList.split(",");
 
-			if (whereFields.length == 0 || "".equals(whereFieldList.trim())) throw new ObjSQLException("ObjSQLException:whereFieldList at least include one field.");
+			if (whereFields.length == 0 || "".equals(whereFieldList.trim())) 
+				throw new ObjSQLException("ObjSQLException:whereFieldList at least include one field.");
 
 //			sql = _ObjectToSQLHelper._toUpdateBySQL(entity, whereFields, -1);
 			sql = _ObjectToSQLHelper._toUpdateBySQL(entity, whereFields, includeType);
-		} catch (IllegalAccessException e) {
-			throw ExceptionHelper.convert(e);
-		}
+//		} catch (IllegalAccessException e) {
+//			throw ExceptionHelper.convert(e);
+//		}
 		return sql;
 	}
 	
@@ -431,6 +433,34 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	@Override
 	public <T> String toUpdateBySQL(T entity, String whereFieldList, IncludeType includeType) {
 		return _toUpdateBySQL(entity, whereFieldList, includeType.getValue());
+	}
+
+	@Override
+	public <T> String toUpdateBySQL(T entity, String whereFieldList, Condition condition) {
+
+		String whereFields[] = whereFieldList.split(",");
+		if (whereFields.length == 0 || "".equals(whereFieldList.trim()))
+			throw new ObjSQLException("ObjSQLException:whereFieldList at least include one field.");
+
+		if (condition == null || condition.getIncludeType() == null) {
+			return _ObjectToSQLHelper._toUpdateBySQL(entity, whereFields, -1, condition); //includeType=-1
+		} else {
+			return _ObjectToSQLHelper._toUpdateBySQL(entity, whereFields, condition.getIncludeType().getValue(), condition);
+		}
+	}
+
+	@Override
+	public <T> String toUpdateSQL(T entity, String updateFieldList, Condition condition) {
+
+		String updateFields[] = updateFieldList.split(","); //setColmns
+		if (updateFields.length == 0 || "".equals(updateFieldList.trim()))
+			throw new ObjSQLException("ObjSQLException:updateFieldList at least include one field.");
+
+		if (condition == null || condition.getIncludeType() == null) {
+			return _ObjectToSQLHelper._toUpdateSQL(entity, updateFields, -1, condition);//includeType=-1
+		} else {
+			return _ObjectToSQLHelper._toUpdateSQL(entity, updateFields, condition.getIncludeType().getValue(), condition);
+		}
 	}
 
 	private <T> String _toSelectAndDeleteByIdSQL(SqlValueWrap wrap, Number id,String numType) {
