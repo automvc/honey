@@ -25,6 +25,71 @@ public class ConditionHelper {
 
 	private static DbFeature dbFeature = BeeFactory.getHoneyFactory().getDbFeature();
 	
+	
+	private static String setAdd = "setAdd";
+	private static String setMultiply = "setMultiply";
+
+	static boolean processConditionForUpdateSet(StringBuffer sqlBuffer, StringBuffer valueBuffer, List<PreparedValue> list, Condition condition) {
+
+		ConditionImpl conditionImpl = (ConditionImpl) condition;
+		List<Expression> updateSetList = conditionImpl.getUpdateExpList();
+		boolean firstSet = true;
+
+//		if ( setAdd.equalsIgnoreCase(opType) || setMultiply.equalsIgnoreCase(opType) ) {
+		if (updateSetList != null && updateSetList.size() > 0) {
+			if (SuidType.UPDATE != conditionImpl.getSuidType()) {
+				throw new BeeErrorGrammarException(conditionImpl.getSuidType() + " do not support the method setAdd or setMultiply!");
+			}
+		}
+
+		PreparedValue preparedValue = null;
+		Expression expression = null;
+
+		for (int j = 0; j < updateSetList.size(); j++) {
+			expression = updateSetList.get(j);
+			String opType = expression.getOpType();
+
+//				update orders set total=total+0.5;
+//				mysql is ok. as below:
+//				update orders set total=total+?   [values]: -0.1  
+			
+
+			if (expression.getValue() == null) {
+				throw new BeeErrorGrammarException(conditionImpl.getSuidType() + ": the num of " + expression.getOpType() + " is null");
+			} else {
+
+				if (firstSet) {
+					firstSet = false;
+				} else {
+					sqlBuffer.append(",");
+				}
+				sqlBuffer.append(_toColumnName(expression.getFieldName(), null));
+				sqlBuffer.append("=");
+				sqlBuffer.append(_toColumnName(expression.getFieldName(), null));
+				if (setAdd.equals(expression.getOpType())) {
+//					if ((double) expression.getValue() < 0)
+//						sqlBuffer.append("-"); // bug 负负得正
+//					else
+					sqlBuffer.append("+");
+				} else if (setMultiply.equals(expression.getOpType())) {
+					sqlBuffer.append("*");
+				}
+				sqlBuffer.append("?");
+
+				valueBuffer.append(","); // do not need check. at final will delete the first letter.
+				valueBuffer.append(expression.getValue());
+
+				preparedValue = new PreparedValue();
+				preparedValue.setType(expression.getValue().getClass().getName());
+				preparedValue.setValue(expression.getValue());
+				list.add(preparedValue);
+			}
+
+		}
+
+		return firstSet;
+	}
+	
 	//v1.7.2  add return value for delete/update control
 	static boolean processCondition(StringBuffer sqlBuffer, StringBuffer valueBuffer, 
 			List<PreparedValue> list, Condition condition, boolean firstWhere) {
@@ -34,6 +99,9 @@ public class ConditionHelper {
 	//v1.7.2  add return value for delete/update control
 	static boolean processCondition(StringBuffer sqlBuffer, StringBuffer valueBuffer, 
 			List<PreparedValue> list, Condition condition, boolean firstWhere,String useSubTableNames[]) {
+		
+		if(condition==null) return firstWhere;
+		
 		PreparedValue preparedValue = null;
 		
 		boolean isFirstWhere=firstWhere; //v1.7.2 return for control whether allow to delete/update whole records in one table
