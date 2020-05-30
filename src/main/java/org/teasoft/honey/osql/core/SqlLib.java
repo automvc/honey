@@ -34,6 +34,8 @@ import org.teasoft.honey.osql.name.NameUtil;
 public class SqlLib implements BeeSql {
 	
 	private Cache cache=BeeFactory.getHoneyFactory().getCache();
+	
+	private int cacheWorkResultSetSize=HoneyConfig.getHoneyConfig().getCacheWorkResultSetSize();
 
 	public SqlLib() {}
 
@@ -380,8 +382,7 @@ public class SqlLib implements BeeSql {
 	public int[] batch(String sql[]) {
 		if(sql==null) return null;
 		int batchSize = HoneyConfig.getHoneyConfig().getBatchSize();
-		//更改操作需要清除缓存
-		clearInCache(sql[0]+ "[index0]", "int[]",SuidType.INSERT);
+
 		return batch(sql,batchSize);
 	}
 
@@ -424,6 +425,8 @@ public class SqlLib implements BeeSql {
 			throw ExceptionHelper.convert(e);
 		} finally {
 			checkClose(pst, conn);
+			//更改操作需要清除缓存
+			clearInCache(sql[0]+ "[index0]", "int[]",SuidType.INSERT);
 		}
 
 		return total;
@@ -644,7 +647,6 @@ public class SqlLib implements BeeSql {
 	private void addInCache(String sql, Object rs, String returnType, SuidType suidType,int resultSetSize) {
 		
 //		如果结果集超过一定的值则不放缓存
-		int cacheWorkResultSetSize=HoneyConfig.getHoneyConfig().getCacheWorkResultSetSize();
 		if(resultSetSize>cacheWorkResultSetSize){
 		   HoneyContext.deleteCacheInfo(sql);
 		   return;
