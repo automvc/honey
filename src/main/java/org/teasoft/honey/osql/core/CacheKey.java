@@ -32,12 +32,27 @@ public class CacheKey {
 			returnType=struct.getReturnType();
 		}
 		
+		StringBuffer strBuf=new StringBuffer();
+		strBuf.append(sql);
+		
 		if (value == null || "".equals(value.trim())){
-			return sql;
+			
 		}else{
-//			return sql + "   [values]: " + value;
-			return sql + "(@#)[values]: " + value + "(@#)[returnType]: "+returnType;	
+			strBuf.append("(@#)[values]: ");
+			strBuf.append(value);
 		}
+		
+		strBuf.append("(@#)[returnType]: ");
+		strBuf.append(returnType);
+		
+		return strBuf.toString();
+		
+//		if (value == null || "".equals(value.trim())){
+//			return sql;
+//		}else{
+////			return sql + "   [values]: " + value;
+//			return sql + "(@#)[values]: " + value + "(@#)[returnType]: "+returnType;	
+//		}
 
 	}
 	
