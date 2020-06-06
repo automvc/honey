@@ -19,7 +19,7 @@ public class DefaultWorker implements Worker{
 		
 		//TODO  从配置文件中读取workid.
 		
-		return 1;
+		return 0;
 	}
 	
 }
