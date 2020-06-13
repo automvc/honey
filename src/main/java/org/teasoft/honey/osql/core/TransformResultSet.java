@@ -97,10 +97,11 @@ public class TransformResultSet {
 					json.append(rs.getString(i));
 				}
 
-				if (i != columnCount) json.append(",");
-			}
+				if (i != columnCount) json.append(",");  //bug,  if last field is null and ignore.
+			} //one record end
+			if(json.toString().endsWith(",")) json.deleteCharAt(json.length()-1); //fix bug
 			json.append("}");
-		}
+		}//array end
 		if (json.length() > 0) {
 			json.deleteCharAt(0);
 		}
