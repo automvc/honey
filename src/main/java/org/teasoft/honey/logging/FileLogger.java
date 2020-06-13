@@ -23,7 +23,7 @@ public class FileLogger implements Log{
 	private static String INFO="INFO";
 	private static String WARN="WARN";
 	private static String ERROR="ERROR";
-	private static String APACE=" ";
+	private static String SPACE=" ";
 	private static String LEFT="[";
 	private static String RIGHT="]";
 	
@@ -118,14 +118,19 @@ public class FileLogger implements Log{
 			//nothing
 		} else {
 			b.append(DateUtil.currentDate());
-			b.append(APACE);
+			b.append(SPACE);
 		}
 		
 		if(donotPrintLevel){
 			//nothing
 		}else{
-			b.append(level)
-			 .append(APACE);
+//			b.append(level)
+//			 .append(SPACE);
+			
+			b.append(LEFT)
+			 .append(level)
+			 .append(RIGHT)
+			 .append(SPACE);
 		}
 		
 		b.append(msg);
@@ -146,21 +151,26 @@ public class FileLogger implements Log{
 			//nothing
 		} else {
 			b.append(DateUtil.currentDate());
-			b.append(APACE);
+			b.append(SPACE);
 		}
 		
 		if(donotPrintLevel){
 			//nothing
 		}else{
-			b.append(level)
-			 .append(APACE);
+//			b.append(level)
+//			 .append(SPACE);
+			
+			b.append(LEFT)
+			 .append(level)
+			 .append(RIGHT)
+			 .append(SPACE);
 		}
 		
 		b
 		 .append(LEFT)
 		 .append(className)
 		 .append(RIGHT)
-		 .append(APACE)
+		 .append(SPACE)
 		
 		 .append(msg);
 		
