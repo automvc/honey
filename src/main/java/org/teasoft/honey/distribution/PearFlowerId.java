@@ -17,20 +17,22 @@ public class PearFlowerId implements GenId {
 
 	private Worker worker;
 
-	private long timestamp; // second 31
-	private long workerId = getWorker().getWorkerId(); //10
-	private long segment = 0L; // 3
-	private long sequence = 1L; // 19
+	private long timestamp; // second 312 bits
+	private long segment = 0L;//一般会从分支3 获取初值
+	private long workerId = getWorker().getWorkerId(); 
+	private long sequence = 0L;  //一般会从分支3 获取初值
 
+	//以下三部分加起来要等于32位.
+	private final long segmentBits = 9L;
 	private final long workerIdBits = 10L;
-	private final long segmentBits = 3L;
-	private final long sequenceBits = 19L;
+	private final long sequenceBits = 13L;
 
 	private final long timestampShift = workerIdBits + segmentBits + sequenceBits;
-	private final long workerIdShift = segmentBits + sequenceBits;
-	private final long segmentShift = sequenceBits;
+	private final long segmentShift =   workerIdBits + sequenceBits;
+	private final long workerIdShift =  sequenceBits;
 	
 	private final long sequenceMask = ~(-1L << sequenceBits);
+	private final long maxSegment=(1<<segmentBits)-1;
 	
 	private final long halfWorkid=1<<(workerIdBits-1);
 	private final long fullWorkid=1<<workerIdBits;
@@ -59,20 +61,20 @@ public class PearFlowerId implements GenId {
 	@Override
 	public synchronized long[] getRangeId(int sizeOfIds) {
 		long r[]=new long[2];
-		r[0]=get();
+		r[0]=getNextId();
 		
 //		sequence=sequence+sizeOfIds-1;
 		sequence=sequence+sizeOfIds-1-1; //r[0]相当于已获取了第一个元素
 		if ((sequence >> sequenceBits) > 0) { // 超过19位表示的最大值
 			sequence = sequence & sequenceMask;
-			if (segment >= 7) { // 已用完
+			if (segment >= maxSegment) { // 已用完
 				lastTimestamp++; //批获取时,提前消费1s
 				segment = 0L;
 			} else {
 				segment++;
 			}
 		}
-		r[1]=get();
+		r[1]=getNextId();
 		
 		return r;
 	}
@@ -126,8 +128,12 @@ public class PearFlowerId implements GenId {
 
 		if (timestamp == lastTimestamp) { // 分支2
 			sequence++;
-			if ((sequence >> sequenceBits) > 0) { // 超过19位表示的最大值
-				if (segment >= 7) { // 已用完，不能再派号
+//			sequence=sequence+524288 ; //TEST  19
+//			sequence=sequence+262144 ; //TEST  18
+//			sequence=sequence+131072 ; //TEST  17
+//			sequence=sequence+8192 ; //TEST  13
+			if ((sequence >> sequenceBits) > 0) { // 超过序列位表示的最大值
+				if (segment >= maxSegment) { // 已用完，不能再派号
 					try {
 						wait(100);
 					} catch (InterruptedException e) {
@@ -146,7 +152,8 @@ public class PearFlowerId implements GenId {
 			lastTimestamp = timestamp; // 记录新的一秒重新开始
 		}
 
-		return ((timestamp - twepoch) << timestampShift) | (workerId << workerIdShift) | (segment << segmentShift) | (sequence);
+//		return ((timestamp - twepoch) << timestampShift) | (workerId << workerIdShift) | (segment << segmentShift) | (sequence);
+		return ((timestamp - twepoch) << timestampShift) | (segment << segmentShift) | (workerId << workerIdShift)  | (sequence);
 
 	}
 
