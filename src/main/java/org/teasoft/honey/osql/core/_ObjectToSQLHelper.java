@@ -312,7 +312,8 @@ final class _ObjectToSQLHelper {
 			//v1.7.2
 			if (condition != null) {
 				condition.setSuidType(SuidType.UPDATE); //UPDATE
-				firstSet = ConditionHelper.processConditionForUpdateSet(sqlBuffer, whereValueBuffer, list, condition);
+//				firstSet = ConditionHelper.processConditionForUpdateSet(sqlBuffer, whereValueBuffer, list, condition);//bug
+				firstSet = ConditionHelper.processConditionForUpdateSet(sqlBuffer, valueBuffer, list, condition);
 			}
 
 			Field fields[] = entity.getClass().getDeclaredFields();
@@ -323,11 +324,15 @@ final class _ObjectToSQLHelper {
 			PreparedValue preparedValue = null;
 			for (int i = 0, w = 0; i < len; i++) {//delete:k = 0,
 				fields[i].setAccessible(true);
-				if (isContainField(setColmns, fields[i].getName())) { //set value.setColmn不受includeType影响,都会转换
+//				if (isContainField(setColmns, fields[i].getName())) { //set value.setColmn不受includeType影响,都会转换
+				if (isContainField(setColmns, fields[i].getName())     
+						&& (updatefieldSet != null && !updatefieldSet.contains(fields[i].getName())) // 在updatefieldSet为新值，entity 的为旧值可放在where条件    v1.7.3
+						) {	//在指定的setColmns,且还没有用在set,setAdd,setMuliply的字段,才转成update set的部分.
 					
-					//v1.7.2
-					if (updatefieldSet != null && updatefieldSet.contains(fields[i].getName())) 
-						continue; //Condition已包含的set条件,不再作转换处理
+//					在updatefieldSet为新值，entity 的为旧值可放在where条件    v1.7.3
+//					//v1.7.2
+//					if (updatefieldSet != null && updatefieldSet.contains(fields[i].getName())) 
+//						continue; //Condition已包含的set条件,不再作转换处理
 
 					if (firstSet) {
 						sqlBuffer.append(" ");
@@ -419,8 +424,13 @@ final class _ObjectToSQLHelper {
 
 		if (valueBuffer.length() > 0) valueBuffer.deleteCharAt(0);
 		HoneyContext.setPreparedValue(sql, list);
-		HoneyContext.setSqlValue(sql, valueBuffer.toString());
-		addInContextForCache(sqlBuffer.toString(), valueBuffer.toString(), tableName);//2019-09-29
+//		HoneyContext.setSqlValue(sql, valueBuffer.toString());  //change get the value from list
+		
+		String value=HoneyUtil.list2Value(list);
+		HoneyContext.setSqlValue(sql, value);
+		
+//		addInContextForCache(sqlBuffer.toString(), valueBuffer.toString(), tableName);//2019-09-29
+		addInContextForCache(sqlBuffer.toString(), value, tableName);//2019-09-29
 
 		//不允许更新一个表的所有数据
 		//v1.7.2 只支持是否带where检测
@@ -469,10 +479,12 @@ final class _ObjectToSQLHelper {
 		sqlBuffer.append(tableName);
 		sqlBuffer.append(" set ");
 		
+//		setMultiply,setAdd,是在处理字段前已完成处理的,所以不受指定的where条件的字段(即String whereColumns[])的影响.
 		//v1.7.2
 		if (condition != null) {
 			condition.setSuidType(SuidType.UPDATE); //UPDATE
-			firstSet = ConditionHelper.processConditionForUpdateSet(sqlBuffer, whereValueBuffer, list, condition);
+//			firstSet = ConditionHelper.processConditionForUpdateSet(sqlBuffer, whereValueBuffer, list, condition);
+			firstSet = ConditionHelper.processConditionForUpdateSet(sqlBuffer, valueBuffer, list, condition);
 		}
 
 		Field fields[] = entity.getClass().getDeclaredFields();

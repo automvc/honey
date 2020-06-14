@@ -15,6 +15,7 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.teasoft.bee.osql.annotation.JoinTable;
@@ -686,6 +687,24 @@ public final class HoneyUtil {
 
 		return map;
 	}
+	
+	//List<PreparedValue>  to valueBuffer
+	public static String list2Value(List<PreparedValue> list){
+		StringBuffer b=new StringBuffer();
+		if(list==null || list.size()==0) return "";
+		
+		int size=list.size();
+		for (int j = 0; j < size; j++) {
+			b.append(list.get(j).getValue());
+			if(j!=size-1) b.append(",");
+		}
+		
+		return b.toString();
+	}
+	
+
+	
+	
 
 	private static String _toColumnName(String fieldName) {
 		return NameTranslateHandle.toColumnName(fieldName);

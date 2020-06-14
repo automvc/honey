@@ -302,26 +302,47 @@ public class ConditionImpl implements Condition {
 	
 	private static String setAdd="setAdd";
 	private static String setMultiply="setMultiply";
+	
+	private static String setAddField = "setAddField";
+	private static String setMultiplyField = "setMultiplyField";
 
 	@Override
-	public Condition setAdd(String field, double num) {
+	public Condition setAdd(String field, Number num) {
         return forUpdateSet(field, num, setAdd);
 	}
 
 	@Override
-	public Condition setMultiply(String field, double num) {
+	public Condition setMultiply(String field, Number num) {
 		 return forUpdateSet(field, num, setMultiply);
 	}
 	
+	@Override
+	public Condition setAdd(String field, String fieldName) {
+		return forUpdateSet(field, fieldName, setAddField);
+	}
+
+	@Override
+	public Condition setMultiply(String field, String fieldName) {
+		return forUpdateSet(field, fieldName, setMultiplyField);
+	}
+
 	public List<Expression> getUpdateExpList() {
 		return updateSetList;
 	}
 	
-	private Condition forUpdateSet(String field, double num,String opType){
+	private Condition forUpdateSet(String field, String fieldName,String opType){
+		return _forUpdateSet(field, fieldName, opType);
+	}
+	
+	private Condition forUpdateSet(String field, Number num,String opType){
+		return _forUpdateSet(field, num, opType);
+	}
+	
+	private Condition _forUpdateSet(String field, Object ojb,String opType){
 		Expression exp = new Expression();
 		exp.fieldName = field;
-		exp.opType =opType; //"setAdd" or "setMultiply";
-		exp.value=num;
+		exp.opType =opType; //"setAdd" or "setMultiply";  setAddField; setMultiplyField
+		exp.value=ojb;
 		exp.opNum=1;  
 		
 		this.updatefieldSet.add(field);

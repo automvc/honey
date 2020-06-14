@@ -28,6 +28,9 @@ public class ConditionHelper {
 	
 	private static String setAdd = "setAdd";
 	private static String setMultiply = "setMultiply";
+	
+	private static String setAddField = "setAddField";
+	private static String setMultiplyField = "setMultiplyField";
 
 	static boolean processConditionForUpdateSet(StringBuffer sqlBuffer, StringBuffer valueBuffer, List<PreparedValue> list, Condition condition) {
 
@@ -66,6 +69,17 @@ public class ConditionHelper {
 				sqlBuffer.append(_toColumnName(expression.getFieldName(), null));
 				sqlBuffer.append("=");
 				sqlBuffer.append(_toColumnName(expression.getFieldName(), null));
+				
+				if (setAddField.equals(expression.getOpType())) {//eg:setAdd("price","delta")--> price=price+delta
+					sqlBuffer.append("+");
+					sqlBuffer.append(_toColumnName((String)expression.getValue()));
+					continue; //no ?,  don't need set value
+				} else if (setMultiplyField.equals(expression.getOpType())) {
+					sqlBuffer.append("*");
+					sqlBuffer.append(_toColumnName((String)expression.getValue()));
+					continue; //no ?,  don't need set value
+				}
+				
 				if (setAdd.equals(expression.getOpType())) {
 //					if ((double) expression.getValue() < 0)
 //						sqlBuffer.append("-"); // bug 负负得正
