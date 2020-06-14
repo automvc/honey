@@ -1,5 +1,7 @@
 package org.teasoft.honey.osql.core;
 
+import java.util.List;
+
 import org.teasoft.bee.logging.Log;
 import org.teasoft.honey.logging.LoggerFactory;
 
@@ -10,6 +12,8 @@ import org.teasoft.honey.logging.LoggerFactory;
 public class Logger {
 	
 	private static boolean  showSQL=HoneyConfig.getHoneyConfig().isShowSQL();
+	private static boolean  showSQLShowType=HoneyConfig.getHoneyConfig().isShowSQLShowType();
+	private static boolean  showExecutableSql=HoneyConfig.getHoneyConfig().isShowExecutableSql();
 	
 	final static Log log=LoggerFactory.getLogger();
 	
@@ -31,12 +35,28 @@ public class Logger {
 	
 	//专门用于Bee框架输出SQL日志.
 	public static void logSQL(String hardStr,String sql){
-		if(showSQL){
+/*		if(showSQL){
 			String value = HoneyContext.getSqlValue(sql);
 			if (value == null || "".equals(value.trim()))
 				_println("[Bee] "+hardStr, sql);
 			else
 				_println("[Bee] "+hardStr, sql +"   [values]: "+ value);
+		}*/
+		
+		if(showSQL){
+			List list=HoneyContext._justGetPreparedValue(sql);
+			String value=HoneyUtil.list2Value(list,showSQLShowType); 
+			String executableSql="";
+			if (value == null || "".equals(value.trim())){
+				_println("[Bee] "+hardStr, sql);
+				if(showExecutableSql) _println("[Bee] ExecutableSql: "+hardStr, sql);  //无占位的情况
+			}else{
+				_println("[Bee] "+hardStr, sql +"   [values]: "+ value);
+				if(showExecutableSql) {
+					executableSql=HoneyUtil.getExecutableSql(sql,list);
+					if(showExecutableSql) _println("[Bee] ExecutableSql: "+hardStr, executableSql);
+				}
+			}
 		}
 	}
 	

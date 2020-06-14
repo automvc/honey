@@ -32,8 +32,8 @@ public class ConditionHelper {
 	private static String setAddField = "setAddField";
 	private static String setMultiplyField = "setMultiplyField";
 
-	static boolean processConditionForUpdateSet(StringBuffer sqlBuffer, StringBuffer valueBuffer, List<PreparedValue> list, Condition condition) {
-
+//	static boolean processConditionForUpdateSet(StringBuffer sqlBuffer, StringBuffer valueBuffer, List<PreparedValue> list, Condition condition) {
+	static boolean processConditionForUpdateSet(StringBuffer sqlBuffer, List<PreparedValue> list, Condition condition) { //delete valueBuffer
 		ConditionImpl conditionImpl = (ConditionImpl) condition;
 		List<Expression> updateSetList = conditionImpl.getUpdateExpList();
 		boolean firstSet = true;
@@ -90,8 +90,8 @@ public class ConditionHelper {
 				}
 				sqlBuffer.append("?");
 
-				valueBuffer.append(","); // do not need check. at final will delete the first letter.
-				valueBuffer.append(expression.getValue());
+//				valueBuffer.append(","); // do not need check. at final will delete the first letter.
+//				valueBuffer.append(expression.getValue());
 
 				preparedValue = new PreparedValue();
 				preparedValue.setType(expression.getValue().getClass().getName());
@@ -102,6 +102,12 @@ public class ConditionHelper {
 		}
 
 		return firstSet;
+	}
+	
+	static boolean processCondition(StringBuffer sqlBuffer, 
+		 List<PreparedValue> list, Condition condition, boolean firstWhere) {
+		 StringBuffer valueBuffer=new StringBuffer(); //don't use, just adapt the old method
+		 return processCondition(sqlBuffer, valueBuffer, list, condition, firstWhere, null);
 	}
 	
 	//v1.7.2  add return value for delete/update control

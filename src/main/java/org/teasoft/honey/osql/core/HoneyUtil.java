@@ -688,14 +688,30 @@ public final class HoneyUtil {
 		return map;
 	}
 	
-	//List<PreparedValue>  to valueBuffer
 	public static String list2Value(List<PreparedValue> list){
+		
+		return list2Value(list,false);
+	}
+	//List<PreparedValue>  to valueBuffer
+	public static String list2Value(List<PreparedValue> list,boolean needType){
 		StringBuffer b=new StringBuffer();
 		if(list==null || list.size()==0) return "";
+		
+		String type="";
 		
 		int size=list.size();
 		for (int j = 0; j < size; j++) {
 			b.append(list.get(j).getValue());
+			if(needType) {
+				b.append("(");
+				type=list.get(j).getType();
+				if(type.startsWith("java.lang.")){
+					b.append(type.substring(10));
+				}else{
+					b.append(type);
+				}
+				b.append(")");
+			}
 			if(j!=size-1) b.append(",");
 		}
 		
@@ -703,7 +719,28 @@ public final class HoneyUtil {
 	}
 	
 
-	
+	/**
+	 *  ! just use in debug env.  please set off in prod env.
+	 * @param sql
+	 * @param list
+	 * @return
+	 */
+	public static String getExecutableSql(String sql, List<PreparedValue> list){
+		if(list==null || list.size()==0) return sql;
+		
+		int size=list.size();
+		Object value=null;
+		for (int j = 0; j < size; j++) {
+			value=list.get(j).getValue();
+			if(value instanceof Number){
+				sql=sql.replaceFirst("\\?", String.valueOf(value));
+			}else{
+				sql=sql.replaceFirst("\\?", "'"+String.valueOf(value)+"'");
+			}
+		}
+		
+		return sql;
+	}
 	
 
 	private static String _toColumnName(String fieldName) {

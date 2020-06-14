@@ -24,7 +24,7 @@ public final class HoneyConfig {
 
 	private void init() {
 		setDbName(BeeProp.getBeeProp("bee.databaseName"));
-		setShowSQL(Boolean.parseBoolean(BeeProp.getBeeProp("bee.osql.showSQL")));
+//		setShowSQL(Boolean.parseBoolean(BeeProp.getBeeProp("bee.osql.showSQL")));
 //		String t_batchSize = BeeProp.getBeeProp("bee.osql.select.batchSize");
 //		if (t_batchSize != null) setBatchSize(Integer.parseInt(t_batchSize));
 //		String t_maxResultSize = BeeProp.getBeeProp("bee.osql.select.maxResultSize");
@@ -69,7 +69,12 @@ public final class HoneyConfig {
 	}
 
 	// 启动时动态获取
+	@SysValue("${bee.osql.showSQL}")
 	private boolean showSQL;
+	@SysValue("${bee.osql.showSQL.showType}")
+	private boolean showSQLShowType;//v1.7.3
+	@SysValue("${bee.osql.showSQL.showExecutableSql}")
+	private boolean showExecutableSql;//v1.7.3
 	
 	@SysValue("${bee.osql.showSQL.donotPrint.currentDate}")
 	private boolean showSQL_donotPrint_currentDate;  //v1.7.0
@@ -151,9 +156,9 @@ public final class HoneyConfig {
 	
 	
 
-	private void setShowSQL(boolean showSQL) {
-		this.showSQL = showSQL;
-	}
+//	private void setShowSQL(boolean showSQL) {
+//		this.showSQL = showSQL;
+//	}
 
 //	private void setBatchSize(int batchSize) {
 //		this.batchSize = batchSize;
@@ -195,6 +200,14 @@ public final class HoneyConfig {
 		return showSQL;
 	}
 	
+	public boolean isShowSQLShowType() {
+		return showSQLShowType;
+	}
+
+	public boolean isShowExecutableSql() {
+		return showExecutableSql;
+	}
+
 	public boolean isShowSQL_donotPrint_currentDate() {
 		return showSQL_donotPrint_currentDate;
 	}

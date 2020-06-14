@@ -294,7 +294,7 @@ final class _ObjectToSQLHelper {
 
 		String sql = "";
 		StringBuffer sqlBuffer = new StringBuffer();
-		StringBuffer valueBuffer = new StringBuffer();
+//		StringBuffer valueBuffer = new StringBuffer(); //delete 2020-06
 		StringBuffer whereValueBuffer = new StringBuffer();
 		boolean firstSet = true;
 		boolean firstWhere = true;
@@ -313,7 +313,8 @@ final class _ObjectToSQLHelper {
 			if (condition != null) {
 				condition.setSuidType(SuidType.UPDATE); //UPDATE
 //				firstSet = ConditionHelper.processConditionForUpdateSet(sqlBuffer, whereValueBuffer, list, condition);//bug
-				firstSet = ConditionHelper.processConditionForUpdateSet(sqlBuffer, valueBuffer, list, condition);
+//				firstSet = ConditionHelper.processConditionForUpdateSet(sqlBuffer, valueBuffer, list, condition);
+				firstSet = ConditionHelper.processConditionForUpdateSet(sqlBuffer, list, condition);
 			}
 
 			Field fields[] = entity.getClass().getDeclaredFields();
@@ -326,7 +327,7 @@ final class _ObjectToSQLHelper {
 				fields[i].setAccessible(true);
 //				if (isContainField(setColmns, fields[i].getName())) { //set value.setColmn不受includeType影响,都会转换
 				if (isContainField(setColmns, fields[i].getName())     
-						&& (updatefieldSet != null && !updatefieldSet.contains(fields[i].getName())) // 在updatefieldSet为新值，entity 的为旧值可放在where条件    v1.7.3
+						&& ( (updatefieldSet ==null) || (updatefieldSet != null && !updatefieldSet.contains(fields[i].getName())) ) // 在updatefieldSet为新值，entity 的为旧值可放在where条件    v1.7.3
 						) {	//在指定的setColmns,且还没有用在set,setAdd,setMuliply的字段,才转成update set的部分.
 					
 //					在updatefieldSet为新值，entity 的为旧值可放在where条件    v1.7.3
@@ -350,8 +351,8 @@ final class _ObjectToSQLHelper {
 						sqlBuffer.append("=");
 						sqlBuffer.append("?");
 
-						valueBuffer.append(",");
-						valueBuffer.append(fields[i].get(entity));
+//						valueBuffer.append(",");
+//						valueBuffer.append(fields[i].get(entity));
 
 						preparedValue = new PreparedValue();
 						preparedValue.setType(fields[i].getType().getName());
@@ -403,10 +404,10 @@ final class _ObjectToSQLHelper {
 			//sqlBuffer.append(" ;");
 
 			list.addAll(whereList);
-			valueBuffer.append(whereValueBuffer);
+//			valueBuffer.append(whereValueBuffer);
 			
 			if(firstSet) {
-				Logger.logSQL("update SQL(updateFields) :", sql);
+				Logger.logSQL("update SQL(updateFields) :", sqlBuffer.toString());
 				throw new BeeErrorGrammarException("BeeErrorGrammarException: the SQL update set part is empty!");
 			}
 
@@ -417,20 +418,23 @@ final class _ObjectToSQLHelper {
 		if (condition != null) {
 			condition.setSuidType(SuidType.UPDATE); //UPDATE
 			//即使condition包含的字段是whereColumn里的字段也会转化到sql语句.
-			firstWhere = ConditionHelper.processCondition(sqlBuffer, valueBuffer, list, condition, firstWhere);
+//			firstWhere = ConditionHelper.processCondition(sqlBuffer, valueBuffer, list, condition, firstWhere);
+			firstWhere = ConditionHelper.processCondition(sqlBuffer, list, condition, firstWhere);
 		}
 
 		sql = sqlBuffer.toString();
 
-		if (valueBuffer.length() > 0) valueBuffer.deleteCharAt(0);
-		HoneyContext.setPreparedValue(sql, list);
-//		HoneyContext.setSqlValue(sql, valueBuffer.toString());  //change get the value from list
+////		if (valueBuffer.length() > 0) valueBuffer.deleteCharAt(0);
+//		HoneyContext.setPreparedValue(sql, list);
+////		HoneyContext.setSqlValue(sql, valueBuffer.toString());  //change get the value from list
+////		addInContextForCache(sqlBuffer.toString(), valueBuffer.toString(), tableName);//2019-09-29
+//		
+//		String value=HoneyUtil.list2Value(list);
+//		HoneyContext.setSqlValue(sql, value);
+//		addInContextForCache(sql, value, tableName);//2019-09-29
 		
-		String value=HoneyUtil.list2Value(list);
-		HoneyContext.setSqlValue(sql, value);
+		setContext(sql, list, tableName);
 		
-//		addInContextForCache(sqlBuffer.toString(), valueBuffer.toString(), tableName);//2019-09-29
-		addInContextForCache(sqlBuffer.toString(), value, tableName);//2019-09-29
 
 		//不允许更新一个表的所有数据
 		//v1.7.2 只支持是否带where检测
@@ -464,8 +468,8 @@ final class _ObjectToSQLHelper {
 		
 		String sql = "";
 		StringBuffer sqlBuffer = new StringBuffer();
-		StringBuffer valueBuffer = new StringBuffer();
-		StringBuffer whereValueBuffer = new StringBuffer();
+//		StringBuffer valueBuffer = new StringBuffer();
+//		StringBuffer whereValueBuffer = new StringBuffer();
 		boolean firstSet = true;
 		boolean firstWhere = true;
 		boolean isExistWhere = false;
@@ -484,7 +488,8 @@ final class _ObjectToSQLHelper {
 		if (condition != null) {
 			condition.setSuidType(SuidType.UPDATE); //UPDATE
 //			firstSet = ConditionHelper.processConditionForUpdateSet(sqlBuffer, whereValueBuffer, list, condition);
-			firstSet = ConditionHelper.processConditionForUpdateSet(sqlBuffer, valueBuffer, list, condition);
+//			firstSet = ConditionHelper.processConditionForUpdateSet(sqlBuffer, valueBuffer, list, condition);
+			firstSet = ConditionHelper.processConditionForUpdateSet(sqlBuffer, list, condition);
 		}
 
 		Field fields[] = entity.getClass().getDeclaredFields();
@@ -524,8 +529,8 @@ final class _ObjectToSQLHelper {
 					sqlBuffer.append("=");
 					sqlBuffer.append("?");
 
-					valueBuffer.append(",");
-					valueBuffer.append(fields[i].get(entity));
+//					valueBuffer.append(",");
+//					valueBuffer.append(fields[i].get(entity));
 
 					preparedValue = new PreparedValue();
 					preparedValue.setType(fields[i].getType().getName());
@@ -561,8 +566,8 @@ final class _ObjectToSQLHelper {
 						whereStament.append("=");
 						whereStament.append("?");
 
-						whereValueBuffer.append(",");
-						whereValueBuffer.append(fields[i].get(entity));
+//						whereValueBuffer.append(",");
+//						whereValueBuffer.append(fields[i].get(entity));
 
 						preparedValue = new PreparedValue();
 						preparedValue.setType(fields[i].getType().getName());
@@ -577,10 +582,10 @@ final class _ObjectToSQLHelper {
 //		sqlBuffer.append(" ;");
 		
 		list.addAll(whereList);
-		valueBuffer.append(whereValueBuffer);
+//		valueBuffer.append(whereValueBuffer);
 
 		if(firstSet) {
-			Logger.logSQL("update SQL(updateFields) :", sql);
+			Logger.logSQL("update SQL(updateFields) :", sqlBuffer.toString());
 			throw new BeeErrorGrammarException("BeeErrorGrammarException: the SQL update set part is empty!");
 		}
 		
@@ -591,15 +596,22 @@ final class _ObjectToSQLHelper {
 		if(condition!=null){
 			 condition.setSuidType(SuidType.UPDATE); //UPDATE
 			 //即使condition包含的字段是whereColumn里的字段也会转化到sql语句.
-			 firstWhere= ConditionHelper.processCondition(sqlBuffer, valueBuffer, list, condition, firstWhere);
+//			 firstWhere= ConditionHelper.processCondition(sqlBuffer, valueBuffer, list, condition, firstWhere);
+			 firstWhere= ConditionHelper.processCondition(sqlBuffer, list, condition, firstWhere);
 		}
 		
 		sql = sqlBuffer.toString();
 
-		if (valueBuffer.length() > 0) valueBuffer.deleteCharAt(0);
-		HoneyContext.setPreparedValue(sql, list);
-		HoneyContext.setSqlValue(sql, valueBuffer.toString());
-		addInContextForCache(sqlBuffer.toString(), valueBuffer.toString(), tableName);//2019-09-29
+////		if (valueBuffer.length() > 0) valueBuffer.deleteCharAt(0);
+//		HoneyContext.setPreparedValue(sql, list);
+////		HoneyContext.setSqlValue(sql, valueBuffer.toString());
+////		addInContextForCache(sqlBuffer.toString(), valueBuffer.toString(), tableName);//2019-09-29
+//		
+//		String value=HoneyUtil.list2Value(list);
+//		HoneyContext.setSqlValue(sql, value);
+//		addInContextForCache(sqlBuffer.toString(), value, tableName);
+		
+		setContext(sql, list, tableName);
 
 		//不允许更新一个表的所有数据
 		//v1.7.2 只支持是否带where检测
@@ -911,6 +923,13 @@ final class _ObjectToSQLHelper {
 		}
 
 		return false;
+	}
+	
+	private static void setContext(String sql,List<PreparedValue> list,String tableName){
+		HoneyContext.setPreparedValue(sql, list);
+		String value=HoneyUtil.list2Value(list,true);
+//		HoneyContext.setSqlValue(sql, value);
+		addInContextForCache(sql, value, tableName);//2019-09-29
 	}
 	
     static void addInContextForCache(String sql,String sqlValue, String tableName){
