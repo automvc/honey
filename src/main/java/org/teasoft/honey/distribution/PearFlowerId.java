@@ -10,6 +10,14 @@ import org.teasoft.bee.distribution.GenId;
 import org.teasoft.bee.distribution.Worker;
 
 /**
+ * 
+ * <pre>{@code
+ * +------+----------------------+----------+-----------+-----------+
+ * | sign |     time(second)     | segment  | workerid  | sequence  |
+ * +------+----------------------+----------+-----------+-----------+
+ *   1 bit        31 bits           9 bits     10 bits     13 bits
+ * }</pre>
+ * 
  * @author Kingstar
  * @since  1.7.3
  */
@@ -17,7 +25,7 @@ public class PearFlowerId implements GenId {
 
 	private Worker worker;
 
-	private long timestamp; // second 312 bits
+	private long timestamp; // second 31 bits
 	private long segment = 0L;//一般会从分支3 获取初值
 	private long workerId = getWorker().getWorkerId(); 
 	private long sequence = 0L;  //一般会从分支3 获取初值
@@ -65,7 +73,7 @@ public class PearFlowerId implements GenId {
 		
 //		sequence=sequence+sizeOfIds-1;
 		sequence=sequence+sizeOfIds-1-1; //r[0]相当于已获取了第一个元素
-		if ((sequence >> sequenceBits) > 0) { // 超过19位表示的最大值
+		if ((sequence >> sequenceBits) > 0) { // 超过序列位表示的最大值
 			sequence = sequence & sequenceMask;
 			if (segment >= maxSegment) { // 已用完
 				lastTimestamp++; //批获取时,提前消费1s
