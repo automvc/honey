@@ -10,7 +10,9 @@ import org.teasoft.bee.distribution.GenId;
 import org.teasoft.bee.distribution.Worker;
 
 /**
- * 
+ * <p>改进的雪花算法——姑且称为梨花算法(PearFlowerId)吧  （忽如一夜春风来，千树万树梨花开）。
+ * <p>改进目标：解决雪花算法的时钟回拨问题；部分避免机器id重复时，号码冲突问题。
+
  * <pre>{@code
  * +------+----------------------+----------+-----------+-----------+
  * | sign |     time(second)     | segment  | workerid  | sequence  |
