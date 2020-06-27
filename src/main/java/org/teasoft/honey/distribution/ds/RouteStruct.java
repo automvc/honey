@@ -16,9 +16,9 @@ public class RouteStruct {
 	
 	private String tableNames; //用##间隔
 //	private String returnType; 
-	private SuidType suidType;  //操作类型
+	private SuidType suidType; 
 	private String beanString;
-	private Class entityClass;
+	private Class entityClass;  //maybe is null
 	
 	public String getTableNames() {
 		return tableNames;
