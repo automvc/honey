@@ -23,10 +23,7 @@ public class JdbcTransaction implements Transaction {
 	private Connection initOneConn() {
 
 		Connection c = null;
-//		try {
-			c = SessionFactory.getConnection();
-//		} catch (ObjSQLException e) {
-//		}
+		c = SessionFactory.getConnection();
 		return c;
 	}
 

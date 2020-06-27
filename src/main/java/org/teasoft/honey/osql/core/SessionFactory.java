@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+import javax.sql.DataSource;
+
 import org.teasoft.bee.osql.exception.NoConfigException;
 import org.teasoft.bee.osql.transaction.Transaction;
 import org.teasoft.honey.osql.constant.DbConfigConst;
@@ -19,7 +21,8 @@ public final class SessionFactory {
 
 	public static BeeFactory getBeeFactory() {
 		if(beeFactory==null) {
-			beeFactory = new BeeFactory();
+//			beeFactory = new BeeFactory();
+			beeFactory = BeeFactory.getInstance();
 		}
 		return beeFactory;
 	}
@@ -34,15 +37,14 @@ public final class SessionFactory {
 	public static Connection getConnection() {
 		Connection conn = null;
 		try {
-			if (getBeeFactory().getDataSource() == null) { //do not set the dataSource
+			DataSource ds=getBeeFactory().getDataSource();
+			if (ds != null) { 
+				conn = ds.getConnection();
+			} else {//do not set the dataSource
 				conn = getOriginalConn();
-			} else {
-				conn = getBeeFactory().getDataSource().getConnection();
 			}
 		} 
 		catch (SQLException e) {
-//			Logger.info("==========================Have SQLException==="+e.getMessage());
-			//连接断了,也是在这抛出.
 			throw ExceptionHelper.convert(e);
 		}
        catch (ClassNotFoundException e) {
@@ -50,7 +52,7 @@ public final class SessionFactory {
 			throw new NoConfigException("Can not find the Database driver(maybe miss the jar file).");
 		} 
 		catch (Exception e) {
-			Logger.error("==========================Have Exception when getConnection===: "+e.getMessage());
+			Logger.error("Have Exception when getConnection: "+e.getMessage());
 			throw ExceptionHelper.convert(e);
 		}
 

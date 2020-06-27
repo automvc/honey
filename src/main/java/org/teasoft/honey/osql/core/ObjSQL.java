@@ -23,12 +23,12 @@ public class ObjSQL implements Suid {
 	
 
 	private BeeSql beeSql;// = BeeFactory.getHoneyFactory().getBeeSql();
-	private ObjToSQL objToSQL = BeeFactory.getHoneyFactory().getObjToSQL();
+	private ObjToSQL objToSQL;// = BeeFactory.getHoneyFactory().getObjToSQL();
 
 	public ObjSQL() {}
 
 	public BeeSql getBeeSql() {
-		if(this.beeSql==null) beeSql = BeeFactory.getHoneyFactory().getBeeSql();
+		if(beeSql==null) beeSql = BeeFactory.getHoneyFactory().getBeeSql();
 		return beeSql;
 	}
 
@@ -36,6 +36,14 @@ public class ObjSQL implements Suid {
 		this.beeSql = beeSql;
 	}
 
+	public ObjToSQL getObjToSQL() {
+		if(objToSQL==null) objToSQL=BeeFactory.getHoneyFactory().getObjToSQL();
+		return objToSQL;
+	}
+
+	public void setObjToSQL(ObjToSQL objToSQL) {
+		this.objToSQL = objToSQL;
+	}
 
 	@Override
 	public <T> List<T> select(T entity) {
@@ -43,7 +51,7 @@ public class ObjSQL implements Suid {
 		if (entity == null) return null;
 
 		List<T> list = null;
-		String sql = objToSQL.toSelectSQL(entity);
+		String sql = getObjToSQL().toSelectSQL(entity);
 		Logger.logSQL("select SQL: ", sql);
 		list = getBeeSql().select(sql, entity); // 返回值用到泛型
 		return list;
@@ -57,7 +65,7 @@ public class ObjSQL implements Suid {
 
 		String sql = "";
 		int updateNum = -1;
-		sql = objToSQL.toUpdateSQL(entity);
+		sql = getObjToSQL().toUpdateSQL(entity);
 		Logger.logSQL("update SQL: ", sql);
 		updateNum = getBeeSql().modify(sql);
 
@@ -69,7 +77,7 @@ public class ObjSQL implements Suid {
 
 		if (entity == null) return -1;
 
-		String sql = objToSQL.toInsertSQL(entity);
+		String sql = getObjToSQL().toInsertSQL(entity);
 		int insertNum = -1;
 		Logger.logSQL("insert SQL: ", sql);
 		insertNum = getBeeSql().modify(sql);
@@ -81,7 +89,7 @@ public class ObjSQL implements Suid {
 
 		if (entity == null) return -1;
 
-		String sql = objToSQL.toDeleteSQL(entity);
+		String sql = getObjToSQL().toDeleteSQL(entity);
 		int deleteNum = -1;
 		Logger.logSQL("delete SQL: ", sql);
 		deleteNum = getBeeSql().modify(sql);
@@ -93,7 +101,7 @@ public class ObjSQL implements Suid {
 		if (entity == null) return null;
 
 		List<T> list = null;
-		String sql = objToSQL.toSelectSQL(entity,condition);
+		String sql = getObjToSQL().toSelectSQL(entity,condition);
 		Logger.logSQL("select SQL: ", sql);
 		list = getBeeSql().select(sql, entity); 
 		return list;
@@ -103,7 +111,7 @@ public class ObjSQL implements Suid {
 	public <T> int delete(T entity, Condition condition) {
 		if (entity == null) return -1;
 
-		String sql = objToSQL.toDeleteSQL(entity,condition);
+		String sql = getObjToSQL().toDeleteSQL(entity,condition);
 		int deleteNum = -1;
 		if (!"".equals(sql)) {
 			Logger.logSQL("delete SQL: ", sql);

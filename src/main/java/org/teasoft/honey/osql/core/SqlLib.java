@@ -23,6 +23,7 @@ import org.teasoft.bee.osql.Cache;
 import org.teasoft.bee.osql.ObjSQLException;
 import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.annotation.JoinTable;
+import org.teasoft.honey.distribution.ds.RouteStruct;
 import org.teasoft.honey.osql.name.NameUtil;
 
 /**
@@ -44,11 +45,7 @@ public class SqlLib implements BeeSql {
 
 		conn = HoneyContext.getCurrentConnection(); //获取已开启事务的连接
 		if (conn == null) {
-//			try {
-				conn = SessionFactory.getConnection(); //不开启事务时
-//			} catch (Exception e) {
-//				Logger.print("Have Error when get the Connection: ", e.getMessage());
-//			}
+			conn = SessionFactory.getConnection(); //不开启事务时
 		}
 
 		return conn;
@@ -66,6 +63,7 @@ public class SqlLib implements BeeSql {
 		if(isReg){
 		Object cacheObj=cache.get(sql);  //这里的sql还没带有值
 		if(cacheObj!=null) return (List<T>)cacheObj;
+		initRoute(SuidType.SELECT,entity.getClass());
 		}
 		
 		Connection conn = null;
@@ -130,6 +128,7 @@ public class SqlLib implements BeeSql {
 		if(isReg){
 		Object cacheObj=cache.get(sql);  //这里的sql还没带有值
 		if(cacheObj!=null) return (List<T>)cacheObj;
+		initRoute(SuidType.SELECT,entity.getClass());
 		}
 		
 		Connection conn = null;
@@ -216,6 +215,7 @@ public class SqlLib implements BeeSql {
 		if(isReg){
 		Object cacheObj=cache.get(sql);  //这里的sql还没带有值
 		if(cacheObj!=null) return (String)cacheObj;
+		initRoute(SuidType.SELECT,null);
 		}
 		
 		String result = null;
@@ -263,6 +263,7 @@ public class SqlLib implements BeeSql {
 		if(isReg){
 		Object cacheObj=cache.get(sql);  //这里的sql还没带有值
 		if(cacheObj!=null) return (List<String[]>)cacheObj;
+		initRoute(SuidType.SELECT,null);
 		}
 		
 		List<String[]> list = new ArrayList<String[]>();
@@ -312,6 +313,8 @@ public class SqlLib implements BeeSql {
 		
 		if(sql==null || "".equals(sql)) return -2;
 		
+		initRoute(SuidType.MODIFY,null);
+		
 		int num = 0;
 		Connection conn = null;
 		PreparedStatement pst = null;
@@ -350,6 +353,7 @@ public class SqlLib implements BeeSql {
 		if(isReg){
 		Object cacheObj=cache.get(sql);  //这里的sql还没带有值
 		if(cacheObj!=null) return (String)cacheObj;
+		initRoute(SuidType.SELECT,null);
 		}
 		
 		StringBuffer json=new StringBuffer("");
@@ -390,6 +394,8 @@ public class SqlLib implements BeeSql {
 	public int[] batch(String sql[], int batchSize) {
 		
 		if(sql==null) return null;
+		
+		initRoute(SuidType.INSERT,null);
 		
 		int len = sql.length;
 		int total[] = new int[len];
@@ -476,6 +482,7 @@ public class SqlLib implements BeeSql {
 		if(isReg){
 		Object cacheObj=cache.get(sql);  //这里的sql还没带有值
 		if(cacheObj!=null) return (List<T>)cacheObj;
+		initRoute(SuidType.SELECT,entity.getClass()); //TODO only multi-Ds,tables in different db.
 		}
 		
 		Connection conn = null;
@@ -656,6 +663,15 @@ public class SqlLib implements BeeSql {
 		if (struct != null) { //之前已定义有表结构,才放缓存.否则放入缓存,可能会产生脏数据.  不判断的话,自定义的查询也可以放缓存
 		  cache.add(sql, rs);
 		}
+	}
+	
+	private void initRoute(SuidType suidType,Class clazz){
+		RouteStruct routeStruct=new RouteStruct();
+		
+		routeStruct.setSuidType(suidType);
+		routeStruct.setEntityClass(clazz);
+		
+		HoneyContext.setCurrentRoute(routeStruct);
 	}
 	
 //	查缓存前需要先更新缓存信息,才能去查看是否在缓存

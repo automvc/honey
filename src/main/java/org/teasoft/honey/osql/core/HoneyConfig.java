@@ -33,8 +33,8 @@ public final class HoneyConfig {
 //		setUnderScoreAndCamelTransform(Boolean.parseBoolean(BeeProp.getBeeProp("bee.osql.underScoreAndCamelTransform")));
 //		setDbNamingToLowerCaseBefore(Boolean.parseBoolean(BeeProp.getBeeProp("bee.osql.dbNaming.toLowerCaseBefore")));
 		//		BeeProp.getBeeProp("bee.osql.delete.isAllowDeleteAllDataInOneTable");
-		setIgnoreNullInSelectJson(Boolean.parseBoolean(BeeProp.getBeeProp("bee.osql.selectJson.ignoreNull"))); //2019-08-17
-		setTimestampWithMillisecondInSelectJson(Boolean.parseBoolean(BeeProp.getBeeProp("bee.osql.selectJson.timestamp.withMillisecond")));
+//		setIgnoreNullInSelectJson(Boolean.parseBoolean(BeeProp.getBeeProp("bee.osql.selectJson.ignoreNull"))); //2019-08-17
+//		setTimestampWithMillisecondInSelectJson(Boolean.parseBoolean(BeeProp.getBeeProp("bee.osql.selectJson.timestamp.withMillisecond")));
 		setDateWithMillisecondInSelectJson(Boolean.parseBoolean(BeeProp.getBeeProp("bee.osql.selectJson.date.withMillisecond")));
 		setTimeWithMillisecondInSelectJson(Boolean.parseBoolean(BeeProp.getBeeProp("bee.osql.selectJson.time.withMillisecond")));
 		setNullToEmptyStringInReturnStringList(Boolean.parseBoolean(BeeProp.getBeeProp("bee.osql.select.returnStringList.nullToEmptyString"))); 
@@ -70,7 +70,7 @@ public final class HoneyConfig {
 
 	// 启动时动态获取
 	@SysValue("${bee.osql.showSQL}")
-	private boolean showSQL;
+	private boolean showSQL=true;
 	@SysValue("${bee.osql.showSQL.showType}")
 	private boolean showSQLShowType;//v1.7.3
 	@SysValue("${bee.osql.showSQL.showExecutableSql}")
@@ -80,13 +80,13 @@ public final class HoneyConfig {
 	private boolean showSQL_donotPrint_currentDate;  //v1.7.0
 	
 	@SysValue("${bee.osql.log.donotPrint.level}")
-	private boolean log_donotPrint_level;  //v1.7.2
+	private boolean log_donotPrint_level=true;  //v1.7.2
 	
 	@SysValue("${bee.osql.donot.allowed.deleteWholeRecords}")
-	private boolean notDeleteWholeRecords;  //v1.7.2
+	private boolean notDeleteWholeRecords=true;  //v1.7.2
 	
 	@SysValue("${bee.osql.donot.allowed.updateWholeRecords}")
-	private boolean notUpdateWholeRecords;  //v1.7.2
+	private boolean notUpdateWholeRecords=true;  //v1.7.2
 	
 	@SysValue("${bee.osql.date.format}")
 	private String dateFormat;  //v1.7.2
@@ -106,7 +106,9 @@ public final class HoneyConfig {
 	@SysValue("${bee.osql.naming.translate.type}")
 	private int namingTranslateType =1;
 	
-	private boolean ignoreNullInSelectJson;//2019-08-17
+	@SysValue("${bee.osql.selectJson.ignoreNull}")
+	private boolean ignoreNullInSelectJson=true;
+	@SysValue("${bee.osql.selectJson.timestamp.withMillisecond}")
 	private boolean timestampWithMillisecondInSelectJson;
 	private boolean dateWithMillisecondInSelectJson;
 	private boolean timeWithMillisecondInSelectJson;
@@ -135,8 +137,8 @@ public final class HoneyConfig {
 	
 	
 	/////////////////
-	@SysValue("${bee.osql.select.maxResultSize}")
-	private int selectMaxResultSize;
+//	@SysValue("${bee.osql.select.maxResultSize}")
+//	private int selectMaxResultSize;
 	
 	@SysValue("${bee.osql.select.batchSize}")
 	private int batchSize = 100; //不设置,默认100
@@ -272,25 +274,25 @@ public final class HoneyConfig {
 		return password;
 	}
 
-	public int getSelectMaxResultSize() {
-		return selectMaxResultSize;
-	}
+//	public int getSelectMaxResultSize() {
+//		return selectMaxResultSize;
+//	}
 	
 	public boolean isIgnoreNullInSelectJson() {
 		return ignoreNullInSelectJson;
 	}
 
-	private void setIgnoreNullInSelectJson(boolean ignoreNullInSelectJson) {
-		this.ignoreNullInSelectJson = ignoreNullInSelectJson;
-	}
+//	private void setIgnoreNullInSelectJson(boolean ignoreNullInSelectJson) {
+//		this.ignoreNullInSelectJson = ignoreNullInSelectJson;
+//	}
 	
 	public boolean isTimestampWithMillisecondInSelectJson() {
 		return timestampWithMillisecondInSelectJson;
 	}
 
-	private void setTimestampWithMillisecondInSelectJson(boolean timestampWithMillisecondInSelectJson) {
-		this.timestampWithMillisecondInSelectJson = timestampWithMillisecondInSelectJson;
-	}
+//	private void setTimestampWithMillisecondInSelectJson(boolean timestampWithMillisecondInSelectJson) {
+//		this.timestampWithMillisecondInSelectJson = timestampWithMillisecondInSelectJson;
+//	}
 
 	public boolean isDateWithMillisecondInSelectJson() {
 		return dateWithMillisecondInSelectJson;

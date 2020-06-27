@@ -328,7 +328,7 @@ final class _ObjectToSQLHelper {
 //				if (isContainField(setColmns, fields[i].getName())) { //set value.setColmn不受includeType影响,都会转换
 				if (isContainField(setColmns, fields[i].getName())     
 						&& ( (updatefieldSet ==null) || (updatefieldSet != null && !updatefieldSet.contains(fields[i].getName())) ) // 在updatefieldSet为新值，entity 的为旧值可放在where条件    v1.7.3
-						) {	//在指定的setColmns,且还没有用在set,setAdd,setMuliply的字段,才转成update set的部分.
+						) {	//在指定的setColmns,且还没有用在set,setAdd,setMultiply的字段,才转成update set的部分.
 					
 //					在updatefieldSet为新值，entity 的为旧值可放在where条件    v1.7.3
 //					//v1.7.2
