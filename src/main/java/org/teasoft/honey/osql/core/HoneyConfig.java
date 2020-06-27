@@ -170,6 +170,13 @@ public final class HoneyConfig {
 	public String multiDs_rDB;  //multiDsType=1
 	@SysValue("${bee.dosql.multi-DS.rDB.routeWay}")
 	public int rDbRouteWay ; //注意,系统会设初值0//multiDsType=1
+			
+	@SysValue("${bee.dosql.multi-DS.db}")
+	public String multi_dbList;
+	@SysValue("${bee.dosql.multi-DS.match.entityClassPath}")
+	public String matchEntityClassPath;  //multiDsType=2
+	@SysValue("${bee.dosql.multi-DS.match.table}")
+	public String matchTable;  //multiDsType=2
 	 
 
 //	private void setShowSQL(boolean showSQL) {
