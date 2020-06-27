@@ -12,6 +12,8 @@ import java.util.Random;
 
 import org.teasoft.bee.distribution.ds.Route;
 import org.teasoft.bee.osql.SuidType;
+import org.teasoft.bee.osql.exception.NoConfigException;
+import org.teasoft.honey.osql.core.HoneyConfig;
 import org.teasoft.honey.osql.core.HoneyContext;
 
 /**
@@ -21,7 +23,7 @@ import org.teasoft.honey.osql.core.HoneyContext;
  */
 public class RwDs implements Route{
 
-	private String writeDs;
+	private String writeDd;
 	private List<String> readDsList;
 
 	private static int count = 0;
@@ -36,19 +38,26 @@ public class RwDs implements Route{
 	}
 	
 	private void init(){
-		
+		String wDB=HoneyConfig.getHoneyConfig().multiDs_wDB;
+		String rDB_str=HoneyConfig.getHoneyConfig().multiDs_rDB;
 		//要判断从配置文件拿来的信息不能为空。
+		if( (wDB==null || "".equals(wDB.trim()))  ||  (wDB==null || "".equals(wDB.trim()))){
+			throw new NoConfigException("Error: bee.dosql.multi-DS.wDB and bee.dosql.multi-DS.rDB can not null or empty when bee.dosql.multi-DS.type=1! ");
+		}
 		
-		String wDs="ds1";
-		setWriteDs(wDs);  //TODO
-		List<String> rList=new ArrayList();
-		rList.add("ds2");
-		rList.add("ds3");
-		setReadDsList(rList);
-		
-		getReadDsList().remove(wDs); //写库不参放在只读库列表
-		r_routeWay=1; //TODO
-		
+		setWriteDs(wDB);  
+		setReadDsList(parseRDb(rDB_str));
+		getReadDsList().remove(wDB); //写库不能放在只读库列表
+		r_routeWay=HoneyConfig.getHoneyConfig().rDbRouteWay; 
+	}
+	
+	private List<String> parseRDb(String rDB_str){
+		String s[]=rDB_str.split(",");
+		List<String> rList=new ArrayList<>();
+		for (int i = 0; i < s.length; i++) {
+			rList.add(s[i]);
+		}
+		return rList;
 	}
 	
 	@Override
@@ -66,12 +75,12 @@ public class RwDs implements Route{
 	}
 
 	public String getWriteDs() {
-		System.err.println("--------------------------getWriteDs---------------"+writeDs);
-		return writeDs;
+		System.err.println("--------------------------getWriteDs---------------"+writeDd);
+		return writeDd;
 	}
 
 	public void setWriteDs(String writeDs) {  //TODO if master change, need update
-		this.writeDs = writeDs;
+		this.writeDd = writeDs;
 	}
 	
 	public String getReadDs() {

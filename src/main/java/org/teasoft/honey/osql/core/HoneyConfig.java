@@ -156,7 +156,21 @@ public final class HoneyConfig {
 	@SysValue("${bee.osql.cache.forever.modifySyn}")
 	private String foreverCacheModifySynTableList ; 
 	
+	//v1.7.3
 	
+	@SysValue("${bee.dosql.multi-DS.enable}")
+	public boolean enableMultiDs;
+	@SysValue("${bee.dosql.multi-DS.type}")
+	public int multiDsType ; //注意,系统会设初值0
+	@SysValue("${bee.dosql.multi-DS.defalut-DS}")
+	public String multiDsDefalutDS; 
+	@SysValue("${bee.dosql.multi-DS.wDB}")
+	public String multiDs_wDB;   //multiDsType=1
+	@SysValue("${bee.dosql.multi-DS.rDB}")
+	public String multiDs_rDB;  //multiDsType=1
+	@SysValue("${bee.dosql.multi-DS.rDB.routeWay}")
+	public int rDbRouteWay ; //注意,系统会设初值0//multiDsType=1
+	 
 
 //	private void setShowSQL(boolean showSQL) {
 //		this.showSQL = showSQL;

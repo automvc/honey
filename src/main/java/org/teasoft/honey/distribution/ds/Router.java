@@ -7,6 +7,7 @@
 package org.teasoft.honey.distribution.ds;
 
 import org.teasoft.bee.distribution.ds.Route;
+import org.teasoft.honey.osql.core.HoneyConfig;
 
 /**
  * @author Kingstar
@@ -20,8 +21,8 @@ public class Router {
 	private static String defaultDs;
 
 	static {
-		multiDsType = 1; //TODO
-		defaultDs = "ds1"; //TODO
+		multiDsType = HoneyConfig.getHoneyConfig().multiDsType;
+		defaultDs = HoneyConfig.getHoneyConfig().multiDsDefalutDS;
 
 		if (multiDsType == 1) {
 			route = new RwDs();

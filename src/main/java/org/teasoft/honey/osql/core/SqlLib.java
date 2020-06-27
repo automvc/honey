@@ -37,6 +37,7 @@ public class SqlLib implements BeeSql {
 	private Cache cache=BeeFactory.getHoneyFactory().getCache();
 	
 	private int cacheWorkResultSetSize=HoneyConfig.getHoneyConfig().getCacheWorkResultSetSize();
+	private boolean enableMultiDs=HoneyConfig.getHoneyConfig().enableMultiDs;
 
 	public SqlLib() {}
 
@@ -665,15 +666,6 @@ public class SqlLib implements BeeSql {
 		}
 	}
 	
-	private void initRoute(SuidType suidType,Class clazz){
-		RouteStruct routeStruct=new RouteStruct();
-		
-		routeStruct.setSuidType(suidType);
-		routeStruct.setEntityClass(clazz);
-		
-		HoneyContext.setCurrentRoute(routeStruct);
-	}
-	
 //	查缓存前需要先更新缓存信息,才能去查看是否在缓存
 //	private void updateInfoInCache(String sql, String returnType, SuidType suidType) {
 	private boolean updateInfoInCache(String sql, String returnType, SuidType suidType) {
@@ -696,6 +688,17 @@ public class SqlLib implements BeeSql {
 			HoneyContext.setCacheInfo(sql, struct);
 		}
 		cache.clear(sql);
+	}
+	
+	private void initRoute(SuidType suidType,Class clazz){
+		
+		if(! enableMultiDs) return ;
+		
+		RouteStruct routeStruct=new RouteStruct();
+		routeStruct.setSuidType(suidType);
+		routeStruct.setEntityClass(clazz);
+		
+		HoneyContext.setCurrentRoute(routeStruct);
 	}
 
 }
