@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import org.teasoft.honey.distribution.ds.RouteStruct;
+
 /**
  * @author Kingstar
  * @since  1.0
@@ -22,6 +24,8 @@ public final class HoneyContext {
 	
 	private static ThreadLocal<Map<String, CacheSuidStruct>> cacheLocal;
 	
+//	private static ThreadLocal<Map<String, RouteStruct>> routeLocal;
+	private static ThreadLocal<RouteStruct> currentRoute; 
 	
 
 	private static ThreadLocal<Connection> currentConnection;  //当前事务的
@@ -38,6 +42,7 @@ public final class HoneyContext {
 		cacheLocal = new ThreadLocal<>();
 
 		currentConnection = new ThreadLocal<>();
+		currentRoute = new ThreadLocal<>();
 		
 		entity2table=new ConcurrentHashMap<>();
 //		table2entity=new ConcurrentHashMap<>();
@@ -198,6 +203,32 @@ public final class HoneyContext {
 
 	public static void removeCurrentConnection() {
 		currentConnection.remove();
+	}
+	
+//	static void setRouteInfo(String sqlStr, RouteStruct routeStruct) {
+//		if (routeStruct == null) return;
+//		if(sqlStr==null || "".equals(sqlStr.trim())) return;
+//		Map<String, RouteStruct> map = routeLocal.get();
+//		if (null == map) map = new HashMap<>();  //TODO 
+//		map.put(sqlStr, routeStruct); 
+//		routeLocal.set(map);
+//	}
+//
+//	public static RouteStruct getRouteInfo(String sqlStr) {
+//		Map<String, RouteStruct> map = routeLocal.get();
+//		if (null == map) return null;
+//		RouteStruct struct=map.get(sqlStr);
+//		return  struct;
+//	}
+	
+	public static RouteStruct getCurrentRoute() {
+		 RouteStruct routeStruct=currentRoute.get();
+		 currentRoute.remove();
+		 return routeStruct;
+	}
+
+	public static void setCurrentRoute(RouteStruct routeStruct) {
+		currentRoute.set(routeStruct);
 	}
 
 }
