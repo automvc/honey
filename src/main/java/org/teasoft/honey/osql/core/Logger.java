@@ -68,11 +68,22 @@ public class Logger {
 		log.info(msg);
 	}
 	
+	public static void info(Number msg){
+		log.info(msg+"");
+	}
+	
 	public static void warn(String msg){
 		log.warn(msg);
+	}
+	public static void warn(Number msg){
+		log.warn(msg+"");
 	}
 	
 	public static void error(String msg){
 		log.error(msg);
+	}
+	
+	public static void error(Number msg){
+		log.error(msg+"");
 	}
 }
