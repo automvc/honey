@@ -20,8 +20,8 @@ public final class SessionFactory {
 	private static BeeFactory beeFactory = null;
 
 	public static BeeFactory getBeeFactory() {
-		if(beeFactory==null) {
-//			beeFactory = new BeeFactory();
+		if (beeFactory == null) {
+			//			beeFactory = new BeeFactory();
 			beeFactory = BeeFactory.getInstance();
 		}
 		return beeFactory;
@@ -31,28 +31,24 @@ public final class SessionFactory {
 		this.beeFactory = beeFactory;
 	}
 
-	
-	public SessionFactory(){
-	}
+	public SessionFactory() {}
+
 	public static Connection getConnection() {
 		Connection conn = null;
 		try {
-			DataSource ds=getBeeFactory().getDataSource();
-			if (ds != null) { 
+			DataSource ds = getBeeFactory().getDataSource();
+			if (ds != null) {
 				conn = ds.getConnection();
 			} else {//do not set the dataSource
 				conn = getOriginalConn();
 			}
-		} 
-		catch (SQLException e) {
+		} catch (SQLException e) {
 			throw ExceptionHelper.convert(e);
-		}
-       catch (ClassNotFoundException e) {
+		} catch (ClassNotFoundException e) {
 			Logger.error("Can not find the Database driver!  " + e.getMessage());
 			throw new NoConfigException("Can not find the Database driver(maybe miss the jar file).");
-		} 
-		catch (Exception e) {
-			Logger.error("Have Exception when getConnection: "+e.getMessage());
+		} catch (Exception e) {
+			Logger.error("Have Exception when getConnection: " + e.getMessage());
 			throw ExceptionHelper.convert(e);
 		}
 
@@ -70,7 +66,7 @@ public final class SessionFactory {
 		return tran;
 	}
 
-	private static Connection getOriginalConn() throws ClassNotFoundException,SQLException{
+	private static Connection getOriginalConn() throws ClassNotFoundException, SQLException {
 
 		String driverName = HoneyConfig.getHoneyConfig().getDriverName();
 		String url = HoneyConfig.getHoneyConfig().getUrl();
@@ -83,22 +79,13 @@ public final class SessionFactory {
 		if (username == null) nullInfo += DbConfigConst.DB_USERNAM + " do not config; ";
 		if (password == null) nullInfo += DbConfigConst.DB_PASSWORD + " do not config; ";
 
-		if (!"".equals(nullInfo)){
-			throw new NoConfigException("NoConfigException,Do not set the database info: "+nullInfo);
+		if (!"".equals(nullInfo)) {
+			throw new NoConfigException("NoConfigException,Do not set the database info: " + nullInfo);
 		}
 
 		Connection conn = null;
-//		try {
-			Class.forName(driverName);
-			conn = DriverManager.getConnection(url, username, password);
-			
-//		} catch (ClassNotFoundException e) {
-//			Logger.error("Can not find the Database driver!  "+e.getMessage());
-//			throw new NoConfigException("Can not find the Database driver(maybe miss the config info).");
-//		} 
-//		catch (SQLException e) {
-//			throw ExceptionHelper.convert(e);
-//		}
+		Class.forName(driverName);
+		conn = DriverManager.getConnection(url, username, password);
 
 		return conn;
 	}
