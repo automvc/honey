@@ -396,5 +396,17 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		return r;
 	}
 	
+	//v1.7.3
+	@Override
+	public <T> int update(T entity, Condition condition) {
+		if (entity == null) return -1;
+		int r = 0;
+		String sql = objToSQLRich.toUpdateSQL(entity, "", condition);
+		Logger.logSQL("update SQL(condition) :", sql);
+		r = getBeeSql().modify(sql);
+		
+		return r;
+	}
+	
 
 }
