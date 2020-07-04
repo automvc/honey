@@ -291,7 +291,14 @@ final class _ObjectToSQLHelper {
 		
 		Set<String> updatefieldSet=null;
 		if (condition != null) updatefieldSet=condition.getUpdatefieldSet();
-
+		
+//		if (updateFields.length == 0 || "".equals(updateFieldList.trim()))
+		
+		if( (setColmns==null || (setColmns.length==1 && "".equals(setColmns[0].trim()) ) )
+		   && (updatefieldSet==null || updatefieldSet.size()==0) ){
+			throw new ObjSQLException("ObjSQLException: in SQL update set at least include one field.");
+		}
+		
 		String sql = "";
 		StringBuffer sqlBuffer = new StringBuffer();
 //		StringBuffer valueBuffer = new StringBuffer(); //delete 2020-06
