@@ -451,10 +451,11 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 
 	@Override
 	public <T> String toUpdateSQL(T entity, String updateFieldList, Condition condition) {
-
+		
+		if(updateFieldList==null) updateFieldList="";
 		String updateFields[] = updateFieldList.split(","); //setColmns
-		if (updateFields.length == 0 || "".equals(updateFieldList.trim()))
-			throw new ObjSQLException("ObjSQLException:updateFieldList at least include one field.");
+//		if (updateFields.length == 0 || "".equals(updateFieldList.trim()))  //close in v1.7.3    because: set can define in condition
+//			throw new ObjSQLException("ObjSQLException:updateFieldList at least include one field.");
 
 		if (condition == null || condition.getIncludeType() == null) {
 			return _ObjectToSQLHelper._toUpdateSQL(entity, updateFields, -1, condition);//includeType=-1
