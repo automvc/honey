@@ -222,13 +222,16 @@ public class PreparedSqlLib implements PreparedSql {
 	}
 	
 	private <T> void initPreparedValues(String sql, Object[] preValues, T entity) {
-		StringBuffer valueBuffer = initPreparedValues(sql, preValues);
+//		StringBuffer valueBuffer = initPreparedValues(sql, preValues);
+		initPreparedValues(sql, preValues);
 //		if (valueBuffer.length() > 0) {//bug. no placeholder will have problem.
 			String tableName = _toTableName(entity);
-			addInContextForCache(sql, valueBuffer.toString(), tableName);
+//			addInContextForCache(sql, valueBuffer.toString(), tableName);
+			addInContextForCache(sql, tableName);
 //		}
 	}
-	private StringBuffer initPreparedValues(String sql, Object[] preValues) {
+//	private StringBuffer initPreparedValues(String sql, Object[] preValues) {
+	private void initPreparedValues(String sql, Object[] preValues) {
 		
 		if(sql==null || "".equals(sql.trim())) {
 			throw new SqlNullException("sql statement string is Null !");
@@ -236,23 +239,23 @@ public class PreparedSqlLib implements PreparedSql {
 
 		PreparedValue preparedValue = null;
 		List<PreparedValue> list = new ArrayList<>();
-		StringBuffer valueBuffer = new StringBuffer();
+//		StringBuffer valueBuffer = new StringBuffer();
 		for (int i = 0; i < preValues.length; i++) {
 			preparedValue = new PreparedValue();
 			preparedValue.setType(preValues[i].getClass().getName());
 			preparedValue.setValue(preValues[i]);
 			list.add(preparedValue);
 
-			valueBuffer.append(",");
-			valueBuffer.append(preValues[i]);
+//			valueBuffer.append(",");
+//			valueBuffer.append(preValues[i]);
 		}
 
-		if (valueBuffer.length() > 0) {
-			valueBuffer.deleteCharAt(0);
+//		if (valueBuffer.length() > 0) {
+//			valueBuffer.deleteCharAt(0);
 			HoneyContext.setPreparedValue(sql, list);
-			HoneyContext.setSqlValue(sql, valueBuffer.toString());
-		}
-		return valueBuffer;
+//			HoneyContext.setSqlValue(sql, valueBuffer.toString());
+//		}
+//		return valueBuffer;
 	}
 	
 	private <T> Map<String, Object> mergeMap(Map<String, Object> prameterMap, T entity){
@@ -272,17 +275,19 @@ public class PreparedSqlLib implements PreparedSql {
 		SqlValueWrap wrap = processSql(sqlStr); //will return null when sql no placeholder like: select * from tableName
 		if (wrap == null) {
 			String tableName = _toTableName(entity);
-			addInContextForCache(sqlStr, null, tableName);
+//			addInContextForCache(sqlStr, null, tableName);
+			addInContextForCache(sqlStr, tableName);
 			return sqlStr;
 		} else {
-
+//TODO 没有将值的list放缓存???
 			String sql = wrap.getSql();
 			String mapKeys = wrap.getValueBuffer().toString(); //wrap.getValueBuffer() is :map's key , get from like: #{name}
 			StringBuffer valueBuffer = _initPreparedValues(sql, mapKeys, parameterMap);
 
 			//if (valueBuffer.length() > 0) {
 			String tableName = _toTableName(entity);
-			addInContextForCache(sql, valueBuffer.toString(), tableName);
+//			addInContextForCache(sql, valueBuffer.toString(), tableName);
+			addInContextForCache(sql, tableName);
 			//}
 			return sql;
 		}
@@ -348,7 +353,7 @@ public class PreparedSqlLib implements PreparedSql {
 		if (valueBuffer.length() > 0) {
 			valueBuffer.deleteCharAt(0);
 			HoneyContext.setPreparedValue(sql, list);
-			HoneyContext.setSqlValue(sql, valueBuffer.toString());
+//			HoneyContext.setSqlValue(sql, valueBuffer.toString());
 		}
 		
 		return valueBuffer;
@@ -358,8 +363,12 @@ public class PreparedSqlLib implements PreparedSql {
 		return TokenUtil.process(sql, "#{", "}", "?");
 	}
 	
-	private static void addInContextForCache(String sql,String sqlValue, String tableName){
-		_ObjectToSQLHelper.addInContextForCache(sql, sqlValue, tableName);
+//	private static void addInContextForCache(String sql,String sqlValue, String tableName){
+//		_ObjectToSQLHelper.addInContextForCache(sql, sqlValue, tableName);
+//	}
+	
+	private static void addInContextForCache(String sql, String tableName){
+		_ObjectToSQLHelper.addInContextForCache(sql, tableName);
 	}
 	
 	private static String _toTableName(Object entity){
