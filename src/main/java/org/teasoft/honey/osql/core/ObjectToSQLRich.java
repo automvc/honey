@@ -188,7 +188,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		if (fieldForFun == null || funType == null) return null;
 		boolean isContainField = false;
 		StringBuffer sqlBuffer = new StringBuffer();
-		StringBuffer valueBuffer = new StringBuffer();
+//		StringBuffer valueBuffer = new StringBuffer();
 		String sql = null;
 		try {
 			String tableName =_toTableName(entity);
@@ -234,8 +234,8 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 					sqlBuffer.append("=");
 					sqlBuffer.append("?");
 
-					valueBuffer.append(",");
-					valueBuffer.append(fields[i].get(entity));
+//					valueBuffer.append(",");
+//					valueBuffer.append(fields[i].get(entity));
 
 					preparedValue = new PreparedValue();
 					preparedValue.setType(fields[i].getType().getName());
@@ -247,11 +247,12 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 //			sqlBuffer.append(" ;");
 			sql = sqlBuffer.toString();
 
-			if (valueBuffer.length() > 0) valueBuffer.deleteCharAt(0);
+//			if (valueBuffer.length() > 0) valueBuffer.deleteCharAt(0);
 			HoneyContext.setPreparedValue(sql, list);
-			HoneyContext.setSqlValue(sql, valueBuffer.toString());
-			addInContextForCache(sql, valueBuffer.toString(), tableName);
-			
+//			HoneyContext.setSqlValue(sql, valueBuffer.toString());
+//			addInContextForCache(sql, valueBuffer.toString(), tableName);
+			addInContextForCache(sql, tableName);
+			//TODO setContext
 
 			if (SqlStrFilter.checkFunSql(sql, funType)) {
 				throw new ObjSQLIllegalSQLStringException("ObjSQLIllegalSQLStringException:sql statement with function is illegal. " + sql);
@@ -481,8 +482,8 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		list.add(preparedValue);
 		
 		HoneyContext.setPreparedValue(sqlBuffer.toString(), list);
-		HoneyContext.setSqlValue(sqlBuffer.toString(), id+""); //用于log显示
-		addInContextForCache(sqlBuffer.toString(), id+"", wrap.getTableNames());
+//		HoneyContext.setSqlValue(sqlBuffer.toString(), id+""); //用于log显示
+		addInContextForCache(sqlBuffer.toString(), wrap.getTableNames());
 		
 		return sqlBuffer.toString();
 	}
@@ -514,8 +515,8 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		sqlBuffer.append(t_ids);
 		
 		HoneyContext.setPreparedValue(sqlBuffer.toString(), list);
-		HoneyContext.setSqlValue(sqlBuffer.toString(), ids); //用于log显示
-		addInContextForCache(sqlBuffer.toString(), ids, wrap.getTableNames());
+//		HoneyContext.setSqlValue(sqlBuffer.toString(), ids); //用于log显示
+		addInContextForCache(sqlBuffer.toString(), wrap.getTableNames());
 		
 		return sqlBuffer.toString();
 	}
@@ -552,7 +553,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	private <T> SqlValueWrap toSelectSQL_0(T entity,String selectField) {
 
 		StringBuffer sqlBuffer = new StringBuffer();
-		StringBuffer valueBuffer = new StringBuffer();
+//		StringBuffer valueBuffer = new StringBuffer();
 		SqlValueWrap wrap = new SqlValueWrap();
 		try {
 			String tableName =_toTableName(entity);
@@ -592,8 +593,8 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 					sqlBuffer.append("=");
 					sqlBuffer.append("?");
 
-					valueBuffer.append(",");
-					valueBuffer.append(fields[i].get(entity));
+//					valueBuffer.append(",");
+//					valueBuffer.append(fields[i].get(entity));
 
 					preparedValue = new PreparedValue();
 					preparedValue.setType(fields[i].getType().getName());
@@ -604,12 +605,12 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 
 //			sqlBuffer.append(";");   //close on 2019-04-27
 
-			if (valueBuffer.length() > 0) valueBuffer.deleteCharAt(0);
+//			if (valueBuffer.length() > 0) valueBuffer.deleteCharAt(0);
 
 			wrap.setTableNames(tableName);//2019-09-29
 			wrap.setSql(sqlBuffer.toString());
 			wrap.setList(list);
-			wrap.setValueBuffer(valueBuffer);
+//			wrap.setValueBuffer(valueBuffer);
 
 		} catch (IllegalAccessException e) {
 			throw ExceptionHelper.convert(e);
@@ -620,13 +621,14 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 
 	private void setPreparedValue(String sql, SqlValueWrap wrap) {
 		HoneyContext.setPreparedValue(sql, wrap.getList());
-		HoneyContext.setSqlValue(sql, wrap.getValueBuffer().toString());
-		addInContextForCache(sql, wrap.getValueBuffer().toString(), wrap.getTableNames());
+//		HoneyContext.setSqlValue(sql, wrap.getValueBuffer().toString());
+//		addInContextForCache(sql, wrap.getValueBuffer().toString(), wrap.getTableNames());
+		addInContextForCache(sql, wrap.getTableNames());
 	}
 	
 	private void setPreparedValue_ForArray(String sql, SqlValueWrap wrap) {
 		HoneyContext.setPreparedValue(sql, wrap.getList());
-		HoneyContext.setSqlValue(sql, wrap.getValueBuffer().toString());
+//		HoneyContext.setSqlValue(sql, wrap.getValueBuffer().toString());  //TODO  closed on 2020-07-04
 //		addInContextForCache(sql, wrap.getValueBuffer().toString(), wrap.getTableNames());
 	}
 	
@@ -669,8 +671,10 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		return newSelectFields;
 	}
 	
-   private static void addInContextForCache(String sql,String sqlValue, String tableName){
-	   _ObjectToSQLHelper.addInContextForCache(sql, sqlValue, tableName);
+// private static void addInContextForCache(String sql,String sqlValue, String tableName){
+   private static void addInContextForCache(String sql, String tableName){
+//	   _ObjectToSQLHelper.addInContextForCache(sql, sqlValue, tableName);
+	   _ObjectToSQLHelper.addInContextForCache(sql, tableName);
 	}
    
 	private static <T> void checkPackage(T entity) {
