@@ -20,7 +20,7 @@ public final class HoneyContext {
 	private static ConcurrentMap<String, MoreTableStruct[]> moreTableStructMap;
 
 	private static ThreadLocal<Map<String, List<PreparedValue>>> sqlPreValueLocal;
-	private static ThreadLocal<Map<String, String>> sqlValueLocal;
+//	private static ThreadLocal<Map<String, String>> sqlValueLocal;
 	
 	private static ThreadLocal<Map<String, CacheSuidStruct>> cacheLocal;
 	
@@ -38,7 +38,7 @@ public final class HoneyContext {
 		moreTableStructMap= new ConcurrentHashMap<>();
 		
 		sqlPreValueLocal = new ThreadLocal<>();
-		sqlValueLocal = new ThreadLocal<>();
+//		sqlValueLocal = new ThreadLocal<>();
 		cacheLocal = new ThreadLocal<>();
 
 		currentConnection = new ThreadLocal<>();
@@ -149,7 +149,7 @@ public final class HoneyContext {
 		return list;
 	}
 
-    static void setSqlValue(String sqlStr, String value) {
+/*    static void setSqlValue(String sqlStr, String value) {
 		if (value == null || "".equals(value.trim())) return;
 		if(sqlStr==null || "".equals(sqlStr.trim())) return;
 		Map<String, String> map = sqlValueLocal.get();
@@ -164,7 +164,7 @@ public final class HoneyContext {
 		String s = map.get(sqlStr);
 		if (s != null) map.remove(sqlStr);
 		return s;
-	}
+	}*/
 	
 	
 	static void setCacheInfo(String sqlStr, CacheSuidStruct cacheInfo) {
