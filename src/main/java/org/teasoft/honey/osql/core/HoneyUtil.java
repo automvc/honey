@@ -702,9 +702,10 @@ public final class HoneyUtil {
 		int size=list.size();
 		for (int j = 0; j < size; j++) {
 			b.append(list.get(j).getValue());
-			if(needType) {
+			type=list.get(j).getType();
+			if(needType && type !=null) {
 				b.append("(");
-				type=list.get(j).getType();
+				
 				if(type.startsWith("java.lang.")){
 					b.append(type.substring(10));
 				}else{
