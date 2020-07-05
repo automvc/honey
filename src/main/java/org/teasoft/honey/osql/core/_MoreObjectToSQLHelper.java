@@ -52,7 +52,7 @@ public class _MoreObjectToSQLHelper {
 		if(condition!=null) conditionFieldSet=condition.getFieldSet();
 		StringBuffer sqlBuffer = new StringBuffer();
 		StringBuffer sqlBuffer2 = new StringBuffer();
-		StringBuffer valueBuffer = new StringBuffer();
+//		StringBuffer valueBuffer = new StringBuffer();
 		try {
 			
 			Field fields[] = entity.getClass().getDeclaredFields(); 
@@ -175,8 +175,8 @@ public class _MoreObjectToSQLHelper {
 						sqlBuffer2.append("=");
 						sqlBuffer2.append("?");
 
-						valueBuffer.append(",");
-						valueBuffer.append(fields[i].get(entity));
+//						valueBuffer.append(",");
+//						valueBuffer.append(fields[i].get(entity));
 
 						preparedValue = new PreparedValue();
 						preparedValue.setType(fields[i].getType().getName());
@@ -193,13 +193,15 @@ public class _MoreObjectToSQLHelper {
 				if (moreTableStruct[index] != null) {
 //					parseSubObject(sqlBuffer, valueBuffer, list, conditionFieldSet, firstWhere, includeType, moreTableStruct, index);
 //					bug: firstWhere需要返回,传给condition才是最新的
-					firstWhere=parseSubObject(sqlBuffer, valueBuffer, list, conditionFieldSet, firstWhere, includeType, moreTableStruct, index);
+//					firstWhere=parseSubObject(sqlBuffer, valueBuffer, list, conditionFieldSet, firstWhere, includeType, moreTableStruct, index);
+					firstWhere=parseSubObject(sqlBuffer, list, conditionFieldSet, firstWhere, includeType, moreTableStruct, index);
 				}
 			}
 			
 			if(condition!=null){
 				 condition.setSuidType(SuidType.SELECT);
-			     ConditionHelper.processCondition(sqlBuffer, valueBuffer, list, condition, firstWhere,useSubTableNames);
+//			     ConditionHelper.processCondition(sqlBuffer, valueBuffer, list, condition, firstWhere,useSubTableNames);
+			     ConditionHelper.processCondition(sqlBuffer, list, condition, firstWhere,useSubTableNames);
 			}
 			
 			if(start!=-1 && size!=-1){
@@ -210,10 +212,10 @@ public class _MoreObjectToSQLHelper {
 			
 //			sqlBuffer.append(";");
 
-			if (valueBuffer.length() > 0) valueBuffer.deleteCharAt(0);
+//			if (valueBuffer.length() > 0) valueBuffer.deleteCharAt(0);
 			HoneyContext.setPreparedValue(sql, list);
-			HoneyContext.setSqlValue(sql, valueBuffer.toString()); //用于log显示
-			addInContextForCache(sql, valueBuffer.toString(), tableName);//TODO tableName还要加上多表的.
+//			HoneyContext.setSqlValue(sql, valueBuffer.toString()); //用于log显示
+			addInContextForCache(sql, tableName);//TODO tableName还要加上多表的.
 		} catch (IllegalAccessException e) {
 			throw ExceptionHelper.convert(e);
 		}
@@ -222,7 +224,7 @@ public class _MoreObjectToSQLHelper {
 		return sql;
 	}
 	
-	private static boolean parseSubObject(StringBuffer sqlBuffer2, StringBuffer valueBuffer, 
+	private static boolean parseSubObject(StringBuffer sqlBuffer2, 
 			List<PreparedValue> list,  Set<String> conditionFieldSet, boolean firstWhere,
 			 int includeType,MoreTableStruct moreTableStruct[],int index) {
 		
@@ -273,8 +275,8 @@ public class _MoreObjectToSQLHelper {
 					sqlBuffer2.append("=");
 					sqlBuffer2.append("?");
 
-					valueBuffer.append(",");
-					valueBuffer.append(fields[i].get(entity));
+//					valueBuffer.append(",");
+//					valueBuffer.append(fields[i].get(entity));
 
 					preparedValue = new PreparedValue();
 					preparedValue.setType(fields[i].getType().getName());
@@ -291,10 +293,11 @@ public class _MoreObjectToSQLHelper {
 		return firstWhere;
 	}
 	
-    static void addInContextForCache(String sql,String sqlValue, String tableName){
+//	static void addInContextForCache(String sql,String sqlValue, String tableName){
+    static void addInContextForCache(String sql, String tableName){
 		CacheSuidStruct struct=new CacheSuidStruct();
 		struct.setSql(sql);
-		struct.setSqlValue(sqlValue);
+//		struct.setSqlValue(sqlValue);
 		struct.setTableNames(tableName);
 		
 		HoneyContext.setCacheInfo(sql, struct);
