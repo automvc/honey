@@ -107,17 +107,19 @@ public class ConditionHelper {
 	static boolean processCondition(StringBuffer sqlBuffer, 
 		 List<PreparedValue> list, Condition condition, boolean firstWhere) {
 		 StringBuffer valueBuffer=new StringBuffer(); //don't use, just adapt the old method
-		 return processCondition(sqlBuffer, valueBuffer, list, condition, firstWhere, null);
+//		 return processCondition(sqlBuffer, valueBuffer, list, condition, firstWhere, null);
+		 return processCondition(sqlBuffer, list, condition, firstWhere, null);
 	}
 	
 	//v1.7.2  add return value for delete/update control
 	static boolean processCondition(StringBuffer sqlBuffer, StringBuffer valueBuffer, 
 			List<PreparedValue> list, Condition condition, boolean firstWhere) {
 		
-		 return processCondition(sqlBuffer, valueBuffer, list, condition, firstWhere, null);
+//		 return processCondition(sqlBuffer, valueBuffer, list, condition, firstWhere, null);
+		 return processCondition(sqlBuffer, list, condition, firstWhere, null);
 	}
 	//v1.7.2  add return value for delete/update control
-	static boolean processCondition(StringBuffer sqlBuffer, StringBuffer valueBuffer, 
+	static boolean processCondition(StringBuffer sqlBuffer, 
 			List<PreparedValue> list, Condition condition, boolean firstWhere,String useSubTableNames[]) {
 		
 		if(condition==null) return firstWhere;
@@ -175,8 +177,8 @@ public class ConditionHelper {
 
 				sqlBuffer.append(")");
 
-				valueBuffer.append(","); //valueBuffer
-				valueBuffer.append(expression.getValue());
+//				valueBuffer.append(","); //valueBuffer
+//				valueBuffer.append(expression.getValue());
 
 				for (int i = 0; i < values.length; i++) {
 
@@ -196,8 +198,8 @@ public class ConditionHelper {
 				sqlBuffer.append(expression.getOpType());
 				sqlBuffer.append("?");
 
-				valueBuffer.append(","); //valueBuffer
-				valueBuffer.append(expression.getValue());
+//				valueBuffer.append(","); //valueBuffer
+//				valueBuffer.append(expression.getValue());
 
 				preparedValue = new PreparedValue();
 				preparedValue.setType(expression.getValue().getClass().getName());
@@ -216,10 +218,10 @@ public class ConditionHelper {
 				sqlBuffer.append(" and ");
 				sqlBuffer.append("?");
 
-				valueBuffer.append(","); //valueBuffer
-				valueBuffer.append(expression.getValue()); //low
-				valueBuffer.append(","); //valueBuffer
-				valueBuffer.append(expression.getValue2()); //high
+//				valueBuffer.append(","); //valueBuffer
+//				valueBuffer.append(expression.getValue()); //low
+//				valueBuffer.append(","); //valueBuffer
+//				valueBuffer.append(expression.getValue2()); //high
 
 				preparedValue = new PreparedValue();
 				preparedValue.setType(expression.getValue().getClass().getName());
@@ -266,8 +268,8 @@ public class ConditionHelper {
 					//		                  sqlBuffer.append(expression.getValue2()); 
 					sqlBuffer.append("?");
 
-					valueBuffer.append(",");
-					valueBuffer.append(expression.getValue2()); // here is value2
+//					valueBuffer.append(",");
+//					valueBuffer.append(expression.getValue2()); // here is value2
 
 					preparedValue = new PreparedValue();
 					preparedValue.setType(expression.getValue2().getClass().getName());
@@ -331,8 +333,8 @@ public class ConditionHelper {
 				sqlBuffer.append(expression.getOpType());
 				sqlBuffer.append("?");
 
-				valueBuffer.append(",");
-				valueBuffer.append(expression.getValue());
+//				valueBuffer.append(",");
+//				valueBuffer.append(expression.getValue());
 
 				preparedValue = new PreparedValue();
 				preparedValue.setType(expression.getValue().getClass().getName());
