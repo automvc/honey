@@ -13,7 +13,7 @@ package org.teasoft.honey.osql.core;
 public class CacheSuidStruct {
 	
 	private String sql;  //不带值的
-	private String sqlValue;
+//	private String sqlValue;  // get from context
 	private String tableNames; //用##间隔
 	private String returnType;  //返回值类型用于过滤缓存的查询结果,防止同一查询sql的不同类型的结果;  但更改的操作可不需要用这个值
 	private String suidType;  //操作类型
@@ -26,12 +26,12 @@ public class CacheSuidStruct {
 	public void setSql(String sql) {
 		this.sql = sql;
 	}
-	public String getSqlValue() {
-		return sqlValue;
-	}
-	public void setSqlValue(String sqlValue) {
-		this.sqlValue = sqlValue;
-	}
+//	public String getSqlValue() {  // get from context
+//		return sqlValue;
+//	}
+//	public void setSqlValue(String sqlValue) {
+//		this.sqlValue = sqlValue;
+//	}
 
 	public String getTableNames() {
 		return tableNames;
