@@ -7,6 +7,8 @@
 package org.teasoft.honey.distribution;
 
 import org.teasoft.bee.distribution.Worker;
+import org.teasoft.bee.osql.exception.ConfigWrongException;
+import org.teasoft.honey.osql.core.HoneyConfig;
 
 /**
  * @author Kingstar
@@ -16,10 +18,9 @@ public class DefaultWorker implements Worker{
 
 	@Override
 	public long getWorkerId() {
-		
-		//TODO  从配置文件中读取workid.
-		
-		return 0;
+		int workerid=HoneyConfig.getHoneyConfig().workerid;
+		if(workerid<0 || workerid>1023) throw new ConfigWrongException(" workerid is wrong. need in [0,1023]");
+		return workerid;
 	}
 	
 }
