@@ -49,8 +49,11 @@ public final class CacheUtil {
 	private static Map<String,Object> foreverCacheObjectMap=new HashMap<>();
 	private static Map<String,Object> foreverModifySynCacheObjectMap=new Hashtable<>();
 	
+	private static boolean isShowSql=false;
+	
 	static {
 		MAX_SIZE=HoneyConfig.getHoneyConfig().getCacheMapSize();
+		isShowSql=HoneyConfig.getHoneyConfig().isShowSQL();
 		
 		map=new ConcurrentHashMap<>();
 		
@@ -87,7 +90,7 @@ public final class CacheUtil {
 				}
 				return null;
 			}
-			Logger.print("[Bee] ==========get from cache.");
+			if(isShowSql) Logger.print("[Bee] ==========get from cache.");
 
 			// 要是能返回缓存的结果集,说明不用上下文的缓存结构信息了. 可以删
 			HoneyContext.deleteCacheInfo(sql);
@@ -104,7 +107,7 @@ public final class CacheUtil {
 						Object obj = foreverCacheObjectMap.get(key);
 						if (obj != null) { //是该查询放缓存才删缓存cacheStruct信息
 							HoneyContext.deleteCacheInfo(sql);
-							Logger.print("[Bee] ==========get from cache.");
+							if(isShowSql) Logger.print("[Bee] ==========get from cache.");
 						}
 						
 						return obj;
@@ -118,7 +121,7 @@ public final class CacheUtil {
 					Object obj = foreverModifySynCacheObjectMap.get(key);
 					if (obj != null) { //放缓存了
 						HoneyContext.deleteCacheInfo(sql);//是该查询放缓存才删缓存cacheStruct信息
-						Logger.print("[Bee] ==========get from cache.");
+						if(isShowSql) Logger.print("[Bee] ==========get from cache.");
 					}
 					
 					return obj;
@@ -253,7 +256,7 @@ public final class CacheUtil {
 		//满了,还要处理呢   满了后,一次删10%?  已在配置里设置
 		if(arrayIndex.isWouldbeFull()){
 //			Logger.info("==================== cache is wouldbe full ..");
-			Logger.warn("[Bee] ==========Cache would be full!");
+			if(isShowSql) Logger.warn("[Bee] ==========Cache would be full!");
 //			满了后,起一个线程,一次删除一部分,如10%;然后立即返回,本次不放缓存
 //			new CacheClearThread(arrayIndex.getDeleteCacheIndex()).start();  //起一个线程执行
 			new CacheDeleteThread(arrayIndex.getDeleteCacheIndex()).begin();  //快满了,删除一定比例最先存入的
@@ -261,7 +264,7 @@ public final class CacheUtil {
 			//快满就清除,还是可以放部分的,所以不用立即返回  --> 要是剩下的位置不多,来的数据就足够快,还是有危险.直接返回会安全些
 			
 			if(arrayIndex.getUsedRate() >=90) {
-				Logger.warn("[Bee] ==========Cache already used more than 90% !");
+				if(isShowSql) Logger.warn("[Bee] ==========Cache already used more than 90% !");
 				HoneyContext.deleteCacheInfo(sql);//要清除cacheStruct
 				return ;  //快满了,本次不放缓存,直接返回
 			}
