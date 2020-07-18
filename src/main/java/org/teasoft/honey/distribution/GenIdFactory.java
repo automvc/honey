@@ -62,13 +62,15 @@ public class GenIdFactory {
 		genId = map.get(key);
 		if (genId == null) {
 			switch (genType) {
-
 				case "SerialUniqueId":
 					genId = new SerialUniqueId();
+					break;
 				case "OneTimeSnowflakeId":
 					genId = new OneTimeSnowflakeId();
+					break;
 				case "PearFlowerId":
 					genId = new PearFlowerId();
+					break;
 			}
 			map.put(key, genId);
 			//TODO 要选择不同类型   每种ID,还要选择不同的业务类型,如不同的表名,只给自己的表拿ID(表名隔离).
