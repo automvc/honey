@@ -16,8 +16,11 @@ import org.teasoft.bee.distribution.Worker;
  * 支持批获取ID号。可以一次取一批ID（即一个范围内的ID一次就可以获取了）。可以代替依赖DB的号段模式。
  * 应用订单号等有安全要求的场景,可随机不定时获取一些批的号码不用即可。
  * 
- * 可间隔时间缓存时间值到文件，供重启时设置回初值用。若不缓存，则重启时，又用目前的时间点，重设开始的ID。只要平均不超过419w/s，重启时造成的时
- * 钟回拨都不会有影响（但却浪费了辛苦攒下的每秒没用完的ID号）。要是很多时间都超过419w/s，证明你有足够的能力做这件事：间隔时间缓存时间值到文件。
+ * [<delete> 可间隔时间缓存时间值到文件，供重启时设置回初值用。若不缓存，则重启时，又用目前的时间点，重设开始的ID。只要平均不超过419w/s，重启时造成的时
+ * 钟回拨都不会有影响（但却浪费了辛苦攒下的每秒没用完的ID号）。要是很多时间都超过419w/s，证明你有足够的能力做这件事：间隔时间缓存时间值到文件。</delete>]
+ * 考虑到2019年双11的峰值不超过55万笔/秒, 因此419w/s这个值已可以满足此苛刻要求;采用testSpeedLimit()检测平均值不超过419w/s这个值即可,而且在空闲时
+ * 段省下的ID号,还可以在高峰时使用。
+ * 
  * 
  * <pre>{@code
  * +------+----------------------+----------+-----------+-----------+
@@ -32,12 +35,12 @@ import org.teasoft.bee.distribution.Worker;
 public class OneTimeSnowflakeId implements GenId {
 
 	private Worker worker;
-
-	//	private long timestamp; // second 312 bits   just start need the time.
-	private long time; //second 312 bits
-	private long segment = 0L;//一般会从分支3 获取初值
+	private long startTime;
+	
+	private long time; //second 31 bits   just start need the time.
+	private long segment = 0L;
 	private long workerId = getWorker().getWorkerId();
-	private long sequence = 0L; //一般会从分支3 获取初值
+	private long sequence = 0L; 
 
 	//以下三部分加起来要等于32位.
 	private final long segmentBits = 9L;
@@ -52,9 +55,12 @@ public class OneTimeSnowflakeId implements GenId {
 	private final long maxSegment = (1 << segmentBits) - 1;
 
 	private long twepoch = 1483200000; // 单位：s    2017-01-01 (yyyy-MM-dd)
+	
+	private long _counter=0;
 
 	public OneTimeSnowflakeId() {
-		time = _curSecond() - twepoch;
+		startTime=_curSecond();
+		time = startTime - twepoch;
 	}
 
 	public Worker getWorker() {
@@ -68,7 +74,11 @@ public class OneTimeSnowflakeId implements GenId {
 
 	@Override
 	public synchronized long get() {
-		return getNextId();
+		long id=getNextId();
+		
+		testSpeedLimit();
+		
+		return id;
 	}
 
 	@Override
@@ -76,8 +86,8 @@ public class OneTimeSnowflakeId implements GenId {
 		long r[] = new long[2];
 		r[0] = getNextId();
 
-//		sequence=sequence+sizeOfIds-1;
 		sequence = sequence + sizeOfIds - 1 - 1; //r[0]相当于已获取了第一个元素
+		_counter=_counter + sizeOfIds - 1 - 1;
 		if ((sequence >> sequenceBits) > 0) { // 超过序列位表示的最大值
 			sequence = sequence & sequenceMask;
 			if (segment >= maxSegment) { // 已用完
@@ -88,6 +98,8 @@ public class OneTimeSnowflakeId implements GenId {
 			}
 		}
 		r[1] = getNextId();
+		
+		testSpeedLimit();
 
 		return r;
 	}
@@ -97,7 +109,8 @@ public class OneTimeSnowflakeId implements GenId {
 	 * @return id number.
 	 */
 	private long getNextId() {
-		sequence++;
+		sequence++; 
+		_counter++; 
 		if ((sequence >> sequenceBits) > 0) { // 超过序列位表示的最大值
 			if (segment >= maxSegment) { // 已用完,自动用下一秒的
 				time++;
@@ -108,11 +121,25 @@ public class OneTimeSnowflakeId implements GenId {
 		}
 
 		return (time << timestampShift) | (segment << segmentShift) | (workerId << workerIdShift) | (sequence);
-
 	}
 
 	private long _curSecond() {
 		return (System.currentTimeMillis()) / 1000L;
 	}
+	
+	
+	private void testSpeedLimit() {
 
+		long spentTime = _curSecond() - startTime + 1;
+
+		if (spentTime > 0) {
+			if ((spentTime << (segmentBits + sequenceBits)) > _counter) return;
+		}
+		try {
+			wait(10);
+			testSpeedLimit();
+		} catch (Exception e) {
+          e.printStackTrace();
+		}
+	}
 }
