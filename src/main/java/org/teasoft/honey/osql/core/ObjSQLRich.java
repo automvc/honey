@@ -103,9 +103,9 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Override
 	public <T> int[] insert(T entity[]) {
 		if (entity == null) return null;
-		int len = entity.length;
-		String insertSql[] = new String[len];
-		insertSql = objToSQLRich.toInsertSQL(entity);
+//		int len = entity.length;
+//		String insertSql[] = new String[len];
+		String insertSql[] = objToSQLRich.toInsertSQL(entity);
 
 		return getBeeSql().batch(insertSql);
 	}
@@ -113,9 +113,9 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Override
 	public <T> int[] insert(T entity[], String excludeFields) {
 		if (entity == null) return null;
-		int len = entity.length;
-		String insertSql[] = new String[len];
-		insertSql = objToSQLRich.toInsertSQL(entity, excludeFields);
+//		int len = entity.length;
+//		String insertSql[] = new String[len];
+		String insertSql[] = objToSQLRich.toInsertSQL(entity, excludeFields);
 
 		return getBeeSql().batch(insertSql);
 	}
@@ -123,9 +123,9 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Override
 	public <T> int[] insert(T entity[], int batchSize) {
 		if (entity == null) return null;
-		int len = entity.length;
-		String insertSql[] = new String[len];
-		insertSql = objToSQLRich.toInsertSQL(entity);
+//		int len = entity.length;
+//		String insertSql[] = new String[len];
+		String insertSql[] = objToSQLRich.toInsertSQL(entity);
 
 		return getBeeSql().batch(insertSql, batchSize);
 	}
@@ -133,9 +133,9 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Override
 	public <T> int[] insert(T entity[], int batchSize, String excludeFields) {
 		if (entity == null) return null;
-		int len = entity.length;
-		String insertSql[] = new String[len];
-		insertSql = objToSQLRich.toInsertSQL(entity, excludeFields);
+//		int len = entity.length;
+//		String insertSql[] = new String[len];
+		String insertSql[] = objToSQLRich.toInsertSQL(entity, excludeFields);
 
 		return getBeeSql().batch(insertSql, batchSize);
 	}

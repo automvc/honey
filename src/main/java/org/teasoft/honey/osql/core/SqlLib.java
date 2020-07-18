@@ -412,17 +412,17 @@ public class SqlLib implements BeeSql {
 			pst = conn.prepareStatement(exe_sql);
 		
 		if (len <= batchSize){
-			total=batch(sql,0,len,conn,pst);
+			total=batch(sql[0],0,len,conn,pst);
 		}else {
 			for (int i = 0; i < len / batchSize; i++) {
-				part = batch(sql, i * batchSize, (i + 1) * batchSize,conn,pst);
+				part = batch(sql[0], i * batchSize, (i + 1) * batchSize,conn,pst);
 				total = HoneyUtil.mergeArray(total, part, i * batchSize, (i + 1) * batchSize);
 				pst.clearBatch();  //clear Batch
 //				pst.clearParameters();
 			}
 			
 			if (len % batchSize != 0) { //尾数不成批
-				int t2[] = batch(sql, len - (len % batchSize), len,conn,pst);
+				int t2[] = batch(sql[0], len - (len % batchSize), len,conn,pst);
 				total = HoneyUtil.mergeArray(total, t2, len - (len % batchSize), len);
 			}
 		}
@@ -442,10 +442,13 @@ public class SqlLib implements BeeSql {
 	private static String index1 = "[index";
 	private static String index2 = "]";
 
-	private int[] batch(String sql[], int start, int end, Connection conn,PreparedStatement pst) throws SQLException {
+	private int[] batch(String sql, int start, int end, Connection conn,PreparedStatement pst) throws SQLException {
 		int a[] = new int[end - start];
 		for (int i = start; i < end; i++) { //start... (end-1)
-			setPreparedValues(pst, sql[0] + index1 + i + index2);
+			if (i == 0)
+				setPreparedValues(pst, sql);
+			else
+				setPreparedValues(pst, sql + index1 + i + index2);
 			pst.addBatch();
 		}
 		a = pst.executeBatch(); //一次性提交      若两条数据,有一条插入不成功,返回0,0.  但实际上又有一条成功插入数据库(mysql测试,在自动提交的时候会有问题,不是自动提交不会)

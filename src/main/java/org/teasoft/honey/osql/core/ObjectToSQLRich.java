@@ -21,6 +21,7 @@ import org.teasoft.bee.osql.annotation.JoinTable;
 import org.teasoft.bee.osql.dialect.DbFeature;
 import org.teasoft.bee.osql.exception.BeeErrorFieldException;
 import org.teasoft.bee.osql.exception.BeeIllegalEntityException;
+import org.teasoft.honey.distribution.GenIdFactory;
 import org.teasoft.honey.osql.name.NameUtil;
 
 /**
@@ -281,7 +282,8 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	public <T> String toInsertSQL(T entity, IncludeType includeType) {
 		String sql = null;
 		try {
-			sql = _ObjectToSQLHelper._toInsertSQL(entity, includeType.getValue());
+			_ObjectToSQLHelper.setInitIdByAuto(entity);
+			sql = _ObjectToSQLHelper._toInsertSQL0(entity, includeType.getValue(),"");
 		} catch (IllegalAccessException e) {
 			throw ExceptionHelper.convert(e);
 		}
@@ -314,26 +316,30 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 
 	@Override
 	public <T> String[] toInsertSQL(T entity[], String excludeFieldList) {
-		String sql[] = null;
+		String sql[] = null;  
 		try {
 			int len = entity.length;
-			sql = new String[len];
+			
+			setInitArrayIdByAuto(entity);
+			
+			sql = new String[len];  //只用sql[0]
 			String t_sql = "";
-			SqlValueWrap wrap;
+//			SqlValueWrap wrap;
 
-			wrap = _ObjectToSQLHelper._toInsertSQL0(entity[0], 2, excludeFieldList); // i 默认包含null和空字符串.因为要用统一的sql作批处理
-			t_sql = wrap.getSql();
+			t_sql = _ObjectToSQLHelper._toInsertSQL0(entity[0], 2, excludeFieldList); // i 默认包含null和空字符串.因为要用统一的sql作批处理
+//			t_sql = wrap.getSql();
 			sql[0] = t_sql;
-			t_sql = t_sql + "[index0]";
-			setPreparedValue(t_sql, wrap);
+//			t_sql = t_sql + "[index0]";  //index0 不带,与单条共用.
+//			setPreparedValue(t_sql, wrap);
 			Logger.logSQL("insert[] SQL :", t_sql);
 
 			for (int i = 1; i < len; i++) { // i=1
-				wrap = _ObjectToSQLHelper._toInsertSQL_for_ValueList(entity[i], excludeFieldList); // i 默认包含null和空字符串.因为要用统一的sql作批处理
+				String sql_i=sql[0] + index1 + i + index2;
+				_ObjectToSQLHelper._toInsertSQL_for_ValueList(sql_i,entity[i], excludeFieldList); // i 默认包含null和空字符串.因为要用统一的sql作批处理
 				//				t_sql = wrap.getSql(); //  每个sql不一定一样,因为设值不一样,有些字段不用转换. 不采用;因为不利于批处理
 
-				setPreparedValue_ForArray(sql[0] + index1 + i + index2, wrap);
-				Logger.logSQL("insert[] SQL :", sql[0] + index1 + i + index2);
+//				setPreparedValue_ForArray(sql[0] + index1 + i + index2, wrap);
+				Logger.logSQL("insert[] SQL :", sql_i);
 			}
 		} catch (IllegalAccessException e) {
 			throw ExceptionHelper.convert(e);
@@ -626,11 +632,11 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		addInContextForCache(sql, wrap.getTableNames());
 	}
 	
-	private void setPreparedValue_ForArray(String sql, SqlValueWrap wrap) {
-		HoneyContext.setPreparedValue(sql, wrap.getList());
-//		HoneyContext.setSqlValue(sql, wrap.getValueBuffer().toString());  //TODO  closed on 2020-07-04
-//		addInContextForCache(sql, wrap.getValueBuffer().toString(), wrap.getTableNames());
-	}
+//	private void setPreparedValue_ForArray(String sql, SqlValueWrap wrap) {
+//		HoneyContext.setPreparedValue(sql, wrap.getList());
+////		HoneyContext.setSqlValue(sql, wrap.getValueBuffer().toString());  //TODO  closed on 2020-07-04
+////		addInContextForCache(sql, wrap.getValueBuffer().toString(), wrap.getTableNames());  //批量插入,第一条通知cache要清除即可.
+//	}
 	
 	private <T> String checkSelectField(T entity,String fieldList){
 		Field fields[] = entity.getClass().getDeclaredFields();
@@ -700,5 +706,37 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	
 	private static String _toColumnName(String fieldName){
 		return NameTranslateHandle.toColumnName(fieldName);
+	}
+	
+	private <T> void setInitArrayIdByAuto(T entity[]) {
+		
+		boolean needGenId=HoneyConfig.getHoneyConfig().genid_forAllTableLongId;
+		if(!needGenId) return ;
+
+		Field field = null;
+		try {
+			
+			field = entity[0].getClass().getDeclaredField("id");
+//			field.setAccessible(true);
+//			if (field.get(entity[0]) != null) return; //即使没值,运行一次后也会有值,下次再用就会重复.而用户又不知道.
+		} catch (Exception e) {
+			e.printStackTrace();
+			return;
+		}
+
+		if (!field.getType().equals(Long.class)) return; //just set the null Long id field
+
+		int len = entity.length;
+		String tableKey = _toTableName(entity[0]);
+		long ids[] = GenIdFactory.getRangeId(tableKey, len);
+		long id = ids[0];
+		for (int i = 0; i < len; id++, i++) {
+			field.setAccessible(true);
+			try {
+				field.set(entity[i], id);
+			} catch (IllegalAccessException e) {
+				throw ExceptionHelper.convert(e);
+			}
+		}
 	}
 }

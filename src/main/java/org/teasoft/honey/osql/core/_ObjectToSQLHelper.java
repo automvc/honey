@@ -11,6 +11,7 @@ import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.annotation.JoinTable;
 import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
 import org.teasoft.bee.osql.exception.BeeIllegalBusinessException;
+import org.teasoft.honey.distribution.GenIdFactory;
 import org.teasoft.honey.osql.name.NameUtil;
 
 /**
@@ -639,7 +640,7 @@ final class _ObjectToSQLHelper {
 		return sql;
 	}
 
-	static <T> String _toInsertSQL(T entity, int includeType) throws IllegalAccessException {
+/*	static <T> String _toInsertSQL(T entity, int includeType) throws IllegalAccessException {
 		checkPackage(entity);
 		
 		StringBuffer sqlBuffer = new StringBuffer();
@@ -659,14 +660,14 @@ final class _ObjectToSQLHelper {
 		PreparedValue preparedValue = null;
 		for (int i = 0; i < len; i++) {
 			fields[i].setAccessible(true);
-			/*			if (fields[i].get(entity) == null){
+						if (fields[i].get(entity) == null){
 			//				continue;
 							if(isIncludeNullField) {
 							
 							}else{
 								continue;
 							}
-						}*/
+						}
 			if (HoneyUtil.isContinue(includeType, fields[i].get(entity),fields[i])) {
 				continue;
 			} else {
@@ -710,22 +711,17 @@ final class _ObjectToSQLHelper {
 		setContext(sql, list, tableName);
 		
 		return sql;
-	}
+	}*/
 
-	//	 * for entity[]
-	static <T> SqlValueWrap _toInsertSQL0(T entity, int includeType, String excludeFieldList) throws IllegalAccessException {
+//	static <T> SqlValueWrap _toInsertSQL0(T entity, int includeType, String excludeFieldList) throws IllegalAccessException {
+	static <T> String _toInsertSQL0(T entity, int includeType, String excludeFieldList) throws IllegalAccessException {
 		checkPackage(entity);
 		
+		String sql = "";
 		StringBuffer sqlBuffer = new StringBuffer();
 		StringBuffer sqlValue = new StringBuffer(") values (");
-//		StringBuffer valueBuffer = new StringBuffer();
-
-		SqlValueWrap wrap = new SqlValueWrap();
-
 		boolean isFirst = true;
 		String tableName = _toTableName(entity);
-		wrap.setTableNames(tableName);//2019-09-29
-		
 		sqlBuffer.append(INSERT_INTO);
 		sqlBuffer.append(tableName);
 		sqlBuffer.append("(");
@@ -736,14 +732,6 @@ final class _ObjectToSQLHelper {
 		PreparedValue preparedValue = null;
 		for (int i = 0; i < len; i++) {
 			fields[i].setAccessible(true);
-			/*			if (fields[i].get(entity) == null){
-			//				continue;
-							if(isIncludeNullField) {
-								
-							}else{
-								continue;
-							}
-						}*/
 			if (HoneyUtil.isContinue(includeType, fields[i].get(entity),fields[i])) {
 				continue;
 			} else {
@@ -756,16 +744,8 @@ final class _ObjectToSQLHelper {
 					sqlBuffer.append(",");
 					sqlValue.append(",");
 				}
-
 				sqlBuffer.append(_toColumnName(fields[i].getName()));
-
-//					if(fields[i].get(entity) == null){
-//						sqlValue.append("null");
-//					}else{
 				sqlValue.append("?");
-
-//				valueBuffer.append(",");
-//				valueBuffer.append(fields[i].get(entity));
 
 				preparedValue = new PreparedValue();
 				preparedValue.setType(fields[i].getType().getName());
@@ -776,28 +756,22 @@ final class _ObjectToSQLHelper {
 
 		sqlBuffer.append(sqlValue);
 		sqlBuffer.append(")");
-//		sqlBuffer.append(" ;");
+		sql=sqlBuffer.toString();
+		
+		setContext(sql, list, tableName);
 
-//		if (valueBuffer.length() > 0) valueBuffer.deleteCharAt(0);
-
-		wrap.setSql(sqlBuffer.toString());
-		wrap.setList(list);
-//		wrap.setValueBuffer(valueBuffer);
-
-		return wrap;
+		return sql;
 	}
 
-	static <T> SqlValueWrap _toInsertSQL_for_ValueList(T entity, String excludeFieldList) throws IllegalAccessException {
+	//只需要解析值
+	static <T> void _toInsertSQL_for_ValueList(String sql_i,T entity, String excludeFieldList) throws IllegalAccessException {
 		checkPackage(entity);
 		
-//		StringBuffer valueBuffer = new StringBuffer();
-		SqlValueWrap wrap = new SqlValueWrap();
-
 		Field fields[] = entity.getClass().getDeclaredFields();
 		int len = fields.length;
 		List<PreparedValue> list = new ArrayList<>();
 		PreparedValue preparedValue = null;
-		for (int i = 0, k = 0; i < len; i++) {
+		for (int i = 0; i < len; i++) {
 			fields[i].setAccessible(true);
 
 			if ("serialVersionUID".equals(fields[i].getName())){
@@ -806,22 +780,13 @@ final class _ObjectToSQLHelper {
 				continue;
 			}else if (!"".equals(excludeFieldList) && isExcludeField(excludeFieldList, fields[i].getName())) continue;
 
-//			valueBuffer.append(",");
-//			valueBuffer.append(fields[i].get(entity));
-
 			preparedValue = new PreparedValue();
 			preparedValue.setType(fields[i].getType().getName());
 			preparedValue.setValue(fields[i].get(entity));
-			list.add(k++, preparedValue);
+			list.add(preparedValue);
 		}
 
-//		if (valueBuffer.length() > 0) valueBuffer.deleteCharAt(0);
-
-		// wrap.setSql(sqlBuffer.toString()); //用sql[0]的
-		wrap.setList(list);
-//		wrap.setValueBuffer(valueBuffer);
-
-		return wrap;
+		HoneyContext.setPreparedValue(sql_i, list);
 	}
 	
 	static <T> String _toDeleteSQL(T entity, int includeType) {
@@ -971,5 +936,33 @@ final class _ObjectToSQLHelper {
 	
 	private static String _toColumnName(String fieldName){
 		return NameTranslateHandle.toColumnName(fieldName);
+	}
+	
+	static <T> void setInitIdByAuto(T entity){
+		
+		boolean needGenId=HoneyConfig.getHoneyConfig().genid_forAllTableLongId;
+		if(!needGenId) return ;
+		
+		Field field=null;
+		try {
+			field=entity.getClass().getDeclaredField("id");
+			field.setAccessible(true);
+//			if (field.get(entity) != null) return;
+		} catch (Exception e) {
+		   e.printStackTrace();
+		   return ;
+		}
+		
+		if (!field.getType().equals(Long.class)) return;  //just set the null Long id field
+		
+		String tableKey=_toTableName(entity);
+		long id=GenIdFactory.get(tableKey);
+		field.setAccessible(true);
+		try{
+		field.set(entity, id);
+		} catch (IllegalAccessException e) {
+			throw ExceptionHelper.convert(e);
+		}
+		
 	}
 }

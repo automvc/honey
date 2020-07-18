@@ -21,7 +21,8 @@ public class ObjectToSQL implements ObjToSQL {
 		// return _toInsertSQL(entity,false);
 		String sql = null;
 		try {
-			sql = _ObjectToSQLHelper._toInsertSQL(entity, -1);
+			_ObjectToSQLHelper.setInitIdByAuto(entity);
+			sql = _ObjectToSQLHelper._toInsertSQL0(entity, -1,"");
 		} catch (IllegalAccessException e) {
 			throw ExceptionHelper.convert(e);
 		}
