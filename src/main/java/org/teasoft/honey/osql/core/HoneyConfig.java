@@ -158,6 +158,9 @@ public final class HoneyConfig {
 	
 	//v1.7.3
 	
+	@SysValue("${bee.distribution.genid.workerid}")
+	public int workerid ;
+	
 	@SysValue("${bee.dosql.multi-DS.enable}")
 	public boolean enableMultiDs;
 	@SysValue("${bee.dosql.multi-DS.type}")
