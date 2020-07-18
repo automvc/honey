@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.teasoft.bee.distribution.GenId;
+import org.teasoft.honey.osql.core.HoneyConfig;
 
 /**
  * @author Kingstar
@@ -19,7 +20,16 @@ public class GenIdFactory {
 
 	private static GenId genId;
 	private static Map<String, GenId> map = new ConcurrentHashMap<>();
-	private static String defaultGenType = "SerialUniqueId";
+	private static String defaultGenType;
+	
+	static{
+		int idGenerator=HoneyConfig.getHoneyConfig().idGenerator;
+		
+		if(idGenerator==1) defaultGenType = "SerialUniqueId";
+		else if(idGenerator==2) defaultGenType = "OneTimeSnowflakeId";
+		else if(idGenerator==3) defaultGenType = "PearFlowerId";
+		else defaultGenType = "SerialUniqueId";
+	}
 	
 	public static long get() {
 		return get("");
@@ -53,17 +63,16 @@ public class GenIdFactory {
 		if (genId == null) {
 			switch (genType) {
 
+				case "SerialUniqueId":
+					genId = new SerialUniqueId();
 				case "OneTimeSnowflakeId":
 					genId = new OneTimeSnowflakeId();
 				case "PearFlowerId":
 					genId = new PearFlowerId();
-				case "SerialUniqueId":
-				default:
-					genId = new SerialUniqueId();
 			}
 			map.put(key, genId);
 			//TODO 要选择不同类型   每种ID,还要选择不同的业务类型,如不同的表名,只给自己的表拿ID(表名隔离).
-			//默认用SerialUniqueId, 单机,用workerid=0.  插入到表可以保证单调连续,全局唯一.
+			//单机默认用SerialUniqueId, 用workerid=0.  插入到表可以保证单调连续,全局唯一.
 		}
 		return genId;
 	}
