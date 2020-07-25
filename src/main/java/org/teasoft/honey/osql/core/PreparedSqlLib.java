@@ -239,8 +239,11 @@ public class PreparedSqlLib implements PreparedSql {
 
 		PreparedValue preparedValue = null;
 		List<PreparedValue> list = new ArrayList<>();
+		
+		
+		
 //		StringBuffer valueBuffer = new StringBuffer();
-		for (int i = 0; i < preValues.length; i++) {
+		for (int i = 0; preValues!=null && i < preValues.length; i++) { //fixbug
 			preparedValue = new PreparedValue();
 			preparedValue.setType(preValues[i].getClass().getName());
 			preparedValue.setValue(preValues[i]);
