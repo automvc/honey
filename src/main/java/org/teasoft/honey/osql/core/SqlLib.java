@@ -51,8 +51,13 @@ public class SqlLib implements BeeSql {
 
 		return conn;
 	}
+	
+	@Override
+	public <T> List<T> select(String sql, T entity) {
+		return selectSomeField(sql, entity);
+	}
 
-	//要是写的sql对应的结构与entity的结构不一致,将会有问题
+/*	//要是写的sql对应的结构与entity的结构不一致,将会有问题
 	@Override
 	@SuppressWarnings("unchecked")
 	public <T> List<T> select(String sql, T entity) {
@@ -117,7 +122,7 @@ public class SqlLib implements BeeSql {
 		targetObj = null;
 
 		return rsList;
-	}
+	}*/
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -549,7 +554,10 @@ public class SqlLib implements BeeSql {
 						fields1[i].set(subObj1, rs.getObject(subUseTable[0]+"."+_toColumnName(fields1[i].getName())));
 					} catch (IllegalArgumentException e) {
 						fields1[i].set(subObj1,_getObjectForMoreTable(rs,subUseTable[0],fields1[i]));
+					}catch (SQLException e) {// for after use condition selectField method
+						fields1[i].set(subObj1,null);
 					}
+					
 				}
 				
 				//从表2设置(如果有)
@@ -568,6 +576,8 @@ public class SqlLib implements BeeSql {
 							fields2[i].set(subObj2, rs.getObject(subUseTable[1]+"."+_toColumnName(fields2[i].getName())));
 						} catch (IllegalArgumentException e) {
 							fields2[i].set(subObj2,_getObjectForMoreTable(rs,subUseTable[1],fields2[i]));
+						}catch (SQLException e) {// for after use condition selectField method
+							fields2[i].set(subObj2,null);
 						}
 					}
 				}
@@ -590,7 +600,10 @@ public class SqlLib implements BeeSql {
 						field[i].set(targetObj, rs.getObject(tableName+"."+_toColumnName(field[i].getName())));
 					} catch (IllegalArgumentException e) {
 						field[i].set(targetObj,_getObjectForMoreTable(rs,tableName,field[i]));
-					}
+				    } catch (SQLException e) { // for after use condition selectField method
+					  field[i].set(targetObj,null);
+				    }
+					
 				}
 				
 				rsList.add(targetObj);
