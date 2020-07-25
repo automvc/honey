@@ -63,11 +63,20 @@ public class _MoreObjectToSQLHelper {
 			
 			boolean moreTable_columnListWithStar=HoneyConfig.getHoneyConfig().isMoreTable_columnListWithStar();
 			String columnNames;
-			if(moreTable_columnListWithStar){
-				columnNames="*";
-			}else{
-			    columnNames=moreTableStruct[0].columnsFull;
+			columnNames=moreTableStruct[0].columnsFull;
+			
+			if (condition != null) {
+				condition.setSuidType(SuidType.SELECT);
+				String selectField = ConditionHelper.processSelectField(columnNames, condition);
+				if (selectField != null){
+					columnNames = selectField;
+				}else{
+					if(moreTable_columnListWithStar){
+						columnNames="*";
+					}
+				}
 			}
+			
 //			String tableName = _toTableName(entity);
 			String tableName = moreTableStruct[0].tableName;
 					

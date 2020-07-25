@@ -82,7 +82,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	@Override
 	public <T> String toSelectSQL(T entity, String fields) throws ObjSQLException {
 		
-		String newSelectFields=checkSelectField(entity,fields);
+		String newSelectFields=HoneyUtil.checkSelectField(entity,fields);
 		
 //		String sql = _ObjectToSQLHelper._toSelectSQL(entity);
 		String sql = _ObjectToSQLHelper._toSelectSQL(entity, newSelectFields);
@@ -556,6 +556,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	private <T> SqlValueWrap toSelectSQL_0(T entity) {
 		return toSelectSQL_0(entity,null);
 	}
+	
 	private <T> SqlValueWrap toSelectSQL_0(T entity,String selectField) {
 
 		StringBuffer sqlBuffer = new StringBuffer();
@@ -566,7 +567,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			Field fields[] = entity.getClass().getDeclaredFields(); //返回所有字段,包括公有和私有    
 			String fieldNames ="";
 			if (selectField != null && !"".equals(selectField.trim())) {
-				fieldNames = checkSelectField(entity, selectField);
+				fieldNames = HoneyUtil.checkSelectField(entity, selectField);
 			} else {
 				String packageAndClassName = entity.getClass().getName();
 				fieldNames = HoneyContext.getBeanField(packageAndClassName);
@@ -637,45 +638,6 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 ////		HoneyContext.setSqlValue(sql, wrap.getValueBuffer().toString());  //TODO  closed on 2020-07-04
 ////		addInContextForCache(sql, wrap.getValueBuffer().toString(), wrap.getTableNames());  //批量插入,第一条通知cache要清除即可.
 //	}
-	
-	private <T> String checkSelectField(T entity,String fieldList){
-		Field fields[] = entity.getClass().getDeclaredFields();
-		String packageAndClassName = entity.getClass().getName();
-		String columnsdNames = HoneyContext.getBeanField(packageAndClassName);
-		if (columnsdNames == null) {
-			columnsdNames = HoneyUtil.getBeanField(fields);//获取属性名对应的DB字段名
-			HoneyContext.addBeanField(packageAndClassName, columnsdNames);
-		}
-
-		String errorField = "";
-		boolean isFirstError = true;
-		String selectFields[] = fieldList.split(",");
-		String newSelectFields = "";
-		boolean isFisrt = true;
-
-		for (String s : selectFields) {
-
-			if (!columnsdNames.contains(_toColumnName(s))) {
-				if (isFirstError) {
-					errorField += s;
-					isFirstError = false;
-				} else {
-					errorField += "," + s;
-				}
-			}
-			if (isFisrt) {
-				newSelectFields += _toColumnName(s);
-				isFisrt = false;
-			} else {
-				newSelectFields += ", " + _toColumnName(s);
-			}
-
-		}//end for
-
-		if (!"".equals(errorField)) throw new BeeErrorFieldException("ErrorField: " + errorField);
-		
-		return newSelectFields;
-	}
 	
 // private static void addInContextForCache(String sql,String sqlValue, String tableName){
    private static void addInContextForCache(String sql, String tableName){

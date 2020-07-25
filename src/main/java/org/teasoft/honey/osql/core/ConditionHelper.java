@@ -32,6 +32,7 @@ public class ConditionHelper {
 	private static String setAddField = "setAddField";
 	private static String setMultiplyField = "setMultiplyField";
 
+	//ForUpdate
 //	static boolean processConditionForUpdateSet(StringBuffer sqlBuffer, StringBuffer valueBuffer, List<PreparedValue> list, Condition condition) {
 	static boolean processConditionForUpdateSet(StringBuffer sqlBuffer, List<PreparedValue> list, Condition condition) { //delete valueBuffer
 		ConditionImpl conditionImpl = (ConditionImpl) condition;
@@ -41,7 +42,7 @@ public class ConditionHelper {
 //		if ( setAdd.equalsIgnoreCase(opType) || setMultiply.equalsIgnoreCase(opType) ) {
 		if (updateSetList != null && updateSetList.size() > 0) {
 			if (SuidType.UPDATE != conditionImpl.getSuidType()) {
-				throw new BeeErrorGrammarException(conditionImpl.getSuidType() + " do not support the method setAdd or setMultiply!");
+				throw new BeeErrorGrammarException(conditionImpl.getSuidType() + " do not support the method set ,setAdd or setMultiply!");
 			}
 		}
 
@@ -56,9 +57,8 @@ public class ConditionHelper {
 //				mysql is ok. as below:
 //				update orders set total=total+?   [values]: -0.1  
 			
-
 			if (expression.getValue() == null) {
-				throw new BeeErrorGrammarException(conditionImpl.getSuidType() + ": the num of " + expression.getOpType() + " is null");
+				throw new BeeErrorGrammarException(conditionImpl.getSuidType() + ": the num of " + opType + " is null");
 			} else {
 
 				if (firstSet) {
@@ -68,24 +68,25 @@ public class ConditionHelper {
 				}
 				sqlBuffer.append(_toColumnName(expression.getFieldName(), null));
 				sqlBuffer.append("=");
-				sqlBuffer.append(_toColumnName(expression.getFieldName(), null));
+				if(opType!=null)
+				   sqlBuffer.append(_toColumnName(expression.getFieldName(), null));
 				
-				if (setAddField.equals(expression.getOpType())) {//eg:setAdd("price","delta")--> price=price+delta
+				if (setAddField.equals(opType)) {//eg:setAdd("price","delta")--> price=price+delta
 					sqlBuffer.append("+");
 					sqlBuffer.append(_toColumnName((String)expression.getValue()));
 					continue; //no ?,  don't need set value
-				} else if (setMultiplyField.equals(expression.getOpType())) {
+				} else if (setMultiplyField.equals(opType)) {
 					sqlBuffer.append("*");
 					sqlBuffer.append(_toColumnName((String)expression.getValue()));
 					continue; //no ?,  don't need set value
 				}
 				
-				if (setAdd.equals(expression.getOpType())) {
+				if (setAdd.equals(opType)) {
 //					if ((double) expression.getValue() < 0)
 //						sqlBuffer.append("-"); // bug 负负得正
 //					else
 					sqlBuffer.append("+");
-				} else if (setMultiply.equals(expression.getOpType())) {
+				} else if (setMultiply.equals(opType)) {
 					sqlBuffer.append("*");
 				}
 				sqlBuffer.append("?");
@@ -106,18 +107,18 @@ public class ConditionHelper {
 	
 	static boolean processCondition(StringBuffer sqlBuffer, 
 		 List<PreparedValue> list, Condition condition, boolean firstWhere) {
-		 StringBuffer valueBuffer=new StringBuffer(); //don't use, just adapt the old method
+//		 StringBuffer valueBuffer=new StringBuffer(); //don't use, just adapt the old method
 //		 return processCondition(sqlBuffer, valueBuffer, list, condition, firstWhere, null);
 		 return processCondition(sqlBuffer, list, condition, firstWhere, null);
 	}
 	
 	//v1.7.2  add return value for delete/update control
-	static boolean processCondition(StringBuffer sqlBuffer, StringBuffer valueBuffer, 
-			List<PreparedValue> list, Condition condition, boolean firstWhere) {
-		
-//		 return processCondition(sqlBuffer, valueBuffer, list, condition, firstWhere, null);
-		 return processCondition(sqlBuffer, list, condition, firstWhere, null);
-	}
+//	static boolean processCondition(StringBuffer sqlBuffer, StringBuffer valueBuffer, 
+//			List<PreparedValue> list, Condition condition, boolean firstWhere) {
+//		
+////		 return processCondition(sqlBuffer, valueBuffer, list, condition, firstWhere, null);
+//		 return processCondition(sqlBuffer, list, condition, firstWhere, null);
+//	}
 	//v1.7.2  add return value for delete/update control
 	static boolean processCondition(StringBuffer sqlBuffer, 
 			List<PreparedValue> list, Condition condition, boolean firstWhere,String useSubTableNames[]) {
@@ -137,7 +138,6 @@ public class ConditionHelper {
 		if (start!=null && SuidType.SELECT != conditionImpl.getSuidType()) {
 			throw new BeeErrorGrammarException(conditionImpl.getSuidType() + " do not support paging with start !");
 		} 
-		
 		
 		for (int j = 0; j < expList.size(); j++) {
 			expression = expList.get(j);
@@ -366,6 +366,21 @@ public class ConditionHelper {
 		//>>>>>>>>>>>>>>>>>>>paging
 		
 		return isFirstWhere;
+	}
+	
+	static <T> String processSelectField(String columnNames, Condition condition) {
+		
+		if(condition==null) return null;
+
+		ConditionImpl conditionImpl = (ConditionImpl) condition;
+		if (SuidType.SELECT != conditionImpl.getSuidType()) {
+			throw new BeeErrorGrammarException(conditionImpl.getSuidType() + " do not support specifying partial fields by method selectField(String) !");
+		}
+		String selectField = conditionImpl.getSelectField();
+
+		if (selectField == null) return null;
+
+		return HoneyUtil.checkSelectFieldViaString(columnNames, selectField);
 	}
 
 	private static String _toColumnName(String fieldName) {

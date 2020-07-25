@@ -98,14 +98,21 @@ final class _ObjectToSQLHelper {
 		boolean firstWhere = true;
 		try {
 			Field fields[] = entity.getClass().getDeclaredFields(); 
-
+			String columnNames;
+			
 			String packageAndClassName = entity.getClass().getName();
-			String columnNames = HoneyContext.getBeanField(packageAndClassName);
+			columnNames = HoneyContext.getBeanField(packageAndClassName);
 			if (columnNames == null) {
 				columnNames = HoneyUtil.getBeanField(fields);
 				HoneyContext.addBeanField(packageAndClassName, columnNames);
 			}
-
+			
+			if (condition != null) {
+				condition.setSuidType(SuidType.SELECT);
+				String selectField = ConditionHelper.processSelectField(columnNames, condition);
+				if (selectField != null) columnNames = selectField;
+			}
+			
 			sqlBuffer.append("select " + columnNames + " from ");
 			sqlBuffer.append(tableName);
 			

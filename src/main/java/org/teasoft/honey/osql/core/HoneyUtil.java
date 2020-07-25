@@ -20,6 +20,7 @@ import java.util.Map;
 
 import org.teasoft.bee.osql.annotation.JoinTable;
 import org.teasoft.bee.osql.annotation.JoinType;
+import org.teasoft.bee.osql.exception.BeeErrorFieldException;
 import org.teasoft.bee.osql.exception.BeeIllegalEntityException;
 import org.teasoft.bee.osql.exception.JoinTableException;
 import org.teasoft.bee.osql.exception.JoinTableParameterException;
@@ -743,6 +744,74 @@ public final class HoneyUtil {
 		return sql;
 	}
 	
+	 static <T> String checkSelectField(T entity,String fieldList){
+		
+		if(fieldList==null) return null;
+		 
+		Field fields[] = entity.getClass().getDeclaredFields();
+		String packageAndClassName = entity.getClass().getName();
+		String columnsdNames = HoneyContext.getBeanField(packageAndClassName);
+		if (columnsdNames == null) {
+			columnsdNames = HoneyUtil.getBeanField(fields);//获取属性名对应的DB字段名
+			HoneyContext.addBeanField(packageAndClassName, columnsdNames);
+		}
+
+		return checkSelectFieldViaString(columnsdNames, fieldList);
+	}
+	 
+	 
+	 static String checkSelectFieldViaString(String columnsdNames,String fieldList){
+			
+		if(fieldList==null) return null;
+		 
+//		Field fields[] = entity.getClass().getDeclaredFields();
+//		String packageAndClassName = entity.getClass().getName();
+//		String columnsdNames = HoneyContext.getBeanField(packageAndClassName);
+//		if (columnsdNames == null) {
+//			columnsdNames = HoneyUtil.getBeanField(fields);//获取属性名对应的DB字段名
+//			HoneyContext.addBeanField(packageAndClassName, columnsdNames);
+//		}
+
+		String errorField = "";
+		boolean isFirstError = true;
+		String selectFields[] = fieldList.split(",");
+		String newSelectFields = "";
+		boolean isFisrt = true;
+		String colName;
+
+		for (String s : selectFields) {
+			colName=_toColumnName(s);
+//			if(isMoreTable){  //带有点一样转换
+//			}
+			
+//			if (!columnsdNames.contains(colName)) {
+			if(!(columnsdNames.contains(","+colName+",") || columnsdNames.startsWith(colName+",") 
+			  || columnsdNames.endsWith(","+colName) ||  columnsdNames.equals(colName) 
+				
+				|| columnsdNames.contains("."+colName+",")  || columnsdNames.endsWith("."+colName)
+			  )  ){
+				if (isFirstError) {
+					errorField += s;
+					isFirstError = false;
+				} else {
+					errorField += "," + s;
+				}
+			}
+			if (isFisrt) {
+				newSelectFields += colName;
+				isFisrt = false;
+			} else {
+				newSelectFields += ", " + colName;
+			}
+
+		}//end for
+
+		if (!"".equals(errorField)) throw new BeeErrorFieldException("ErrorField: " + errorField);
+		
+		if("".equals(newSelectFields.trim())) return null;
+		
+		return newSelectFields;
+	} 
 
 	private static String _toColumnName(String fieldName) {
 		return NameTranslateHandle.toColumnName(fieldName);

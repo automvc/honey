@@ -30,6 +30,8 @@ public class ConditionImpl implements Condition {
 	private Set<String> fieldSet = new HashSet<>();
 	private IncludeType includeType;
 	
+	private String selectField;
+	
 	private List<Expression> updateSetList = new ArrayList<>();
 	private Set<String> updatefieldSet = new HashSet<>();
 	
@@ -307,12 +309,12 @@ public class ConditionImpl implements Condition {
 	private static String setMultiplyField = "setMultiplyField";
 
 	@Override
-	public Condition setAdd(String field, Number num) {
+	public Condition setAdd(String field, Number num) {  //for field self
         return forUpdateSet(field, num, setAdd);
 	}
 
 	@Override
-	public Condition setMultiply(String field, Number num) {
+	public Condition setMultiply(String field, Number num) { //for field self
 		 return forUpdateSet(field, num, setMultiply);
 	}
 	
@@ -324,6 +326,28 @@ public class ConditionImpl implements Condition {
 	@Override
 	public Condition setMultiply(String field, String fieldName) {
 		return forUpdateSet(field, fieldName, setMultiplyField);
+	}
+	
+	@Override
+	public Condition set(String fieldNmae, Number num) {
+		return _forUpdateSet2(fieldNmae, num);
+	}
+
+	@Override
+	public Condition set(String fieldNmae, String value) {
+		return _forUpdateSet2(fieldNmae, value);
+	}
+	
+	@Override
+	public Condition selectField(String fieldList) {
+		
+		this.selectField=fieldList;
+		
+		return this;
+	}
+	
+	public String getSelectField(){
+		return this.selectField;
 	}
 
 	public List<Expression> getUpdateExpList() {
@@ -348,6 +372,20 @@ public class ConditionImpl implements Condition {
 		this.updatefieldSet.add(field);
 		updateSetList.add(exp);
 		
+		return this;
+	}
+	
+	//set field=value
+	private Condition _forUpdateSet2(String field, Object ojb) {
+		Expression exp = new Expression();
+		exp.fieldName = field;
+	  //exp.opType =opType; 
+		exp.value = ojb;
+		exp.opNum = 1;
+
+		this.updatefieldSet.add(field);
+		updateSetList.add(exp);
+
 		return this;
 	}
 	
