@@ -27,7 +27,7 @@ public class PreparedSqlLib implements PreparedSql {
 	private DbFeature dbFeature = BeeFactory.getHoneyFactory().getDbFeature();
 
 	public BeeSql getBeeSql() {
-		if(this.beeSql==null) beeSql = BeeFactory.getHoneyFactory().getBeeSql();
+		if(beeSql==null) beeSql = BeeFactory.getHoneyFactory().getBeeSql();
 		return beeSql;
 	}
 
