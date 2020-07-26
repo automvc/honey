@@ -73,7 +73,14 @@ public class TokenUtil {
 				end = sbf.indexOf(endToken, start);
 				if (end > 0) {
 					key = sbf.substring(start + len1, end);
-					mapValue = map.get(key);
+					if(key.endsWith("?up1")){ //#{entityName?up1}  entityName upper case 1st letter 
+						key=key.substring(0,key.length()-4);
+						mapValue = map.get(key);
+						mapValue=mapValue.substring(0, 1).toUpperCase()+mapValue.substring(1,mapValue.length());
+					}else{
+						mapValue = map.get(key);
+					}
+					
 					if (mapValue != null) {
 						sbf.replace(start, end + 1, mapValue);
 						len3 = mapValue.length();
