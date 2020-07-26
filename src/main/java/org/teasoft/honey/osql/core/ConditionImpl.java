@@ -31,6 +31,7 @@ public class ConditionImpl implements Condition {
 	private IncludeType includeType;
 	
 	private String selectField;
+	private Boolean isForUpdate;
 	
 	private List<Expression> updateSetList = new ArrayList<>();
 	private Set<String> updatefieldSet = new HashSet<>();
@@ -346,6 +347,7 @@ public class ConditionImpl implements Condition {
 		return this;
 	}
 	
+	@Override
 	public String getSelectField(){
 		return this.selectField;
 	}
@@ -393,4 +395,16 @@ public class ConditionImpl implements Condition {
 	public Set<String> getUpdatefieldSet() {
 		return updatefieldSet;
 	}
+
+	@Override
+	public Condition forUpdate() {
+		isForUpdate = true;
+		return this;
+	}
+
+	@Override
+	public Boolean getForUpdate() {
+		return isForUpdate;
+	}
+	
 }

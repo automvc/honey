@@ -344,7 +344,7 @@ public class ConditionHelper {
 			isNeedAnd = true;
 		} //end expList for 
 
-		//>>>>>>>>>>>>>>>>>>>paging
+		//>>>>>>>>>>>>>>>>>>>paging start
 		
 		if (SuidType.SELECT == conditionImpl.getSuidType()) {
 			
@@ -363,7 +363,19 @@ public class ConditionHelper {
 				sqlBuffer.append(sql);
 			}
 		}
-		//>>>>>>>>>>>>>>>>>>>paging
+		//>>>>>>>>>>>>>>>>>>>paging end
+		
+
+		//>>>>>>>>>>>>>>>>>>>for update
+		//仅用于SQL的单个表select
+		if (useSubTableNames==null && SuidType.SELECT == conditionImpl.getSuidType()) {
+			
+			Boolean isForUpdate=conditionImpl.getForUpdate();
+			if(isForUpdate!=null && isForUpdate.booleanValue()){
+				sqlBuffer.append(" for update ");
+			}
+		}
+		//>>>>>>>>>>>>>>>>>>>for update
 		
 		return isFirstWhere;
 	}
