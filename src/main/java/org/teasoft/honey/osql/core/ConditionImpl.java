@@ -27,7 +27,7 @@ public class ConditionImpl implements Condition {
 
 	private SuidType suidType;
 	public List<Expression> list = new ArrayList<>();
-	private Set<String> fieldSet = new HashSet<>();
+	private Set<String> fieldSet = new HashSet<>(); //条件表达式用到的字段
 	private IncludeType includeType;
 	
 	private String selectField;

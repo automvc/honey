@@ -327,7 +327,11 @@ public class ConditionHelper {
 			sqlBuffer.append(_toColumnName(expression.getFieldName(),useSubTableNames));
 
 			if (expression.getValue() == null) {
-				sqlBuffer.append(" is null");
+				if("=".equals(expression.getOpType())){
+					sqlBuffer.append(" is null");
+				}else{
+					sqlBuffer.append(" is not null");
+				}
 			} else {
 				//				sqlBuffer.append("=");
 				sqlBuffer.append(expression.getOpType());
@@ -376,6 +380,15 @@ public class ConditionHelper {
 			}
 		}
 		//>>>>>>>>>>>>>>>>>>>for update
+		
+		
+		//check
+		if (SuidType.SELECT == conditionImpl.getSuidType()) {
+			List<Expression> updateSetList = conditionImpl.getUpdateExpList();
+			if (updateSetList != null && updateSetList.size() > 0) {
+				Logger.warn("Use set method(s) in SELECT type, but it just effect in UPDATE type! Involved field(s): "+conditionImpl.getUpdatefieldSet());
+			}
+		}
 		
 		return isFirstWhere;
 	}
