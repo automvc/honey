@@ -33,7 +33,7 @@ public class RwDs implements Route{
 	
 	private static int r_routeWay;
 	
-	{  //非static,每次new都会执行
+	{  //非static,每次new都会执行.若writer有更新,这样可以刷新.
 		init();
 	}
 	
@@ -65,7 +65,7 @@ public class RwDs implements Route{
 		RouteStruct routeStruct = HoneyContext.getCurrentRoute();
 		
 		//test
-		if(routeStruct==null) System.err.println("=============================== routeStruct is null");
+//		if(routeStruct==null) System.err.println("=============================== routeStruct is null");
 
 		if (routeStruct!=null && SuidType.SELECT == routeStruct.getSuidType()) {
 			return getReadDs(r_routeWay);
@@ -75,7 +75,7 @@ public class RwDs implements Route{
 	}
 
 	public String getWriteDs() {
-		System.err.println("--------------------------getWriteDs---------------"+writeDd);
+//		System.err.println("--------------------------getWriteDs---------------"+writeDd);
 		return writeDd;
 	}
 
@@ -98,7 +98,7 @@ public class RwDs implements Route{
 		else
 			index = rand();
 		
-		System.err.println("==============================getReadDs==============="+getReadDsList().get(index));
+//		System.err.println("==============================getReadDs==============="+getReadDsList().get(index));
 		return getReadDsList().get(index);
 	}
 

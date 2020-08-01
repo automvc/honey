@@ -179,7 +179,7 @@ public final class HoneyConfig {
 	@SysValue("${bee.dosql.multi-DS.rDB}")
 	public String multiDs_rDB;  //multiDsType=1
 	@SysValue("${bee.dosql.multi-DS.rDB.routeWay}")
-	public int rDbRouteWay ; //注意,系统会设初值0//multiDsType=1
+	public int rDbRouteWay ; //注意,系统会设初值0  //multiDsType=1
 			
 	@SysValue("${bee.dosql.multi-DS.db}")
 	public String multi_dbList;

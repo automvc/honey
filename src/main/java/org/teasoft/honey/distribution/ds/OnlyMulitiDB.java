@@ -34,7 +34,8 @@ public class OnlyMulitiDB implements Route {
 	private static String matchEntityClassPath;
 	private static String matchTable;
 
-	static {
+//	static {
+	{ //will run every time use new. for refresh.
 		defaultDs = HoneyConfig.getHoneyConfig().multiDsDefalutDS;
 	  //multi_dbList = HoneyConfig.getHoneyConfig().multi_dbList;
 		matchEntityClassPath = HoneyConfig.getHoneyConfig().matchEntityClassPath;

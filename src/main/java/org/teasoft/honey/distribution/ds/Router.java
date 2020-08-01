@@ -21,6 +21,10 @@ public class Router {
 	private static String defaultDs;
 
 	static {
+		init();
+	}
+	
+	private static void init(){
 		multiDsType = HoneyConfig.getHoneyConfig().multiDsType;
 		defaultDs = HoneyConfig.getHoneyConfig().multiDsDefalutDS;
 
@@ -40,9 +44,10 @@ public class Router {
 	}
 
 	public static void refresh() {
-		if (multiDsType == 1) {
-			route = new RwDs();
-		}
+//		if (multiDsType == 1) {
+//			route = new RwDs();
+//		}
+		init();  //refresh all model
 	}
 
 }
