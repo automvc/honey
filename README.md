@@ -123,9 +123,8 @@ update(T entity,String updateFields,Condition condition)
 add nocache config support.  
 add method setAdd,setMultiply in Condition for set value in SQL update.  
 
-**V1.8**  
 **V1.8**   
-**Add distributed feature:**   
+**Add Distributed Feature:**   
 1.add multi-DataSource support(Write/Read, only Split Database).  
 add multi-DataSource no need change the Java code.  
 add the route interface of multi-Datasource.  
@@ -161,8 +160,8 @@ bee.osql.showSQL.showExecutableSql=false
 public <T> int update(T entity,Condition condition);  
 10.Oracle DATE column mapping to Timestamp,fix the problem:miss the hour,minute,second in Oracle DATE column.  
 11.GenFiles support upper case first letter,eg: #{entityName?up1}.  
-**fix bug:**   
-12.fix cache bug:genkey;clear cache for batch insert.  
+**Fix bug:**   
+12.fixed cache bug:genkey;clear cache for batch insert.  
 fixed bug:parse the json has extra comma.	
 fixed null bug about:PreparedSql's method select(String sql,Object preValues[]).  	
 
