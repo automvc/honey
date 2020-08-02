@@ -134,7 +134,7 @@ support refresh multi-DataSource config information.
 2.Generate global unique id number in distributed environment.  
 3.Generate Serial Unique id number in one workid of distributed environment.  
 Independent clock,workerid can config and easily expand.  
-SerialUniqueId,OneTimeSnowflakeId,PearFlowerId.  
+Implement algorithms:SerialUniqueId,OneTimeSnowflakeId,PearFlowerId.  
 Support GenId Factory,and can config the id generator.  
 4.Gen Serial Unique Id for all Table's Long Id field as primary key.  
 **Enhance Function:**   
@@ -145,7 +145,7 @@ public Suid setDynamicParameter(String para,String value);
 add 2 annotation:@Table,@Entity.  
 6.use 'for update' lock some select record(s).   
 public Condition forUpdate()  
-7.Added support for advanced update set,	
+7.Added support for advanced update set,   
 Complex query and multi table query support only project some fields	
 add 5 methods in Condition:  
 public Condition setAdd(String field, String fieldName)  
