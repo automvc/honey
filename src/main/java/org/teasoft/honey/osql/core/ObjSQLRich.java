@@ -405,7 +405,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		return r;
 	}
 	
-	//v1.7.3
+	//v1.8
 	@Override
 	public <T> int update(T entity, Condition condition) {
 		if (entity == null) return -1;

@@ -37,7 +37,7 @@ import org.teasoft.bee.distribution.Worker;
 
  * 
  * @author Kingstar
- * @since  1.7.3
+ * @since  1.8
  */
 public class SerialUniqueId implements GenId{
 	

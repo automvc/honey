@@ -72,9 +72,9 @@ public final class HoneyConfig {
 	@SysValue("${bee.osql.showSQL}")
 	private boolean showSQL=true;
 	@SysValue("${bee.osql.showSQL.showType}")
-	private boolean showSQLShowType;//v1.7.3
+	private boolean showSQLShowType;//v1.8
 	@SysValue("${bee.osql.showSQL.showExecutableSql}")
-	private boolean showExecutableSql;//v1.7.3
+	private boolean showExecutableSql;//v1.8
 	
 	@SysValue("${bee.osql.showSQL.donotPrint.currentDate}")
 	private boolean showSQL_donotPrint_currentDate;  //v1.7.0
@@ -156,7 +156,7 @@ public final class HoneyConfig {
 	@SysValue("${bee.osql.cache.forever.modifySyn}")
 	private String foreverCacheModifySynTableList ; 
 	
-	//v1.7.3
+	//v1.8
 	
 	@SysValue("${bee.distribution.genid.workerid}")
 	public int workerid ;

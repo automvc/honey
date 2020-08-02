@@ -12,7 +12,7 @@ import org.teasoft.honey.osql.core.HoneyConfig;
 
 /**
  * @author Kingstar
- * @since  1.7.3
+ * @since  1.8
  */
 public class DefaultWorker implements Worker{
 

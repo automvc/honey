@@ -461,7 +461,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		
 		if(updateFieldList==null) updateFieldList="";
 		String updateFields[] = updateFieldList.split(","); //setColmns
-//		if (updateFields.length == 0 || "".equals(updateFieldList.trim()))  //close in v1.7.3    because: set can define in condition
+//		if (updateFields.length == 0 || "".equals(updateFieldList.trim()))  //close in v1.8    because: set can define in condition
 //			throw new ObjSQLException("ObjSQLException:updateFieldList at least include one field.");
 
 		if (condition == null || condition.getIncludeType() == null) {

@@ -19,7 +19,7 @@ import org.teasoft.honey.osql.core.HoneyContext;
 /**
  * 一个写数据库,多个读数据库.One Write DB,more read DB.
  * @author Kingstar
- * @since  1.7.3
+ * @since  1.8
  */
 public class RwDs implements Route{
 

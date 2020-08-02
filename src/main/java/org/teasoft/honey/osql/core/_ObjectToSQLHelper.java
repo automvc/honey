@@ -347,10 +347,10 @@ final class _ObjectToSQLHelper {
 				fields[i].setAccessible(true);
 //				if (isContainField(setColmns, fields[i].getName())) { //set value.setColmn不受includeType影响,都会转换
 				if (isContainField(setColmns, fields[i].getName())     
-						&& ( (updatefieldSet ==null) || (updatefieldSet != null && !updatefieldSet.contains(fields[i].getName())) ) // 在updatefieldSet为新值，entity 的为旧值可放在where条件    v1.7.3
+						&& ( (updatefieldSet ==null) || (updatefieldSet != null && !updatefieldSet.contains(fields[i].getName())) ) // 在updatefieldSet为新值，entity 的为旧值可放在where条件    v1.8
 						) {	//在指定的setColmns,且还没有用在set,setAdd,setMultiply的字段,才转成update set的部分.
 					
-//					在updatefieldSet为新值，entity 的为旧值可放在where条件    v1.7.3
+//					在updatefieldSet为新值，entity 的为旧值可放在where条件    v1.8
 //					//v1.7.2
 //					if (updatefieldSet != null && updatefieldSet.contains(fields[i].getName())) 
 //						continue; //Condition已包含的set条件,不再作转换处理
@@ -923,7 +923,7 @@ final class _ObjectToSQLHelper {
 		addInContextForCache(sql, tableName);
 	}
 	
-//  static void addInContextForCache(String sql,String sqlValue, String tableName){ //changed v1.7.3
+//  static void addInContextForCache(String sql,String sqlValue, String tableName){ //changed v1.8
     static void addInContextForCache(String sql, String tableName){
 		CacheSuidStruct struct=new CacheSuidStruct();
 		struct.setSql(sql);
