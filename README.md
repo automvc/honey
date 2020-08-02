@@ -1,6 +1,7 @@
 
 Bee
 =========
+**Easy for Stronger.**   
 **Bee** is an ORM framework.   
 **Bee** is an easy and high efficiency ORM framework.    
 **Coding Complexity is O(1),it means that Bee will do the Dao for you**.  
@@ -126,11 +127,19 @@ add method setAdd,setMultiply in Condition for set value in SQL update.
 2.fix cache bug:genkey;clear cache for batch insert.  
 3.Generate global unique id number in distributed environment.  
 4.Generate Serial Unique id number in one workid of distributed environment.  
+Independent clock,workerid can config and easily expand.	
 update id gen:SerialUniqueId,OneTimeSnowflakeId.  
-5.fixed bug:parse the json has extra comma.  
-6.add 2 methods in Condition:  
+Support GenId Factory:GenIdFactory,and can config the id generator.  
+4.2 Gen Serial Unique Id for all Table's Long Id field as primary key.  
+5.fixed bug:parse the json has extra comma.	
+fixed null bug about:PreparedSql's method select(String sql,Object preValues[]).  
+6.add 6 methods in Condition:  
 public Condition setAdd(String field, String fieldName)  
 public Condition setMultiply(String field, String fieldName)  
+public Condition set(String fieldNmae, Number num)  
+public Condition set(String fieldNmae, String value)  
+public Condition selectField(String fieldList)  
+public Condition forUpdate()  
 7.Support show type of data in sql and show ExecutableSql:  
 bee.osql.showSQL.showType=false  
 bee.osql.showSQL.showExecutableSql=false  
@@ -138,6 +147,16 @@ bee.osql.showSQL.showExecutableSql=false
 add multi-DataSource support(Write/Read, only Split Database).  
 add multi-DataSource route.  
 add multi-DataSource config.  
+The same database sub table support, dynamic table name mapping support.  
+Entity and any table name mapping support.  
+9.use 'for update' lock some select record(s).    
+10.GenFiles support upper case first letter,eg: #{entityName?up1}.  
+11.add one method in SuidRich:  
+public <T> int update(T entity,Condition condition);  
+12.Suid add 1 method:	
+public Suid setDynamicParameter(String para,String value);  
+13.add 2 annotation:	
+Table,Entity	
 
 Quick Start:
 =========	
@@ -245,4 +264,5 @@ Contact & Welcome:
 =========	
 #### Author's email:    honeysoft@126.com  
 #### If you have any problem on bee, please let me know kindly! Thank you, so much!  
+#### ORM QQ Group: 992650213     WeChat:AiTeaSoft  
 #### At the same time, welcome you to join Bee team create a better future. 
