@@ -6,9 +6,13 @@
 
 package org.teasoft.honey.osql.core;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
 import org.teasoft.bee.osql.NameTranslate;
+import org.teasoft.bee.osql.annotation.Entity;
+import org.teasoft.bee.osql.annotation.Table;
 
 /**
  * @author Kingstar
@@ -27,11 +31,28 @@ public class NameTranslateHandle {
 	 * 指定命名转换实现类
 	 * @param nameTranslat
 	 */
-	public static void setNameTranslat(NameTranslate nameTranslat) {
+	public static void setNameTranslat(NameTranslate nameTranslat) { //TODO remove??
 		NameTranslateHandle.nameTranslat = nameTranslat;
 	}
 
 	public static String toTableName(String entityName) {
+		
+		try {
+			//Table注解不再需要命名转换,Entity注解解析动态命名参数后还需要命名转换
+			Class obj=Class.forName(entityName);
+			if(obj.isAnnotationPresent(Table.class)){
+				Table tab=(Table)obj.getAnnotation(Table.class);
+//				System.out.println(tab.value());
+//                System.out.println(processAutoPara(tab.value()));
+				return processAutoPara(tab.value());
+			}else if(obj.isAnnotationPresent(Entity.class)){
+				Entity tntity=(Entity)obj.getAnnotation(Entity.class);
+				entityName=processAutoPara(tntity.value());
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
 		//entityName maybe include package name
 		//special one, config in :bee.osql.name.mapping.entity2table
 		String tableName=entity2tableMap.get(entityName);
@@ -52,7 +73,7 @@ public class NameTranslateHandle {
 		return nameTranslat.toColumnName(fieldName);
 	}
 
-	public static String toEntityName(String tableName) {
+	public static String toEntityName(String tableName) {//生成javabean时会用到. SqlLib不会用到.因会传入T entity
 		if(table2entityMap==null){
 			table2entityMap=HoneyContext.getTable2entityMap();
 		}
@@ -65,5 +86,23 @@ public class NameTranslateHandle {
 
 	public static String toFieldName(String columnName) {
 		return nameTranslat.toFieldName(columnName);
+	}
+	
+	private static String processAutoPara(String autoPara) {
+		int start = autoPara.indexOf("${");
+		int end = autoPara.indexOf("}");
+		if (start > 0 && end > 0 && start + 2 < end) {
+			String key = autoPara.substring(start + 2, end);
+			Map<String,String> map=new HashMap<>();
+			String value=(String)OneTimeRequest.getAttribute(key);
+			if(value==null){
+				Logger.error("Auto table error: parameter  ${"+key+"} in "+autoPara+" still has not value!");
+				return autoPara;
+			}
+			map.put(key, value);
+			return TokenUtil.processWithMap(autoPara, "${", "}", map);
+		} else {
+			return autoPara;
+		}
 	}
 }

@@ -52,7 +52,7 @@ public class TokenUtil {
 	//@since 1.7.2 
 	public static String processWithMap(String text, String startToken, String endToken, Map<String, String> map) {
 
-		if (text == null || text.isEmpty()) {
+		if (text == null || text.isEmpty() || map==null) {
 			return text;  //return original
 		}
 		int start = text.indexOf(startToken);

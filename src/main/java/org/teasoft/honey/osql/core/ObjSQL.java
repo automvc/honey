@@ -120,4 +120,10 @@ public class ObjSQL implements Suid {
 		return deleteNum;
 	}
 
+	@Override
+	public Suid setDynamicParameter(String para, String value) {
+		OneTimeRequest.setAttribute(para, value);
+		return this;
+	}
+
 }

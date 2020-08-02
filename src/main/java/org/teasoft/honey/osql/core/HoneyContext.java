@@ -97,7 +97,7 @@ public final class HoneyContext {
 				}else{
 //					entity2table.put(item[0].trim(), item[1].trim());
 					
-					if(table2entity.containsKey(item[1].trim())){ //check
+					if(table2entity.containsKey(item[1].trim())){ //check   只是生成javabean时会用到,SqlLib不会用到.因会传入T entity   所以不会引起混淆
 						Logger.warn(table2entity.get(item[1].trim()) +" and "+ item[0].trim() +" mapping same table: "+item[1].trim());
 					}
 					table2entity.put(item[1].trim(), item[0].trim());
