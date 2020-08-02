@@ -183,7 +183,8 @@ public final class HoneyUtil {
 
 				String mainColumn = _toColumnName(joinTable[j].mainField());
 				String subColumn = _toColumnName(joinTable[j].subField());
-				subTableName[j] = _toTableNameByEntityName(subField[j].getType().getSimpleName());
+//				subTableName[j] = _toTableNameByEntityName(subField[j].getType().getSimpleName());
+				subTableName[j] = _toTableNameByEntityName(subField[j].getType().getName());  //从表可能有注解,要用包名去检查
 
 				moreTableStruct[1 + j] = new MoreTableStruct();
 				//从表的  
@@ -771,6 +772,8 @@ public final class HoneyUtil {
 //			columnsdNames = HoneyUtil.getBeanField(fields);//获取属性名对应的DB字段名
 //			HoneyContext.addBeanField(packageAndClassName, columnsdNames);
 //		}
+		
+		columnsdNames=columnsdNames.toLowerCase();//不区分大小写检测
 
 		String errorField = "";
 		boolean isFirstError = true;

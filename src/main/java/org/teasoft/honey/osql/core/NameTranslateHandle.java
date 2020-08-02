@@ -35,19 +35,22 @@ public class NameTranslateHandle {
 		NameTranslateHandle.nameTranslat = nameTranslat;
 	}
 
+	@SuppressWarnings({"rawtypes","unchecked"}) 
 	public static String toTableName(String entityName) {
-		
 		try {
-			//Table注解不再需要命名转换,Entity注解解析动态命名参数后还需要命名转换
-			Class obj=Class.forName(entityName);
-			if(obj.isAnnotationPresent(Table.class)){
-				Table tab=(Table)obj.getAnnotation(Table.class);
-//				System.out.println(tab.value());
-//                System.out.println(processAutoPara(tab.value()));
-				return processAutoPara(tab.value());
-			}else if(obj.isAnnotationPresent(Entity.class)){
-				Entity tntity=(Entity)obj.getAnnotation(Entity.class);
-				entityName=processAutoPara(tntity.value());
+			String flag = (String) OneTimeRequest.getAttribute("DoNotCheckAnnotation");
+			if ("tRue".equals(flag)) {
+				//nothing
+			} else {
+				//Table注解不再需要命名转换,Entity注解解析动态命名参数后还需要命名转换
+				Class obj = Class.forName(entityName);
+				if (obj.isAnnotationPresent(Table.class)) {
+					Table tab = (Table) obj.getAnnotation(Table.class);
+					return processAutoPara(tab.value());
+				} else if (obj.isAnnotationPresent(Entity.class)) {
+					Entity tntity = (Entity) obj.getAnnotation(Entity.class);
+					entityName = processAutoPara(tntity.value());
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
