@@ -221,6 +221,18 @@ public class PreparedSqlLib implements PreparedSql {
 		return getBeeSql().selectJson(sql);
 	}
 	
+	@Override
+	public String selectJson(String sqlStr) {
+		Object[] preValues=null;
+		return selectJson(sqlStr, preValues);
+	}
+
+	@Override
+	public List<String[]> select(String sql) {
+		Object[] preValues=null;
+		return select(sql, preValues);
+	}
+
 	private <T> void initPreparedValues(String sql, Object[] preValues, T entity) {
 //		StringBuffer valueBuffer = initPreparedValues(sql, preValues);
 		initPreparedValues(sql, preValues);
