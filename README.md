@@ -125,7 +125,7 @@ add method setAdd,setMultiply in Condition for set value in SQL update.
 
 **V1.8**   
 **Add Distributed Feature:**   
-1.add multi-DataSource support(Write/Read, only Split Database).  
+1.Add multi-DataSource support(Write/Read, only Split Database).  
 add multi-DataSource no need change the Java code.  
 add the route interface of multi-Datasource.  
 add multi-DataSource route.  
@@ -143,11 +143,11 @@ Entity and any table name mapping support.
 Suid add one method:	
 public Suid setDynamicParameter(String para,String value);  
 add 2 annotation:@Table,@Entity.  
-6.use 'for update' lock some select record(s).   
+6.Use 'for update' lock some select record(s).   
 public Condition forUpdate()  
 7.Added support for advanced update set,   
-Complex query and multi table query support only project some fields	
-add 5 methods in Condition:  
+Complex query and multi table query support only project some fields.   
+Add 5 methods in Condition:  
 public Condition setAdd(String field, String fieldName)  
 public Condition setMultiply(String field, String fieldName)  
 public Condition set(String fieldNmae, Number num)  
@@ -156,7 +156,7 @@ public Condition selectField(String fieldList)
 8.Support show type of data in sql and show ExecutableSql:  
 bee.osql.showSQL.showType=false  
 bee.osql.showSQL.showExecutableSql=false  
-9.add one method in SuidRich:  
+9.Add one method in SuidRich:  
 public <T> int update(T entity,Condition condition);  
 10.Oracle DATE column mapping to Timestamp,fix the problem:miss the hour,minute,second in Oracle DATE column.  
 11.GenFiles support upper case first letter,eg: #{entityName?up1}.  
