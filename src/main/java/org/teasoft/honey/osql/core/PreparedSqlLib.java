@@ -232,6 +232,12 @@ public class PreparedSqlLib implements PreparedSql {
 		Object[] preValues=null;
 		return select(sql, preValues);
 	}
+	
+	@Override
+	public String selectFun(String sql) throws ObjSQLException {
+		Object[] preValues=null;
+		return selectFun(sql, preValues);
+	}
 
 	private <T> void initPreparedValues(String sql, Object[] preValues, T entity) {
 //		StringBuffer valueBuffer = initPreparedValues(sql, preValues);
