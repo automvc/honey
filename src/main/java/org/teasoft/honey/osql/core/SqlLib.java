@@ -339,8 +339,7 @@ public class SqlLib implements BeeSql {
 			checkClose(pst, conn);
 		}
 		
-		
-		//TODO  更改操作需要清除缓存
+		//更改操作需要清除缓存
 		if(num>0)
 		   clearInCache(sql, "int",SuidType.MODIFY);
 		
@@ -456,7 +455,7 @@ public class SqlLib implements BeeSql {
 				setPreparedValues(pst, sql + index1 + i + index2);
 			pst.addBatch();
 		}
-		a = pst.executeBatch(); //一次性提交      若两条数据,有一条插入不成功,返回0,0.  但实际上又有一条成功插入数据库(mysql测试,在自动提交的时候会有问题,不是自动提交不会)
+		a = pst.executeBatch();
 		conn.commit();
 
 		return a;

@@ -21,7 +21,7 @@ public final class SessionFactory {
 
 	public static BeeFactory getBeeFactory() {
 		if (beeFactory == null) {
-			//			beeFactory = new BeeFactory();
+//			beeFactory = new BeeFactory();
 			beeFactory = BeeFactory.getInstance();
 		}
 		return beeFactory;

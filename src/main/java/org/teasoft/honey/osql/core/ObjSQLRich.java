@@ -153,13 +153,9 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	public <T> int update(T entity, String updateFields) {
 		if (entity == null) return -1;
 		int r = 0;
-//		try {
-			String sql = getObjToSQLRich().toUpdateSQL(entity, updateFields);
-			Logger.logSQL("update SQL(updateFields) :", sql);
-			r = getBeeSql().modify(sql);
-//		} catch (ObjSQLException e) {
-//			throw e;
-//		}
+		String sql = getObjToSQLRich().toUpdateSQL(entity, updateFields);
+		Logger.logSQL("update SQL(updateFields) :", sql);
+		r = getBeeSql().modify(sql);
 
 		return r;
 	}
@@ -191,13 +187,9 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	public <T> int update(T entity, String updateFields, IncludeType includeType) {
 		if (entity == null) return -1;
 		int r = 0;
-//		try {
-			String sql = getObjToSQLRich().toUpdateSQL(entity, updateFields, includeType);
-			Logger.logSQL("update SQL(updateFields) :", sql);
-			r = getBeeSql().modify(sql);
-//		} catch (ObjSQLException e) {
-//			throw e;
-//		}
+		String sql = getObjToSQLRich().toUpdateSQL(entity, updateFields, includeType);
+		Logger.logSQL("update SQL(updateFields) :", sql);
+		r = getBeeSql().modify(sql);
 
 		return r;
 	}
@@ -359,13 +351,9 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	public <T> int updateBy(T entity, String whereFields) {
 		if (entity == null) return -1;
 		int r = 0;
-//		try {
-			String sql = getObjToSQLRich().toUpdateBySQL(entity, whereFields);  //updateBy
-			Logger.logSQL("update SQL(whereFields) :", sql);
-			r = getBeeSql().modify(sql);
-//		} catch (ObjSQLException e) {
-//			throw e;
-//		}
+		String sql = getObjToSQLRich().toUpdateBySQL(entity, whereFields); //updateBy
+		Logger.logSQL("update SQL(whereFields) :", sql);
+		r = getBeeSql().modify(sql);
 
 		return r;
 	}

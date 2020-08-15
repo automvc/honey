@@ -36,10 +36,8 @@ public class BeeFactory extends BeeAbstractFactory {
 	public DataSource getDataSource() {
 		
 		if(super.getDataSourceMap()==null){
-			//System.err.println("-----------------------------this old road!");
 		   return super.getDataSource();
 		}else{
-			//System.err.println("------------++++++++++++++------this new road!");
 			return _getDsFromDsMap();
 		}
 	}

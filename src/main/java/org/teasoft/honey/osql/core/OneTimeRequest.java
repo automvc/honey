@@ -21,7 +21,7 @@ public class OneTimeRequest {
 
 	public static Object getAttribute(String key) {
 		
-		Map map = local.get();
+		Map<String, Object> map = local.get();
 		if (null == map) return null;
 
 		Object obj = map.get(key);
