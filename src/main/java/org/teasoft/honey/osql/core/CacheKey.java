@@ -9,11 +9,15 @@ package org.teasoft.honey.osql.core;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.teasoft.honey.distribution.ds.Router;
+
 /**
  * @author Kingstar
  * @since  1.4
  */
 public class CacheKey {
+	
+	private static String SEPARATOR=" (@separator#) ";
 	
 	public static String genKey(String key){
 		
@@ -36,17 +40,32 @@ public class CacheKey {
 		}
 		
 		StringBuffer strBuf=new StringBuffer();
+		
+//		v1.8
+		boolean enableMultiDs = HoneyConfig.getHoneyConfig().enableMultiDs;
+		int multiDsType = HoneyConfig.getHoneyConfig().multiDsType;
+		if (enableMultiDs && multiDsType == 2) {//仅分库,有多个数据源时
+			String ds=Router.getDsName();
+			strBuf.append("DataSourceName:");
+			strBuf.append(ds);
+			strBuf.append(SEPARATOR);
+		}
+		
 		strBuf.append(sql);
 		
 		if (value == null || "".equals(value.trim())){
 			
 		}else{
-			strBuf.append("(@#)[values]: ");
+			strBuf.append(SEPARATOR);
+			strBuf.append("[values]: ");
 			strBuf.append(value);
 		}
 		
-		strBuf.append("(@#)[returnType]: ");
+		strBuf.append(SEPARATOR);
+		strBuf.append("[returnType]: ");
 		strBuf.append(returnType);
+		
+		System.err.println(strBuf.toString());
 		
 		return strBuf.toString();
 		
@@ -79,7 +98,7 @@ public class CacheKey {
 			String tableNames=struct.getTableNames();
 			String tabs[]=tableNames.trim().split("##");
 			for (int i = 0; i < tabs.length; i++) {
-				list.add(tabs[i]);  //TODO 还要加上数据源信息等其它
+				list.add(tabs[i]);  //TODO 还要加上数据源信息等其它      在CacheUtil已为仅分库情型加DS
 			}
 		}
 		return list;

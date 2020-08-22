@@ -16,6 +16,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.teasoft.honey.distribution.ds.Router;
+import org.teasoft.honey.distribution.ds.RwDs;
+
 /**
  * @author Kingstar
  * @since  1.4
@@ -101,7 +104,9 @@ public final class CacheUtil {
 			List<String> tableKeyList = CacheKey.genTabKeyList(sql); //支持多表的情况  
 			//forever 判断是否在永久缓存表
 			if (tableKeyList != null && tableKeyList.size() == 1) {
-				Integer forever = foreverCacheTableMap.get(tableKeyList.get(0));
+//				Integer forever = foreverCacheTableMap.get(tableKeyList.get(0).toLowerCase());
+				Integer forever = _getConfigCacheTableMapValue(foreverCacheTableMap,tableKeyList);
+				
 				if (forever != null) { //检测到是forever //并且已放缓存(只是该表有放过而矣,不一定是相同查询)
 					if (foreverCacheTableMap_sqlkey2exist.get(key) != null) { //查forever的结果已在缓存
 						Object obj = foreverCacheObjectMap.get(key);
@@ -114,7 +119,8 @@ public final class CacheUtil {
 					}
 				}
 				
-				Integer foreverModifySyn=foreverCacheModifySynTableMap.get(tableKeyList.get(0));
+//				Integer foreverModifySyn=foreverCacheModifySynTableMap.get(tableKeyList.get(0).toLowerCase());
+				Integer foreverModifySyn=_getConfigCacheTableMapValue(foreverCacheModifySynTableMap,tableKeyList);
 				
 				if (foreverModifySyn != null){ //检测到是forever modifySyn
 //				 && foreverModifySyn == 1) { //并且已放缓存  (同一个表,但不一定是相同查询)
@@ -219,7 +225,8 @@ public final class CacheUtil {
 		 
 		 //never 列表的不用放缓存       暂时只是用表名标识
 		 if(tableKeyList!=null && tableKeyList.size()==1){
-			if(neverCacheTableMap.get(tableKeyList.get(0)) !=null) { //检测到是never
+//			if(neverCacheTableMap.get(tableKeyList.get(0).toLowerCase()) !=null) { //检测到是never
+			if(_inConfigCacheTableMap(neverCacheTableMap,tableKeyList)) { //检测到是never
 				//要清除cacheStruct
 				HoneyContext.deleteCacheInfo(sql);
 				return ;
@@ -228,7 +235,8 @@ public final class CacheUtil {
 		 
 		 //forever
 		 if(tableKeyList!=null && tableKeyList.size()==1){
-			if(foreverCacheTableMap.get(tableKeyList.get(0)) !=null   //检测到是forever
+//			if(foreverCacheTableMap.get(tableKeyList.get(0).toLowerCase()) !=null   //检测到是forever 
+			if( _inConfigCacheTableMap(foreverCacheTableMap,tableKeyList)
 			&& foreverCacheTableMap_sqlkey2exist.get(key)==null ) {  //并且还没有放缓存
 				
 //				foreverCacheTableMap.put(tableKeyList.get(0), 1);  //标记已放缓存
@@ -241,8 +249,11 @@ public final class CacheUtil {
 			}
 			
 //			常驻缓存,但有更新时会清除缓存(下次重新查询并放缓存)
-			if(foreverCacheModifySynTableMap.get(tableKeyList.get(0)) !=null   //检测到是foreverModifySyn
-			&& foreverCacheModifySynTableMap.get(tableKeyList.get(0))==0 ) {  //并且还没有放缓存    //TODO
+//			if(foreverCacheModifySynTableMap.get(tableKeyList.get(0).toLowerCase()) !=null   //检测到是foreverModifySyn
+//			&& foreverCacheModifySynTableMap.get(tableKeyList.get(0).toLowerCase())==0 ) {  //并且还没有放缓存    //TODO
+			
+			if(_inConfigCacheTableMap(foreverCacheModifySynTableMap,tableKeyList)   //检测到是foreverModifySyn
+			&& _getConfigCacheTableMapValue(foreverCacheModifySynTableMap,tableKeyList)==0 ) {   //并且还没有放缓存
 				
 //				foreverCacheModifySynTableMap.put(tableKeyList.get(0), 1);  //标记已放缓存
 				_regForeverSynTable(tableKeyList.get(0),key);
@@ -270,7 +281,6 @@ public final class CacheUtil {
 			}
 		}
 		
-		
 		tableKeyList=CacheKey.genTabKeyList(sql);  //支持多表的情况    
 		HoneyContext.deleteCacheInfo(sql);//要清除cacheStruct
 		
@@ -282,8 +292,8 @@ public final class CacheUtil {
 		keys[i] = key; 
 		
 //		Logger.info("==========================add in cache i:"+i);
-		//TODO NULL
-		for (int k = 0; k < tableKeyList.size(); k++) {
+		// NULL
+		for (int k = 0; tableKeyList!=null && k < tableKeyList.size(); k++) {
 			_regTabCache(tableKeyList.get(k),i);
 			_addIntableKeyList(key,tableKeyList.get(k));
 		}
@@ -304,20 +314,27 @@ public final class CacheUtil {
 		}
 	}
 	
-	
 	private static void _regForeverSynTable(String tableKey,String sqlKey){
-		Set<String> set=map_foreverSynTableIndexSet.get(tableKey);
+		Set<String> set=map_foreverSynTableIndexSet.get(adjust(tableKey));
 		if(set!=null){
 			set.add(sqlKey);
 		}else{
 			set=new HashSet<String>();
 			set.add(sqlKey);
-			map_foreverSynTableIndexSet.put(tableKey, set);  //forever table对应查询的Set,Set放的是sqlKey
+			map_foreverSynTableIndexSet.put(adjust(tableKey), set);  //forever table对应查询的Set,Set放的是sqlKey      //TODO DS:tableKey  ??
 		}
 	}
 	
-	
-	
+	//adjust tableKeys
+	private static String adjust(String tableKey){
+		boolean enableMultiDs = HoneyConfig.getHoneyConfig().enableMultiDs;
+		int multiDsType = HoneyConfig.getHoneyConfig().multiDsType;
+		if (enableMultiDs && multiDsType == 2) {//仅分库,有多个数据源时
+			String ds=Router.getDsName();
+			tableKey=ds+"."+tableKey;
+		}
+		return tableKey;
+	}
 	
 	//用于相关表有更新时,要清除所有与该表相关的缓存
 	public static void clear(String sql){
@@ -327,7 +344,7 @@ public final class CacheUtil {
 	private static void _clearMoreTabCache(String sql){
 	    List<String> tableKeyList=CacheKey.genTabKeyList(sql); 
 	    HoneyContext.deleteCacheInfo(sql);//要清除cacheStruct
-		for (int j = 0; j < tableKeyList.size(); j++) {  //TODO NULL tableKeyList
+		for (int j = 0; tableKeyList!=null && j < tableKeyList.size(); j++) {  // NULL tableKeyList
 			_clearOneTabCache(tableKeyList.get(j));
 		}
 	}
@@ -339,8 +356,9 @@ public final class CacheUtil {
 		 
 		Integer k;
 		if (tableKeyList != null && tableKeyList.size() > 0) {
-			for (int j = 0; j < tableKeyList.size(); j++) { //TODO NULL tableKeyList
-				k = foreverCacheModifySynTableMap.get(tableKeyList.get(j));
+			for (int j = 0; j < tableKeyList.size(); j++) { // need check NULL tableKeyList
+//				k = foreverCacheModifySynTableMap.get(tableKeyList.get(j).toLowerCase());
+				k=_getConfigCacheTableMapValue(foreverCacheModifySynTableMap,tableKeyList);
 				if(k!=null){ //foreverModifySynTable
 //					foreverModifySynCacheObjectMap.remove(key);  //sql是modify类型的sql,不是查询的
 					_clearOneTabCache_ForeverModifySyn(tableKeyList.get(j));
@@ -350,7 +368,8 @@ public final class CacheUtil {
 	}
 	//用于相关表有更新时,要清除所有与该表相关的缓存  foreverModifySynTable
 	private static void _clearOneTabCache_ForeverModifySyn(String tableKey){
-		Set<String> set=map_foreverSynTableIndexSet.get(tableKey);
+		Set<String> set=map_foreverSynTableIndexSet.get(adjust(tableKey));
+//		Set<String> set=_getSynTableIndexSet(tableKey);
 		if(set!=null){
 			//清除相关index
 			for(String i : set){
@@ -359,7 +378,7 @@ public final class CacheUtil {
 			}
 			//最后将set=null;
 			set=null;
-			map_foreverSynTableIndexSet.remove(tableKey);  //不能少
+			map_foreverSynTableIndexSet.remove(adjust(tableKey));  //不能少    // 仅分库时, DS:tableKey  
 		}
 	}
 	
@@ -393,9 +412,9 @@ public final class CacheUtil {
 	
 	 private static void _delTableKeyListByKey(String key,int index){
 		 List<String> tableKeyList=map_tableKeyList.get(key);
-		 //TODO
+		 
 //         if(tableKeyList==null) return;
-		 for (int i = 0; i < tableKeyList.size(); i++) {
+		 for (int i = 0; tableKeyList!=null &&  i < tableKeyList.size(); i++) {
 			 _deleteTableIndexSet(tableKeyList.get(i),index);
 		}
 	 }
@@ -409,18 +428,61 @@ public final class CacheUtil {
 		}
 	}
 	
+	private static boolean _inConfigCacheTableMap(Map map, List<String> list) {
+		boolean enableMultiDs = HoneyConfig.getHoneyConfig().enableMultiDs;
+		if (enableMultiDs) {
+			int multiDsType = HoneyConfig.getHoneyConfig().multiDsType;
+			if (multiDsType == 2) {//仅分库,有多个数据源时
+				String tableName = list.get(0);
+				if (map.get(tableName.toLowerCase()) != null){
+					return true;
+				}else{
+					String ds=Router.getDsName();
+					if (map.get((ds+"."+tableName).toLowerCase()) != null) return true;
+					else return false;
+				}
+			}
+		}
+
+		if (map.get(list.get(0).toLowerCase()) != null)
+			return true;
+		else
+			return false;
+	}
+	
+	private static Integer _getConfigCacheTableMapValue(Map<String,Integer> map, List<String> list) {
+		
+		boolean enableMultiDs = HoneyConfig.getHoneyConfig().enableMultiDs;
+		if (enableMultiDs) {
+			int multiDsType = HoneyConfig.getHoneyConfig().multiDsType;
+			if (multiDsType == 2) {//仅分库,有多个数据源时
+				String tableName = list.get(0);
+				Integer v1=map.get(tableName.toLowerCase());
+				if ( v1 != null){
+					return v1;
+				}else{
+					String ds=Router.getDsName();
+					Integer v2=map.get((ds+"."+tableName).toLowerCase());
+					return v2;
+				}
+			}
+		}
+
+		return map.get(list.get(0).toLowerCase());
+	}
+	
 	private static void initSpecialTable(String never,String forever,String foreverModifySyn){
 		if (never != null) {
 			String ns[] = never.split(",");
 			for (int i = 0; i < ns.length; i++) {
-				neverCacheTableMap.put(ns[i].trim(), NEVER);
+				neverCacheTableMap.put(ns[i].trim().toLowerCase(), NEVER);  //表名不区分大小写
 			}
 		}
 
 		if (forever != null) {
 			String fs[] = forever.split(",");
 			for (int i = 0; i < fs.length; i++) {
-				foreverCacheTableMap.put(fs[i].trim(), FOREVER);
+				foreverCacheTableMap.put(fs[i].trim().toLowerCase(), FOREVER);
 			}
 		}
 
@@ -428,7 +490,7 @@ public final class CacheUtil {
 			//	         常驻缓存,但有更新时会清除缓存	
 			String fs_syn[] = foreverModifySyn.split(",");
 			for (int i = 0; i < fs_syn.length; i++) {
-				foreverCacheModifySynTableMap.put(fs_syn[i].trim(), FOREVER);
+				foreverCacheModifySynTableMap.put(fs_syn[i].trim().toLowerCase(), FOREVER);
 			}
 		}
 	}

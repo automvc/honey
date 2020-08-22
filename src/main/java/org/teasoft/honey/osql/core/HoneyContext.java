@@ -1,12 +1,15 @@
 package org.teasoft.honey.osql.core;
 
 import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import org.teasoft.bee.osql.SuidType;
 import org.teasoft.honey.distribution.ds.RouteStruct;
 
 /**
@@ -65,7 +68,7 @@ public final class HoneyContext {
 	}
 	
 	private static void initEntity2Table(){
-		String entity2tableMappingList=HoneyConfig.getHoneyConfig().getEntity2tableMappingList();
+		String entity2tableMappingList=HoneyConfig.getHoneyConfig().entity2tableMappingList;
 		if(entity2tableMappingList!=null){
 			String entity2table_array[]=entity2tableMappingList.split(",");
 			String item[];
@@ -86,7 +89,7 @@ public final class HoneyContext {
 	}
 	
 	private static void initTable2Entity(){
-		String entity2tableMappingList=HoneyConfig.getHoneyConfig().getEntity2tableMappingList();
+		String entity2tableMappingList=HoneyConfig.getHoneyConfig().entity2tableMappingList;
 		if(entity2tableMappingList!=null){
 			String entity2table_array[]=entity2tableMappingList.split(",");
 			String item[];
@@ -223,12 +226,100 @@ public final class HoneyContext {
 	
 	public static RouteStruct getCurrentRoute() {
 		 RouteStruct routeStruct=currentRoute.get();
-		 currentRoute.remove();
+//		 currentRoute.remove();  //需要多次,不能拿了就删
 		 return routeStruct;
 	}
 
 	public static void setCurrentRoute(RouteStruct routeStruct) {
 		currentRoute.set(routeStruct);
 	}
+	
+	public static void removeCurrentRoute() {
+		currentRoute.remove();
+	}
+	
+	static void setContext(String sql,List<PreparedValue> list,String tableName){
+		HoneyContext.setPreparedValue(sql, list);
+		addInContextForCache(sql, tableName);
+	}
+	
+    static void addInContextForCache(String sql, String tableName){
+		CacheSuidStruct struct=new CacheSuidStruct();
+		struct.setSql(sql);
+		struct.setTableNames(tableName);
+		HoneyContext.setCacheInfo(sql, struct);
+	}
+    
+	static void regEntityClass(Class clazz) {
+		OneTimeParameter.setAttribute("_SYS_Bee_ROUTE_EC", clazz); //EC:Entity Class
+	}
+	
+	static Connection getConn() throws SQLException {
+		Connection conn = null;
 
+		conn = HoneyContext.getCurrentConnection(); //获取已开启事务的连接
+		if (conn == null) {
+			conn = SessionFactory.getConnection(); //不开启事务时
+		}
+
+		return conn;
+	}
+	
+	static void checkClose(Statement stmt, Connection conn) {
+
+		if (stmt != null) {
+			try {
+				stmt.close();
+			} catch (SQLException e) {
+				//				e.printStackTrace();
+				throw ExceptionHelper.convert(e);
+			}
+		}
+		try {
+			if (conn != null && conn.getAutoCommit()) {//自动提交时才关闭.如果开启事务,则由事务负责
+				conn.close();
+			}
+		} catch (SQLException e) {
+			throw ExceptionHelper.convert(e);
+		} finally {
+			boolean enableMultiDs = HoneyConfig.getHoneyConfig().enableMultiDs;
+			int multiDsType = HoneyConfig.getHoneyConfig().multiDsType;
+			if (enableMultiDs && multiDsType == 2) {//仅分库,有多个数据源时
+				HoneyContext.removeCurrentRoute();
+			}
+		}
+	}
+	
+	//for SqlLib
+	static boolean updateInfoInCache(String sql, String returnType, SuidType suidType) {
+		CacheSuidStruct struct = HoneyContext.getCacheInfo(sql);
+		if (struct != null) {
+			struct.setReturnType(returnType);
+			struct.setSuidType(suidType.getType());
+			HoneyContext.setCacheInfo(sql, struct);
+			return true;
+		}
+		//要是没有更新缓存,证明之前还没有登记过缓存,就不能去查缓存.
+		return false;
+	}
+	
+	//for SqlLib
+	static void initRoute(SuidType suidType, Class clazz,String sql) {
+
+		if (clazz == null) {
+			clazz = (Class) OneTimeParameter.getAttribute("_SYS_Bee_ROUTE_EC");
+		}
+
+		RouteStruct routeStruct = new RouteStruct();
+		routeStruct.setSuidType(suidType);
+		routeStruct.setEntityClass(clazz);
+		
+		CacheSuidStruct struct = HoneyContext.getCacheInfo(sql);
+		if (struct != null) {
+			routeStruct.setTableNames(struct.getTableNames());
+		}
+
+		HoneyContext.setCurrentRoute(routeStruct);
+	}
+	
 }

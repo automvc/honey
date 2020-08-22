@@ -13,11 +13,11 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Kingstar
  * @since  1.8
  */
-public class OneTimeRequest {
+class OneTimeParameter {
 	
 	private static ThreadLocal<Map<String, Object>> local= new ThreadLocal<>();
 
-	private OneTimeRequest() {}
+	private OneTimeParameter() {}
 
 	public static Object getAttribute(String key) {
 		

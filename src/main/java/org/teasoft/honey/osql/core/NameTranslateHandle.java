@@ -38,7 +38,7 @@ public class NameTranslateHandle {
 	@SuppressWarnings({"rawtypes","unchecked"}) 
 	public static String toTableName(String entityName) {
 		try {
-			String flag = (String) OneTimeRequest.getAttribute("DoNotCheckAnnotation");
+			String flag = (String) OneTimeParameter.getAttribute("DoNotCheckAnnotation");
 			if ("tRue".equals(flag)) {
 				//nothing
 			} else {
@@ -59,13 +59,13 @@ public class NameTranslateHandle {
 		//entityName maybe include package name
 		//special one, config in :bee.osql.name.mapping.entity2table
 		String tableName=entity2tableMap.get(entityName);
-		if(tableName!=null && "".equals(tableName.trim())) return tableName;
-		else {//若找不到,检测是否包含包名,若有,则再用类名看下是否能找到
+		if(tableName!=null && !"".equals(tableName.trim())) return tableName;//fix bug 2020-08-22
+		else {//若找不到,检测是否包含包名,若有,则去除包名后再用类名看下是否能找到
 			int index = entityName.lastIndexOf(".");
 			if(index>0){
 				entityName=entityName.substring(index + 1);  //此时entityName只包含类名
 				tableName=entity2tableMap.get(entityName);
-				if(tableName!=null && "".equals(tableName.trim())) return tableName;
+				if(tableName!=null && !"".equals(tableName.trim())) return tableName;//fix bug 2020-08-22
 			}
 		}
 		
@@ -82,7 +82,7 @@ public class NameTranslateHandle {
 		}
 		//special one, config in :bee.osql.name.mapping.entity2table
 		String entityName=table2entityMap.get(tableName);
-		if(entityName!=null && "".equals(entityName.trim())) return entityName;
+		if(entityName!=null && !"".equals(entityName.trim())) return entityName; //fix bug 2020-08-22
 		
 		return nameTranslat.toEntityName(tableName);
 	}
@@ -97,7 +97,7 @@ public class NameTranslateHandle {
 		if (start > 0 && end > 0 && start + 2 < end) {
 			String key = autoPara.substring(start + 2, end);
 			Map<String,String> map=new HashMap<>();
-			String value=(String)OneTimeRequest.getAttribute(key);
+			String value=(String)OneTimeParameter.getAttribute(key);
 			if(value==null){
 				Logger.error("Auto table error: parameter  ${"+key+"} in "+autoPara+" still has not value!");
 				return autoPara;

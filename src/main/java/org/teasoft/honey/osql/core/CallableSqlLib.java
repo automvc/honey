@@ -238,35 +238,11 @@ public class CallableSqlLib implements CallableSql {
 	}
 
 	private Connection getConn() throws SQLException {
-		Connection conn = null;
-		conn = HoneyContext.getCurrentConnection();
-		if (conn == null) {
-//			try {
-				conn = SessionFactory.getConnection(); //不开启事务时
-//			} catch (Exception e) {
-//				Logger.print("Have Error when get the Connection: ", e.getMessage());
-//			}
-		}
-		return conn;
-
+		return HoneyContext.getConn();
 	}
 
 	protected void checkClose(Statement stmt, Connection conn) {
-
-		if (stmt != null) {
-			try {
-				stmt.close();
-			} catch (SQLException e) {
-				throw ExceptionHelper.convert(e);
-			}
-		}
-		try {
-			if (conn != null && conn.getAutoCommit()) {//自动提交时才关闭.如果开启事务,则由事务负责
-				conn.close();
-			}
-		} catch (SQLException e) {
-			throw ExceptionHelper.convert(e);
-		}
+		HoneyContext.checkClose(stmt, conn);
 	}
 	
 	private static String _toColumnName(String fieldName){

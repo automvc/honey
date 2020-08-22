@@ -431,7 +431,7 @@ public class ConditionHelper {
 			}else if(useSubTableNames[1]!=null && useSubTableNames[1].startsWith(t_tableName_dot)){
 				find_tableName=t_tableName;
 			}else{
-				OneTimeRequest.setAttribute("DoNotCheckAnnotation", "tRue");//adjust for @Table
+				OneTimeParameter.setAttribute("DoNotCheckAnnotation", "tRue");//adjust for @Table
 				find_tableName=NameTranslateHandle.toTableName(t_tableName);
 			}
 			

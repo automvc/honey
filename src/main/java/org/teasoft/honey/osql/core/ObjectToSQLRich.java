@@ -43,7 +43,8 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 //		sql = dbFeature.toPageSql(sql, size)+";";
 		sql = dbFeature.toPageSql(sql, size);
 
-		setPreparedValue(sql, wrap);
+//		setPreparedValue(sql, wrap);
+		setContext(sql, wrap.getList(), wrap.getTableNames());
 		Logger.logSQL("select SQL(entity,size): ", sql);
 		return sql;
 	}
@@ -57,7 +58,8 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 //		sql = dbFeature.toPageSql(sql, start, size)+";";
 		sql = dbFeature.toPageSql(sql, start, size);
 
-		setPreparedValue(sql, wrap);
+//		setPreparedValue(sql, wrap);
+		setContext(sql, wrap.getList(), wrap.getTableNames());
 
 		Logger.logSQL("select(entity,start,size) SQL:", sql);
 		return sql;
@@ -71,7 +73,8 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 //		sql = dbFeature.toPageSql(sql, start, size)+";";
 		sql = dbFeature.toPageSql(sql, start, size);
 
-		setPreparedValue(sql, wrap);
+//		setPreparedValue(sql, wrap);
+		setContext(sql, wrap.getList(), wrap.getTableNames());		
 
 		Logger.logSQL("select(entity,selectFields,start,size) SQL:", sql);
 		return sql;
@@ -113,7 +116,8 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 //		sql=sql.replace(";", " "); //close on 2019-04-27
 		sql+="order by "+orderBy+" ;";
 		
-		setPreparedValue(sql,wrap);
+//		setPreparedValue(sql,wrap);
+		setContext(sql, wrap.getList(), wrap.getTableNames());
 		
 		return sql;
 	}
@@ -138,7 +142,8 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 //		sql = sql.replace(";", " "); //close on 2019-04-27
 		sql += "order by " + orderBy + " ;";
 
-		setPreparedValue(sql, wrap);
+//		setPreparedValue(sql, wrap);
+		setContext(sql, wrap.getList(), wrap.getTableNames());
 
 		return sql;
 	}
@@ -249,11 +254,12 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			sql = sqlBuffer.toString();
 
 //			if (valueBuffer.length() > 0) valueBuffer.deleteCharAt(0);
-			HoneyContext.setPreparedValue(sql, list);
-//			HoneyContext.setSqlValue(sql, valueBuffer.toString());
-//			addInContextForCache(sql, valueBuffer.toString(), tableName);
-			addInContextForCache(sql, tableName);
-			//TODO setContext
+//			HoneyContext.setPreparedValue(sql, list);
+////			HoneyContext.setSqlValue(sql, valueBuffer.toString());
+////			addInContextForCache(sql, valueBuffer.toString(), tableName);
+//			addInContextForCache(sql, tableName);
+			
+			setContext(sql, list, tableName);
 
 			if (SqlStrFilter.checkFunSql(sql, funType)) {
 				throw new ObjSQLIllegalSQLStringException("ObjSQLIllegalSQLStringException:sql statement with function is illegal. " + sql);
@@ -487,9 +493,11 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		preparedValue.setValue(id);
 		list.add(preparedValue);
 		
-		HoneyContext.setPreparedValue(sqlBuffer.toString(), list);
-//		HoneyContext.setSqlValue(sqlBuffer.toString(), id+""); //用于log显示
-		addInContextForCache(sqlBuffer.toString(), wrap.getTableNames());
+//		HoneyContext.setPreparedValue(sqlBuffer.toString(), list);
+////		HoneyContext.setSqlValue(sqlBuffer.toString(), id+""); //用于log显示
+//		addInContextForCache(sqlBuffer.toString(), wrap.getTableNames());
+		
+		setContext(sqlBuffer.toString(), list, wrap.getTableNames());
 		
 		return sqlBuffer.toString();
 	}
@@ -520,9 +528,11 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 //		sqlBuffer.append(t_ids).append(";");
 		sqlBuffer.append(t_ids);
 		
-		HoneyContext.setPreparedValue(sqlBuffer.toString(), list);
-//		HoneyContext.setSqlValue(sqlBuffer.toString(), ids); //用于log显示
-		addInContextForCache(sqlBuffer.toString(), wrap.getTableNames());
+//		HoneyContext.setPreparedValue(sqlBuffer.toString(), list);
+////		HoneyContext.setSqlValue(sqlBuffer.toString(), ids); //用于log显示
+//		addInContextForCache(sqlBuffer.toString(), wrap.getTableNames());
+		
+		setContext(sqlBuffer.toString(), list, wrap.getTableNames());
 		
 		return sqlBuffer.toString();
 	}
@@ -626,7 +636,12 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		return wrap;
 	}
 
-	private void setPreparedValue(String sql, SqlValueWrap wrap) {
+	
+	private static void setContext(String sql,List<PreparedValue> list,String tableName){
+		HoneyContext.setContext(sql, list, tableName);
+	}
+	
+/*	private void setPreparedValue(String sql, SqlValueWrap wrap) {
 		HoneyContext.setPreparedValue(sql, wrap.getList());
 //		HoneyContext.setSqlValue(sql, wrap.getValueBuffer().toString());
 //		addInContextForCache(sql, wrap.getValueBuffer().toString(), wrap.getTableNames());
@@ -642,8 +657,8 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 // private static void addInContextForCache(String sql,String sqlValue, String tableName){
    private static void addInContextForCache(String sql, String tableName){
 //	   _ObjectToSQLHelper.addInContextForCache(sql, sqlValue, tableName);
-	   _ObjectToSQLHelper.addInContextForCache(sql, tableName);
-	}
+	   HoneyContext.addInContextForCache(sql, tableName);
+	}*/
    
 	private static <T> void checkPackage(T entity) {
 //		传入的实体可以过滤掉常用的包开头的,如:java., javax. ; 但spring开头不能过滤,否则spring想用bee就不行了.

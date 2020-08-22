@@ -7,6 +7,7 @@ import org.teasoft.bee.osql.BeeSQLException;
 import org.teasoft.bee.osql.transaction.Transaction;
 import org.teasoft.bee.osql.transaction.TransactionIsolationLevel;
 import org.teasoft.honey.osql.core.ExceptionHelper;
+import org.teasoft.honey.osql.core.HoneyConfig;
 import org.teasoft.honey.osql.core.HoneyContext;
 import org.teasoft.honey.osql.core.SessionFactory;
 
@@ -123,7 +124,13 @@ public class JdbcTransaction implements Transaction {
 			} catch (SQLException e) {
 				throw ExceptionHelper.convert(e);
 			} finally {
-				HoneyContext.removeCurrentConnection();
+				HoneyContext.removeCurrentConnection(); //事务结束时要删除
+				
+				boolean enableMultiDs = HoneyConfig.getHoneyConfig().enableMultiDs;
+				int multiDsType = HoneyConfig.getHoneyConfig().multiDsType;
+				if (enableMultiDs && multiDsType == 2) {//仅分库,有多个数据源时
+					HoneyContext.removeCurrentRoute();
+				}
 			}
 		}
 	}

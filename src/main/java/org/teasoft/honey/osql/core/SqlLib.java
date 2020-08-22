@@ -42,14 +42,7 @@ public class SqlLib implements BeeSql {
 	public SqlLib() {}
 
 	private Connection getConn() throws SQLException {
-		Connection conn = null;
-
-		conn = HoneyContext.getCurrentConnection(); //获取已开启事务的连接
-		if (conn == null) {
-			conn = SessionFactory.getConnection(); //不开启事务时
-		}
-
-		return conn;
+		return HoneyContext.getConn();
 	}
 	
 	@Override
@@ -134,7 +127,7 @@ public class SqlLib implements BeeSql {
 		if(isReg){
 		Object cacheObj=cache.get(sql);  //这里的sql还没带有值
 		if(cacheObj!=null) return (List<T>)cacheObj;
-		initRoute(SuidType.SELECT,entity.getClass());
+		initRoute(SuidType.SELECT,entity.getClass(),sql);
 		}
 		
 		Connection conn = null;
@@ -221,7 +214,8 @@ public class SqlLib implements BeeSql {
 		if(isReg){
 		Object cacheObj=cache.get(sql);  //这里的sql还没带有值
 		if(cacheObj!=null) return (String)cacheObj;
-		initRoute(SuidType.SELECT,null);
+		
+		initRoute(SuidType.SELECT,null,sql);
 		}
 		
 		String result = null;
@@ -269,7 +263,7 @@ public class SqlLib implements BeeSql {
 		if(isReg){
 		Object cacheObj=cache.get(sql);  //这里的sql还没带有值
 		if(cacheObj!=null) return (List<String[]>)cacheObj;
-		initRoute(SuidType.SELECT,null);
+		initRoute(SuidType.SELECT,null,sql);
 		}
 		
 		List<String[]> list = new ArrayList<String[]>();
@@ -319,7 +313,7 @@ public class SqlLib implements BeeSql {
 		
 		if(sql==null || "".equals(sql)) return -2;
 		
-		initRoute(SuidType.MODIFY,null);
+		initRoute(SuidType.MODIFY,null,sql);
 		
 		int num = 0;
 		Connection conn = null;
@@ -358,7 +352,7 @@ public class SqlLib implements BeeSql {
 		if(isReg){
 		Object cacheObj=cache.get(sql);  //这里的sql还没带有值
 		if(cacheObj!=null) return (String)cacheObj;
-		initRoute(SuidType.SELECT,null);
+		initRoute(SuidType.SELECT,null,sql);
 		}
 		
 		StringBuffer json=new StringBuffer("");
@@ -398,9 +392,9 @@ public class SqlLib implements BeeSql {
 	@Override
 	public int[] batch(String sql[], int batchSize) {
 		
-		if(sql==null) return null;
+		if(sql==null || sql.length<1) return null;
 		
-		initRoute(SuidType.INSERT,null);
+		initRoute(SuidType.INSERT,null,sql[0]);
 		
 		int len = sql.length;
 		int total[] = new int[len];
@@ -462,22 +456,7 @@ public class SqlLib implements BeeSql {
 	}
 
 	protected void checkClose(Statement stmt, Connection conn) {
-
-		if (stmt != null) {
-			try {
-				stmt.close();
-			} catch (SQLException e) {
-//				e.printStackTrace();
-				throw ExceptionHelper.convert(e);
-			}
-		}
-		try {
-			if (conn != null && conn.getAutoCommit()) {//自动提交时才关闭.如果开启事务,则由事务负责
-				conn.close();
-			}
-		} catch (SQLException e) {
-			throw ExceptionHelper.convert(e);
-		}
+		HoneyContext.checkClose(stmt, conn);
 	}
 	
 	@Override
@@ -490,7 +469,7 @@ public class SqlLib implements BeeSql {
 		if(isReg){
 		Object cacheObj=cache.get(sql);  //这里的sql还没带有值
 		if(cacheObj!=null) return (List<T>)cacheObj;
-		initRoute(SuidType.SELECT,entity.getClass()); //TODO only multi-Ds,tables in different db.
+		initRoute(SuidType.SELECT,entity.getClass(),sql); //only multi-Ds,tables don't allow in different db.仅分库时，多表查询的多个表要在同一个数据源.
 		}
 		
 		Connection conn = null;
@@ -642,12 +621,10 @@ public class SqlLib implements BeeSql {
 	
 	private Object _getObject(ResultSet rs, Field field) throws SQLException{
 		return HoneyUtil.getResultObject(rs, field.getType().getName(), _toColumnName(field.getName()));
-		
 	}
 	
 	private Object _getObjectForMoreTable(ResultSet rs, String tableName,Field field) throws SQLException{
 		return HoneyUtil.getResultObject(rs, field.getType().getName(), tableName+"."+ _toColumnName(field.getName()));
-		
 	}
 	
 	private Object _getObjectByindex(ResultSet rs,Field field, int index) throws SQLException{
@@ -682,17 +659,8 @@ public class SqlLib implements BeeSql {
 	}
 	
 //	查缓存前需要先更新缓存信息,才能去查看是否在缓存
-//	private void updateInfoInCache(String sql, String returnType, SuidType suidType) {
 	private boolean updateInfoInCache(String sql, String returnType, SuidType suidType) {
-		CacheSuidStruct struct = HoneyContext.getCacheInfo(sql);
-		if (struct != null) {
-			struct.setReturnType(returnType);
-			struct.setSuidType(suidType.getType());
-			HoneyContext.setCacheInfo(sql, struct);
-			return true;
-		}
-		//要是没有更新缓存,证明之前还没有登记过缓存,就不能去查缓存.
-		return false;
+		return HoneyContext.updateInfoInCache(sql, returnType, suidType);
 	}
 	
 	private void clearInCache(String sql, String returnType, SuidType suidType) {
@@ -705,15 +673,9 @@ public class SqlLib implements BeeSql {
 		cache.clear(sql);
 	}
 	
-	private void initRoute(SuidType suidType,Class clazz){
-		
-		if(! enableMultiDs) return ;
-		
-		RouteStruct routeStruct=new RouteStruct();
-		routeStruct.setSuidType(suidType);
-		routeStruct.setEntityClass(clazz);
-		
-		HoneyContext.setCurrentRoute(routeStruct);
+	private void initRoute(SuidType suidType, Class clazz, String sql) {
+		if (!enableMultiDs) return;
+		HoneyContext.initRoute(suidType, clazz, sql);
 	}
 
 }

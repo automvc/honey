@@ -122,7 +122,7 @@ public final class HoneyConfig {
 //	@SysValue("${aaa}")
 	
 	@SysValue("${bee.osql.name.mapping.entity2table}")
-	private String entity2tableMappingList;
+	public String entity2tableMappingList;
 	
 	private int cacheTimeout=10000;
 	private int cacheMapSize=1000;
@@ -181,12 +181,14 @@ public final class HoneyConfig {
 	@SysValue("${bee.dosql.multi-DS.rDB.routeWay}")
 	public int rDbRouteWay ; //注意,系统会设初值0  //multiDsType=1
 			
-	@SysValue("${bee.dosql.multi-DS.db}")
-	public String multi_dbList;
+//	@SysValue("${bee.dosql.multi-DS.db}")
+//	public String multi_dbList;
+	
 	@SysValue("${bee.dosql.multi-DS.match.entityClassPath}")
-	public String matchEntityClassPath;  //multiDsType=2
+	public String matchEntityClassPath="";  //multiDsType=2
+	
 	@SysValue("${bee.dosql.multi-DS.match.table}")
-	public String matchTable;  //multiDsType=2
+	public String matchTable="";  //multiDsType=2
 	 
 
 //	private void setShowSQL(boolean showSQL) {
@@ -225,9 +227,9 @@ public final class HoneyConfig {
 		this.password = password;
 	}
 	
-	public String getEntity2tableMappingList() {
-		return entity2tableMappingList;
-	}
+//	public String getEntity2tableMappingList() {
+//		return entity2tableMappingList;
+//	}
 
 	public boolean isShowSQL() {
 		return showSQL;

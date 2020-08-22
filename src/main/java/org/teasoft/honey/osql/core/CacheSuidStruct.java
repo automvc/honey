@@ -18,6 +18,8 @@ public class CacheSuidStruct {
 	private String returnType;  //返回值类型用于过滤缓存的查询结果,防止同一查询sql的不同类型的结果;  但更改的操作可不需要用这个值
 	private String suidType;  //操作类型
 	
+	private Class entityClass; //for route
+	
 	public CacheSuidStruct(){}
 	
 	public String getSql() {
@@ -55,4 +57,13 @@ public class CacheSuidStruct {
 	public void setReturnType(String returnType) {
 		this.returnType = returnType;
 	}
+
+	public Class getEntityClass() {
+		return entityClass;
+	}
+
+	public void setEntityClass(Class entityClass) {
+		this.entityClass = entityClass;
+	}
+	
 }

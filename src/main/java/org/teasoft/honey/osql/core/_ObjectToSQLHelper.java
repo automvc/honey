@@ -915,22 +915,13 @@ final class _ObjectToSQLHelper {
 		return false;
 	}
 	
-	private static void setContext(String sql,List<PreparedValue> list,String tableName){
-		HoneyContext.setPreparedValue(sql, list);
-//		String value=HoneyUtil.list2Value(list,true);
-//		HoneyContext.setSqlValue(sql, value);
-//		addInContextForCache(sql, value, tableName);//2019-09-29
-		addInContextForCache(sql, tableName);
+	static void setContext(String sql,List<PreparedValue> list,String tableName){
+		HoneyContext.setContext(sql, list, tableName);
 	}
 	
 //  static void addInContextForCache(String sql,String sqlValue, String tableName){ //changed v1.8
     static void addInContextForCache(String sql, String tableName){
-		CacheSuidStruct struct=new CacheSuidStruct();
-		struct.setSql(sql);
-//		struct.setSqlValue(sqlValue);
-		struct.setTableNames(tableName);
-		
-		HoneyContext.setCacheInfo(sql, struct);
+    	HoneyContext.addInContextForCache(sql, tableName);
 	}
     
 	private static <T> void checkPackage(T entity) {
@@ -945,31 +936,31 @@ final class _ObjectToSQLHelper {
 		return NameTranslateHandle.toColumnName(fieldName);
 	}
 	
-	static <T> void setInitIdByAuto(T entity){
-		
-		boolean needGenId=HoneyConfig.getHoneyConfig().genid_forAllTableLongId;
-		if(!needGenId) return ;
-		
-		Field field=null;
+	static <T> void setInitIdByAuto(T entity) {
+
+		boolean needGenId = HoneyConfig.getHoneyConfig().genid_forAllTableLongId;
+		if (!needGenId) return;
+
+		Field field = null;
 		try {
-			field=entity.getClass().getDeclaredField("id");
+			field = entity.getClass().getDeclaredField("id");
 			field.setAccessible(true);
-//			if (field.get(entity) != null) return;
+		  //if (field.get(entity) != null) return;
 		} catch (Exception e) {
-		   e.printStackTrace();
-		   return ;
+			e.printStackTrace();
+			return;
 		}
-		
-		if (!field.getType().equals(Long.class)) return;  //just set the null Long id field
-		
-		String tableKey=_toTableName(entity);
-		long id=GenIdFactory.get(tableKey);
+
+		if (!field.getType().equals(Long.class)) return; //just set the Long id field
+
+		String tableKey = _toTableName(entity);
+		long id = GenIdFactory.get(tableKey);
 		field.setAccessible(true);
-		try{
-		field.set(entity, id);
+		try {
+			field.set(entity, id);
 		} catch (IllegalAccessException e) {
 			throw ExceptionHelper.convert(e);
 		}
-		
+
 	}
 }

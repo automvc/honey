@@ -67,6 +67,7 @@ public class ObjSQL implements Suid {
 		int updateNum = -1;
 		sql = getObjToSQL().toUpdateSQL(entity);
 		Logger.logSQL("update SQL: ", sql);
+		_regEntityClass(entity);
 		updateNum = getBeeSql().modify(sql);
 
 		return updateNum;
@@ -80,6 +81,7 @@ public class ObjSQL implements Suid {
 		String sql = getObjToSQL().toInsertSQL(entity);
 		int insertNum = -1;
 		Logger.logSQL("insert SQL: ", sql);
+		_regEntityClass(entity);
 		insertNum = getBeeSql().modify(sql);
 		return insertNum;
 	}
@@ -92,6 +94,7 @@ public class ObjSQL implements Suid {
 		String sql = getObjToSQL().toDeleteSQL(entity);
 		int deleteNum = -1;
 		Logger.logSQL("delete SQL: ", sql);
+		_regEntityClass(entity);
 		deleteNum = getBeeSql().modify(sql);
 		return deleteNum;
 	}
@@ -116,14 +119,18 @@ public class ObjSQL implements Suid {
 		if (!"".equals(sql)) {
 			Logger.logSQL("delete SQL: ", sql);
 		}
+		_regEntityClass(entity);
 		deleteNum = getBeeSql().modify(sql);
 		return deleteNum;
 	}
 
 	@Override
 	public Suid setDynamicParameter(String para, String value) {
-		OneTimeRequest.setAttribute(para, value);
+		OneTimeParameter.setAttribute(para, value);
 		return this;
 	}
-
+	
+	private <T> void _regEntityClass(T entity){
+		HoneyContext.regEntityClass(entity.getClass());
+	}
 }

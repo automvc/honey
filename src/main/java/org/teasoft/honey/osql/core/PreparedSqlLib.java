@@ -217,7 +217,7 @@ public class PreparedSqlLib implements PreparedSql {
 		String pageSql = dbFeature.toPageSql(sqlStr, start, size);
 		String sql=initPrepareValuesViaMap(pageSql,map);
 		
-		Logger.logSQL("PreparedSqlLib selectJson SQL: ", sql);
+		Logger.logSQL("PreparedSqlLib selectJson SQL: ", sql);  //TODO 能输出可执行sql吗?
 		return getBeeSql().selectJson(sql);
 	}
 	
@@ -240,16 +240,23 @@ public class PreparedSqlLib implements PreparedSql {
 	}
 
 	private <T> void initPreparedValues(String sql, Object[] preValues, T entity) {
-//		StringBuffer valueBuffer = initPreparedValues(sql, preValues);
-		initPreparedValues(sql, preValues);
+		List list=_initPreparedValues(sql, preValues);
 //		if (valueBuffer.length() > 0) {//bug. no placeholder will have problem.
 			String tableName = _toTableName(entity);
-//			addInContextForCache(sql, valueBuffer.toString(), tableName);
-			addInContextForCache(sql, tableName);
+//			HoneyContext.setPreparedValue(sql, list);  
+//			addInContextForCache(sql, tableName);  //有T才放缓存.
+			HoneyContext.setContext(sql, list, tableName);
 //		}
 	}
-//	private StringBuffer initPreparedValues(String sql, Object[] preValues) {
+	
+	
 	private void initPreparedValues(String sql, Object[] preValues) {
+		List list=_initPreparedValues(sql, preValues);
+		HoneyContext.setPreparedValue(sql, list);  //没有entity,不放缓存.
+	}
+	
+//	private StringBuffer initPreparedValues(String sql, Object[] preValues) {
+	private List _initPreparedValues(String sql, Object[] preValues) {
 		
 		if(sql==null || "".equals(sql.trim())) {
 			throw new SqlNullException("sql statement string is Null !");
@@ -258,25 +265,13 @@ public class PreparedSqlLib implements PreparedSql {
 		PreparedValue preparedValue = null;
 		List<PreparedValue> list = new ArrayList<>();
 		
-		
-		
-//		StringBuffer valueBuffer = new StringBuffer();
 		for (int i = 0; preValues!=null && i < preValues.length; i++) { //fixbug
 			preparedValue = new PreparedValue();
 			preparedValue.setType(preValues[i].getClass().getName());
 			preparedValue.setValue(preValues[i]);
 			list.add(preparedValue);
-
-//			valueBuffer.append(",");
-//			valueBuffer.append(preValues[i]);
 		}
-
-//		if (valueBuffer.length() > 0) {
-//			valueBuffer.deleteCharAt(0);
-			HoneyContext.setPreparedValue(sql, list);
-//			HoneyContext.setSqlValue(sql, valueBuffer.toString());
-//		}
-//		return valueBuffer;
+		return list;
 	}
 	
 	private <T> Map<String, Object> mergeMap(Map<String, Object> prameterMap, T entity){
@@ -286,33 +281,26 @@ public class PreparedSqlLib implements PreparedSql {
 	}
 	
 	private <T> String initPrepareValuesViaMap(String sqlStr, Map<String, Object> parameterMap, T entity) {
-		
-		if(sqlStr==null || "".equals(sqlStr.trim())) {
+
+		if (sqlStr == null || "".equals(sqlStr.trim())) {
 			throw new SqlNullException("sql statement string is Null !");
 		}
-		
-		parameterMap=mergeMap(parameterMap,entity);
-		
+		parameterMap = mergeMap(parameterMap, entity);
+
 		SqlValueWrap wrap = processSql(sqlStr); //will return null when sql no placeholder like: select * from tableName
 		if (wrap == null) {
 			String tableName = _toTableName(entity);
-//			addInContextForCache(sqlStr, null, tableName);
-			addInContextForCache(sqlStr, tableName);
+//			addInContextForCache(sqlStr, tableName);
+			HoneyContext.setContext(sqlStr, new ArrayList(), tableName);
 			return sqlStr;
 		} else {
-//TODO 没有将值的list放缓存???
 			String sql = wrap.getSql();
 			String mapKeys = wrap.getValueBuffer().toString(); //wrap.getValueBuffer() is :map's key , get from like: #{name}
-			StringBuffer valueBuffer = _initPreparedValues(sql, mapKeys, parameterMap);
-
-			//if (valueBuffer.length() > 0) {
+			List list = _initPreparedValues(mapKeys, parameterMap);
 			String tableName = _toTableName(entity);
-//			addInContextForCache(sql, valueBuffer.toString(), tableName);
-			addInContextForCache(sql, tableName);
-			//}
+			HoneyContext.setContext(sql, list, tableName);
 			return sql;
 		}
-
 	}
 	
 	private String initPrepareValuesViaMap(String sqlStr, Map<String, Object> map){
@@ -325,15 +313,16 @@ public class PreparedSqlLib implements PreparedSql {
 		if(wrap==null) return sqlStr;  //fix null bug
 		String sql=wrap.getSql();
 		String mapKeys=wrap.getValueBuffer().toString(); //wrap.getValueBuffer() is :map's key , get from like: #{name}
-		_initPreparedValues(sql,mapKeys, map); 
+		List list=_initPreparedValues(mapKeys, map); 
+		HoneyContext.setPreparedValue(sql, list);
 		return sql;
 	}
 	
-	private StringBuffer _initPreparedValues(String sql, String mapKeys,Map<String,Object> map) {
+//	private List _initPreparedValues(String sql, String mapKeys,Map<String,Object> map) {
+	private List _initPreparedValues(String mapKeys,Map<String,Object> map) {
 
 		PreparedValue preparedValue = null;
 		List<PreparedValue> list = new ArrayList<>();
-		StringBuffer valueBuffer = new StringBuffer();
 		Object value;
 		
 		String keys[]=mapKeys.split(",");  //map's key
@@ -366,31 +355,17 @@ public class PreparedSqlLib implements PreparedSql {
 			preparedValue.setType(map.get(keys[i]).getClass().getName());
 			
 			list.add(k++, preparedValue);
-
-			valueBuffer.append(",");
-			valueBuffer.append(value);
 		}
-
-		if (valueBuffer.length() > 0) {
-			valueBuffer.deleteCharAt(0);
-			HoneyContext.setPreparedValue(sql, list);
-//			HoneyContext.setSqlValue(sql, valueBuffer.toString());
-		}
-		
-		return valueBuffer;
+		return list;
 	}
 
 	private SqlValueWrap  processSql(String sql){
 		return TokenUtil.process(sql, "#{", "}", "?");
 	}
 	
-//	private static void addInContextForCache(String sql,String sqlValue, String tableName){
-//		_ObjectToSQLHelper.addInContextForCache(sql, sqlValue, tableName);
+//	private static void addInContextForCache(String sql, String tableName){
+//		_ObjectToSQLHelper.addInContextForCache(sql, tableName);
 //	}
-	
-	private static void addInContextForCache(String sql, String tableName){
-		_ObjectToSQLHelper.addInContextForCache(sql, tableName);
-	}
 	
 	private static String _toTableName(Object entity){
 		return NameTranslateHandle.toTableName(NameUtil.getClassFullName(entity));
