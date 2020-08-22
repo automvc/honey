@@ -23,7 +23,6 @@ import org.teasoft.bee.osql.Cache;
 import org.teasoft.bee.osql.ObjSQLException;
 import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.annotation.JoinTable;
-import org.teasoft.honey.distribution.ds.RouteStruct;
 import org.teasoft.honey.osql.name.NameUtil;
 
 /**
