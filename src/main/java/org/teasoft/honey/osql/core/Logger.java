@@ -51,7 +51,18 @@ public class Logger {
 				_println("[Bee] "+hardStr, sql);
 				if(showExecutableSql) _println("[Bee] ExecutableSql: "+hardStr, sql);  //无占位的情况
 			}else{
-				_println("[Bee] "+hardStr, sql +"   [values]: "+ value);
+				String insertIndex=(String)OneTimeParameter.getAttribute("_SYS_Bee_BatchInsert");
+				if(insertIndex!=null){
+					if("0".equals(insertIndex)){
+						_println("[Bee] "+hardStr, sql);
+					}
+					   
+					print("--> index:"+insertIndex+" ,  [values]: "+ value);
+					
+				}else{
+					_println("[Bee] "+hardStr, sql +"   [values]: "+ value);
+				}
+				
 				if(showExecutableSql) {
 					executableSql=HoneyUtil.getExecutableSql(sql,list);
 					if(showExecutableSql) _println("[Bee] ExecutableSql: "+hardStr, executableSql);

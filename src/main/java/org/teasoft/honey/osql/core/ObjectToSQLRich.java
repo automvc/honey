@@ -337,6 +337,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			sql[0] = t_sql;
 //			t_sql = t_sql + "[index0]";  //index0 不带,与单条共用.
 //			setPreparedValue(t_sql, wrap);
+			OneTimeParameter.setAttribute("_SYS_Bee_BatchInsert", "0");
 			Logger.logSQL("insert[] SQL :", t_sql);
 
 			for (int i = 1; i < len; i++) { // i=1
@@ -345,6 +346,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 				//				t_sql = wrap.getSql(); //  每个sql不一定一样,因为设值不一样,有些字段不用转换. 不采用;因为不利于批处理
 
 //				setPreparedValue_ForArray(sql[0] + index1 + i + index2, wrap);
+				OneTimeParameter.setAttribute("_SYS_Bee_BatchInsert", i+"");
 				Logger.logSQL("insert[] SQL :", sql_i);
 			}
 		} catch (IllegalAccessException e) {
