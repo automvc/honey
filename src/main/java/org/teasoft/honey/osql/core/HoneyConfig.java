@@ -157,16 +157,18 @@ public final class HoneyConfig {
 	private String foreverCacheModifySynTableList ; 
 	
 	//v1.8
-	
 	@SysValue("${bee.distribution.genid.workerid}")
 	public int workerid ;
 	
-	@SysValue("${bee.distribution.genid.idGenerator}")
-	public int idGenerator=1 ;
-	
+	@SysValue("${bee.distribution.genid.idGeneratorType}")
+	public int idGeneratorType=1 ;
 	
 	@SysValue("${bee.distribution.genid.forAllTableLongId}")
 	public boolean genid_forAllTableLongId;
+	@SysValue("${bee.distribution.genid.entityList.includes}")
+	public String entityList_includes;
+	@SysValue("${bee.distribution.genid.entityList.excludes}")
+	public String entityList_excludes;
 	
 	@SysValue("${bee.dosql.multi-DS.enable}")
 	public boolean enableMultiDs;
@@ -189,7 +191,7 @@ public final class HoneyConfig {
 	
 	@SysValue("${bee.dosql.multi-DS.match.table}")
 	public String matchTable="";  //multiDsType=2
-	 
+	
 
 //	private void setShowSQL(boolean showSQL) {
 //		this.showSQL = showSQL;

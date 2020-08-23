@@ -938,7 +938,10 @@ final class _ObjectToSQLHelper {
 	
 	static <T> void setInitIdByAuto(T entity) {
 
-		boolean needGenId = HoneyConfig.getHoneyConfig().genid_forAllTableLongId;
+//		boolean needGenId = HoneyConfig.getHoneyConfig().genid_forAllTableLongId;
+//		if (!needGenId) return;
+		if(entity==null) return ;
+		boolean needGenId = HoneyContext.isNeedGenId(entity.getClass());
 		if (!needGenId) return;
 
 		Field field = null;

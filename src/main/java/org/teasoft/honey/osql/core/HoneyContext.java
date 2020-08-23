@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.teasoft.bee.osql.SuidType;
 import org.teasoft.honey.distribution.ds.RouteStruct;
@@ -35,7 +36,13 @@ public final class HoneyContext {
 	
 	private static ConcurrentMap<String,String> entity2table;
 	private static ConcurrentMap<String,String> table2entity=null; //for creat Javabean (just one to one can work well)
-
+	
+	private static Map<String, String> entityList_includes_Map = new ConcurrentHashMap<>();
+	private static Map<String, String> entityList_excludes_Map = new ConcurrentHashMap<>();
+	
+	private static List<String> entityListWithStar_in = new CopyOnWriteArrayList<>();
+	private static List<String> entityListWithStar_ex = new CopyOnWriteArrayList<>();
+	
 	static {
 		beanMap = new ConcurrentHashMap<>();
 		moreTableStructMap= new ConcurrentHashMap<>();
@@ -50,6 +57,8 @@ public final class HoneyContext {
 		entity2table=new ConcurrentHashMap<>();
 //		table2entity=new ConcurrentHashMap<>();
 		initEntity2Table();
+		
+		parseEntityListToMap();
 	}
 
 	private HoneyContext() {}
@@ -66,6 +75,8 @@ public final class HoneyContext {
 		
 		return table2entity;
 	}
+	
+	
 	
 	private static void initEntity2Table(){
 		String entity2tableMappingList=HoneyConfig.getHoneyConfig().entity2tableMappingList;
@@ -320,6 +331,84 @@ public final class HoneyContext {
 		}
 
 		HoneyContext.setCurrentRoute(routeStruct);
+	}
+	
+//	private static Map<String, String> entityList_includes_Map = new ConcurrentHashMap<>();
+//	private static Map<String, String> entityList_excludes_Map = new ConcurrentHashMap<>();
+	
+	private static void parseEntityListToMap() {
+		String entityList_includes = HoneyConfig.getHoneyConfig().entityList_includes; //in
+		_parseListToMap(entityList_includes, entityList_includes_Map, entityListWithStar_in);
+
+		String entityList_excludes = HoneyConfig.getHoneyConfig().entityList_excludes; //ex
+		_parseListToMap(entityList_excludes, entityList_excludes_Map, entityListWithStar_ex);
+
+	}
+
+	private static void _parseListToMap(String str, Map<String, String> map, List<String> starList) {
+		//com.xxx.aa.User,com.xxx.bb.*,com.xxx.cc.**
+		if (str == null || "".equals(str.trim())) return;
+
+		String strArray[] = str.trim().split(",");
+		for (int k = 0; k < strArray.length; k++) {
+			if (strArray[k].trim().endsWith(".**")) starList.add(strArray[k].trim()); // .** 结尾同时存一份到list
+			map.put(strArray[k].trim(), "1");
+		}
+	}
+
+	private static boolean isConfigForEntityIN(Class clazz) {
+		return _isConfig(clazz, entityList_includes_Map, entityListWithStar_in);
+	}
+
+	private static boolean isConfigForEntityEX(Class clazz) {
+		return _isConfig(clazz, entityList_excludes_Map, entityListWithStar_ex);
+	}
+
+	private static boolean _isConfig(Class clazz, Map<String, String> map, List<String> starList) {
+
+		String fullName = clazz.getName();
+		String ds = null;
+		ds = map.get(fullName); //1
+		if (ds != null) return true;
+
+		if (clazz.getPackage() != null) {
+			String packageName = clazz.getPackage().getName();
+			ds = map.get(packageName + ".*"); //2
+			if (ds != null) return true;
+
+			//ds=entityClassPathToDs.get(packageName+".**");   //com.xxx.** 省略多级情况下,不适用
+
+			for (int i = 0; i < starList.size(); i++) {
+				String s = starList.get(i);
+				if (s.endsWith(".**")) {
+					String prePath = s.substring(0, s.length() - 2);
+					if (fullName.startsWith(prePath)) return true; //3
+				}
+			}
+		}
+		return false;
+	}
+
+	public static boolean isNeedGenId(Class clazz) {
+		boolean needGenId = false;
+		boolean genAll = HoneyConfig.getHoneyConfig().genid_forAllTableLongId;
+		if (genAll) {
+			if (isConfigForEntityEX(clazz))
+				needGenId = false; //有排除,则  不生成的
+			else
+				needGenId = true;
+		} else {
+			if (isConfigForEntityEX(clazz))
+				needGenId = false; //有排除,则  不生成的
+			else {
+				if (isConfigForEntityIN(clazz))
+					needGenId = true;
+				else
+					needGenId = false;
+			}
+		}
+
+		return needGenId;
 	}
 	
 }

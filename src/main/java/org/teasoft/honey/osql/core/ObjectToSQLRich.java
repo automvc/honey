@@ -689,8 +689,12 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	
 	private <T> void setInitArrayIdByAuto(T entity[]) {
 		
-		boolean needGenId=HoneyConfig.getHoneyConfig().genid_forAllTableLongId;
-		if(!needGenId) return ;
+//		boolean needGenId=HoneyConfig.getHoneyConfig().genid_forAllTableLongId;
+//		if(!needGenId) return ;
+		
+		if(entity==null || entity.length<1) return ;
+		boolean needGenId = HoneyContext.isNeedGenId(entity[0].getClass());
+		if (!needGenId) return;
 
 		Field field = null;
 		try {
