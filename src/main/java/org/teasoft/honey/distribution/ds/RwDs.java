@@ -38,15 +38,15 @@ public class RwDs implements Route{
 	}
 	
 	private void init(){
-		String wDB=HoneyConfig.getHoneyConfig().multiDs_wDB;
-		String rDB_str=HoneyConfig.getHoneyConfig().multiDs_rDB;
+		String wDB=HoneyConfig.getHoneyConfig().multiDs_writeDB;
+		String rDB=HoneyConfig.getHoneyConfig().multiDs_readDB;
 		//要判断从配置文件拿来的信息不能为空。
-		if( (wDB==null || "".equals(wDB.trim()))  ||  (wDB==null || "".equals(wDB.trim()))){
-			throw new NoConfigException("Error: bee.dosql.multi-DS.wDB and bee.dosql.multi-DS.rDB can not null or empty when bee.dosql.multi-DS.type=1! ");
+		if( (wDB==null || "".equals(wDB.trim()))  ||  (rDB==null || "".equals(rDB.trim()))){
+			throw new NoConfigException("Error: bee.dosql.multi-DS.writeDB and bee.dosql.multi-DS.readDB can not null or empty when bee.dosql.multi-DS.type=1! ");
 		}
 		
 		setWriteDs(wDB);  
-		setReadDsList(parseRDb(rDB_str));
+		setReadDsList(parseRDb(rDB));
 		getReadDsList().remove(wDB); //写库不能放在只读库列表
 		r_routeWay=HoneyConfig.getHoneyConfig().rDbRouteWay; 
 	}
