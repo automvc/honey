@@ -26,26 +26,32 @@ public class Jdk14LoggingImpl implements Log {
 		log = Logger.getLogger(loggerName);
 	}
 
+	@Override
 	public boolean isDebugEnabled() {
 		return log.isLoggable(Level.FINE);
 	}
 
+	@Override
 	public void error(String msg, Throwable e) {
 		log.logp(Level.SEVERE, loggerName, Thread.currentThread().getStackTrace()[1].getMethodName(), msg, e);
 	}
 
+	@Override
 	public void error(String msg) {
 		log.logp(Level.SEVERE, loggerName, Thread.currentThread().getStackTrace()[1].getMethodName(), msg);
 	}
 
+	@Override
 	public void debug(String msg) {
 		log.logp(Level.FINE, loggerName, Thread.currentThread().getStackTrace()[1].getMethodName(), msg);
 	}
 
+	@Override
 	public void debug(String msg, Throwable e) {
 		log.logp(Level.FINE, loggerName, Thread.currentThread().getStackTrace()[1].getMethodName(), msg, e);
 	}
 
+	@Override
 	public void warn(String msg) {
 		log.logp(Level.WARNING, loggerName, Thread.currentThread().getStackTrace()[1].getMethodName(), msg);
 	}

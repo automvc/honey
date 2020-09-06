@@ -22,10 +22,12 @@ public class NoLogging implements Log {
         this.loggerName = loggerName;
     }
 
+    @Override
     public boolean isDebugEnabled() {
         return false;
     }
 
+    @Override
     public void error(String msg, Throwable e) {
         error(msg);
         if (e != null) {
@@ -33,18 +35,22 @@ public class NoLogging implements Log {
         }
     }
 
+    @Override
     public void error(String msg) {
         if (msg != null) {
             System.err.println(loggerName + " : " + msg);
         }
     }
 
+    @Override
     public void debug(String msg) {
     }
 
+    @Override
     public void debug(String msg, Throwable e) {
     }
 
+    @Override
     public void warn(String msg) {
         if (msg != null) {
             System.err.println(loggerName + " : " + msg);
