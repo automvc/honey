@@ -55,6 +55,9 @@ public final class HoneyConfig {
 	}
 
 	// 启动时动态获取
+	@SysValue("${bee.log.loggerType}")
+	public String loggerType; //v1.8
+	
 	@SysValue("${bee.osql.showSQL}")
 	private boolean showSQL=false;
 	@SysValue("${bee.osql.showSQL.showType}")
