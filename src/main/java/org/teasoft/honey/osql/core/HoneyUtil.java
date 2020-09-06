@@ -367,6 +367,11 @@ public final class HoneyUtil {
 			jdbcTypeMap.put("MEDIUMBLOB", "Blob");
 			jdbcTypeMap.put("LONGBLOB", "Blob");
 			jdbcTypeMap.put("YEAR", "Integer"); //TODO 
+			
+			jdbcTypeMap.put("TINYINT", "Byte");
+			jdbcTypeMap.put("SMALLINT", "Short");
+			jdbcTypeMap.put("TINYINT UNSIGNED", "Short");
+			jdbcTypeMap.put("SMALLINT UNSIGNED", "Integer");
 
 			jdbcTypeMap.put("INT UNSIGNED", "Long");
 			jdbcTypeMap.put("BIGINT UNSIGNED", "BigInteger");

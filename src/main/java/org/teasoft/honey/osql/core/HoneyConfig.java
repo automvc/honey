@@ -24,17 +24,6 @@ public final class HoneyConfig {
 
 	private void init() {
 		setDbName(BeeProp.getBeeProp("bee.databaseName"));
-//		setShowSQL(Boolean.parseBoolean(BeeProp.getBeeProp("bee.osql.showSQL")));
-//		String t_batchSize = BeeProp.getBeeProp("bee.osql.select.batchSize");
-//		if (t_batchSize != null) setBatchSize(Integer.parseInt(t_batchSize));
-//		String t_maxResultSize = BeeProp.getBeeProp("bee.osql.select.maxResultSize");
-//		if (t_maxResultSize != null) setMaxResultSize(Integer.parseInt(t_maxResultSize));
-
-//		setUnderScoreAndCamelTransform(Boolean.parseBoolean(BeeProp.getBeeProp("bee.osql.underScoreAndCamelTransform")));
-//		setDbNamingToLowerCaseBefore(Boolean.parseBoolean(BeeProp.getBeeProp("bee.osql.dbNaming.toLowerCaseBefore")));
-		//		BeeProp.getBeeProp("bee.osql.delete.isAllowDeleteAllDataInOneTable");
-//		setIgnoreNullInSelectJson(Boolean.parseBoolean(BeeProp.getBeeProp("bee.osql.selectJson.ignoreNull"))); //2019-08-17
-//		setTimestampWithMillisecondInSelectJson(Boolean.parseBoolean(BeeProp.getBeeProp("bee.osql.selectJson.timestamp.withMillisecond")));
 		setDateWithMillisecondInSelectJson(Boolean.parseBoolean(BeeProp.getBeeProp("bee.osql.selectJson.date.withMillisecond")));
 		setTimeWithMillisecondInSelectJson(Boolean.parseBoolean(BeeProp.getBeeProp("bee.osql.selectJson.time.withMillisecond")));
 		setNullToEmptyStringInReturnStringList(Boolean.parseBoolean(BeeProp.getBeeProp("bee.osql.select.returnStringList.nullToEmptyString"))); 
@@ -52,9 +41,6 @@ public final class HoneyConfig {
 		String t2 = BeeProp.getBeeProp("bee.osql.cache.timeout");//缓存保存时间(毫秒 ms)
 		if (t2 != null) setCacheTimeout(Integer.parseInt(t2));
 		
-//		String t3 = BeeProp.getBeeProp("bee.osql.cache.work.resultSet.size"); //resultset超过一定的值将不会放缓存
-//		if (t3 != null) setCacheWorkResultSetSize(Integer.parseInt(t3));
-		
 		String t4 = BeeProp.getBeeProp("bee.osql.cache.startDeleteCache.rate"); 
 		if (t4 != null) setStartDeleteCacheRate(Double.parseDouble(t4));
 		
@@ -70,7 +56,7 @@ public final class HoneyConfig {
 
 	// 启动时动态获取
 	@SysValue("${bee.osql.showSQL}")
-	private boolean showSQL=true;
+	private boolean showSQL=false;
 	@SysValue("${bee.osql.showSQL.showType}")
 	private boolean showSQLShowType;//v1.8
 	@SysValue("${bee.osql.showSQL.showExecutableSql}")
@@ -141,7 +127,7 @@ public final class HoneyConfig {
 //	private int selectMaxResultSize;
 	
 	@SysValue("${bee.osql.select.batchSize}")
-	private int batchSize = 100; //不设置,默认100
+	private int batchSize = 10000; //不设置,默认10000
 	
 	
 	@SysValue("${bee.osql.cache.work.resultSet.size}")
@@ -162,6 +148,14 @@ public final class HoneyConfig {
 	
 	@SysValue("${bee.distribution.genid.idGeneratorType}")
 	public int idGeneratorType=1 ;
+	
+
+	@SysValue("${bee.distribution.PearFlowerId.tolerateSecond}")
+	public long tolerateSecond=10 ;
+	@SysValue("${bee.distribution.PearFlowerId.useHalfWorkId}")
+	public boolean useHalfWorkId; 
+	@SysValue("${bee.distribution.PearFlowerId.switchWorkId.timeThreshold}")
+	public long switchWorkIdTimeThreshold=120 ;
 	
 	@SysValue("${bee.distribution.genid.forAllTableLongId}")
 	public boolean genid_forAllTableLongId;
@@ -317,17 +311,9 @@ public final class HoneyConfig {
 		return ignoreNullInSelectJson;
 	}
 
-//	private void setIgnoreNullInSelectJson(boolean ignoreNullInSelectJson) {
-//		this.ignoreNullInSelectJson = ignoreNullInSelectJson;
-//	}
-	
 	public boolean isTimestampWithMillisecondInSelectJson() {
 		return timestampWithMillisecondInSelectJson;
 	}
-
-//	private void setTimestampWithMillisecondInSelectJson(boolean timestampWithMillisecondInSelectJson) {
-//		this.timestampWithMillisecondInSelectJson = timestampWithMillisecondInSelectJson;
-//	}
 
 	public boolean isDateWithMillisecondInSelectJson() {
 		return dateWithMillisecondInSelectJson;
@@ -372,10 +358,6 @@ public final class HoneyConfig {
 	public int getCacheWorkResultSetSize() {
 		return cacheWorkResultSetSize;
 	}
-
-//	private void setCacheWorkResultSetSize(int cacheWorkResultSetSize) {
-//		this.cacheWorkResultSetSize = cacheWorkResultSetSize;
-//	}
 
 	public String getCacheType() {
 		return cacheType;

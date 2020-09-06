@@ -12,6 +12,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -37,6 +38,8 @@ public class SqlLib implements BeeSql {
 	
 	private int cacheWorkResultSetSize=HoneyConfig.getHoneyConfig().getCacheWorkResultSetSize();
 	private boolean enableMultiDs=HoneyConfig.getHoneyConfig().enableMultiDs;
+	
+	private static boolean  showSQL=HoneyConfig.getHoneyConfig().isShowSQL();
 
 	public SqlLib() {}
 
@@ -333,8 +336,8 @@ public class SqlLib implements BeeSql {
 		}
 		
 		//更改操作需要清除缓存
-		if(num>0)
-		   clearInCache(sql, "int",SuidType.MODIFY);
+//		if(num>0)  //fixed bug.  没删成功,也要清除.否则缓存会一直在.
+		clearInCache(sql, "int",SuidType.MODIFY);
 		
 		return num;
 	}
@@ -381,77 +384,147 @@ public class SqlLib implements BeeSql {
 	}
 
 	@Override
-	public int[] batch(String sql[]) {
-		if(sql==null) return null;
+	public int batch(String sql[]) {
+		if(sql==null) return -1;
 		int batchSize = HoneyConfig.getHoneyConfig().getBatchSize();
 
 		return batch(sql,batchSize);
 	}
-
+	
 	@Override
-	public int[] batch(String sql[], int batchSize) {
-		
-		if(sql==null || sql.length<1) return null;
-		
-		initRoute(SuidType.INSERT,null,sql[0]);
-		
+	public int batch(String sql[], int batchSize) {
+
+		if (sql == null || sql.length < 1) return -1;
+
+		initRoute(SuidType.INSERT, null, sql[0]);
+
 		int len = sql.length;
-		int total[] = new int[len];
-		int part[] = new int[batchSize];
-		
+		int total = 0;
+		int temp = 0;
+		String placeholderValue = (String) OneTimeParameter.getAttribute("_SYS_Bee_PlaceholderValue");
+
 		Connection conn = null;
 		PreparedStatement pst = null;
 		try {
 			conn = getConn();
-			boolean oldAutoCommit=conn.getAutoCommit();
+			boolean oldAutoCommit = conn.getAutoCommit();
 			conn.setAutoCommit(false);
-			String exe_sql=HoneyUtil.deleteLastSemicolon(sql[0]);
-			pst = conn.prepareStatement(exe_sql);
-		
-		if (len <= batchSize){
-			total=batch(sql[0],0,len,conn,pst);
-		}else {
-			for (int i = 0; i < len / batchSize; i++) {
-				part = batch(sql[0], i * batchSize, (i + 1) * batchSize,conn,pst);
-				total = HoneyUtil.mergeArray(total, part, i * batchSize, (i + 1) * batchSize);
-				pst.clearBatch();  //clear Batch
-//				pst.clearParameters();
+			String exe_sql = HoneyUtil.deleteLastSemicolon(sql[0]);
+
+			String batchExeSql[];
+
+			if (len <= batchSize) {
+				batchExeSql = getBatchExeSql(exe_sql, len, placeholderValue); //batchExeSql[1] : batchSqlForPrint
+				pst = conn.prepareStatement(batchExeSql[0]);
+
+				total = batch(sql[0], 0, len, conn, pst, batchSize, batchExeSql[1]);
+			} else {
+				batchExeSql = getBatchExeSql(exe_sql, batchSize, placeholderValue);
+				pst = conn.prepareStatement(batchExeSql[0]);
+
+				for (int i = 0; i < len / batchSize; i++) {
+					temp = batch(sql[0], i * batchSize, (i + 1) * batchSize, conn, pst, batchSize, batchExeSql[1]);
+					total += temp;
+				}
+
+				if (len % batchSize != 0) { //尾数不成批
+					batchExeSql = getBatchExeSql(exe_sql, (len % batchSize), placeholderValue);
+					pst = conn.prepareStatement(batchExeSql[0]);
+					temp = batch(sql[0], len - (len % batchSize), len, conn, pst, batchSize, batchExeSql[1]);
+					total += temp;
+				}
 			}
-			
-			if (len % batchSize != 0) { //尾数不成批
-				int t2[] = batch(sql[0], len - (len % batchSize), len,conn,pst);
-				total = HoneyUtil.mergeArray(total, t2, len - (len % batchSize), len);
-			}
-		}
-//		conn.setAutoCommit(true);  //reset
-		conn.setAutoCommit(oldAutoCommit);
+			conn.setAutoCommit(oldAutoCommit);
 		} catch (SQLException e) {
+			if (isConstraint(e)) {
+				e.printStackTrace();
+				return total;
+			}
 			throw ExceptionHelper.convert(e);
 		} finally {
 			checkClose(pst, conn);
 			//更改操作需要清除缓存
-			clearInCache(sql[0]+ "[index0]", "int[]",SuidType.INSERT);
+			clearInCache(sql[0], "int[]", SuidType.INSERT);
 		}
 
 		return total;
 	}
+	
+	private boolean isConstraint(SQLException e) {
+		return ("MySQLIntegrityConstraintViolationException".equals(e.getClass().getSimpleName()) //mysql
+				|| e.getMessage().startsWith("Duplicate entry ") //mysql  
+				|| (e instanceof SQLIntegrityConstraintViolationException) 
+				|| e.getMessage().contains("ORA-00001:")    //Oracle 
+				|| e.getMessage().contains("Duplicate entry")|| e.getMessage().contains("Duplicate Entry")
+				|| e.getMessage().contains("duplicate key") || e.getMessage().contains("DUPLICATE KEY")  //PostgreSQL
+				|| e.getMessage().contains("Duplicate key") || e.getMessage().contains("Duplicate Key")
+				);
+	}
 
-	private static String index1 = "[index";
+	private static String index1 = "  [index";
 	private static String index2 = "]";
-
-	private int[] batch(String sql, int start, int end, Connection conn,PreparedStatement pst) throws SQLException {
-		int a[] = new int[end - start];
-		for (int i = start; i < end; i++) { //start... (end-1)
-			if (i == 0)
-				setPreparedValues(pst, sql);
-			else
-				setPreparedValues(pst, sql + index1 + i + index2);
-			pst.addBatch();
-		}
-		a = pst.executeBatch();
+	
+	private int batch(String sql, int start, int end, Connection conn, PreparedStatement pst,int batchSize,String batchSqlForPrint) throws SQLException {
+//		sql用于获取转换成获取占位的sqlKey和打印log. 
+//		v1.8  打印的sql是单行打印；执行的是批的形式.
+		int a = 0;
+		String sqlForGetValue=sql+ "  [Batch:"+ (start/batchSize) + index2;
+		setPreparedValues(pst, sqlForGetValue);
+		a = pst.executeUpdate();
 		conn.commit();
+		
+		pst.clearBatch();   //???
+		pst.clearParameters();
+
+		if (showSQL) {
+			//print log
+			if(start==0 || (end-start!=batchSize))
+			  Logger.logSQL("insert[] SQL :", batchSqlForPrint);
+			
+			for (int i = start; i < end; i++) { //start... (end-1)
+				OneTimeParameter.setAttribute("_SYS_Bee_BatchInsert", i + "");
+				String sql_i;
+				if (i == 0)
+					sql_i = sql;
+				else
+					sql_i = sql + index1 + i + index2;
+
+				Logger.logSQL("insert[] SQL :", sql_i);
+			}
+		}
+		
+		Logger.logSQL(" [Batch:"+ (start/batchSize) + index2+" Affected rows: ", a+"");
 
 		return a;
+	}
+	
+	private String[] getBatchExeSql(String sql0,int size,String placeholderValue){
+		StringBuffer batchSql=new StringBuffer(sql0);
+		StringBuffer batchSql_forPrint=new StringBuffer(sql0);
+		String batchExeSql[]=new String[2];
+		for (int i = 0; i < size-1; i++) { //i=0
+			batchSql.append(",");
+			batchSql.append(placeholderValue);
+			
+			if(size>10 && i==1){ //超过10个的，会用省略格式。
+				batchSql_forPrint.append(",......,");
+			}else if(size>10 && i==size-2){
+				batchSql_forPrint.append(placeholderValue);
+				batchSql_forPrint.append("      ");
+				batchSql_forPrint.append("Total of records : ");
+				batchSql_forPrint.append(size);
+			}else if(size>10 && i>1){
+				//ignore
+			}else{
+				batchSql_forPrint.append(",");
+				batchSql_forPrint.append(placeholderValue);
+			}
+		}
+		
+		batchExeSql[0]=batchSql.toString();
+		batchExeSql[1]=batchSql_forPrint.toString();//for print log
+		
+		return batchExeSql;
 	}
 
 	protected void checkClose(Statement stmt, Connection conn) {
@@ -606,7 +679,7 @@ public class SqlLib implements BeeSql {
 	
 
 	private void setPreparedValues(PreparedStatement pst, String sql) throws SQLException {
-		List<PreparedValue> list = HoneyContext.getPreparedValue(sql);
+		List<PreparedValue> list = HoneyContext.getPreparedValue(sql); //拿了设值后就会删除.用于日志打印的,要早于此时.
 		if (null != list && list.size() > 0) _setPreparedValues(pst, list);
 	}
 

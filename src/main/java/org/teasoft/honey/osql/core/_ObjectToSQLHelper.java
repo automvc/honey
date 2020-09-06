@@ -21,6 +21,8 @@ import org.teasoft.honey.osql.name.NameUtil;
 final class _ObjectToSQLHelper {
 
 	private final static String INSERT_INTO = "insert into ";
+	
+	private static boolean  showSQL=HoneyConfig.getHoneyConfig().isShowSQL();
 
 	private _ObjectToSQLHelper() {}
 	
@@ -57,24 +59,14 @@ final class _ObjectToSQLHelper {
 					sqlBuffer.append("=");
 					sqlBuffer.append("?");
 
-//					valueBuffer.append(",");
-//					valueBuffer.append(fields[i].get(entity));
-
 					preparedValue = new PreparedValue();
 					preparedValue.setType(fields[i].getType().getName());
 					preparedValue.setValue(fields[i].get(entity));
-//					list.add(k++, preparedValue);
 					list.add(preparedValue);
 				}
 			}
 
-//			sqlBuffer.append(" ;");
-
 			sql = sqlBuffer.toString();
-//			if (valueBuffer.length() > 0) valueBuffer.deleteCharAt(0);
-//			HoneyContext.setPreparedValue(sql, list);
-//			HoneyContext.setSqlValue(sql, valueBuffer.toString());
-//			addInContextForCache(sql, valueBuffer.toString(), tableName);//2019-09-29
 			
 			setContext(sql, list, tableName);
 		} catch (IllegalAccessException e) {
@@ -92,7 +84,6 @@ final class _ObjectToSQLHelper {
 		if(condition!=null) conditionFieldSet=condition.getFieldSet();
 		
 		StringBuffer sqlBuffer = new StringBuffer();
-//		StringBuffer valueBuffer = new StringBuffer();
 		String tableName = _toTableName(entity);
 		List<PreparedValue> list = new ArrayList<>();
 		boolean firstWhere = true;
@@ -145,9 +136,6 @@ final class _ObjectToSQLHelper {
 						sqlBuffer.append("=");
 						sqlBuffer.append("?");
 
-//						valueBuffer.append(",");
-//						valueBuffer.append(fields[i].get(entity));
-
 						preparedValue = new PreparedValue();
 						preparedValue.setType(fields[i].getType().getName());
 						preparedValue.setValue(fields[i].get(entity));
@@ -162,17 +150,10 @@ final class _ObjectToSQLHelper {
 			
 			if(condition!=null){
 				 condition.setSuidType(SuidType.SELECT);
-//			     ConditionHelper.processCondition(sqlBuffer, valueBuffer, list, condition, firstWhere);
 			     ConditionHelper.processCondition(sqlBuffer, list, condition, firstWhere);
 			}
 
-//			if (valueBuffer.length() > 0) valueBuffer.deleteCharAt(0);
-//			HoneyContext.setPreparedValue(sqlBuffer.toString(), list);
-//			HoneyContext.setSqlValue(sqlBuffer.toString(), valueBuffer.toString()); //用于log显示
-//			addInContextForCache(sqlBuffer.toString(), valueBuffer.toString(), tableName);//2019-09-29
-			
-			setContext(sqlBuffer.toString(), list, tableName);
-
+		setContext(sqlBuffer.toString(), list, tableName);
 
 		return sqlBuffer.toString();
 	}
@@ -314,8 +295,6 @@ final class _ObjectToSQLHelper {
 		
 		String sql = "";
 		StringBuffer sqlBuffer = new StringBuffer();
-//		StringBuffer valueBuffer = new StringBuffer(); //delete 2020-06
-//		StringBuffer whereValueBuffer = new StringBuffer();
 		boolean firstSet = true;
 		boolean firstWhere = true;
 		boolean isExistWhere = false;
@@ -332,8 +311,6 @@ final class _ObjectToSQLHelper {
 			//v1.7.2
 			if (condition != null) {
 				condition.setSuidType(SuidType.UPDATE); //UPDATE
-//				firstSet = ConditionHelper.processConditionForUpdateSet(sqlBuffer, whereValueBuffer, list, condition);//bug
-//				firstSet = ConditionHelper.processConditionForUpdateSet(sqlBuffer, valueBuffer, list, condition);
 				firstSet = ConditionHelper.processConditionForUpdateSet(sqlBuffer, list, condition);
 			}
 
@@ -359,8 +336,7 @@ final class _ObjectToSQLHelper {
 						sqlBuffer.append(" ");
 						firstSet = false;
 					} else {
-						//  sqlBuffer.append(" and "); //update 的set部分不是用and  ，而是用逗号的
-						sqlBuffer.append(" , ");
+						sqlBuffer.append(" , ");//update 的set部分不是用and  ，而是用逗号的
 					}
 					sqlBuffer.append(_toColumnName(fields[i].getName()));
 
@@ -371,13 +347,9 @@ final class _ObjectToSQLHelper {
 						sqlBuffer.append("=");
 						sqlBuffer.append("?");
 
-//						valueBuffer.append(",");
-//						valueBuffer.append(fields[i].get(entity));
-
 						preparedValue = new PreparedValue();
 						preparedValue.setType(fields[i].getType().getName());
 						preparedValue.setValue(fields[i].get(entity));
-//						list.add(k++, preparedValue);
 						list.add(preparedValue);
 					}
 				} else {//where
@@ -407,9 +379,6 @@ final class _ObjectToSQLHelper {
 							whereStament.append("=");
 							whereStament.append("?");
 
-//							whereValueBuffer.append(",");
-//							whereValueBuffer.append(fields[i].get(entity));
-
 							preparedValue = new PreparedValue();
 							preparedValue.setType(fields[i].getType().getName());
 							preparedValue.setValue(fields[i].get(entity));
@@ -421,10 +390,8 @@ final class _ObjectToSQLHelper {
 			}//end for
 			
 			sqlBuffer.append(whereStament);
-			//sqlBuffer.append(" ;");
 
 			list.addAll(whereList);
-//			valueBuffer.append(whereValueBuffer);
 			
 			if(firstSet) {
 				Logger.logSQL("update SQL(updateFields) :", sqlBuffer.toString());
@@ -443,18 +410,8 @@ final class _ObjectToSQLHelper {
 		}
 
 		sql = sqlBuffer.toString();
-
-////		if (valueBuffer.length() > 0) valueBuffer.deleteCharAt(0);
-//		HoneyContext.setPreparedValue(sql, list);
-////		HoneyContext.setSqlValue(sql, valueBuffer.toString());  //change get the value from list
-////		addInContextForCache(sqlBuffer.toString(), valueBuffer.toString(), tableName);//2019-09-29
-//		
-//		String value=HoneyUtil.list2Value(list);
-//		HoneyContext.setSqlValue(sql, value);
-//		addInContextForCache(sql, value, tableName);//2019-09-29
 		
 		setContext(sql, list, tableName);
-		
 
 		//不允许更新一个表的所有数据
 		//v1.7.2 只支持是否带where检测
@@ -488,8 +445,6 @@ final class _ObjectToSQLHelper {
 		
 		String sql = "";
 		StringBuffer sqlBuffer = new StringBuffer();
-//		StringBuffer valueBuffer = new StringBuffer();
-//		StringBuffer whereValueBuffer = new StringBuffer();
 		boolean firstSet = true;
 		boolean firstWhere = true;
 		boolean isExistWhere = false;
@@ -507,8 +462,6 @@ final class _ObjectToSQLHelper {
 		//v1.7.2
 		if (condition != null) {
 			condition.setSuidType(SuidType.UPDATE); //UPDATE
-//			firstSet = ConditionHelper.processConditionForUpdateSet(sqlBuffer, whereValueBuffer, list, condition);
-//			firstSet = ConditionHelper.processConditionForUpdateSet(sqlBuffer, valueBuffer, list, condition);
 			firstSet = ConditionHelper.processConditionForUpdateSet(sqlBuffer, list, condition);
 		}
 
@@ -537,8 +490,7 @@ final class _ObjectToSQLHelper {
 					sqlBuffer.append(" ");
 					firstSet = false;
 				} else {
-					//  sqlBuffer.append(" and "); //update 的set部分不是用and  ，而是用逗号的
-					sqlBuffer.append(" , ");
+					sqlBuffer.append(" , ");//update 的set部分不是用and  ，而是用逗号的
 				}
 				sqlBuffer.append(_toColumnName(fields[i].getName()));
 
@@ -549,13 +501,9 @@ final class _ObjectToSQLHelper {
 					sqlBuffer.append("=");
 					sqlBuffer.append("?");
 
-//					valueBuffer.append(",");
-//					valueBuffer.append(fields[i].get(entity));
-
 					preparedValue = new PreparedValue();
 					preparedValue.setType(fields[i].getType().getName());
 					preparedValue.setValue(fields[i].get(entity));
-//					list.add(k++, preparedValue);
 					list.add(preparedValue);
 				}
 			} else {// where .   此部分只会有whereColumn的字段
@@ -586,9 +534,6 @@ final class _ObjectToSQLHelper {
 						whereStament.append("=");
 						whereStament.append("?");
 
-//						whereValueBuffer.append(",");
-//						whereValueBuffer.append(fields[i].get(entity));
-
 						preparedValue = new PreparedValue();
 						preparedValue.setType(fields[i].getType().getName());
 						preparedValue.setValue(fields[i].get(entity));
@@ -599,10 +544,8 @@ final class _ObjectToSQLHelper {
 			}//end else
 		}//end for
 		sqlBuffer.append(whereStament);
-//		sqlBuffer.append(" ;");
 		
 		list.addAll(whereList);
-//		valueBuffer.append(whereValueBuffer);
 
 		if(firstSet) {
 			Logger.logSQL("update SQL(updateFields) :", sqlBuffer.toString());
@@ -616,21 +559,11 @@ final class _ObjectToSQLHelper {
 		if(condition!=null){
 			 condition.setSuidType(SuidType.UPDATE); //UPDATE
 			 //即使condition包含的字段是whereColumn里的字段也会转化到sql语句.
-//			 firstWhere= ConditionHelper.processCondition(sqlBuffer, valueBuffer, list, condition, firstWhere);
 			 firstWhere= ConditionHelper.processCondition(sqlBuffer, list, condition, firstWhere);
 		}
 		
 		sql = sqlBuffer.toString();
 
-////		if (valueBuffer.length() > 0) valueBuffer.deleteCharAt(0);
-//		HoneyContext.setPreparedValue(sql, list);
-////		HoneyContext.setSqlValue(sql, valueBuffer.toString());
-////		addInContextForCache(sqlBuffer.toString(), valueBuffer.toString(), tableName);//2019-09-29
-//		
-//		String value=HoneyUtil.list2Value(list);
-//		HoneyContext.setSqlValue(sql, value);
-//		addInContextForCache(sqlBuffer.toString(), value, tableName);
-		
 		setContext(sql, list, tableName);
 
 		//不允许更新一个表的所有数据
@@ -726,7 +659,8 @@ final class _ObjectToSQLHelper {
 		
 		String sql = "";
 		StringBuffer sqlBuffer = new StringBuffer();
-		StringBuffer sqlValue = new StringBuffer(") values (");
+//		StringBuffer sqlValue = new StringBuffer(") values (");
+		StringBuffer sqlValue = new StringBuffer(" (");
 		boolean isFirst = true;
 		String tableName = _toTableName(entity);
 		sqlBuffer.append(INSERT_INTO);
@@ -760,10 +694,15 @@ final class _ObjectToSQLHelper {
 				list.add(preparedValue);
 			}
 		}
-
+		sqlValue.append(")");
+		
+        sqlBuffer.append(") values");
 		sqlBuffer.append(sqlValue);
-		sqlBuffer.append(")");
 		sql=sqlBuffer.toString();
+		
+		if("tRue".equals((String)OneTimeParameter.getAttribute("_SYS_Bee_Return_PlaceholderValue"))){
+			OneTimeParameter.setAttribute("_SYS_Bee_PlaceholderValue", sqlValue.toString());
+		}
 		
 		setContext(sql, list, tableName);
 
@@ -771,7 +710,7 @@ final class _ObjectToSQLHelper {
 	}
 
 	//只需要解析值
-	static <T> void _toInsertSQL_for_ValueList(String sql_i,T entity, String excludeFieldList) throws IllegalAccessException {
+	static <T> List<PreparedValue> _toInsertSQL_for_ValueList(String sql_i,T entity, String excludeFieldList) throws IllegalAccessException {
 		checkPackage(entity);
 		
 		Field fields[] = entity.getClass().getDeclaredFields();
@@ -793,7 +732,10 @@ final class _ObjectToSQLHelper {
 			list.add(preparedValue);
 		}
 
-		HoneyContext.setPreparedValue(sql_i, list);
+		if (showSQL) {
+			HoneyContext.setPreparedValue(sql_i, list);
+		}
+		return list;
 	}
 	
 	static <T> String _toDeleteSQL(T entity, int includeType) {
@@ -848,9 +790,6 @@ final class _ObjectToSQLHelper {
 						sqlBuffer.append("=");
 						sqlBuffer.append("?");
 
-//						valueBuffer.append(",");
-//						valueBuffer.append(fields[i].get(entity));
-
 						preparedValue = new PreparedValue();
 						preparedValue.setType(fields[i].getType().getName());
 						preparedValue.setValue(fields[i].get(entity));
@@ -858,25 +797,16 @@ final class _ObjectToSQLHelper {
 					}
 				}
 			}//end for
-//			sqlBuffer.append(" ;");
-			
 			
 			if(condition!=null){
 				 condition.setSuidType(SuidType.DELETE); //delete
-//				 firstWhere= ConditionHelper.processCondition(sqlBuffer, valueBuffer, list, condition, firstWhere);
 				 firstWhere= ConditionHelper.processCondition(sqlBuffer, list, condition, firstWhere);
 			}
 			
 			
 			sql = sqlBuffer.toString();
 
-//			if (valueBuffer.length() > 0) valueBuffer.deleteCharAt(0);
-//			HoneyContext.setPreparedValue(sql, list);
-//			HoneyContext.setSqlValue(sql, valueBuffer.toString());
-//			addInContextForCache(sql, valueBuffer.toString(), tableName);//2019-09-29
-			
 			setContext(sql, list, tableName);
-			
 			
 			//不允许删整张表
 			//v1.7.2 只支持是否带where检测
@@ -945,10 +875,16 @@ final class _ObjectToSQLHelper {
 		if (!needGenId) return;
 
 		Field field = null;
+		boolean hasValue=false;
+		Long v=null;
 		try {
 			field = entity.getClass().getDeclaredField("id");
 			field.setAccessible(true);
 		  //if (field.get(entity) != null) return;
+			if (field.get(entity) != null) {
+				hasValue=true;
+				v=(Long)field.get(entity);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			return;
@@ -961,6 +897,9 @@ final class _ObjectToSQLHelper {
 		field.setAccessible(true);
 		try {
 			field.set(entity, id);
+			if(hasValue){
+				Logger.warn(" [ID WOULD BE OVERRIDE] "+entity.getClass()+" 's id field value is "+v +" would be replace by "+id);
+			}
 		} catch (IllegalAccessException e) {
 			throw ExceptionHelper.convert(e);
 		}

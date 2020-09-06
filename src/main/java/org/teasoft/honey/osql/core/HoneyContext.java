@@ -43,6 +43,22 @@ public final class HoneyContext {
 	private static List<String> entityListWithStar_in = new CopyOnWriteArrayList<>();
 	private static List<String> entityListWithStar_ex = new CopyOnWriteArrayList<>();
 	
+/*	private static void _checkSize(ThreadLocal local,String name){
+		if(local==null)
+			System.err.println("==============="+name+"  is null");
+		else
+			System.err.println("==============="+name+"  size is : "+ local.get());
+		
+	}
+	
+	public static void checkSize(){
+		System.err.println("==============checkSize============");
+		_checkSize(sqlPreValueLocal,"sqlPreValueLocal");
+		_checkSize(cacheLocal,"cacheLocal");
+		_checkSize(currentConnection,"currentConnection");
+		_checkSize(currentRoute,"currentRoute");
+	}*/
+	
 	static {
 		beanMap = new ConcurrentHashMap<>();
 		moreTableStructMap= new ConcurrentHashMap<>();

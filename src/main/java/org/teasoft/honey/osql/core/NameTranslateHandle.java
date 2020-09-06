@@ -38,7 +38,7 @@ public class NameTranslateHandle {
 	@SuppressWarnings({"rawtypes","unchecked"}) 
 	public static String toTableName(String entityName) {
 		try {
-			String flag = (String) OneTimeParameter.getAttribute("DoNotCheckAnnotation");
+			String flag = (String) OneTimeParameter.getAttribute("_SYS_Bee_DoNotCheckAnnotation");
 			if ("tRue".equals(flag)) {
 				//nothing
 			} else {

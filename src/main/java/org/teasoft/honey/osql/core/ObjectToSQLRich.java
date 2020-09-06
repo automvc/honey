@@ -19,7 +19,6 @@ import org.teasoft.bee.osql.ObjToSQLRich;
 import org.teasoft.bee.osql.OrderType;
 import org.teasoft.bee.osql.annotation.JoinTable;
 import org.teasoft.bee.osql.dialect.DbFeature;
-import org.teasoft.bee.osql.exception.BeeErrorFieldException;
 import org.teasoft.bee.osql.exception.BeeIllegalEntityException;
 import org.teasoft.honey.distribution.GenIdFactory;
 import org.teasoft.honey.osql.name.NameUtil;
@@ -32,18 +31,17 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 
 	private DbFeature dbFeature = BeeFactory.getHoneyFactory().getDbFeature();
 	private static final String ASC = "asc";
+	
+	private static boolean  showSQL=HoneyConfig.getHoneyConfig().isShowSQL();
+	private int batchSize = HoneyConfig.getHoneyConfig().getBatchSize();
 
 	@Override
 	public <T> String toSelectSQL(T entity, int size) {
-		
-//		String sql=dbFeature.toPageSql(toSelectSQL(entity), size);
 
 		SqlValueWrap wrap = toSelectSQL_0(entity);
 		String sql = wrap.getSql();
-//		sql = dbFeature.toPageSql(sql, size)+";";
 		sql = dbFeature.toPageSql(sql, size);
 
-//		setPreparedValue(sql, wrap);
 		setContext(sql, wrap.getList(), wrap.getTableNames());
 		Logger.logSQL("select SQL(entity,size): ", sql);
 		return sql;
@@ -52,29 +50,24 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	@Override
 	public <T> String toSelectSQL(T entity, int start, int size) {
 
-		// String sql=dbFeature.toPageSql(toSelectSQL(entity), start, size);
 		SqlValueWrap wrap = toSelectSQL_0(entity);
 		String sql = wrap.getSql();
-//		sql = dbFeature.toPageSql(sql, start, size)+";";
 		sql = dbFeature.toPageSql(sql, start, size);
 
-//		setPreparedValue(sql, wrap);
 		setContext(sql, wrap.getList(), wrap.getTableNames());
 
 		Logger.logSQL("select(entity,start,size) SQL:", sql);
 		return sql;
 	}
-	
+
 	@Override
-	public <T> String toSelectSQL(T entity,String selectFields,int start,int size){
-		
-		SqlValueWrap wrap = toSelectSQL_0(entity,selectFields);
+	public <T> String toSelectSQL(T entity, String selectFields, int start, int size) {
+
+		SqlValueWrap wrap = toSelectSQL_0(entity, selectFields);
 		String sql = wrap.getSql();
-//		sql = dbFeature.toPageSql(sql, start, size)+";";
 		sql = dbFeature.toPageSql(sql, start, size);
 
-//		setPreparedValue(sql, wrap);
-		setContext(sql, wrap.getList(), wrap.getTableNames());		
+		setContext(sql, wrap.getList(), wrap.getTableNames());
 
 		Logger.logSQL("select(entity,selectFields,start,size) SQL:", sql);
 		return sql;
@@ -87,7 +80,6 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		
 		String newSelectFields=HoneyUtil.checkSelectField(entity,fields);
 		
-//		String sql = _ObjectToSQLHelper._toSelectSQL(entity);
 		String sql = _ObjectToSQLHelper._toSelectSQL(entity, newSelectFields);
 
 //		sql=sql.replace("#fieldNames#", fieldList);
@@ -168,17 +160,13 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	@Override
 	public <T> String toUpdateSQL(T entity, String updateFieldList, IncludeType includeType) {
 		if (updateFieldList == null) return null;
-		
+
 		String sql = "";
-//		try {
-			String updateFields[] = updateFieldList.split(",");
+		String updateFields[] = updateFieldList.split(",");
 
-			if (updateFields.length == 0 || "".equals(updateFieldList.trim())) throw new ObjSQLException("ObjSQLException:updateFieldList at least include one field.");
+		if (updateFields.length == 0 || "".equals(updateFieldList.trim())) throw new ObjSQLException("ObjSQLException:updateFieldList at least include one field.");
 
-			sql = _ObjectToSQLHelper._toUpdateSQL(entity, updateFields, includeType.getValue());
-//		} catch (IllegalAccessException e) {
-//			throw ExceptionHelper.convert(e);
-//		}
+		sql = _ObjectToSQLHelper._toUpdateSQL(entity, updateFields, includeType.getValue());
 		return sql;
 	}
 
@@ -194,7 +182,6 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		if (fieldForFun == null || funType == null) return null;
 		boolean isContainField = false;
 		StringBuffer sqlBuffer = new StringBuffer();
-//		StringBuffer valueBuffer = new StringBuffer();
 		String sql = null;
 		try {
 			String tableName =_toTableName(entity);
@@ -240,9 +227,6 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 					sqlBuffer.append("=");
 					sqlBuffer.append("?");
 
-//					valueBuffer.append(",");
-//					valueBuffer.append(fields[i].get(entity));
-
 					preparedValue = new PreparedValue();
 					preparedValue.setType(fields[i].getType().getName());
 					preparedValue.setValue(fields[i].get(entity));
@@ -250,14 +234,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 				}
 			}
 
-//			sqlBuffer.append(" ;");
 			sql = sqlBuffer.toString();
-
-//			if (valueBuffer.length() > 0) valueBuffer.deleteCharAt(0);
-//			HoneyContext.setPreparedValue(sql, list);
-////			HoneyContext.setSqlValue(sql, valueBuffer.toString());
-////			addInContextForCache(sql, valueBuffer.toString(), tableName);
-//			addInContextForCache(sql, tableName);
 			
 			setContext(sql, list, tableName);
 
@@ -300,28 +277,30 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	@Override
 	public <T> String toUpdateSQL(T entity, IncludeType includeType) {
 		String sql = "";
-//		try {
-//			sql = _ObjectToSQLHelper._toUpdateSQL(entity, "id", includeType.getValue());
-			sql = _ObjectToSQLHelper._toUpdateSQL(entity, includeType.getValue());
-//		} catch (IllegalAccessException e) {
-//			throw ExceptionHelper.convert(e);
-//		} catch (ObjSQLException e) {
-//			throw e;
-//		}
+		sql = _ObjectToSQLHelper._toUpdateSQL(entity, includeType.getValue());
 		return sql;
-
 	}
 
 	@Override
 	public <T> String[] toInsertSQL(T entity[]) {
 		return toInsertSQL(entity, "");
 	}
+	
+	@Override
+	public <T> String[] toInsertSQL(T entity[], int batchSize) {
+		return toInsertSQL(entity, batchSize, "");
+	}
 
-	private static String index1 = "[index";
+	private static String index1 = "  [index";
 	private static String index2 = "]";
-
+	
 	@Override
 	public <T> String[] toInsertSQL(T entity[], String excludeFieldList) {
+		return toInsertSQL(entity, batchSize, excludeFieldList);
+	}
+
+	@Override
+	public <T> String[] toInsertSQL(T entity[],int batchSize, String excludeFieldList) {
 		String sql[] = null;  
 		try {
 			int len = entity.length;
@@ -329,25 +308,41 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			setInitArrayIdByAuto(entity);
 			
 			sql = new String[len];  //只用sql[0]
+			
 			String t_sql = "";
-//			SqlValueWrap wrap;
-
+ 
+			OneTimeParameter.setAttribute("_SYS_Bee_Return_PlaceholderValue", "tRue");
 			t_sql = _ObjectToSQLHelper._toInsertSQL0(entity[0], 2, excludeFieldList); // i 默认包含null和空字符串.因为要用统一的sql作批处理
-//			t_sql = wrap.getSql();
 			sql[0] = t_sql;
-//			t_sql = t_sql + "[index0]";  //index0 不带,与单条共用.
+//			t_sql = t_sql + "[index0]";  //index0 不带,与单条共用.  将多个bean的值转成多行显示后,不存在第一条没有带index0的问题
 //			setPreparedValue(t_sql, wrap);
-			OneTimeParameter.setAttribute("_SYS_Bee_BatchInsert", "0");
-			Logger.logSQL("insert[] SQL :", t_sql);
-
+			
+//			OneTimeParameter.setAttribute("_SYS_Bee_BatchInsert", "0");
+//			Logger.logSQL("-----------------insert[] SQL :", t_sql);// move to SqlLib.java
+			
+			List<PreparedValue> preparedValueList = new ArrayList<>();
+			
+			if (showSQL) {
+				preparedValueList.addAll(HoneyContext._justGetPreparedValue(sql[0]));  //打印后要手动清除
+			} else {
+				preparedValueList.addAll(HoneyContext.getPreparedValue(sql[0])); //会删了,打印日志时不能用.  批处理,在v1.8开始,不会用于占位设值.
+			}
+			if(len==1) HoneyContext.setPreparedValue(t_sql+ index1 +"Batch:"+ 0 + index2, preparedValueList);
+			List<PreparedValue> oneRecoreList;
 			for (int i = 1; i < len; i++) { // i=1
 				String sql_i=sql[0] + index1 + i + index2;
-				_ObjectToSQLHelper._toInsertSQL_for_ValueList(sql_i,entity[i], excludeFieldList); // i 默认包含null和空字符串.因为要用统一的sql作批处理
-				//				t_sql = wrap.getSql(); //  每个sql不一定一样,因为设值不一样,有些字段不用转换. 不采用;因为不利于批处理
+				//不需要打印时,不会放上下文
+				oneRecoreList=_ObjectToSQLHelper._toInsertSQL_for_ValueList(sql_i,entity[i], excludeFieldList); // i 默认包含null和空字符串.因为要用统一的sql作批处理
+				//t_sql = wrap.getSql(); //  每个sql不一定一样,因为设值不一样,有些字段不用转换. 不采用;因为不利于批处理
 
-//				setPreparedValue_ForArray(sql[0] + index1 + i + index2, wrap);
-				OneTimeParameter.setAttribute("_SYS_Bee_BatchInsert", i+"");
-				Logger.logSQL("insert[] SQL :", sql_i);
+				preparedValueList.addAll(oneRecoreList);
+				
+				if((i+1)%batchSize==0){ //i+1
+					HoneyContext.setPreparedValue(t_sql +"  [Batch:"+ (i/batchSize) + index2, preparedValueList); //i
+					preparedValueList = new ArrayList<>();
+				}else if(i==(len-1)){
+					HoneyContext.setPreparedValue(t_sql +"  [Batch:"+ (i/batchSize) + index2, preparedValueList); //i
+				}
 			}
 		} catch (IllegalAccessException e) {
 			throw ExceptionHelper.convert(e);
@@ -422,21 +417,15 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		return _ObjectToSQLHelper._toSelectSQL(entity, includeType.getValue(),condition); 
 	}
 	
-	private <T> String _toUpdateBySQL(T entity, String whereFieldList,int includeType) {
+	private <T> String _toUpdateBySQL(T entity, String whereFieldList, int includeType) {
 		if (whereFieldList == null) return null;
 
 		String sql = "";
-//		try {
-			String whereFields[] = whereFieldList.split(",");
+		String whereFields[] = whereFieldList.split(",");
 
-			if (whereFields.length == 0 || "".equals(whereFieldList.trim())) 
-				throw new ObjSQLException("ObjSQLException:whereFieldList at least include one field.");
+		if (whereFields.length == 0 || "".equals(whereFieldList.trim())) throw new ObjSQLException("ObjSQLException:whereFieldList at least include one field.");
 
-//			sql = _ObjectToSQLHelper._toUpdateBySQL(entity, whereFields, -1);
-			sql = _ObjectToSQLHelper._toUpdateBySQL(entity, whereFields, includeType);
-//		} catch (IllegalAccessException e) {
-//			throw ExceptionHelper.convert(e);
-//		}
+		sql = _ObjectToSQLHelper._toUpdateBySQL(entity, whereFields, includeType);
 		return sql;
 	}
 	
@@ -483,9 +472,6 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		if(id==null) return null;
 		
 		StringBuffer sqlBuffer=wrap.getValueBuffer();  //sqlBuffer
-		
-//		StringBuffer sqlBuffer=toSelectByIdSQL0(entity);
-//		sqlBuffer.append("id=").append("?").append(";");
 		sqlBuffer.append("id=").append("?");
 
 		List<PreparedValue> list = new ArrayList<>();
@@ -495,10 +481,6 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		preparedValue.setValue(id);
 		list.add(preparedValue);
 		
-//		HoneyContext.setPreparedValue(sqlBuffer.toString(), list);
-////		HoneyContext.setSqlValue(sqlBuffer.toString(), id+""); //用于log显示
-//		addInContextForCache(sqlBuffer.toString(), wrap.getTableNames());
-		
 		setContext(sqlBuffer.toString(), list, wrap.getTableNames());
 		
 		return sqlBuffer.toString();
@@ -507,7 +489,6 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	private <T> String _toSelectAndDeleteByIdSQL(SqlValueWrap wrap, String ids) {
 		
 		StringBuffer sqlBuffer =wrap.getValueBuffer(); //sqlBuffer
-		
 		List<PreparedValue> list = new ArrayList<>();
 		PreparedValue preparedValue = null;
 		
@@ -527,41 +508,32 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			list.add(preparedValue);
 		}
 		
-//		sqlBuffer.append(t_ids).append(";");
 		sqlBuffer.append(t_ids);
-		
-//		HoneyContext.setPreparedValue(sqlBuffer.toString(), list);
-////		HoneyContext.setSqlValue(sqlBuffer.toString(), ids); //用于log显示
-//		addInContextForCache(sqlBuffer.toString(), wrap.getTableNames());
-		
 		setContext(sqlBuffer.toString(), list, wrap.getTableNames());
 		
 		return sqlBuffer.toString();
 	}
 	
-	private  <T> SqlValueWrap toSelectByIdSQL0(T entity){
+	private <T> SqlValueWrap toSelectByIdSQL0(T entity) {
 		StringBuffer sqlBuffer = new StringBuffer();
 		SqlValueWrap wrap = new SqlValueWrap();
-		
-//		StringBuffer valueBuffer = new StringBuffer();
-//		try {
-			String tableName =_toTableName(entity);
-			Field fields[] = entity.getClass().getDeclaredFields();
 
-			String packageAndClassName = entity.getClass().getName();
-			String columnNames = HoneyContext.getBeanField(packageAndClassName);
-			if (columnNames == null) {
-				columnNames = HoneyUtil.getBeanField(fields);
-				HoneyContext.addBeanField(packageAndClassName, columnNames);
-			}
+		String tableName = _toTableName(entity);
+		Field fields[] = entity.getClass().getDeclaredFields();
 
-			sqlBuffer.append("select " + columnNames + " from ");
-			sqlBuffer.append(tableName)
-			.append(" where ");
-			
-			wrap.setValueBuffer(sqlBuffer); //sqlBuffer
-			wrap.setTableNames(tableName);
-			
+		String packageAndClassName = entity.getClass().getName();
+		String columnNames = HoneyContext.getBeanField(packageAndClassName);
+		if (columnNames == null) {
+			columnNames = HoneyUtil.getBeanField(fields);
+			HoneyContext.addBeanField(packageAndClassName, columnNames);
+		}
+
+		sqlBuffer.append("select " + columnNames + " from ");
+		sqlBuffer.append(tableName).append(" where ");
+
+		wrap.setValueBuffer(sqlBuffer); //sqlBuffer
+		wrap.setTableNames(tableName);
+
 		return wrap;
 	}
 
@@ -572,7 +544,6 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	private <T> SqlValueWrap toSelectSQL_0(T entity,String selectField) {
 
 		StringBuffer sqlBuffer = new StringBuffer();
-//		StringBuffer valueBuffer = new StringBuffer();
 		SqlValueWrap wrap = new SqlValueWrap();
 		try {
 			String tableName =_toTableName(entity);
@@ -612,9 +583,6 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 					sqlBuffer.append("=");
 					sqlBuffer.append("?");
 
-//					valueBuffer.append(",");
-//					valueBuffer.append(fields[i].get(entity));
-
 					preparedValue = new PreparedValue();
 					preparedValue.setType(fields[i].getType().getName());
 					preparedValue.setValue(fields[i].get(entity));
@@ -622,15 +590,9 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 				}
 			}
 
-//			sqlBuffer.append(";");   //close on 2019-04-27
-
-//			if (valueBuffer.length() > 0) valueBuffer.deleteCharAt(0);
-
-			wrap.setTableNames(tableName);//2019-09-29
+			wrap.setTableNames(tableName);
 			wrap.setSql(sqlBuffer.toString());
 			wrap.setList(list);
-//			wrap.setValueBuffer(valueBuffer);
-
 		} catch (IllegalAccessException e) {
 			throw ExceptionHelper.convert(e);
 		}
@@ -643,25 +605,6 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		HoneyContext.setContext(sql, list, tableName);
 	}
 	
-/*	private void setPreparedValue(String sql, SqlValueWrap wrap) {
-		HoneyContext.setPreparedValue(sql, wrap.getList());
-//		HoneyContext.setSqlValue(sql, wrap.getValueBuffer().toString());
-//		addInContextForCache(sql, wrap.getValueBuffer().toString(), wrap.getTableNames());
-		addInContextForCache(sql, wrap.getTableNames());
-	}
-	
-//	private void setPreparedValue_ForArray(String sql, SqlValueWrap wrap) {
-//		HoneyContext.setPreparedValue(sql, wrap.getList());
-////		HoneyContext.setSqlValue(sql, wrap.getValueBuffer().toString());  //TODO  closed on 2020-07-04
-////		addInContextForCache(sql, wrap.getValueBuffer().toString(), wrap.getTableNames());  //批量插入,第一条通知cache要清除即可.
-//	}
-	
-// private static void addInContextForCache(String sql,String sqlValue, String tableName){
-   private static void addInContextForCache(String sql, String tableName){
-//	   _ObjectToSQLHelper.addInContextForCache(sql, sqlValue, tableName);
-	   HoneyContext.addInContextForCache(sql, tableName);
-	}*/
-   
 	private static <T> void checkPackage(T entity) {
 //		传入的实体可以过滤掉常用的包开头的,如:java., javax. ; 但spring开头不能过滤,否则spring想用bee就不行了.
 		HoneyUtil.checkPackage(entity);
@@ -701,7 +644,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			
 			field = entity[0].getClass().getDeclaredField("id");
 //			field.setAccessible(true);
-//			if (field.get(entity[0]) != null) return; //即使没值,运行一次后也会有值,下次再用就会重复.而用户又不知道.
+//			if (field.get(entity[0]) != null) return; //即使没值,运行一次后也会有值,下次再用就会重复.而用户又不知道.    //TODO 要提醒是被覆盖了。
 		} catch (Exception e) {
 			e.printStackTrace();
 			return;

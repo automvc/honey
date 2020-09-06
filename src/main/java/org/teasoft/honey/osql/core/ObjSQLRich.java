@@ -110,8 +110,8 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	}
 
 	@Override
-	public <T> int[] insert(T entity[]) {
-		if (entity == null || entity.length<1) return null;
+	public <T> int insert(T entity[]) {
+		if (entity == null || entity.length<1) return -1;
 //		int len = entity.length;
 //		String insertSql[] = new String[len];
 		String insertSql[] = getObjToSQLRich().toInsertSQL(entity);
@@ -121,8 +121,8 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	}
 
 	@Override
-	public <T> int[] insert(T entity[], String excludeFields) {
-		if (entity == null || entity.length<1) return null;
+	public <T> int insert(T entity[], String excludeFields) {
+		if (entity == null || entity.length<1) return -1;
 //		int len = entity.length;
 //		String insertSql[] = new String[len];
 		String insertSql[] = getObjToSQLRich().toInsertSQL(entity, excludeFields);
@@ -132,22 +132,22 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	}
 
 	@Override
-	public <T> int[] insert(T entity[], int batchSize) {
-		if (entity == null || entity.length<1) return null;
+	public <T> int insert(T entity[], int batchSize) {
+		if (entity == null || entity.length<1) return -1;
 //		int len = entity.length;
 //		String insertSql[] = new String[len];
-		String insertSql[] = getObjToSQLRich().toInsertSQL(entity);
+		String insertSql[] = getObjToSQLRich().toInsertSQL(entity,batchSize);
 		_regEntityClass(entity[0]);
 
 		return getBeeSql().batch(insertSql, batchSize);
 	}
 
 	@Override
-	public <T> int[] insert(T entity[], int batchSize, String excludeFields) {
-		if (entity == null || entity.length<1) return null;
+	public <T> int insert(T entity[], int batchSize, String excludeFields) {
+		if (entity == null || entity.length<1) return -1;
 //		int len = entity.length;
 //		String insertSql[] = new String[len];
-		String insertSql[] = getObjToSQLRich().toInsertSQL(entity, excludeFields);
+		String insertSql[] = getObjToSQLRich().toInsertSQL(entity,batchSize, excludeFields);
 		_regEntityClass(entity[0]);
 		
 		return getBeeSql().batch(insertSql, batchSize);
@@ -426,6 +426,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	}
 	
 	private <T> void _regEntityClass(T entity){
+		if(entity==null) return ;
 		HoneyContext.regEntityClass(entity.getClass());
 	}
 	
