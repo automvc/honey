@@ -18,6 +18,10 @@ import org.teasoft.honey.osql.util.FileUtil;
  */
 public class FileLogger implements Log{
 	
+	private String className=null;
+	
+	private String LINE_SEPARATOR = System.getProperty("line.separator"); // 换行符
+	
 	private static String TRACE="TRACE";
 	private static String DEBUG="DEBUG";
 	private static String INFO="INFO";
@@ -31,6 +35,10 @@ public class FileLogger implements Log{
 	private static boolean donotPrintLevel=HoneyConfig.getHoneyConfig().isLog_donotPrint_level();
 	
 	public FileLogger(){
+	}
+	
+	public FileLogger(String className){
+		this.className=className;
 	}
 	
 
@@ -59,6 +67,14 @@ public class FileLogger implements Log{
 		else
 			print(DEBUG,msg);
 	}
+	
+	@Override
+	public void debug(String msg, Throwable t) {
+		if(this.className!=null) 
+			print(DEBUG,msg+LINE_SEPARATOR+t.getMessage(),className);
+		else
+			print(DEBUG,msg+LINE_SEPARATOR+t.getMessage());	
+	}
 
 	@Override
 	public boolean isInfoEnabled() {
@@ -71,7 +87,6 @@ public class FileLogger implements Log{
 			print(INFO,msg,className);
 		else
 			print(INFO,msg);
-		
 	}
 
 	@Override
@@ -85,6 +100,14 @@ public class FileLogger implements Log{
 			print(WARN,msg,className);
 		else
 			print(WARN,msg);
+	}
+	
+	@Override
+	public void warn(String msg, Throwable t) {
+		if(this.className!=null) 
+			print(WARN,msg+LINE_SEPARATOR+t.getMessage(),className);
+		else
+			print(WARN,msg+LINE_SEPARATOR+t.getMessage());	
 	}
 
 	@Override
@@ -102,15 +125,12 @@ public class FileLogger implements Log{
 
 	@Override
 	public void error(String msg, Throwable t) {
-		
+		if(this.className!=null) 
+			print(ERROR,msg+LINE_SEPARATOR+t.getMessage(),className);
+		else
+			print(ERROR,msg+LINE_SEPARATOR+t.getMessage());	
 	}
 	
-	@Override
-	public boolean isOff() {
-		return false;
-	}
-
-
 	private void print(String level,String msg){
 		StringBuffer b=new StringBuffer();
 		
@@ -124,9 +144,6 @@ public class FileLogger implements Log{
 		if(donotPrintLevel){
 			//nothing
 		}else{
-//			b.append(level)
-//			 .append(SPACE);
-			
 			b.append(LEFT)
 			 .append(level)
 			 .append(RIGHT)
@@ -134,11 +151,6 @@ public class FileLogger implements Log{
 		}
 		
 		b.append(msg);
-		
-//		if(ERROR.equals(level) || WARN.equals(level))
-//			System.err.println(b.toString());
-//		else
-//		   System.out.println(b.toString());
 		
 		appendFile(b.toString());
 		
@@ -157,9 +169,6 @@ public class FileLogger implements Log{
 		if(donotPrintLevel){
 			//nothing
 		}else{
-//			b.append(level)
-//			 .append(SPACE);
-			
 			b.append(LEFT)
 			 .append(level)
 			 .append(RIGHT)
@@ -174,36 +183,11 @@ public class FileLogger implements Log{
 		
 		 .append(msg);
 		
-//		if(ERROR.equals(level) || WARN.equals(level))
-//			System.err.println(b.toString());
-//		else
-//		   System.out.println(b.toString());
-		
 		appendFile(b.toString());
 	}
 	
 	private void appendFile(String content){
 		FileUtil.genAppendFile(Path.getFullPath(), content);
 	}
-
-	@Override
-	public Log getLogger() {
-		this.className=null;
-		return this;
-	}
-
-	@Override
-	public Log getLogger(String name) {
-		FileLogger sLog=new FileLogger();
-		sLog.className=name;
-		return sLog;
-	}
-
-	@Override
-	public Log getLogger(Class<?> clazz) {
-		return getLogger(clazz.getName());
-	}
-	
-	private String className=null;
 	
 }

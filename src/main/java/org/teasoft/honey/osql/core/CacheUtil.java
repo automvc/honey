@@ -93,7 +93,7 @@ public final class CacheUtil {
 				}
 				return null;
 			}
-			if(isShowSql) Logger.print("[Bee] ==========get from cache.");
+			if(isShowSql) Logger.info("[Bee] ==========get from cache.");
 
 			// 要是能返回缓存的结果集,说明不用上下文的缓存结构信息了. 可以删
 			HoneyContext.deleteCacheInfo(sql);
@@ -112,7 +112,7 @@ public final class CacheUtil {
 						Object obj = foreverCacheObjectMap.get(key);
 						if (obj != null) { //是该查询放缓存才删缓存cacheStruct信息
 							HoneyContext.deleteCacheInfo(sql);
-							if(isShowSql) Logger.print("[Bee] ==========get from cache.");
+							if(isShowSql) Logger.info("[Bee] ==========get from cache.");
 						}
 						
 						return obj;
@@ -127,7 +127,7 @@ public final class CacheUtil {
 					Object obj = foreverModifySynCacheObjectMap.get(key);
 					if (obj != null) { //放缓存了
 						HoneyContext.deleteCacheInfo(sql);//是该查询放缓存才删缓存cacheStruct信息
-						if(isShowSql) Logger.print("[Bee] ==========get from cache.");
+						if(isShowSql) Logger.info("[Bee] ==========get from cache.");
 					}
 					
 					return obj;

@@ -50,7 +50,7 @@ public class GenBean {
 		
 		if(config.getEntityNamePre()!=null) entityName=config.getEntityNamePre()+entityName;
 		
-		Logger.print("The Honey gen the JavaBean: " + config.getPackagePath() +"."+entityName);
+		Logger.info("The Honey gen the JavaBean: " + config.getPackagePath() +"."+entityName);
 		
 		String tableComment="";
 		if(config.isGenComment()) tableComment=commentMap.get(table.getTableName());
@@ -235,7 +235,7 @@ public class GenBean {
 	}
 
 	public void genAllBeanFile() {
-		Logger.print("Generating...");
+		Logger.info("Generating...");
 
 		List<Table> tables = getAllTables();
 		Table table = null;
@@ -245,8 +245,8 @@ public class GenBean {
 			genBeanFile(table);
 		}
 
-		Logger.print("Generate Success!");
-		Logger.print("Please check: " + config.getBaseDir()+config.getPackagePath().replace(".", "\\"));
+		Logger.info("Generate Success!");
+		Logger.info("Please check: " + config.getBaseDir()+config.getPackagePath().replace(".", "\\"));
 	}
 	
 	
@@ -266,15 +266,15 @@ public class GenBean {
 		con.close();
 
 		}catch(Exception e){
-			Logger.print(e.getMessage());
+			Logger.info(e.getMessage());
 			if(e.getMessage().contains("You have an error in your SQL syntax;")&& e.getMessage().contains("where 1<>1")){
-				Logger.print("Maybe the table name is the database key work. Please rename the tableName and test again.",e.getMessage());
+				Logger.info("Maybe the table name is the database key work. Please rename the tableName and test again."+e.getMessage());
 			}
 			
 			throw ExceptionHelper.convert(e);
 		}
-		Logger.print("Generate Success!");
-		Logger.print("Please check folder: " + config.getBaseDir()+config.getPackagePath().replace(".", "\\"));
+		Logger.info("Generate Success!");
+		Logger.info("Please check folder: " + config.getBaseDir()+config.getPackagePath().replace(".", "\\"));
 	}
 
     // 获取所有表信息
@@ -416,9 +416,9 @@ public class GenBean {
 			con.close();
 
 		} catch (Exception e) {
-			Logger.print(e.getMessage());
+			Logger.info(e.getMessage());
 			if (e.getMessage().contains("You have an error in your SQL syntax;") && e.getMessage().contains("where 1<>1")) {
-				Logger.print("Maybe the table name is the database key work. Please rename the tableName and test again.", e.getMessage());
+				Logger.info("Maybe the table name is the database key work. Please rename the tableName and test again."+ e.getMessage());
 			}
 			throw ExceptionHelper.convert(e);
 		}

@@ -1,2 +1,6 @@
 /.settings
 /target
+/target/
+/pom.xml-local
+/pom.xml-maven
+/pom.xml-git

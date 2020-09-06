@@ -28,9 +28,14 @@ public class SystemLogger implements Log{
 	private static boolean donotPrintCurrentDate=HoneyConfig.getHoneyConfig().isShowSQL_donotPrint_currentDate();
 	private static boolean donotPrintLevel=HoneyConfig.getHoneyConfig().isLog_donotPrint_level();
 	
+	private String className=null;
+	
 	public SystemLogger(){
 	}
 	
+	public SystemLogger(String className){
+		this.className=className;
+	}
 
 	@Override
 	public boolean isTraceEnabled() {
@@ -56,6 +61,14 @@ public class SystemLogger implements Log{
 			print(DEBUG,msg,className);
 		else
 			print(DEBUG,msg);
+	}
+	
+	@Override
+	public void debug(String msg, Throwable t) {
+		debug(msg);
+        if (t != null) {
+            t.printStackTrace();
+        }
 	}
 
 	@Override
@@ -84,6 +97,14 @@ public class SystemLogger implements Log{
 		else
 			print(WARN,msg);
 	}
+	
+	@Override
+	public void warn(String msg, Throwable t) {
+		warn(msg);
+        if (t != null) {
+            t.printStackTrace();
+        }
+	}
 
 	@Override
 	public boolean isErrorEnabled() {
@@ -100,15 +121,12 @@ public class SystemLogger implements Log{
 
 	@Override
 	public void error(String msg, Throwable t) {
-		
+		error(msg);
+        if (t != null) {
+            t.printStackTrace();
+        }
 	}
 	
-	@Override
-	public boolean isOff() {
-		return false;
-	}
-
-
 	private void print(String level,String msg){
 		StringBuffer b=new StringBuffer();
 		
@@ -175,26 +193,4 @@ public class SystemLogger implements Log{
 		else
 		   System.out.println(b.toString());
 	}
-
-
-	@Override
-	public Log getLogger() {
-		this.className=null;
-		return this;
-	}
-
-	@Override
-	public Log getLogger(String name) {
-		SystemLogger sLog=new SystemLogger();
-		sLog.className=name;
-		return sLog;
-	}
-
-	@Override
-	public Log getLogger(Class<?> clazz) {
-		return getLogger(clazz.getName());
-	}
-	
-	private String className=null;
-	
 }
