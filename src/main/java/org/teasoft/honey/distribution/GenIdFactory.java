@@ -31,18 +31,38 @@ public class GenIdFactory {
 		else defaultGenType = "SerialUniqueId";
 	}
 	
+	/**
+	 * 使用默认的命名key来获取id.
+	 * @return long id num.
+	 */
 	public static long get() {
 		return get("");
 	}
 	
+	/**
+	 * 获取一个范围的id.
+	 * @param sizeOfIds
+	 * @return array of long id.
+	 */
 	public static long[] getRangeId(int sizeOfIds) {
 		return getRangeId("", sizeOfIds);
 	}
 
+	/**
+	 * get id from factory.default GenType class is: SerialUniqueId.
+	 * @param bizType bizType作为隔离的命名空间.bizType as namespace.
+	 * @return long id num.
+	 */
 	public static long get(String bizType) {
 		return get(bizType, defaultGenType);
 	}
 
+	/**
+	 * 
+	 * @param bizType bizType作为隔离的命名空间.bizType as namespace.
+	 * @param genType it is one of SerialUniqueId,OneTimeSnowflakeId or PearFlowerId.
+	 * @return
+	 */
 	public static long get(String bizType, String genType) {
 		genId = getGenId(bizType, genType);
 		return genId.get();

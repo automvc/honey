@@ -8,6 +8,7 @@ package org.teasoft.honey.distribution;
 
 import org.teasoft.bee.distribution.GenId;
 import org.teasoft.bee.distribution.Worker;
+import org.teasoft.honey.osql.core.HoneyConfig;
 
 /**
  * <p>改进的雪花算法——姑且称为梨花算法(PearFlowerId)吧  （忽如一夜春风来，千树万树梨花开）。
@@ -47,12 +48,22 @@ public class PearFlowerId implements GenId {
 	private final long halfWorkid=1<<(workerIdBits-1);
 	private final long fullWorkid=1<<workerIdBits;
 
-	private long twepoch = 1483200000; // 单位：s    2017-01-01 (yyyy-MM-dd)
+	private long twepoch = 1483200000; // 2017-01-01 (yyyy-MM-dd) ,   单位 unit (s)    
 	private long lastTimestamp = -1L;
 
-	private static boolean useHalfWorkId = true;
+	private static boolean useHalfWorkId ;
 	private static long tolerateSecond=10;
 	private static long switchWorkIdTimeThreshold=120;
+	
+	{
+		boolean t_useHalfWorkId = HoneyConfig.getHoneyConfig().useHalfWorkId;
+		long t_tolerateSecond = HoneyConfig.getHoneyConfig().tolerateSecond;
+		long t_switchWorkIdTimeThreshold = HoneyConfig.getHoneyConfig().switchWorkIdTimeThreshold;
+
+		useHalfWorkId = t_useHalfWorkId;
+		if (t_tolerateSecond > 0) tolerateSecond = t_tolerateSecond;
+		if (t_switchWorkIdTimeThreshold > 0) switchWorkIdTimeThreshold = t_switchWorkIdTimeThreshold;
+	}
 
 	public Worker getWorker() {
 		if (this.worker == null) return new DefaultWorker();

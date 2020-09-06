@@ -133,7 +133,7 @@ public class OneTimeSnowflakeId implements GenId {
 		long spentTime = _curSecond() - startTime + 1;
 
 		if (spentTime > 0) {
-			if ((spentTime << (segmentBits + sequenceBits)) > _counter) return;
+			if ((spentTime << (segmentBits + sequenceBits)) > _counter) return; //check some one workerid.
 		}
 		try {
 			wait(10);
