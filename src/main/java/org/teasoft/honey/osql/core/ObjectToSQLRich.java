@@ -298,9 +298,48 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	public <T> String[] toInsertSQL(T entity[], String excludeFieldList) {
 		return toInsertSQL(entity, batchSize, excludeFieldList);
 	}
-
+	
 	@Override
 	public <T> String[] toInsertSQL(T entity[],int batchSize, String excludeFieldList) {
+		
+		if(HoneyUtil.isMysql()) return toInsertSQLForMysql(entity, batchSize, excludeFieldList);
+		
+		String sql[] = null;  
+		try {
+			int len = entity.length;
+			
+			setInitArrayIdByAuto(entity);
+			
+			sql = new String[len];  //只用sql[0]
+			String t_sql = "";
+//			SqlValueWrap wrap;
+
+			t_sql = _ObjectToSQLHelper._toInsertSQL0(entity[0], 2, excludeFieldList); // i 默认包含null和空字符串.因为要用统一的sql作批处理
+//			t_sql = wrap.getSql();
+			sql[0] = t_sql;
+//			t_sql = t_sql + "[index0]";  //index0 不带,与单条共用.
+//			setPreparedValue(t_sql, wrap);
+//			OneTimeParameter.setAttribute("_SYS_Bee_BatchInsert", "0");
+//			Logger.logSQL("insert[] SQL :", t_sql);
+
+			for (int i = 1; i < len; i++) { // i=1
+				String sql_i=sql[0] + index1 + i + index2;
+				_ObjectToSQLHelper._toInsertSQL_for_ValueList(sql_i,entity[i], excludeFieldList); // i 默认包含null和空字符串.因为要用统一的sql作批处理
+				//				t_sql = wrap.getSql(); //  每个sql不一定一样,因为设值不一样,有些字段不用转换. 不采用;因为不利于批处理
+
+//				setPreparedValue_ForArray(sql[0] + index1 + i + index2, wrap);
+//				OneTimeParameter.setAttribute("_SYS_Bee_BatchInsert", i+"");
+//				Logger.logSQL("insert[] SQL :", sql_i);
+			}
+		} catch (IllegalAccessException e) {
+			throw ExceptionHelper.convert(e);
+		}
+
+		return sql;
+	}
+
+//	@Override
+	private <T> String[] toInsertSQLForMysql(T entity[],int batchSize, String excludeFieldList) {
 		String sql[] = null;  
 		try {
 			int len = entity.length;
@@ -645,6 +684,9 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			field = entity[0].getClass().getDeclaredField("id");
 //			field.setAccessible(true);
 //			if (field.get(entity[0]) != null) return; //即使没值,运行一次后也会有值,下次再用就会重复.而用户又不知道.    //TODO 要提醒是被覆盖了。
+		} catch (NoSuchFieldException e) {
+			//is no id field , ignore.
+			return;
 		} catch (Exception e) {
 			e.printStackTrace();
 			return;

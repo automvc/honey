@@ -709,7 +709,7 @@ final class _ObjectToSQLHelper {
 		return sql;
 	}
 
-	//只需要解析值
+	//只需要解析值   for array[]
 	static <T> List<PreparedValue> _toInsertSQL_for_ValueList(String sql_i,T entity, String excludeFieldList) throws IllegalAccessException {
 		checkPackage(entity);
 		
@@ -732,7 +732,11 @@ final class _ObjectToSQLHelper {
 			list.add(preparedValue);
 		}
 
-		if (showSQL) {
+//		if (showSQL) {     //just insert array to this method
+		
+		if(HoneyUtil.isMysql()) { 
+//		if(  ! HoneyUtil.isMysql()) {   //test TODO 
+			
 			HoneyContext.setPreparedValue(sql_i, list);
 		}
 		return list;
@@ -884,6 +888,9 @@ final class _ObjectToSQLHelper {
 			if (field.get(entity) != null) {
 				hasValue=true;
 			}
+		} catch (NoSuchFieldException e) {
+			//is no id field , ignore.
+			return;	
 		} catch (Exception e) {
 			e.printStackTrace();
 			return;

@@ -36,10 +36,10 @@ public class Logger {
 		//=================================end
 		
 		if(showSQL){
-			List list;
+			List list=null;
 			String insertIndex=(String)OneTimeParameter.getAttribute("_SYS_Bee_BatchInsert");
-			if(insertIndex!=null){
-//				批处理,在v1.8开始,不会用于占位设值. 需要清除
+			if(HoneyUtil.isMysql() && insertIndex!=null){
+//				mysql批处理,在v1.8开始,不会用于占位设值. 需要清除
 				list=HoneyContext.getPreparedValue(sql);
 			}else{
 				list=HoneyContext._justGetPreparedValue(sql);
@@ -52,9 +52,9 @@ public class Logger {
 				if(showExecutableSql) _println("[Bee] ExecutableSql: "+hardStr, sql);  //无占位的情况
 			}else{
 				if(insertIndex!=null){
-//					if("0".equals(insertIndex)){
-//						_println("[Bee] "+hardStr, sql);
-//					}
+					if("0".equals(insertIndex) && ! HoneyUtil.isMysql()){
+						_println("[Bee] "+hardStr, sql);
+					}
 					print("--> index:"+insertIndex+" ,  [values]: "+ value);
 					
 				}else{

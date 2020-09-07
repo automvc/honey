@@ -393,6 +393,93 @@ public class SqlLib implements BeeSql {
 	
 	@Override
 	public int batch(String sql[], int batchSize) {
+		
+		if(sql==null || sql.length<1) return -1;
+		
+		if(HoneyUtil.isMysql()) return batchForMysql(sql, batchSize);
+		
+		initRoute(SuidType.INSERT,null,sql[0]);
+		
+		int len = sql.length;
+		int total = 0;
+		int temp=0;
+		
+		Connection conn = null;
+		PreparedStatement pst = null;
+		try {
+			conn = getConn();
+			boolean oldAutoCommit=conn.getAutoCommit();
+			conn.setAutoCommit(false);
+			String exe_sql=HoneyUtil.deleteLastSemicolon(sql[0]);
+			pst = conn.prepareStatement(exe_sql);
+		
+		if (len <= batchSize){
+			total=batch(sql[0],0,len,conn,pst);
+		}else {
+			for (int i = 0; i < len / batchSize; i++) {
+				temp = batch(sql[0], i * batchSize, (i + 1) * batchSize,conn,pst);
+				total+=temp;
+				pst.clearBatch();  //clear Batch
+				pst.clearParameters();
+			}
+			
+			if (len % batchSize != 0) { //尾数不成批
+				temp = batch(sql[0], len - (len % batchSize), len,conn,pst);
+				total+=temp;
+			}
+		}
+		conn.setAutoCommit(oldAutoCommit);
+		} catch (SQLException e) {
+			if (isConstraint(e)) {
+				e.printStackTrace();
+				return total;
+			}
+			throw ExceptionHelper.convert(e);
+		} finally {
+			checkClose(pst, conn);
+			//更改操作需要清除缓存
+			clearInCache(sql[0], "int[]",SuidType.INSERT);
+		}
+
+		return total;
+	}
+
+	private static String index1 = "  [index";
+	private static String index2 = "]";
+
+	private int batch(String sql, int start, int end, Connection conn,PreparedStatement pst) throws SQLException {
+		int a=0;
+		for (int i = start; i < end; i++) { //start... (end-1)
+			
+			if (showSQL) {
+				OneTimeParameter.setAttribute("_SYS_Bee_BatchInsert", i + "");
+				String sql_i;
+				if (i == 0)
+					sql_i = sql;
+				else
+					sql_i = sql + index1 + i + index2;
+
+				Logger.logSQL("insert[] SQL :", sql_i);
+			}
+			
+			
+			if (i == 0)
+				setPreparedValues(pst, sql);
+			else
+				setPreparedValues(pst, sql + index1 + i + index2);
+			pst.addBatch();
+		}
+		pst.executeBatch();    //oracle will return [-2,-2,...,-2]
+		a=pst.getUpdateCount();//oracle is ok. but mysql will return 1 alway.So mysql use special branch.
+		conn.commit();
+		
+		Logger.logSQL(" index["+ (start) +"~"+end+ index2+" Affected rows: ", a+"");
+
+		return a;
+	}
+	
+//	@Override
+	private int batchForMysql(String sql[], int batchSize) {
 
 		if (sql == null || sql.length < 1) return -1;
 
@@ -417,20 +504,20 @@ public class SqlLib implements BeeSql {
 				batchExeSql = getBatchExeSql(exe_sql, len, placeholderValue); //batchExeSql[1] : batchSqlForPrint
 				pst = conn.prepareStatement(batchExeSql[0]);
 
-				total = batch(sql[0], 0, len, conn, pst, batchSize, batchExeSql[1]);
+				total = _batchForMysql(sql[0], 0, len, conn, pst, batchSize, batchExeSql[1]);
 			} else {
 				batchExeSql = getBatchExeSql(exe_sql, batchSize, placeholderValue);
 				pst = conn.prepareStatement(batchExeSql[0]);
 
 				for (int i = 0; i < len / batchSize; i++) {
-					temp = batch(sql[0], i * batchSize, (i + 1) * batchSize, conn, pst, batchSize, batchExeSql[1]);
+					temp = _batchForMysql(sql[0], i * batchSize, (i + 1) * batchSize, conn, pst, batchSize, batchExeSql[1]);
 					total += temp;
 				}
 
 				if (len % batchSize != 0) { //尾数不成批
 					batchExeSql = getBatchExeSql(exe_sql, (len % batchSize), placeholderValue);
 					pst = conn.prepareStatement(batchExeSql[0]);
-					temp = batch(sql[0], len - (len % batchSize), len, conn, pst, batchSize, batchExeSql[1]);
+					temp = _batchForMysql(sql[0], len - (len % batchSize), len, conn, pst, batchSize, batchExeSql[1]);
 					total += temp;
 				}
 			}
@@ -461,21 +548,10 @@ public class SqlLib implements BeeSql {
 				);
 	}
 
-	private static String index1 = "  [index";
-	private static String index2 = "]";
-	
-	private int batch(String sql, int start, int end, Connection conn, PreparedStatement pst,int batchSize,String batchSqlForPrint) throws SQLException {
+	private int _batchForMysql(String sql, int start, int end, Connection conn, PreparedStatement pst,int batchSize,String batchSqlForPrint) throws SQLException {
 //		sql用于获取转换成获取占位的sqlKey和打印log. 
 //		v1.8  打印的sql是单行打印；执行的是批的形式.
-		int a = 0;
-		String sqlForGetValue=sql+ "  [Batch:"+ (start/batchSize) + index2;
-		setPreparedValues(pst, sqlForGetValue);
-		a = pst.executeUpdate();
-		conn.commit();
 		
-		pst.clearBatch();   //???
-		pst.clearParameters();
-
 		if (showSQL) {
 			//print log
 			if(start==0 || (end-start!=batchSize))
@@ -492,6 +568,12 @@ public class SqlLib implements BeeSql {
 				Logger.logSQL("insert[] SQL :", sql_i);
 			}
 		}
+		
+		int a = 0;
+		String sqlForGetValue=sql+ "  [Batch:"+ (start/batchSize) + index2;
+		setPreparedValues(pst, sqlForGetValue);
+		a = pst.executeUpdate();
+		conn.commit();
 		
 		Logger.logSQL(" [Batch:"+ (start/batchSize) + index2+" Affected rows: ", a+"");
 

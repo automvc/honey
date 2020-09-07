@@ -860,4 +860,10 @@ public final class HoneyUtil {
 		    return errorMsg;
         else return "";
 	}
+	
+	public static boolean isMysql() {
+//		return false;    //test
+		return    DatabaseConst.MYSQL.equalsIgnoreCase(HoneyConfig.getHoneyConfig().getDbName()) 
+			   || DatabaseConst.MariaDB.equalsIgnoreCase(HoneyConfig.getHoneyConfig().getDbName());
+	}
 }
