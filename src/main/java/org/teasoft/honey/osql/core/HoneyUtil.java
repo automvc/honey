@@ -351,7 +351,6 @@ public final class HoneyUtil {
 		jdbcTypeMap.put("ROWID", "java.sql.RowId"); //JDK6
 		jdbcTypeMap.put("SQLXML", "java.sql.SQLXML"); //JDK6
 
-		//		
 		// JDBC 4.2 JDK8
 		jdbcTypeMap.put("TIMESTAMP_WITH_TIMEZONE", "Timestamp");
 		jdbcTypeMap.put("TIMESTAMP WITH TIME ZONE", "Timestamp"); //test in oralce 11g
@@ -361,7 +360,7 @@ public final class HoneyUtil {
 
 		if (DatabaseConst.MYSQL.equalsIgnoreCase(dbName) || DatabaseConst.MariaDB.equalsIgnoreCase(dbName)) {
 			jdbcTypeMap.put("MEDIUMINT", "Integer");
-			//			jdbcTypeMap.put("DATETIME", "Date");
+//			jdbcTypeMap.put("DATETIME", "Date");
 			jdbcTypeMap.put("DATETIME", "Timestamp");//fix on 2019-01-19
 			jdbcTypeMap.put("TINYBLOB", "Blob");
 			jdbcTypeMap.put("MEDIUMBLOB", "Blob");
@@ -388,13 +387,13 @@ public final class HoneyUtil {
 			jdbcTypeMap.put("INTERVALDS", "String"); //11g
 			jdbcTypeMap.put("INTERVAL YEAR TO MONTH", "String"); //just Prevention
 			jdbcTypeMap.put("INTERVAL DAY TO SECOND", "String");//just Prevention
-			//			jdbcTypeMap.put("TIMESTAMP", "Timestamp");   exist in comm
+//			jdbcTypeMap.put("TIMESTAMP", "Timestamp");   exist in comm
 
 		} else if (DatabaseConst.SQLSERVER.equalsIgnoreCase(dbName)) {
 			jdbcTypeMap.put("SMALLINT", "Short");
 			jdbcTypeMap.put("TINYINT", "Short");
-			//			jdbcTypeMap.put("TIME","java.sql.Time");  exist in comm
-			//			 DATETIMEOFFSET // SQL Server 2008  microsoft.sql.DateTimeOffset
+//			jdbcTypeMap.put("TIME","java.sql.Time");  exist in comm
+//			 DATETIMEOFFSET // SQL Server 2008  microsoft.sql.DateTimeOffset
 			jdbcTypeMap.put("DATETIMEOFFSET", "microsoft.sql.DateTimeOffset");
 		}
 
@@ -421,7 +420,7 @@ public final class HoneyUtil {
 		javaTypeMap.put("java.lang.Float", 5);
 		javaTypeMap.put("java.lang.Short", 6);
 		javaTypeMap.put("java.lang.Byte", 7);
-		//		javaTypeMap.put("[Ljava.lang.Byte;", 8); //  Byte[]
+//		javaTypeMap.put("[Ljava.lang.Byte;", 8); //  Byte[]
 		javaTypeMap.put("[B", 8); //byte[]  
 		javaTypeMap.put("java.lang.Boolean", 9);
 

@@ -200,6 +200,8 @@ public class SqlLib implements BeeSql {
 		entity = null;
 		targetObj = null;
 		map=null;
+		
+		Logger.logSQL(" | <--  select rows: ", rsList.size()+"");
 
 		return rsList;
 	}
@@ -295,6 +297,8 @@ public class SqlLib implements BeeSql {
 
 			list=TransformResultSet.toStringsList(rs);
 			
+			Logger.logSQL(" | <--  select rows: ", list.size()+"");
+			
 			addInCache(sql, list,"List<String[]>",SuidType.SELECT,list.size());
 			
 		} catch (SQLException e) {
@@ -334,6 +338,8 @@ public class SqlLib implements BeeSql {
 		} finally {
 			checkClose(pst, conn);
 		}
+		
+		Logger.logSQL(" | <--  Affected rows: ", num+"");
 		
 		//更改操作需要清除缓存
 //		if(num>0)  //fixed bug.  没删成功,也要清除.否则缓存会一直在.
@@ -444,8 +450,9 @@ public class SqlLib implements BeeSql {
 		return total;
 	}
 
-	private static String index1 = "  [index";
-	private static String index2 = "]";
+	private static String index1 = "_SYS[index";
+	private static String index2 = "]_End ";
+	private static String index3 = "]";
 
 	private int batch(String sql, int start, int end, Connection conn,PreparedStatement pst) throws SQLException {
 		int a=0;
@@ -457,23 +464,22 @@ public class SqlLib implements BeeSql {
 				if (i == 0)
 					sql_i = sql;
 				else
-					sql_i = sql + index1 + i + index2;
+					sql_i = index1 + i + index2 + sql;
 
-				Logger.logSQL("insert[] SQL :", sql_i);
+				Logger.logSQL("insert[] SQL : ", sql_i);
 			}
-			
 			
 			if (i == 0)
 				setPreparedValues(pst, sql);
 			else
-				setPreparedValues(pst, sql + index1 + i + index2);
+				setPreparedValues(pst, index1 + i + index2 + sql);
 			pst.addBatch();
 		}
 		pst.executeBatch();    //oracle will return [-2,-2,...,-2]
 		a=pst.getUpdateCount();//oracle is ok. but mysql will return 1 alway.So mysql use special branch.
 		conn.commit();
 		
-		Logger.logSQL(" index["+ (start) +"~"+end+ index2+" Affected rows: ", a+"");
+		Logger.logSQL(" | <-- index["+ (start) +"~"+(end-1)+ index2+" Affected rows: ", a+"");
 
 		return a;
 	}
@@ -555,7 +561,7 @@ public class SqlLib implements BeeSql {
 		if (showSQL) {
 			//print log
 			if(start==0 || (end-start!=batchSize))
-			  Logger.logSQL("insert[] SQL :", batchSqlForPrint);
+			  Logger.logSQL("insert[] SQL : ", batchSqlForPrint);
 			
 			for (int i = start; i < end; i++) { //start... (end-1)
 				OneTimeParameter.setAttribute("_SYS_Bee_BatchInsert", i + "");
@@ -563,19 +569,19 @@ public class SqlLib implements BeeSql {
 				if (i == 0)
 					sql_i = sql;
 				else
-					sql_i = sql + index1 + i + index2;
+					sql_i = index1 + i + index2 + sql;
 
-				Logger.logSQL("insert[] SQL :", sql_i);
+				Logger.logSQL("insert[] SQL : ", sql_i);
 			}
 		}
 		
 		int a = 0;
-		String sqlForGetValue=sql+ "  [Batch:"+ (start/batchSize) + index2;
+		String sqlForGetValue=sql+ "  [Batch:"+ (start/batchSize) + index3;
 		setPreparedValues(pst, sqlForGetValue);
 		a = pst.executeUpdate();
 		conn.commit();
 		
-		Logger.logSQL(" [Batch:"+ (start/batchSize) + index2+" Affected rows: ", a+"");
+		Logger.logSQL(" | <-- [Batch:"+ (start/batchSize) + index3+" Affected rows: ", a+"");
 
 		return a;
 	}
@@ -755,6 +761,8 @@ public class SqlLib implements BeeSql {
 
 		entity = null;
 		targetObj = null;
+		
+		Logger.logSQL(" | <--  select rows: ", rsList.size()+"");
 
 		return rsList;
 	}

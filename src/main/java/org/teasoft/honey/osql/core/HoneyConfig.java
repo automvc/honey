@@ -147,7 +147,7 @@ public final class HoneyConfig {
 	
 	//v1.8
 	@SysValue("${bee.distribution.genid.workerid}")
-	public int workerid ;
+	public int workerid=0 ;
 	
 	@SysValue("${bee.distribution.genid.idGeneratorType}")
 	public int idGeneratorType=1 ;

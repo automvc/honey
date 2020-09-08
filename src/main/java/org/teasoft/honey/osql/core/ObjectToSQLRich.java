@@ -56,7 +56,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 
 		setContext(sql, wrap.getList(), wrap.getTableNames());
 
-		Logger.logSQL("select(entity,start,size) SQL:", sql);
+		Logger.logSQL("select(entity,start,size) SQL: ", sql);
 		return sql;
 	}
 
@@ -69,12 +69,10 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 
 		setContext(sql, wrap.getList(), wrap.getTableNames());
 
-		Logger.logSQL("select(entity,selectFields,start,size) SQL:", sql);
+		Logger.logSQL("select(entity,selectFields,start,size) SQL: ", sql);
 		return sql;
 	}
 	
-	
-
 	@Override
 	public <T> String toSelectSQL(T entity, String fields) throws ObjSQLException {
 		
@@ -85,7 +83,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 //		sql=sql.replace("#fieldNames#", fieldList);
 //		sql=sql.replace("#fieldNames#", newSelectFields);  //TODO 打印值会有问题
 
-		Logger.logSQL("select SQL(selectFields) :", sql);
+		Logger.logSQL("select SQL(selectFields) : ", sql);
 
 		return sql;
 	}
@@ -102,13 +100,11 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			if (i < lenA - 1) orderBy += ",";
 		}
 		
-//		String sql=toSelectSQL(entity);
 		SqlValueWrap wrap=toSelectSQL_0(entity);
 		String sql=wrap.getSql();
 //		sql=sql.replace(";", " "); //close on 2019-04-27
 		sql+="order by "+orderBy+" ;";
 		
-//		setPreparedValue(sql,wrap);
 		setContext(sql, wrap.getList(), wrap.getTableNames());
 		
 		return sql;
@@ -128,13 +124,11 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			if (i < lenA - 1) orderBy += ",";
 		}
 
-		//		String sql=toSelectSQL(entity);
 		SqlValueWrap wrap = toSelectSQL_0(entity);
 		String sql = wrap.getSql();
 //		sql = sql.replace(";", " "); //close on 2019-04-27
 		sql += "order by " + orderBy + " ;";
 
-//		setPreparedValue(sql, wrap);
 		setContext(sql, wrap.getList(), wrap.getTableNames());
 
 		return sql;
@@ -145,15 +139,11 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		if (updateFieldList == null) return null;
 
 		String sql = "";
-//		try {
-			String updateFields[] = updateFieldList.split(",");
+		String updateFields[] = updateFieldList.split(",");
 
-			if (updateFields.length == 0 || "".equals(updateFieldList.trim())) throw new ObjSQLException("ObjSQLException:updateFieldList at least include one field.");
+		if (updateFields.length == 0 || "".equals(updateFieldList.trim())) throw new ObjSQLException("ObjSQLException:updateFieldList at least include one field.");
 
-			sql = _ObjectToSQLHelper._toUpdateSQL(entity, updateFields, -1);
-//		} catch (IllegalAccessException e) {
-//			throw ExceptionHelper.convert(e);
-//		}
+		sql = _ObjectToSQLHelper._toUpdateSQL(entity, updateFields, -1);
 		return sql;
 	}
 
@@ -187,7 +177,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			String tableName =_toTableName(entity);
 			String selectAndFun;
 			if ("count".equalsIgnoreCase(funType) && "*".equals(fieldForFun))
-				//		    selectAndFun = " select " + funType + "(" + fieldForFun + ") from ";  //  count(*)
+//		        selectAndFun = " select " + funType + "(" + fieldForFun + ") from ";  //  count(*)
 				selectAndFun = "select count(*) from ";
 			else
 				selectAndFun = "select " + funType + "(" + _toColumnName(fieldForFun) + ") from ";
@@ -241,7 +231,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			if (SqlStrFilter.checkFunSql(sql, funType)) {
 				throw new ObjSQLIllegalSQLStringException("ObjSQLIllegalSQLStringException:sql statement with function is illegal. " + sql);
 			}
-			Logger.logSQL("select fun SQL :", sql);
+			Logger.logSQL("select fun SQL : ", sql);
 			if (!isContainField) throw new ObjSQLException("ObjSQLException:Miss The Field! The entity(" + tableName + ") don't contain the field:" + fieldForFun);
 
 		} catch (IllegalAccessException e) {
@@ -291,8 +281,9 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		return toInsertSQL(entity, batchSize, "");
 	}
 
-	private static String index1 = "  [index";
-	private static String index2 = "]";
+	private static String index1 = "_SYS[index";
+	private static String index2 = "]_End ";
+	private static String index3 = "]";
 	
 	@Override
 	public <T> String[] toInsertSQL(T entity[], String excludeFieldList) {
@@ -312,24 +303,15 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			
 			sql = new String[len];  //只用sql[0]
 			String t_sql = "";
-//			SqlValueWrap wrap;
 
 			t_sql = _ObjectToSQLHelper._toInsertSQL0(entity[0], 2, excludeFieldList); // i 默认包含null和空字符串.因为要用统一的sql作批处理
-//			t_sql = wrap.getSql();
 			sql[0] = t_sql;
 //			t_sql = t_sql + "[index0]";  //index0 不带,与单条共用.
-//			setPreparedValue(t_sql, wrap);
-//			OneTimeParameter.setAttribute("_SYS_Bee_BatchInsert", "0");
-//			Logger.logSQL("insert[] SQL :", t_sql);
 
 			for (int i = 1; i < len; i++) { // i=1
-				String sql_i=sql[0] + index1 + i + index2;
+				String sql_i=index1 + i + index2+sql[0];
 				_ObjectToSQLHelper._toInsertSQL_for_ValueList(sql_i,entity[i], excludeFieldList); // i 默认包含null和空字符串.因为要用统一的sql作批处理
 				//				t_sql = wrap.getSql(); //  每个sql不一定一样,因为设值不一样,有些字段不用转换. 不采用;因为不利于批处理
-
-//				setPreparedValue_ForArray(sql[0] + index1 + i + index2, wrap);
-//				OneTimeParameter.setAttribute("_SYS_Bee_BatchInsert", i+"");
-//				Logger.logSQL("insert[] SQL :", sql_i);
 			}
 		} catch (IllegalAccessException e) {
 			throw ExceptionHelper.convert(e);
@@ -353,11 +335,6 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			OneTimeParameter.setAttribute("_SYS_Bee_Return_PlaceholderValue", "tRue");
 			t_sql = _ObjectToSQLHelper._toInsertSQL0(entity[0], 2, excludeFieldList); // i 默认包含null和空字符串.因为要用统一的sql作批处理
 			sql[0] = t_sql;
-//			t_sql = t_sql + "[index0]";  //index0 不带,与单条共用.  将多个bean的值转成多行显示后,不存在第一条没有带index0的问题
-//			setPreparedValue(t_sql, wrap);
-			
-//			OneTimeParameter.setAttribute("_SYS_Bee_BatchInsert", "0");
-//			Logger.logSQL("-----------------insert[] SQL :", t_sql);// move to SqlLib.java
 			
 			List<PreparedValue> preparedValueList = new ArrayList<>();
 			
@@ -369,7 +346,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			if(len==1) HoneyContext.setPreparedValue(t_sql+ index1 +"Batch:"+ 0 + index2, preparedValueList);
 			List<PreparedValue> oneRecoreList;
 			for (int i = 1; i < len; i++) { // i=1
-				String sql_i=sql[0] + index1 + i + index2;
+				String sql_i=index1 + i + index2+sql[0];
 				//不需要打印时,不会放上下文
 				oneRecoreList=_ObjectToSQLHelper._toInsertSQL_for_ValueList(sql_i,entity[i], excludeFieldList); // i 默认包含null和空字符串.因为要用统一的sql作批处理
 				//t_sql = wrap.getSql(); //  每个sql不一定一样,因为设值不一样,有些字段不用转换. 不采用;因为不利于批处理
@@ -377,10 +354,10 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 				preparedValueList.addAll(oneRecoreList);
 				
 				if((i+1)%batchSize==0){ //i+1
-					HoneyContext.setPreparedValue(t_sql +"  [Batch:"+ (i/batchSize) + index2, preparedValueList); //i
+					HoneyContext.setPreparedValue(t_sql +"  [Batch:"+ (i/batchSize) + index3, preparedValueList); //i
 					preparedValueList = new ArrayList<>();
 				}else if(i==(len-1)){
-					HoneyContext.setPreparedValue(t_sql +"  [Batch:"+ (i/batchSize) + index2, preparedValueList); //i
+					HoneyContext.setPreparedValue(t_sql +"  [Batch:"+ (i/batchSize) + index3, preparedValueList); //i
 				}
 			}
 		} catch (IllegalAccessException e) {

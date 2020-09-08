@@ -394,7 +394,7 @@ final class _ObjectToSQLHelper {
 			list.addAll(whereList);
 			
 			if(firstSet) {
-				Logger.logSQL("update SQL(updateFields) :", sqlBuffer.toString());
+				Logger.logSQL("update SQL(updateFields) : ", sqlBuffer.toString());
 				throw new BeeErrorGrammarException("BeeErrorGrammarException: the SQL update set part is empty!");
 			}
 
@@ -548,7 +548,7 @@ final class _ObjectToSQLHelper {
 		list.addAll(whereList);
 
 		if(firstSet) {
-			Logger.logSQL("update SQL(updateFields) :", sqlBuffer.toString());
+			Logger.logSQL("update SQL(updateFields) : ", sqlBuffer.toString());
 			throw new BeeErrorGrammarException("BeeErrorGrammarException: the SQL update set part is empty!");
 		}
 		
@@ -710,9 +710,9 @@ final class _ObjectToSQLHelper {
 	}
 
 	//只需要解析值   for array[]
-	static <T> List<PreparedValue> _toInsertSQL_for_ValueList(String sql_i,T entity, String excludeFieldList) throws IllegalAccessException {
+	static <T> List<PreparedValue> _toInsertSQL_for_ValueList(String sql_i, T entity, String excludeFieldList) throws IllegalAccessException {
 		checkPackage(entity);
-		
+
 		Field fields[] = entity.getClass().getDeclaredFields();
 		int len = fields.length;
 		List<PreparedValue> list = new ArrayList<>();
@@ -720,11 +720,11 @@ final class _ObjectToSQLHelper {
 		for (int i = 0; i < len; i++) {
 			fields[i].setAccessible(true);
 
-			if ("serialVersionUID".equals(fields[i].getName())){
+			if ("serialVersionUID".equals(fields[i].getName())) {
 				continue;
-			}else if (fields[i]!= null && fields[i].isAnnotationPresent(JoinTable.class)){
+			} else if (fields[i] != null && fields[i].isAnnotationPresent(JoinTable.class)) {
 				continue;
-			}else if (!"".equals(excludeFieldList) && isExcludeField(excludeFieldList, fields[i].getName())) continue;
+			} else if (!"".equals(excludeFieldList) && isExcludeField(excludeFieldList, fields[i].getName())) continue;
 
 			preparedValue = new PreparedValue();
 			preparedValue.setType(fields[i].getType().getName());
@@ -732,11 +732,10 @@ final class _ObjectToSQLHelper {
 			list.add(preparedValue);
 		}
 
-//		if (showSQL) {     //just insert array to this method
-		
-		if(HoneyUtil.isMysql()) { 
-//		if(  ! HoneyUtil.isMysql()) {   //test TODO 
-			
+//		if (showSQL) { //just insert array to this method
+		if (HoneyUtil.isMysql() && !showSQL) {
+             //no need set context
+		} else {
 			HoneyContext.setPreparedValue(sql_i, list);
 		}
 		return list;
@@ -754,7 +753,6 @@ final class _ObjectToSQLHelper {
 		
 		String sql = "";
 		StringBuffer sqlBuffer = new StringBuffer();
-//		StringBuffer valueBuffer = new StringBuffer();
 		boolean firstWhere = true;
 		try {
 			String tableName = _toTableName(entity);
