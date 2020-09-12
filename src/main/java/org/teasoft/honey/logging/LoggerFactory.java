@@ -187,12 +187,5 @@ public class LoggerFactory {
 		Log temp=map.get(key);
 		return  temp;
 	}
-	
-//	public static void _checkSize(){
-//		if(logLocal==null)
-//			System.err.println("=============logLocal=="+"  is null");
-//		else
-//			System.err.println("==============="+"  size is : "+ logLocal.get());
-//		
-//	}
+
 }

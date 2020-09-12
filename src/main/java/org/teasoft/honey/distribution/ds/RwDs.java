@@ -64,9 +64,6 @@ public class RwDs implements Route{
 	public String getDsName() {
 		RouteStruct routeStruct = HoneyContext.getCurrentRoute();
 		
-		//test
-//		if(routeStruct==null) System.err.println("=============================== routeStruct is null");
-
 		if (routeStruct!=null && SuidType.SELECT == routeStruct.getSuidType()) {
 			return getReadDs(r_routeWay);
 		} else {
@@ -75,7 +72,6 @@ public class RwDs implements Route{
 	}
 
 	public String getWriteDs() {
-//		System.err.println("--------------------------getWriteDs---------------"+writeDd);
 		return writeDd;
 	}
 
@@ -89,8 +85,6 @@ public class RwDs implements Route{
 	}
 
 	public String getReadDs(int type) {
-		
-		
 
 		int index = 0;
 		if (type == 1)
@@ -98,7 +92,6 @@ public class RwDs implements Route{
 		else
 			index = rand();
 		
-//		System.err.println("==============================getReadDs==============="+getReadDsList().get(index));
 		return getReadDsList().get(index);
 	}
 
