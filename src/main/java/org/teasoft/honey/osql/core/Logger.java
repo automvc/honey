@@ -48,7 +48,7 @@ public class Logger {
 					if ("0".equals(insertIndex) && !HoneyUtil.isMysql()) {
 						_print("[Bee] " + hardStr, sql);
 					}
-					print("     --> index:" + insertIndex + " ,  [values]: " + value);
+					print("[Bee] --> index:" + insertIndex + " ,  [values]: " + value);
 
 				} else {
 					_print("[Bee] " + hardStr, sql + "   [values]: " + value);

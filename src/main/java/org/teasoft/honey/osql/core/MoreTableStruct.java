@@ -7,6 +7,7 @@
 package org.teasoft.honey.osql.core;
 
 import java.lang.reflect.Field;
+import java.util.Map;
 
 import org.teasoft.bee.osql.annotation.JoinType;
 
@@ -25,6 +26,8 @@ class MoreTableStruct {
 	 int joinTableNum;  //just record in mainTable
 	 
 	 boolean hasSubAlias;
+	 
+	 Map<String,String> subDulFieldMap; //列名相同字段
 	
 	 String tableName;
 	 String entityName;

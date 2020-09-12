@@ -15,8 +15,10 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.teasoft.bee.osql.annotation.JoinTable;
 import org.teasoft.bee.osql.annotation.JoinType;
@@ -112,11 +114,16 @@ public final class HoneyUtil {
 		moreTableStruct[0] = new MoreTableStruct();
 		Field subField[] = new Field[2];
 		int subEntityFieldNum = 0;
+		
+		Set<String> mainFieldSet =new HashSet<>();
+		Map<String,String> dulMap=new HashMap<>();
 
 		String tableName = _toTableName(entity);
 		StringBuffer columns = new StringBuffer();
 		int len = field.length;
 		boolean isFirst = true;
+		
+		String mailField="";//v1.8
 		for (int i = 0; i < len; i++) {
 			if ("serialVersionUID".equals(field[i].getName())) continue;
 			if (field[i] != null && field[i].isAnnotationPresent(JoinTable.class)) {
@@ -134,7 +141,11 @@ public final class HoneyUtil {
 			}
 			columns.append(tableName);
 			columns.append(".");
-			columns.append(NameTranslateHandle.toColumnName(field[i].getName()));
+			
+			mailField=NameTranslateHandle.toColumnName(field[i].getName());
+			columns.append(mailField);  
+			
+			mainFieldSet.add(mailField);  //v1.8
 		}// main table for end
 
 		if (subEntityFieldNum > 2) { //只支持一个实体里最多关联两个实体
@@ -216,8 +227,8 @@ public final class HoneyUtil {
 					throw ExceptionHelper.convert(e);
 				}
 
-				StringBuffer subColumns = _getBeanFullField_0(subField[j], useSubTableName,entityFullName);
-				moreTableStruct[1 + j].columnsFull = subColumns.toString();
+				StringBuffer subColumns = _getBeanFullField_0(subField[j], useSubTableName,entityFullName,mainFieldSet,dulMap);
+				moreTableStruct[1 + j].columnsFull = subColumns.toString(); 
 
 				columns.append(",");
 				columns.append(subColumns);
@@ -225,12 +236,14 @@ public final class HoneyUtil {
 		}//end subFieldEntity for
 
 		moreTableStruct[0].columnsFull = columns.toString(); //包含子表的列
+		
+		moreTableStruct[0].subDulFieldMap=dulMap;
 
 		//		return columns.toString();
 		return moreTableStruct;
 	}
 
-	static StringBuffer _getBeanFullField_0(Field entityField, String tableName,String entityFullName) {
+	static StringBuffer _getBeanFullField_0(Field entityField, String tableName,String entityFullName,Set<String> mainFieldSet,Map<String,String> dulMap) {
 //		entityFullName just for tip
 		//		    if(entityField==null) return "";
 		//		    Field field[] = entity.getClass().getDeclaredFields(); //error
@@ -241,6 +254,7 @@ public final class HoneyUtil {
 		StringBuffer columns = new StringBuffer();
 		int len = field.length;
 		boolean isFirst = true;
+		String subFieldName="";
 		for (int i = 0; i < len; i++) {
 			if ("serialVersionUID".equals(field[i].getName())) continue;
 			if (field[i] != null && field[i].isAnnotationPresent(JoinTable.class)) {
@@ -256,15 +270,26 @@ public final class HoneyUtil {
 			} else {
 				columns.append(",");
 			}
-			columns.append(tableName);
-			columns.append(".");
-			columns.append(NameTranslateHandle.toColumnName(field[i].getName()));
-			//if(i<len-1) s.append(",");
+			subFieldName=NameTranslateHandle.toColumnName(field[i].getName());
+			
+			if(!mainFieldSet.add(subFieldName) && isOracle()){
+				dulMap.put(tableName+"."+subFieldName, tableName+"_"+subFieldName+"_$");   //TODO
+				
+				columns.append(tableName);
+				columns.append(".");
+				columns.append(subFieldName);
+				
+				columns.append("  "+tableName+"_"+subFieldName+"_$");
+			}else{
+				columns.append(tableName);
+				columns.append(".");
+				columns.append(subFieldName);
+			}
 		}
-		//return s.toString();
+		
 		return columns;
 	}
-
+	
 	/*	static boolean isNumberType(Field field){
 			if (
 				(field.getType() == Integer.class)|| (field.getType() == Long.class)
@@ -864,5 +889,9 @@ public final class HoneyUtil {
 //		return false;    //test
 		return    DatabaseConst.MYSQL.equalsIgnoreCase(HoneyConfig.getHoneyConfig().getDbName()) 
 			   || DatabaseConst.MariaDB.equalsIgnoreCase(HoneyConfig.getHoneyConfig().getDbName());
+	}
+	
+	public static boolean isOracle(){
+		return DatabaseConst.ORACLE.equalsIgnoreCase(HoneyConfig.getHoneyConfig().getDbName());
 	}
 }

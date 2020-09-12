@@ -201,7 +201,7 @@ public class SqlLib implements BeeSql {
 		targetObj = null;
 		map=null;
 		
-		Logger.logSQL(" | <--  select rows: ", rsList.size()+"");
+		Logger.logSQL("| <--  select rows: ", rsList.size()+"");
 
 		return rsList;
 	}
@@ -242,8 +242,12 @@ public class SqlLib implements BeeSql {
 					result = rs.getObject(1).toString();
 			}
 
-			rs.last();
-			if (rs.getRow() > 1) {
+			boolean hasMore = false;
+			if (rs.next()) {
+				hasMore = true;
+			}
+			
+			if (hasMore) {
 				throw new ObjSQLException("ObjSQLException:The size of ResultSet more than 1.");
 			}
 			
@@ -339,7 +343,7 @@ public class SqlLib implements BeeSql {
 			checkClose(pst, conn);
 		}
 		
-		Logger.logSQL(" | <--  Affected rows: ", num+"");
+		Logger.logSQL("| <--  Affected rows: ", num+"");
 		
 		//更改操作需要清除缓存
 //		if(num>0)  //fixed bug.  没删成功,也要清除.否则缓存会一直在.
@@ -479,7 +483,7 @@ public class SqlLib implements BeeSql {
 		a=pst.getUpdateCount();//oracle is ok. but mysql will return 1 alway.So mysql use special branch.
 		conn.commit();
 		
-		Logger.logSQL(" | <-- index["+ (start) +"~"+(end-1)+ index2+" Affected rows: ", a+"");
+		Logger.logSQL("| <-- index["+ (start) +"~"+(end-1)+ index3+" Affected rows: ", a+"");
 
 		return a;
 	}
@@ -581,7 +585,7 @@ public class SqlLib implements BeeSql {
 		a = pst.executeUpdate();
 		conn.commit();
 		
-		Logger.logSQL(" | <-- [Batch:"+ (start/batchSize) + index3+" Affected rows: ", a+"");
+		Logger.logSQL("| <-- [Batch:"+ (start/batchSize) + index3+" Affected rows: ", a+"");
 
 		return a;
 	}
@@ -674,12 +678,18 @@ public class SqlLib implements BeeSql {
             if(subField[1]!=null){
             	fields2=subEntityFieldClass[1].getDeclaredFields();
             }
+            
+            Map<String,String> dulSubFieldMap=moreTableStruct[0].subDulFieldMap;
 			
 			String tableName=_toTableName(entity);
 			while (rs.next()) {
 				
 				//从表1设置
 				Object subObj1 = subEntityFieldClass[0].newInstance();
+				
+				boolean isDul=false;
+				String dulField="";
+				
 				for (int i = 0; i < fields1.length; i++) {
 					
 					if("serialVersionUID".equals(fields1[i].getName())) {
@@ -688,10 +698,27 @@ public class SqlLib implements BeeSql {
 					if (fields1[i]!= null && fields1[i].isAnnotationPresent(JoinTable.class)) continue;
 					
 					fields1[i].setAccessible(true);
+					isDul=false;
+					dulField="";
 					try {
-						fields1[i].set(subObj1, rs.getObject(subUseTable[0]+"."+_toColumnName(fields1[i].getName())));
+						String columnName=_toColumnName(fields1[i].getName());
+						if(isOracle()){
+							dulField=dulSubFieldMap.get(subUseTable[0]+"."+columnName);
+							if(dulField!=null){
+								fields1[i].set(subObj1, rs.getObject(dulField));
+								isDul=true;
+							}else{
+							   fields1[i].set(subObj1, rs.getObject(columnName));
+							}
+						}else{
+						    fields1[i].set(subObj1, rs.getObject(subUseTable[0]+"."+columnName));
+						}
 					} catch (IllegalArgumentException e) {
-						fields1[i].set(subObj1,_getObjectForMoreTable(rs,subUseTable[0],fields1[i]));
+						if(isOracle()){
+							fields1[i].set(subObj1,_getObjectForMoreTable_oracle(rs,fields1[i],isDul,dulField));
+						}else{
+						    fields1[i].set(subObj1,_getObjectForMoreTable(rs,subUseTable[0],fields1[i]));
+						}
 					}catch (SQLException e) {// for after use condition selectField method
 						fields1[i].set(subObj1,null);
 					}
@@ -702,6 +729,7 @@ public class SqlLib implements BeeSql {
 				Object subObj2=null;
 				if(subField[1]!=null){
 					 subObj2 = subEntityFieldClass[1].newInstance();
+					String columnName="";
 					for (int i = 0; i < fields2.length; i++) {
 						
 						if("serialVersionUID".equals(fields2[i].getName())) {
@@ -710,10 +738,27 @@ public class SqlLib implements BeeSql {
 						if (fields2[i]!= null && fields2[i].isAnnotationPresent(JoinTable.class)) continue;
 						
 						fields2[i].setAccessible(true);
+						isDul=false;
+						dulField="";
 						try {
-							fields2[i].set(subObj2, rs.getObject(subUseTable[1]+"."+_toColumnName(fields2[i].getName())));
+							columnName=_toColumnName(fields2[i].getName());
+							if(isOracle()){
+								dulField=dulSubFieldMap.get(subUseTable[1]+"."+columnName);
+								if(dulField!=null){
+									fields2[i].set(subObj2, rs.getObject(dulField));	
+									isDul=true;
+								}else{
+									fields2[i].set(subObj2, rs.getObject(columnName));
+								}
+							} else {
+								fields2[i].set(subObj2, rs.getObject(subUseTable[1] + "." + columnName));
+							}
 						} catch (IllegalArgumentException e) {
-							fields2[i].set(subObj2,_getObjectForMoreTable(rs,subUseTable[1],fields2[i]));
+							if(isOracle()){
+								fields2[i].set(subObj2,_getObjectForMoreTable_oracle(rs,fields2[i],isDul,dulField));
+							}else{
+								fields2[i].set(subObj2,_getObjectForMoreTable(rs,subUseTable[1],fields2[i]));
+							}
 						}catch (SQLException e) {// for after use condition selectField method
 							fields2[i].set(subObj2,null);
 						}
@@ -735,6 +780,9 @@ public class SqlLib implements BeeSql {
 					}
 					field[i].setAccessible(true);
 					try {
+						if(isOracle()){
+							field[i].set(targetObj, rs.getObject(_toColumnName(field[i].getName())));	
+						}else
 						field[i].set(targetObj, rs.getObject(tableName+"."+_toColumnName(field[i].getName())));
 					} catch (IllegalArgumentException e) {
 						field[i].set(targetObj,_getObjectForMoreTable(rs,tableName,field[i]));
@@ -762,7 +810,7 @@ public class SqlLib implements BeeSql {
 		entity = null;
 		targetObj = null;
 		
-		Logger.logSQL(" | <--  select rows: ", rsList.size()+"");
+		Logger.logSQL("| <--  select rows: ", rsList.size()+"");
 
 		return rsList;
 	}
@@ -785,8 +833,20 @@ public class SqlLib implements BeeSql {
 		return HoneyUtil.getResultObject(rs, field.getType().getName(), _toColumnName(field.getName()));
 	}
 	
-	private Object _getObjectForMoreTable(ResultSet rs, String tableName,Field field) throws SQLException{
-		return HoneyUtil.getResultObject(rs, field.getType().getName(), tableName+"."+ _toColumnName(field.getName()));
+	private Object _getObjectForMoreTable(ResultSet rs, String tableName, Field field) throws SQLException {
+		if (isOracle()) {
+			return HoneyUtil.getResultObject(rs, field.getType().getName(), _toColumnName(field.getName()));
+		} else {
+			return HoneyUtil.getResultObject(rs, field.getType().getName(), tableName + "." + _toColumnName(field.getName()));
+		}
+	}
+	
+	//oracle
+	private Object _getObjectForMoreTable_oracle(ResultSet rs, Field field, boolean isDul, String otherName) throws SQLException {
+
+		if (isDul) return HoneyUtil.getResultObject(rs, field.getType().getName(), otherName);
+
+		return HoneyUtil.getResultObject(rs, field.getType().getName(), _toColumnName(field.getName()));
 	}
 	
 	private Object _getObjectByindex(ResultSet rs,Field field, int index) throws SQLException{
@@ -839,5 +899,8 @@ public class SqlLib implements BeeSql {
 		if (!enableMultiDs) return;
 		HoneyContext.initRoute(suidType, clazz, sql);
 	}
-
+	
+	private boolean isOracle(){
+		return HoneyUtil.isOracle();
+	}
 }
