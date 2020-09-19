@@ -20,13 +20,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.teasoft.bee.osql.DatabaseConst;
 import org.teasoft.bee.osql.annotation.JoinTable;
 import org.teasoft.bee.osql.annotation.JoinType;
 import org.teasoft.bee.osql.exception.BeeErrorFieldException;
 import org.teasoft.bee.osql.exception.BeeIllegalEntityException;
 import org.teasoft.bee.osql.exception.JoinTableException;
 import org.teasoft.bee.osql.exception.JoinTableParameterException;
-import org.teasoft.honey.osql.constant.DatabaseConst;
 import org.teasoft.honey.osql.constant.NullEmpty;
 import org.teasoft.honey.osql.name.NameUtil;
 import org.teasoft.honey.osql.util.PropertiesReader;
@@ -272,14 +272,21 @@ public final class HoneyUtil {
 			}
 			subFieldName=NameTranslateHandle.toColumnName(field[i].getName());
 			
-			if(!mainFieldSet.add(subFieldName) && isOracle()){
-				dulMap.put(tableName+"."+subFieldName, tableName+"_"+subFieldName+"_$");   //TODO
+			if(!mainFieldSet.add(subFieldName) && isConfuseDuplicateField()){
 				
+				if (isSQLite()) {
+					dulMap.put(tableName + "." + subFieldName, tableName + "." + subFieldName); 
+				} else {
+					dulMap.put(tableName + "." + subFieldName, tableName + "_" + subFieldName + "_$"); 
+				}
 				columns.append(tableName);
 				columns.append(".");
 				columns.append(subFieldName);
-				
-				columns.append("  "+tableName+"_"+subFieldName+"_$");
+				if (isSQLite()) {
+					columns.append("  as '" + tableName + "." + subFieldName+"'");
+				} else {
+					columns.append("  " + tableName + "_" + subFieldName + "_$");
+				}
 			}else{
 				columns.append(tableName);
 				columns.append(".");
@@ -348,15 +355,12 @@ public final class HoneyUtil {
 		//pst.setByte(i+1,(Byte)value); break;设置查询没问题,结果也能返回,用rs.getObject拿结果时才报错
 		jdbcTypeMap.put("TINYINT", "Byte");
 		jdbcTypeMap.put("SMALLINT", "Short");
-		//		jdbcTypeMap.put("TINYINT", "Integer");
-		//		jdbcTypeMap.put("SMALLINT", "Integer");
 
 		jdbcTypeMap.put("INT", "Integer");
 		jdbcTypeMap.put("INTEGER", "Integer");
 
 		jdbcTypeMap.put("BIGINT", "Long");
 		jdbcTypeMap.put("REAL", "Float");
-		//		jdbcTypeMap.put("FLOAT", "Double");
 		jdbcTypeMap.put("FLOAT", "Float"); //notice: mysql在创表时,要指定float的小数位数,否则查询时不能用=精确查询
 		jdbcTypeMap.put("DOUBLE", "Double");
 
@@ -382,6 +386,7 @@ public final class HoneyUtil {
 		jdbcTypeMap.put("TIMESTAMP WITH LOCAL TIME ZONE", "Timestamp");//test in oralce 11g
 
 		String dbName = HoneyConfig.getHoneyConfig().getDbName();
+		System.out.println(dbName);
 
 		if (DatabaseConst.MYSQL.equalsIgnoreCase(dbName) || DatabaseConst.MariaDB.equalsIgnoreCase(dbName)) {
 			jdbcTypeMap.put("MEDIUMINT", "Integer");
@@ -400,8 +405,8 @@ public final class HoneyUtil {
 			jdbcTypeMap.put("INT UNSIGNED", "Long");
 			jdbcTypeMap.put("BIGINT UNSIGNED", "BigInteger");
 		} else if (DatabaseConst.ORACLE.equalsIgnoreCase(dbName)) {
-			//			https://docs.oracle.com/cd/B12037_01/java.101/b10983/datamap.htm
-			//			https://docs.oracle.com/cd/B19306_01/java.102/b14188/datamap.htm
+//			https://docs.oracle.com/cd/B12037_01/java.101/b10983/datamap.htm
+//			https://docs.oracle.com/cd/B19306_01/java.102/b14188/datamap.htm
 			jdbcTypeMap.put("LONG", "String");
 			jdbcTypeMap.put("VARCHAR2", "String");
 			jdbcTypeMap.put("NVARCHAR2", "String");
@@ -420,6 +425,49 @@ public final class HoneyUtil {
 //			jdbcTypeMap.put("TIME","java.sql.Time");  exist in comm
 //			 DATETIMEOFFSET // SQL Server 2008  microsoft.sql.DateTimeOffset
 			jdbcTypeMap.put("DATETIMEOFFSET", "microsoft.sql.DateTimeOffset");
+
+		} else if (DatabaseConst.H2.equalsIgnoreCase(dbName) 
+			    || DatabaseConst.SQLite.equalsIgnoreCase(dbName)) {
+			jdbcTypeMap.put("MEDIUMINT", "Integer");
+			jdbcTypeMap.put("INT4", "Integer");
+			jdbcTypeMap.put("INT2", "Short");
+			jdbcTypeMap.put("INT8", "Long");
+			
+			jdbcTypeMap.put("NUMBER", "BigDecimal");
+			jdbcTypeMap.put("NUMERIC", "BigDecimal");
+
+			jdbcTypeMap.put("BOOLEAN", "Boolean");
+			jdbcTypeMap.put("BOOL", "Boolean");
+			jdbcTypeMap.put("BIT", "Boolean");
+
+			jdbcTypeMap.put("FLOAT8", "Double");
+			jdbcTypeMap.put("FLOAT4 ", "Float");
+
+			jdbcTypeMap.put("CHARACTER", "String");
+			jdbcTypeMap.put("VARYING", "String");
+			jdbcTypeMap.put("VARCHAR2", "String");
+			jdbcTypeMap.put("NVARCHAR2", "String");
+			jdbcTypeMap.put("VARCHAR_IGNORECASE", "String");
+		} 
+		
+//		else if (DatabaseConst.H2.equalsIgnoreCase(dbName)) {  // can not use elseif again.
+		if (DatabaseConst.H2.equalsIgnoreCase(dbName)) {
+			
+			//	/h2/docs/html/datatypes.html#real_type
+			jdbcTypeMap.put("SIGNED", "Integer");
+			jdbcTypeMap.put("DEC", "BigDecimal");
+			jdbcTypeMap.put("YEAR", "Byte");
+			jdbcTypeMap.put("BINARY VARYING", "byte[]");
+			jdbcTypeMap.put("WITHOUT TIME ZONE", "Time");
+		}else if (DatabaseConst.SQLite.equalsIgnoreCase(dbName)) {
+			
+			jdbcTypeMap.put("VARYING CHARACTER", "String");
+			jdbcTypeMap.put("NATIVE CHARACTER", "String");
+			jdbcTypeMap.put("TEXT", "String");
+			jdbcTypeMap.put("DOUBLE PRECISION", "Double");
+			
+			jdbcTypeMap.put("DATETIME", "String");
+			jdbcTypeMap.put("INTEGER", "Long");  // INTEGER  PRIMARY key
 		}
 
 	}
@@ -764,7 +812,7 @@ public final class HoneyUtil {
 		Object value=null;
 		for (int j = 0; j < size; j++) {
 			value=list.get(j).getValue();
-			if(value instanceof Number){
+			if(value==null || value instanceof Number){  //v1.8.6    Null no need ' and '
 				sql=sql.replaceFirst("\\?", String.valueOf(value));
 			}else{
 				sql=sql.replaceFirst("\\?", "'"+String.valueOf(value)+"'");
@@ -817,10 +865,12 @@ public final class HoneyUtil {
 //			}
 			
 //			if (!columnsdNames.contains(colName)) {
-			if(!(columnsdNames.contains(","+colName+",") || columnsdNames.startsWith(colName+",") 
+			if(!(  
+			     columnsdNames.contains(","+colName+",") || columnsdNames.startsWith(colName+",") 
 			  || columnsdNames.endsWith(","+colName) ||  columnsdNames.equals(colName) 
-				
-				|| columnsdNames.contains("."+colName+",")  || columnsdNames.endsWith("."+colName)
+			  || columnsdNames.contains("."+colName+",")  || columnsdNames.endsWith("."+colName)
+			  || columnsdNames.contains(","+colName+" ") || columnsdNames.startsWith(colName+" ")  //取别名
+			  || columnsdNames.contains("."+colName+" ") //取别名
 			  )  ){
 				if (isFirstError) {
 					errorField += s;
@@ -891,7 +941,15 @@ public final class HoneyUtil {
 			   || DatabaseConst.MariaDB.equalsIgnoreCase(HoneyConfig.getHoneyConfig().getDbName());
 	}
 	
-	public static boolean isOracle(){
-		return DatabaseConst.ORACLE.equalsIgnoreCase(HoneyConfig.getHoneyConfig().getDbName());
+	//oracle,SQLite
+	public static boolean isConfuseDuplicateField(){
+		
+		return DatabaseConst.ORACLE.equalsIgnoreCase(HoneyConfig.getHoneyConfig().getDbName())
+			|| DatabaseConst.SQLite.equalsIgnoreCase(HoneyConfig.getHoneyConfig().getDbName())
+				;
+	}
+	
+	public static boolean  isSQLite(){
+		return DatabaseConst.SQLite.equalsIgnoreCase(HoneyConfig.getHoneyConfig().getDbName());
 	}
 }

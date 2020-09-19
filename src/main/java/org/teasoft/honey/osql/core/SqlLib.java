@@ -702,11 +702,11 @@ public class SqlLib implements BeeSql {
 					dulField="";
 					try {
 						String columnName=_toColumnName(fields1[i].getName());
-						if(isOracle()){
+						if(isConfuseDuplicateField()){
 							dulField=dulSubFieldMap.get(subUseTable[0]+"."+columnName);
 							if(dulField!=null){
+								isDul=true;  //fixed bug.  need set true before fields1[i].set(  )
 								fields1[i].set(subObj1, rs.getObject(dulField));
-								isDul=true;
 							}else{
 							   fields1[i].set(subObj1, rs.getObject(columnName));
 							}
@@ -714,15 +714,15 @@ public class SqlLib implements BeeSql {
 						    fields1[i].set(subObj1, rs.getObject(subUseTable[0]+"."+columnName));
 						}
 					} catch (IllegalArgumentException e) {
-						if(isOracle()){
-							fields1[i].set(subObj1,_getObjectForMoreTable_oracle(rs,fields1[i],isDul,dulField));
+//						e.printStackTrace();
+						if(isConfuseDuplicateField()){
+							fields1[i].set(subObj1,_getObjectForMoreTable_ConfuseField(rs,fields1[i],isDul,dulField));
 						}else{
 						    fields1[i].set(subObj1,_getObjectForMoreTable(rs,subUseTable[0],fields1[i]));
 						}
 					}catch (SQLException e) {// for after use condition selectField method
 						fields1[i].set(subObj1,null);
 					}
-					
 				}
 				
 				//从表2设置(如果有)
@@ -742,11 +742,11 @@ public class SqlLib implements BeeSql {
 						dulField="";
 						try {
 							columnName=_toColumnName(fields2[i].getName());
-							if(isOracle()){
+							if(isConfuseDuplicateField()){
 								dulField=dulSubFieldMap.get(subUseTable[1]+"."+columnName);
 								if(dulField!=null){
+									isDul=true;  //set true first
 									fields2[i].set(subObj2, rs.getObject(dulField));	
-									isDul=true;
 								}else{
 									fields2[i].set(subObj2, rs.getObject(columnName));
 								}
@@ -754,8 +754,8 @@ public class SqlLib implements BeeSql {
 								fields2[i].set(subObj2, rs.getObject(subUseTable[1] + "." + columnName));
 							}
 						} catch (IllegalArgumentException e) {
-							if(isOracle()){
-								fields2[i].set(subObj2,_getObjectForMoreTable_oracle(rs,fields2[i],isDul,dulField));
+							if(isConfuseDuplicateField()){
+								fields2[i].set(subObj2,_getObjectForMoreTable_ConfuseField(rs,fields2[i],isDul,dulField));  //TODO
 							}else{
 								fields2[i].set(subObj2,_getObjectForMoreTable(rs,subUseTable[1],fields2[i]));
 							}
@@ -780,7 +780,7 @@ public class SqlLib implements BeeSql {
 					}
 					field[i].setAccessible(true);
 					try {
-						if(isOracle()){
+						if(isConfuseDuplicateField()){
 							field[i].set(targetObj, rs.getObject(_toColumnName(field[i].getName())));	
 						}else
 						field[i].set(targetObj, rs.getObject(tableName+"."+_toColumnName(field[i].getName())));
@@ -834,15 +834,15 @@ public class SqlLib implements BeeSql {
 	}
 	
 	private Object _getObjectForMoreTable(ResultSet rs, String tableName, Field field) throws SQLException {
-		if (isOracle()) {
+		if (isConfuseDuplicateField()) {
 			return HoneyUtil.getResultObject(rs, field.getType().getName(), _toColumnName(field.getName()));
 		} else {
 			return HoneyUtil.getResultObject(rs, field.getType().getName(), tableName + "." + _toColumnName(field.getName()));
 		}
 	}
 	
-	//oracle
-	private Object _getObjectForMoreTable_oracle(ResultSet rs, Field field, boolean isDul, String otherName) throws SQLException {
+	//oracle,SQLite
+	private Object _getObjectForMoreTable_ConfuseField(ResultSet rs, Field field, boolean isDul, String otherName) throws SQLException {
 
 		if (isDul) return HoneyUtil.getResultObject(rs, field.getType().getName(), otherName);
 
@@ -900,7 +900,9 @@ public class SqlLib implements BeeSql {
 		HoneyContext.initRoute(suidType, clazz, sql);
 	}
 	
-	private boolean isOracle(){
-		return HoneyUtil.isOracle();
+	//Oracle,SQLite
+	private boolean isConfuseDuplicateField(){
+		return HoneyUtil.isConfuseDuplicateField();
 	}
+	
 }

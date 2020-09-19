@@ -43,6 +43,7 @@ public final class SessionFactory {
 				conn = getOriginalConn();
 			}
 		} catch (SQLException e) {
+//			e.printStackTrace();
 			throw ExceptionHelper.convert(e);
 		} catch (ClassNotFoundException e) {
 			Logger.error("Can not find the Database driver!  " + e.getMessage());
@@ -58,7 +59,13 @@ public final class SessionFactory {
 	public static Transaction getTransaction() {
 		Transaction tran = null;
 		if (getBeeFactory().getTransaction() == null) { // do not set the dataSource
-			tran = new JdbcTransaction();
+			tran = new JdbcTransaction();  //TODO  put into context
+//			tran=HoneyContext.getCurrentTransaction();
+//			if(tran==null){
+//				tran = new JdbcTransaction();
+//				HoneyContext.setCurrentTransaction(tran);
+//			}
+			
 		} else {
 			tran = getBeeFactory().getTransaction();
 		}
@@ -80,12 +87,16 @@ public final class SessionFactory {
 		if (password == null) nullInfo += DbConfigConst.DB_PASSWORD + " do not config; ";
 
 		if (!"".equals(nullInfo)) {
-			throw new NoConfigException("NoConfigException,Do not set the database info: " + nullInfo);
+//			throw new NoConfigException("NoConfigException,Do not set the database info: " + nullInfo);
+			Logger.warn("NoConfigException,Do not set the database info: " + nullInfo); 
 		}
-
 		Connection conn = null;
-		Class.forName(driverName);
-		conn = DriverManager.getConnection(url, username, password);
+		if (driverName != null && !"".equals(driverName.trim())) Class.forName(driverName);  //some db,no need set the driverName //v1.8.6
+
+		if (username != null && !"".equals(username.trim()) && password != null)
+			conn = DriverManager.getConnection(url, username, password);
+		else
+			conn = DriverManager.getConnection(url);  //v1.8.6
 
 		return conn;
 	}

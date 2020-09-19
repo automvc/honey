@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.teasoft.bee.osql.BeeException;
-import org.teasoft.honey.osql.constant.DatabaseConst;
+import org.teasoft.bee.osql.DatabaseConst;
 import org.teasoft.honey.osql.core.ExceptionHelper;
 import org.teasoft.honey.osql.core.HoneyUtil;
 import org.teasoft.honey.osql.core.Logger;
@@ -345,8 +345,10 @@ public class GenBean {
 		rs.close();
 		ps.close();
 		
-		//set comment
-		initComment(table, con);
+		if (config.isGenComment()) { //v1.8.6
+			//set comment
+			initComment(table, con);
+		}
 		return table;
 	}
 	

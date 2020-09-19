@@ -3,6 +3,7 @@ package org.teasoft.honey.osql.core;
 import org.teasoft.bee.osql.BeeSql;
 import org.teasoft.bee.osql.Cache;
 import org.teasoft.bee.osql.CallableSql;
+import org.teasoft.bee.osql.DatabaseConst;
 import org.teasoft.bee.osql.MoreObjToSQL;
 import org.teasoft.bee.osql.MoreTable;
 import org.teasoft.bee.osql.NameTranslate;
@@ -13,7 +14,7 @@ import org.teasoft.bee.osql.Suid;
 import org.teasoft.bee.osql.SuidRich;
 import org.teasoft.bee.osql.dialect.DbFeature;
 import org.teasoft.bee.osql.exception.NoConfigException;
-import org.teasoft.honey.osql.constant.DatabaseConst;
+import org.teasoft.honey.osql.dialect.LimitOffsetPaging;
 import org.teasoft.honey.osql.dialect.mysql.MySqlFeature;
 import org.teasoft.honey.osql.dialect.oracle.OracleFeature;
 import org.teasoft.honey.osql.dialect.sqlserver.SqlServerFeature;
@@ -134,9 +135,16 @@ public class HoneyFactory {
 			return new OracleFeature();
 		else if (DatabaseConst.SQLSERVER.equalsIgnoreCase((HoneyContext.getDbDialect())))
 			return new SqlServerFeature();
-		else {
-			throw new NoConfigException("Error: Do not set the database name. ");
+		else if(_isLimitOffsetDB()) return new LimitOffsetPaging(); //v1.8.6 
+		else { //要用setDbFeature(DbFeature dbFeature)设置自定义的实现类
+			throw new NoConfigException("Error: Do not config the DbFeature implements class or do not set the database name. ");  //v1.8.6
 		}
+	}
+	
+	private boolean _isLimitOffsetDB() {
+		return  DatabaseConst.H2.equalsIgnoreCase((HoneyContext.getDbDialect())) 
+				|| DatabaseConst.SQLite.equalsIgnoreCase((HoneyContext.getDbDialect()))
+				|| DatabaseConst.PostgreSQL.equalsIgnoreCase((HoneyContext.getDbDialect()));
 	}
 
 	public DbFeature getDbFeature() {

@@ -32,7 +32,9 @@ public final class HoneyContext {
 	private static ThreadLocal<RouteStruct> currentRoute; 
 	
 
-	private static ThreadLocal<Connection> currentConnection;  //当前事务的
+	private static ThreadLocal<Connection> currentConnection;  //当前事务的Conn
+	
+//	private static ThreadLocal<Transaction> transactionLocal;  
 	
 	private static ConcurrentMap<String,String> entity2table;
 	private static ConcurrentMap<String,String> table2entity=null; //for creat Javabean (just one to one can work well)
@@ -68,6 +70,8 @@ public final class HoneyContext {
 		cacheLocal = new ThreadLocal<>();
 
 		currentConnection = new ThreadLocal<>();
+//		transactionLocal = new ThreadLocal<>();
+		
 		currentRoute = new ThreadLocal<>();
 		
 		entity2table=new ConcurrentHashMap<>();
@@ -234,6 +238,14 @@ public final class HoneyContext {
 	public static void removeCurrentConnection() {
 		currentConnection.remove();
 	}
+	
+//	public static Transaction getCurrentTransaction() {
+//		return transactionLocal.get();
+//	}
+//
+//	public static void setCurrentTransaction(Transaction transaction) {
+//		transactionLocal.set(transaction);
+//	}
 	
 //	static void setRouteInfo(String sqlStr, RouteStruct routeStruct) {
 //		if (routeStruct == null) return;
