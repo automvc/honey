@@ -1,5 +1,7 @@
 package org.teasoft.honey.osql.core;
 
+import java.sql.Connection;
+
 import org.teasoft.bee.osql.annotation.SysValue;
 import org.teasoft.honey.osql.constant.DbConfigConst;
 
@@ -13,6 +15,7 @@ public final class HoneyConfig {
 	static {
 		honeyConfig = new HoneyConfig();
 		honeyConfig.init(); // just run one time
+		checkAndInitDbName(); //v1.8.6
 	}
 
 	private HoneyConfig() {}
@@ -21,9 +24,30 @@ public final class HoneyConfig {
 
 		return honeyConfig;
 	}
+	
+	private static void checkAndInitDbName() {
+		if (honeyConfig.dbName == null) {
+			Connection conn = null;
+			try {
+				conn = SessionFactory.getConnection();
+				if (conn != null) {
+					honeyConfig.dbName = conn.getMetaData().getDatabaseProductName();
+					Logger.info("[Bee] ========= get the dbName from the Connection is :"+honeyConfig.dbName);
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			} finally {
+				try {
+					if (conn != null) conn.close();
+				} catch (Exception e2) {
+					e2.printStackTrace();
+				}
+			}
+		}
+	}
 
 	private void init() {
-		setDbName(BeeProp.getBeeProp("bee.databaseName"));
+//		setDbName(BeeProp.getBeeProp("bee.databaseName"));
 		setDateWithMillisecondInSelectJson(Boolean.parseBoolean(BeeProp.getBeeProp("bee.osql.selectJson.date.withMillisecond")));
 		setTimeWithMillisecondInSelectJson(Boolean.parseBoolean(BeeProp.getBeeProp("bee.osql.selectJson.time.withMillisecond")));
 		setNullToEmptyStringInReturnStringList(Boolean.parseBoolean(BeeProp.getBeeProp("bee.osql.select.returnStringList.nullToEmptyString"))); 
@@ -86,7 +110,8 @@ public final class HoneyConfig {
 	@SysValue("${bee.osql.sqlGenerate.moreTableSelect.2tablesWithJoinOnStyle}")
 	private boolean tablesWithJoinOnStyle;
 	
-	private String dbName;
+	@SysValue("${bee.databaseName}")
+	public String dbName;
 //	private boolean underScoreAndCamelTransform;//closed since v1.7
 	
 	@SysValue("${bee.osql.dbNaming.toLowerCaseBefore}")
@@ -198,9 +223,9 @@ public final class HoneyConfig {
 //		this.batchSize = batchSize;
 //	}
 
-	private void setDbName(String dbName) {
-		this.dbName = dbName;
-	}
+//	private void setDbName(String dbName) {
+//		this.dbName = dbName;
+//	}
 
 //	private void setUnderScoreAndCamelTransform(boolean underScoreAndCamelTransform) {
 //		this.underScoreAndCamelTransform = underScoreAndCamelTransform;
