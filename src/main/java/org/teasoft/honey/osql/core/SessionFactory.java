@@ -18,6 +18,7 @@ import org.teasoft.honey.osql.transaction.JdbcTransaction;
 public final class SessionFactory {
 
 	private static BeeFactory beeFactory = null;
+	private static boolean isFirst=true;
 
 	public static BeeFactory getBeeFactory() {
 		if (beeFactory == null) {
@@ -59,7 +60,7 @@ public final class SessionFactory {
 	public static Transaction getTransaction() {
 		Transaction tran = null;
 		if (getBeeFactory().getTransaction() == null) { // do not set the dataSource
-			tran = new JdbcTransaction();  //TODO  put into context
+			tran = new JdbcTransaction();  //  put into context
 //			tran=HoneyContext.getCurrentTransaction();
 //			if(tran==null){
 //				tran = new JdbcTransaction();
@@ -88,7 +89,10 @@ public final class SessionFactory {
 
 		if (!"".equals(nullInfo)) {
 //			throw new NoConfigException("NoConfigException,Do not set the database info: " + nullInfo);
-			Logger.warn("NoConfigException,Do not set the database info: " + nullInfo); 
+			if(isFirst){
+			  Logger.warn("NoConfigException,Do not set the database info: " + nullInfo); 
+			  isFirst=false;
+			}
 		}
 		Connection conn = null;
 		if (driverName != null && !"".equals(driverName.trim())) Class.forName(driverName);  //some db,no need set the driverName //v1.8.6
