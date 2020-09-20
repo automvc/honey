@@ -37,7 +37,8 @@ public class TransformResultSet {
 					continue;
 				}
 				json.append("\"");
-				json.append(rmeta.getColumnName(i));
+//				json.append(rmeta.getColumnName(i));
+				json.append(rmeta.getColumnName(i).toLowerCase());
 				json.append("\":");
 
 				if (rs.getString(i) != null) {
