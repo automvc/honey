@@ -48,6 +48,7 @@ public class PreparedSqlLib implements PreparedSql {
 		if(size<=0) throw new BeeIllegalParameterException("Parameter 'size' need great than 0!");
 		if(start<0) throw new BeeIllegalParameterException("Parameter 'start' need great equal 0!");
 		
+		regPagePlaceholder();
 		sql = dbFeature.toPageSql(sql, start, size);
 		initPreparedValues(sql, preValues,entity);
 		
@@ -67,6 +68,7 @@ public class PreparedSqlLib implements PreparedSql {
 		if(size<=0) throw new BeeIllegalParameterException("Parameter 'size' need great than 0!");
 		if(start<0) throw new BeeIllegalParameterException("Parameter 'start' need great equal 0!");
 		
+		regPagePlaceholder();
 		String pageSql = dbFeature.toPageSql(sqlStr, start, size);
 		String sql=initPrepareValuesViaMap(pageSql,map,entity);
 		
@@ -87,6 +89,7 @@ public class PreparedSqlLib implements PreparedSql {
 		if(size<=0) throw new BeeIllegalParameterException("Parameter 'size' need great than 0!");
 		if(start<0) throw new BeeIllegalParameterException("Parameter 'start' need great equal 0!");
 
+		regPagePlaceholder();
 		sql = dbFeature.toPageSql(sql, start, size);
 		initPreparedValues(sql, preValues,entity);
 		
@@ -106,6 +109,7 @@ public class PreparedSqlLib implements PreparedSql {
 		if(size<=0) throw new BeeIllegalParameterException("Parameter 'size' need great than 0!");
 		if(start<0) throw new BeeIllegalParameterException("Parameter 'start' need great equal 0!");
 		
+		regPagePlaceholder();
 		String pageSql = dbFeature.toPageSql(sqlStr, start, size);
 		String sql=initPrepareValuesViaMap(pageSql,map,entity);
 		
@@ -140,6 +144,7 @@ public class PreparedSqlLib implements PreparedSql {
 		if(size<=0) throw new BeeIllegalParameterException("Parameter 'size' need great than 0!");
 		if(start<0) throw new BeeIllegalParameterException("Parameter 'start' need great equal 0!");
 		
+		regPagePlaceholder();
 		sql = dbFeature.toPageSql(sql, start, size);
 		initPreparedValues(sql, preValues);
 		
@@ -160,6 +165,7 @@ public class PreparedSqlLib implements PreparedSql {
 		if(size<=0) throw new BeeIllegalParameterException("Parameter 'size' need great than 0!");
 		if(start<0) throw new BeeIllegalParameterException("Parameter 'start' need great equal 0!");
 		
+		regPagePlaceholder();
 		String pageSql = dbFeature.toPageSql(sqlStr, start, size);
 		String sql=initPrepareValuesViaMap(pageSql,map);
 		
@@ -195,6 +201,7 @@ public class PreparedSqlLib implements PreparedSql {
 		if(size<=0) throw new BeeIllegalParameterException("Parameter 'size' need great than 0!");
 		if(start<0) throw new BeeIllegalParameterException("Parameter 'start' need great equal 0!");
 		
+		regPagePlaceholder();
 		sql = dbFeature.toPageSql(sql, start, size);
 		initPreparedValues(sql, preValues);
 		
@@ -214,6 +221,7 @@ public class PreparedSqlLib implements PreparedSql {
 		if(size<=0) throw new BeeIllegalParameterException("Parameter 'size' need great than 0!");
 		if(start<0) throw new BeeIllegalParameterException("Parameter 'start' need great equal 0!");
 		
+		regPagePlaceholder();
 		String pageSql = dbFeature.toPageSql(sqlStr, start, size);
 		String sql=initPrepareValuesViaMap(pageSql,map);
 		
@@ -245,6 +253,9 @@ public class PreparedSqlLib implements PreparedSql {
 			String tableName = _toTableName(entity);
 //			HoneyContext.setPreparedValue(sql, list);  
 //			addInContextForCache(sql, tableName);  //有T才放缓存.
+			
+			//pre page 1, 3
+			HoneyUtil.setPageNum(list);
 			HoneyContext.setContext(sql, list, tableName);
 //		}
 	}
@@ -252,6 +263,8 @@ public class PreparedSqlLib implements PreparedSql {
 	
 	private void initPreparedValues(String sql, Object[] preValues) {
 		List list=_initPreparedValues(sql, preValues);
+		// pre page 不放缓存 5,7
+		HoneyUtil.setPageNum(list);
 		HoneyContext.setPreparedValue(sql, list);  //没有entity,不放缓存.
 	}
 	
@@ -288,19 +301,25 @@ public class PreparedSqlLib implements PreparedSql {
 		parameterMap = mergeMap(parameterMap, entity);
 
 		SqlValueWrap wrap = processSql(sqlStr); //will return null when sql no placeholder like: select * from tableName
+		String reSql;
+		List list =null;
+		String tableName = _toTableName(entity);
+		
 		if (wrap == null) {
-			String tableName = _toTableName(entity);
-//			addInContextForCache(sqlStr, tableName);
-			HoneyContext.setContext(sqlStr, new ArrayList(), tableName);
-			return sqlStr;
+			reSql=sqlStr;
+			list=new ArrayList();
 		} else {
 			String sql = wrap.getSql();
 			String mapKeys = wrap.getValueBuffer().toString(); //wrap.getValueBuffer() is :map's key , get from like: #{name}
-			List list = _initPreparedValues(mapKeys, parameterMap);
-			String tableName = _toTableName(entity);
-			HoneyContext.setContext(sql, list, tableName);
-			return sql;
+			 list = _initPreparedValues(mapKeys, parameterMap);
+			reSql=sql;
 		}
+		
+		HoneyUtil.setPageNum(list);
+		//MAP PAGE 2,4
+		HoneyContext.setContext(reSql, list, tableName);
+		
+		return reSql;
 	}
 	
 	private String initPrepareValuesViaMap(String sqlStr, Map<String, Object> map){
@@ -314,6 +333,8 @@ public class PreparedSqlLib implements PreparedSql {
 		String sql=wrap.getSql();
 		String mapKeys=wrap.getValueBuffer().toString(); //wrap.getValueBuffer() is :map's key , get from like: #{name}
 		List list=_initPreparedValues(mapKeys, map); 
+		//6,8  map,page 不放缓存
+		HoneyUtil.setPageNum(list);
 		HoneyContext.setPreparedValue(sql, list);
 		return sql;
 	}
@@ -369,6 +390,10 @@ public class PreparedSqlLib implements PreparedSql {
 	
 	private static String _toTableName(Object entity){
 		return NameTranslateHandle.toTableName(NameUtil.getClassFullName(entity));
+	}
+	
+	private void regPagePlaceholder(){
+		HoneyUtil.regPagePlaceholder();
 	}
 
 }

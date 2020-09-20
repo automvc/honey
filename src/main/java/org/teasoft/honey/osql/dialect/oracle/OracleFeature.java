@@ -39,11 +39,30 @@ public class OracleFeature implements DbFeature {
 		
 		pageSql.append(sql);
 		
-		if (isStartSize) {
-			pageSql.append(" ) table_ where rownum < " + (start + size) + ") where rn_ >= " + start);
+		if (HoneyUtil.isRegPagePlaceholder()) {
+			if (isStartSize) {
+				pageSql.append(" ) table_ where rownum < ?) where rn_ >= ?");
+				int array[] = new int[2];
+				array[0] = start + size;
+				array[1] = start;
+				HoneyUtil.regPageNumArray(array);
+
+			} else {
+				pageSql.append(" ) where rownum <= ?");
+				int array[] = new int[1];
+				array[0] = size;
+				HoneyUtil.regPageNumArray(array);
+			}
+			
 		} else {
-			pageSql.append(" ) where rownum <= " + size);
+			if (isStartSize) {
+				pageSql.append(" ) table_ where rownum < " + (start + size) + ") where rn_ >= " + start);
+			} else {
+				pageSql.append(" ) where rownum <= " + size);
+			}
 		}
+			 
+			 
 
 		if (isForUpdate) {
 			pageSql.append(" ");

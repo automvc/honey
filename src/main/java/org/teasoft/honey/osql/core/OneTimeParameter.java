@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Kingstar
  * @since  1.8
  */
-class OneTimeParameter {
+ class OneTimeParameter {
 	
 	private static ThreadLocal<Map<String, Object>> local= new ThreadLocal<>();
 

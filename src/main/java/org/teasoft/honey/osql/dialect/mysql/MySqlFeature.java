@@ -21,8 +21,18 @@ public class MySqlFeature implements DbFeature {
 			sql = sql.substring(0, forUpdateIndex - 1);
 			isForUpdate = true;
 		}
+		String limitStament="";
+		if(HoneyUtil.isRegPagePlaceholder()){
+			int array[]=new int[2];
+//			 limitStament = " limit " + start + "," + size;
+			 limitStament = " limit ? , ?";
+			 array[0]=start;
+			 array[1]=size;
+			 HoneyUtil.regPageNumArray(array);
+		}else{
+			 limitStament = " limit " + start + "," + size;
+		}
 		
-		String limitStament = " limit " + start + "," + size;
 		sql += limitStament;
 		
 		if (isForUpdate) {

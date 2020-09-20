@@ -15,6 +15,7 @@ import org.teasoft.bee.osql.SuidRich;
 import org.teasoft.bee.osql.dialect.DbFeature;
 import org.teasoft.bee.osql.exception.NoConfigException;
 import org.teasoft.honey.osql.dialect.LimitOffsetPaging;
+import org.teasoft.honey.osql.dialect.NoPagingSupported;
 import org.teasoft.honey.osql.dialect.mysql.MySqlFeature;
 import org.teasoft.honey.osql.dialect.oracle.OracleFeature;
 import org.teasoft.honey.osql.dialect.sqlserver.SqlServerFeature;
@@ -127,7 +128,7 @@ public class HoneyFactory {
 		this.callableSql = callableSql;
 	}
 
-	private DbFeature getDbDialect() {
+	private DbFeature _getDbDialect() {
 		if (DatabaseConst.MYSQL.equalsIgnoreCase((HoneyContext.getDbDialect()))
 		 || DatabaseConst.MariaDB.equalsIgnoreCase((HoneyContext.getDbDialect()))
 		   )return new MySqlFeature();
@@ -136,8 +137,9 @@ public class HoneyFactory {
 		else if (DatabaseConst.SQLSERVER.equalsIgnoreCase((HoneyContext.getDbDialect())))
 			return new SqlServerFeature();
 		else if(_isLimitOffsetDB()) return new LimitOffsetPaging(); //v1.8.6 
+		else if(HoneyContext.getDbDialect()!=null)return new NoPagingSupported(); //v1.8.6 当没有用到分页功能时,不至于报错.
 		else { //要用setDbFeature(DbFeature dbFeature)设置自定义的实现类
-			throw new NoConfigException("Error: Do not config the DbFeature implements class or do not set the database name. ");  //v1.8.6
+			throw new NoConfigException("Error: Do not set the DbFeature implements class or do not set the database name. ");  //v1.8.6
 		}
 	}
 	
@@ -149,7 +151,7 @@ public class HoneyFactory {
 
 	public DbFeature getDbFeature() {
 		if(dbFeature!=null) return dbFeature;
-		else return getDbDialect();
+		else return _getDbDialect();
 	}
 
 	public void setDbFeature(DbFeature dbFeature) {

@@ -386,7 +386,6 @@ public final class HoneyUtil {
 		jdbcTypeMap.put("TIMESTAMP WITH LOCAL TIME ZONE", "Timestamp");//test in oralce 11g
 
 		String dbName = HoneyConfig.getHoneyConfig().getDbName();
-		System.out.println(dbName);
 
 		if (DatabaseConst.MYSQL.equalsIgnoreCase(dbName) || DatabaseConst.MariaDB.equalsIgnoreCase(dbName)) {
 			jdbcTypeMap.put("MEDIUMINT", "Integer");
@@ -459,6 +458,14 @@ public final class HoneyUtil {
 			jdbcTypeMap.put("YEAR", "Byte");
 			jdbcTypeMap.put("BINARY VARYING", "byte[]");
 			jdbcTypeMap.put("WITHOUT TIME ZONE", "Time");
+			
+			jdbcTypeMap.put("BINARY LARGE OBJECT","Blob");     //java.sql.Blob
+			jdbcTypeMap.put("CHARACTER LARGE OBJECT","Clob");  //java.sql.Clob
+			
+			jdbcTypeMap.put("CHARACTER VARYING","String"); 
+			jdbcTypeMap.put("VARCHAR_CASESENSITIVE","String"); 
+			jdbcTypeMap.put("VARCHAR_IGNORECASE","String"); 
+			
 		}else if (DatabaseConst.SQLite.equalsIgnoreCase(dbName)) {
 			
 			jdbcTypeMap.put("VARYING CHARACTER", "String");
@@ -468,6 +475,8 @@ public final class HoneyUtil {
 			
 			jdbcTypeMap.put("DATETIME", "String");
 			jdbcTypeMap.put("INTEGER", "Long");  // INTEGER  PRIMARY key
+			
+			jdbcTypeMap.put("UNSIGNED BIG INT", "Long");
 		}
 
 	}
@@ -949,7 +958,37 @@ public final class HoneyUtil {
 				;
 	}
 	
-	public static boolean  isSQLite(){
+	public static boolean isSQLite() {
 		return DatabaseConst.SQLite.equalsIgnoreCase(HoneyConfig.getHoneyConfig().getDbName());
+	}
+
+	public static boolean isSqlServer() {
+		return DatabaseConst.SQLSERVER.equalsIgnoreCase(HoneyConfig.getHoneyConfig().getDbName());
+	}
+	
+	public static void setPageNum(List<PreparedValue> list) {
+		int array[] = (int[]) OneTimeParameter.getAttribute("_SYS_Bee_Paing_NumArray");
+		for (int i = 0; array != null && i < array.length; i++) {
+			PreparedValue p = new PreparedValue();
+			p.setType("Integer");
+			p.setValue(array[i]);
+			if (HoneyUtil.isSqlServer()) { //top n
+				list.add(0, p);
+			} else { //default the page num in the last.
+				list.add(p);
+			}
+		}
+	}
+
+	public static boolean isRegPagePlaceholder() {
+		return ("tRue".equals((String) OneTimeParameter.getAttribute("_SYS_Bee_Paing_Placeholder")));
+	}
+
+	public static void regPagePlaceholder() {
+		OneTimeParameter.setAttribute("_SYS_Bee_Paing_Placeholder", "tRue");
+	}
+
+	public static void regPageNumArray(int array[]) {
+		OneTimeParameter.setAttribute("_SYS_Bee_Paing_NumArray", array);
 	}
 }

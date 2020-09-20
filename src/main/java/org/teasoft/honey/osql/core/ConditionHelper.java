@@ -356,15 +356,19 @@ public class ConditionHelper {
 			
 			String sql = "";
 			if (start != null && size != null) {
+				HoneyUtil.regPagePlaceholder();
 				sql = dbFeature.toPageSql(sqlBuffer.toString(), start, size);
 				//			sqlBuffer=new StringBuffer(sql); //new 之后不是原来的sqlBuffer,不能带回去.
 				sqlBuffer.delete(0, sqlBuffer.length());
 				sqlBuffer.append(sql);
+				HoneyUtil.setPageNum(list);
 			} else if (size != null) {
+				HoneyUtil.regPagePlaceholder();
 				sql = dbFeature.toPageSql(sqlBuffer.toString(), size);
 				//			sqlBuffer=new StringBuffer(sql);
 				sqlBuffer.delete(0, sqlBuffer.length());
 				sqlBuffer.append(sql);
+				HoneyUtil.setPageNum(list);
 			}
 		}
 		//>>>>>>>>>>>>>>>>>>>paging end

@@ -733,7 +733,7 @@ final class _ObjectToSQLHelper {
 		}
 
 //		if (showSQL) { //just insert array to this method
-		if (HoneyUtil.isMysql() && !showSQL) {
+		if (HoneyUtil.isMysql() && !showSQL) {  //for mysql insert batch 
              //no need set context
 		} else {
 			HoneyContext.setPreparedValue(sql_i, list);

@@ -213,8 +213,10 @@ public class _MoreObjectToSQLHelper {
 			     ConditionHelper.processCondition(sqlBuffer, list, condition, firstWhere,useSubTableNames);
 			}
 			
-			if(start!=-1 && size!=-1){
+			if(start!=-1 && size!=-1){ //若传参及Condition都有分页,转出来的sql可能语法不对.
+				HoneyUtil.regPagePlaceholder();
 				sql=dbFeature.toPageSql(sqlBuffer.toString(), start, size);
+				HoneyUtil.setPageNum(list);
 			}else{
 				sql=sqlBuffer.toString();
 			}

@@ -40,11 +40,17 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 
 		SqlValueWrap wrap = toSelectSQL_0(entity);
 		String sql = wrap.getSql();
+		regPagePlaceholder();
 		sql = dbFeature.toPageSql(sql, size);
-
+		HoneyUtil.setPageNum(wrap.getList());
+         
 		setContext(sql, wrap.getList(), wrap.getTableNames());
 		Logger.logSQL("select SQL(entity,size): ", sql);
 		return sql;
+	}
+	
+	private void regPagePlaceholder(){
+		HoneyUtil.regPagePlaceholder();
 	}
 
 	@Override
@@ -52,8 +58,9 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 
 		SqlValueWrap wrap = toSelectSQL_0(entity);
 		String sql = wrap.getSql();
+		regPagePlaceholder();
 		sql = dbFeature.toPageSql(sql, start, size);
-
+		HoneyUtil.setPageNum(wrap.getList());
 		setContext(sql, wrap.getList(), wrap.getTableNames());
 
 		Logger.logSQL("select(entity,start,size) SQL: ", sql);
@@ -65,8 +72,9 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 
 		SqlValueWrap wrap = toSelectSQL_0(entity, selectFields);
 		String sql = wrap.getSql();
+		regPagePlaceholder();
 		sql = dbFeature.toPageSql(sql, start, size);
-
+		HoneyUtil.setPageNum(wrap.getList());
 		setContext(sql, wrap.getList(), wrap.getTableNames());
 
 		Logger.logSQL("select(entity,selectFields,start,size) SQL: ", sql);
