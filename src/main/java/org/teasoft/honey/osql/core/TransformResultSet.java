@@ -46,7 +46,11 @@ public class TransformResultSet {
 					if ("String".equals(HoneyUtil.getFieldType(rmeta.getColumnTypeName(i)))) {
 						json.append("\"");
 						//json.append(rs.getString(i));
-						json.append(rs.getString(i).replace("\"", "\\\""));
+						temp=rs.getString(i);
+						temp=temp.replace("\\", "\\\\"); //1
+						temp=temp.replace("\"", "\\\""); //2
+						
+						json.append(temp);
 						json.append("\"");
 					} else if ("Date".equals(HoneyUtil.getFieldType(rmeta.getColumnTypeName(i)))) {
 						if (dateWithMillisecond) {
