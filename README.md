@@ -81,9 +81,9 @@ fixed null bug about:PreparedSql's method select(String sql,Object preValues[]).
 ## [Function Detail](../../../bee/blob/master/Changed_Log.md)  
 [click for:  Function Detail](../../../bee/blob/master/Changed_Log.md)  
 
-## Compare	
+## ORM Compare	
 
-[ORM-Compare](../../../orm-compare)  
+[ORM-Compare (More Detail)](../../../orm-compare)  
 
 Test Evn : Local windows.  
 DB: MySQL (Version 5.6.24).  
