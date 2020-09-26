@@ -24,7 +24,10 @@ public class Logger {
 
 		//=================================start
 		//不能移走,它表示的是调用所在的位置.
-		String callerClass = sun.reflect.Reflection.getCallerClass().getName();
+//		String callerClass = sun.reflect.Reflection.getCallerClass().getName();
+
+        StackTraceElement[] elements = new Throwable().getStackTrace();
+        String  callerClass = elements[1].getClassName();
 		resetLog(callerClass);
 		//=================================end
 
@@ -87,7 +90,10 @@ public class Logger {
 
 		//=================================start
 		//不能移走,它表示的是调用所在的位置.
-		String callerClass = sun.reflect.Reflection.getCallerClass().getName();
+//		String callerClass = sun.reflect.Reflection.getCallerClass().getName();
+		//1.8之后，不建议使用sun.reflect.Reflection 中的内容，所以进行修改
+		StackTraceElement[] elements = new Throwable().getStackTrace();
+		String  callerClass = elements[1].getClassName();
 		resetLog(callerClass);
 		//=================================end
 
@@ -96,7 +102,10 @@ public class Logger {
 
 	public static void info(String msg) {
 
-		String callerClass = sun.reflect.Reflection.getCallerClass().getName();
+//		String callerClass = sun.reflect.Reflection.getCallerClass().getName();
+		//1.8之后，不建议使用sun.reflect.Reflection 中的内容，所以进行修改
+		StackTraceElement[] elements = new Throwable().getStackTrace();
+		String  callerClass = elements[1].getClassName();
 		resetLog(callerClass);
 
 		log.info(msg);
@@ -104,7 +113,10 @@ public class Logger {
 
 	public static void info(Number msg) {
 
-		String callerClass = sun.reflect.Reflection.getCallerClass().getName();
+//		String callerClass = sun.reflect.Reflection.getCallerClass().getName();
+		//1.8之后，不建议使用sun.reflect.Reflection 中的内容，所以进行修改
+		StackTraceElement[] elements = new Throwable().getStackTrace();
+		String  callerClass = elements[1].getClassName();
 		resetLog(callerClass);
 
 		log.info(msg + "");
@@ -112,15 +124,22 @@ public class Logger {
 
 	public static void warn(String msg) {
 
-		String callerClass = sun.reflect.Reflection.getCallerClass().getName();
-		resetLog(callerClass);
+        StackTraceElement[] elements = new Throwable().getStackTrace();
+        String  callerClass = elements[1].getClassName();
+
+        resetLog(callerClass);
+
 
 		log.warn(msg);
 	}
 
 	public static void warn(Number msg) {
 
-		String callerClass = sun.reflect.Reflection.getCallerClass().getName();
+//		String callerClass = sun.reflect.Reflection.getCallerClass().getName();
+
+		//1.8之后，不建议使用sun.reflect.Reflection 中的内容，所以进行修改
+		StackTraceElement[] elements = new Throwable().getStackTrace();
+		String  callerClass = elements[1].getClassName();
 		resetLog(callerClass);
 
 		log.warn(msg + "");
@@ -128,7 +147,11 @@ public class Logger {
 
 	public static void error(String msg) {
 
-		String callerClass = sun.reflect.Reflection.getCallerClass().getName();
+//		String callerClass = sun.reflect.Reflection.getCallerClass().getName();
+
+        StackTraceElement[] elements = new Throwable().getStackTrace();
+        String  callerClass = elements[1].getClassName();
+
 		resetLog(callerClass);
 
 		log.error(msg);
@@ -136,8 +159,12 @@ public class Logger {
 
 	public static void error(Number msg) {
 
-		String callerClass = sun.reflect.Reflection.getCallerClass().getName();
+//		String callerClass = sun.reflect.Reflection.getCallerClass().getName();
+		//1.8之后，不建议使用sun.reflect.Reflection 中的内容，所以进行修改
+		StackTraceElement[] elements = new Throwable().getStackTrace();
+		String  callerClass = elements[1].getClassName();
 		resetLog(callerClass);
+
 
 		log.error(msg + "");
 	}
