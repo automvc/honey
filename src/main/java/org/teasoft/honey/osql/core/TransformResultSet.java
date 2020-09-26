@@ -38,7 +38,7 @@ public class TransformResultSet {
 				}
 				json.append("\"");
 //				json.append(rmeta.getColumnName(i));
-				json.append(rmeta.getColumnName(i).toLowerCase());
+				json.append(_toFieldName(rmeta.getColumnName(i)));
 				json.append("\":");
 
 				if (rs.getString(i) != null) {
@@ -110,6 +110,10 @@ public class TransformResultSet {
 		json.append("]");
 
 		return json;
+	}
+	
+	private static String _toFieldName(String columnName) {
+		return NameTranslateHandle.toFieldName(columnName);
 	}
 
 	public static List<String[]> toStringsList(ResultSet rs) throws SQLException {
