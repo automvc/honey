@@ -184,6 +184,8 @@ public final class HoneyConfig {
 	public boolean useHalfWorkId; 
 	@SysValue("${bee.distribution.PearFlowerId.switchWorkId.timeThreshold}")
 	public long switchWorkIdTimeThreshold=120 ;
+	@SysValue("${bee.distribution.PearFlowerId.randomNum.bound}")
+	public int randomNumBound=2 ; //v1.8.6
 	
 	@SysValue("${bee.distribution.genid.forAllTableLongId}")
 	public boolean genid_forAllTableLongId;

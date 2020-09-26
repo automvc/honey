@@ -6,6 +6,8 @@
 
 package org.teasoft.honey.distribution;
 
+import java.util.Random;
+
 import org.teasoft.bee.distribution.GenId;
 import org.teasoft.bee.distribution.Worker;
 import org.teasoft.honey.osql.core.HoneyConfig;
@@ -26,6 +28,9 @@ import org.teasoft.honey.osql.core.HoneyConfig;
  */
 public class PearFlowerId implements GenId {
 
+	private Random random=new Random();
+	private boolean isBatch=false;
+	
 	private Worker worker;
 
 	private long timestamp; // second 31 bits
@@ -54,6 +59,7 @@ public class PearFlowerId implements GenId {
 	private static boolean useHalfWorkId ;
 	private static long tolerateSecond=10;
 	private static long switchWorkIdTimeThreshold=120;
+	private static int randomNumBound;
 	
 	{
 		boolean t_useHalfWorkId = HoneyConfig.getHoneyConfig().useHalfWorkId;
@@ -63,6 +69,12 @@ public class PearFlowerId implements GenId {
 		useHalfWorkId = t_useHalfWorkId;
 		if (t_tolerateSecond > 0) tolerateSecond = t_tolerateSecond;
 		if (t_switchWorkIdTimeThreshold > 0) switchWorkIdTimeThreshold = t_switchWorkIdTimeThreshold;
+		
+		int t_randomNumBound = HoneyConfig.getHoneyConfig().randomNumBound;
+		if (t_randomNumBound < 1 || t_randomNumBound > 512)
+			randomNumBound = 2;
+		else
+			randomNumBound = t_randomNumBound;
 	}
 
 	public Worker getWorker() {
@@ -95,7 +107,8 @@ public class PearFlowerId implements GenId {
 				segment++;
 			}
 		}
-		r[1]=getNextId();
+		isBatch=true;
+		r[1]=getNextId(); //要去组装一个id
 		
 		return r;
 	}
@@ -163,19 +176,32 @@ public class PearFlowerId implements GenId {
 
 					return getNextId();
 				} else {
-					sequence = 0L;
+//					sequence = 0L;
+					setStartSequence();
 					segment++;
 				}
 			}
 		} else if (timestamp > lastTimestamp) {// 分支3
 			segment = 0L;
-			sequence = 0L;
+//			sequence = 0L;
+			setStartSequence();
 			lastTimestamp = timestamp; // 记录新的一秒重新开始
 		}
 
 //		return ((timestamp - twepoch) << timestampShift) | (workerId << workerIdShift) | (segment << segmentShift) | (sequence);
 		return ((timestamp - twepoch) << timestampShift) | (segment << segmentShift) | (workerId << workerIdShift)  | (sequence);
 
+	}
+	
+	private void setStartSequence() {
+		if (isBatch) {
+			isBatch = false;
+			sequence = 0L;
+		} else if (randomNumBound == 1) {
+			sequence = 0L;
+		} else {
+			sequence = random.nextInt(randomNumBound);
+		}
 	}
 
 	private long currentSecond() {

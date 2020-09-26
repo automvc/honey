@@ -6,6 +6,9 @@
 
 package org.teasoft.honey.logging;
 
+import java.io.File;
+import java.text.SimpleDateFormat;
+
 import org.teasoft.bee.logging.Log;
 import org.teasoft.bee.logging.Path;
 import org.teasoft.honey.osql.core.HoneyConfig;
@@ -186,7 +189,22 @@ public class FileLogger implements Log{
 		appendFile(b.toString());
 	}
 	
-	private void appendFile(String content){
+	private void appendFile(String content) {
+
+		if (Path.getFullPath() == null || "".equals(Path.getFullPath())) { //v1.8.6
+			
+			SimpleDateFormat df=new SimpleDateFormat("yyyy-MM-dd HH.mm.ss.SS");
+			String datetime=df.format(System.currentTimeMillis());
+			
+			String fileSeparator=File.separator;
+			String path=System.getProperty("user.dir") + fileSeparator + "src" + fileSeparator + "main" + fileSeparator
+					+ "resources" + fileSeparator + "log" + fileSeparator + "{datatime}.txt".replace("{datatime}", datetime);
+			System.err.println("[Bee] [WARN] Set the path for FileLogger automatically:  " + path);
+			
+			//set the path and file name of log file
+			Path.setFullPath(path);
+		}
+
 		FileUtil.genAppendFile(Path.getFullPath(), content);
 	}
 	

@@ -18,17 +18,31 @@ public class Logger {
 	private static Log log = null;
 
 	//专门用于Bee框架输出SQL日志.
-	public static void logSQL(String hardStr, String sql) {
+	 static void logSQL(String hardStr, String sql) {
 
 		if (!showSQL) return;
-
+		
 		//=================================start
-		//不能移走,它表示的是调用所在的位置.
-//		String callerClass = sun.reflect.Reflection.getCallerClass().getName();
-
-        StackTraceElement[] elements = new Throwable().getStackTrace();
-        String  callerClass = elements[1].getClassName();
-		resetLog(callerClass);
+		if (LoggerFactory.isNoArgInConstructor()) {
+			resetLog();
+		} else {
+			//不能移走,它表示的是调用所在的位置.
+			String callerClass = "";
+			try {
+				callerClass = sun.reflect.Reflection.getCallerClass().getName();
+			} catch (InternalError e) {
+				try {
+					callerClass = sun.reflect.Reflection.getCallerClass(2).getName();
+				} catch (Throwable t) {
+					try {
+						callerClass = new Throwable().getStackTrace()[1].getClassName();
+					} catch (Exception e2) {
+						callerClass = Logger.class.getName();
+					}
+				}
+			}
+			resetLog(callerClass);
+		}
 		//=================================end
 
 		if (showSQL) {
@@ -89,12 +103,26 @@ public class Logger {
 	public static void debug(String msg) {
 
 		//=================================start
-		//不能移走,它表示的是调用所在的位置.
-//		String callerClass = sun.reflect.Reflection.getCallerClass().getName();
-		//1.8之后，不建议使用sun.reflect.Reflection 中的内容，所以进行修改
-		StackTraceElement[] elements = new Throwable().getStackTrace();
-		String  callerClass = elements[1].getClassName();
-		resetLog(callerClass);
+		if (LoggerFactory.isNoArgInConstructor()) {
+			resetLog();
+		} else {
+			//不能移走,它表示的是调用所在的位置.
+			String callerClass = "";
+			try {
+				callerClass = sun.reflect.Reflection.getCallerClass().getName();
+			} catch (InternalError e) {
+				try {
+					callerClass = sun.reflect.Reflection.getCallerClass(2).getName();
+				} catch (Throwable t) {
+					try {
+						callerClass = new Throwable().getStackTrace()[1].getClassName();
+					} catch (Exception e2) {
+						callerClass = Logger.class.getName();
+					}
+				}
+			}
+			resetLog(callerClass);
+		}
 		//=================================end
 
 		log.debug(msg);
@@ -102,81 +130,176 @@ public class Logger {
 
 	public static void info(String msg) {
 
-//		String callerClass = sun.reflect.Reflection.getCallerClass().getName();
-		//1.8之后，不建议使用sun.reflect.Reflection 中的内容，所以进行修改
-		StackTraceElement[] elements = new Throwable().getStackTrace();
-		String  callerClass = elements[1].getClassName();
-		resetLog(callerClass);
+		//=================================start
+		if (LoggerFactory.isNoArgInConstructor()) {
+			resetLog();
+		} else {
+			//不能移走,它表示的是调用所在的位置.
+			String callerClass = "";
+			try {
+				callerClass = sun.reflect.Reflection.getCallerClass().getName();
+			} catch (InternalError e) {
+				try {
+					callerClass = sun.reflect.Reflection.getCallerClass(2).getName();
+				} catch (Throwable t) {
+					try {
+						callerClass = new Throwable().getStackTrace()[1].getClassName();
+					} catch (Exception e2) {
+						callerClass = Logger.class.getName();
+					}
+				}
+			}
+			resetLog(callerClass);
+		}
+		//=================================end
 
 		log.info(msg);
 	}
 
 	public static void info(Number msg) {
 
-//		String callerClass = sun.reflect.Reflection.getCallerClass().getName();
-		//1.8之后，不建议使用sun.reflect.Reflection 中的内容，所以进行修改
-		StackTraceElement[] elements = new Throwable().getStackTrace();
-		String  callerClass = elements[1].getClassName();
-		resetLog(callerClass);
+		//=================================start
+		if (LoggerFactory.isNoArgInConstructor()) {
+			resetLog();
+		} else {
+			//不能移走,它表示的是调用所在的位置.
+			String callerClass = "";
+			try {
+				callerClass = sun.reflect.Reflection.getCallerClass().getName();
+			} catch (InternalError e) {
+				try {
+					callerClass = sun.reflect.Reflection.getCallerClass(2).getName();
+				} catch (Throwable t) {
+					try {
+						callerClass = new Throwable().getStackTrace()[1].getClassName();
+					} catch (Exception e2) {
+						callerClass = Logger.class.getName();
+					}
+				}
+			}
+			resetLog(callerClass);
+		}
+		//=================================end
 
 		log.info(msg + "");
 	}
 
 	public static void warn(String msg) {
 
-        StackTraceElement[] elements = new Throwable().getStackTrace();
-        String  callerClass = elements[1].getClassName();
-
-        resetLog(callerClass);
-
+		//=================================start
+		if (LoggerFactory.isNoArgInConstructor()) {
+			resetLog();
+		} else {
+			//不能移走,它表示的是调用所在的位置.
+			String callerClass = "";
+			try {
+				callerClass = sun.reflect.Reflection.getCallerClass().getName();
+			} catch (InternalError e) {
+				try {
+					callerClass = sun.reflect.Reflection.getCallerClass(2).getName();
+				} catch (Throwable t) {
+					try {
+						callerClass = new Throwable().getStackTrace()[1].getClassName();
+					} catch (Exception e2) {
+						callerClass = Logger.class.getName();
+					}
+				}
+			}
+			resetLog(callerClass);
+		}
+		//=================================end
 
 		log.warn(msg);
 	}
 
 	public static void warn(Number msg) {
 
-//		String callerClass = sun.reflect.Reflection.getCallerClass().getName();
-
-		//1.8之后，不建议使用sun.reflect.Reflection 中的内容，所以进行修改
-		StackTraceElement[] elements = new Throwable().getStackTrace();
-		String  callerClass = elements[1].getClassName();
-		resetLog(callerClass);
+		//=================================start
+		if (LoggerFactory.isNoArgInConstructor()) {
+			resetLog();
+		} else {
+			//不能移走,它表示的是调用所在的位置.
+			String callerClass = "";
+			try {
+				callerClass = sun.reflect.Reflection.getCallerClass().getName();
+			} catch (InternalError e) {
+				try {
+					callerClass = sun.reflect.Reflection.getCallerClass(2).getName();
+				} catch (Throwable t) {
+					try {
+						callerClass = new Throwable().getStackTrace()[1].getClassName();
+					} catch (Exception e2) {
+						callerClass = Logger.class.getName();
+					}
+				}
+			}
+			resetLog(callerClass);
+		}
+		//=================================end
 
 		log.warn(msg + "");
 	}
 
 	public static void error(String msg) {
 
-//		String callerClass = sun.reflect.Reflection.getCallerClass().getName();
-
-        StackTraceElement[] elements = new Throwable().getStackTrace();
-        String  callerClass = elements[1].getClassName();
-
-		resetLog(callerClass);
+		//=================================start
+		if (LoggerFactory.isNoArgInConstructor()) {
+			resetLog();
+		} else {
+			//不能移走,它表示的是调用所在的位置.
+			String callerClass = "";
+			try {
+				callerClass = sun.reflect.Reflection.getCallerClass().getName();
+			} catch (InternalError e) {
+				try {
+					callerClass = sun.reflect.Reflection.getCallerClass(2).getName();
+				} catch (Throwable t) {
+					try {
+						callerClass = new Throwable().getStackTrace()[1].getClassName();
+					} catch (Exception e2) {
+						callerClass = Logger.class.getName();
+					}
+				}
+			}
+			resetLog(callerClass);
+		}
+		//=================================end
 
 		log.error(msg);
 	}
 
 	public static void error(Number msg) {
 
-//		String callerClass = sun.reflect.Reflection.getCallerClass().getName();
-		//1.8之后，不建议使用sun.reflect.Reflection 中的内容，所以进行修改
-		StackTraceElement[] elements = new Throwable().getStackTrace();
-		String  callerClass = elements[1].getClassName();
-		resetLog(callerClass);
-
+		//=================================start
+		if (LoggerFactory.isNoArgInConstructor()) {
+			resetLog();
+		} else {
+			//不能移走,它表示的是调用所在的位置.
+			String callerClass = "";
+			try {
+				callerClass = sun.reflect.Reflection.getCallerClass().getName();
+			} catch (InternalError e) {
+				try {
+					callerClass = sun.reflect.Reflection.getCallerClass(2).getName();
+				} catch (Throwable t) {
+					try {
+						callerClass = new Throwable().getStackTrace()[1].getClassName();
+					} catch (Exception e2) {
+						callerClass = Logger.class.getName();
+					}
+				}
+			}
+			resetLog(callerClass);
+		}
+		//=================================end
 
 		log.error(msg + "");
 	}
-
-	private static Log _getLog() {
-		Log log = LoggerFactory.getLog();
-		return log;
-	}
-
-	private static Log _getLog(String className) {
-		Log log = LoggerFactory.getLog(className);
-		return log;
+	
+	private static void resetLog() {
+		if (LoggerFactory.isNoArgInConstructor()) {
+			log = _getLog(); //Log4jImpl,Slf4jImpl,SystemLogger,NoLogging,FileLogger 可以不需要参数
+		} 
 	}
 
 	private static void resetLog(String callerClass) {
@@ -190,5 +313,15 @@ public class Logger {
 				log = _getLog(Logger.class.getName());
 			}
 		}
+	}
+	
+	private static Log _getLog() {
+		Log log = LoggerFactory.getLog();
+		return log;
+	}
+
+	private static Log _getLog(String className) {
+		Log log = LoggerFactory.getLog(className);
+		return log;
 	}
 }
