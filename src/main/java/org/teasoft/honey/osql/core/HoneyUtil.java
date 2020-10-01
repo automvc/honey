@@ -328,6 +328,22 @@ public final class HoneyUtil {
 				javaType = jdbcTypeMap.get(tempType.substring(0, i));
 				if (javaType != null) return javaType;
 			}
+			
+			if (javaType == null){
+				javaType =jdbcTypeMap.get(jdbcType.toLowerCase());
+				if (javaType != null) return javaType;
+				
+				if (javaType == null){
+					javaType =jdbcTypeMap.get(jdbcType.toUpperCase());
+					if (javaType != null) return javaType;
+				}
+				
+				if (javaType == null){
+					javaType =jdbcTypeMap.get(jdbcType.toUpperCase());
+					if (javaType != null) return javaType;
+				}
+			}
+			
 			javaType = "[UNKNOWN TYPE]" + jdbcType;
 		}
 
@@ -424,6 +440,69 @@ public final class HoneyUtil {
 //			jdbcTypeMap.put("TIME","java.sql.Time");  exist in comm
 //			 DATETIMEOFFSET // SQL Server 2008  microsoft.sql.DateTimeOffset
 			jdbcTypeMap.put("DATETIMEOFFSET", "microsoft.sql.DateTimeOffset");
+			
+			
+		} else if (DatabaseConst.PostgreSQL.equalsIgnoreCase(dbName)) {	
+
+			jdbcTypeMap.put("bigint","Long");
+			jdbcTypeMap.put("int8","Long");
+			jdbcTypeMap.put("bigserial","Long");
+			jdbcTypeMap.put("serial8","Long");
+
+			jdbcTypeMap.put("integer","Integer");
+			jdbcTypeMap.put("int","Integer");
+			jdbcTypeMap.put("int4","Integer");
+			
+			jdbcTypeMap.put("serial","Integer");
+			jdbcTypeMap.put("serial4","Integer");
+			
+			jdbcTypeMap.put("smallint","Short");
+			jdbcTypeMap.put("int2","Short");
+			jdbcTypeMap.put("smallserial","Short");
+			jdbcTypeMap.put("serial2","Short");
+
+			jdbcTypeMap.put("money", "BigDecimal");
+			jdbcTypeMap.put("numeric", "BigDecimal");
+			jdbcTypeMap.put("decimal", "BigDecimal");
+			
+			jdbcTypeMap.put("bit","String");
+			jdbcTypeMap.put("bit varying","String");
+			jdbcTypeMap.put("varbit","String");
+			jdbcTypeMap.put("character","String");
+			jdbcTypeMap.put("char","String");
+			jdbcTypeMap.put("character varying","String");
+			jdbcTypeMap.put("varchar","String");
+			jdbcTypeMap.put("text","String");
+			jdbcTypeMap.put("bpchar","String");//get from JDBC
+
+			jdbcTypeMap.put("boolean","Boolean");
+			jdbcTypeMap.put("bool","Boolean");
+			
+			jdbcTypeMap.put("double precision","Double"); //prevention
+			jdbcTypeMap.put("float8","Double");
+
+			jdbcTypeMap.put("real","Float");
+			jdbcTypeMap.put("float4","Float");
+
+//			jdbcTypeMap.put("cidr","
+//			jdbcTypeMap.put("inet ","
+//			jdbcTypeMap.put("macaddr","
+//			jdbcTypeMap.put("macaddr8","
+
+			jdbcTypeMap.put("json","String");  //
+//			jdbcTypeMap.put("jsonb","
+
+			jdbcTypeMap.put("bytea","byte[]");  //
+
+			jdbcTypeMap.put("date","Date");
+//			jdbcTypeMap.put("interval","
+			jdbcTypeMap.put("time","Time");
+			jdbcTypeMap.put("timestamp","Timestamp");
+
+			jdbcTypeMap.put("time without time zone","Time");
+			jdbcTypeMap.put("timetz","Time");
+			jdbcTypeMap.put("timestamp without time zone","Timestamp");
+			jdbcTypeMap.put("timestamptz","Timestamp");
 
 		} else if (DatabaseConst.H2.equalsIgnoreCase(dbName) 
 			    || DatabaseConst.SQLite.equalsIgnoreCase(dbName)) {
@@ -443,7 +522,6 @@ public final class HoneyUtil {
 			jdbcTypeMap.put("FLOAT4 ", "Float");
 
 			jdbcTypeMap.put("CHARACTER", "String");
-			jdbcTypeMap.put("VARYING", "String");
 			jdbcTypeMap.put("VARCHAR2", "String");
 			jdbcTypeMap.put("NVARCHAR2", "String");
 			jdbcTypeMap.put("VARCHAR_IGNORECASE", "String");
@@ -477,6 +555,8 @@ public final class HoneyUtil {
 			jdbcTypeMap.put("INTEGER", "Long");  // INTEGER  PRIMARY key
 			
 			jdbcTypeMap.put("UNSIGNED BIG INT", "Long");
+			
+			jdbcTypeMap.put("VARYING", "String");
 		}
 
 	}
@@ -965,6 +1045,14 @@ public final class HoneyUtil {
 	public static boolean isSqlServer() {
 		return DatabaseConst.SQLSERVER.equalsIgnoreCase(HoneyConfig.getHoneyConfig().getDbName());
 	}
+	
+	public static boolean isOracle(){
+		return DatabaseConst.ORACLE.equalsIgnoreCase(HoneyConfig.getHoneyConfig().getDbName());
+	}
+	
+//	static boolean needCountAffectRows(){
+//		return isSQLite() || DatabaseConst.H2.equalsIgnoreCase(HoneyConfig.getHoneyConfig().getDbName());
+//	}
 	
 	public static void setPageNum(List<PreparedValue> list) {
 		int array[] = (int[]) OneTimeParameter.getAttribute("_SYS_Bee_Paing_NumArray");

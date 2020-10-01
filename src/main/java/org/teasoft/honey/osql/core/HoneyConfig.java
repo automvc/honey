@@ -43,6 +43,8 @@ public final class HoneyConfig {
 					e2.printStackTrace();
 				}
 			}
+		}else{
+			Logger.info("[Bee] ========= get the dbName from HoneyConfig is :"+honeyConfig.dbName);
 		}
 	}
 
