@@ -479,12 +479,25 @@ public class SqlLib implements BeeSql {
 				setPreparedValues(pst, index1 + i + index2 + sql);
 			pst.addBatch();
 		}
-		pst.executeBatch();    //oracle will return [-2,-2,...,-2]
-		a=pst.getUpdateCount();//oracle is ok. but mysql will return 1 alway.So mysql use special branch.
+		int array[]=pst.executeBatch();    //oracle will return [-2,-2,...,-2]
+		
+		if(HoneyUtil.isOracle()){
+			a=pst.getUpdateCount();//oracle is ok. but mysql will return 1 alway.So mysql use special branch.
+		}else{
+			a=countFromArray(array);
+		}
 		conn.commit();
 		
 		Logger.logSQL("| <-- index["+ (start) +"~"+(end-1)+ index3+" Affected rows: ", a+"");
 
+		return a;
+	}
+	
+	private int countFromArray(int array[]){
+		int a=0;
+		for (int i=0; i < array.length; i++) {
+			a+=array[i];
+		}
 		return a;
 	}
 	
@@ -582,7 +595,7 @@ public class SqlLib implements BeeSql {
 		int a = 0;
 		String sqlForGetValue=sql+ "  [Batch:"+ (start/batchSize) + index3;
 		setPreparedValues(pst, sqlForGetValue);
-		a = pst.executeUpdate();
+		a = pst.executeUpdate();  // not executeBatch
 		conn.commit();
 		
 		Logger.logSQL("| <-- [Batch:"+ (start/batchSize) + index3+" Affected rows: ", a+"");
