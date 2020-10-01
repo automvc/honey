@@ -345,7 +345,7 @@ public class GenBean {
 		rs.close();
 		ps.close();
 		
-		if (config.isGenComment()) { //v1.8.6
+		if (config.isGenComment()) { //v1.8.15
 			//set comment
 			initComment(table, con);
 		}

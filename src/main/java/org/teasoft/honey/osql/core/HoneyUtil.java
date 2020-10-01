@@ -901,7 +901,7 @@ public final class HoneyUtil {
 		Object value=null;
 		for (int j = 0; j < size; j++) {
 			value=list.get(j).getValue();
-			if(value==null || value instanceof Number){  //v1.8.6    Null no need ' and '
+			if(value==null || value instanceof Number){  //v1.8.15    Null no need ' and '
 				sql=sql.replaceFirst("\\?", String.valueOf(value));
 			}else{
 				sql=sql.replaceFirst("\\?", "'"+String.valueOf(value)+"'");

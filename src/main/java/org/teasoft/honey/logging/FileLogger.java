@@ -191,7 +191,7 @@ public class FileLogger implements Log{
 	
 	private void appendFile(String content) {
 
-		if (Path.getFullPath() == null || "".equals(Path.getFullPath())) { //v1.8.6
+		if (Path.getFullPath() == null || "".equals(Path.getFullPath())) { //v1.8.15
 			
 			SimpleDateFormat df=new SimpleDateFormat("yyyy-MM-dd HH.mm.ss.SS");
 			String datetime=df.format(System.currentTimeMillis());

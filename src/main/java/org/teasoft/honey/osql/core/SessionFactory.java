@@ -95,12 +95,12 @@ public final class SessionFactory {
 			}
 		}
 		Connection conn = null;
-		if (driverName != null && !"".equals(driverName.trim())) Class.forName(driverName);  //some db,no need set the driverName //v1.8.6
+		if (driverName != null && !"".equals(driverName.trim())) Class.forName(driverName);  //some db,no need set the driverName //v1.8.15
 
 		if (username != null && !"".equals(username.trim()) && password != null)
 			conn = DriverManager.getConnection(url, username, password);
 		else
-			conn = DriverManager.getConnection(url);  //v1.8.6
+			conn = DriverManager.getConnection(url);  //v1.8.15
 
 		return conn;
 	}

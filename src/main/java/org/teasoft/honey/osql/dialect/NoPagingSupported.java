@@ -11,7 +11,7 @@ import org.teasoft.bee.osql.exception.NotSupportedException;
 
 /**
  * @author Kingstar
- * @since  1.8.6
+ * @since  1.8.15
  */
 public class NoPagingSupported implements DbFeature {
 

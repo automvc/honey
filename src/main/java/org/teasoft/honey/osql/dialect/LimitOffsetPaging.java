@@ -11,7 +11,7 @@ import org.teasoft.honey.osql.core.HoneyUtil;
 
 /**
  * @author Kingstar
- * @since  1.8.6
+ * @since  1.8.15
  */
 public class LimitOffsetPaging implements DbFeature {
 

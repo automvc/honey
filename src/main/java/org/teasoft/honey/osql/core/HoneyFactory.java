@@ -136,10 +136,10 @@ public class HoneyFactory {
 			return new OracleFeature();
 		else if (DatabaseConst.SQLSERVER.equalsIgnoreCase((HoneyContext.getDbDialect())))
 			return new SqlServerFeature();
-		else if(_isLimitOffsetDB()) return new LimitOffsetPaging(); //v1.8.6 
-		else if(HoneyContext.getDbDialect()!=null)return new NoPagingSupported(); //v1.8.6 当没有用到分页功能时,不至于报错.
+		else if(_isLimitOffsetDB()) return new LimitOffsetPaging(); //v1.8.15 
+		else if(HoneyContext.getDbDialect()!=null)return new NoPagingSupported(); //v1.8.15 当没有用到分页功能时,不至于报错.
 		else { //要用setDbFeature(DbFeature dbFeature)设置自定义的实现类
-			throw new NoConfigException("Error: Do not set the DbFeature implements class or do not set the database name. ");  //v1.8.6
+			throw new NoConfigException("Error: Do not set the DbFeature implements class or do not set the database name. ");  //v1.8.15
 		}
 	}
 	

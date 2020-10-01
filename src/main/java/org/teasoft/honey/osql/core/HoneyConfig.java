@@ -15,7 +15,7 @@ public final class HoneyConfig {
 	static {
 		honeyConfig = new HoneyConfig();
 		honeyConfig.init(); // just run one time
-		checkAndInitDbName(); //v1.8.6
+		checkAndInitDbName(); //v1.8.15
 	}
 
 	private HoneyConfig() {}
@@ -187,7 +187,7 @@ public final class HoneyConfig {
 	@SysValue("${bee.distribution.PearFlowerId.switchWorkId.timeThreshold}")
 	public long switchWorkIdTimeThreshold=120 ;
 	@SysValue("${bee.distribution.PearFlowerId.randomNum.bound}")
-	public int randomNumBound=2 ; //v1.8.6
+	public int randomNumBound=2 ; //v1.8.15
 	
 	@SysValue("${bee.distribution.genid.forAllTableLongId}")
 	public boolean genid_forAllTableLongId;
