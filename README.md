@@ -331,6 +331,8 @@ public class SuidExamEN {
 
 ```
 
+#### [More example/test case](../../../bee-exam/)	
+
 Rapid application development:
 =========	
 **Let Java more quicker programming than php and Rails.**  
