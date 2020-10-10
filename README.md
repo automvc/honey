@@ -287,7 +287,7 @@ public class SuidExamEN {
 		try {
 			Suid suid = BeeFactory.getHoneyFactory().getSuid();
 
-			Orders orders1 = new Orders();
+			Orders orders1 = new Orders();//need gen the Javabean
 			orders1.setId(100001L);
 			orders1.setName("Bee(ORM Framework)");
 
