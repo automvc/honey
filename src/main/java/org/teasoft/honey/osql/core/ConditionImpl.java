@@ -84,7 +84,7 @@ public class ConditionImpl implements Condition {
 	public Condition and() {
 		Expression exp = new Expression();
 		exp.setOpNum(1);
-		exp.value = "and";
+		exp.value = K.and;
 		list.add(exp);
 
 		return this;
@@ -94,7 +94,7 @@ public class ConditionImpl implements Condition {
 	public Condition or() {
 		Expression exp = new Expression();
 		exp.setOpNum(1);
-		exp.value = "or";
+		exp.value = K.or;
 		list.add(exp);
 
 		return this;
@@ -128,7 +128,8 @@ public class ConditionImpl implements Condition {
 		
 		if (isStartGroupBy) {
 			isStartGroupBy = false;
-			exp.value =" group by ";
+//			exp.value =" group by ";
+			exp.value =" "+K.groupBy+" ";
 		} else {
 			//exp.fieldName=","+field; //不能这样写,field需要转换
 			exp.value = COMMA;
@@ -148,9 +149,11 @@ public class ConditionImpl implements Condition {
 		if (isStartHaving) {
 			if(isStartGroupBy) throw new BeeErrorGrammarException("The 'having' must be after 'group by' !");
 			isStartHaving = false;
-			exp.value = " having ";
+//			exp.value = " having ";
+			exp.value = " "+K.having+" ";
 		} else {
-			exp.value = " and ";
+//			exp.value = " and ";
+			exp.value = " "+K.and+" ";
 		}
 				
 		list.add(exp);
@@ -171,9 +174,11 @@ public class ConditionImpl implements Condition {
 		if (isStartHaving) {
 			if(isStartGroupBy) throw new BeeErrorGrammarException("The 'having' must be after 'group by' !");
 			isStartHaving = false;
-			exp.value = " having ";
+//			exp.value = " having ";
+			exp.value = " "+K.having+" ";
 		} else {
-			exp.value = " and ";
+//			exp.value = " and ";
+			exp.value = " "+K.and+" ";
 		}
 				
 		list.add(exp);
@@ -191,7 +196,8 @@ public class ConditionImpl implements Condition {
 
 		if (isStartOrderBy) {
 			isStartOrderBy = false;
-			exp.value = " order by ";
+//			exp.value = " order by ";
+			exp.value = " "+K.orderBy+" ";
 		} else {
 			exp.value = COMMA;
 		}
@@ -211,7 +217,8 @@ public class ConditionImpl implements Condition {
 
 		if (isStartOrderBy) {
 			isStartOrderBy = false;
-			exp.value = " order by ";
+//			exp.value = " order by ";
+			exp.value = " "+K.orderBy+" ";
 		} else {
 			exp.value = COMMA;
 		}
@@ -231,7 +238,8 @@ public class ConditionImpl implements Condition {
 
 		if (isStartOrderBy) {
 			isStartOrderBy = false;
-			exp.value = " order by ";
+//			exp.value = " order by ";
+			exp.value = " "+K.orderBy+" ";
 		} else {
 			exp.value = COMMA;
 		}
@@ -256,28 +264,29 @@ public class ConditionImpl implements Condition {
 	@Override
 	public Condition between(String field, Number low, Number high) {
 		
-		setForBetween(field, low, high, " between ");
+//		setForBetween(field, low, high, " between ");
+		setForBetween(field, low, high, " "+K.between+" ");
 		
 		return this;
 	}
 
 	@Override
 	public Condition notBetween(String field, Number low, Number high) {
-		setForBetween(field, low, high, " not between ");
+		setForBetween(field, low, high, " "+K.notBetween+" ");
 		
 		return this;
 	}
 
 	@Override
 	public Condition between(String field, String low, String high) {
-		setForBetween(field, low, high, " between ");
+		setForBetween(field, low, high, " "+K.between+" ");
 		
 		return this;
 	}
 
 	@Override
 	public Condition notBetween(String field, String low, String high) {
-		setForBetween(field, low, high, " not between ");
+		setForBetween(field, low, high, " "+K.notBetween+" ");
 		
 		return this;
 	}

@@ -154,7 +154,8 @@ public class ConditionHelper {
 				if ( "groupBy".equalsIgnoreCase(opType) || "having".equalsIgnoreCase(opType) || "orderBy".equalsIgnoreCase(opType)) {
 					firstWhere = false;
 				} else {
-					sqlBuffer.append(" where ");
+//					sqlBuffer.append(" where ");
+					sqlBuffer.append(" ").append(K.where).append(" ");
 					firstWhere = false;
 					isNeedAnd = false;
 					isFirstWhere=false; //for return. where过滤条件
@@ -165,7 +166,9 @@ public class ConditionHelper {
 				adjustAnd(sqlBuffer);
 				sqlBuffer.append(_toColumnName(expression.getFieldName(),useSubTableNames));
 				sqlBuffer.append(" ");
-				sqlBuffer.append(expression.getOpType());
+//				sqlBuffer.append(expression.getOpType());
+				if(HoneyUtil.isSqlKeyWordUpper()) sqlBuffer.append(expression.getOpType().toUpperCase());
+				else sqlBuffer.append(expression.getOpType());
 				sqlBuffer.append(" (");
 				sqlBuffer.append("?");
 				String str = expression.getValue().toString();
@@ -195,7 +198,9 @@ public class ConditionHelper {
 				adjustAnd(sqlBuffer);
 
 				sqlBuffer.append(_toColumnName(expression.getFieldName(),useSubTableNames));
-				sqlBuffer.append(expression.getOpType());
+//				sqlBuffer.append(expression.getOpType());
+				if(HoneyUtil.isSqlKeyWordUpper()) sqlBuffer.append(expression.getOpType().toUpperCase());
+				else sqlBuffer.append(expression.getOpType());
 				sqlBuffer.append("?");
 
 //				valueBuffer.append(","); //valueBuffer
@@ -215,7 +220,7 @@ public class ConditionHelper {
 				sqlBuffer.append(_toColumnName(expression.getFieldName(),useSubTableNames));
 				sqlBuffer.append(opType);
 				sqlBuffer.append("?");
-				sqlBuffer.append(" and ");
+				sqlBuffer.append(" "+K.and+" ");
 				sqlBuffer.append("?");
 
 //				valueBuffer.append(","); //valueBuffer
@@ -328,9 +333,10 @@ public class ConditionHelper {
 
 			if (expression.getValue() == null) {
 				if("=".equals(expression.getOpType())){
-					sqlBuffer.append(" is null");
+//					sqlBuffer.append(" is null");
+					sqlBuffer.append(" "+K.isNull);
 				}else{
-					sqlBuffer.append(" is not null");
+					sqlBuffer.append(" "+K.isNotNull);
 				}
 			} else {
 				//				sqlBuffer.append("=");
@@ -380,7 +386,8 @@ public class ConditionHelper {
 			
 			Boolean isForUpdate=conditionImpl.getForUpdate();
 			if(isForUpdate!=null && isForUpdate.booleanValue()){
-				sqlBuffer.append(" for update ");
+//				sqlBuffer.append(" for update ");
+				sqlBuffer.append(" "+K.forUpdate+" ");
 			}
 		}
 		//>>>>>>>>>>>>>>>>>>>for update
@@ -446,7 +453,7 @@ public class ConditionHelper {
 
 	private static void adjustAnd(StringBuffer sqlBuffer) {
 		if (isNeedAnd) {
-			sqlBuffer.append(" and ");
+			sqlBuffer.append(" "+K.and+" ");
 			isNeedAnd = false;
 		}
 	}

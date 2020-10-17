@@ -105,7 +105,8 @@ public class _MoreObjectToSQLHelper {
 				}
 //				sqlBuffer.append(ONE_SPACE);
 //				sqlBuffer.append("join");
-				sqlBuffer.append(moreTableStruct[1].joinType.getType());
+				if(HoneyUtil.isSqlKeyWordUpper())sqlBuffer.append(moreTableStruct[1].joinType.getType().toUpperCase());
+				else                             sqlBuffer.append(moreTableStruct[1].joinType.getType());
 //				sqlBuffer.append(ONE_SPACE);
 				sqlBuffer.append(moreTableStruct[1].tableName);
 				if(moreTableStruct[1].hasSubAlias){//从表定义有别名

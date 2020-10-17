@@ -16,33 +16,36 @@ public class K {
 	
 	private static SqlKeyWord k=BeeFactory.getHoneyFactory().getSqlKeyWord();
 	
-	public static String 
-	select=k.select(),
-	from=k.from(), 
-	where=k.where(),
-	insert=k.insert(),
-	into=k.into(),
-	values=k.values(),
-	and=k.and(),
-	or=k.or(),
-	Null=k.Null(),
-	isNull=k.isNull(),
-	isNotNull=k.isNotNull(),
-	
-	update=k.update(),
-	set=k.set(),
-	delete=k.delete(),
-	orderBy=k.orderBy(),
-	count=k.count(),
-	asc=k.asc(),
-	
-	on=k.on(),
-//	forUpdate=k.forUpdate(),
-	limit=k.limit(),
-	offset=k.offset(),
-	top=k.top(),
-	
-	space=k.space();
-	
+	public static String space=k.space(),
+		       select=k.select(),
+		       from=k.from(), 
+		       where=k.where(),
+		       insert=k.insert(),
+		       into=k.into(),
+		       values=k.values(),
+		       and=k.and(),
+		       or=k.or(),
+		       Null=k.Null(),
+		       isNull=k.isNull(),
+		       isNotNull=k.isNotNull(),
+		       
+		       update=k.update(),
+		       set=k.set(),
+		       delete=k.delete(),
+		       orderBy=k.orderBy(),
+		       count=k.count(),
+		       asc=k.asc(),
+		       on=k.on(),
+		       
+		       limit=k.limit(),
+		       offset=k.offset(),
+		       top=k.top(),
+		       
+		       groupBy=k.groupBy(),
+		       having=k.having(),
+		       between=k.between(),
+		       notBetween=k.notBetween(),
+		       
+		       forUpdate=k.forUpdate();
 
 }
