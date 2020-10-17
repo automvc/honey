@@ -18,7 +18,7 @@
 		<dependency>
 			<groupId>org.teasoft</groupId>
 			<artifactId>bee</artifactId>
-			<version>1.8.15</version>
+			<version>1.8.99-SNAPSHOT</version>
 		</dependency>
 
 	</dependencies>
