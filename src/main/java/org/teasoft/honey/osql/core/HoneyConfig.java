@@ -122,6 +122,9 @@ public final class HoneyConfig {
 	@SysValue("${bee.osql.naming.translate.type}")
 	private int namingTranslateType =1;
 	
+	@SysValue("${bee.osql.sql.keyword.case}")
+	public String sqlKeyWordCase="";
+	
 	@SysValue("${bee.osql.selectJson.ignoreNull}")
 	private boolean ignoreNullInSelectJson=true;
 	@SysValue("${bee.osql.selectJson.timestamp.withMillisecond}")
@@ -151,6 +154,8 @@ public final class HoneyConfig {
 	@SysValue("${bee.osql.cache.nocache}")
 	private boolean nocache;    //v1.7.2
 	
+	@SysValue("${bee.osql.cache.key.useMD5}")
+	boolean cacheKeyUseMD5=true;
 	
 	/////////////////
 //	@SysValue("${bee.osql.select.maxResultSize}")

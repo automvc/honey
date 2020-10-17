@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.teasoft.honey.distribution.ds.Router;
+import org.teasoft.honey.osql.util.MD5;
 
 /**
  * @author Kingstar
@@ -18,10 +19,14 @@ import org.teasoft.honey.distribution.ds.Router;
 public class CacheKey {
 	
 	private static String SEPARATOR=" (@separator#) ";
+	private static boolean cacheKeyUseMD5=HoneyConfig.getHoneyConfig().cacheKeyUseMD5;
 	
 	public static String genKey(String key){
-		
-		return fullSql(key);
+		String str=fullSql(key);
+		if(cacheKeyUseMD5) {//v1.8.99
+			str=MD5.getMd5(str);
+		}
+		return str;
 	}
 	
 	private static String fullSql(String sql) {
@@ -54,7 +59,7 @@ public class CacheKey {
 		strBuf.append(sql);
 		
 		if (value == null || "".equals(value.trim())){
-			
+			// do nothing
 		}else{
 			strBuf.append(SEPARATOR);
 			strBuf.append("[values]: ");

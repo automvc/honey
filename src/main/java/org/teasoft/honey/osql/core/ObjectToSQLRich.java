@@ -30,7 +30,7 @@ import org.teasoft.honey.osql.name.NameUtil;
 public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 
 	private DbFeature dbFeature = BeeFactory.getHoneyFactory().getDbFeature();
-	private static final String ASC = "asc";
+	private static final String ASC = K.asc;
 	
 	private static boolean  showSQL=HoneyConfig.getHoneyConfig().isShowSQL();
 	private int batchSize = HoneyConfig.getHoneyConfig().getBatchSize();
@@ -111,8 +111,8 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		SqlValueWrap wrap=toSelectSQL_0(entity);
 		String sql=wrap.getSql();
 //		sql=sql.replace(";", " "); //close on 2019-04-27
-		sql+="order by "+orderBy+" ;";
-		
+//		sql+="order by "+orderBy+" ;";
+		sql+=K.orderBy+" "+orderBy;
 		setContext(sql, wrap.getList(), wrap.getTableNames());
 		
 		return sql;
@@ -135,8 +135,8 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		SqlValueWrap wrap = toSelectSQL_0(entity);
 		String sql = wrap.getSql();
 //		sql = sql.replace(";", " "); //close on 2019-04-27
-		sql += "order by " + orderBy + " ;";
-
+//		sql += "order by " + orderBy + " ;";
+		sql += K.orderBy+" " + orderBy;
 		setContext(sql, wrap.getList(), wrap.getTableNames());
 
 		return sql;
@@ -184,12 +184,14 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		try {
 			String tableName =_toTableName(entity);
 			String selectAndFun;
-			if ("count".equalsIgnoreCase(funType) && "*".equals(fieldForFun))
+			if ("count".equalsIgnoreCase(funType) && "*".equals(fieldForFun)) {
 //		        selectAndFun = " select " + funType + "(" + fieldForFun + ") from ";  //  count(*)
-				selectAndFun = "select count(*) from ";
-			else
-				selectAndFun = "select " + funType + "(" + _toColumnName(fieldForFun) + ") from ";
-
+//				selectAndFun = "select count(*) from ";
+				selectAndFun = K.select+" "+K.count+"(*) "+K.from+" ";
+			}else {
+//				selectAndFun = "select " + funType + "(" + _toColumnName(fieldForFun) + ") from ";
+				selectAndFun = K.select+" " + funType + "(" + _toColumnName(fieldForFun) + ") "+K.from+" ";
+			}
 			sqlBuffer.append(selectAndFun);
 			sqlBuffer.append(tableName);
 			boolean firstWhere = true;
@@ -215,10 +217,12 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 					}
 
 					if (firstWhere) {
-						sqlBuffer.append(" where ");
+//						sqlBuffer.append(" where ");
+						sqlBuffer.append(" ").append(K.where).append(" ");
 						firstWhere = false;
 					} else {
-						sqlBuffer.append(" and ");
+//						sqlBuffer.append(" and ");
+						sqlBuffer.append(" ").append(K.and).append(" ");
 					}
 					sqlBuffer.append(_toColumnName(fields[i].getName()));
 
@@ -319,7 +323,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			for (int i = 1; i < len; i++) { // i=1
 				String sql_i=index1 + i + index2+sql[0];
 				_ObjectToSQLHelper._toInsertSQL_for_ValueList(sql_i,entity[i], excludeFieldList); // i 默认包含null和空字符串.因为要用统一的sql作批处理
-				//				t_sql = wrap.getSql(); //  每个sql不一定一样,因为设值不一样,有些字段不用转换. 不采用;因为不利于批处理
+//				t_sql = wrap.getSql(); //  每个sql不一定一样,因为设值不一样,有些字段不用转换. 不采用;因为不利于批处理
 			}
 		} catch (IllegalAccessException e) {
 			throw ExceptionHelper.convert(e);
@@ -328,7 +332,6 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		return sql;
 	}
 
-//	@Override
 	private <T> String[] toInsertSQLForMysql(T entity[],int batchSize, String excludeFieldList) {
 		String sql[] = null;  
 		try {
@@ -405,9 +408,11 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		
 		String tableName =_toTableNameByClass(c);
 		
-		sqlBuffer.append("delete from ")
+//		sqlBuffer.append("delete from ")
+		sqlBuffer.append(K.delete).append(" ").append(K.from).append(" ")
 		.append(tableName)
-		.append(" where ")
+//		.append(" where ")
+		.append(" ").append(K.where).append(" ");
 		;
 		
 		wrap.setValueBuffer(sqlBuffer); //sqlBuffer
@@ -496,7 +501,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		if(id==null) return null;
 		
 		StringBuffer sqlBuffer=wrap.getValueBuffer();  //sqlBuffer
-		sqlBuffer.append("id=").append("?");
+		sqlBuffer.append(_id()+"=").append("?");
 
 		List<PreparedValue> list = new ArrayList<>();
 		PreparedValue preparedValue = null;
@@ -517,7 +522,8 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		PreparedValue preparedValue = null;
 		
 		String idArray[]=ids.split(",");
-		String t_ids="id=?";
+//		String t_ids="id=?";
+		String t_ids=_id()+"=?";
 		
 		preparedValue = new PreparedValue();
 //		preparedValue.setType(numType);//id的类型Object
@@ -526,7 +532,8 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		
 		for (int i = 1; i < idArray.length; i++) { //i from 1
 			preparedValue = new PreparedValue();
-			t_ids+=" or id=?";
+//			t_ids+=" or id=?";
+			t_ids+=" "+K.or+" "+_id()+"=?";
 //			preparedValue.setType(numType);//id的类型Object
 			preparedValue.setValue(idArray[i]);
 			list.add(preparedValue);
@@ -552,8 +559,9 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			HoneyContext.addBeanField(packageAndClassName, columnNames);
 		}
 
-		sqlBuffer.append("select " + columnNames + " from ");
-		sqlBuffer.append(tableName).append(" where ");
+//		sqlBuffer.append(K.select+" " + columnNames + " "+K.from+" ");
+		sqlBuffer.append(K.select).append(" ").append(columnNames).append(" ").append(K.from).append(" ");
+		sqlBuffer.append(tableName).append(" ").append(K.where).append(" ");
 
 		wrap.setValueBuffer(sqlBuffer); //sqlBuffer
 		wrap.setTableNames(tableName);
@@ -583,7 +591,8 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 					HoneyContext.addBeanField(packageAndClassName, fieldNames);
 				}
 			}
-			sqlBuffer.append("select " + fieldNames + " from ");
+//			sqlBuffer.append("select " + fieldNames + " from ");
+			sqlBuffer.append(K.select).append(" ").append(fieldNames).append(" ").append(K.from).append(" ");
 			sqlBuffer.append(tableName);
 			boolean firstWhere = true;
 			int len = fields.length;
@@ -597,10 +606,12 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 				}else {
 
 					if (firstWhere) {
-						sqlBuffer.append(" where ");
+//						sqlBuffer.append(" where ");
+						sqlBuffer.append(" ").append(K.where).append(" ");
 						firstWhere = false;
 					} else {
-						sqlBuffer.append(" and ");
+//						sqlBuffer.append(" and ");
+						sqlBuffer.append(" ").append(K.and).append(" ");
 					}
 					sqlBuffer.append(_toColumnName(fields[i].getName()));
 					
@@ -652,6 +663,10 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	
 	private static String _toColumnName(String fieldName){
 		return NameTranslateHandle.toColumnName(fieldName);
+	}
+	
+	private static String _id(){
+		return NameTranslateHandle.toColumnName("id");
 	}
 	
 	private <T> void setInitArrayIdByAuto(T entity[]) {

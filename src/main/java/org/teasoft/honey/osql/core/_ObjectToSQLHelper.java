@@ -20,7 +20,8 @@ import org.teasoft.honey.osql.name.NameUtil;
  */
 final class _ObjectToSQLHelper {
 
-	private final static String INSERT_INTO = "insert into ";
+//	private final static String INSERT_INTO = "insert into ";
+	private final static String INSERT_INTO = K.insert+K.space+K.into+K.space;
 	
 	private static boolean  showSQL=HoneyConfig.getHoneyConfig().isShowSQL();
 
@@ -36,7 +37,8 @@ final class _ObjectToSQLHelper {
 			String tableName = _toTableName(entity);
 			Field fields[] = entity.getClass().getDeclaredFields();
 
-			sqlBuffer.append("select " + fieldNameList + " from "); //need replace
+//			sqlBuffer.append(K.select+" " + fieldNameList + " "+K.from+" "); //need replace
+			sqlBuffer.append(K.select).append(" ").append(fieldNameList).append(" ").append(K.from).append(" ");
 			sqlBuffer.append(tableName);
 			boolean firstWhere = true;
 			int len = fields.length;
@@ -49,10 +51,12 @@ final class _ObjectToSQLHelper {
 					continue;
 				}else {
 					if (firstWhere) {
-						sqlBuffer.append(" where ");
+//						sqlBuffer.append(" where ");
+						sqlBuffer.append(" ").append(K.where).append(" ");
 						firstWhere = false;
 					} else {
-						sqlBuffer.append(" and ");
+//						sqlBuffer.append(" and ");
+						sqlBuffer.append(" ").append(K.and).append(" ");
 					}
 
 					sqlBuffer.append(_toColumnName(fields[i].getName()));
@@ -104,7 +108,8 @@ final class _ObjectToSQLHelper {
 				if (selectField != null) columnNames = selectField;
 			}
 			
-			sqlBuffer.append("select " + columnNames + " from ");
+//			sqlBuffer.append(K.select+" " + columnNames + " "+K.from+" ");
+			sqlBuffer.append(K.select).append(" ").append(columnNames).append(" ").append(K.from).append(" ");
 			sqlBuffer.append(tableName);
 			
 			int len = fields.length;
@@ -123,15 +128,18 @@ final class _ObjectToSQLHelper {
 						continue; //Condition已包含的,不再遍历
 
 					if (firstWhere) {
-						sqlBuffer.append(" where ");
+//						sqlBuffer.append(" where ");
+						sqlBuffer.append(" ").append(K.where).append(" ");
 						firstWhere = false;
 					} else {
-						sqlBuffer.append(" and ");
+//						sqlBuffer.append(" and ");
+						sqlBuffer.append(" ").append(K.and).append(" ");
 					}
 					sqlBuffer.append(_toColumnName(fields[i].getName()));
 					
 					if (fields[i].get(entity) == null) {
-						sqlBuffer.append(" is null");
+//						sqlBuffer.append(" is null");
+						sqlBuffer.append(" ").append(K.isNull);
 					} else {
 						sqlBuffer.append("=");
 						sqlBuffer.append("?");
@@ -304,9 +312,11 @@ final class _ObjectToSQLHelper {
 		
 		try {
 
-			sqlBuffer.append("update ");
+//			sqlBuffer.append("update ");
+			sqlBuffer.append(K.update).append(" ");
 			sqlBuffer.append(tableName);
-			sqlBuffer.append(" set ");
+//			sqlBuffer.append(" set ");
+			sqlBuffer.append(" ").append(K.set).append(" ");
 
 			//v1.7.2
 			if (condition != null) {
@@ -341,7 +351,8 @@ final class _ObjectToSQLHelper {
 					sqlBuffer.append(_toColumnName(fields[i].getName()));
 
 					if (fields[i].get(entity) == null) {
-						sqlBuffer.append(" =null"); //  =
+//						sqlBuffer.append(" =null"); //  =
+						sqlBuffer.append(" =").append(K.Null); //  =
 					} else {
 
 						sqlBuffer.append("=");
@@ -365,15 +376,18 @@ final class _ObjectToSQLHelper {
 							continue; //Condition已包含的,不再遍历
 
 						if (firstWhere) {
-							whereStament.append(" where ");
+//							whereStament.append(" where ");
+							whereStament.append(" ").append(K.where).append(" ");
 							firstWhere = false;
 						} else {
-							whereStament.append(" and ");
+//							whereStament.append(" and ");
+							whereStament.append(" ").append(K.and).append(" ");
 						}
 						whereStament.append(_toColumnName(fields[i].getName()));
 
 						if (fields[i].get(entity) == null) {
-							whereStament.append(" is null");
+//							whereStament.append(" is null");
+							whereStament.append(" ").append(K.isNull);
 						} else {
 
 							whereStament.append("=");
@@ -454,9 +468,11 @@ final class _ObjectToSQLHelper {
 		
 		try{
 		
-		sqlBuffer.append("update ");
+//		sqlBuffer.append("update ");
+		sqlBuffer.append(K.update).append(" ");
 		sqlBuffer.append(tableName);
-		sqlBuffer.append(" set ");
+//		sqlBuffer.append(" set ");
+		sqlBuffer.append(" ").append(K.set).append(" ");
 		
 //		setMultiply,setAdd,是在处理字段前已完成处理的,所以不受指定的where条件的字段(即String whereColumns[])的影响.
 		//v1.7.2
@@ -495,7 +511,8 @@ final class _ObjectToSQLHelper {
 				sqlBuffer.append(_toColumnName(fields[i].getName()));
 
 				if (fields[i].get(entity) == null) {
-					sqlBuffer.append(" =null"); //  =
+//					sqlBuffer.append(" =null"); //  =
+					sqlBuffer.append(" =").append(K.Null); //  =
 				} else {
 
 					sqlBuffer.append("=");
@@ -520,15 +537,18 @@ final class _ObjectToSQLHelper {
 					if (fields[i].get(entity) == null && "id".equalsIgnoreCase(fields[i].getName()))
 						continue; //id=null不作为过滤条件
 					if (firstWhere) {
-						whereStament.append(" where ");
+//						whereStament.append(" where ");
+						whereStament.append(" ").append(K.where).append(" ");
 						firstWhere = false;
 					} else {
-						whereStament.append(" and ");
+//						whereStament.append(" and ");
+						whereStament.append(" ").append(K.and).append(" ");
 					}
 					whereStament.append(_toColumnName(fields[i].getName()));
 
 					if (fields[i].get(entity) == null) {
-						whereStament.append(" is null");
+//						whereStament.append(" is null");
+						whereStament.append(" ").append(K.isNull);
 					} else {
 
 						whereStament.append("=");
@@ -696,7 +716,8 @@ final class _ObjectToSQLHelper {
 		}
 		sqlValue.append(")");
 		
-        sqlBuffer.append(") values");
+//      sqlBuffer.append(") values");
+		sqlBuffer.append(") ").append(K.values);
 		sqlBuffer.append(sqlValue);
 		sql=sqlBuffer.toString();
 		
@@ -757,7 +778,8 @@ final class _ObjectToSQLHelper {
 		try {
 			String tableName = _toTableName(entity);
 
-			sqlBuffer.append("delete from ");
+//			sqlBuffer.append("delete from ");
+			sqlBuffer.append(K.delete).append(" ").append(K.from).append(" ");
 			sqlBuffer.append(tableName);
 
 			Field fields[] = entity.getClass().getDeclaredFields();
@@ -778,15 +800,18 @@ final class _ObjectToSQLHelper {
 						continue; //Condition已包含的,不再遍历
 
 					if (firstWhere) {
-						sqlBuffer.append(" where ");
+//						sqlBuffer.append(" where ");
+						sqlBuffer.append(" ").append(K.where).append(" ");
 						firstWhere = false;
 					} else {
-						sqlBuffer.append(" and ");
+//						sqlBuffer.append(" and ");
+						sqlBuffer.append(" ").append(K.and).append(" ");
 					}
 					sqlBuffer.append(_toColumnName(fields[i].getName()));
 					
 					if (fields[i].get(entity) == null) {
-						sqlBuffer.append(" is null");
+//						sqlBuffer.append(" is null");
+						sqlBuffer.append(" ").append(K.isNull);
 					} else {
 
 						sqlBuffer.append("=");

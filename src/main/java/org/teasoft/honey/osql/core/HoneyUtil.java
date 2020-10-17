@@ -435,12 +435,12 @@ public final class HoneyUtil {
 //			jdbcTypeMap.put("TIMESTAMP", "Timestamp");   exist in comm
 
 		} else if (DatabaseConst.SQLSERVER.equalsIgnoreCase(dbName)) {
-			jdbcTypeMap.put("SMALLINT", "Short");
+//			jdbcTypeMap.put("SMALLINT", "Short");  //comm
 			jdbcTypeMap.put("TINYINT", "Short");
 //			jdbcTypeMap.put("TIME","java.sql.Time");  exist in comm
 //			 DATETIMEOFFSET // SQL Server 2008  microsoft.sql.DateTimeOffset
 			jdbcTypeMap.put("DATETIMEOFFSET", "microsoft.sql.DateTimeOffset");
-			
+			jdbcTypeMap.put("microsoft.sql.Types.DATETIMEOFFSET", "microsoft.sql.DateTimeOffset");
 			
 		} else if (DatabaseConst.PostgreSQL.equalsIgnoreCase(dbName)) {	
 
@@ -1079,4 +1079,13 @@ public final class HoneyUtil {
 	public static void regPageNumArray(int array[]) {
 		OneTimeParameter.setAttribute("_SYS_Bee_Paing_NumArray", array);
 	}
+	
+	public static boolean isSqlKeyWordUpper() {
+		String kwCase = HoneyConfig.getHoneyConfig().sqlKeyWordCase;
+		if ("upper".equalsIgnoreCase(kwCase))
+			return true;
+		else
+			return false;
+	}
+
 }

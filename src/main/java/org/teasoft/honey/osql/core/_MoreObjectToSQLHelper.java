@@ -80,7 +80,8 @@ public class _MoreObjectToSQLHelper {
 //			String tableName = _toTableName(entity);
 			String tableName = moreTableStruct[0].tableName;
 					
-			sqlBuffer.append("select " + columnNames + " from ");
+//			sqlBuffer.append("select " + columnNames + " from ");
+			sqlBuffer.append(K.select).append(" ").append(columnNames).append(" ").append(K.from).append(" ");
 			sqlBuffer.append(tableName);
 			boolean firstWhere = true;
 
@@ -112,7 +113,7 @@ public class _MoreObjectToSQLHelper {
 					sqlBuffer.append(moreTableStruct[1].subAlias);
 				}
 				sqlBuffer.append(ONE_SPACE);
-				sqlBuffer.append("on");
+				sqlBuffer.append(K.on);
 				sqlBuffer.append(ONE_SPACE);
 //				if (moreTableStruct[1].joinExpression != null && !"".equals(moreTableStruct[1].joinExpression)) {
 //					if (firstWhere) {
@@ -140,10 +141,12 @@ public class _MoreObjectToSQLHelper {
 
 					if (moreTableStruct[s].joinExpression != null && !"".equals(moreTableStruct[s].joinExpression)) {
 						if (firstWhere) {
-							sqlBuffer2.append(" where ");
+//							sqlBuffer2.append(" where ");
+							sqlBuffer2.append(" ").append(K.where).append(" ");
 							firstWhere = false;
 						} else {
-							sqlBuffer2.append(" and ");
+//							sqlBuffer2.append(" and ");
+							sqlBuffer2.append(" ").append(K.and).append(" ");
 						}
 						sqlBuffer2.append(moreTableStruct[s].joinExpression);
 					}
@@ -169,17 +172,20 @@ public class _MoreObjectToSQLHelper {
 						continue; //Condition已包含的,不再遍历
 
 					if (firstWhere) {
-						sqlBuffer2.append(" where ");
+//						sqlBuffer2.append(" where ");
+						sqlBuffer2.append(" ").append(K.where).append(" ");
 						firstWhere = false;
 					} else {
-						sqlBuffer2.append(" and ");
+//						sqlBuffer2.append(" and ");
+						sqlBuffer2.append(" ").append(K.and).append(" ");
 					}
 					sqlBuffer2.append(tableName);
 					sqlBuffer2.append(DOT);
 					sqlBuffer2.append(_toColumnName(fields[i].getName()));
 					
 					if (fields[i].get(entity) == null) {
-						sqlBuffer2.append(" is null");
+//						sqlBuffer2.append(" is null");
+						sqlBuffer2.append(" ").append(K.isNull);
 					} else {
 						sqlBuffer2.append("=");
 						sqlBuffer2.append("?");
@@ -271,17 +277,21 @@ public class _MoreObjectToSQLHelper {
 					continue; //Condition已包含的,不再遍历
 
 				if (firstWhere) {
-					sqlBuffer2.append(" where ");
+//					sqlBuffer2.append(" where ");
+					sqlBuffer2.append(" ").append(K.where).append(" ");
 					firstWhere = false;
 				} else {
-					sqlBuffer2.append(" and ");
+//					sqlBuffer2.append(" and ");
+					sqlBuffer2.append(" ").append(K.and).append(" ");
 				}
 				sqlBuffer2.append(useSubTableName);
 				sqlBuffer2.append(DOT);
 				sqlBuffer2.append(_toColumnName(fields[i].getName()));
 				
 				if (fields[i].get(entity) == null) {
-					sqlBuffer2.append(" is null");
+//					sqlBuffer2.append(" is null");
+					sqlBuffer2.append(" ").append(K.isNull);
+					
 				} else {
 					sqlBuffer2.append("=");
 					sqlBuffer2.append("?");
