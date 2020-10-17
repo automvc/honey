@@ -2,6 +2,7 @@ package org.teasoft.honey.osql.dialect.mysql;
 
 import org.teasoft.bee.osql.dialect.DbFeature;
 import org.teasoft.honey.osql.core.HoneyUtil;
+import org.teasoft.honey.osql.core.K;
 
 /**
  * @author Kingstar
@@ -25,12 +26,14 @@ public class MySqlFeature implements DbFeature {
 		if(HoneyUtil.isRegPagePlaceholder()){
 			int array[]=new int[2];
 //			 limitStament = " limit " + start + "," + size;
-			 limitStament = " limit ? , ?";
+//			 limitStament = " limit ? , ?";
+			 limitStament = " "+K.limit+" ? , ?";
 			 array[0]=start;
 			 array[1]=size;
 			 HoneyUtil.regPageNumArray(array);
 		}else{
-			 limitStament = " limit " + start + "," + size;
+//			 limitStament = " limit " + start + "," + size;
+			 limitStament = " "+K.limit+" " + start + "," + size;
 		}
 		
 		sql += limitStament;

@@ -3,6 +3,7 @@ package org.teasoft.honey.osql.dialect.sqlserver;
 import org.teasoft.bee.osql.dialect.DbFeature;
 import org.teasoft.bee.osql.exception.NotSupportedException;
 import org.teasoft.honey.osql.core.HoneyUtil;
+import org.teasoft.honey.osql.core.K;
 
 /**
  * @author Kingstar
@@ -29,9 +30,11 @@ public class SqlServerFeature implements DbFeature {
 			int array[]=new int[1];
 			array[0]=size;
 			HoneyUtil.regPageNumArray(array);
-			sb.insert(insertIndex, " top ?");
+//			sb.insert(insertIndex, " top ?");
+			sb.insert(insertIndex, " "+K.top+" ?");
 		} else {
-			sb.insert(insertIndex, " top " + size);
+//			sb.insert(insertIndex, " top " + size);
+			sb.insert(insertIndex, " "+K.top+" " + size);
 		}
 
 		return sb.toString();

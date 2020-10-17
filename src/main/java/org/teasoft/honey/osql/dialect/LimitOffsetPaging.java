@@ -8,6 +8,7 @@ package org.teasoft.honey.osql.dialect;
 
 import org.teasoft.bee.osql.dialect.DbFeature;
 import org.teasoft.honey.osql.core.HoneyUtil;
+import org.teasoft.honey.osql.core.K;
 
 /**
  * @author Kingstar
@@ -22,9 +23,11 @@ public class LimitOffsetPaging implements DbFeature {
 			array[0] = size;
 			array[1] = offset;
 			HoneyUtil.regPageNumArray(array);
-			return sql + " limit ? offset ?";
+//			return sql + " limit ? offset ?";
+			return sql + " "+K.limit+" ? "+K.offset+" ?";
 		} else {
-			return sql + " limit " + size + " offset " + offset;
+//			return sql + " limit " + size + " offset " + offset;
+			return sql + " "+K.limit+" " + size + " "+K.offset+" " + offset;
 		}
 	}
 
@@ -34,9 +37,10 @@ public class LimitOffsetPaging implements DbFeature {
 			int array[] = new int[1];
 			array[0] = size;
 			HoneyUtil.regPageNumArray(array);
-			return sql + " limit ?";
+//			return sql + " limit ?";
+			return sql + " "+K.limit+" ?";
 		} else {
-			return sql + " limit " + size;
+			return sql + " "+K.limit+" " + size;
 		}
 	}
 
