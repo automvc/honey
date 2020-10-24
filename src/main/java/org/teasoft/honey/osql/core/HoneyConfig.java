@@ -49,17 +49,9 @@ public final class HoneyConfig {
 	}
 
 	private void init() {
-//		setDbName(BeeProp.getBeeProp("bee.databaseName"));
 		setDateWithMillisecondInSelectJson(Boolean.parseBoolean(BeeProp.getBeeProp("bee.osql.selectJson.date.withMillisecond")));
 		setTimeWithMillisecondInSelectJson(Boolean.parseBoolean(BeeProp.getBeeProp("bee.osql.selectJson.time.withMillisecond")));
 		setNullToEmptyStringInReturnStringList(Boolean.parseBoolean(BeeProp.getBeeProp("bee.osql.select.returnStringList.nullToEmptyString"))); 
-		
-		setDriverName(BeeProp.getBeeProp(DbConfigConst.DB_DRIVERNAME));
-		setUrl(BeeProp.getBeeProp(DbConfigConst.DB_URL));
-		setUsername(BeeProp.getBeeProp(DbConfigConst.DB_USERNAM));
-		setPassword(BeeProp.getBeeProp(DbConfigConst.DB_PASSWORD));
-		
-//		setCacheType(BeeProp.getBeeProp("bee.osql.cache.type"));  //暂时只有FIFO
 		
 		String t1 = BeeProp.getBeeProp("bee.osql.cache.map.size"); //缓存集数据量大小
 		if (t1 != null) setCacheMapSize(Integer.parseInt(t1));
@@ -132,10 +124,18 @@ public final class HoneyConfig {
 	private boolean dateWithMillisecondInSelectJson;
 	private boolean timeWithMillisecondInSelectJson;
 	private boolean nullToEmptyStringInReturnStringList;
+	
 
+	@SysValue("${"+DbConfigConst.DB_DRIVERNAME+"}")
 	private String driverName;
+	
+	@SysValue("${"+DbConfigConst.DB_URL+"}")
 	private String url;
+	
+	@SysValue("${"+DbConfigConst.DB_USERNAM+"}")
 	private String username;
+	
+	@SysValue("${"+DbConfigConst.DB_PASSWORD+"}")
 	private String password;
 
 //	@SysValue("${aaa}")
@@ -224,39 +224,19 @@ public final class HoneyConfig {
 	public String matchTable="";  //multiDsType=2
 	
 
-//	private void setShowSQL(boolean showSQL) {
-//		this.showSQL = showSQL;
-//	}
-
-//	private void setBatchSize(int batchSize) {
-//		this.batchSize = batchSize;
-//	}
-
-//	private void setDbName(String dbName) {
-//		this.dbName = dbName;
-//	}
-
-//	private void setUnderScoreAndCamelTransform(boolean underScoreAndCamelTransform) {
-//		this.underScoreAndCamelTransform = underScoreAndCamelTransform;
-//	}
-
-//	private void setDbNamingToLowerCaseBefore(boolean dbNamingToLowerCaseBefore) {
-//		this.dbNamingToLowerCaseBefore = dbNamingToLowerCaseBefore;
-//	}
-
-	private void setDriverName(String driverName) {
+	public void setDriverName(String driverName) {
 		this.driverName = driverName;
 	}
 
-	private void setUrl(String url) {
+	public void setUrl(String url) {
 		this.url = url;
 	}
 
-	private void setUsername(String username) {
+	public void setUsername(String username) {
 		this.username = username;
 	}
-
-	private void setPassword(String password) {
+	
+	public void setPassword(String password) {
 		this.password = password;
 	}
 	
@@ -311,10 +291,6 @@ public final class HoneyConfig {
 	public String getDbName() {
 		return dbName;
 	}
-
-//	public boolean isUnderScoreAndCamelTransform() {
-//		return underScoreAndCamelTransform;
-//	}
 
 	public boolean isDbNamingToLowerCaseBefore() {
 		return dbNamingToLowerCaseBefore;
