@@ -950,6 +950,7 @@ public final class HoneyUtil {
 
 		for (String s : selectFields) {
 			colName=_toColumnName(s);
+			colName=colName.toLowerCase();
 //			if(isMoreTable){  //带有点一样转换
 //			}
 			
