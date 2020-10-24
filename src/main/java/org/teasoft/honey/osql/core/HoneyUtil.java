@@ -44,7 +44,6 @@ public final class HoneyUtil {
 	private static PropertiesReader jdbcTypeCustomProp_specificalDB = null;
 
 	static {
-
 		String proFileName = "/jdbcTypeToFieldType-{DbName}.properties";
 		jdbcTypeCustomProp_specificalDB = new PropertiesReader(proFileName.replace("{DbName}", HoneyConfig.getHoneyConfig().getDbName()));
 

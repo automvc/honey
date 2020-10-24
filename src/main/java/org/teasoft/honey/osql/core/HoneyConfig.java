@@ -15,9 +15,8 @@ public final class HoneyConfig {
 	static {
 		honeyConfig = new HoneyConfig();
 		honeyConfig.init(); // just run one time
-		checkAndInitDbName(); //v1.8.15
 	}
-
+	
 	private HoneyConfig() {}
 
 	public static HoneyConfig getHoneyConfig() {
@@ -25,29 +24,6 @@ public final class HoneyConfig {
 		return honeyConfig;
 	}
 	
-	private static void checkAndInitDbName() {
-		if (honeyConfig.dbName == null) {
-			Connection conn = null;
-			try {
-				conn = SessionFactory.getConnection();
-				if (conn != null) {
-					honeyConfig.dbName = conn.getMetaData().getDatabaseProductName();
-					Logger.info("[Bee] ========= get the dbName from the Connection is :"+honeyConfig.dbName);
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			} finally {
-				try {
-					if (conn != null) conn.close();
-				} catch (Exception e2) {
-					e2.printStackTrace();
-				}
-			}
-		}else{
-			Logger.info("[Bee] ========= get the dbName from HoneyConfig is :"+honeyConfig.dbName);
-		}
-	}
-
 	private void init() {
 		setDateWithMillisecondInSelectJson(Boolean.parseBoolean(BeeProp.getBeeProp("bee.osql.selectJson.date.withMillisecond")));
 		setTimeWithMillisecondInSelectJson(Boolean.parseBoolean(BeeProp.getBeeProp("bee.osql.selectJson.time.withMillisecond")));
@@ -289,6 +265,7 @@ public final class HoneyConfig {
 	}
 
 	public String getDbName() {
+		checkAndInitDbName();
 		return dbName;
 	}
 
@@ -418,5 +395,34 @@ public final class HoneyConfig {
 
 	public boolean isNocache() {
 		return nocache;
+	}
+	
+	private static boolean alreadyPrintDbName=false;
+	
+	private static void checkAndInitDbName() {
+		if (HoneyConfig.getHoneyConfig().dbName == null) {
+			Connection conn = null;
+			try {
+				conn = SessionFactory.getConnection();
+				if (conn != null) {
+					HoneyConfig.getHoneyConfig().dbName = conn.getMetaData().getDatabaseProductName();
+					Logger.info("[Bee] ========= get the dbName from the Connection is :"+HoneyConfig.getHoneyConfig().dbName);
+					alreadyPrintDbName=true;
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			} finally {
+				try {
+					if (conn != null) conn.close();
+				} catch (Exception e2) {
+					e2.printStackTrace();
+				}
+			}
+		} else {
+			if (!alreadyPrintDbName){
+				Logger.info("[Bee] ========= get the dbName from HoneyConfig is :" + HoneyConfig.getHoneyConfig().dbName);
+				alreadyPrintDbName=true;
+			}
+		}
 	}
 }

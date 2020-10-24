@@ -27,7 +27,7 @@ public final class SessionFactory {
 		}
 		return beeFactory;
 	}
-
+	
 	public void setBeeFactory(BeeFactory beeFactory) {
 		this.beeFactory = beeFactory;
 	}
@@ -90,7 +90,7 @@ public final class SessionFactory {
 		if (!"".equals(nullInfo)) {
 //			throw new NoConfigException("NoConfigException,Do not set the database info: " + nullInfo);
 			if(isFirst){
-			  Logger.warn("NoConfigException,Do not set the database info: " + nullInfo); 
+			  Logger.warn("Do not set the database info: " + nullInfo); 
 			  isFirst=false;
 			}
 		}

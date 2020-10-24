@@ -5,8 +5,8 @@ public class GenConfig {
 
 	private String baseDir = "";
 	private String packagePath = "";
-	private String dbName = ""; // 数据库类型 mysql oracle等
-	private String queryTableSql = ""; // 查询所有表名的SQL语句，mysqll,oracle和sql server不用设置
+	private String dbName = ""; // 数据库类型 MySQL, Oracle等
+	private String queryTableSql = ""; // 查询所有表名的SQL语句，MySQL,Oracle和SQL Server不用设置
 	private boolean genToString;
 	private boolean genSerializable;
 	
