@@ -18,6 +18,7 @@ public class K {
 	
 	public static String space=k.space(),
 		       select=k.select(),
+		       as=k.as(),
 		       from=k.from(), 
 		       where=k.where(),
 		       insert=k.insert(),

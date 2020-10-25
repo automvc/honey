@@ -282,7 +282,7 @@ public final class HoneyUtil {
 				columns.append(".");
 				columns.append(subFieldName);
 				if (isSQLite()) {
-					columns.append("  as '" + tableName + "." + subFieldName+"'");
+					columns.append("  "+K.as+" '" + tableName + "." + subFieldName+"'");
 				} else {
 					columns.append("  " + tableName + "_" + subFieldName + "_$");
 				}
