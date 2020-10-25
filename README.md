@@ -8,9 +8,9 @@ Bee
 **You don't need to write the Dao by yourself anymore**.  
 **Good Feature:**  AI, Timesaving/Tasteful, Easy, Automatic (**AiTeaSoft Style**)   
 **Bee** see:  
+https://gitee.com/automvc/bee  
+or:  
 https://github.com/automvc/bee  
-**Honey** see:  
-https://github.com/automvc/honey  
 
 ## [中文介绍](../../../bee/blob/master/README_CN.md)  
 [点击链接可查看中文介绍](../../../bee/blob/master/README_CN.md)  
@@ -234,18 +234,18 @@ Quick Start:
 		<dependency>
 			<groupId>org.teasoft</groupId>
 			<artifactId>bee</artifactId>
-			<version>1.8.15</version>
+			<version>1.8.99</version>
 		</dependency>
 		<dependency>
 			<groupId>org.teasoft</groupId>
 			<artifactId>honey</artifactId>
-			<version>1.8.15</version>
+			<version>1.8.99</version>
 		</dependency>
 		<!--for log framework,web sql -->
 		<dependency>
 			<groupId>org.teasoft</groupId>
 			<artifactId>bee-ext</artifactId>
-			<version>1.8</version>
+			<version>1.8.99</version>
 		</dependency>
 ```
 
