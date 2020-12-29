@@ -11,6 +11,7 @@ import java.util.Random;
 import org.teasoft.bee.distribution.GenId;
 import org.teasoft.bee.distribution.Worker;
 import org.teasoft.honey.osql.core.HoneyConfig;
+import org.teasoft.honey.osql.core.Logger;
 
 /**
  * <p>改进的雪花算法——姑且称为梨花算法(PearFlowerId)吧  （忽如一夜春风来，千树万树梨花开）。
@@ -39,19 +40,19 @@ public class PearFlowerId implements GenId {
 	private long sequence = 0L;  //一般会从分支3 获取初值
 
 	//以下三部分加起来要等于32位.
-	private final long segmentBits = 9L;
-	private final long workerIdBits = 10L;
-	private final long sequenceBits = 13L;
+	private static final long segmentBits = 9L;
+	private static final long workerIdBits = 10L;
+	private static final long sequenceBits = 13L;
 
-	private final long timestampShift = workerIdBits + segmentBits + sequenceBits;
-	private final long segmentShift =   workerIdBits + sequenceBits;
-	private final long workerIdShift =  sequenceBits;
+	private static final long timestampShift = workerIdBits + segmentBits + sequenceBits;
+	private static final long segmentShift =   workerIdBits + sequenceBits;
+	private static final long workerIdShift =  sequenceBits;
 	
-	private final long sequenceMask = ~(-1L << sequenceBits);
-	private final long maxSegment=(1<<segmentBits)-1;
+	private static final long sequenceMask = ~(-1L << sequenceBits);
+	private static final long maxSegment=(1L<<segmentBits)-1L;
 	
-	private final long halfWorkid=1<<(workerIdBits-1);
-	private final long fullWorkid=1<<workerIdBits;
+	private static final long halfWorkid=1<<(workerIdBits-1);
+	private static final long fullWorkid=1<<workerIdBits;
 
 	private long twepoch = 1483200000; // 2017-01-01 (yyyy-MM-dd) ,   单位 unit (s)    
 	private long lastTimestamp = -1L;
@@ -95,7 +96,6 @@ public class PearFlowerId implements GenId {
 	public synchronized long[] getRangeId(int sizeOfIds) {
 		long r[]=new long[2];
 		r[0]=getNextId();
-		
 //		sequence=sequence+sizeOfIds-1;
 		sequence=sequence+sizeOfIds-1-1; //r[0]相当于已获取了第一个元素
 		if ((sequence >> sequenceBits) > 0) { // 超过序列位表示的最大值
@@ -109,7 +109,6 @@ public class PearFlowerId implements GenId {
 		}
 		isBatch=true;
 		r[1]=getNextId(); //要去组装一个id
-		
 		return r;
 	}
 
@@ -117,7 +116,7 @@ public class PearFlowerId implements GenId {
 	 * 返回id,当id<0时,表示异常的id
 	 * @return
 	 */
-	private long getNextId() {
+	private synchronized long getNextId() {
 		timestamp = currentSecond();
 		if (timestamp < lastTimestamp) {//分支1:回拨 
 //			if(tolerateSecond<=0) return -1;  //不允许回拨
@@ -134,7 +133,8 @@ public class PearFlowerId implements GenId {
 							return -1L;
 						}// 否则 走分支2或3
 					} // 否则 走分支2或3
-				} catch (InterruptedException e) {
+				} catch (Exception e) {
+					Logger.warn(e.getMessage());
 					return -2;
 				}
 			} else {// 回拨时，超过容忍的秒数误差
@@ -153,7 +153,8 @@ public class PearFlowerId implements GenId {
 						if (timestamp < lastTimestamp) {
 							return -3L;  //回拨太大
 						}// 否则 走分支2或3
-					} catch (InterruptedException e) {
+					} catch (Exception e) {
+						Logger.warn(e.getMessage());
 						return -2;
 					}
 				}
@@ -170,7 +171,8 @@ public class PearFlowerId implements GenId {
 				if (segment >= maxSegment) { // 已用完，不能再派号
 					try {
 						wait(100);
-					} catch (InterruptedException e) {
+					} catch (Exception e) {
+						Logger.warn(e.getMessage());
 						return -2;
 					}
 
@@ -190,7 +192,6 @@ public class PearFlowerId implements GenId {
 
 //		return ((timestamp - twepoch) << timestampShift) | (workerId << workerIdShift) | (segment << segmentShift) | (sequence);
 		return ((timestamp - twepoch) << timestampShift) | (segment << segmentShift) | (workerId << workerIdShift)  | (sequence);
-
 	}
 	
 	private void setStartSequence() {
@@ -207,11 +208,9 @@ public class PearFlowerId implements GenId {
 	private long currentSecond() {
 		return (System.currentTimeMillis()) / 1000L;
 	}
-
 	// 系统运行时，检测到时钟回拨比较大时,将切换workerid
 	private void switchWorkerId() {
 //		                               +  512) % 1024; 
 		this.workerId = (this.workerId + halfWorkid) % fullWorkid;// 将workerid切换到空闲部分
 	}
-
 }

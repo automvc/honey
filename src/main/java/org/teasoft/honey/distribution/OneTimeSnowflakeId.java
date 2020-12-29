@@ -8,6 +8,7 @@ package org.teasoft.honey.distribution;
 
 import org.teasoft.bee.distribution.GenId;
 import org.teasoft.bee.distribution.Worker;
+import org.teasoft.honey.osql.core.Logger;
 
 /**
  * OneTimeSnowflakeId，进一步改进了梨花算法。
@@ -43,19 +44,18 @@ public class OneTimeSnowflakeId implements GenId {
 	private long sequence = 0L; 
 
 	//以下三部分加起来要等于32位.
-	private final long segmentBits = 9L;
-	private final long workerIdBits = 10L;
-	private final long sequenceBits = 13L;
+	private static final long segmentBits = 9L;
+	private static final long workerIdBits = 10L;
+	private static final long sequenceBits = 13L;
 
-	private final long timestampShift = workerIdBits + segmentBits + sequenceBits;
-	private final long segmentShift = workerIdBits + sequenceBits;
-	private final long workerIdShift = sequenceBits;
+	private static final long timestampShift = workerIdBits + segmentBits + sequenceBits;
+	private static final long segmentShift = workerIdBits + sequenceBits;
+	private static final long workerIdShift = sequenceBits;
 
-	private final long sequenceMask = ~(-1L << sequenceBits);
-	private final long maxSegment = (1 << segmentBits) - 1;
+	private static final long sequenceMask = ~(-1L << sequenceBits);
+	private static final long maxSegment = (1L << segmentBits) - 1L;
 
 	private long twepoch = 1483200000; // 单位：s    2017-01-01 (yyyy-MM-dd)
-	
 	private long _counter=0;
 
 	public OneTimeSnowflakeId() {
@@ -75,9 +75,7 @@ public class OneTimeSnowflakeId implements GenId {
 	@Override
 	public synchronized long get() {
 		long id=getNextId();
-		
 		testSpeedLimit();
-		
 		return id;
 	}
 
@@ -98,9 +96,7 @@ public class OneTimeSnowflakeId implements GenId {
 			}
 		}
 		r[1] = getNextId();
-		
 		testSpeedLimit();
-
 		return r;
 	}
 
@@ -119,7 +115,6 @@ public class OneTimeSnowflakeId implements GenId {
 				segment++;
 			}
 		}
-
 		return (time << timestampShift) | (segment << segmentShift) | (workerId << workerIdShift) | (sequence);
 	}
 
@@ -127,11 +122,9 @@ public class OneTimeSnowflakeId implements GenId {
 		return (System.currentTimeMillis()) / 1000L;
 	}
 	
-	
-	private void testSpeedLimit() {
-
-		long spentTime = _curSecond() - startTime + 1;
-
+//	private void testSpeedLimit() {
+	private synchronized void testSpeedLimit() {
+		long spentTime=_curSecond() - startTime + 1;
 		if (spentTime > 0) {
 			if ((spentTime << (segmentBits + sequenceBits)) > _counter) return; //check some one workerid.
 		}
@@ -139,7 +132,8 @@ public class OneTimeSnowflakeId implements GenId {
 			wait(10);
 			testSpeedLimit();
 		} catch (Exception e) {
-          e.printStackTrace();
+			Logger.error(e.getMessage());
 		}
 	}
+
 }

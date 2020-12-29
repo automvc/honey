@@ -30,16 +30,15 @@ public class OnlyMulitiDB implements Route {
 	private static Map<String, String> tableToDs = new ConcurrentHashMap<>();
 
 	private static List<String> entityClassPathToDsWithStar = new CopyOnWriteArrayList<>();
-
-	private static String matchEntityClassPath;
-	private static String matchTable;
-
+	
 //	static {
 	{ //will run every time use new. for refresh.
 		init();
 	}
 	
 	private void init(){
+		  String matchEntityClassPath;
+		  String matchTable;
 		   defaultDs = HoneyConfig.getHoneyConfig().multiDsDefalutDS;
 		   
 			//仅分库,需要配置默认DB

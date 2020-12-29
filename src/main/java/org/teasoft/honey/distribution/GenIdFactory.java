@@ -18,7 +18,6 @@ import org.teasoft.honey.osql.core.HoneyConfig;
  */
 public class GenIdFactory {
 
-	private static GenId genId;
 	private static Map<String, GenId> map = new ConcurrentHashMap<>();
 	private static String defaultGenType;
 	
@@ -30,6 +29,8 @@ public class GenIdFactory {
 		else if(idGenerator==3) defaultGenType = "PearFlowerId";
 		else defaultGenType = "SerialUniqueId";
 	}
+	
+	private GenIdFactory() {}
 	
 	/**
 	 * 使用默认的命名key来获取id.
@@ -64,7 +65,7 @@ public class GenIdFactory {
 	 * @return
 	 */
 	public static long get(String bizType, String genType) {
-		genId = getGenId(bizType, genType);
+		GenId genId = getGenId(bizType, genType);
 		return genId.get();
 	}
 
@@ -73,13 +74,13 @@ public class GenIdFactory {
 	}
 
 	public static long[] getRangeId(String bizType, String genType, int sizeOfIds) {
-		genId = getGenId(bizType, genType);
+		GenId genId = getGenId(bizType, genType);
 		return genId.getRangeId(sizeOfIds);
 	}
 
 	private static GenId getGenId(String bizType, String genType) {
 		String key = genType + "::" + bizType;
-		genId = map.get(key);
+		GenId genId = map.get(key);
 		if (genId == null) {
 			switch (genType) {
 				case "SerialUniqueId":
@@ -91,9 +92,11 @@ public class GenIdFactory {
 				case "PearFlowerId":
 					genId = new PearFlowerId();
 					break;
+				default:
+					genId = new SerialUniqueId();
 			}
 			map.put(key, genId);
-			//TODO 要选择不同类型   每种ID,还要选择不同的业务类型,如不同的表名,只给自己的表拿ID(表名隔离).
+			// 要选择不同类型   每种ID,还要选择不同的业务类型,如不同的表名,只给自己的表拿ID(表名隔离).
 			//单机默认用SerialUniqueId, 用workerid=0.  插入到表可以保证单调连续,全局唯一.
 		}
 		return genId;

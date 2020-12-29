@@ -94,7 +94,7 @@ public class GenConfig {
 	}
 
 	/**
-	 * !!!Automatic translation is highly recommended
+	 * @deprecated !!!Automatic translation is highly recommended
 	 */
 	@Deprecated
 	public String getEntityNamePre() {
@@ -102,7 +102,7 @@ public class GenConfig {
 	}
 
 	/**
-	 * !!!Automatic translation is highly recommended
+	 * @deprecated !!!Automatic translation is highly recommended
 	 * @param entityNamePre  prefix of entityName
 	 */
 	@Deprecated

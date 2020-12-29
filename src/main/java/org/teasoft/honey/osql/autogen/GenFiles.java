@@ -20,7 +20,9 @@ import org.teasoft.honey.osql.util.StringUtil;
  */
 public class GenFiles {
 
-	private static String LINE_SEPARATOR = System.getProperty("line.separator"); // 换行符
+	private static final String LINE_SEPARATOR = System.getProperty("line.separator"); // 换行符
+	
+	private GenFiles() {}
 
 	public static void genFile(String templatePath, Map<String, String> map, String targetFilePath) {
 

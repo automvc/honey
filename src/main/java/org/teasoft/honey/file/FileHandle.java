@@ -33,12 +33,12 @@ public class FileHandle implements FileCreator{
 			Logger.info("Create file: "+fullPathAndName);
 		}
 		
-		BufferedWriter bw;
-		try {
-			bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f)));
+		try (
+			  BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f)));
+			){
 			bw.write(content);
 			bw.flush();
-			bw.close();
+//			bw.close();
 		} catch (Exception e) {
 			Logger.error(e.getMessage());
 		}
@@ -57,12 +57,12 @@ public class FileHandle implements FileCreator{
 		}
 
 		File entityFile = new File(fullPath + fileName);
-		BufferedWriter bw;
-		try {
-			bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(entityFile)));
+		try(
+			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(entityFile)));
+			) {
 			bw.write(content);
 			bw.flush();
-			bw.close();
+//			bw.close();
 		} catch (Exception e) {
 			Logger.error(e.getMessage());
 		}
@@ -88,14 +88,13 @@ public class FileHandle implements FileCreator{
 			new File(substr).mkdirs();
 		}
 		
-		BufferedWriter bw;
-		try {
-			bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f,true)));//true,追加的方式
+		try (
+			  BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f,true)));//true,追加的方式
+			){
 			bw.write(content);
 			bw.append(LINE_SEPARATOR);
 			bw.flush();
-			bw.close();
-			
+//			bw.close();
 		} catch (Exception e) {
 			Logger.error(e.getMessage());
 		}

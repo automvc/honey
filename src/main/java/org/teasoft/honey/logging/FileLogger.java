@@ -25,14 +25,14 @@ public class FileLogger implements Log{
 	
 	private String LINE_SEPARATOR = System.getProperty("line.separator"); // 换行符
 	
-	private static String TRACE="TRACE";
-	private static String DEBUG="DEBUG";
-	private static String INFO="INFO";
-	private static String WARN="WARN";
-	private static String ERROR="ERROR";
-	private static String SPACE=" ";
-	private static String LEFT="[";
-	private static String RIGHT="]";
+	private static final String TRACE="TRACE";
+	private static final String DEBUG="DEBUG";
+	private static final String INFO="INFO";
+	private static final String WARN="WARN";
+	private static final String ERROR="ERROR";
+	private static final String SPACE=" ";
+	private static final String LEFT="[";
+	private static final String RIGHT="]";
 	
 	private static boolean donotPrintCurrentDate=HoneyConfig.getHoneyConfig().isShowSQL_donotPrint_currentDate();
 	private static boolean donotPrintLevel=HoneyConfig.getHoneyConfig().isLog_donotPrint_level();
