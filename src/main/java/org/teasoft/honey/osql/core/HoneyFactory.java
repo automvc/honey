@@ -42,7 +42,7 @@ public class HoneyFactory {
 	
 	private DbFeature dbFeature;
 	private NameTranslate nameTranslate;
-	private Cache cache;
+//	private Cache cache;
 	
 	//@since  1.7
 	private MoreObjToSQL moreObjToSQL;
@@ -180,11 +180,11 @@ public class HoneyFactory {
 
 	public Cache getCache() {
 
-		if (cache == null) {
-			boolean nocache = HoneyConfig.getHoneyConfig().isNocache();
-			if (nocache) return new NoCache(); //v1.7.2
-			return new DefaultCache();
-		} else return cache;
+//		if (cache == null) {
+		boolean nocache=HoneyConfig.getHoneyConfig().isNocache();
+		if (nocache) return new NoCache(); //v1.7.2
+		return new DefaultCache();
+//		} else return cache;
 	}
 
 //	public void setCache(Cache cache) {

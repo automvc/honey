@@ -111,7 +111,7 @@ public final class HoneyConfig {
 	@SysValue("${"+DbConfigConst.DB_USERNAM+"}")
 	private String username;
 	
-	@SysValue("${"+DbConfigConst.DB_PASSWORD+"}")
+	@SysValue("${"+DbConfigConst.DB_PWORD+"}")
 	private String password;
 
 //	@SysValue("${aaa}")
@@ -353,9 +353,9 @@ public final class HoneyConfig {
 		return cacheType;
 	}
 
-	private void setCacheType(String cacheType) {
-		this.cacheType = cacheType;
-	}
+//	private void setCacheType(String cacheType) {
+//		this.cacheType = cacheType;
+//	}
 
 	public double getStartDeleteCacheRate() {
 		return startDeleteCacheRate;
@@ -410,12 +410,14 @@ public final class HoneyConfig {
 					alreadyPrintDbName=true;
 				}
 			} catch (Exception e) {
-				e.printStackTrace();
+//				e.printStackTrace();
+				Logger.error(e.getMessage());
 			} finally {
 				try {
 					if (conn != null) conn.close();
 				} catch (Exception e2) {
-					e2.printStackTrace();
+//					e2.printStackTrace();
+					Logger.error(e2.getMessage());
 				}
 			}
 		} else {
