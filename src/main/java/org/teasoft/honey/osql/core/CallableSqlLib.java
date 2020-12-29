@@ -20,9 +20,9 @@ import org.teasoft.bee.osql.annotation.JoinTable;
  */
 public class CallableSqlLib implements CallableSql {
 
-	public static ThreadLocal<Connection> connLocal2 = new ThreadLocal<>();
+//	public static ThreadLocal<Connection> connLocal2 = new ThreadLocal<>();
 
-	public static ThreadLocal<Map<String, Connection>> connLocal = new ThreadLocal<>();
+	public static final ThreadLocal<Map<String, Connection>> connLocal = new ThreadLocal<>();
 
 	@Override
 	public <T> List<T> select(String callSql, T entity, Object[] preValues) {
@@ -50,7 +50,7 @@ public class CallableSqlLib implements CallableSql {
 			while (rs.next()) {
 				targetObj = (T) entity.getClass().newInstance();
 				for (int i = 0; i < columnCount; i++) {
-					if ("serialVersionUID".equals(field[i].getName())) continue;
+					if ("serialVersionUID".equals(field[i].getName()) || field[i].isSynthetic()) continue;
 					if (field[i]!= null && field[i].isAnnotationPresent(JoinTable.class)) continue;
 					field[i].setAccessible(true);
 					try {
@@ -69,6 +69,11 @@ public class CallableSqlLib implements CallableSql {
 		} catch (InstantiationException e) {
 			throw ExceptionHelper.convert(e);
 		} finally {
+			try {
+				if(rs!=null) rs.close();
+			} catch (Exception e2) {
+				// ignore
+			}
 			checkClose(cstmt, conn);
 		}
 
