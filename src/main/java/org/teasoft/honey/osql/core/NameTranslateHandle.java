@@ -53,7 +53,8 @@ public class NameTranslateHandle {
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+//			e.printStackTrace();
+			Logger.error(e.getMessage());
 		}
 		
 		//entityName maybe include package name
