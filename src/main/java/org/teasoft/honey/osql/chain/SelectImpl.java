@@ -16,12 +16,12 @@ import org.teasoft.bee.osql.chain.Select;
  */
 public class SelectImpl extends AbstractSelectToSql implements Select {
 
-	private static String STAR = "*";
-	private static String DISTINCT = "distinct";
-	private static String L_PARENTHESES = "(";
-	private static String R_PARENTHESES = ")";
-	private static String COMMA = ",";
-	private static String ONE_SPACE = " ";
+	private static final String STAR = "*";
+	private static final String DISTINCT = "distinct";
+	private static final String L_PARENTHESES = "(";
+	private static final String R_PARENTHESES = ")";
+	private static final String COMMA = ",";
+	private static final String ONE_SPACE = " ";
 
 //	private StringBuffer sql = new StringBuffer("select ");
 

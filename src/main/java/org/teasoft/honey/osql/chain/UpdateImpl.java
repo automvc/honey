@@ -15,7 +15,7 @@ import org.teasoft.bee.osql.chain.Update;
  */
 public class UpdateImpl extends AbstractToSql implements Update {
 
-	private static String COMMA = ",";
+	private static final String COMMA = ",";
 	
 	private boolean isStartWhere = true;
 	private boolean isAddAnd = false;

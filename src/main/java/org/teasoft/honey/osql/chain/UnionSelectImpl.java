@@ -15,9 +15,9 @@ import org.teasoft.bee.osql.chain.UnionSelect;
  */
 public class UnionSelectImpl extends AbstractSelectToSql implements UnionSelect {
 
-	private static String L_PARENTHESES = "(";
-	private static String R_PARENTHESES = ")";
-	private static String ONE_SPACE = " ";
+	private static final String L_PARENTHESES = "(";
+	private static final String R_PARENTHESES = ")";
+	private static final String ONE_SPACE = " ";
 
 	public UnionSelectImpl(){
 	}
