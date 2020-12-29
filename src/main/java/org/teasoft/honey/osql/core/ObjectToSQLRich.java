@@ -442,7 +442,20 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	public <T> String toSelectByIdSQL(T entity, String ids) {
 		if(ids==null || "".equals(ids.trim())) return null;
 		SqlValueWrap sqlBuffer=toSelectByIdSQL0(entity);
-		return _toSelectAndDeleteByIdSQL(sqlBuffer,ids);
+		return _toSelectAndDeleteByIdSQL(sqlBuffer,ids,getIdType(entity));
+	}
+	
+	private <T> String getIdType(T entity) {
+		Field field = null;
+		String type=null;
+		try {
+			field = entity.getClass().getDeclaredField("id");
+			type=field.getType().getSimpleName();
+		} catch (Exception e) {
+			//ignore
+		}
+		
+		return type;
 	}
 
 	@Override
@@ -520,6 +533,10 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	}
 	
 	private <T> String _toSelectAndDeleteByIdSQL(SqlValueWrap wrap, String ids) {
+		return _toSelectAndDeleteByIdSQL(wrap, ids,null);
+	}
+	
+	private <T> String _toSelectAndDeleteByIdSQL(SqlValueWrap wrap, String ids,String idType) {
 		
 		StringBuffer sqlBuffer =wrap.getValueBuffer(); //sqlBuffer
 		List<PreparedValue> list = new ArrayList<>();
@@ -531,7 +548,19 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		
 		preparedValue = new PreparedValue();
 //		preparedValue.setType(numType);//id的类型Object
-		preparedValue.setValue(idArray[0]);
+		if (idType != null) {
+			preparedValue.setType(idType);
+			if ("Long".equals(idType)) {
+				preparedValue.setValue(Long.parseLong(idArray[0]));
+			} else if ("Integer".equals(idType)) {
+				preparedValue.setValue(Integer.parseInt(idArray[0]));
+			} else {
+				preparedValue.setValue(idArray[0]);
+			}
+		} else {
+			preparedValue.setValue(idArray[0]);
+		}
+		
 		list.add(preparedValue);
 		
 		for (int i = 1; i < idArray.length; i++) { //i from 1
@@ -539,7 +568,20 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 //			t_ids+=" or id=?";
 			t_ids+=" "+K.or+" "+_id()+"=?";
 //			preparedValue.setType(numType);//id的类型Object
-			preparedValue.setValue(idArray[i]);
+			if (idType != null) {
+				preparedValue.setType(idType);
+
+				if ("Long".equals(idType)) {
+					preparedValue.setValue(Long.parseLong(idArray[i]));
+				} else if ("Integer".equals(idType)) {
+					preparedValue.setValue(Integer.parseInt(idArray[i]));
+				} else {
+					preparedValue.setValue(idArray[i]);
+				}
+			} else {
+				preparedValue.setValue(idArray[i]);
+			}
+			
 			list.add(preparedValue);
 		}
 		

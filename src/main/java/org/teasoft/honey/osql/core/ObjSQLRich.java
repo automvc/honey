@@ -311,6 +311,9 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Override
 	public <T> T selectById(T entity, String id) {
 		if (entity == null) return null;
+		if(id.contains(",")) {
+			throw new BeeIllegalParameterException("The parameter 'id' of method selectById does not allow to contain comma!");
+		}
 		String sql = getObjToSQLRich().toSelectByIdSQL(entity, id);
 		Logger.logSQL("selectById SQL: ", sql);
 		
@@ -319,20 +322,20 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		return getIdEntity(list);
 	}
 	
-	private <T> T getIdEntity(List<T> list) {
-		if(list==null || list.size()<1) {
-			return null;
-		}else {
-			return list.get(0);
-		}
-	}
-
 	@Override
 	public <T> List<T> selectByIds(T entity, String ids) {
 		if (entity == null) return null;
 		String sql = getObjToSQLRich().toSelectByIdSQL(entity, ids);
 		Logger.logSQL("selectByIds SQL: ", sql);
 		return getBeeSql().select(sql, entity);
+	}
+	
+	private <T> T getIdEntity(List<T> list) {
+		if(list==null || list.size()<1) {
+			return null;
+		}else {
+			return list.get(0);
+		}
 	}
 
 	@Override
