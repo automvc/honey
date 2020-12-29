@@ -51,11 +51,14 @@ public class JdbcTransaction implements Transaction {
 			if (conn != null && !conn.getAutoCommit()) {
 				conn.commit();
 				if (oldAutoCommit != conn.getAutoCommit()) conn.setAutoCommit(oldAutoCommit);
-				_close();
-				isBegin = false;
+//				_close();
+//				isBegin = false;
 			}
 		} catch (SQLException e) {
 			throw ExceptionHelper.convert(e);
+		}finally {
+			_close();
+			isBegin = false;
 		}
 	}
 
@@ -65,10 +68,12 @@ public class JdbcTransaction implements Transaction {
 			if (conn != null && !conn.getAutoCommit()) {
 				conn.rollback();
 				if (oldAutoCommit != conn.getAutoCommit()) conn.setAutoCommit(oldAutoCommit);
-				_close();
+//				_close();
 			}
 		} catch (SQLException e) {
 			throw ExceptionHelper.convert(e);
+		}finally {
+			_close();
 		}
 	}
 
