@@ -25,8 +25,8 @@ import org.teasoft.honey.distribution.ds.RwDs;
  */
 public final class CacheUtil {
 
-	private final static int MAX_SIZE;
-	private final static int timeout;
+	private static final int MAX_SIZE;
+	private static final int timeout;
 	
 	private static ConcurrentHashMap<String,Integer> map;  //<key,index>  能O(1)从key得到index
 	private static long time[];  //放时间点
@@ -43,8 +43,8 @@ public final class CacheUtil {
 	private static Map<String,Integer> foreverCacheTableMap=new HashMap<>();  //table is forever or not
 	private static Map<String,Integer> foreverCacheTableMap_sqlkey2exist=new HashMap<>(); //sql of forever table is exist or not
 	private static Map<String,Integer> foreverCacheModifySynTableMap=new HashMap<>();
-	private static String NEVER="1";
-	private static Integer FOREVER=0;
+	private static final String NEVER="1";
+	private static final Integer FOREVER=0;
 	
 	private static Map<String,Set<String>> map_foreverSynTableIndexSet=new HashMap<>();  //<tableKey,foreverSynTableIndexSet>  用于记录某个foreverSyn表的所有缓存index
 	//set放sqlKey?  用arrayList有更新不方便删除 , 用map,key太长(要放set)

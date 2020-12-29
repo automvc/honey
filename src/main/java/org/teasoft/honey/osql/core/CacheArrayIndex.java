@@ -34,7 +34,7 @@ public class CacheArrayIndex {
 	
 	public CacheArrayIndex(){}
 	
-	public int getLow() {
+	public synchronized int getLow() {
 		return low;
 	}
 	public synchronized void setLow(int low) {
