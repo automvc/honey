@@ -23,7 +23,7 @@ public class OracleFeature implements DbFeature {
 
 	private String getLimitSql(String sql, boolean isStartSize, int start, int size) {
 		sql=HoneyUtil.deleteLastSemicolon(sql);
-		String forUpdateClause = null;
+		String forUpdateClause = "";
 		boolean isForUpdate = false;
 		final int forUpdateIndex = sql.toLowerCase().lastIndexOf("for update");
 		if (forUpdateIndex > -1) {
