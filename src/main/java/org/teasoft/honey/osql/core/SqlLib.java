@@ -15,6 +15,7 @@ import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -123,7 +124,8 @@ public class SqlLib implements BeeSql {
 	@SuppressWarnings("unchecked")
 	public <T> List<T> selectSomeField(String sql, T entity) {
 		
-		if(sql==null || "".equals(sql.trim())) return null;
+//		if(sql==null || "".equals(sql.trim())) return null;
+		if(sql==null || "".equals(sql.trim())) return Collections.emptyList();
 
 		boolean isReg=updateInfoInCache(sql,"List<T>",SuidType.SELECT);
 		if(isReg){
@@ -134,6 +136,7 @@ public class SqlLib implements BeeSql {
 		
 		Connection conn = null;
 		PreparedStatement pst = null;
+		ResultSet rs =null;
 		T targetObj = null;
 		List<T> rsList = null;
 		Map<String,Field> map=null;
@@ -144,7 +147,7 @@ public class SqlLib implements BeeSql {
 
 			setPreparedValues(pst, sql);
 
-			ResultSet rs = pst.executeQuery();
+			rs = pst.executeQuery();
 			ResultSetMetaData rmeta = rs.getMetaData();
 			int columnCount = rmeta.getColumnCount();
 			rsList = new ArrayList<T>();
@@ -194,7 +197,7 @@ public class SqlLib implements BeeSql {
 		} catch (InstantiationException e) {
 			throw ExceptionHelper.convert(e);
 		} finally {
-			checkClose(pst, conn);
+			checkClose(rs,pst, conn);
 		}
 
 		entity = null;
@@ -256,16 +259,18 @@ public class SqlLib implements BeeSql {
 		} catch (SQLException e) {
 			throw ExceptionHelper.convert(e);
 		} finally {
-			checkClose(pst, conn);
+			checkClose(rs, pst, conn);
 		}
 
 		return result;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<String[]> select(String sql) {
 		
-		if(sql==null || "".equals(sql.trim())) return null;
+//		if(sql==null || "".equals(sql.trim())) return null;
+		if(sql==null || "".equals(sql.trim())) return Collections.emptyList();
 		
 		boolean isReg=updateInfoInCache(sql,"List<String[]>",SuidType.SELECT);
 		if(isReg){
@@ -416,9 +421,11 @@ public class SqlLib implements BeeSql {
 		
 		Connection conn = null;
 		PreparedStatement pst = null;
+		
+		boolean oldAutoCommit=false;
 		try {
 			conn = getConn();
-			boolean oldAutoCommit=conn.getAutoCommit();
+			oldAutoCommit = conn.getAutoCommit();
 			conn.setAutoCommit(false);
 			String exe_sql=HoneyUtil.deleteLastSemicolon(sql[0]);
 			pst = conn.prepareStatement(exe_sql);
@@ -438,15 +445,25 @@ public class SqlLib implements BeeSql {
 				total+=temp;
 			}
 		}
-		conn.setAutoCommit(oldAutoCommit);
+//		conn.setAutoCommit(oldAutoCommit);
 		} catch (SQLException e) {
 			if (isConstraint(e)) {
-				e.printStackTrace();
+//				e.printStackTrace();
+				Logger.error(e.getMessage());
 				return total;
 			}
 			throw ExceptionHelper.convert(e);
 		} finally {
-			checkClose(pst, conn);
+//			bug :Lock wait timeout exceeded; 
+//			如果分批处理时有异常,如主键冲突,则又没有提交,就关不了连接.
+//			所以需要先将提交改回原来的状态.
+//			要是原来就是自动提交,报异常,还是不能关
+			try {
+				if (conn != null) conn.setAutoCommit(oldAutoCommit);
+			} catch (Exception e2) {
+				//ignore
+			}
+			checkClose(pst, conn);   
 			//更改操作需要清除缓存
 			clearInCache(sql[0], "int[]",SuidType.INSERT);
 		}
@@ -454,9 +471,9 @@ public class SqlLib implements BeeSql {
 		return total;
 	}
 
-	private static String index1 = "_SYS[index";
-	private static String index2 = "]_End ";
-	private static String index3 = "]";
+	private static final String index1 = "_SYS[index";
+	private static final String index2 = "]_End ";
+	private static final String index3 = "]";
 
 	private int batch(String sql, int start, int end, Connection conn,PreparedStatement pst) throws SQLException {
 		int a=0;
@@ -515,9 +532,10 @@ public class SqlLib implements BeeSql {
 
 		Connection conn = null;
 		PreparedStatement pst = null;
+		boolean oldAutoCommit=false;
 		try {
 			conn = getConn();
-			boolean oldAutoCommit = conn.getAutoCommit();
+			oldAutoCommit = conn.getAutoCommit();
 			conn.setAutoCommit(false);
 			String exe_sql = HoneyUtil.deleteLastSemicolon(sql[0]);
 
@@ -539,19 +557,29 @@ public class SqlLib implements BeeSql {
 
 				if (len % batchSize != 0) { //尾数不成批
 					batchExeSql = getBatchExeSql(exe_sql, (len % batchSize), placeholderValue);
-					pst = conn.prepareStatement(batchExeSql[0]);
+//					pst = conn.prepareStatement(batchExeSql[0]);  //TODO ??
 					temp = _batchForMysql(sql[0], len - (len % batchSize), len, conn, pst, batchSize, batchExeSql[1]);
 					total += temp;
 				}
 			}
-			conn.setAutoCommit(oldAutoCommit);
+//			conn.setAutoCommit(oldAutoCommit);
 		} catch (SQLException e) {
 			if (isConstraint(e)) {
-				e.printStackTrace();
+//				e.printStackTrace();
+				Logger.error(e.getMessage());
 				return total;
 			}
 			throw ExceptionHelper.convert(e);
 		} finally {
+//			bug :Lock wait timeout exceeded; 
+//			如果分批处理时有异常,如主键冲突,则又没有提交,就关不了连接.
+//			所以需要先将提交改回原来的状态.
+//			要是原来就是自动提交,报异常,还是不能关
+			try {
+				if (conn != null) conn.setAutoCommit(oldAutoCommit);
+			} catch (Exception e2) {
+				//ignore
+			}
 			checkClose(pst, conn);
 			//更改操作需要清除缓存
 			clearInCache(sql[0], "int[]", SuidType.INSERT);
@@ -561,7 +589,8 @@ public class SqlLib implements BeeSql {
 	}
 	
 	private boolean isConstraint(SQLException e) {
-		return ("MySQLIntegrityConstraintViolationException".equals(e.getClass().getSimpleName()) //mysql
+		String className=e.getClass().getSimpleName();
+		return ("MySQLIntegrityConstraintViolationException".equals(className) //mysql
 				|| e.getMessage().startsWith("Duplicate entry ") //mysql  
 				|| (e instanceof SQLIntegrityConstraintViolationException) 
 				|| e.getMessage().contains("ORA-00001:")    //Oracle 
@@ -636,11 +665,16 @@ public class SqlLib implements BeeSql {
 		HoneyContext.checkClose(stmt, conn);
 	}
 	
+	protected void checkClose(ResultSet rs, Statement stmt, Connection conn) {
+		HoneyContext.checkClose(rs, stmt, conn);
+	}
+	
 	@Override
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public <T> List<T> moreTableSelect(String sql, T entity) {
 		
-		if(sql==null || "".equals(sql.trim())) return null;
+//		if(sql==null || "".equals(sql.trim())) return null;
+		if(sql==null || "".equals(sql.trim())) return Collections.emptyList();
 		
 		boolean isReg=updateInfoInCache(sql,"List<T>",SuidType.SELECT);
 		if(isReg){
@@ -649,10 +683,11 @@ public class SqlLib implements BeeSql {
 		initRoute(SuidType.SELECT,entity.getClass(),sql); //only multi-Ds,tables don't allow in different db.仅分库时，多表查询的多个表要在同一个数据源.
 		}
 		
-		Connection conn = null;
-		PreparedStatement pst = null;
-		T targetObj = null;
-		List<T> rsList = null;
+		Connection conn=null;
+		PreparedStatement pst=null;
+		ResultSet rs=null;
+		T targetObj=null;
+		List<T> rsList=null;
 		try {
 			conn = getConn();
 			String exe_sql=HoneyUtil.deleteLastSemicolon(sql);
@@ -660,7 +695,7 @@ public class SqlLib implements BeeSql {
 			
 			setPreparedValues(pst, sql);
 
-			ResultSet rs = pst.executeQuery();
+			rs = pst.executeQuery();
 			rsList = new ArrayList<T>();
 
 			Field field[] = entity.getClass().getDeclaredFields();
@@ -705,7 +740,7 @@ public class SqlLib implements BeeSql {
 				
 				for (int i = 0; i < fields1.length; i++) {
 					
-					if("serialVersionUID".equals(fields1[i].getName())) {
+					if("serialVersionUID".equals(fields1[i].getName()) || fields1[i].isSynthetic()) {
 						continue;
 					}
 					if (fields1[i]!= null && fields1[i].isAnnotationPresent(JoinTable.class)) continue;
@@ -715,7 +750,7 @@ public class SqlLib implements BeeSql {
 					dulField="";
 					try {
 						String columnName=_toColumnName(fields1[i].getName());
-						if(isConfuseDuplicateField()){
+						if(isConfuseDuplicateFieldDB()){
 							dulField=dulSubFieldMap.get(subUseTable[0]+"."+columnName);
 							if(dulField!=null){
 								isDul=true;  //fixed bug.  need set true before fields1[i].set(  )
@@ -728,7 +763,7 @@ public class SqlLib implements BeeSql {
 						}
 					} catch (IllegalArgumentException e) {
 //						e.printStackTrace();
-						if(isConfuseDuplicateField()){
+						if(isConfuseDuplicateFieldDB()){
 							fields1[i].set(subObj1,_getObjectForMoreTable_ConfuseField(rs,fields1[i],isDul,dulField));
 						}else{
 						    fields1[i].set(subObj1,_getObjectForMoreTable(rs,subUseTable[0],fields1[i]));
@@ -745,7 +780,7 @@ public class SqlLib implements BeeSql {
 					String columnName="";
 					for (int i = 0; i < fields2.length; i++) {
 						
-						if("serialVersionUID".equals(fields2[i].getName())) {
+						if("serialVersionUID".equals(fields2[i].getName()) || fields2[i].isSynthetic()) {
 							continue;
 						}
 						if (fields2[i]!= null && fields2[i].isAnnotationPresent(JoinTable.class)) continue;
@@ -755,7 +790,7 @@ public class SqlLib implements BeeSql {
 						dulField="";
 						try {
 							columnName=_toColumnName(fields2[i].getName());
-							if(isConfuseDuplicateField()){
+							if(isConfuseDuplicateFieldDB()){
 								dulField=dulSubFieldMap.get(subUseTable[1]+"."+columnName);
 								if(dulField!=null){
 									isDul=true;  //set true first
@@ -767,7 +802,7 @@ public class SqlLib implements BeeSql {
 								fields2[i].set(subObj2, rs.getObject(subUseTable[1] + "." + columnName));
 							}
 						} catch (IllegalArgumentException e) {
-							if(isConfuseDuplicateField()){
+							if(isConfuseDuplicateFieldDB()){
 								fields2[i].set(subObj2,_getObjectForMoreTable_ConfuseField(rs,fields2[i],isDul,dulField));  //TODO
 							}else{
 								fields2[i].set(subObj2,_getObjectForMoreTable(rs,subUseTable[1],fields2[i]));
@@ -781,7 +816,8 @@ public class SqlLib implements BeeSql {
 				//主表设置
 				targetObj = (T) entity.getClass().newInstance();
 				for (int i = 0; i < columnCount; i++) {
-					if("serialVersionUID".equals(field[i].getName())) continue;
+					if("serialVersionUID".equals(field[i].getName()) || field[i].isSynthetic()) continue;
+//					if(field[i].isSynthetic()) continue;
 					if (field[i]!= null && field[i].isAnnotationPresent(JoinTable.class)) {
 						field[i].setAccessible(true);
 						if(field[i].getName().equals(variableName[0])){
@@ -793,10 +829,11 @@ public class SqlLib implements BeeSql {
 					}
 					field[i].setAccessible(true);
 					try {
-						if(isConfuseDuplicateField()){
-							field[i].set(targetObj, rs.getObject(_toColumnName(field[i].getName())));	
-						}else
-						field[i].set(targetObj, rs.getObject(tableName+"."+_toColumnName(field[i].getName())));
+						if (isConfuseDuplicateFieldDB()) {
+							field[i].set(targetObj, rs.getObject(_toColumnName(field[i].getName())));
+						} else {
+							field[i].set(targetObj, rs.getObject(tableName + "." + _toColumnName(field[i].getName())));
+						}
 					} catch (IllegalArgumentException e) {
 						field[i].set(targetObj,_getObjectForMoreTable(rs,tableName,field[i]));
 				    } catch (SQLException e) { // for after use condition selectField method
@@ -817,7 +854,7 @@ public class SqlLib implements BeeSql {
 		} catch (InstantiationException e) {
 			throw ExceptionHelper.convert(e);
 		} finally {
-			checkClose(pst, conn);
+			checkClose(rs, pst, conn);
 		}
 
 		entity = null;
@@ -842,12 +879,12 @@ public class SqlLib implements BeeSql {
 		}
 	}
 	
-	private Object _getObject(ResultSet rs, Field field) throws SQLException{
-		return HoneyUtil.getResultObject(rs, field.getType().getName(), _toColumnName(field.getName()));
-	}
+//	private Object _getObject(ResultSet rs, Field field) throws SQLException{
+//		return HoneyUtil.getResultObject(rs, field.getType().getName(), _toColumnName(field.getName()));
+//	}
 	
 	private Object _getObjectForMoreTable(ResultSet rs, String tableName, Field field) throws SQLException {
-		if (isConfuseDuplicateField()) {
+		if (isConfuseDuplicateFieldDB()) {
 			return HoneyUtil.getResultObject(rs, field.getType().getName(), _toColumnName(field.getName()));
 		} else {
 			return HoneyUtil.getResultObject(rs, field.getType().getName(), tableName + "." + _toColumnName(field.getName()));
@@ -908,14 +945,15 @@ public class SqlLib implements BeeSql {
 		cache.clear(sql);
 	}
 	
+	@SuppressWarnings("rawtypes")
 	private void initRoute(SuidType suidType, Class clazz, String sql) {
 		if (!enableMultiDs) return;
 		HoneyContext.initRoute(suidType, clazz, sql);
 	}
 	
 	//Oracle,SQLite
-	private boolean isConfuseDuplicateField(){
-		return HoneyUtil.isConfuseDuplicateField();
+	private boolean isConfuseDuplicateFieldDB(){
+		return HoneyUtil.isConfuseDuplicateFieldDB();
 	}
 	
 }

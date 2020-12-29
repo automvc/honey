@@ -26,7 +26,7 @@ import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
 public class ConditionImpl implements Condition {
 
 	private SuidType suidType;
-	public List<Expression> list = new ArrayList<>();
+	private List<Expression> list = new ArrayList<>();
 	private Set<String> fieldSet = new HashSet<>(); //条件表达式用到的字段
 	private IncludeType includeType;
 	
@@ -312,11 +312,11 @@ public class ConditionImpl implements Condition {
 		return size;
 	}
 	
-	private static String setAdd="setAdd";
-	private static String setMultiply="setMultiply";
+	private static final String setAdd="setAdd";
+	private static final String setMultiply="setMultiply";
 	
-	private static String setAddField = "setAddField";
-	private static String setMultiplyField = "setMultiplyField";
+	private static final String setAddField = "setAddField";
+	private static final String setMultiplyField = "setMultiplyField";
 
 	@Override
 	public Condition setAdd(String field, Number num) {  //for field self

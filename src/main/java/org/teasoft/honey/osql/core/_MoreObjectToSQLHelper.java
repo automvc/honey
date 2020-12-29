@@ -22,10 +22,10 @@ import org.teasoft.bee.osql.dialect.DbFeature;
  */
 public class _MoreObjectToSQLHelper {
 	
-	private static DbFeature dbFeature = BeeFactory.getHoneyFactory().getDbFeature();
-	private static String COMMA=",";
-	private static String ONE_SPACE = " ";
-	private static String DOT=".";
+	private static final DbFeature dbFeature = BeeFactory.getHoneyFactory().getDbFeature();
+	private static final String COMMA=",";
+	private static final String ONE_SPACE = " ";
+	private static final String DOT=".";
 	
 	static <T> String _toSelectSQL(T entity) {
         return _toSelectSQL(entity, -1, null,-1,-1);
@@ -67,7 +67,7 @@ public class _MoreObjectToSQLHelper {
 			
 			if (condition != null) {
 				condition.setSuidType(SuidType.SELECT);
-				String selectField = ConditionHelper.processSelectField(columnNames, condition);
+				String selectField = ConditionHelper.processSelectField(columnNames, condition,moreTableStruct[0].subDulFieldMap);
 				if (selectField != null){
 					columnNames = selectField;
 				}else{

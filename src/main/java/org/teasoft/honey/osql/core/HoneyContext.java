@@ -1,6 +1,7 @@
 package org.teasoft.honey.osql.core;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
@@ -289,6 +290,7 @@ public final class HoneyContext {
 		HoneyContext.setCacheInfo(sql, struct);
 	}
     
+    @SuppressWarnings("rawtypes")
 	static void regEntityClass(Class clazz) {
 		OneTimeParameter.setAttribute("_SYS_Bee_ROUTE_EC", clazz); //EC:Entity Class
 	}
@@ -304,13 +306,23 @@ public final class HoneyContext {
 		return conn;
 	}
 	
-	static void checkClose(Statement stmt, Connection conn) {
+	public static void checkClose(Statement stmt, Connection conn) {
+		checkClose(null, stmt, conn);
+	}
+	
+	public static void checkClose(ResultSet rs, Statement stmt, Connection conn) {
+		if (rs != null) {
+			try {
+				rs.close();
+			} catch (SQLException e) {
+				//ignore
+			}
+		}
 
 		if (stmt != null) {
 			try {
 				stmt.close();
 			} catch (SQLException e) {
-				//				e.printStackTrace();
 				throw ExceptionHelper.convert(e);
 			}
 		}
@@ -321,8 +333,8 @@ public final class HoneyContext {
 		} catch (SQLException e) {
 			throw ExceptionHelper.convert(e);
 		} finally {
-			boolean enableMultiDs = HoneyConfig.getHoneyConfig().enableMultiDs;
-			int multiDsType = HoneyConfig.getHoneyConfig().multiDsType;
+			boolean enableMultiDs=HoneyConfig.getHoneyConfig().enableMultiDs;
+			int multiDsType=HoneyConfig.getHoneyConfig().multiDsType;
 			if (enableMultiDs && multiDsType == 2) {//仅分库,有多个数据源时
 				HoneyContext.removeCurrentRoute();
 			}
@@ -343,6 +355,7 @@ public final class HoneyContext {
 	}
 	
 	//for SqlLib
+	@SuppressWarnings("rawtypes")
 	static void initRoute(SuidType suidType, Class clazz,String sql) {
 
 		if (clazz == null) {
@@ -384,14 +397,17 @@ public final class HoneyContext {
 		}
 	}
 
+	@SuppressWarnings("rawtypes")
 	private static boolean isConfigForEntityIN(Class clazz) {
 		return _isConfig(clazz, entityList_includes_Map, entityListWithStar_in);
 	}
 
+	@SuppressWarnings("rawtypes")
 	private static boolean isConfigForEntityEX(Class clazz) {
 		return _isConfig(clazz, entityList_excludes_Map, entityListWithStar_ex);
 	}
 
+	@SuppressWarnings("rawtypes")
 	private static boolean _isConfig(Class clazz, Map<String, String> map, List<String> starList) {
 
 		String fullName = clazz.getName();
@@ -417,6 +433,7 @@ public final class HoneyContext {
 		return false;
 	}
 
+	@SuppressWarnings("rawtypes")
 	public static boolean isNeedGenId(Class clazz) {
 		boolean needGenId = false;
 		boolean genAll = HoneyConfig.getHoneyConfig().genid_forAllTableLongId;

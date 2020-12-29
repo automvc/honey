@@ -21,7 +21,7 @@ import org.teasoft.honey.osql.name.NameUtil;
 final class _ObjectToSQLHelper {
 
 //	private final static String INSERT_INTO = "insert into ";
-	private final static String INSERT_INTO = K.insert+K.space+K.into+K.space;
+	private static final String INSERT_INTO = K.insert+K.space+K.into+K.space;
 	
 	private static boolean  showSQL=HoneyConfig.getHoneyConfig().isShowSQL();
 
@@ -46,7 +46,7 @@ final class _ObjectToSQLHelper {
 			PreparedValue preparedValue = null;
 			for (int i = 0; i < len; i++) {
 				fields[i].setAccessible(true);
-				if (fields[i].get(entity) == null || "serialVersionUID".equals(fields[i].getName()) 
+				if (fields[i].get(entity) == null || "serialVersionUID".equals(fields[i].getName()) || fields[i].isSynthetic()
 				 || fields[i].isAnnotationPresent(JoinTable.class)){
 					continue;
 				}else {
@@ -741,7 +741,7 @@ final class _ObjectToSQLHelper {
 		for (int i = 0; i < len; i++) {
 			fields[i].setAccessible(true);
 
-			if ("serialVersionUID".equals(fields[i].getName())) {
+			if ("serialVersionUID".equals(fields[i].getName()) || fields[i].isSynthetic()) {
 				continue;
 			} else if (fields[i] != null && fields[i].isAnnotationPresent(JoinTable.class)) {
 				continue;
@@ -853,6 +853,7 @@ final class _ObjectToSQLHelper {
 	}
 
 	private static boolean isContainField(String checkFields[], String fieldName) {
+		if(checkFields==null) return false;
 		int len = checkFields.length;
 		for (int i = 0; i < len; i++) {
 			if (checkFields[i].equalsIgnoreCase(fieldName)) {
@@ -915,7 +916,8 @@ final class _ObjectToSQLHelper {
 			//is no id field , ignore.
 			return;	
 		} catch (Exception e) {
-			e.printStackTrace();
+//			e.printStackTrace();
+			Logger.error(e.getMessage());
 			return;
 		}
 

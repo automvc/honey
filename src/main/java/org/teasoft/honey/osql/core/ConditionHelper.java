@@ -7,6 +7,7 @@
 package org.teasoft.honey.osql.core;
 
 import java.util.List;
+import java.util.Map;
 
 import org.teasoft.bee.osql.Condition;
 import org.teasoft.bee.osql.FunctionType;
@@ -21,16 +22,16 @@ import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
  */
 public class ConditionHelper {
 	static boolean isNeedAnd = true;
-	private static String ONE_SPACE = " ";
+	private static final String ONE_SPACE = " ";
 
 	private static DbFeature dbFeature = BeeFactory.getHoneyFactory().getDbFeature();
 	
 	
-	private static String setAdd = "setAdd";
-	private static String setMultiply = "setMultiply";
+	private static final String setAdd = "setAdd";
+	private static final String setMultiply = "setMultiply";
 	
-	private static String setAddField = "setAddField";
-	private static String setMultiplyField = "setMultiplyField";
+	private static final String setAddField = "setAddField";
+	private static final String setMultiplyField = "setMultiplyField";
 
 	//ForUpdate
 //	static boolean processConditionForUpdateSet(StringBuffer sqlBuffer, StringBuffer valueBuffer, List<PreparedValue> list, Condition condition) {
@@ -49,7 +50,7 @@ public class ConditionHelper {
 		PreparedValue preparedValue = null;
 		Expression expression = null;
 
-		for (int j = 0; j < updateSetList.size(); j++) {
+		for (int j = 0; updateSetList!=null && j < updateSetList.size(); j++) {
 			expression = updateSetList.get(j);
 			String opType = expression.getOpType();
 
@@ -405,6 +406,10 @@ public class ConditionHelper {
 	}
 	
 	static <T> String processSelectField(String columnNames, Condition condition) {
+		return processSelectField(columnNames, condition, null);
+	}
+	
+	static <T> String processSelectField(String columnNames, Condition condition,Map<String,String> subDulFieldMap) {
 		
 		if(condition==null) return null;
 
@@ -416,7 +421,7 @@ public class ConditionHelper {
 
 		if (selectField == null) return null;
 
-		return HoneyUtil.checkSelectFieldViaString(columnNames, selectField);
+		return HoneyUtil.checkAndProcessSelectFieldViaString(columnNames, selectField,subDulFieldMap);
 	}
 
 	private static String _toColumnName(String fieldName) {

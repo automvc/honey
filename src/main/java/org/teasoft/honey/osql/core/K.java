@@ -16,7 +16,9 @@ public class K {
 	
 	private static SqlKeyWord k=BeeFactory.getHoneyFactory().getSqlKeyWord();
 	
-	public static String space=k.space(),
+	private K() {}
+	
+	public static final String space=k.space(),
 		       select=k.select(),
 		       as=k.as(),
 		       from=k.from(), 

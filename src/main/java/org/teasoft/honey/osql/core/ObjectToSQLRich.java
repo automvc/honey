@@ -84,7 +84,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	@Override
 	public <T> String toSelectSQL(T entity, String fields) throws ObjSQLException {
 		
-		String newSelectFields=HoneyUtil.checkSelectField(entity,fields);
+		String newSelectFields=HoneyUtil.checkAndProcessSelectField(entity,fields);
 		
 		String sql = _ObjectToSQLHelper._toSelectSQL(entity, newSelectFields);
 
@@ -204,7 +204,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			  if (fields[i]!= null && fields[i].isAnnotationPresent(JoinTable.class)){//v1.7.0 排除多表的实体字段
 				continue;
 			  }
-			  if (fields[i].get(entity) == null|| "serialVersionUID".equals(fields[i].getName())) {// 要排除没有设值的情况
+			  if (fields[i].get(entity) == null|| "serialVersionUID".equals(fields[i].getName()) || fields[i].isSynthetic()) {// 要排除没有设值的情况
 //				if (fields[i].getName().equals(fieldForFun)) {
 				if ( (fields[i].getName().equals(fieldForFun))
 			     || ("count".equalsIgnoreCase(funType) && "*".equals(fieldForFun)) ) {  //排除count(*)
@@ -293,9 +293,9 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		return toInsertSQL(entity, batchSize, "");
 	}
 
-	private static String index1 = "_SYS[index";
-	private static String index2 = "]_End ";
-	private static String index3 = "]";
+	private static final String index1 = "_SYS[index";
+	private static final String index2 = "]_End ";
+	private static final String index3 = "]";
 	
 	@Override
 	public <T> String[] toInsertSQL(T entity[], String excludeFieldList) {
@@ -379,6 +379,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	}
 	
 	@Override
+	@SuppressWarnings("rawtypes")
 	public String toDeleteByIdSQL(Class c, Integer id) {
 		if(id==null) return null;
 		checkPackageByClass(c);
@@ -387,6 +388,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	}
 	
 	@Override
+	@SuppressWarnings("rawtypes")
 	public String toDeleteByIdSQL(Class c, Long id) {
 		if(id==null) return null;
 		checkPackageByClass(c);
@@ -395,6 +397,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	}
 
 	@Override
+	@SuppressWarnings("rawtypes")
 	public String toDeleteByIdSQL(Class c, String ids) {
 		if(ids==null || "".equals(ids.trim())) return null;
 		checkPackageByClass(c);
@@ -402,6 +405,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		return _toSelectAndDeleteByIdSQL(sqlBuffer,ids);
 	}
 
+	@SuppressWarnings("rawtypes")
 	private  SqlValueWrap toDeleteByIdSQL0(Class c){
 		StringBuffer sqlBuffer = new StringBuffer();
 		SqlValueWrap wrap = new SqlValueWrap();
@@ -582,7 +586,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			Field fields[] = entity.getClass().getDeclaredFields(); //返回所有字段,包括公有和私有    
 			String fieldNames ="";
 			if (selectField != null && !"".equals(selectField.trim())) {
-				fieldNames = HoneyUtil.checkSelectField(entity, selectField);
+				fieldNames = HoneyUtil.checkAndProcessSelectField(entity, selectField);
 			} else {
 				String packageAndClassName = entity.getClass().getName();
 				fieldNames = HoneyContext.getBeanField(packageAndClassName);
@@ -600,11 +604,12 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			PreparedValue preparedValue = null;
 			for (int i = 0, k = 0; i < len; i++) {
 				fields[i].setAccessible(true);
-				if (fields[i].get(entity) == null || "serialVersionUID".equals(fields[i].getName())
+				if (fields[i].get(entity) == null
+				 || "serialVersionUID".equals(fields[i].getName())
+				 || fields[i].isSynthetic()
 				 || fields[i].isAnnotationPresent(JoinTable.class)){
 					continue;
 				}else {
-
 					if (firstWhere) {
 //						sqlBuffer.append(" where ");
 						sqlBuffer.append(" ").append(K.where).append(" ");
@@ -645,6 +650,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		HoneyUtil.checkPackage(entity);
 	}
 	
+	@SuppressWarnings("rawtypes")
 	public static void checkPackageByClass(Class c){
 		if(c==null) return;
 		String packageName=c.getPackage().getName();
@@ -657,6 +663,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		return NameTranslateHandle.toTableName(NameUtil.getClassFullName(entity));
 	}
 	
+	@SuppressWarnings("rawtypes")
 	private String _toTableNameByClass(Class c){
 		return NameTranslateHandle.toTableName(c.getName());
 	}
@@ -688,7 +695,8 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			//is no id field , ignore.
 			return;
 		} catch (Exception e) {
-			e.printStackTrace();
+//			e.printStackTrace();
+			Logger.error(e.getMessage());
 			return;
 		}
 

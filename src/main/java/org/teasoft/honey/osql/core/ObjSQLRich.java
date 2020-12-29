@@ -115,7 +115,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 //		int len = entity.length;
 //		String insertSql[] = new String[len];
 		String insertSql[] = getObjToSQLRich().toInsertSQL(entity);
-		_regEntityClass(entity[0]);
+		_regEntityClass1(entity[0]);
 		
 		return getBeeSql().batch(insertSql);
 	}
@@ -126,7 +126,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 //		int len = entity.length;
 //		String insertSql[] = new String[len];
 		String insertSql[] = getObjToSQLRich().toInsertSQL(entity, excludeFields);
-		_regEntityClass(entity[0]);
+		_regEntityClass1(entity[0]);
 		
 		return getBeeSql().batch(insertSql);
 	}
@@ -137,7 +137,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 //		int len = entity.length;
 //		String insertSql[] = new String[len];
 		String insertSql[] = getObjToSQLRich().toInsertSQL(entity,batchSize);
-		_regEntityClass(entity[0]);
+		_regEntityClass1(entity[0]);
 
 		return getBeeSql().batch(insertSql, batchSize);
 	}
@@ -148,7 +148,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 //		int len = entity.length;
 //		String insertSql[] = new String[len];
 		String insertSql[] = getObjToSQLRich().toInsertSQL(entity,batchSize, excludeFields);
-		_regEntityClass(entity[0]);
+		_regEntityClass1(entity[0]);
 		
 		return getBeeSql().batch(insertSql, batchSize);
 	}
@@ -159,7 +159,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		int r = 0;
 		String sql = getObjToSQLRich().toUpdateSQL(entity, updateFields);
 		Logger.logSQL("update SQL(updateFields) :", sql);
-		_regEntityClass(entity);
+		_regEntityClass1(entity);
 		r = getBeeSql().modify(sql);
 
 		return r;
@@ -180,7 +180,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		String s = null;
 		try {
 			String sql = getObjToSQLRich().toSelectFunSQL(entity, functionType, fieldForFun);
-			_regEntityClass(entity);
+			_regEntityClass1(entity);
 			s=getBeeSql().selectFun(sql);
 		} catch (ObjSQLException e) {
 			throw e;
@@ -195,7 +195,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		int r = 0;
 		String sql = getObjToSQLRich().toUpdateSQL(entity, updateFields, includeType);
 		Logger.logSQL("update SQL(updateFields) :", sql);
-		_regEntityClass(entity);
+		_regEntityClass1(entity);
 		r = getBeeSql().modify(sql);
 
 		return r;
@@ -214,7 +214,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		if (entity == null) return -1;
 		String sql = getObjToSQLRich().toUpdateSQL(entity, includeType);
 		Logger.logSQL("update SQL: ", sql);
-		_regEntityClass(entity);
+		_regEntityClass1(entity);
 		return getBeeSql().modify(sql);
 	}
 
@@ -223,7 +223,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		if (entity == null) return -1;
 		String sql = getObjToSQLRich().toInsertSQL(entity, includeType);
 		Logger.logSQL("insert SQL: ", sql);
-		_regEntityClass(entity);
+		_regEntityClass1(entity);
 		return getBeeSql().modify(sql);
 	}
 
@@ -232,7 +232,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		if (entity == null) return -1;
 		String sql = getObjToSQLRich().toDeleteSQL(entity, includeType);
 		Logger.logSQL("delete SQL: ", sql);
-		_regEntityClass(entity);
+		_regEntityClass1(entity);
 		return getBeeSql().modify(sql);
 	}
 
@@ -244,7 +244,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		List<String[]> list = null;
 		String sql = getObjToSQLRich().toSelectSQL(entity);
 		Logger.logSQL("List<String[]> select SQL: ", sql);
-		_regEntityClass(entity);
+		_regEntityClass1(entity);
 		list = getBeeSql().select(sql);
 
 		return list;
@@ -258,7 +258,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		List<String[]> list = null;
 		try {
 			String sql = getObjToSQLRich().toSelectSQL(entity, selectFields);
-			_regEntityClass(entity);
+			_regEntityClass1(entity);
 			list = getBeeSql().select(sql);
 		} catch (ObjSQLException e) {
 			throw e;
@@ -274,7 +274,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		
 		String sql = getObjToSQLRich().toSelectSQL(entity);
 		Logger.logSQL("selectJson SQL: ", sql);
-		_regEntityClass(entity);
+		_regEntityClass1(entity);
 		return getBeeSql().selectJson(sql);
 	}
 
@@ -284,31 +284,54 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		
 		String sql = getObjToSQLRich().toSelectSQL(entity, includeType);
 		Logger.logSQL("selectJson SQL: ", sql);
-		_regEntityClass(entity);
+		_regEntityClass1(entity);
 		return getBeeSql().selectJson(sql);
 	}
 
 	@Override
-	public <T> List<T> selectById(T entity, Integer id) {
+	public <T> T selectById(T entity, Integer id) {
 		if (entity == null) return null;
 		String sql = getObjToSQLRich().toSelectByIdSQL(entity, id);
 		Logger.logSQL("selectById SQL: ", sql);
-		return getBeeSql().select(sql, entity);
+		List<T> list = getBeeSql().select(sql, entity);
+		
+		return getIdEntity(list);
 	}
-
+	
 	@Override
-	public <T> List<T> selectById(T entity, Long id) {
+	public <T> T selectById(T entity, Long id) {
 		if (entity == null) return null;
 		String sql = getObjToSQLRich().toSelectByIdSQL(entity, id);
 		Logger.logSQL("selectById SQL: ", sql);
-		return getBeeSql().select(sql, entity);
+		List<T> list = getBeeSql().select(sql, entity);
+		
+		return getIdEntity(list);
+	}
+	
+	@Override
+	public <T> T selectById(T entity, String id) {
+		if (entity == null) return null;
+		String sql = getObjToSQLRich().toSelectByIdSQL(entity, id);
+		Logger.logSQL("selectById SQL: ", sql);
+		
+		List<T> list = getBeeSql().select(sql, entity);
+		
+		return getIdEntity(list);
+	}
+	
+	private <T> T getIdEntity(List<T> list) {
+		if(list==null || list.size()<1) {
+			return null;
+		}else {
+			return list.get(0);
+		}
 	}
 
 	@Override
-	public <T> List<T> selectById(T entity, String ids) {
+	public <T> List<T> selectByIds(T entity, String ids) {
 		if (entity == null) return null;
 		String sql = getObjToSQLRich().toSelectByIdSQL(entity, ids);
-		Logger.logSQL("selectById SQL: ", sql);
+		Logger.logSQL("selectByIds SQL: ", sql);
 		return getBeeSql().select(sql, entity);
 	}
 
@@ -357,7 +380,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		
 		String sql = getObjToSQLRich().toSelectSQL(entity, includeType,condition);
 		Logger.logSQL("selectJson SQL: ", sql);
-		_regEntityClass(entity);
+		_regEntityClass1(entity);
 		
 		return getBeeSql().selectJson(sql);
 	}
@@ -368,7 +391,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		int r = 0;
 		String sql = getObjToSQLRich().toUpdateBySQL(entity, whereFields); //updateBy
 		Logger.logSQL("update SQL(whereFields) :", sql);
-		_regEntityClass(entity);
+		_regEntityClass1(entity);
 		r = getBeeSql().modify(sql);
 
 		return r;
@@ -380,7 +403,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		int r = 0;
 		String sql = getObjToSQLRich().toUpdateBySQL(entity, whereFields, includeType);//updateBy
 		Logger.logSQL("update SQL(whereFields) :", sql);
-		_regEntityClass(entity);
+		_regEntityClass1(entity);
 		r = getBeeSql().modify(sql);
 
 		return r;
@@ -393,7 +416,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		int r = 0;
 		String sql = getObjToSQLRich().toUpdateBySQL(entity, whereFields, condition);//updateBy
 		Logger.logSQL("update SQL(whereFields) :", sql);
-		_regEntityClass(entity);
+		_regEntityClass1(entity);
 		r = getBeeSql().modify(sql);
 
 		return r;
@@ -406,7 +429,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		int r = 0;
 		String sql = getObjToSQLRich().toUpdateSQL(entity, updateFields, condition);
 		Logger.logSQL("update SQL(updateFields) :", sql);
-		_regEntityClass(entity);
+		_regEntityClass1(entity);
 		r = getBeeSql().modify(sql);
 		
 		return r;
@@ -419,19 +442,66 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		int r = 0;
 		String sql = getObjToSQLRich().toUpdateSQL(entity, "", condition);
 		Logger.logSQL("update SQL(condition) :", sql);
-		_regEntityClass(entity);
+		_regEntityClass1(entity);
 		r = getBeeSql().modify(sql);
 		
 		return r;
 	}
 	
-	private <T> void _regEntityClass(T entity){
+	//1.9
+	@Override
+	public <T> int insert(List<T> entityList) {
+		if (entityList == null || entityList.size()<1) return -1;
+		T entity[]=toEntityArray(entityList);
+		return insert(entity);
+	}
+	
+	//1.9
+	@Override
+	public <T> int insert(List<T> entityList, int batchSize) {
+		if (entityList == null || entityList.size()<1) return -1;
+		T entity[]=toEntityArray(entityList);
+		return insert(entity, batchSize);
+	}
+
+	//1.9
+	@Override
+	public <T> int insert(List<T> entityList, String excludeFields) {
+		if (entityList == null || entityList.size()<1) return -1;
+		T entity[]=toEntityArray(entityList);
+		return insert(entity, excludeFields);
+	}
+
+	//1.9
+	@Override
+	public <T> int insert(List<T> entityList, int batchSize, String excludeFields) {
+		if (entityList == null || entityList.size()<1) return -1;
+		T entity[]=toEntityArray(entityList);
+		
+		return insert(entity, batchSize, excludeFields);
+	}
+
+	private <T> void _regEntityClass1(T entity){
 		if(entity==null) return ;
 		HoneyContext.regEntityClass(entity.getClass());
 	}
 	
+	@SuppressWarnings("rawtypes")
 	private void _regEntityClass2(Class clazz){
 		HoneyContext.regEntityClass(clazz);
+	}
+	
+	@SuppressWarnings("unchecked")
+	private <T> T[] toEntityArray(List<T> entityList) {
+		
+		int len=entityList.size();
+		T entity[]=(T[])new Object[len];
+		
+		for (int i=0; i < len; i++) {
+			entity[i]=entityList.get(i);
+		}
+		
+		return entity;
 	}
 
 }

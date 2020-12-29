@@ -74,7 +74,7 @@ public final class HoneyUtil {
 		boolean isFirst = true;
 
 		for (int i = 0; i < len; i++) {
-			if ("serialVersionUID".equals(field[i].getName())) continue;
+			if ("serialVersionUID".equals(field[i].getName()) || field[i].isSynthetic()) continue;
 
 			if (field[i] != null && field[i].isAnnotationPresent(JoinTable.class)) continue;
 			if (isFirst) {
@@ -124,7 +124,8 @@ public final class HoneyUtil {
 		
 		String mailField="";//v1.8
 		for (int i = 0; i < len; i++) {
-			if ("serialVersionUID".equals(field[i].getName())) continue;
+			if ("serialVersionUID".equals(field[i].getName()) || field[i].isSynthetic()) continue;
+//			if(field[i].isSynthetic()) continue;
 			if (field[i] != null && field[i].isAnnotationPresent(JoinTable.class)) {
 				//s.append(",");
 				//s.append(_getBeanFullField_0(field[i]));
@@ -255,10 +256,12 @@ public final class HoneyUtil {
 		boolean isFirst = true;
 		String subFieldName="";
 		for (int i = 0; i < len; i++) {
-			if ("serialVersionUID".equals(field[i].getName())) continue;
+			if ("serialVersionUID".equals(field[i].getName()) || field[i].isSynthetic()) continue;
+//			if(field[i].isSynthetic()) continue;
 			if (field[i] != null && field[i].isAnnotationPresent(JoinTable.class)) {
 //				Logger.error("注解字段的实体: " + entityField.getType().getName() + "里面又包含了注解:" + field[i].getType());
-				if(!entityField.getType().getName().equals(field[i].getType().getName())){
+				String entityFieldName=entityField.getType().getName();
+				if(!entityFieldName.equals(field[i].getType().getName())){
 				   Logger.warn("Annotation JoinTable field: " +entityField.getName()+"(in "+ entityFullName + ") still include JoinTable field:" + field[i].getName() + "(will be ignored)!");
 				}
 				continue;
@@ -271,7 +274,7 @@ public final class HoneyUtil {
 			}
 			subFieldName=NameTranslateHandle.toColumnName(field[i].getName());
 			
-			if(!mainFieldSet.add(subFieldName) && isConfuseDuplicateField()){
+			if(!mainFieldSet.add(subFieldName) && isConfuseDuplicateFieldDB()){
 				
 				if (isSQLite()) {
 					dulMap.put(tableName + "." + subFieldName, tableName + "." + subFieldName); 
@@ -624,8 +627,12 @@ public final class HoneyUtil {
 		//		object字段上对应的值
 		
 		if (field != null && field.isAnnotationPresent(JoinTable.class)) return true; //v1.7.0  
+		
+		if(field != null && field.isSynthetic())  return true;
 
-		String fieldName = field.getName();
+		String fieldName ="";
+		if(field!=null) fieldName= field.getName();
+		
 		return (((includeType == NullEmpty.EXCLUDE || includeType == NullEmpty.EMPTY_STRING) && object == null)
 				|| ((includeType == NullEmpty.EXCLUDE || includeType == NullEmpty.NULL) && "".equals(object)) //TODO "  "也要排除
 		|| "serialVersionUID".equals(fieldName));
@@ -842,7 +849,7 @@ public final class HoneyUtil {
 		try {
 			for (int i = 0; i < len; i++) {
 				fields[i].setAccessible(true);
-				if (fields[i].get(entity) == null || "serialVersionUID".equals(fields[i].getName()) || fields[i].isAnnotationPresent(JoinTable.class)) {
+				if (fields[i].get(entity) == null || "serialVersionUID".equals(fields[i].getName()) || fields[i].isSynthetic() || fields[i].isAnnotationPresent(JoinTable.class)) {
 					continue;
 				} else {
 					map.put(_toColumnName(fields[i].getName()), fields[i].get(entity));
@@ -910,23 +917,22 @@ public final class HoneyUtil {
 		return sql;
 	}
 	
-	 static <T> String checkSelectField(T entity,String fieldList){
-		
-		if(fieldList==null) return null;
-		 
-		Field fields[] = entity.getClass().getDeclaredFields();
-		String packageAndClassName = entity.getClass().getName();
-		String columnsdNames = HoneyContext.getBeanField(packageAndClassName);
+	static <T> String checkAndProcessSelectField(T entity, String fieldList) {
+
+		if (fieldList == null) return null;
+
+		Field fields[]=entity.getClass().getDeclaredFields();
+		String packageAndClassName=entity.getClass().getName();
+		String columnsdNames=HoneyContext.getBeanField(packageAndClassName);
 		if (columnsdNames == null) {
-			columnsdNames = HoneyUtil.getBeanField(fields);//获取属性名对应的DB字段名
+			columnsdNames=HoneyUtil.getBeanField(fields);//获取属性名对应的DB字段名
 			HoneyContext.addBeanField(packageAndClassName, columnsdNames);
 		}
 
-		return checkSelectFieldViaString(columnsdNames, fieldList);
+		return checkAndProcessSelectFieldViaString(columnsdNames, fieldList, null);
 	}
 	 
-	 
-	 static String checkSelectFieldViaString(String columnsdNames,String fieldList){
+	 static String checkAndProcessSelectFieldViaString(String columnsdNames,String fieldList,Map<String,String> subDulFieldMap){
 			
 		if(fieldList==null) return null;
 		 
@@ -946,26 +952,41 @@ public final class HoneyUtil {
 		String newSelectFields = "";
 		boolean isFisrt = true;
 		String colName;
+        String checkColName;
 
 		for (String s : selectFields) {
 			colName=_toColumnName(s);
-			colName=colName.toLowerCase();
+			checkColName=colName.toLowerCase();
 //			if(isMoreTable){  //带有点一样转换
 //			}
 			
 //			if (!columnsdNames.contains(colName)) {
 			if(!(  
-			     columnsdNames.contains(","+colName+",") || columnsdNames.startsWith(colName+",") 
-			  || columnsdNames.endsWith(","+colName) ||  columnsdNames.equals(colName) 
-			  || columnsdNames.contains("."+colName+",")  || columnsdNames.endsWith("."+colName)
-			  || columnsdNames.contains(","+colName+" ") || columnsdNames.startsWith(colName+" ")  //取别名
-			  || columnsdNames.contains("."+colName+" ") //取别名
+			     columnsdNames.contains(","+checkColName+",") || columnsdNames.startsWith(checkColName+",") 
+			  || columnsdNames.endsWith(","+checkColName) ||  columnsdNames.equals(checkColName) 
+			  || columnsdNames.contains("."+checkColName+",")  || columnsdNames.endsWith("."+checkColName)
+			  || columnsdNames.contains(","+checkColName+" ") || columnsdNames.startsWith(checkColName+" ")  //取别名
+			  || columnsdNames.contains("."+checkColName+" ") //取别名
 			  )  ){
 				if (isFirstError) {
 					errorField += s;
 					isFirstError = false;
 				} else {
 					errorField += "," + s;
+				}
+			}
+			
+			String newField;
+			if (subDulFieldMap == null) {
+				newField=null;
+			} else {
+				newField=subDulFieldMap.get(colName);
+			}
+			if (newField != null) {
+				if (isSQLite()) {
+					colName=colName + K.as + " '" + newField + "'";
+				} else {//oracle
+					colName=colName + " " + newField;
 				}
 			}
 			if (isFisrt) {
@@ -1031,7 +1052,7 @@ public final class HoneyUtil {
 	}
 	
 	//oracle,SQLite
-	public static boolean isConfuseDuplicateField(){
+	public static boolean isConfuseDuplicateFieldDB(){
 		
 		return DatabaseConst.ORACLE.equalsIgnoreCase(HoneyConfig.getHoneyConfig().getDbName())
 			|| DatabaseConst.SQLite.equalsIgnoreCase(HoneyConfig.getHoneyConfig().getDbName())
