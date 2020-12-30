@@ -587,6 +587,15 @@ public final class HoneyUtil {
 //		javaTypeMap.put("[Ljava.lang.Byte;", 8); //  Byte[]
 		javaTypeMap.put("[B", 8); //byte[]  
 		javaTypeMap.put("java.lang.Boolean", 9);
+		
+		//支持原生类型
+		javaTypeMap.put("int", 2);
+		javaTypeMap.put("long", 3);
+		javaTypeMap.put("double", 4);
+		javaTypeMap.put("float", 5);
+		javaTypeMap.put("short", 6);
+		javaTypeMap.put("byte", 7);
+		javaTypeMap.put("boolean", 9);
 
 		javaTypeMap.put("java.math.BigDecimal", 10);
 

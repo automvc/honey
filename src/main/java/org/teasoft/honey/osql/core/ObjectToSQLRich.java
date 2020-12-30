@@ -536,23 +536,23 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		return _toSelectAndDeleteByIdSQL(wrap, ids,null);
 	}
 	
-	private <T> String _toSelectAndDeleteByIdSQL(SqlValueWrap wrap, String ids,String idType) {
-		
-		StringBuffer sqlBuffer =wrap.getValueBuffer(); //sqlBuffer
-		List<PreparedValue> list = new ArrayList<>();
-		PreparedValue preparedValue = null;
-		
+	private <T> String _toSelectAndDeleteByIdSQL(SqlValueWrap wrap, String ids, String idType) {
+
+		StringBuffer sqlBuffer=wrap.getValueBuffer(); //sqlBuffer
+		List<PreparedValue> list=new ArrayList<>();
+		PreparedValue preparedValue=null;
+
 		String idArray[]=ids.split(",");
-//		String t_ids="id=?";
-		String t_ids=_id()+"=?";
-		
-		preparedValue = new PreparedValue();
-//		preparedValue.setType(numType);//id的类型Object
+		//		String t_ids="id=?";
+		String t_ids=_id() + "=?";
+
+		preparedValue=new PreparedValue();
+		//		preparedValue.setType(numType);//id的类型Object
 		if (idType != null) {
 			preparedValue.setType(idType);
-			if ("Long".equals(idType)) {
+			if ("Long".equals(idType) || "long".equals(idType)) {
 				preparedValue.setValue(Long.parseLong(idArray[0]));
-			} else if ("Integer".equals(idType)) {
+			} else if ("Integer".equals(idType) || "int".equals(idType)) {
 				preparedValue.setValue(Integer.parseInt(idArray[0]));
 			} else {
 				preparedValue.setValue(idArray[0]);
@@ -560,20 +560,20 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		} else {
 			preparedValue.setValue(idArray[0]);
 		}
-		
+
 		list.add(preparedValue);
-		
-		for (int i = 1; i < idArray.length; i++) { //i from 1
-			preparedValue = new PreparedValue();
-//			t_ids+=" or id=?";
-			t_ids+=" "+K.or+" "+_id()+"=?";
-//			preparedValue.setType(numType);//id的类型Object
+
+		for (int i=1; i < idArray.length; i++) { //i from 1
+			preparedValue=new PreparedValue();
+			//			t_ids+=" or id=?";
+			t_ids+=" " + K.or + " " + _id() + "=?";
+			//			preparedValue.setType(numType);//id的类型Object
 			if (idType != null) {
 				preparedValue.setType(idType);
 
-				if ("Long".equals(idType)) {
+				if ("Long".equals(idType) || "long".equals(idType)) {
 					preparedValue.setValue(Long.parseLong(idArray[i]));
-				} else if ("Integer".equals(idType)) {
+				} else if ("Integer".equals(idType) || "int".equals(idType)) {
 					preparedValue.setValue(Integer.parseInt(idArray[i]));
 				} else {
 					preparedValue.setValue(idArray[i]);
@@ -581,13 +581,13 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			} else {
 				preparedValue.setValue(idArray[i]);
 			}
-			
+
 			list.add(preparedValue);
 		}
-		
+
 		sqlBuffer.append(t_ids);
 		setContext(sqlBuffer.toString(), list, wrap.getTableNames());
-		
+
 		return sqlBuffer.toString();
 	}
 	
