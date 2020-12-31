@@ -137,7 +137,8 @@ public final class HoneyConfig {
 //	@SysValue("${bee.osql.select.maxResultSize}")
 //	private int selectMaxResultSize;
 	
-	@SysValue("${bee.osql.select.batchSize}")
+//	@SysValue("${bee.osql.select.batchSize}") //closed. the name is confused.  v1.9
+	@SysValue("${bee.osql.insert.batchSize}")
 	private int batchSize = 10000; //不设置,默认10000
 	
 	
