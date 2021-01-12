@@ -23,6 +23,7 @@ import org.teasoft.honey.osql.core.HoneyUtil;
 import org.teasoft.honey.osql.core.Logger;
 import org.teasoft.honey.osql.core.NameTranslateHandle;
 import org.teasoft.honey.osql.core.SessionFactory;
+import org.teasoft.honey.osql.name.NameUtil;
 import org.teasoft.honey.osql.util.DateUtil;
 
 //是否覆盖文件,       支持写生成其中一个文件或几个文件(已实现)
@@ -44,6 +45,8 @@ public class GenBean {
 		// 表名对应的实体类名
 		String entityName="";
 		entityName=NameTranslateHandle.toEntityName(tableName);
+		
+		entityName=NameUtil.firstLetterToUpperCase(entityName);// 确保类名首字母大写.
 
 		if (config.getEntityNamePre() != null) entityName=config.getEntityNamePre() + entityName;
 
