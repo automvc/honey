@@ -30,6 +30,7 @@ import org.teasoft.bee.osql.exception.JoinTableParameterException;
 import org.teasoft.honey.osql.constant.NullEmpty;
 import org.teasoft.honey.osql.name.NameUtil;
 import org.teasoft.honey.osql.util.PropertiesReader;
+import org.teasoft.honey.util.StringUtils;
 
 /**
  * @author Kingstar
@@ -642,8 +643,13 @@ public final class HoneyUtil {
 		String fieldName ="";
 		if(field!=null) fieldName= field.getName();
 		
+		//exclude:  NULL and "" and "  "
+		if(-3==includeType) { //v1.9
+			if(StringUtils.isBlank((String)object)) return true;
+		}
+		
 		return (((includeType == NullEmpty.EXCLUDE || includeType == NullEmpty.EMPTY_STRING) && object == null)
-				|| ((includeType == NullEmpty.EXCLUDE || includeType == NullEmpty.NULL) && "".equals(object)) //TODO "  "也要排除
+				|| ((includeType == NullEmpty.EXCLUDE || includeType == NullEmpty.NULL) && "".equals(object)) 
 		|| "serialVersionUID".equals(fieldName));
 	}
 
