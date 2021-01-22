@@ -190,12 +190,12 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 				selectAndFun = K.select+" "+K.count+"(*) "+K.from+" ";
 			}else {
 //				selectAndFun = "select " + funType + "(" + _toColumnName(fieldForFun) + ") from ";
-				selectAndFun = K.select+" " + funType + "(" + _toColumnName(fieldForFun) + ") "+K.from+" ";
+				selectAndFun = K.select+" " + funType + "(" + _toColumnName(fieldForFun) + ") "+K.from+" ";   //TODO funType要能转大小写风格
 			}
 			sqlBuffer.append(selectAndFun);
 			sqlBuffer.append(tableName);
 			boolean firstWhere = true;
-			Field fields[] = entity.getClass().getDeclaredFields(); // 改为以最高权限访问？2012-07-15
+			Field fields[] = entity.getClass().getDeclaredFields();
 			int len = fields.length;
 			List<PreparedValue> list = new ArrayList<>();
 			PreparedValue preparedValue = null;
@@ -252,7 +252,15 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 
 		return sql;
 	}
-
+	
+	//v1.9
+	public <T> String toSelectFunSQL(T entity, Condition condition) {
+		if (condition == null || condition.getIncludeType() == null)
+			return _ObjectToSQLHelper._toSelectSQL(entity, -1, condition, true); // 过滤NULL和空字符串
+		else
+			return _ObjectToSQLHelper._toSelectSQL(entity, condition.getIncludeType().getValue(), condition, true);
+	}
+	
 	@Override
 	public <T> String toSelectSQL(T entity, IncludeType includeType) {
 		return _ObjectToSQLHelper._toSelectSQL(entity, includeType.getValue());
@@ -349,11 +357,13 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			
 			List<PreparedValue> preparedValueList = new ArrayList<>();
 			
-			if (showSQL) {
-				preparedValueList.addAll(HoneyContext._justGetPreparedValue(sql[0]));  //打印后要手动清除
-			} else {
-				preparedValueList.addAll(HoneyContext.getPreparedValue(sql[0])); //会删了,打印日志时不能用.  批处理,在v1.8开始,不会用于占位设值.
-			}
+//			if (showSQL) {
+//				preparedValueList.addAll(HoneyContext._justGetPreparedValue(sql[0]));  //打印后要手动清除
+//			} else {
+//				preparedValueList.addAll(HoneyContext.getPreparedValue(sql[0])); //会删了,打印日志时不能用.  批处理,在v1.8开始,不会用于占位设值.
+//			}
+			preparedValueList.addAll(HoneyContext._justGetPreparedValue(sql[0]));  //统一使用这个.
+			
 			if(len==1) HoneyContext.setPreparedValue(t_sql+ index1 +"Batch:"+ 0 + index2, preparedValueList);
 			List<PreparedValue> oneRecoreList;
 			for (int i = 1; i < len; i++) { // i=1
@@ -460,7 +470,10 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 
 	@Override
 	public <T> String toSelectSQL(T entity, IncludeType includeType, Condition condition) {
-		return _ObjectToSQLHelper._toSelectSQL(entity, includeType.getValue(),condition); 
+		if (includeType == null)
+			return _ObjectToSQLHelper._toSelectSQL(entity, -1, condition);
+		else
+			return _ObjectToSQLHelper._toSelectSQL(entity, includeType.getValue(), condition);
 	}
 	
 	private <T> String _toUpdateBySQL(T entity, String whereFieldList, int includeType) {
