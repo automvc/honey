@@ -178,14 +178,22 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	public <T> String selectWithFun(T entity, FunctionType functionType, String fieldForFun) {
 		if (entity == null) return null;
 		String s = null;
-		try {
-			String sql = getObjToSQLRich().toSelectFunSQL(entity, functionType, fieldForFun);
-			_regEntityClass1(entity);
-			s=getBeeSql().selectFun(sql);
-		} catch (ObjSQLException e) {
-			throw e;
-		}
+		String sql = getObjToSQLRich().toSelectFunSQL(entity, functionType, fieldForFun);
+		_regEntityClass1(entity);
+		s = getBeeSql().selectFun(sql);
 
+		return s;
+	}
+	
+	@Override
+	public <T> String selectWithFun(T entity, Condition condition) {
+		if (entity == null) return null;
+
+		String s = null;
+ 		String sql = getObjToSQLRich().toSelectFunSQL(entity, condition);
+		Logger.logSQL("select fun SQL: ", sql);
+		_regEntityClass1(entity);
+		s = getBeeSql().selectFun(sql);
 		return s;
 	}
 
@@ -266,7 +274,16 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 
 		return list;
 	}
-
+	
+	@Override
+	public <T> List<String[]> selectString(T entity, Condition condition) {
+		if (entity == null) return null;
+		String sql = getObjToSQLRich().toSelectSQL(entity, condition.getIncludeType(), condition);
+		Logger.logSQL("select SQL: ", sql);
+		_regEntityClass1(entity);
+		return getBeeSql().select(sql);
+	}
+	
 	@Override
 	public <T> String selectJson(T entity) {
 		
@@ -372,7 +389,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Deprecated
 	public <T> List<T> select(T entity, IncludeType includeType, Condition condition) {
 		if (entity == null) return null;
-		String sql = getObjToSQLRich().toSelectSQL(entity, includeType,condition);
+		String sql = getObjToSQLRich().toSelectSQL(entity, includeType, condition);
 		Logger.logSQL("select SQL: ", sql);
 		return getBeeSql().select(sql, entity);
 	}
@@ -385,6 +402,16 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		Logger.logSQL("selectJson SQL: ", sql);
 		_regEntityClass1(entity);
 		
+		return getBeeSql().selectJson(sql);
+	}
+	
+	@Override
+	public <T> String selectJson(T entity, Condition condition) {
+		if (entity == null) return null;
+		
+		String sql = getObjToSQLRich().toSelectSQL(entity, condition.getIncludeType(),condition);
+		Logger.logSQL("selectJson SQL: ", sql);
+		_regEntityClass1(entity);
 		return getBeeSql().selectJson(sql);
 	}
 
@@ -423,6 +450,12 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		r = getBeeSql().modify(sql);
 
 		return r;
+	}
+	
+	//v1.9
+	@Override
+	public <T> int updateById(T entity, Condition condition) {
+       return updateBy(entity, "id", condition);
 	}
 
 	//v1.7.2
@@ -484,6 +517,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		return insert(entity, batchSize, excludeFields);
 	}
 
+	//没能将entity传到SqlLib,需要注册
 	private <T> void _regEntityClass1(T entity){
 		if(entity==null) return ;
 		HoneyContext.regEntityClass(entity.getClass());
