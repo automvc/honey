@@ -13,6 +13,7 @@ import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
 import org.teasoft.bee.osql.exception.BeeIllegalBusinessException;
 import org.teasoft.honey.distribution.GenIdFactory;
 import org.teasoft.honey.osql.name.NameUtil;
+import org.teasoft.honey.util.StringUtils;
 
 /**
  * @author Kingstar
@@ -80,8 +81,10 @@ final class _ObjectToSQLHelper {
 		return sql;
 
 	}
-	
 	static <T> String _toSelectSQL(T entity, int includeType, Condition condition) {
+		return _toSelectSQL(entity, includeType, condition, false);
+	}
+	static <T> String _toSelectSQL(T entity, int includeType, Condition condition,boolean isCheckOneFunction) {
 		checkPackage(entity);
 		
 		Set<String> conditionFieldSet=null;
@@ -104,8 +107,25 @@ final class _ObjectToSQLHelper {
 			
 			if (condition != null) {
 				condition.setSuidType(SuidType.SELECT);
+				
+				//v1.9
+				String fun=ConditionHelper.processFunction(columnNames, condition);
+				if(isCheckOneFunction) {
+					if(fun.contains(",")) {
+						throw new BeeErrorGrammarException("The method just support use one Function!");
+					}
+					if("".equals(fun)) {
+						throw new BeeErrorGrammarException("The method need set the Function with Condition selectFun!");
+					}
+				}
+				
 				String selectField = ConditionHelper.processSelectField(columnNames, condition);
-				if (selectField != null) columnNames = selectField;
+				if(isCheckOneFunction) columnNames=fun;
+				else if (selectField != null && StringUtils.isEmpty(fun)) columnNames = selectField;
+				else if (selectField != null && StringUtils.isNotEmpty(fun)) {
+					columnNames = selectField+","+fun;
+				}else if (selectField == null && StringUtils.isNotEmpty(fun)) columnNames = fun;
+				
 			}
 			
 //			sqlBuffer.append(K.select+" " + columnNames + " "+K.from+" ");
@@ -113,7 +133,6 @@ final class _ObjectToSQLHelper {
 			sqlBuffer.append(tableName);
 			
 			int len = fields.length;
-			
 			PreparedValue preparedValue = null;
 			for (int i = 0, k = 0; i < len; i++) {
 				fields[i].setAccessible(true);
@@ -270,11 +289,19 @@ final class _ObjectToSQLHelper {
 		Field field = null;
 		try {
 			field = entity.getClass().getDeclaredField("id");
-		} catch (Exception e) {
+		} catch (NoSuchFieldException e) {
 			//if have exception, express "id".equalsIgnoreCase(whereColumn) is false.
+			throw new ObjSQLException(
+					"ObjSQLException: in the update(T entity) or update(T entity,IncludeType includeType), the id field is default key field !");
 		}
-		if (field == null) {
-			throw new ObjSQLException("ObjSQLException: in the update(T entity) or update(T entity,IncludeType includeType), the id field of entity must not be null !");
+		field.setAccessible(true);
+		try {
+			if (field.get(entity) == null) {
+				throw new ObjSQLException(
+						"ObjSQLException: in the update(T entity) or update(T entity,IncludeType includeType), the id field of entity must not be null !");
+			}
+		} catch (IllegalAccessException e) {
+			throw ExceptionHelper.convert(e);
 		}
 		//		UpdateBy id
 		return _toUpdateBySQL(entity, new String[] { "id" }, includeType); // update by whereColumn(now is id)

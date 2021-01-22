@@ -15,6 +15,8 @@ import org.teasoft.bee.osql.Op;
 import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.dialect.DbFeature;
 import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
+import org.teasoft.honey.osql.core.ConditionImpl.FunExpress;
+import org.teasoft.honey.util.StringUtils;
 
 /**
  * @author Kingstar
@@ -423,7 +425,35 @@ public class ConditionHelper {
 
 		return HoneyUtil.checkAndProcessSelectFieldViaString(columnNames, selectField,subDulFieldMap);
 	}
+	
+	public static String processFunction(String columnNames,Condition condition) {
+//		if(condition==null) return null;
 
+		ConditionImpl conditionImpl = (ConditionImpl) condition;
+		List<FunExpress> funExpList=conditionImpl.getFunExpList();
+		String columnName;
+		String funStr="";
+		boolean isFirst=true;
+		String alias;
+		for (int i = 0; i < funExpList.size(); i++) {
+			if("*".equals(funExpList.get(i).getField())) {
+				columnName="*";
+			}else {
+			columnName=HoneyUtil.checkAndProcessSelectFieldViaString(columnNames, funExpList.get(i).getField(),null);
+			}
+			if(isFirst) {
+				isFirst=false;
+			}else {
+				funStr+=",";
+			}
+			funStr+=funExpList.get(i).getFunctionType().getName()+"("+columnName+")"; //TODO funType要能转大小写风格
+			alias=funExpList.get(i).getAlias();
+			if(StringUtils.isNotBlank(alias)) funStr+=" "+K.as+" "+alias;
+		}
+		
+		return funStr;
+	}
+	
 	private static String _toColumnName(String fieldName) {
 		return NameTranslateHandle.toColumnName(fieldName);
 	}

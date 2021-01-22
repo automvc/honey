@@ -36,6 +36,8 @@ public class ConditionImpl implements Condition {
 	private List<Expression> updateSetList = new ArrayList<>();
 	private Set<String> updatefieldSet = new HashSet<>();
 	
+	private List<FunExpress> funExpList=new ArrayList<>();
+	
 	private boolean isStartGroupBy = true;
 	private boolean isStartHaving = true;
 	private boolean isStartOrderBy = true;
@@ -301,6 +303,7 @@ public class ConditionImpl implements Condition {
 	}
 
 	public List<Expression> getExpList() {
+		//TODO 若要自动调整顺序,可以在这改.  group by,having, order by另外定义,在这才添加到list.
 		return list;
 	}
 
@@ -365,6 +368,10 @@ public class ConditionImpl implements Condition {
 		return updateSetList;
 	}
 	
+	public List<FunExpress> getFunExpList() {
+		return funExpList;
+	}
+	
 	private Condition forUpdateSet(String field, String fieldName,String opType){
 		return _forUpdateSet(field, fieldName, opType);
 	}
@@ -414,6 +421,58 @@ public class ConditionImpl implements Condition {
 	@Override
 	public Boolean getForUpdate() {
 		return isForUpdate;
+	}
+	
+	//v1.9
+	@Override
+	public Condition selectFun(FunctionType functionType, String fieldForFun) {
+		funExpList.add(new FunExpress(functionType, fieldForFun, null));
+		return this;
+	}
+
+	//v1.9
+	@Override
+	public Condition selectFun(FunctionType functionType, String fieldForFun, String alias) {
+		funExpList.add(new FunExpress(functionType, fieldForFun, alias));
+		return this;
+	}
+
+	final class FunExpress{
+		private FunctionType functionType;
+		private String field;
+		private String alias;
+		
+		public FunExpress(FunctionType functionType, String field, String alias) {
+			this.functionType = functionType;
+			this.field = field;
+			this.alias = alias;
+		}
+
+		public FunExpress() {}
+
+		public FunctionType getFunctionType() {
+			return functionType;
+		}
+
+		public void setFunctionType(FunctionType functionType) {
+			this.functionType = functionType;
+		}
+
+		public String getField() {
+			return field;
+		}
+
+		public void setField(String field) {
+			this.field = field;
+		}
+
+		public String getAlias() {
+			return alias;
+		}
+
+		public void setAlias(String alias) {
+			this.alias = alias;
+		}
 	}
 	
 }
