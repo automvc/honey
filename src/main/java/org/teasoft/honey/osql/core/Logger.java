@@ -48,12 +48,13 @@ public class Logger {
 		if (showSQL) {
 			List list = null;
 			String insertIndex = (String) OneTimeParameter.getAttribute("_SYS_Bee_BatchInsert");
-			if (HoneyUtil.isMysql() && insertIndex != null) {
-				//				mysql批处理,在v1.8开始,不会用于占位设值. 需要清除
-				list = HoneyContext.getPreparedValue(sql);
-			} else {
-				list = HoneyContext._justGetPreparedValue(sql);
-			}
+//			if (HoneyUtil.isMysql() && insertIndex != null) {
+//				//				mysql批处理,在v1.8开始,不会用于占位设值. 需要清除
+//				list = HoneyContext.getPreparedValue(sql);
+//			} else {
+//				list = HoneyContext._justGetPreparedValue(sql);
+//			}
+			list = HoneyContext._justGetPreparedValue(sql); //统一用这个.
 
 			String value = HoneyUtil.list2Value(list, showSQLShowType);
 
