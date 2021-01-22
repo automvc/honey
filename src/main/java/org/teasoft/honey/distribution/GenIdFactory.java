@@ -42,7 +42,7 @@ public class GenIdFactory {
 	
 	/**
 	 * 获取一个范围的id.
-	 * @param sizeOfIds
+	 * @param sizeOfIds size of Ids
 	 * @return array of long id.
 	 */
 	public static long[] getRangeId(int sizeOfIds) {
@@ -62,7 +62,7 @@ public class GenIdFactory {
 	 * 
 	 * @param bizType bizType作为隔离的命名空间.bizType as namespace.
 	 * @param genType it is one of SerialUniqueId,OneTimeSnowflakeId or PearFlowerId.
-	 * @return
+	 * @return long id num.
 	 */
 	public static long get(String bizType, String genType) {
 		GenId genId = getGenId(bizType, genType);
