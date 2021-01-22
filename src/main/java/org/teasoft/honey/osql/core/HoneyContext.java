@@ -175,7 +175,7 @@ public final class HoneyContext {
 		return list;
 	}
 
-	public static List<PreparedValue> getPreparedValue(String sqlStr) {
+	 static List<PreparedValue> getPreparedValue(String sqlStr) {
 		Map<String, List<PreparedValue>> map = sqlPreValueLocal.get();
 		if (null == map) return null;
 
