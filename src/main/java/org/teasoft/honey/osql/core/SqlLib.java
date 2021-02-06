@@ -132,7 +132,9 @@ public class SqlLib implements BeeSql {
 			Object cacheObj = cache.get(sql); //这里的sql还没带有值
 			if (cacheObj != null) {
 				clearContext(sql);
-				return (List<T>) cacheObj;
+				List<T> list=(List<T>) cacheObj;
+				logSelectRows(list.size());
+				return list;
 			}
 			initRoute(SuidType.SELECT, entity.getClass(), sql);
 		}
@@ -165,7 +167,6 @@ public class SqlLib implements BeeSql {
 
 				targetObj = (T) entity.getClass().newInstance();
 				for (int i = 0; i < columnCount; i++) {
-//					if("serialVersionUID".equals(field[i].getName())) continue;
 					try {
 						name=_toFieldName(rmeta.getColumnName(i + 1));
 						if(isFirst){
@@ -206,7 +207,7 @@ public class SqlLib implements BeeSql {
 			targetObj = null;
 			map=null;
 		}
-		Logger.logSQL("| <--  select rows: ", rsList.size()+"");
+		logSelectRows(rsList.size());
 
 		return rsList;
 	}
@@ -283,7 +284,9 @@ public class SqlLib implements BeeSql {
 			Object cacheObj = cache.get(sql); //这里的sql还没带有值
 			if (cacheObj != null) {
 				clearContext(sql);
-				return (List<String[]>) cacheObj;
+				List<String[]> list=(List<String[]>) cacheObj;
+				logSelectRows(list.size());
+				return list;
 			}
 			initRoute(SuidType.SELECT, null, sql);
 		}
@@ -315,7 +318,7 @@ public class SqlLib implements BeeSql {
 
 			list=TransformResultSet.toStringsList(rs);
 			
-			Logger.logSQL(" | <--  select rows: ", list.size()+"");
+			logSelectRows(list.size());
 			
 			addInCache(sql, list,"List<String[]>",SuidType.SELECT,list.size());
 			
@@ -328,7 +331,54 @@ public class SqlLib implements BeeSql {
 
 		return list;
 	}
+	
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Map<String,Object>> selectMapList(String sql) {
+		
+		if(sql==null || "".equals(sql.trim())) return Collections.emptyList();
+		
+		boolean isReg = updateInfoInCache(sql, "List<Map<String,Object>>", SuidType.SELECT);
+		if (isReg) {
+			Object cacheObj = cache.get(sql); //这里的sql还没带有值
+			if (cacheObj != null) {
+				clearContext(sql);
+				List<Map<String,Object>> list=(List<Map<String,Object>>) cacheObj;
+				logSelectRows(list.size());
+				return list;
+			}
+			initRoute(SuidType.SELECT, null, sql);
+		}
+		
+		List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
+		Connection conn = null;
+		PreparedStatement pst = null;
+		ResultSet rs = null;
 
+		try {
+			conn = getConn();
+			String exe_sql=HoneyUtil.deleteLastSemicolon(sql);
+			pst = conn.prepareStatement(exe_sql);
+			setPreparedValues(pst, sql);
+			rs = pst.executeQuery();
+
+			list=TransformResultSet.toMapList(rs);
+			
+			logSelectRows(list.size());
+			
+			addInCache(sql, list,"List<Map<String,Object>>",SuidType.SELECT,list.size());
+			
+		} catch (SQLException e) {
+			throw ExceptionHelper.convert(e);
+		} finally {
+			clearContext(sql);
+			checkClose(pst, conn);
+		}
+
+		return list;
+	}
+	
 	/*
 	 * include insert,delete and update.
 	 */
@@ -358,7 +408,7 @@ public class SqlLib implements BeeSql {
 			checkClose(pst, conn);
 		}
 		
-		Logger.logSQL("| <--  Affected rows: ", num+"");
+		Logger.logSQL(" | <--  Affected rows: ", num+"");
 		
 		//更改操作需要清除缓存
 //		if(num>0)  //fixed bug.  没删成功,也要清除.否则缓存会一直在.
@@ -501,7 +551,7 @@ public class SqlLib implements BeeSql {
 				else
 					sql_i = index1 + i + index2 + sql;
 
-				Logger.logSQL("insert[] SQL : ", sql_i);
+				Logger.logSQL(" insert[] SQL : ", sql_i);
 			}
 			
 			if (i == 0)
@@ -519,7 +569,7 @@ public class SqlLib implements BeeSql {
 		}
 		conn.commit();
 		
-		Logger.logSQL("| <-- index["+ (start) +"~"+(end-1)+ index3+" Affected rows: ", a+"");
+		Logger.logSQL(" | <-- index["+ (start) +"~"+(end-1)+ index3+" Affected rows: ", a+"");
 
 		return a;
 	}
@@ -621,7 +671,7 @@ public class SqlLib implements BeeSql {
 		if (showSQL) {
 			//print log
 			if(start==0 || (end-start!=batchSize))
-			  Logger.logSQL("insert[] SQL : ", batchSqlForPrint);
+			  Logger.logSQL(" insert[] SQL : ", batchSqlForPrint);
 			
 			for (int i = start; i < end; i++) { //start... (end-1)
 				OneTimeParameter.setAttribute("_SYS_Bee_BatchInsert", i + "");
@@ -631,7 +681,7 @@ public class SqlLib implements BeeSql {
 				else
 					sql_i = index1 + i + index2 + sql;
 
-				Logger.logSQL("insert[] SQL : ", sql_i);
+				Logger.logSQL(" insert[] SQL : ", sql_i);
 			}
 		}
 		
@@ -641,7 +691,7 @@ public class SqlLib implements BeeSql {
 		a = pst.executeUpdate();  // not executeBatch
 		conn.commit();
 		
-		Logger.logSQL("| <-- [Batch:"+ (start/batchSize) + index3+" Affected rows: ", a+"");
+		Logger.logSQL(" | <-- [Batch:"+ (start/batchSize) + index3+" Affected rows: ", a+"");
 
 		return a;
 	}
@@ -695,7 +745,10 @@ public class SqlLib implements BeeSql {
 			Object cacheObj = cache.get(sql); //这里的sql还没带有值
 			if (cacheObj != null) {
 				clearContext(sql);
-				return (List<T>) cacheObj;
+				
+				List<T> list=(List<T>) cacheObj;
+				logSelectRows(list.size());
+				return list;
 			}
 			initRoute(SuidType.SELECT, entity.getClass(), sql); //only multi-Ds,tables don't allow in different db.仅分库时，多表查询的多个表要在同一个数据源.
 		}
@@ -757,10 +810,12 @@ public class SqlLib implements BeeSql {
 				
 				for (int i = 0; i < fields1.length; i++) {
 					
-					if("serialVersionUID".equals(fields1[i].getName()) || fields1[i].isSynthetic()) {
-						continue;
-					}
-					if (fields1[i]!= null && fields1[i].isAnnotationPresent(JoinTable.class)) continue;
+//					if("serialVersionUID".equals(fields1[i].getName()) || fields1[i].isSynthetic()) {
+//						continue;
+//					}
+//					if (fields1[i]!= null && fields1[i].isAnnotationPresent(JoinTable.class)) continue;
+					if(HoneyUtil.isSkipField(fields1[i])) continue;
+					
 					
 					fields1[i].setAccessible(true);
 					isDul=false;
@@ -797,10 +852,11 @@ public class SqlLib implements BeeSql {
 					String columnName="";
 					for (int i = 0; i < fields2.length; i++) {
 						
-						if("serialVersionUID".equals(fields2[i].getName()) || fields2[i].isSynthetic()) {
-							continue;
-						}
-						if (fields2[i]!= null && fields2[i].isAnnotationPresent(JoinTable.class)) continue;
+//						if("serialVersionUID".equals(fields2[i].getName()) || fields2[i].isSynthetic()) {
+//							continue;
+//						}
+//						if (fields2[i]!= null && fields2[i].isAnnotationPresent(JoinTable.class)) continue;
+						if(HoneyUtil.isSkipField(fields2[i])) continue;
 						
 						fields2[i].setAccessible(true);
 						isDul=false;
@@ -833,8 +889,8 @@ public class SqlLib implements BeeSql {
 				//主表设置
 				targetObj = (T) entity.getClass().newInstance();
 				for (int i = 0; i < columnCount; i++) {
-					if("serialVersionUID".equals(field[i].getName()) || field[i].isSynthetic()) continue;
-//					if(field[i].isSynthetic()) continue;
+//					if("serialVersionUID".equals(field[i].getName()) || field[i].isSynthetic()) continue;
+					if(HoneyUtil.isSkipFieldForMoreTable(field[i])) continue;  //有Ignore注释,将不再处理JoinTable
 					if (field[i]!= null && field[i].isAnnotationPresent(JoinTable.class)) {
 						field[i].setAccessible(true);
 						if(field[i].getName().equals(variableName[0])){
@@ -878,7 +934,7 @@ public class SqlLib implements BeeSql {
 		entity = null;
 		targetObj = null;
 		
-		Logger.logSQL("| <--  select rows: ", rsList.size()+"");
+		logSelectRows(rsList.size());
 
 		return rsList;
 	}
@@ -981,6 +1037,10 @@ public class SqlLib implements BeeSql {
 	//Oracle,SQLite
 	private boolean isConfuseDuplicateFieldDB(){
 		return HoneyUtil.isConfuseDuplicateFieldDB();
+	}
+	
+	private void logSelectRows(int size) {
+		Logger.logSQL(" | <--  select rows: ", size + "");
 	}
 	
 }
