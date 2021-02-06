@@ -13,6 +13,7 @@ import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
 import org.teasoft.bee.osql.exception.BeeIllegalBusinessException;
 import org.teasoft.honey.distribution.GenIdFactory;
 import org.teasoft.honey.osql.name.NameUtil;
+import org.teasoft.honey.util.ObjectUtils;
 import org.teasoft.honey.util.StringUtils;
 
 /**
@@ -47,8 +48,9 @@ final class _ObjectToSQLHelper {
 			PreparedValue preparedValue = null;
 			for (int i = 0; i < len; i++) {
 				fields[i].setAccessible(true);
-				if (fields[i].get(entity) == null || "serialVersionUID".equals(fields[i].getName()) || fields[i].isSynthetic()
-				 || fields[i].isAnnotationPresent(JoinTable.class)){
+//				if (fields[i].get(entity) == null || "serialVersionUID".equals(fields[i].getName()) || fields[i].isSynthetic()
+//				 || fields[i].isAnnotationPresent(JoinTable.class)){
+				if(HoneyUtil.isSkipField(fields[i])) {
 					continue;
 				}else {
 					if (firstWhere) {
@@ -120,12 +122,13 @@ final class _ObjectToSQLHelper {
 				}
 				
 				String selectField = ConditionHelper.processSelectField(columnNames, condition);
-				if(isCheckOneFunction) columnNames=fun;
-				else if (selectField != null && StringUtils.isEmpty(fun)) columnNames = selectField;
-				else if (selectField != null && StringUtils.isNotEmpty(fun)) {
-					columnNames = selectField+","+fun;
-				}else if (selectField == null && StringUtils.isNotEmpty(fun)) columnNames = fun;
-				
+				if (isCheckOneFunction)
+					columnNames = fun;
+				else if (selectField != null && StringUtils.isEmpty(fun))
+					columnNames = selectField;
+				else if (selectField != null && StringUtils.isNotEmpty(fun))
+					columnNames = selectField + "," + fun;
+				else if (selectField == null && StringUtils.isNotEmpty(fun)) columnNames = fun;
 			}
 			
 //			sqlBuffer.append(K.select+" " + columnNames + " "+K.from+" ");
@@ -175,10 +178,10 @@ final class _ObjectToSQLHelper {
 			throw ExceptionHelper.convert(e);
 		}
 			
-			if(condition!=null){
-				 condition.setSuidType(SuidType.SELECT);
-			     ConditionHelper.processCondition(sqlBuffer, list, condition, firstWhere);
-			}
+		if (condition != null) {
+			condition.setSuidType(SuidType.SELECT);
+			ConditionHelper.processCondition(sqlBuffer, list, condition, firstWhere);
+		}
 
 		setContext(sqlBuffer.toString(), list, tableName);
 
@@ -324,7 +327,8 @@ final class _ObjectToSQLHelper {
 //		if (updateFields.length == 0 || "".equals(updateFieldList.trim()))
 		
 		if( (setColmns==null || (setColmns.length==1 && "".equals(setColmns[0].trim()) ) )
-		   && (updatefieldSet==null || updatefieldSet.size()==0) ){
+//		    && (updatefieldSet==null || updatefieldSet.size()==0) ){
+			&& (ObjectUtils.isEmpty(updatefieldSet)) ){
 			throw new ObjSQLException("ObjSQLException: in SQL update set at least include one field.");
 		}
 		
@@ -768,11 +772,11 @@ final class _ObjectToSQLHelper {
 		for (int i = 0; i < len; i++) {
 			fields[i].setAccessible(true);
 
-			if ("serialVersionUID".equals(fields[i].getName()) || fields[i].isSynthetic()) {
-				continue;
-			} else if (fields[i] != null && fields[i].isAnnotationPresent(JoinTable.class)) {
-				continue;
-			} else if (!"".equals(excludeFieldList) && isExcludeField(excludeFieldList, fields[i].getName())) continue;
+//			if ("serialVersionUID".equals(fields[i].getName()) || fields[i].isSynthetic()) {
+//				continue;
+//			} else if (fields[i] != null && fields[i].isAnnotationPresent(JoinTable.class)) {
+			if(HoneyUtil.isSkipField(fields[i])) continue;
+			else if (!"".equals(excludeFieldList) && isExcludeField(excludeFieldList, fields[i].getName())) continue;
 
 			preparedValue = new PreparedValue();
 			preparedValue.setType(fields[i].getType().getName());
@@ -863,7 +867,7 @@ final class _ObjectToSQLHelper {
 			setContext(sql, list, tableName);
 			
 			//不允许删整张表
-			//v1.7.2 只支持是否带where检测
+			//只支持是否带where检测   v1.7.2 
 			if (firstWhere) {
 				boolean notDeleteWholeRecords = HoneyConfig.getHoneyConfig().isNotDeleteWholeRecords();
 				if (notDeleteWholeRecords) {

@@ -286,9 +286,7 @@ public class ConditionHelper {
 				}
 
 				continue;
-			}
-
-			else if ("orderBy".equalsIgnoreCase(opType)) {
+			}else if ("orderBy".equalsIgnoreCase(opType)) {
 
 				if (SuidType.SELECT != conditionImpl.getSuidType()) {
 					throw new BeeErrorGrammarException(conditionImpl.getSuidType() + " do not support 'order by' !");

@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.teasoft.bee.osql.DatabaseConst;
+import org.teasoft.bee.osql.annotation.Ignore;
 import org.teasoft.bee.osql.annotation.JoinTable;
 import org.teasoft.bee.osql.annotation.JoinType;
 import org.teasoft.bee.osql.exception.BeeErrorFieldException;
@@ -75,9 +76,9 @@ public final class HoneyUtil {
 		boolean isFirst = true;
 
 		for (int i = 0; i < len; i++) {
-			if ("serialVersionUID".equals(field[i].getName()) || field[i].isSynthetic()) continue;
-
-			if (field[i] != null && field[i].isAnnotationPresent(JoinTable.class)) continue;
+//			if ("serialVersionUID".equals(field[i].getName()) || field[i].isSynthetic()) continue;
+//			if (field[i] != null && field[i].isAnnotationPresent(JoinTable.class)) continue;
+			if(isSkipField(field[i])) continue;
 			if (isFirst) {
 				isFirst = false;
 			} else {
@@ -125,8 +126,8 @@ public final class HoneyUtil {
 		
 		String mailField="";//v1.8
 		for (int i = 0; i < len; i++) {
-			if ("serialVersionUID".equals(field[i].getName()) || field[i].isSynthetic()) continue;
-//			if(field[i].isSynthetic()) continue;
+//			if ("serialVersionUID".equals(field[i].getName()) || field[i].isSynthetic()) continue;
+			if(isSkipFieldForMoreTable(field[i])) continue; //有Ignore注释,将不再处理JoinTable
 			if (field[i] != null && field[i].isAnnotationPresent(JoinTable.class)) {
 				//s.append(",");
 				//s.append(_getBeanFullField_0(field[i]));
@@ -218,7 +219,19 @@ public final class HoneyUtil {
 					useSubTableName = subTableName[j];
 				}
 				if(!"".equals(mainColumn) && !"".equals(subColumn)){
-				   moreTableStruct[1 + j].joinExpression = tableName + "." + mainColumn + "=" + useSubTableName + "." + subColumn;
+//				   moreTableStruct[1 + j].joinExpression = tableName + "." + mainColumn + "=" + useSubTableName + "." + subColumn;
+				   //v1.9
+					String mainColumnArray[]=mainColumn.split(",");
+					String subColumnArray[]=subColumn.split(",");
+					if(mainColumnArray.length!=subColumnArray.length) {
+						throw new JoinTableException("The number of field in mainField & subField is different , mainField is: "+mainColumnArray.length+" ,subField is : "+subColumnArray.length);
+					}
+					moreTableStruct[1 + j].joinExpression="";
+					for (int i = 0; i < mainColumnArray.length; i++) {
+						if(i!=0) moreTableStruct[1 + j].joinExpression += K.space+K.and+K.space;
+						moreTableStruct[1 + j].joinExpression +=tableName + "." + mainColumnArray[i] + "=" + useSubTableName + "." + subColumnArray[i];
+					}
+					
 				}
 				moreTableStruct[1 + j].useSubTableName = useSubTableName;
 				try {
@@ -244,6 +257,7 @@ public final class HoneyUtil {
 		return moreTableStruct;
 	}
 
+	//for moreTable
 	static StringBuffer _getBeanFullField_0(Field entityField, String tableName,String entityFullName,Set<String> mainFieldSet,Map<String,String> dulMap) {
 //		entityFullName just for tip
 		//		    if(entityField==null) return "";
@@ -257,8 +271,8 @@ public final class HoneyUtil {
 		boolean isFirst = true;
 		String subFieldName="";
 		for (int i = 0; i < len; i++) {
-			if ("serialVersionUID".equals(field[i].getName()) || field[i].isSynthetic()) continue;
-//			if(field[i].isSynthetic()) continue;
+//			if ("serialVersionUID".equals(field[i].getName()) || field[i].isSynthetic()) continue;
+			if(HoneyUtil.isSkipFieldForMoreTable(field[i])) continue; //有Ignore注释,将不再处理JoinTable
 			if (field[i] != null && field[i].isAnnotationPresent(JoinTable.class)) {
 //				Logger.error("注解字段的实体: " + entityField.getType().getName() + "里面又包含了注解:" + field[i].getType());
 				String entityFieldName=entityField.getType().getName();
@@ -626,32 +640,55 @@ public final class HoneyUtil {
 		return NameUtil.firstLetterToUpperCase(str);
 	}
 
-	static boolean isContinueForMoreTable(int includeType, Object object, String fieldName) {
-		return (((includeType == NullEmpty.EXCLUDE || includeType == NullEmpty.EMPTY_STRING) && object == null)
-				|| ((includeType == NullEmpty.EXCLUDE || includeType == NullEmpty.NULL) && "".equals(object)) //TODO "  "也要排除
-		|| "serialVersionUID".equals(fieldName));
-	}
+//	static boolean isContinueForMoreTable(int includeType, Object object, String fieldName) {
+//		return (((includeType == NullEmpty.EXCLUDE || includeType == NullEmpty.EMPTY_STRING) && object == null)
+//				|| ((includeType == NullEmpty.EXCLUDE || includeType == NullEmpty.NULL) && "".equals(object)) //TODO "  "也要排除
+//		|| "serialVersionUID".equals(fieldName));
+//	}
 
 	static boolean isContinue(int includeType, Object object, Field field) {
 		//		v1.7.0 第三个参数由String fieldName改为Field field.
 		//		object字段上对应的值
-		
-		if (field != null && field.isAnnotationPresent(JoinTable.class)) return true; //v1.7.0  
-		
-		if(field != null && field.isSynthetic())  return true;
+		if (field != null) {
+//			if (field.isAnnotationPresent(JoinTable.class)) return true; //v1.7.0  
+//			if (field.isSynthetic()) return true;
+			if(isSkipField(field)) return true;
+		}
 
-		String fieldName ="";
-		if(field!=null) fieldName= field.getName();
+//		String fieldName ="";
+//		if(field!=null) fieldName= field.getName();   //serialVersionUID放在isSkipField判断.
 		
 		//exclude:  NULL and "" and "  "
 		if(-3==includeType) { //v1.9
 			if(StringUtils.isBlank((String)object)) return true;
 		}
 		
+//		return (((includeType == NullEmpty.EXCLUDE || includeType == NullEmpty.EMPTY_STRING) && object == null)
+//				|| ((includeType == NullEmpty.EXCLUDE || includeType == NullEmpty.NULL) && "".equals(object)) 
+//		|| "serialVersionUID".equals(fieldName));
+		
+//		includeType == NullEmpty.EMPTY_STRING && object == null  要包括空字符,但对象不是空字符,而是null,则跳过.
 		return (((includeType == NullEmpty.EXCLUDE || includeType == NullEmpty.EMPTY_STRING) && object == null)
-				|| ((includeType == NullEmpty.EXCLUDE || includeType == NullEmpty.NULL) && "".equals(object)) 
-		|| "serialVersionUID".equals(fieldName));
+				|| ((includeType == NullEmpty.EXCLUDE || includeType == NullEmpty.NULL) && "".equals(object)) );
 	}
+	
+	
+	static boolean isSkipField(Field field) {
+		if ("serialVersionUID".equals(field.getName()) || field.isSynthetic()) return true;
+		if (field != null && field.isAnnotationPresent(JoinTable.class)) return true;
+		if (field != null && field.isAnnotationPresent(Ignore.class)) return true; //v1.9
+		
+		return false;
+	}
+	
+	static boolean isSkipFieldForMoreTable(Field field) {
+		if ("serialVersionUID".equals(field.getName()) || field.isSynthetic()) return true;
+//		if (field != null && field.isAnnotationPresent(JoinTable.class)) return true;
+		if (field != null && field.isAnnotationPresent(Ignore.class)) return true;
+		
+		return false;
+	}
+	
 
 	/**
 	 * 
@@ -864,7 +901,8 @@ public final class HoneyUtil {
 		try {
 			for (int i = 0; i < len; i++) {
 				fields[i].setAccessible(true);
-				if (fields[i].get(entity) == null || "serialVersionUID".equals(fields[i].getName()) || fields[i].isSynthetic() || fields[i].isAnnotationPresent(JoinTable.class)) {
+//				if (fields[i].get(entity) == null || "serialVersionUID".equals(fields[i].getName()) || fields[i].isSynthetic() || fields[i].isAnnotationPresent(JoinTable.class)) {
+				if (fields[i].get(entity) == null || isSkipField(fields[i])) {  //TODO 再确认下实现应用场景. 添加包含设置????
 					continue;
 				} else {
 					map.put(_toColumnName(fields[i].getName()), fields[i].get(entity));
@@ -1118,10 +1156,7 @@ public final class HoneyUtil {
 	
 	public static boolean isSqlKeyWordUpper() {
 		String kwCase = HoneyConfig.getHoneyConfig().sqlKeyWordCase;
-		if ("upper".equalsIgnoreCase(kwCase))
-			return true;
-		else
-			return false;
+		return "upper".equalsIgnoreCase(kwCase) ? true : false;
 	}
 
 }

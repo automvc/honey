@@ -15,7 +15,7 @@ public class BeeFactory extends BeeAbstractFactory {
 	private static HoneyFactory honeyFactory = null;
 
 	public void setHoneyFactory(HoneyFactory honeyFactory) {
-		BeeFactory.honeyFactory = honeyFactory;
+		this.honeyFactory = honeyFactory;
 	}
 
 	public static HoneyFactory getHoneyFactory() {

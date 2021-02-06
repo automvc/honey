@@ -50,8 +50,10 @@ public class CallableSqlLib implements CallableSql {
 			while (rs.next()) {
 				targetObj = (T) entity.getClass().newInstance();
 				for (int i = 0; i < columnCount; i++) {
-					if ("serialVersionUID".equals(field[i].getName()) || field[i].isSynthetic()) continue;
-					if (field[i]!= null && field[i].isAnnotationPresent(JoinTable.class)) continue;
+//					if ("serialVersionUID".equals(field[i].getName()) || field[i].isSynthetic()) continue;
+//					if (field[i]!= null && field[i].isAnnotationPresent(JoinTable.class)) continue;
+					if(HoneyUtil.isSkipField(field[i])) continue;
+						
 					field[i].setAccessible(true);
 					try {
 						field[i].set(targetObj, rs.getObject(_toColumnName(field[i].getName())));

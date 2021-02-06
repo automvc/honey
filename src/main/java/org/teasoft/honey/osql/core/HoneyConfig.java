@@ -77,7 +77,7 @@ public final class HoneyConfig {
 	@SysValue("${bee.osql.moreTable.columnListWithStar}")
 	private boolean moreTable_columnListWithStar;
 	
-	@SysValue("${bee.osql.sqlGenerate.moreTableSelect.2tablesWithJoinOnStyle}")
+	@SysValue("${bee.osql.moreTable.select.2tablesWithJoinOnStyle}")
 	private boolean tablesWithJoinOnStyle;
 	
 	@SysValue("${bee.databaseName}")

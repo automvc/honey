@@ -443,11 +443,7 @@ public final class CacheUtil {
 				}
 			}
 		}
-
-		if (map.get(list.get(0).toLowerCase()) != null)
-			return true;
-		else
-			return false;
+		return map.get(list.get(0).toLowerCase()) != null ? true : false;
 	}
 	
 	private static Integer _getConfigCacheTableMapValue(Map<String,Integer> map, List<String> list) {

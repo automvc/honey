@@ -54,7 +54,7 @@ public class NameTranslateHandle {
 			}
 		} catch (Exception e) {
 //			e.printStackTrace();
-			Logger.error(e.getMessage());
+			Logger.error("In NameTranslateHandle: "+e.getMessage());
 		}
 		
 		//entityName maybe include package name

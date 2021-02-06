@@ -35,7 +35,7 @@ class MoreTableStruct {
 	 String columnsFull; // eg: tableName.column1,tableName.column2
 	
 	 String joinExpression;  // mainTable.mainField=subtableName.subField  
-                                    //如何有subAlias,用subAlias   mainTable.mainField=subAlias.subField
+                                    //如果有subAlias,用subAlias   mainTable.mainField=subAlias.subField
 	 Field subEntityField;   //for return
 	 Object subObject;
 	 String useSubTableName;  //有别名时,使用别名,而不是表名
