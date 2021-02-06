@@ -80,11 +80,18 @@ public class OnlyMulitiDB implements Route {
 	public String getDsName() {
 		RouteStruct routeStruct = HoneyContext.getCurrentRoute();
 		if (routeStruct == null) return defaultDs;
-
-		Class clazz = routeStruct.getEntityClass();
-		if (clazz == null) return defaultDs;
-		String fullName = clazz.getName();
 		String ds = null;
+		String tables = routeStruct.getTableNames();
+		Class clazz = routeStruct.getEntityClass();
+		if (clazz == null) {
+			//用map传递查询信息,没有Javabean,则class=null.但可以通过bee.dosql.multi-DS.match.table指定数据源.
+			ds=getDsViaTables(tables);
+			if(ds!=null) return ds;
+			
+			return defaultDs;
+		}
+		String fullName = clazz.getName();
+//		String ds = null;
 		ds = entityClassPathToDs.get(fullName);
 		if (ds != null) return ds;
 
@@ -107,21 +114,28 @@ public class OnlyMulitiDB implements Route {
 //				}
 
 			}
-
-			String tables = routeStruct.getTableNames();
-			if (tables != null) {
-				if (!tables.contains("##")) {
-					ds = tableToDs.get(tables.trim().toLowerCase());
-					if (ds != null) return ds;
-				} else { //only multi-Ds,tables don't allow in different db.仅分库时，多表查询的多个表要在同一个数据源.
-                    String ts[]=tables.split("##");
-					ds = tableToDs.get(ts[0].toLowerCase());
-					if (ds != null) return ds;
-				}
-			}
+			//TODO 为什么要在if (clazz == null)下进行??
+			ds=getDsViaTables(tables);
+			if(ds!=null) return ds;
 		}
 
 		return defaultDs;
+	}
+	
+	private String getDsViaTables(String tables) {
+//		String tables = routeStruct.getTableNames();  //TODO 为什么要在if (clazz == null)下进行??
+		String ds = null;
+		if (tables != null) {
+			if (!tables.contains("##")) {
+				ds = tableToDs.get(tables.trim().toLowerCase());
+				if (ds != null) return ds;
+			} else { //only multi-Ds,tables don't allow in different db.仅分库时，多表查询的多个表要在同一个数据源.
+                String ts[]=tables.split("##");
+				ds = tableToDs.get(ts[0].toLowerCase());
+				if (ds != null) return ds;
+			}
+		}
+		return ds;
 	}
 
 /*	public static void main(String[] args) {
