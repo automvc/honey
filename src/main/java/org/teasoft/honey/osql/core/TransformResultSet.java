@@ -10,7 +10,9 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Transform ResultSet
@@ -136,6 +138,22 @@ public class TransformResultSet {
 				}
 			}
 			list.add(str);
+		}
+		return list;
+	}
+	
+	
+	public static List<Map<String,Object>> toMapList(ResultSet rs) throws SQLException {
+		List<Map<String,Object>> list = new ArrayList<>();
+		ResultSetMetaData rmeta = rs.getMetaData();
+		int columnCount = rmeta.getColumnCount();
+		Map<String,Object> rowMap=null;
+		while (rs.next()) {
+			rowMap=new HashMap<>();
+			for (int i = 1; i <= columnCount; i++) {
+				rowMap.put(rmeta.getColumnName(i), rs.getObject(i));
+			}
+			list.add(rowMap);
 		}
 		return list;
 	}
