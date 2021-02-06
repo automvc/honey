@@ -17,7 +17,7 @@ import org.teasoft.bee.osql.ObjSQLException;
 import org.teasoft.bee.osql.ObjSQLIllegalSQLStringException;
 import org.teasoft.bee.osql.ObjToSQLRich;
 import org.teasoft.bee.osql.OrderType;
-import org.teasoft.bee.osql.annotation.JoinTable;
+import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.dialect.DbFeature;
 import org.teasoft.bee.osql.exception.BeeIllegalEntityException;
 import org.teasoft.honey.distribution.GenIdFactory;
@@ -32,7 +32,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	private DbFeature dbFeature = BeeFactory.getHoneyFactory().getDbFeature();
 	private static final String ASC = K.asc;
 	
-	private static boolean  showSQL=HoneyConfig.getHoneyConfig().isShowSQL();
+//	private static boolean  showSQL=HoneyConfig.getHoneyConfig().isShowSQL();
 	private int batchSize = HoneyConfig.getHoneyConfig().getBatchSize();
 
 	@Override
@@ -169,11 +169,11 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	}
 
 	@Override
-	public <T> String toSelectFunSQL(T entity, FunctionType functionType,String fieldForFun) throws ObjSQLException {
-		return _toSelectFunSQL(entity,functionType.getName(),fieldForFun);
+	public <T> String toSelectFunSQL(T entity, FunctionType functionType,String fieldForFun,Condition condition){
+		return _toSelectFunSQL(entity,functionType.getName(),fieldForFun,condition);
 	}
 
-	private <T> String _toSelectFunSQL(T entity, String funType,String fieldForFun) throws ObjSQLException {
+	private <T> String _toSelectFunSQL(T entity, String funType,String fieldForFun,Condition condition){
 		
 		checkPackage(entity);
 		
@@ -201,16 +201,25 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			PreparedValue preparedValue = null;
 			for (int i = 0, k = 0; i < len; i++) {
 			  fields[i].setAccessible(true);
-			  if (fields[i]!= null && fields[i].isAnnotationPresent(JoinTable.class)){//v1.7.0 排除多表的实体字段
-				continue;
-			  }
-			  if (fields[i].get(entity) == null|| "serialVersionUID".equals(fields[i].getName()) || fields[i].isSynthetic()) {// 要排除没有设值的情况
-//				if (fields[i].getName().equals(fieldForFun)) {
-				if ( (fields[i].getName().equals(fieldForFun))
-			     || ("count".equalsIgnoreCase(funType) && "*".equals(fieldForFun)) ) {  //排除count(*)
+//			  if (fields[i]!= null && fields[i].isAnnotationPresent(JoinTable.class)){//v1.7.0 排除多表的实体字段
+//				continue;
+//			  }
+			  //bug , default can not filter the empty string.
+//			  if (fields[i].get(entity) == null|| "serialVersionUID".equals(fields[i].getName()) || fields[i].isSynthetic()) {// 要排除没有设值的情况
+////				if (fields[i].getName().equals(fieldForFun)) {
+//				if ( (fields[i].getName().equals(fieldForFun))
+//			     || ("count".equalsIgnoreCase(funType) && "*".equals(fieldForFun)) ) {  //排除count(*)
+//					isContainField = true;
+//				}
+//				continue;
+			  
+				if ((fields[i].getName().equals(fieldForFun))
+						|| ("count".equalsIgnoreCase(funType) && "*".equals(fieldForFun))) { //排除count(*)
 					isContainField = true;
 				}
-				continue;
+					
+				if (HoneyUtil.isContinue(-1, fields[i].get(entity),fields[i])) {
+						continue;
 				} else {
 					if (fields[i].getName().equals(fieldForFun)) {
 						isContainField = true;
@@ -236,6 +245,11 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 				}
 			}
 
+			if (condition != null) {
+				condition.setSuidType(SuidType.SELECT);
+				ConditionHelper.processCondition(sqlBuffer, list, condition, firstWhere);
+			}
+			
 			sql = sqlBuffer.toString();
 			
 			setContext(sql, list, tableName);
@@ -659,10 +673,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			PreparedValue preparedValue = null;
 			for (int i = 0, k = 0; i < len; i++) {
 				fields[i].setAccessible(true);
-				if (fields[i].get(entity) == null
-				 || "serialVersionUID".equals(fields[i].getName())
-				 || fields[i].isSynthetic()
-				 || fields[i].isAnnotationPresent(JoinTable.class)){
+				if (fields[i].get(entity) == null || HoneyUtil.isSkipField(fields[i])){
 					continue;
 				}else {
 					if (firstWhere) {

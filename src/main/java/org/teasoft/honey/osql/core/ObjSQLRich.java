@@ -176,25 +176,28 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 
 	@Override
 	public <T> String selectWithFun(T entity, FunctionType functionType, String fieldForFun) {
+		return selectWithFun(entity, functionType, fieldForFun, null);
+	}
+
+	@Override
+	public <T> String selectWithFun(T entity, FunctionType functionType, String fieldForFun, Condition condition) {
 		if (entity == null) return null;
 		String s = null;
-		String sql = getObjToSQLRich().toSelectFunSQL(entity, functionType, fieldForFun);
+		String sql = getObjToSQLRich().toSelectFunSQL(entity, functionType, fieldForFun, condition);
 		_regEntityClass1(entity);
 		s = getBeeSql().selectFun(sql);
-
 		return s;
 	}
-	
-	@Override
-	public <T> String selectWithFun(T entity, Condition condition) {
-		if (entity == null) return null;
 
-		String s = null;
- 		String sql = getObjToSQLRich().toSelectFunSQL(entity, condition);
-		Logger.logSQL("select fun SQL: ", sql);
-		_regEntityClass1(entity);
-		s = getBeeSql().selectFun(sql);
-		return s;
+	@Override
+	public <T> int count(T entity) {
+		return count(entity, null);
+	}
+
+	@Override
+	public <T> int count(T entity, Condition condition) {
+		String toatl = selectWithFun(entity, FunctionType.COUNT, "*", condition);
+		return toatl == null ? 0 : Integer.parseInt(toatl);
 	}
 
 	@Override
