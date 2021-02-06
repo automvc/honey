@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 the original author.All rights reserved.
+ * Copyright 2016-2021 the original author.All rights reserved.
  * Kingstar(honeysoft@126.com)
  * The license,see the LICENSE file.
  */
@@ -27,4 +27,13 @@ public class StringUtils {
     public static boolean isNotEmpty(final String str) {
         return !isEmpty(str);
     }
+    
+    
+	public static boolean isEmpty(final String strings[]) {
+		return strings == null || strings.length == 0;
+	}
+	
+	public static boolean isNotEmpty(final String strings[]) {
+		return !isEmpty(strings);
+	}
 }
