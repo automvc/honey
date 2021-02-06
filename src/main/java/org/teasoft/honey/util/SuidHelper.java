@@ -1,0 +1,139 @@
+/*
+ * Copyright 2016-2021 the original author.All rights reserved.
+ * Kingstar(honeysoft@126.com)
+ * The license,see the LICENSE file.
+ */
+
+package org.teasoft.honey.util;
+
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import org.teasoft.honey.osql.core.ExceptionHelper;
+import org.teasoft.honey.osql.core.Logger;
+import org.teasoft.honey.util.ObjectCreatorFactory;
+import org.teasoft.honey.util.StringUtils;
+
+/**
+ * @author Kingstar
+ * @since  1.9
+ */
+public class SuidHelper {
+
+	/**
+	 * 将List<String[]>里第一列字符串转成逗号分隔的字符串.
+	 * <br>Convert the first column string in list < string [] to comma separated string
+	 * @param list List<String[]>
+	 * @return 逗号分隔的字符串.
+	 */
+	public static String parseFirstColumn(List<String[]> list) {
+
+		if (list == null) return "";
+		String str = "";
+
+		for (int i = 0; i < list.size(); i++) {
+			str += list.get(i)[0];
+			if (i != list.size() - 1) str += ",";
+		}
+
+		return str;
+	}
+
+	/**
+	 * 将List里的字符数组转成entity结构.Convert the character array in the list to entity structure.
+	 * @param list 需要转换的字符数组List.List of character arrays to be converted.
+	 * @param startRow 开始行.start row.
+	 * @param fieldNames 字段名(多个用逗号隔开).Field names (multiple separated by commas).
+	 * @param entity 要转成的结构.the structure to be transformed into.
+	 * @return 实体List. list of entity.
+	 */
+	public static <T> List<T> parseToEntity(List<String[]> list, int startRow, String fieldNames, T entity) {
+		if (StringUtils.isBlank(fieldNames)) return Collections.emptyList();
+		String[] fieldName = fieldNames.split(",");
+		return parseToEntity(list, startRow, fieldName, entity);
+	}
+
+	/**
+	 * 将List里的字符数组转成entity结构.Convert the character array in the list to entity structure.
+	 * @param list 需要转换的字符数组List.List of character arrays to be converted.
+	 * @param startRow 开始行.start row.
+	 * @param endRow 结束行.end row.
+	 * @param fieldNames 字段名(多个用逗号隔开).Field names (multiple separated by commas).
+	 * @param entity 要转成的结构.the structure to be transformed into.
+	 * @return 实体List. list of entity.
+	 */
+	public static <T> List<T> parseToEntity(List<String[]> list, int startRow, int endRow, String fieldNames, T entity) {
+		if (StringUtils.isBlank(fieldNames)) return Collections.emptyList();
+		String[] fieldName = fieldNames.split(",");
+		return parseToEntity(list, startRow, endRow, fieldName, entity);
+	}
+
+	/**
+	 * 将List里的字符数组转成entity结构.Convert the character array in the list to entity structure.
+	 * @param list 需要转换的字符数组List.List of character arrays to be converted.
+	 * @param startRow 开始行.start row.
+	 * @param fieldName 字段名数组.field name array.
+	 * @param entity 要转成的结构.the structure to be transformed into.
+	 * @return 实体List. list of entity.
+	 */
+	public static <T> List<T> parseToEntity(List<String[]> list, int startRow, String[] fieldName, T entity) {
+		if (ObjectUtils.isEmpty(list)) return Collections.emptyList();
+		return parseToEntity(list, startRow, list.size() - 1, fieldName, entity);
+	}
+
+	/**
+	 * 将List里的字符数组转成entity结构.Convert the character array in the list to entity structure.
+	 * @param list 需要转换的字符数组List.List of character arrays to be converted.
+	 * @param startRow 开始行.start row.
+	 * @param endRow 结束行.end row.
+	 * @param fieldName 字段名数组.field name array.
+	 * @param entity 要转成的结构.the structure to be transformed into.
+	 * @return 实体List. list of entity.
+	 */
+	public static <T> List<T> parseToEntity(List<String[]> list, int startRow, int endRow, String[] fieldName, T entity) {
+		T targetObj = null;
+		List<T> rsList = null;
+		Field field = null;
+		String col[] = null;
+
+		if (ObjectUtils.isEmpty(list)) return Collections.emptyList();
+
+		rsList = new ArrayList<T>();
+		if (startRow < 0) startRow = 0;
+
+		if (endRow + 1 > list.size()) endRow = list.size() - 1;
+		try {
+			for (int i = startRow; i <= endRow; i++) {
+				col = list.get(i);
+				targetObj = (T) entity.getClass().newInstance();
+				for (int j = 0; j < fieldName.length; j++) {
+					try {
+						field = entity.getClass().getDeclaredField(fieldName[j]);//可能会找不到Javabean的字段
+					} catch (NoSuchFieldException e) {
+						if (i == startRow) Logger.warn("Can not find the field name : " + fieldName[j]);
+						continue;
+					}
+					field.setAccessible(true);
+					try {
+						field.set(targetObj, ObjectCreatorFactory.create(col[j], field.getType())); //对相应Field设置
+					} catch (IllegalArgumentException e) {
+						Logger.error(e.getMessage());
+					}
+				}
+				rsList.add(targetObj);
+			}
+		} catch (IllegalAccessException e) {
+			throw ExceptionHelper.convert(e);
+		} catch (InstantiationException e) {
+			throw ExceptionHelper.convert(e);
+		} finally {
+			entity = null;
+			targetObj = null;
+		}
+
+		return rsList;
+	}
+
+}
