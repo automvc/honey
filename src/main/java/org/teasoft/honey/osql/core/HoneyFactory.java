@@ -5,6 +5,8 @@ import org.teasoft.bee.osql.Cache;
 import org.teasoft.bee.osql.CallableSql;
 import org.teasoft.bee.osql.DatabaseConst;
 import org.teasoft.bee.osql.LowerKey;
+import org.teasoft.bee.osql.MapSql;
+import org.teasoft.bee.osql.MapSuid;
 import org.teasoft.bee.osql.MoreObjToSQL;
 import org.teasoft.bee.osql.MoreTable;
 import org.teasoft.bee.osql.NameTranslate;
@@ -48,6 +50,10 @@ public class HoneyFactory {
 	private MoreObjToSQL moreObjToSQL;
 	//@since  1.7
 	private MoreTable moreTable;
+	
+	//@since  1.9
+	private MapSql mapSql;
+	private MapSuid mapSuid;
 
 	public Suid getSuid() {
 		if(suid==null) return new ObjSQL();
@@ -130,7 +136,25 @@ public class HoneyFactory {
 	public void setCallableSql(CallableSql callableSql) {
 		this.callableSql = callableSql;
 	}
+	
+	public MapSql getMapSql() {
+		if (mapSql == null) return new MapSqlImpl();
+		return mapSql;
+	}
 
+	public void setMapSql(MapSql mapSql) {
+		this.mapSql = mapSql;
+	}
+
+	public MapSuid getMapSuid() {
+		if (mapSuid == null) return new MapSuidImpl();
+		return mapSuid;
+	}
+
+	public void setMapSuid(MapSuid mapSuid) {
+		this.mapSuid = mapSuid;
+	}
+	
 	private DbFeature _getDbDialect() {
 		if (DatabaseConst.MYSQL.equalsIgnoreCase((HoneyContext.getDbDialect()))
 		 || DatabaseConst.MariaDB.equalsIgnoreCase((HoneyContext.getDbDialect()))
@@ -143,6 +167,7 @@ public class HoneyFactory {
 		else if(HoneyContext.getDbDialect()!=null)return new NoPagingSupported(); //v1.8.15 当没有用到分页功能时,不至于报错.
 		else { //要用setDbFeature(DbFeature dbFeature)设置自定义的实现类
 			throw new NoConfigException("Error: Do not set the DbFeature implements class or do not set the database name. ");  //v1.8.15
+		    //TODO 也有可能是没开DB服务.
 		}
 	}
 	
