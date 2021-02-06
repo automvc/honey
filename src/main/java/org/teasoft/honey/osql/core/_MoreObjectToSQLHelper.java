@@ -15,6 +15,7 @@ import org.teasoft.bee.osql.Condition;
 import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.annotation.JoinType;
 import org.teasoft.bee.osql.dialect.DbFeature;
+import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
 
 /**
  * @author Kingstar
@@ -59,6 +60,11 @@ public class _MoreObjectToSQLHelper {
 			
 			MoreTableStruct moreTableStruct[]=HoneyUtil.getMoreTableStructAndCheckBefore(entity);
 			
+			if (moreTableStruct[1] == null) { //v1.9
+				throw new BeeErrorGrammarException(
+						"MoreObject select on " + entity.getClass().getName() + " must own at least one JoinTable annotation!");
+			}
+			
 			boolean twoTablesWithJoinOnStyle=HoneyConfig.getHoneyConfig().isTablesWithJoinOnStyle();
 			
 			boolean moreTable_columnListWithStar=HoneyConfig.getHoneyConfig().isMoreTable_columnListWithStar();
@@ -69,11 +75,15 @@ public class _MoreObjectToSQLHelper {
 				condition.setSuidType(SuidType.SELECT);
 				String selectField = ConditionHelper.processSelectField(columnNames, condition,moreTableStruct[0].subDulFieldMap);
 				if (selectField != null){
-					columnNames = selectField;
+					columnNames = selectField;  //若指定了字段,则测试也不用*代替
 				}else{
 					if(moreTable_columnListWithStar){
 						columnNames="*";
 					}
+				}
+			}else { //V1.9
+				if(moreTable_columnListWithStar){
+					columnNames="*";
 				}
 			}
 			
