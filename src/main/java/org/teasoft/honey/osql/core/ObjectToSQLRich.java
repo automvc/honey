@@ -673,8 +673,8 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			PreparedValue preparedValue = null;
 			for (int i = 0, k = 0; i < len; i++) {
 				fields[i].setAccessible(true);
-				if (fields[i].get(entity) == null || HoneyUtil.isSkipField(fields[i])){
-					continue;
+				if (HoneyUtil.isContinue(-1, fields[i].get(entity),fields[i])) {
+					continue;	
 				}else {
 					if (firstWhere) {
 //						sqlBuffer.append(" where ");

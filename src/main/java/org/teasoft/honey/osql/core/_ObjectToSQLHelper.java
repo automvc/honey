@@ -50,8 +50,8 @@ final class _ObjectToSQLHelper {
 				fields[i].setAccessible(true);
 //				if (fields[i].get(entity) == null || "serialVersionUID".equals(fields[i].getName()) || fields[i].isSynthetic()
 //				 || fields[i].isAnnotationPresent(JoinTable.class)){
-				if(HoneyUtil.isSkipField(fields[i])) {
-					continue;
+				if (HoneyUtil.isContinue(-1, fields[i].get(entity),fields[i])) {
+					continue;	
 				}else {
 					if (firstWhere) {
 //						sqlBuffer.append(" where ");
