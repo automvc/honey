@@ -35,6 +35,8 @@ public final class HoneyContext {
 
 	private static ThreadLocal<Connection> currentConnection;  //当前事务的Conn
 	
+	private static ThreadLocal<String> sameConnctionDoing;  //当前多个ORM操作使用同一个connection.
+	
 //	private static ThreadLocal<Transaction> transactionLocal;  
 	
 	private static ConcurrentMap<String,String> entity2table;
@@ -72,6 +74,7 @@ public final class HoneyContext {
 
 		currentConnection = new ThreadLocal<>();
 //		transactionLocal = new ThreadLocal<>();
+		sameConnctionDoing= new ThreadLocal<>();
 		
 		currentRoute = new ThreadLocal<>();
 		
@@ -231,13 +234,27 @@ public final class HoneyContext {
 	public static Connection getCurrentConnection() {
 		return currentConnection.get();
 	}
-
 	public static void setCurrentConnection(Connection conn) {
 		currentConnection.set(conn);
 	}
-
 	public static void removeCurrentConnection() {
 		currentConnection.remove();
+	}
+	
+	private static String getSameConnctionDoing() {
+		return sameConnctionDoing.get();
+	}
+	private static void setSameConnctionDoing() {
+		sameConnctionDoing.set("tRue");
+	}
+	private static void removeSameConnctionDoing() {
+		sameConnctionDoing.remove();
+	}
+	
+	static void endSameConnection() {
+		OneTimeParameter.setAttribute("_SYS_Bee_SAME_CONN_END");
+		checkClose(null, HoneyContext.getCurrentConnection());
+		removeCurrentConnection();
 	}
 	
 //	public static Transaction getCurrentTransaction() {
@@ -252,7 +269,7 @@ public final class HoneyContext {
 //		if (routeStruct == null) return;
 //		if(sqlStr==null || "".equals(sqlStr.trim())) return;
 //		Map<String, RouteStruct> map = routeLocal.get();
-//		if (null == map) map = new HashMap<>();  //TODO 
+//		if (null == map) map = new HashMap<>();  //
 //		map.put(sqlStr, routeStruct); 
 //		routeLocal.set(map);
 //	}
@@ -301,6 +318,13 @@ public final class HoneyContext {
 		conn = HoneyContext.getCurrentConnection(); //获取已开启事务的连接
 		if (conn == null) {
 			conn = SessionFactory.getConnection(); //不开启事务时
+			
+			//如果设置了同一Connection
+			String beginSameConn = (String) OneTimeParameter.getAttribute("_SYS_Bee_SAME_CONN_BEGIN");
+			if ("tRue".equals(beginSameConn)) {
+				HoneyContext.setCurrentConnection(conn); //存入上下文
+				setSameConnctionDoing();
+			}
 		}
 
 		return conn;
@@ -327,8 +351,19 @@ public final class HoneyContext {
 			}
 		}
 		try {
-			if (conn != null && conn.getAutoCommit()) {//自动提交时才关闭.如果开启事务,则由事务负责
-				conn.close();
+//			如果设置了同一Connection
+//			并且调用了endSameConnection才关闭   
+			if ("tRue".equals(getSameConnctionDoing())) {
+				String endSameConn = (String) OneTimeParameter.getAttribute("_SYS_Bee_SAME_CONN_END");
+				if ("tRue".equals(endSameConn)) {  // 调用suid.endSameConnection();前的SQL操作 不会触发这里的.
+					removeSameConnctionDoing();
+					if (conn != null) conn.close();
+				}
+//				else { do not close}
+			} else {
+				if (conn != null && conn.getAutoCommit()) {//自动提交时才关闭.如果开启事务,则由事务负责
+					conn.close();
+				}
 			}
 		} catch (SQLException e) {
 			throw ExceptionHelper.convert(e);
