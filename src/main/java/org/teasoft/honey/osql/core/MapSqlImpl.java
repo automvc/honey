@@ -7,10 +7,11 @@
 package org.teasoft.honey.osql.core;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.teasoft.bee.osql.MapSqlKey;
 import org.teasoft.bee.osql.MapSql;
+import org.teasoft.bee.osql.MapSqlKey;
 
 /**
  * @author Kingstar
@@ -19,7 +20,8 @@ import org.teasoft.bee.osql.MapSql;
 public class MapSqlImpl implements MapSql {
 
 	Map<MapSqlKey, String> sqlkeyMap = new HashMap<>();
-	Map<String, Object> whereConditonMap = new HashMap<>();
+//	Map<String, Object> whereConditonMap = new HashMap<>();
+	Map<String, Object> whereConditonMap = new LinkedHashMap<>();
 
 	@Override
 	public void put(MapSqlKey key, String value) {
