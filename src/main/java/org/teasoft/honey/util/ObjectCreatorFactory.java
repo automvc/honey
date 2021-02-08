@@ -11,13 +11,17 @@ package org.teasoft.honey.util;
  * @since  1.9
  */
 public class ObjectCreatorFactory {
+	
+	@SuppressWarnings("rawtypes")
 	public static Object create(String s, Class c) {
 
 		if (c == null) return null;
-
-		if (c.equals(String.class)) {
+		
+		if (c.equals(String.class))
 			return ObjectCreator.createString(s);
-		} else if (c.equals(int.class) || c.equals(Integer.class)) {
+			
+		s=s.trim();
+		if (c.equals(int.class) || c.equals(Integer.class)) {
 			return ObjectCreator.createInt(s);
 		} else if (c.equals(short.class) || c.equals(Short.class)) {
 			return ObjectCreator.createShort(s);
