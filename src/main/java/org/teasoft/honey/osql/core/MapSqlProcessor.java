@@ -42,7 +42,7 @@ public class MapSqlProcessor {
 		boolean isTransfer = false;
 		if ("true".equals(isTransferStr)) {
 			selectColumns = _toColumnName(selectColumns);
-			OneTimeParameter.setAttribute("_SYS_Bee_DoNotCheckAnnotation", "tRue");//map sql do not check notation
+			OneTimeParameter.setAttribute("_SYS_Bee_DoNotCheckAnnotation");//map sql do not check notation
 			tableName = _toTableName(tableName);
 			isTransfer = true;
 		}
@@ -111,7 +111,7 @@ public class MapSqlProcessor {
 		String isTransferStr = sqlkeyMap.get(MapSqlKey.IsNamingTransfer);
 		boolean isTransfer = false;
 		if ("true".equals(isTransferStr)) {
-			OneTimeParameter.setAttribute("_SYS_Bee_DoNotCheckAnnotation", "tRue");//map sql do not check notation
+			OneTimeParameter.setAttribute("_SYS_Bee_DoNotCheckAnnotation");//map sql do not check notation
 			tableName = _toTableName(tableName);
 			isTransfer = true;
 		}

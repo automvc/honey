@@ -133,4 +133,15 @@ public class ObjSQL implements Suid {
 	private <T> void _regEntityClass(T entity){
 		HoneyContext.regEntityClass(entity.getClass());
 	}
+
+	@Override
+	public void beginSameConnection() {
+		OneTimeParameter.setAttribute("_SYS_Bee_SAME_CONN_BEGIN"); 
+	}
+
+	@Override
+	public void endSameConnection() {
+		HoneyContext.endSameConnection(); 
+	}
+	
 }

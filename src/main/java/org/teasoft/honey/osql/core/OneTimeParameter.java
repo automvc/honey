@@ -16,6 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
  class OneTimeParameter {
 	
 	private static ThreadLocal<Map<String, Object>> local= new ThreadLocal<>();
+	private static final String tRue = "tRue";
 
 	private OneTimeParameter() {}
 
@@ -36,5 +37,8 @@ import java.util.concurrent.ConcurrentHashMap;
 		map.put(key, obj); 
 		local.set(map);
 	}
-
+	
+	public static void setAttribute(String key) {
+		setAttribute(key, tRue);
+	}
 }

@@ -365,7 +365,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			
 			String t_sql = "";
  
-			OneTimeParameter.setAttribute("_SYS_Bee_Return_PlaceholderValue", "tRue");
+			OneTimeParameter.setAttribute("_SYS_Bee_Return_PlaceholderValue");
 			t_sql = _ObjectToSQLHelper._toInsertSQL0(entity[0], 2, excludeFieldList); // i 默认包含null和空字符串.因为要用统一的sql作批处理
 			sql[0] = t_sql;
 			
