@@ -37,7 +37,7 @@ public class ObjectCreator {
 	}
 
 	public static Boolean createBoolean(String s) {
-		if (StringUtils.isBlank(s)) return null;
+		if (StringUtils.isBlank(s)) return false;
 		return Boolean.parseBoolean(s);
 	}
 
