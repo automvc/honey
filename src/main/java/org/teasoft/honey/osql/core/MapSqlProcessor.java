@@ -13,6 +13,7 @@ import java.util.Map;
 import org.teasoft.bee.osql.BeeException;
 import org.teasoft.bee.osql.MapSql;
 import org.teasoft.bee.osql.MapSqlKey;
+import org.teasoft.bee.osql.MapSqlSetting;
 import org.teasoft.bee.osql.exception.BeeIllegalBusinessException;
 import org.teasoft.honey.util.ObjectUtils;
 import org.teasoft.honey.util.StringUtils;
@@ -28,6 +29,7 @@ public class MapSqlProcessor {
 		MapSqlImpl suidMapImpl = (MapSqlImpl) mapSql;
 		Map<MapSqlKey, String> sqlkeyMap = suidMapImpl.getSqlkeyMap();
 		Map<String, Object> whereConditonMap = suidMapImpl.getWhereCondtionMap();
+		Map<MapSqlSetting, Boolean> sqlSettingMap = suidMapImpl.getSqlSettingMap();
 
 		String tableName = sqlkeyMap.get(MapSqlKey.Table);
 		if (StringUtils.isBlank(tableName)) {
@@ -35,16 +37,12 @@ public class MapSqlProcessor {
 		}
 		String selectColumns = sqlkeyMap.get(MapSqlKey.SelectColumns);
 
-		//TODO 根据配置是否要对表名和列名进行命名转换.
-		//是否有指定不需要转换的场景???
-
-		String isTransferStr = sqlkeyMap.get(MapSqlKey.IsNamingTransfer);
-		boolean isTransfer = false;
-		if ("true".equals(isTransferStr)) {
+		Boolean isTransfer = sqlSettingMap.get(MapSqlSetting.IsNamingTransfer);
+		if(isTransfer==null) isTransfer=false;
+		if (isTransfer) {
 			selectColumns = _toColumnName(selectColumns);
 			OneTimeParameter.setAttribute("_SYS_Bee_DoNotCheckAnnotation");//map sql do not check notation
 			tableName = _toTableName(tableName);
-			isTransfer = true;
 		}
 
 		StringBuffer sqlBuffer = new StringBuffer();
@@ -56,7 +54,7 @@ public class MapSqlProcessor {
 		List<PreparedValue> list = new ArrayList<>();
 
 		if (ObjectUtils.isNotEmpty(whereConditonMap)) {
-			where(whereConditonMap, list, sqlBuffer, isTransfer, getIncludeType(sqlkeyMap));
+			where(whereConditonMap, list, sqlBuffer, isTransfer, getIncludeType(sqlSettingMap));
 		}
 
 		//group by
@@ -81,14 +79,17 @@ public class MapSqlProcessor {
 		return sql;
 	}
 
-	private static int getIncludeType(Map<MapSqlKey, String> sqlkeyMap) {
+	private static int getIncludeType(Map<MapSqlSetting, Boolean> sqlSettingMap) {
 		int includeType = -1;
 		boolean f1 = false, f2 = false;
-		if ("true".equals(sqlkeyMap.get(MapSqlKey.IsIncludeNull))) {
+		Boolean isIncludeNull= sqlSettingMap.get(MapSqlSetting.IsIncludeNull);
+		Boolean isIncludeEmptyString=sqlSettingMap.get(MapSqlSetting.IsIncludeEmptyString);
+		
+		if (isIncludeNull!=null && isIncludeNull) {
 			includeType = 0;
 			f1 = true;
 		}
-		if ("true".equals(sqlkeyMap.get(MapSqlKey.IsIncludeEmptyString))) {
+		if (isIncludeEmptyString!=null && isIncludeEmptyString) {
 			includeType = 1;
 			f2 = true;
 		}
@@ -102,18 +103,19 @@ public class MapSqlProcessor {
 		MapSqlImpl suidMapImpl = (MapSqlImpl) mapSql;
 		Map<MapSqlKey, String> sqlkeyMap = suidMapImpl.getSqlkeyMap();
 		Map<String, Object> whereConditonMap = suidMapImpl.getWhereCondtionMap();
+		
+		Map<MapSqlSetting, Boolean> sqlSettingMap = suidMapImpl.getSqlSettingMap();
 
 		String tableName = sqlkeyMap.get(MapSqlKey.Table);
 		if (StringUtils.isBlank(tableName)) {
 			throw new BeeException("The Map which key is SqlMapKey.Table must define!");
 		}
 
-		String isTransferStr = sqlkeyMap.get(MapSqlKey.IsNamingTransfer);
-		boolean isTransfer = false;
-		if ("true".equals(isTransferStr)) {
+		Boolean isTransfer = sqlSettingMap.get(MapSqlSetting.IsNamingTransfer);
+		if(isTransfer==null) isTransfer=false;
+		if (isTransfer) {
 			OneTimeParameter.setAttribute("_SYS_Bee_DoNotCheckAnnotation");//map sql do not check notation
 			tableName = _toTableName(tableName);
-			isTransfer = true;
 		}
 
 		StringBuffer sqlBuffer = new StringBuffer();
@@ -124,7 +126,7 @@ public class MapSqlProcessor {
 		List<PreparedValue> list = new ArrayList<>();
 		boolean firstWhere = false;
 		if (ObjectUtils.isNotEmpty(whereConditonMap)) {
-			firstWhere = where(whereConditonMap, list, sqlBuffer, isTransfer, getIncludeType(sqlkeyMap));
+			firstWhere = where(whereConditonMap, list, sqlBuffer, isTransfer, getIncludeType(sqlSettingMap));
 		}
 
 		String sql = sqlBuffer.toString();
