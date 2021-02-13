@@ -12,6 +12,7 @@ import java.util.Map;
 
 import org.teasoft.bee.osql.MapSql;
 import org.teasoft.bee.osql.MapSqlKey;
+import org.teasoft.bee.osql.MapSqlSetting;
 
 /**
  * @author Kingstar
@@ -22,6 +23,7 @@ public class MapSqlImpl implements MapSql {
 	Map<MapSqlKey, String> sqlkeyMap = new HashMap<>();
 //	Map<String, Object> whereConditonMap = new HashMap<>();
 	Map<String, Object> whereConditonMap = new LinkedHashMap<>();
+	Map<MapSqlSetting, Boolean> settingMap = new HashMap<>();
 
 	@Override
 	public void put(MapSqlKey key, String value) {
@@ -32,6 +34,11 @@ public class MapSqlImpl implements MapSql {
 	public void put(String fieldName, Object value) {
 		whereConditonMap.put(fieldName, value);
 	}
+	
+	@Override
+	public void put(MapSqlSetting MapSqlSetting, boolean value) {
+		settingMap.put(MapSqlSetting, value);
+	}
 
 	Map<MapSqlKey, String> getSqlkeyMap() {
 		return sqlkeyMap;
@@ -39,6 +46,10 @@ public class MapSqlImpl implements MapSql {
 
 	Map<String, Object> getWhereCondtionMap() {
 		return whereConditonMap;
+	}
+	
+	Map<MapSqlSetting, Boolean> getSqlSettingMap() {
+		return settingMap;
 	}
 
 }
