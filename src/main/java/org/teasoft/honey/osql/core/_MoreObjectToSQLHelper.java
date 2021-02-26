@@ -89,6 +89,8 @@ public class _MoreObjectToSQLHelper {
 			
 //			String tableName = _toTableName(entity);
 			String tableName = moreTableStruct[0].tableName;
+			
+			String tableNamesForCache=tableName;//V1.9
 					
 //			sqlBuffer.append("select " + columnNames + " from ");
 			sqlBuffer.append(K.select).append(" ").append(columnNames).append(" ").append(K.from).append(" ");
@@ -119,6 +121,7 @@ public class _MoreObjectToSQLHelper {
 				else                             sqlBuffer.append(moreTableStruct[1].joinType.getType());
 //				sqlBuffer.append(ONE_SPACE);
 				sqlBuffer.append(moreTableStruct[1].tableName);
+				tableNamesForCache+="##"+moreTableStruct[1].tableName;//V1.9
 				if(moreTableStruct[1].hasSubAlias){//从表定义有别名
 					sqlBuffer.append(ONE_SPACE);
 					sqlBuffer.append(moreTableStruct[1].subAlias);
@@ -145,6 +148,7 @@ public class _MoreObjectToSQLHelper {
 					
 					sqlBuffer.append(COMMA);
 					sqlBuffer.append(moreTableStruct[s].tableName);
+					tableNamesForCache+="##"+moreTableStruct[s].tableName; //V1.9
 					if(moreTableStruct[s].hasSubAlias){//从表定义有别名
 						sqlBuffer.append(ONE_SPACE);
 						sqlBuffer.append(moreTableStruct[s].subAlias);
@@ -243,7 +247,8 @@ public class _MoreObjectToSQLHelper {
 //			if (valueBuffer.length() > 0) valueBuffer.deleteCharAt(0);
 			HoneyContext.setPreparedValue(sql, list);
 //			HoneyContext.setSqlValue(sql, valueBuffer.toString()); //用于log显示
-			addInContextForCache(sql, tableName);//TODO tableName还要加上多表的.
+//			addInContextForCache(sql, tableName);// tableName还要加上多表的.
+			addInContextForCache(sql, tableNamesForCache);//tableName还要加上多表的.
 		} catch (IllegalAccessException e) {
 			throw ExceptionHelper.convert(e);
 		}
