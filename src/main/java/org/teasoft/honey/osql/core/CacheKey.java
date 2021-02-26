@@ -92,7 +92,7 @@ public class CacheKey {
 //	}
 	
 	//用于清除缓存时,找到sql相关的table
-	static List<String> genTabKeyList(String sql){
+	static List<String> genTableNameList(String sql){
 		
 		CacheSuidStruct struct = HoneyContext.getCacheInfo(sql);
 		List<String> list=new ArrayList<>();
@@ -101,7 +101,8 @@ public class CacheKey {
 			String tableNames=struct.getTableNames();
 			String tabs[]=tableNames.trim().split("##");
 			for (int i = 0; i < tabs.length; i++) {
-				list.add(tabs[i]);  //TODO 还要加上数据源信息等其它      在CacheUtil已为仅分库情型加DS
+				list.add(tabs[i]);  // 还要加上数据源信息等其它      在CacheUtil已为仅分库情型加DS
+				                    //不加数据源,相同表名数据有更改,同表名的缓存就清除,这样缓存数据更可靠
 			}
 		}
 		return list;
