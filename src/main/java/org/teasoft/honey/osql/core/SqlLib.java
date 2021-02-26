@@ -410,9 +410,7 @@ public class SqlLib implements BeeSql {
 		
 		Logger.logSQL(" | <--  Affected rows: ", num+"");
 		
-		//更改操作需要清除缓存
-//		if(num>0)  //fixed bug.  没删成功,也要清除.否则缓存会一直在.
-		clearInCache(sql, "int",SuidType.MODIFY);
+		clearInCache(sql, "int",SuidType.MODIFY,num);
 		
 		return num;
 	}
@@ -529,7 +527,7 @@ public class SqlLib implements BeeSql {
 			}
 			checkClose(pst, conn);   
 			//更改操作需要清除缓存
-			clearInCache(sql[0], "int[]",SuidType.INSERT);
+			clearInCache(sql[0], "int[]",SuidType.INSERT,total);
 		}
 
 		return total;
@@ -646,7 +644,7 @@ public class SqlLib implements BeeSql {
 			}
 			checkClose(pst, conn);
 			//更改操作需要清除缓存
-			clearInCache(sql[0], "int[]", SuidType.INSERT);
+			clearInCache(sql[0], "int[]", SuidType.INSERT,total);
 		}
 
 		return total;
@@ -1013,15 +1011,17 @@ public class SqlLib implements BeeSql {
 		return HoneyContext.updateInfoInCache(sql, returnType, suidType);
 	}
 	
-	private void clearInCache(String sql, String returnType, SuidType suidType) {
+	private void clearInCache(String sql, String returnType, SuidType suidType, int affectRow) {
 		CacheSuidStruct struct = HoneyContext.getCacheInfo(sql);
 		if (struct != null) {
 			struct.setReturnType(returnType);
 			struct.setSuidType(suidType.getType());
 			HoneyContext.setCacheInfo(sql, struct);
 		}
-		cache.clear(sql);
 		clearContext(sql);
+		if (affectRow > 0) { //INSERT、UPDATE 或 DELETE成功,才清除结果缓存
+			cache.clear(sql);
+		}
 	}
 	
 	private void clearContext(String sql) {
