@@ -303,7 +303,7 @@ public class ConditionImpl implements Condition {
 	}
 
 	public List<Expression> getExpList() {
-		//TODO 若要自动调整顺序,可以在这改.  group by,having, order by另外定义,在这才添加到list.
+		//todo 若要自动调整顺序,可以在这改.  group by,having, order by另外定义,在这才添加到list.
 		return list;
 	}
 

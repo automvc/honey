@@ -89,7 +89,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		String sql = _ObjectToSQLHelper._toSelectSQL(entity, newSelectFields);
 
 //		sql=sql.replace("#fieldNames#", fieldList);
-//		sql=sql.replace("#fieldNames#", newSelectFields);  //TODO 打印值会有问题
+//		sql=sql.replace("#fieldNames#", newSelectFields);  //打印值会有问题
 
 		Logger.logSQL("select SQL(selectFields) : ", sql);
 
@@ -184,13 +184,14 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		try {
 			String tableName =_toTableName(entity);
 			String selectAndFun;
+			funType=FunAndOrderTypeMap.transfer(funType); //v1.9
 			if ("count".equalsIgnoreCase(funType) && "*".equals(fieldForFun)) {
 //		        selectAndFun = " select " + funType + "(" + fieldForFun + ") from ";  //  count(*)
 //				selectAndFun = "select count(*) from ";
 				selectAndFun = K.select+" "+K.count+"(*) "+K.from+" ";
 			}else {
 //				selectAndFun = "select " + funType + "(" + _toColumnName(fieldForFun) + ") from ";
-				selectAndFun = K.select+" " + funType + "(" + _toColumnName(fieldForFun) + ") "+K.from+" ";   //TODO funType要能转大小写风格
+				selectAndFun = K.select+" " + funType + "(" + _toColumnName(fieldForFun) + ") "+K.from+" ";   // funType要能转大小写风格
 			}
 			sqlBuffer.append(selectAndFun);
 			sqlBuffer.append(tableName);
@@ -756,7 +757,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			
 			field = entity[0].getClass().getDeclaredField("id");
 //			field.setAccessible(true);
-//			if (field.get(entity[0]) != null) return; //即使没值,运行一次后也会有值,下次再用就会重复.而用户又不知道.    //TODO 要提醒是被覆盖了。
+//			if (field.get(entity[0]) != null) return; //即使没值,运行一次后也会有值,下次再用就会重复.而用户又不知道.    //todo 要提醒是被覆盖了。
 		} catch (NoSuchFieldException e) {
 			//is no id field , ignore.
 			return;

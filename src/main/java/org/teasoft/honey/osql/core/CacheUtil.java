@@ -252,7 +252,7 @@ public final class CacheUtil {
 			
 //			常驻缓存,但有更新时会清除缓存(下次重新查询并放缓存)
 //			if(foreverCacheModifySynTableMap.get(tableKeyList.get(0).toLowerCase()) !=null   //检测到是foreverModifySyn
-//			&& foreverCacheModifySynTableMap.get(tableKeyList.get(0).toLowerCase())==0 ) {  //并且还没有放缓存    //TODO
+//			&& foreverCacheModifySynTableMap.get(tableKeyList.get(0).toLowerCase())==0 ) {  //并且还没有放缓存 
 			
 			if(_inConfigCacheTableMap(foreverCacheModifySynTableMap,tableNameList)   //检测到是foreverModifySyn
 			&& _getConfigCacheTableMapValue(foreverCacheModifySynTableMap,tableNameList)==0 ) {   //并且还没有放缓存

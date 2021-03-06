@@ -619,7 +619,7 @@ public class SqlLib implements BeeSql {
 
 				if (len % batchSize != 0) { //尾数不成批
 					batchExeSql = getBatchExeSql(exe_sql, (len % batchSize), placeholderValue);
-//					pst = conn.prepareStatement(batchExeSql[0]);  //TODO ??
+//					pst = conn.prepareStatement(batchExeSql[0]); 
 					temp = _batchForMysql(sql[0], len - (len % batchSize), len, conn, pst, batchSize, batchExeSql[1]);
 					total += temp;
 				}
@@ -874,7 +874,7 @@ public class SqlLib implements BeeSql {
 							}
 						} catch (IllegalArgumentException e) {
 							if(isConfuseDuplicateFieldDB()){
-								fields2[i].set(subObj2,_getObjectForMoreTable_ConfuseField(rs,fields2[i],isDul,dulField));  //TODO
+								fields2[i].set(subObj2,_getObjectForMoreTable_ConfuseField(rs,fields2[i],isDul,dulField));  //todo
 							}else{
 								fields2[i].set(subObj2,_getObjectForMoreTable(rs,subUseTable[1],fields2[i]));
 							}

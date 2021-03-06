@@ -115,7 +115,7 @@ public class JdbcTransaction implements Transaction {
 
 	@Override
 	public void setTimeout(int second) {
-		//TODO
+		//todo
 	}
 
 	private void setOldAutoCommit(boolean oldAutoCommit) {

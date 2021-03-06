@@ -427,7 +427,7 @@ public final class HoneyUtil {
 			jdbcTypeMap.put("TINYBLOB", "Blob");
 			jdbcTypeMap.put("MEDIUMBLOB", "Blob");
 			jdbcTypeMap.put("LONGBLOB", "Blob");
-			jdbcTypeMap.put("YEAR", "Integer"); //TODO 
+			jdbcTypeMap.put("YEAR", "Integer"); //todo 
 			
 			jdbcTypeMap.put("TINYINT", "Byte");
 			jdbcTypeMap.put("SMALLINT", "Short");
@@ -642,7 +642,7 @@ public final class HoneyUtil {
 
 //	static boolean isContinueForMoreTable(int includeType, Object object, String fieldName) {
 //		return (((includeType == NullEmpty.EXCLUDE || includeType == NullEmpty.EMPTY_STRING) && object == null)
-//				|| ((includeType == NullEmpty.EXCLUDE || includeType == NullEmpty.NULL) && "".equals(object)) //TODO "  "也要排除
+//				|| ((includeType == NullEmpty.EXCLUDE || includeType == NullEmpty.NULL) && "".equals(object)) // "  "也要排除
 //		|| "serialVersionUID".equals(fieldName));
 //	}
 
@@ -907,7 +907,7 @@ public final class HoneyUtil {
 			for (int i = 0; i < len; i++) {
 				fields[i].setAccessible(true);
 //				if (fields[i].get(entity) == null || "serialVersionUID".equals(fields[i].getName()) || fields[i].isSynthetic() || fields[i].isAnnotationPresent(JoinTable.class)) {
-				if (fields[i].get(entity) == null || isSkipField(fields[i])) {  //TODO 再确认下实现应用场景. 添加包含设置????
+				if (fields[i].get(entity) == null || isSkipField(fields[i])) {
 					continue;
 				} else {
 					map.put(_toColumnName(fields[i].getName()), fields[i].get(entity));

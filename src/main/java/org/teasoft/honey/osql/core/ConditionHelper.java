@@ -34,7 +34,7 @@ public class ConditionHelper {
 	
 	private static final String setAddField = "setAddField";
 	private static final String setMultiplyField = "setMultiplyField";
-
+	
 	//ForUpdate
 //	static boolean processConditionForUpdateSet(StringBuffer sqlBuffer, StringBuffer valueBuffer, List<PreparedValue> list, Condition condition) {
 	static boolean processConditionForUpdateSet(StringBuffer sqlBuffer, List<PreparedValue> list, Condition condition) { //delete valueBuffer
@@ -263,7 +263,8 @@ public class ConditionHelper {
 					sqlBuffer.append(expression.getValue2()); //表达式
 				} else if (5 == expression.getOpNum()) { //having min(field)>=60
 					sqlBuffer.append(expression.getValue());//having 或者 and
-					sqlBuffer.append(expression.getValue3()); //fun
+//					sqlBuffer.append(expression.getValue3()); //fun
+					sqlBuffer.append(FunAndOrderTypeMap.transfer(expression.getValue3().toString())); //fun
 					sqlBuffer.append("(");
 					if (FunctionType.COUNT.getName().equals(expression.getValue3()) && expression.getFieldName() != null && "*".equals(expression.getFieldName().trim())) {
 						sqlBuffer.append("*");
@@ -293,8 +294,9 @@ public class ConditionHelper {
 				}
 
 				sqlBuffer.append(expression.getValue());//order by或者,
-				if (4 == expression.getOpNum()) { //order by max(total) desc
-					sqlBuffer.append(expression.getValue3());
+				if (4 == expression.getOpNum()) { //order by max(total)
+//					sqlBuffer.append(expression.getValue3());
+					sqlBuffer.append(FunAndOrderTypeMap.transfer(expression.getValue3().toString()));
 					sqlBuffer.append("(");
 					sqlBuffer.append(_toColumnName(expression.getFieldName(),useSubTableNames));
 					sqlBuffer.append(")");
@@ -304,7 +306,8 @@ public class ConditionHelper {
 
 				if (3 == expression.getOpNum() || 4 == expression.getOpNum()) { //指定 desc,asc
 					sqlBuffer.append(ONE_SPACE);
-					sqlBuffer.append(expression.getValue2());
+//					sqlBuffer.append(expression.getValue2());
+					sqlBuffer.append(FunAndOrderTypeMap.transfer(expression.getValue2().toString()));
 				}
 				continue;
 			}//end orderBy
@@ -444,7 +447,10 @@ public class ConditionHelper {
 			}else {
 				funStr+=",";
 			}
-			funStr+=funExpList.get(i).getFunctionType().getName()+"("+columnName+")"; //TODO funType要能转大小写风格
+//			funStr+=funExpList.get(i).getFunctionType().getName()+"("+columnName+")"; // funType要能转大小写风格
+			String functionTypeName=funExpList.get(i).getFunctionType().getName();
+			funStr+=FunAndOrderTypeMap.transfer(functionTypeName)+"("+columnName+")"; 
+			
 			alias=funExpList.get(i).getAlias();
 			if(StringUtils.isNotBlank(alias)) funStr+=" "+K.as+" "+alias;
 		}

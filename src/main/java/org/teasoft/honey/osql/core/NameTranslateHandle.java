@@ -31,7 +31,7 @@ public class NameTranslateHandle {
 	 * 指定命名转换实现类
 	 * @param nameTranslat
 	 */
-	public static void setNameTranslat(NameTranslate nameTranslat) { //TODO remove??
+	public static void setNameTranslat(NameTranslate nameTranslat) { //todo remove??
 		NameTranslateHandle.nameTranslat = nameTranslat;
 	}
 

@@ -86,7 +86,7 @@ public class CallableSqlLib implements CallableSql {
 	}
 
 	@Override
-	public int modify(String callSql, Object[] preValues) { //TODO 没有 输出参数情形
+	public int modify(String callSql, Object[] preValues) { //todo 没有 输出参数情形
 		int result = 0;
 		Connection conn = null;
 		CallableStatement cstmt =null;
@@ -132,7 +132,7 @@ public class CallableSqlLib implements CallableSql {
 	}
 
 	@Override
-	public int modify(CallableStatement cstmt) { //TODO 无输出参数情形
+	public int modify(CallableStatement cstmt) { //todo 无输出参数情形
 		int result = 0;
 		try {
 			Connection conn = getConnLocal(getIdString(cstmt));
