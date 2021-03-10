@@ -49,8 +49,8 @@ public class _MoreObjectToSQLHelper {
 			
 		checkPackage(entity);
 		String sql="";
-		Set<String> conditionFieldSet=null;
-		if(condition!=null) conditionFieldSet=condition.getFieldSet();
+		Set<String> whereFields=null;
+		if(condition!=null) whereFields=condition.getWhereFields();
 		StringBuffer sqlBuffer = new StringBuffer();
 		StringBuffer sqlBuffer2 = new StringBuffer();
 //		StringBuffer valueBuffer = new StringBuffer();
@@ -183,7 +183,7 @@ public class _MoreObjectToSQLHelper {
 					if (fields[i].get(entity) == null && "id".equalsIgnoreCase(fields[i].getName())) 
 						continue; //id=null不作为过滤条件
 					
-					if(conditionFieldSet!=null && conditionFieldSet.contains(fields[i].getName())) 
+					if(whereFields!=null && whereFields.contains(fields[i].getName())) 
 						continue; //Condition已包含的,不再遍历
 
 					if (firstWhere) {
@@ -224,7 +224,7 @@ public class _MoreObjectToSQLHelper {
 //					parseSubObject(sqlBuffer, valueBuffer, list, conditionFieldSet, firstWhere, includeType, moreTableStruct, index);
 //					bug: firstWhere需要返回,传给condition才是最新的
 //					firstWhere=parseSubObject(sqlBuffer, valueBuffer, list, conditionFieldSet, firstWhere, includeType, moreTableStruct, index);
-					firstWhere=parseSubObject(sqlBuffer, list, conditionFieldSet, firstWhere, includeType, moreTableStruct, index);
+					firstWhere=parseSubObject(sqlBuffer, list, whereFields, firstWhere, includeType, moreTableStruct, index);
 				}
 			}
 			
