@@ -44,7 +44,7 @@ public class HoneyFactory {
 	
 	private DbFeature dbFeature;
 	private NameTranslate nameTranslate;
-//	private Cache cache;
+	private static Cache cache;
 	
 	//@since  1.7
 	private MoreObjToSQL moreObjToSQL;
@@ -186,7 +186,7 @@ public class HoneyFactory {
 		this.dbFeature = dbFeature;
 	}
 	
-	public NameTranslate getNameTranslate() {
+	NameTranslate getNameTranslate() {
 		if(nameTranslate==null) {
 			//since 1.7.2
 			int translateType=HoneyConfig.getHoneyConfig().getNamingTranslateType();
@@ -199,17 +199,19 @@ public class HoneyFactory {
 		else return nameTranslate;
 	}
 
-	public void setNameTranslate(NameTranslate nameTranslate) {
-		this.nameTranslate = nameTranslate;
-	}
-
+//	public void setNameTranslate(NameTranslate nameTranslate) {
+//		this.nameTranslate = nameTranslate;
+//		HoneyContext.clearFieldNameCache();
+//	}
+	
 	public Cache getCache() {
-
-//		if (cache == null) {
-		boolean nocache=HoneyConfig.getHoneyConfig().isNocache();
-		if (nocache) return new NoCache(); //v1.7.2
-		return new DefaultCache();
-//		} else return cache;
+		if (cache == null) {
+			boolean nocache = HoneyConfig.getHoneyConfig().isNocache();
+			if (nocache) return new NoCache(); //v1.7.2
+			return new DefaultCache();
+		} else {
+			return cache;
+		}
 	}
 
 //	public void setCache(Cache cache) {
