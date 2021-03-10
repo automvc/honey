@@ -152,6 +152,10 @@ public final class HoneyContext {
 		return beanMap.get(key);
 	}
 	
+	static void clearFieldNameCache() {
+		 beanMap.clear();
+	}
+	
 	static MoreTableStruct[] addMoreTableStructs(String key, MoreTableStruct[] value) {
 		return moreTableStructMap.put(key, value);
 	}

@@ -33,6 +33,7 @@ public class NameTranslateHandle {
 	 */
 	public static void setNameTranslat(NameTranslate nameTranslat) { //todo remove??
 		NameTranslateHandle.nameTranslat = nameTranslat;
+		HoneyContext.clearFieldNameCache();
 	}
 
 	@SuppressWarnings({"rawtypes","unchecked"}) 
