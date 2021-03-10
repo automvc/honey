@@ -17,6 +17,7 @@ import org.teasoft.bee.osql.IncludeType;
 import org.teasoft.bee.osql.Op;
 import org.teasoft.bee.osql.OrderType;
 import org.teasoft.bee.osql.SuidType;
+import org.teasoft.bee.osql.exception.BeeErrorFieldException;
 import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
 
 /**
@@ -27,14 +28,14 @@ public class ConditionImpl implements Condition {
 
 	private SuidType suidType;
 	private List<Expression> list = new ArrayList<>();
-	private Set<String> fieldSet = new HashSet<>(); //条件表达式用到的字段
+	private Set<String> whereField = new HashSet<>(); //条件表达式用到的字段
 	private IncludeType includeType;
 	
 	private String selectField;
 	private Boolean isForUpdate;
 	
 	private List<Expression> updateSetList = new ArrayList<>();
-	private Set<String> updatefieldSet = new HashSet<>();
+	private Set<String> updatefields = new HashSet<>();
 	
 	private List<FunExpress> funExpList=new ArrayList<>();
 	
@@ -72,14 +73,30 @@ public class ConditionImpl implements Condition {
 
 	@Override
 	public Condition op(String field, Op Op, Object value) {
+		
+		checkField(field);
 		list.add(new Expression(field, Op, value));
-		this.fieldSet.add(field);
+		this.whereField.add(field);
 		return this;
 	}
-
+	
 	@Override
-	public Set<String> getFieldSet() {
-		return fieldSet;
+	public Condition opWithField(String field1, Op Op, String field2) {
+		checkField(field1);
+		checkField(field2);
+		
+		Expression exp = new Expression(field1, Op, field2);
+		exp.setOpNum(-3); // eg:field1=field2
+		
+		list.add(exp);
+		this.whereField.add(field1);
+//		this.fieldSet.add(field2);
+		return this;
+	}
+	
+	@Override
+	public Set<String> getWhereFields() {
+		return whereField;
 	}
 
 	@Override
@@ -124,6 +141,7 @@ public class ConditionImpl implements Condition {
 
 	@Override
 	public Condition groupBy(String field) {
+		checkField(field);
 		Expression exp = new Expression();
 		exp.fieldName = field;
 		exp.opType = "groupBy";
@@ -164,6 +182,7 @@ public class ConditionImpl implements Condition {
 
 	@Override
 	public Condition having(FunctionType functionType, String field, Op Op, Number value) {
+		checkField(field);
 		Expression exp = new Expression();
 		exp.opType = "having";
 		//exp.value
@@ -189,7 +208,7 @@ public class ConditionImpl implements Condition {
 
 	@Override
 	public Condition orderBy(String field) {
-
+		checkField(field);
 		Expression exp = new Expression();
 		exp.opType = "orderBy";
 		//		exp.value
@@ -209,7 +228,7 @@ public class ConditionImpl implements Condition {
 
 	@Override
 	public Condition orderBy(String field, OrderType orderType) {
-
+		checkField(field);
 		Expression exp = new Expression();
 		exp.opType = "orderBy";
 		//		exp.value
@@ -230,6 +249,7 @@ public class ConditionImpl implements Condition {
 	
 	@Override
 	public Condition orderBy(FunctionType functionType, String field, OrderType orderType) {
+		checkField(field);
 		Expression exp = new Expression();
 		exp.opType = "orderBy";
 		//		exp.value
@@ -250,6 +270,7 @@ public class ConditionImpl implements Condition {
 	}
 	
 	private void setForBetween(String field, Object low, Object high,String type){
+		checkField(field);
 		Expression exp = new Expression();
 		exp.fieldName = field;
 //		exp.opType = "between";
@@ -258,7 +279,7 @@ public class ConditionImpl implements Condition {
 		exp.value2=high;
 		exp.opNum=3;  //即使不用也不能省,因为默认值是0会以为是其它的
 		
-		this.fieldSet.add(field);
+		this.whereField.add(field);
 		
 		list.add(exp);
 	}
@@ -320,6 +341,8 @@ public class ConditionImpl implements Condition {
 	
 	private static final String setAddField = "setAddField";
 	private static final String setMultiplyField = "setMultiplyField";
+	
+	private static final String setWithField="setWithField"; //v1.9
 
 	@Override
 	public Condition setAdd(String field, Number num) {  //for field self
@@ -332,13 +355,18 @@ public class ConditionImpl implements Condition {
 	}
 	
 	@Override
-	public Condition setAdd(String field, String fieldName) {
-		return forUpdateSet(field, fieldName, setAddField);
+	public Condition setAdd(String field, String otherFieldName) {
+		return forUpdateSet(field, otherFieldName, setAddField);
 	}
 
 	@Override
-	public Condition setMultiply(String field, String fieldName) {
-		return forUpdateSet(field, fieldName, setMultiplyField);
+	public Condition setMultiply(String field, String otherFieldName) {
+		return forUpdateSet(field, otherFieldName, setMultiplyField);
+	}
+	
+	@Override
+	public Condition setWithField(String field1, String field2) {
+		return forUpdateSet(field1, field2, setWithField);
 	}
 	
 	@Override
@@ -372,8 +400,9 @@ public class ConditionImpl implements Condition {
 		return funExpList;
 	}
 	
-	private Condition forUpdateSet(String field, String fieldName,String opType){
-		return _forUpdateSet(field, fieldName, opType);
+	private Condition forUpdateSet(String field, String otherFieldName,String opType){
+		checkField(otherFieldName);
+		return _forUpdateSet(field, otherFieldName, opType);
 	}
 	
 	private Condition forUpdateSet(String field, Number num,String opType){
@@ -381,13 +410,14 @@ public class ConditionImpl implements Condition {
 	}
 	
 	private Condition _forUpdateSet(String field, Object ojb,String opType){
+		checkField(field);
 		Expression exp = new Expression();
 		exp.fieldName = field;
 		exp.opType =opType; //"setAdd" or "setMultiply";  setAddField; setMultiplyField
 		exp.value=ojb;
 		exp.opNum=1;  
 		
-		this.updatefieldSet.add(field);
+		this.updatefields.add(field);
 		updateSetList.add(exp);
 		
 		return this;
@@ -395,21 +425,22 @@ public class ConditionImpl implements Condition {
 	
 	//set field=value
 	private Condition _forUpdateSet2(String field, Object ojb) {
+		checkField(field);
 		Expression exp = new Expression();
 		exp.fieldName = field;
 	  //exp.opType =opType; 
 		exp.value = ojb;
 		exp.opNum = 1;
 
-		this.updatefieldSet.add(field);
+		this.updatefields.add(field);
 		updateSetList.add(exp);
 
 		return this;
 	}
 	
 	@Override
-	public Set<String> getUpdatefieldSet() {
-		return updatefieldSet;
+	public Set<String> getUpdatefields() {
+		return updatefields;
 	}
 
 	@Override
@@ -437,12 +468,19 @@ public class ConditionImpl implements Condition {
 		return this;
 	}
 
+	private void checkField(String field){
+		if(CheckField.isNotValid(field)) {
+			throw new BeeErrorFieldException("The field: "+field+ "is invalid!");
+		}
+	}
+
 	final class FunExpress{
 		private FunctionType functionType;
 		private String field;
 		private String alias;
 		
 		public FunExpress(FunctionType functionType, String field, String alias) {
+			checkField(field);
 			this.functionType = functionType;
 			this.field = field;
 			this.alias = alias;

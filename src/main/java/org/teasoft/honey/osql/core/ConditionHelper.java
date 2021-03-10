@@ -35,6 +35,8 @@ public class ConditionHelper {
 	private static final String setAddField = "setAddField";
 	private static final String setMultiplyField = "setMultiplyField";
 	
+	private static final String setWithField="setWithField";
+	
 	//ForUpdate
 //	static boolean processConditionForUpdateSet(StringBuffer sqlBuffer, StringBuffer valueBuffer, List<PreparedValue> list, Condition condition) {
 	static boolean processConditionForUpdateSet(StringBuffer sqlBuffer, List<PreparedValue> list, Condition condition) { //delete valueBuffer
@@ -71,8 +73,14 @@ public class ConditionHelper {
 				}
 				sqlBuffer.append(_toColumnName(expression.getFieldName(), null));
 				sqlBuffer.append("=");
-				if(opType!=null)
-				   sqlBuffer.append(_toColumnName(expression.getFieldName(), null));
+				if(opType!=null) {
+					if (setWithField.equals(opType)) {
+						sqlBuffer.append(_toColumnName((String)expression.getValue()));
+					}else {
+						sqlBuffer.append(_toColumnName(expression.getFieldName(), null));
+					}
+				}
+				   
 				
 				if (setAddField.equals(opType)) {//eg:setAdd("price","delta")--> price=price+delta
 					sqlBuffer.append("+");
@@ -92,15 +100,21 @@ public class ConditionHelper {
 				} else if (setMultiply.equals(opType)) {
 					sqlBuffer.append("*");
 				}
-				sqlBuffer.append("?");
+				
+				if (setWithField.equals(opType)) {
+                      //nothing 
+					  //for : set field1=field2
+				} else {
+					sqlBuffer.append("?");
 
-//				valueBuffer.append(","); // do not need check. at final will delete the first letter.
-//				valueBuffer.append(expression.getValue());
+//					valueBuffer.append(","); // do not need check. at final will delete the first letter.
+//					valueBuffer.append(expression.getValue());
 
-				preparedValue = new PreparedValue();
-				preparedValue.setType(expression.getValue().getClass().getName());
-				preparedValue.setValue(expression.getValue());
-				list.add(preparedValue);
+					preparedValue = new PreparedValue();
+					preparedValue.setType(expression.getValue().getClass().getName());
+					preparedValue.setValue(expression.getValue());
+					list.add(preparedValue);
+				}
 			}
 
 		}
@@ -343,17 +357,21 @@ public class ConditionHelper {
 					sqlBuffer.append(" "+K.isNotNull);
 				}
 			} else {
-				//				sqlBuffer.append("=");
-				sqlBuffer.append(expression.getOpType());
-				sqlBuffer.append("?");
+				if (expression.getOpNum() == -3) { //eg:field1=field2   could not use for having in mysql 
+					sqlBuffer.append(expression.getOpType());
+					sqlBuffer.append(expression.getValue());
+				} else {
+					sqlBuffer.append(expression.getOpType());
+					sqlBuffer.append("?");
 
-//				valueBuffer.append(",");
-//				valueBuffer.append(expression.getValue());
+//				    valueBuffer.append(",");
+//				    valueBuffer.append(expression.getValue());
 
-				preparedValue = new PreparedValue();
-				preparedValue.setType(expression.getValue().getClass().getName());
-				preparedValue.setValue(expression.getValue());
-				list.add(preparedValue);
+					preparedValue = new PreparedValue();
+					preparedValue.setType(expression.getValue().getClass().getName());
+					preparedValue.setValue(expression.getValue());
+					list.add(preparedValue);
+				}
 			}
 			isNeedAnd = true;
 		} //end expList for 
@@ -401,7 +419,7 @@ public class ConditionHelper {
 		if (SuidType.SELECT == conditionImpl.getSuidType()) {
 			List<Expression> updateSetList = conditionImpl.getUpdateExpList();
 			if (updateSetList != null && updateSetList.size() > 0) {
-				Logger.warn("Use set method(s) in SELECT type, but it just effect in UPDATE type! Involved field(s): "+conditionImpl.getUpdatefieldSet());
+				Logger.warn("Use Condition's set method(s) in SELECT type, but it just effect in UPDATE type! Involved field(s): "+conditionImpl.getUpdatefields());
 			}
 		}
 		

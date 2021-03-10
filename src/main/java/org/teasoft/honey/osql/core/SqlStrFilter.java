@@ -12,6 +12,7 @@ public final class SqlStrFilter {
 		funType = funType.trim().toLowerCase();
 
 		if ("count".equalsIgnoreCase(funType) || funType.length() == 3) {
+
 		} else {
 			return true;// illegal
 		}
