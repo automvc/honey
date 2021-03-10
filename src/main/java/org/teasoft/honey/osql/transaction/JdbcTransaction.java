@@ -9,6 +9,7 @@ import org.teasoft.bee.osql.transaction.TransactionIsolationLevel;
 import org.teasoft.honey.osql.core.ExceptionHelper;
 import org.teasoft.honey.osql.core.HoneyConfig;
 import org.teasoft.honey.osql.core.HoneyContext;
+import org.teasoft.honey.osql.core.Logger;
 import org.teasoft.honey.osql.core.SessionFactory;
 
 /**
@@ -87,9 +88,9 @@ public class JdbcTransaction implements Transaction {
 	}
 
 	@Override
-	public void setTransactionIsolation(TransactionIsolationLevel level) {
+	public void setTransactionIsolation(TransactionIsolationLevel transactionIsolationLevel) {
 		try {
-			conn.setTransactionIsolation(level.getLevel());
+			conn.setTransactionIsolation(transactionIsolationLevel.getLevel());
 		} catch (SQLException e) {
 			throw ExceptionHelper.convert(e);
 		}
@@ -116,6 +117,7 @@ public class JdbcTransaction implements Transaction {
 	@Override
 	public void setTimeout(int second) {
 		//todo
+		Logger.error("Donot support setTimeout(int second) in JdbcTransaction");
 	}
 
 	private void setOldAutoCommit(boolean oldAutoCommit) {
