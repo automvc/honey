@@ -35,7 +35,7 @@ public class ConditionImpl implements Condition {
 	private Boolean isForUpdate;
 	
 	private List<Expression> updateSetList = new ArrayList<>();
-	private Set<String> updatefields = new HashSet<>();
+	private Set<String> updatefields = new HashSet<>();//update set 部分用到的字段
 	
 	private List<FunExpress> funExpList=new ArrayList<>();
 	
