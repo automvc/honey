@@ -158,27 +158,31 @@ public class ConditionImpl implements Condition {
 		return this;
 	}
 
-	@Override
-	public Condition having(String expressionStr) {
-		Expression exp = new Expression();
-		exp.opType = "having";
-		//exp.value
-		exp.opNum = 2;
-		exp.value2=expressionStr;
-		
-		if (isStartHaving) {
-			if(isStartGroupBy) throw new BeeErrorGrammarException("The 'having' must be after 'group by' !");
-			isStartHaving = false;
-//			exp.value = " having ";
-			exp.value = " "+K.having+" ";
-		} else {
-//			exp.value = " and ";
-			exp.value = " "+K.and+" ";
-		}
-				
-		list.add(exp);
-		return this;
-	}
+//	@Override
+//	public Condition having(String expressionStr) {
+//		checkHavingException(expressionStr);
+//		Expression exp = new Expression();
+//		exp.opType = "having";
+//		//exp.value
+//		exp.opNum = 2;
+//		exp.value2=expressionStr;
+//		
+//		if (isStartHaving) {
+//			if(isStartGroupBy) throw new BeeErrorGrammarException("The 'having' must be after 'group by' !");
+//			isStartHaving = false;
+////			exp.value = " having ";
+//			exp.value = " "+K.having+" ";
+//		} else {
+////			exp.value = " and ";
+//			exp.value = " "+K.and+" ";
+//		}
+//				
+//		list.add(exp);
+//		return this;
+//	}
+	//closed. because can use:
+//	 .having(FunctionType.COUNT, "*", Op.ge, 1)
+//	 .having(FunctionType.COUNT, "distinct(userid)", Op.ge, 1)
 
 	@Override
 	public Condition having(FunctionType functionType, String field, Op Op, Number value) {
@@ -413,7 +417,7 @@ public class ConditionImpl implements Condition {
 		checkField(field);
 		Expression exp = new Expression();
 		exp.fieldName = field;
-		exp.opType =opType; //"setAdd" or "setMultiply";  setAddField; setMultiplyField
+		exp.opType =opType; //"setAdd" or "setMultiply";  setAddField; setMultiplyField; setWithField
 		exp.value=ojb;
 		exp.opNum=1;  
 		
@@ -470,7 +474,7 @@ public class ConditionImpl implements Condition {
 
 	private void checkField(String field){
 		if(CheckField.isNotValid(field)) {
-			throw new BeeErrorFieldException("The field: "+field+ "is invalid!");
+			throw new BeeErrorFieldException("The field: '"+field+ "' is invalid!");
 		}
 	}
 

@@ -520,7 +520,7 @@ final class _ObjectToSQLHelper {
 		PreparedValue preparedValue = null;
 		for (int i = 0,  w = 0; i < len; i++) { //delete:k = 0,
 			fields[i].setAccessible(true);
-			if (! isContainField(whereColumns, fields[i].getName())) { //set value.  不属性whereColumn的,将考虑转为set.  同一个实体的某个属性的值,若用于set部分了,再用于where部分就没有意义.
+			if (! isContainField(whereColumns, fields[i].getName())) { //set value.  不属于whereColumn的,将考虑转为set.  同一个实体的某个属性的值,若用于WHERE部分了,再用于UPDATE SET部分就没有意义
 				
 				//set 字段根据includeType过滤
 				if (HoneyUtil.isContinue(includeType, fields[i].get(entity),fields[i])) {

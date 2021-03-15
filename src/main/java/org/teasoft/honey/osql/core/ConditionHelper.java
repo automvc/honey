@@ -77,7 +77,7 @@ public class ConditionHelper {
 					if (setWithField.equals(opType)) {
 						sqlBuffer.append(_toColumnName((String)expression.getValue()));
 					}else {
-						sqlBuffer.append(_toColumnName(expression.getFieldName(), null));
+						sqlBuffer.append(_toColumnName(expression.getFieldName()));
 					}
 				}
 				   
@@ -272,15 +272,16 @@ public class ConditionHelper {
 					throw new BeeErrorGrammarException(conditionImpl.getSuidType() + " do not support 'having' !");
 				}
 
-				if (2 == expression.getOpNum()) {
-					sqlBuffer.append(expression.getValue());//having 或者 and
-					sqlBuffer.append(expression.getValue2()); //表达式
-				} else if (5 == expression.getOpNum()) { //having min(field)>=60
+//				if (2 == expression.getOpNum()) {//having("count(*)>5")
+//					sqlBuffer.append(expression.getValue());//having 或者 and
+//					sqlBuffer.append(expression.getValue2()); //表达式
+//				} else if (5 == expression.getOpNum()) { //having(FunctionType.MIN, "field", Op.ge, 60)
+				if (5 == expression.getOpNum()) { //having(FunctionType.MIN, "field", Op.ge, 60)
 					sqlBuffer.append(expression.getValue());//having 或者 and
 //					sqlBuffer.append(expression.getValue3()); //fun
 					sqlBuffer.append(FunAndOrderTypeMap.transfer(expression.getValue3().toString())); //fun
 					sqlBuffer.append("(");
-					if (FunctionType.COUNT.getName().equals(expression.getValue3()) && expression.getFieldName() != null && "*".equals(expression.getFieldName().trim())) {
+					if (FunctionType.COUNT.getName().equals(expression.getValue3()) && "*".equals(expression.getFieldName().trim())) {
 						sqlBuffer.append("*");
 					} else {
 						sqlBuffer.append(_toColumnName(expression.getFieldName(),useSubTableNames));
