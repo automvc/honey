@@ -7,6 +7,8 @@
 package org.teasoft.honey.osql.chain;
 
 import org.teasoft.bee.osql.FunctionType;
+import org.teasoft.bee.osql.exception.BeeErrorFieldException;
+import org.teasoft.honey.osql.core.CheckField;
 
 /**
  * @author Kingstar
@@ -17,6 +19,7 @@ public class Aggregate {
 	private static String R_PARENTHESES = ")";
 
 	public static String selectWithFun( FunctionType functionType,String fieldForFun) {
+		checkField(fieldForFun);
 		return functionType.getName() + L_PARENTHESES + fieldForFun + R_PARENTHESES; // eg. sum(price)
 	}
 
@@ -38,5 +41,11 @@ public class Aggregate {
 
 	public String count(String field) {
 		return selectWithFun(FunctionType.COUNT,field);
+	}
+	
+	private static void checkField(String field){
+		if(CheckField.isNotValid(field)) {
+			throw new BeeErrorFieldException("The field: '"+field+ "' is invalid!");
+		}
 	}
 }
