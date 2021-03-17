@@ -50,5 +50,16 @@ public class K {
 	public static final String notBetween=k.notBetween();
 
 	public static final String forUpdate=k.forUpdate();
+	
+	public static final String distinct=k.distinct();
+	public static final String join=k.join();
+	public static final String innerJoin=k.innerJoin();
+	public static final String leftJoin=k.leftJoin();
+	public static final String rightJoin=k.rightJoin();
+	
+	public static final String in=k.in();
+	public static final String notIn=k.notIn();
+	public static final String exists=k.exists();
+	public static final String notExists=k.notExists();
 
 }

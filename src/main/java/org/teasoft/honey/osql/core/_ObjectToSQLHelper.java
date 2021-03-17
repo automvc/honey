@@ -8,7 +8,6 @@ import java.util.Set;
 import org.teasoft.bee.osql.Condition;
 import org.teasoft.bee.osql.ObjSQLException;
 import org.teasoft.bee.osql.SuidType;
-import org.teasoft.bee.osql.annotation.JoinTable;
 import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
 import org.teasoft.bee.osql.exception.BeeIllegalBusinessException;
 import org.teasoft.honey.distribution.GenIdFactory;

@@ -10,8 +10,8 @@ import java.sql.SQLException;
 
 import org.teasoft.bee.osql.BeeException;
 import org.teasoft.bee.osql.BeeSQLException;
-import org.teasoft.bee.osql.exception.BeeIllegalAccessException;
-import org.teasoft.bee.osql.exception.BeeInstantiationException;
+//import org.teasoft.bee.osql.exception.BeeIllegalAccessException;
+//import org.teasoft.bee.osql.exception.BeeInstantiationException;
 
 /**
  * @author Kingstar
@@ -24,13 +24,13 @@ public class ExceptionHelper {
 		return new BeeSQLException(e.getMessage(),e.getSQLState(), e.getErrorCode(), e);
 	}
 	
-	public static BeeIllegalAccessException convert(IllegalAccessException e) {
-		return new BeeIllegalAccessException(e.getMessage(), e);
-	}
+//	public static BeeIllegalAccessException convert(IllegalAccessException e) {
+//		return new BeeIllegalAccessException(e.getMessage(), e);
+//	}
 	
-	public static BeeInstantiationException convert(InstantiationException e) {
-		return new BeeInstantiationException(e.getMessage(), e);
-	}
+//	public static BeeInstantiationException convert(InstantiationException e) {
+//		return new BeeInstantiationException(e.getMessage(), e);
+//	}
 	
 	public static BeeException convert(Exception e) {
 		return new BeeException(e.getMessage(), e);

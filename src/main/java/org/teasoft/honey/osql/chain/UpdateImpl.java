@@ -9,7 +9,9 @@ package org.teasoft.honey.osql.chain;
 import org.teasoft.bee.osql.Op;
 import org.teasoft.bee.osql.chain.Update;
 import org.teasoft.bee.osql.exception.BeeErrorFieldException;
+import org.teasoft.honey.osql.core.Check;
 import org.teasoft.honey.osql.core.CheckField;
+import org.teasoft.honey.osql.core.K;
 
 
 /**
@@ -27,7 +29,8 @@ public class UpdateImpl extends AbstractToSql implements Update {
 	private static final String L_PARENTHESES = "(";
 	private static final String R_PARENTHESES = ")";
 	private static final String COMMA = ",";
-//	private static final String SPACE = " ";
+	private static final String SPACE = " ";
+	private static final String AND = " "+K.and+" ";
 
 	public UpdateImpl() {
 		sql.append("update ");
@@ -82,7 +85,7 @@ public class UpdateImpl extends AbstractToSql implements Update {
 	 //Condition<<============= 
 		@Override
 		public Update lParentheses() {
-			if (isAddAnd) sql.append(" and ");
+			if (isAddAnd) sql.append(AND);
 			isAddAnd = false;
 			sql.append(L_PARENTHESES);
 			return this;
@@ -97,7 +100,8 @@ public class UpdateImpl extends AbstractToSql implements Update {
 		
 		@Override
 		public Update where() {
-			sql.append(" where ");
+//			sql.append(" where ");
+			sql.append(SPACE).append(K.where).append(SPACE);
 			isStartWhere = false;
 
 			return this;
@@ -105,13 +109,15 @@ public class UpdateImpl extends AbstractToSql implements Update {
 
 		@Override
 		public Update where(String expression) {
+			checkExpression(expression);
 			if (isStartWhere) {
-				sql.append(" where ");
+//				sql.append(" where ");
+				sql.append(SPACE).append(K.where).append(SPACE);
 				sql.append(expression);
 				isStartWhere = false;
 				isAddAnd = true; //fix on 2020-01-13
 			} else {
-				if (isAddAnd) sql.append(" and ");
+				if (isAddAnd) sql.append(AND);
 				sql.append(expression);
 				isAddAnd = true;
 			}
@@ -125,7 +131,7 @@ public class UpdateImpl extends AbstractToSql implements Update {
 			if (opType == Op.in) return in(field, value);
 			if (opType == Op.notIn) return notIn(field, value);
 
-			if (isAddAnd) sql.append(" and ");
+			if (isAddAnd) sql.append(AND);
 
 			sql.append(field);
 			sql.append(opType.getOperator());
@@ -142,7 +148,7 @@ public class UpdateImpl extends AbstractToSql implements Update {
 			if (opType == Op.in) return in(field, value);
 			if (opType == Op.notIn) return notIn(field, value);
 
-			if (isAddAnd) sql.append(" and ");
+			if (isAddAnd) sql.append(AND);
 			sql.append(field);
 			sql.append(opType.getOperator());
 			sql.append(value);
@@ -169,14 +175,15 @@ public class UpdateImpl extends AbstractToSql implements Update {
 		 */
 		@Override
 		public Update and() {
-			sql.append(" and ");
+			sql.append(AND);
 			isAddAnd = false;
 			return this;
 		}
 
 		@Override
 		public Update or() {
-			sql.append(" or ");
+//			sql.append(" or ");
+			sql.append(SPACE).append(K.or).append(SPACE);
 			isAddAnd = false;
 			return this;
 		}
@@ -184,17 +191,17 @@ public class UpdateImpl extends AbstractToSql implements Update {
 		@Override
 		public Update in(String field, Number... valueList) {
 			checkField(field);
-			return inOrNotIn(field, "in", valueList);
+			return inOrNotIn(field, K.in, valueList);
 		}
 
 		public Update notIn(String field, Number... valueList) {
 			checkField(field);
-			return inOrNotIn(field, "not in", valueList);
+			return inOrNotIn(field, K.notIn, valueList);
 		}
 
 		private Update inOrNotIn(String field, String op, Number... valueList) {
 			checkField(field);
-			if (isAddAnd) sql.append(" and ");
+			if (isAddAnd) sql.append(AND);
 			String value = "";
 			for (int i = 0; i < valueList.length; i++) {
 				if (i == 0)
@@ -208,19 +215,17 @@ public class UpdateImpl extends AbstractToSql implements Update {
 
 		@Override
 		public Update in(String field, String valueList) {
-			checkField(field);
-			return inOrNotIn(field, "in", valueList);
+			return inOrNotIn(field, K.in, valueList);
 		}
 
 		@Override
 		public Update notIn(String field, String valueList) {
-			checkField(field);
-			return inOrNotIn(field, "not in", valueList);
+			return inOrNotIn(field, K.notIn, valueList);
 		}
 
 		private Update inOrNotIn(String field, String op, String valueList) {
 			checkField(field);
-			if (isAddAnd) sql.append(" and ");
+			if (isAddAnd) sql.append(AND);
 			valueList = valueList.replace(",", "','");
 			sql.append(field + " " + op + " ('" + valueList + "')"); // in ('client01','bee')
 			return this;
@@ -229,12 +234,12 @@ public class UpdateImpl extends AbstractToSql implements Update {
 		@Override
 		public Update between(String field, Number low, Number high) {
 			checkField(field);
-
-			if (isAddAnd) sql.append(" and ");
+			if (isAddAnd) sql.append(AND);
 			sql.append(field);
-			sql.append(" between ");
+//			sql.append(" between ");
+			sql.append(SPACE).append(K.between).append(SPACE);
 			sql.append(low);
-			sql.append(" and ");
+			sql.append(AND);
 			sql.append(high);
 			isAddAnd = true;
 
@@ -244,11 +249,12 @@ public class UpdateImpl extends AbstractToSql implements Update {
 		@Override
 		public Update notBetween(String field, Number low, Number high) {
 			checkField(field);
-			if (isAddAnd) sql.append(" and ");
+			if (isAddAnd) sql.append(AND);
 			sql.append(field);
-			sql.append(" not between ");
+//			sql.append(" not between ");
+			sql.append(SPACE).append(K.notBetween).append(SPACE);
 			sql.append(low);
-			sql.append(" and ");
+			sql.append(AND);
 			sql.append(high);
 			isAddAnd = true;
 
@@ -258,22 +264,32 @@ public class UpdateImpl extends AbstractToSql implements Update {
 		@Override
 		public Update isNull(String field) {
 			checkField(field);
-			if (isAddAnd) sql.append(" and ");
-			sql.append(field + " is null ");
+			if (isAddAnd) sql.append(AND);
+//			sql.append(field + " is null ");
+			sql.append(field);
+			sql.append(SPACE).append(K.isNull).append(SPACE);
 			return this;
 		}
 
 		@Override
 		public Update isNotNull(String field) {
 			checkField(field);
-			if (isAddAnd) sql.append(" and ");
-			sql.append(field + " is not null ");
+			if (isAddAnd) sql.append(AND);
+//			sql.append(field + " is not null ");
+			sql.append(field);
+			sql.append(SPACE).append(K.isNotNull).append(SPACE);
 			return this;
 		}
 		
 		private void checkField(String field){
 			if(CheckField.isNotValid(field)) {
 				throw new BeeErrorFieldException("The field: '"+field+ "' is invalid!");
+			}
+		}
+		
+		private void checkExpression(String expression){
+			if(Check.isNotValidExpression(expression)) {
+				throw new BeeErrorFieldException("The expression: '"+expression+ "' is invalid!");
 			}
 		}
 		
