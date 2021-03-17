@@ -188,6 +188,13 @@ public class PreparedSqlLib implements PreparedSql {
 		Logger.logSQL("PreparedSqlLib modify SQL: ", sql);
 		return getBeeSql().modify(sql);
 	}
+	
+	@Override
+	@Deprecated
+	public int modify(String sql) {
+		Object[] preValues = null;
+		return modify(sql, preValues);
+	}
 
 	@Override
 	public String selectJson(String sql, Object[] preValues) {
