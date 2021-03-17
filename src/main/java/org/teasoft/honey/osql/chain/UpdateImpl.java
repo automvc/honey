@@ -8,6 +8,9 @@ package org.teasoft.honey.osql.chain;
 
 import org.teasoft.bee.osql.Op;
 import org.teasoft.bee.osql.chain.Update;
+import org.teasoft.bee.osql.exception.BeeErrorFieldException;
+import org.teasoft.honey.osql.core.CheckField;
+
 
 /**
  * @author Kingstar
@@ -15,12 +18,16 @@ import org.teasoft.bee.osql.chain.Update;
  */
 public class UpdateImpl extends AbstractToSql implements Update {
 
-	private static final String COMMA = ",";
-	
 	private boolean isStartWhere = true;
 	private boolean isAddAnd = false;
 	private boolean isStartTable = true;
 	private boolean isStartSet = true;
+	
+	//for where condition
+	private static final String L_PARENTHESES = "(";
+	private static final String R_PARENTHESES = ")";
+	private static final String COMMA = ",";
+//	private static final String SPACE = " ";
 
 	public UpdateImpl() {
 		sql.append("update ");
@@ -70,82 +77,206 @@ public class UpdateImpl extends AbstractToSql implements Update {
 		return this;
 	}
 	
-	//Condition<<=============
-	@Override
-	public Update where() {
-		sql.append(" where ");
-		isStartWhere = false;
 
-		return this;
-	}
-	
-	@Override
-	public Update where(String expression) {
-		if (isStartWhere) {
-			sql.append(" where ");
-			sql.append(expression);
-			isStartWhere = false;
-		} else {
+	//select , update also need use	
+	 //Condition<<============= 
+		@Override
+		public Update lParentheses() {
 			if (isAddAnd) sql.append(" and ");
-			sql.append(expression);
-			isAddAnd = true;
+			isAddAnd = false;
+			sql.append(L_PARENTHESES);
+			return this;
 		}
 
-		return this;
-	}
+		@Override
+		public Update rParentheses() {
+			sql.append(R_PARENTHESES);
+			isAddAnd = true;
+			return this;
+		}
+		
+		@Override
+		public Update where() {
+			sql.append(" where ");
+			isStartWhere = false;
 
-	@Override
-	public Update op(String field, Op opType, String value) {
+			return this;
+		}
 
-		if (isAddAnd) sql.append(" and ");
+		@Override
+		public Update where(String expression) {
+			if (isStartWhere) {
+				sql.append(" where ");
+				sql.append(expression);
+				isStartWhere = false;
+				isAddAnd = true; //fix on 2020-01-13
+			} else {
+				if (isAddAnd) sql.append(" and ");
+				sql.append(expression);
+				isAddAnd = true;
+			}
 
-		sql.append(field);
-		sql.append(opType.getOperator());
-		sql.append("'");
-		sql.append(value);
-		sql.append("'");
-		isAddAnd = true;
-		return this;
-	}
+			return this;
+		}
 
-	@Override
-	public Update op(String field, Op opType, Number value) {
+		@Override
+		public Update op(String field, Op opType, String value) {
+			checkField(field);
+			if (opType == Op.in) return in(field, value);
+			if (opType == Op.notIn) return notIn(field, value);
 
-		if (isAddAnd) sql.append(" and ");
-		sql.append(field);
-		sql.append(opType.getOperator());
-		sql.append(value);
-		isAddAnd = true;
-		return this;
-	}
-	
-	@Override
-	public Update op(String field, String value) {
-        return op(field, Op.eq, value);
-	}
+			if (isAddAnd) sql.append(" and ");
 
-	@Override
-	public Update op(String field,Number value) {
-		return op(field, Op.eq, value);
-	}
+			sql.append(field);
+			sql.append(opType.getOperator());
+			sql.append("'");
+			sql.append(value);
+			sql.append("'");
+			isAddAnd = true;
+			return this;
+		}
 
-	/**
-	 * 默认自动加 and default will automatically add and
-	 * 
-	 * @return a reference to this object.
-	 */
-	@Override
-	public Update and() {
-		sql.append(" and ");
-		isAddAnd = false;
-		return this;
-	}
+		@Override
+		public Update op(String field, Op opType, Number value) {
+			checkField(field);
+			if (opType == Op.in) return in(field, value);
+			if (opType == Op.notIn) return notIn(field, value);
 
-	@Override
-	public Update or() {
-		sql.append(" or ");
-		isAddAnd = false;
-		return this;
-	}
-	//=============>>
+			if (isAddAnd) sql.append(" and ");
+			sql.append(field);
+			sql.append(opType.getOperator());
+			sql.append(value);
+			isAddAnd = true;
+			return this;
+		}
+		
+		@Override
+		public Update op(String field, String value) {
+			checkField(field);
+			return op(field, Op.eq, value);
+		}
+		
+		@Override
+		public Update op(String field, Number value) {
+			checkField(field);
+			return op(field, Op.eq, value);
+		}
+
+		/**
+		 * 默认自动加and.default will automatically add and.
+		 * 
+		 * @return a reference to this object.
+		 */
+		@Override
+		public Update and() {
+			sql.append(" and ");
+			isAddAnd = false;
+			return this;
+		}
+
+		@Override
+		public Update or() {
+			sql.append(" or ");
+			isAddAnd = false;
+			return this;
+		}
+		
+		@Override
+		public Update in(String field, Number... valueList) {
+			checkField(field);
+			return inOrNotIn(field, "in", valueList);
+		}
+
+		public Update notIn(String field, Number... valueList) {
+			checkField(field);
+			return inOrNotIn(field, "not in", valueList);
+		}
+
+		private Update inOrNotIn(String field, String op, Number... valueList) {
+			checkField(field);
+			if (isAddAnd) sql.append(" and ");
+			String value = "";
+			for (int i = 0; i < valueList.length; i++) {
+				if (i == 0)
+					value += valueList[i];
+				else
+					value += "," + valueList[i];
+			}
+			sql.append(field + " " + op + " (" + value + ")"); // eg: in (99,18)
+			return this;
+		}
+
+		@Override
+		public Update in(String field, String valueList) {
+			checkField(field);
+			return inOrNotIn(field, "in", valueList);
+		}
+
+		@Override
+		public Update notIn(String field, String valueList) {
+			checkField(field);
+			return inOrNotIn(field, "not in", valueList);
+		}
+
+		private Update inOrNotIn(String field, String op, String valueList) {
+			checkField(field);
+			if (isAddAnd) sql.append(" and ");
+			valueList = valueList.replace(",", "','");
+			sql.append(field + " " + op + " ('" + valueList + "')"); // in ('client01','bee')
+			return this;
+		}
+		
+		@Override
+		public Update between(String field, Number low, Number high) {
+			checkField(field);
+
+			if (isAddAnd) sql.append(" and ");
+			sql.append(field);
+			sql.append(" between ");
+			sql.append(low);
+			sql.append(" and ");
+			sql.append(high);
+			isAddAnd = true;
+
+			return this;
+		}
+
+		@Override
+		public Update notBetween(String field, Number low, Number high) {
+			checkField(field);
+			if (isAddAnd) sql.append(" and ");
+			sql.append(field);
+			sql.append(" not between ");
+			sql.append(low);
+			sql.append(" and ");
+			sql.append(high);
+			isAddAnd = true;
+
+			return this;
+		}
+
+		@Override
+		public Update isNull(String field) {
+			checkField(field);
+			if (isAddAnd) sql.append(" and ");
+			sql.append(field + " is null ");
+			return this;
+		}
+
+		@Override
+		public Update isNotNull(String field) {
+			checkField(field);
+			if (isAddAnd) sql.append(" and ");
+			sql.append(field + " is not null ");
+			return this;
+		}
+		
+		private void checkField(String field){
+			if(CheckField.isNotValid(field)) {
+				throw new BeeErrorFieldException("The field: '"+field+ "' is invalid!");
+			}
+		}
+		
+		 //=============>>
+		
 }

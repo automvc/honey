@@ -18,7 +18,6 @@ public class AbstractSelectToSql extends AbstractToSql{
 	protected int size;
 	
 	public String toSQL() {
-//		return toSQL(false);
 		return toSQL(true);  //oracle用jdbc不允许有分号
 	}
 
@@ -30,12 +29,12 @@ public class AbstractSelectToSql extends AbstractToSql{
 		}
 	}
 	private DbFeature dbFeature = BeeFactory.getHoneyFactory().getDbFeature();
-	private String addPage(String sql){
+	private String addPage(String sqlStr){
 		if (this.start != 0 && size != 0) {
-			sql= dbFeature.toPageSql(sql, start,size);
+			sqlStr= dbFeature.toPageSql(sqlStr, start,size);
 		}else if (size != 0){
-			sql= dbFeature.toPageSql(sql.toString(), size);
+			sqlStr= dbFeature.toPageSql(sqlStr.toString(), size);
 		}
-		return sql;
+		return sqlStr;
 	}
 }

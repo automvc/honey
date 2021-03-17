@@ -186,7 +186,6 @@ public class SqlLib implements BeeSql {
 						field.set(targetObj, _getObjectByindex(rs,field,i+1));
 					}
 					
-
 				}
 				rsList.add(targetObj);
 				isFirst=false;
