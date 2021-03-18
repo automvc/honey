@@ -139,9 +139,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Override
 	public <T> int insert(T entity[], int batchSize, String excludeFields) {
 		if (entity == null || entity.length<1) return -1;
-		
-//		check batchSize  //TODO
-		
+		if(batchSize<=0) batchSize=10;
 		String insertSql[] = getObjToSQLRich().toInsertSQL(entity,batchSize, excludeFields);
 		_regEntityClass1(entity[0]);
 		

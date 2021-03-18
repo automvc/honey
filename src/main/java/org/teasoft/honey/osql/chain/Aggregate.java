@@ -9,6 +9,7 @@ package org.teasoft.honey.osql.chain;
 import org.teasoft.bee.osql.FunctionType;
 import org.teasoft.bee.osql.exception.BeeErrorFieldException;
 import org.teasoft.honey.osql.core.CheckField;
+import org.teasoft.honey.osql.core.FunAndOrderTypeMap;
 
 /**
  * @author Kingstar
@@ -20,7 +21,7 @@ public class Aggregate {
 
 	public static String selectWithFun( FunctionType functionType,String fieldForFun) {
 		checkField(fieldForFun);
-		return functionType.getName() + L_PARENTHESES + fieldForFun + R_PARENTHESES; // eg. sum(price)
+		return functionType.getName() + L_PARENTHESES + FunAndOrderTypeMap.transfer(fieldForFun) + R_PARENTHESES; // eg. sum(price)
 	}
 
 	public static String max(String field) {

@@ -58,7 +58,7 @@ public class FunAndOrderTypeMap {
 		
 	}
 	
-	static String transfer(String type) {
+	public static String transfer(String type) {
 		return typeMap.get(type);
 	}
 }

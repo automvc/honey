@@ -12,6 +12,7 @@ import org.teasoft.bee.osql.chain.Select;
 import org.teasoft.bee.osql.exception.BeeErrorFieldException;
 import org.teasoft.honey.osql.core.Check;
 import org.teasoft.honey.osql.core.CheckField;
+import org.teasoft.honey.osql.core.FunAndOrderTypeMap;
 import org.teasoft.honey.osql.core.K;
 
 /**
@@ -213,13 +214,13 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 			sql.append(SPACE).append(K.orderBy).append(SPACE);
 			sql.append(field);
 			sql.append(SPACE);
-			sql.append(orderType.getName());
+			sql.append(FunAndOrderTypeMap.transfer(orderType.getName()));
 			isStartOrderBy = false;
 		} else {
 			sql.append(COMMA);
 			sql.append(field);
 			sql.append(SPACE);
-			sql.append(orderType.getName());
+			sql.append(FunAndOrderTypeMap.transfer(orderType.getName()));
 		}
 		return this;
 	}
