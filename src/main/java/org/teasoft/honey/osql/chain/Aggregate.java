@@ -27,19 +27,19 @@ public class Aggregate {
 		return selectWithFun(FunctionType.MAX,field);
 	}
 
-	public String min(String field) {
+	public static String min(String field) {
 		return selectWithFun(FunctionType.MIN,field);
 	}
 
-	public String sum(String field) {
+	public static String sum(String field) {
 		return selectWithFun(FunctionType.SUM,field);
 	}
 
-	public String avg(String field) {
+	public static String avg(String field) {
 		return selectWithFun(FunctionType.AVG,field);
 	}
 
-	public String count(String field) {
+	public static String count(String field) {
 		return selectWithFun(FunctionType.COUNT,field);
 	}
 	

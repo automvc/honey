@@ -19,7 +19,7 @@ import org.teasoft.bee.osql.annotation.Table;
  * @since  1.5
  */
 public class NameTranslateHandle {
-	private static NameTranslate nameTranslat = BeeFactory.getHoneyFactory().getNameTranslate();
+	private static NameTranslate nameTranslat = BeeFactory.getHoneyFactory().getInitNameTranslate();
 	private static ConcurrentMap<String,String> entity2tableMap;
 	private static ConcurrentMap<String,String> table2entityMap=null;
 	static{
@@ -31,9 +31,13 @@ public class NameTranslateHandle {
 	 * 指定命名转换实现类
 	 * @param nameTranslat
 	 */
-	public static void setNameTranslat(NameTranslate nameTranslat) { //todo remove??
+	public static void setNameTranslat(NameTranslate nameTranslat) { // for set customer naming.
 		NameTranslateHandle.nameTranslat = nameTranslat;
 		HoneyContext.clearFieldNameCache();
+	}
+	
+	public static NameTranslate getNameTranslate() {
+		return NameTranslateHandle.nameTranslat;
 	}
 
 	@SuppressWarnings({"rawtypes","unchecked"}) 

@@ -603,14 +603,14 @@ public class SqlLib implements BeeSql {
 			String batchExeSql[];
 
 			if (len <= batchSize) {
-				batchExeSql = getBatchExeSql(exe_sql, len, placeholderValue); //batchExeSql[1] : batchSqlForPrint
+				batchExeSql = getBatchExeSql(exe_sql, len, placeholderValue); //batchExeSql[1] : ForPrint
 				pst = conn.prepareStatement(batchExeSql[0]);
 
 				total = _batchForMysql(sql[0], 0, len, conn, pst, batchSize, batchExeSql[1]);
 			} else {
 				batchExeSql = getBatchExeSql(exe_sql, batchSize, placeholderValue);
 				pst = conn.prepareStatement(batchExeSql[0]);
-
+				
 				for (int i = 0; i < len / batchSize; i++) {
 					temp = _batchForMysql(sql[0], i * batchSize, (i + 1) * batchSize, conn, pst, batchSize, batchExeSql[1]);
 					total += temp;
@@ -618,7 +618,7 @@ public class SqlLib implements BeeSql {
 
 				if (len % batchSize != 0) { //尾数不成批
 					batchExeSql = getBatchExeSql(exe_sql, (len % batchSize), placeholderValue);
-//					pst = conn.prepareStatement(batchExeSql[0]); 
+					pst = conn.prepareStatement(batchExeSql[0]);   //fixed bug
 					temp = _batchForMysql(sql[0], len - (len % batchSize), len, conn, pst, batchSize, batchExeSql[1]);
 					total += temp;
 				}
@@ -664,11 +664,12 @@ public class SqlLib implements BeeSql {
 	private int _batchForMysql(String sql, int start, int end, Connection conn, PreparedStatement pst,int batchSize,String batchSqlForPrint) throws SQLException {
 //		sql用于获取转换成获取占位的sqlKey和打印log. 
 //		v1.8  打印的sql是单行打印；执行的是批的形式.
-		
 		if (showSQL) {
 			//print log
-			if(start==0 || (end-start!=batchSize))
-			  Logger.logSQL(" insert[] SQL : ", batchSqlForPrint);
+			if(start==0 || (end-start!=batchSize)) {
+				if(batchSize==1) OneTimeParameter.setAttribute("_SYS_Bee_BatchInsertFirst");
+				Logger.logSQL(" insert[] SQL : ", batchSqlForPrint);
+			}
 			
 			for (int i = start; i < end; i++) { //start... (end-1)
 				OneTimeParameter.setAttribute("_SYS_Bee_BatchInsert", i + "");
@@ -684,7 +685,7 @@ public class SqlLib implements BeeSql {
 		
 		int a = 0;
 		String sqlForGetValue=sql+ "  [Batch:"+ (start/batchSize) + index3;
-		setPreparedValues(pst, sqlForGetValue);
+		setAndClearPreparedValues(pst, sqlForGetValue);
 		a = pst.executeUpdate();  // not executeBatch
 		conn.commit();
 		
@@ -938,8 +939,15 @@ public class SqlLib implements BeeSql {
 	
 
 	private void setPreparedValues(PreparedStatement pst, String sql) throws SQLException {
-//		List<PreparedValue> list = HoneyContext.getPreparedValue(sql); //拿了设值后就会删除.用于日志打印的,要早于此时.   bug: when add cache, no value.
+//		查询时设置值,就删了上下文,当查询回来,放缓存时,就不能用
+//		List<PreparedValue> list = HoneyContext.getPreparedValue(sql); //拿了设值后就会删除.用于日志打印的,要早于此时.   bug: when add cache, no value. 
 		List<PreparedValue> list = HoneyContext._justGetPreparedValue(sql); 
+		if (null != list && list.size() > 0) _setPreparedValues(pst, list);
+	}
+	
+	//只用于批处理
+	private void setAndClearPreparedValues(PreparedStatement pst, String sql) throws SQLException {
+		List<PreparedValue> list = HoneyContext.getAndClearPreparedValue(sql); 
 		if (null != list && list.size() > 0) _setPreparedValues(pst, list);
 	}
 
@@ -1024,7 +1032,7 @@ public class SqlLib implements BeeSql {
 	}
 	
 	private void clearContext(String sql) {
-		HoneyContext.getPreparedValue(sql);
+		HoneyContext.clearPreparedValue(sql);
 	}
 	
 	@SuppressWarnings("rawtypes")

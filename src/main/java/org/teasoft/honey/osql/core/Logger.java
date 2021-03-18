@@ -48,13 +48,13 @@ public class Logger {
 		if (showSQL) {
 			List list = null;
 			String insertIndex = (String) OneTimeParameter.getAttribute("_SYS_Bee_BatchInsert");
-//			if (HoneyUtil.isMysql() && insertIndex != null) {
-//				//				mysql批处理,在v1.8开始,不会用于占位设值. 需要清除
-//				list = HoneyContext.getPreparedValue(sql);
-//			} else {
-//				list = HoneyContext._justGetPreparedValue(sql);
-//			}
-			list = HoneyContext._justGetPreparedValue(sql); //统一用这个.
+			if (HoneyUtil.isMysql() && insertIndex != null) {
+				//				mysql批处理,在v1.8开始,不会用于占位设值. 需要清除
+				list = HoneyContext.getAndClearPreparedValue(sql);
+			} else {
+				list = HoneyContext._justGetPreparedValue(sql);
+			}
+//			list = HoneyContext._justGetPreparedValue(sql); //统一用这个.  bug,只用于打印的,没有删
 
 			String value = HoneyUtil.list2Value(list, showSQLShowType);
 
@@ -62,7 +62,10 @@ public class Logger {
 				_print("[Bee] " + hardStr, sql);
 				//				if(showExecutableSql) _println("[Bee] ExecutableSql: "+hardStr, sql);  //无占位的情况       same as log sql.
 			} else {
-				if (insertIndex != null) {
+				String batchInsertFirst = (String) OneTimeParameter.getAttribute("_SYS_Bee_BatchInsertFirst");
+				if("tRue".equals(batchInsertFirst)) {//batchSize==1
+					_print("[Bee] " + hardStr, sql);
+				}else if (insertIndex != null) {
 					if ("0".equals(insertIndex) && !HoneyUtil.isMysql()) {
 						_print("[Bee] " + hardStr, sql);
 					}

@@ -186,7 +186,7 @@ public class HoneyFactory {
 		this.dbFeature = dbFeature;
 	}
 	
-	NameTranslate getNameTranslate() {
+	NameTranslate getInitNameTranslate() {
 		if(nameTranslate==null) {
 			//since 1.7.2
 			int translateType=HoneyConfig.getHoneyConfig().getNamingTranslateType();

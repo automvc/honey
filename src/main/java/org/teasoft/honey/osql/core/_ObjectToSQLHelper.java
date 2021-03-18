@@ -784,10 +784,10 @@ final class _ObjectToSQLHelper {
 		}
 
 //		if (showSQL) { //just insert array to this method
-		if (HoneyUtil.isMysql() && !showSQL) {  //for mysql insert batch 
+		if (HoneyUtil.isMysql() && !showSQL) {  //if it is mysql batch insert, just use for print log.
              //no need set context
 		} else {
-			HoneyContext.setPreparedValue(sql_i, list);
+			HoneyContext.setPreparedValue(sql_i, list);  //mysql 批操作时,仅用于打印日志
 		}
 		return list;
 	}

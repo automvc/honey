@@ -379,10 +379,13 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 //			}
 			preparedValueList.addAll(HoneyContext._justGetPreparedValue(sql[0]));  //统一使用这个.
 			
-			if(len==1) HoneyContext.setPreparedValue(t_sql+ index1 +"Batch:"+ 0 + index2, preparedValueList);
+			if(len==1 || batchSize==1) {
+				HoneyContext.setPreparedValue(t_sql+ "  [Batch:"+ 0 + index3, preparedValueList);
+				preparedValueList = new ArrayList<>();
+			}
 			List<PreparedValue> oneRecoreList;
 			for (int i = 1; i < len; i++) { // i=1
-				String sql_i=index1 + i + index2+sql[0];
+				String sql_i=index1 + i + index2+sql[0]; //mysql批操作时,仅用于打印日志
 				//不需要打印时,不会放上下文
 				oneRecoreList=_ObjectToSQLHelper._toInsertSQL_for_ValueList(sql_i,entity[i], excludeFieldList); // i 默认包含null和空字符串.因为要用统一的sql作批处理
 				//t_sql = wrap.getSql(); //  每个sql不一定一样,因为设值不一样,有些字段不用转换. 不采用;因为不利于批处理
@@ -390,6 +393,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 				preparedValueList.addAll(oneRecoreList);
 				
 				if((i+1)%batchSize==0){ //i+1
+//					t_sql +"  [Batch:"+ (i/batchSize) + index3  // 用于批量插入时设置值
 					HoneyContext.setPreparedValue(t_sql +"  [Batch:"+ (i/batchSize) + index3, preparedValueList); //i
 					preparedValueList = new ArrayList<>();
 				}else if(i==(len-1)){
