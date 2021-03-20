@@ -21,7 +21,7 @@ public class Aggregate {
 
 	public static String selectWithFun( FunctionType functionType,String fieldForFun) {
 		checkField(fieldForFun);
-		return functionType.getName() + L_PARENTHESES + FunAndOrderTypeMap.transfer(fieldForFun) + R_PARENTHESES; // eg. sum(price)
+		return FunAndOrderTypeMap.transfer(functionType.getName()) + L_PARENTHESES + fieldForFun + R_PARENTHESES; // eg. sum(price)
 	}
 
 	public static String max(String field) {
