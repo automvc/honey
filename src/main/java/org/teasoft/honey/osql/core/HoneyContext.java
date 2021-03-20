@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -29,9 +28,7 @@ public final class HoneyContext {
 	
 	private static ThreadLocal<Map<String, CacheSuidStruct>> cacheLocal;
 	
-//	private static ThreadLocal<Map<String, RouteStruct>> routeLocal;
 	private static ThreadLocal<RouteStruct> currentRoute; 
-	
 
 	private static ThreadLocal<Connection> currentConnection;  //当前事务的Conn
 	
@@ -168,17 +165,17 @@ public final class HoneyContext {
 		if (list == null || list.size() == 0) return;
 		if(sqlStr==null || "".equals(sqlStr.trim())) return;
 		Map<String, List<PreparedValue>> map = sqlPreValueLocal.get();
-		if (null == map) map = new HashMap<>();
+//		if (null == map) map = new HashMap<>();
+		if (null == map) map = new ConcurrentHashMap<>();
 		map.put(sqlStr, list);
 		sqlPreValueLocal.set(map);
 	}
 	
-  static List<PreparedValue> _justGetPreparedValue(String sqlStr) {
+  public static List<PreparedValue> justGetPreparedValue(String sqlStr) {
 		Map<String, List<PreparedValue>> map = sqlPreValueLocal.get();
 		if (null == map) return null;
 
 		List<PreparedValue> list = map.get(sqlStr);
-//		if (list != null) map.remove(sqlStr);   don't delete
 		return list;
 	}
 
@@ -220,7 +217,7 @@ public final class HoneyContext {
 		if (cacheInfo == null) return;
 		if(sqlStr==null || "".equals(sqlStr.trim())) return;
 		Map<String, CacheSuidStruct> map = cacheLocal.get();
-		if (null == map) map = new HashMap<>();
+		if (null == map) map = new ConcurrentHashMap<>();
 		map.put(sqlStr, cacheInfo); 
 		cacheLocal.set(map);
 	}
@@ -419,9 +416,6 @@ public final class HoneyContext {
 
 		HoneyContext.setCurrentRoute(routeStruct);
 	}
-	
-//	private static Map<String, String> entityList_includes_Map = new ConcurrentHashMap<>();
-//	private static Map<String, String> entityList_excludes_Map = new ConcurrentHashMap<>();
 	
 	private static void parseEntityListToMap() {
 		String entityList_includes = HoneyConfig.getHoneyConfig().entityList_includes; //in

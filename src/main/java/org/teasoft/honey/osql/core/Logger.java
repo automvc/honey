@@ -52,7 +52,7 @@ public class Logger {
 				//				mysql批处理,在v1.8开始,不会用于占位设值. 需要清除
 				list = HoneyContext.getAndClearPreparedValue(sql);
 			} else {
-				list = HoneyContext._justGetPreparedValue(sql);
+				list = HoneyContext.justGetPreparedValue(sql);
 			}
 //			list = HoneyContext._justGetPreparedValue(sql); //统一用这个.  bug,只用于打印的,没有删
 

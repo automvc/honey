@@ -79,10 +79,10 @@ public class RwDs implements Route{
 		this.writeDd = writeDs;
 	}
 	
-	public String getReadDs() {
-		
-		return getReadDs(0); //rand
-	}
+//	public String getReadDs() {
+//		
+//		return getReadDs(0); //rand
+//	}
 
 	public String getReadDs(int type) {
 

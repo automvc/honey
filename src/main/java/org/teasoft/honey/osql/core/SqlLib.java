@@ -7,6 +7,7 @@
 package org.teasoft.honey.osql.core;
 
 import java.lang.reflect.Field;
+import java.sql.BatchUpdateException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -402,6 +403,7 @@ public class SqlLib implements BeeSql {
 			num = pst.executeUpdate(); //该语句必须是一个 SQL 数据操作语言（Data Manipulation Language，DML）语句
 										//，比如 INSERT、UPDATE 或 DELETE 语句；或者是无返回内容的 SQL 语句，比如 DDL 语句。
 		} catch (SQLException e) {
+			clearContext(sql);
 			throw ExceptionHelper.convert(e);
 		} finally {
 			checkClose(pst, conn);
@@ -509,6 +511,8 @@ public class SqlLib implements BeeSql {
 //		conn.setAutoCommit(oldAutoCommit);
 		} catch (SQLException e) {
 			if (isConstraint(e)) {
+				Logger.error("Please confirm whether it is Primary Key violation !!");
+				clearContext(sql[0],batchSize,len);
 //				e.printStackTrace();
 				Logger.error(e.getMessage());
 				return total;
@@ -552,9 +556,9 @@ public class SqlLib implements BeeSql {
 			}
 			
 			if (i == 0)
-				setPreparedValues(pst, sql);
+				setAndClearPreparedValues(pst, sql);
 			else
-				setPreparedValues(pst, index1 + i + index2 + sql);
+				setAndClearPreparedValues(pst, index1 + i + index2 + sql);
 			pst.addBatch();
 		}
 		int array[]=pst.executeBatch();    //oracle will return [-2,-2,...,-2]
@@ -626,7 +630,9 @@ public class SqlLib implements BeeSql {
 //			conn.setAutoCommit(oldAutoCommit);
 		} catch (SQLException e) {
 			if (isConstraint(e)) {
+				Logger.error("Please confirm whether it is Primary Key violation !!");
 //				e.printStackTrace();
+				clearContextForMysql(sql[0],batchSize,len);
 				Logger.error(e.getMessage());
 				return total;
 			}
@@ -649,14 +655,35 @@ public class SqlLib implements BeeSql {
 		return total;
 	}
 	
+	private void clearContext(String sql_0, int batchSize, int len) {
+		for (int i = 0; i < len; i++) {
+			String sql_i = index1 + i + index2 + sql_0;
+			clearContext(sql_i);
+		}
+	}
+	
+	private void clearContextForMysql(String sql_0, int batchSize, int len) {
+		clearContext(sql_0, batchSize, len);
+
+		int num = (len - 1) / batchSize;
+		for (int k = 0; k <= num; k++) {
+			String sqlForGetValue = sql_0 + "  [Batch:" + k + index3;
+			clearContext(sqlForGetValue);
+		}
+	}
+	
 	private boolean isConstraint(SQLException e) {
 		String className=e.getClass().getSimpleName();
+		String fullClassName=e.getClass().getName();
 		return ("MySQLIntegrityConstraintViolationException".equals(className) //mysql
 				|| e.getMessage().startsWith("Duplicate entry ") //mysql  
 				|| (e instanceof SQLIntegrityConstraintViolationException) 
 				|| e.getMessage().contains("ORA-00001:")    //Oracle 
-				|| e.getMessage().contains("Duplicate entry")|| e.getMessage().contains("Duplicate Entry")
+				|| (e instanceof BatchUpdateException) //PostgreSQL
 				|| e.getMessage().contains("duplicate key") || e.getMessage().contains("DUPLICATE KEY")  //PostgreSQL
+				|| e.getMessage().contains("primary key violation") || "org.h2.jdbc.JdbcBatchUpdateException".equals(fullClassName) //h2
+				|| e.getMessage().contains("SQLITE_CONSTRAINT_PRIMARYKEY") || e.getMessage().contains("PRIMARY KEY constraint") //SQLite
+				|| e.getMessage().contains("Duplicate entry")|| e.getMessage().contains("Duplicate Entry")
 				|| e.getMessage().contains("Duplicate key") || e.getMessage().contains("Duplicate Key")
 				);
 	}
@@ -941,7 +968,7 @@ public class SqlLib implements BeeSql {
 	private void setPreparedValues(PreparedStatement pst, String sql) throws SQLException {
 //		查询时设置值,就删了上下文,当查询回来,放缓存时,就不能用
 //		List<PreparedValue> list = HoneyContext.getPreparedValue(sql); //拿了设值后就会删除.用于日志打印的,要早于此时.   bug: when add cache, no value. 
-		List<PreparedValue> list = HoneyContext._justGetPreparedValue(sql); 
+		List<PreparedValue> list = HoneyContext.justGetPreparedValue(sql); 
 		if (null != list && list.size() > 0) _setPreparedValues(pst, list);
 	}
 	

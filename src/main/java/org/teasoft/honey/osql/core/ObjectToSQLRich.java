@@ -377,7 +377,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 //			} else {
 //				preparedValueList.addAll(HoneyContext.getPreparedValue(sql[0])); //会删了,打印日志时不能用.  批处理,在v1.8开始,不会用于占位设值.
 //			}
-			preparedValueList.addAll(HoneyContext._justGetPreparedValue(sql[0]));  //统一使用这个.
+			preparedValueList.addAll(HoneyContext.justGetPreparedValue(sql[0]));  //统一使用这个.
 			
 			if(len==1 || batchSize==1) {
 				HoneyContext.setPreparedValue(t_sql+ "  [Batch:"+ 0 + index3, preparedValueList);

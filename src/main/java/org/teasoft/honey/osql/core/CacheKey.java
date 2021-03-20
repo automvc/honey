@@ -39,7 +39,7 @@ public class CacheKey {
 		if (struct != null) {
 //			value=struct.getSqlValue();
 //			v1.8
-			List list=HoneyContext._justGetPreparedValue(sql);
+			List list=HoneyContext.justGetPreparedValue(sql);
 			value=HoneyUtil.list2Value(list,true); 
 			returnType=struct.getReturnType();
 		}
