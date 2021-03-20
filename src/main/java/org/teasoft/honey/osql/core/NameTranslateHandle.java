@@ -105,8 +105,9 @@ public class NameTranslateHandle {
 			Map<String,String> map=new HashMap<>();
 			String value=(String)OneTimeParameter.getAttribute(key);
 			if(value==null){
-				Logger.error("Auto table error: parameter  ${"+key+"} in "+autoPara+" still has not value!");
-				return autoPara;
+				Logger.warn("Auto table: parameter  ${"+key+"} in "+autoPara+" still has not value, will be ignore it!");
+//				return autoPara;
+				value=""; //V1.9 没设置时,直接去掉变量表达式
 			}
 			map.put(key, value);
 			return TokenUtil.processWithMap(autoPara, "${", "}", map);
