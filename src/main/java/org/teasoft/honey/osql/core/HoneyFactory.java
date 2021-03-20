@@ -155,7 +155,7 @@ public class HoneyFactory {
 		this.mapSuid = mapSuid;
 	}
 	
-	private DbFeature _getDbDialect() {
+	DbFeature _getDbDialectFeature() {
 		if (DatabaseConst.MYSQL.equalsIgnoreCase((HoneyContext.getDbDialect()))
 		 || DatabaseConst.MariaDB.equalsIgnoreCase((HoneyContext.getDbDialect()))
 		   )return new MySqlFeature();
@@ -179,7 +179,7 @@ public class HoneyFactory {
 
 	public DbFeature getDbFeature() {
 		if(dbFeature!=null) return dbFeature;
-		else return _getDbDialect();
+		else return _getDbDialectFeature();
 	}
 
 	public void setDbFeature(DbFeature dbFeature) {

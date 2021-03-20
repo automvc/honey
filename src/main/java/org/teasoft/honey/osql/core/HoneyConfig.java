@@ -270,6 +270,12 @@ public final class HoneyConfig {
 		return dbName;
 	}
 
+	public void setDbName(String dbName) {
+		this.dbName = dbName;
+		Logger.info("[Bee] ========= reset the dbName in HoneyConfig is :" + HoneyConfig.getHoneyConfig().dbName);
+		BeeFactory.getHoneyFactory().setDbFeature(BeeFactory.getHoneyFactory()._getDbDialectFeature());
+	}
+
 	public boolean isDbNamingToLowerCaseBefore() {
 		return dbNamingToLowerCaseBefore;
 	}
