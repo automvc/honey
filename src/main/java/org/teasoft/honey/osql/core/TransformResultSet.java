@@ -151,7 +151,7 @@ public class TransformResultSet {
 		while (rs.next()) {
 			rowMap=new HashMap<>();
 			for (int i = 1; i <= columnCount; i++) {
-				rowMap.put(rmeta.getColumnName(i), rs.getObject(i));
+				rowMap.put(_toFieldName(rmeta.getColumnName(i)), rs.getObject(i));
 			}
 			list.add(rowMap);
 		}
