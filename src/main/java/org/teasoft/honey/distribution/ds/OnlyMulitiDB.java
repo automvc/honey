@@ -114,7 +114,6 @@ public class OnlyMulitiDB implements Route {
 //				}
 
 			}
-			//TODO 为什么要在if (clazz == null)下进行??
 			ds=getDsViaTables(tables);
 			if(ds!=null) return ds;
 		}
@@ -123,7 +122,7 @@ public class OnlyMulitiDB implements Route {
 	}
 	
 	private String getDsViaTables(String tables) {
-//		String tables = routeStruct.getTableNames();  //TODO 为什么要在if (clazz == null)下进行??
+//		String tables = routeStruct.getTableNames();  
 		String ds = null;
 		if (tables != null) {
 			if (!tables.contains("##")) {
