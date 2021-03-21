@@ -1,5 +1,7 @@
 package org.teasoft.honey.osql.core;
 
+import java.sql.Connection;
+
 import org.teasoft.bee.osql.BeeSql;
 import org.teasoft.bee.osql.Cache;
 import org.teasoft.bee.osql.CallableSql;
@@ -156,18 +158,23 @@ public class HoneyFactory {
 	}
 	
 	DbFeature _getDbDialectFeature() {
-		if (DatabaseConst.MYSQL.equalsIgnoreCase((HoneyContext.getDbDialect()))
-		 || DatabaseConst.MariaDB.equalsIgnoreCase((HoneyContext.getDbDialect()))
-		   )return new MySqlFeature();
-		else if (DatabaseConst.ORACLE.equalsIgnoreCase((HoneyContext.getDbDialect())))
+		return _getDbDialectFeature(HoneyContext.getDbDialect());
+	}
+
+	DbFeature _getDbDialectFeature(String dbName) {
+		if (DatabaseConst.MYSQL.equalsIgnoreCase((dbName)) || DatabaseConst.MariaDB.equalsIgnoreCase((dbName)))
+			return new MySqlFeature();
+		else if (DatabaseConst.ORACLE.equalsIgnoreCase((dbName)))
 			return new OracleFeature();
-		else if (DatabaseConst.SQLSERVER.equalsIgnoreCase((HoneyContext.getDbDialect())))
+		else if (DatabaseConst.SQLSERVER.equalsIgnoreCase((dbName)))
 			return new SqlServerFeature();
-		else if(_isLimitOffsetDB()) return new LimitOffsetPaging(); //v1.8.15 
-		else if(HoneyContext.getDbDialect()!=null)return new NoPagingSupported(); //v1.8.15 当没有用到分页功能时,不至于报错.
+		else if (_isLimitOffsetDB())
+			return new LimitOffsetPaging(); //v1.8.15 
+		else if (dbName != null)
+			return new NoPagingSupported(); //v1.8.15 当没有用到分页功能时,不至于报错.
 		else { //要用setDbFeature(DbFeature dbFeature)设置自定义的实现类
-			throw new NoConfigException("Error: Do not set the DbFeature implements class or do not set the database name. ");  //v1.8.15
-		    //todo 也有可能是没开DB服务.
+			throw new NoConfigException("Error: Do not set the DbFeature implements class or do not set the database name. "); //v1.8.15
+			//todo 也有可能是没开DB服务.
 		}
 	}
 	
@@ -178,10 +185,16 @@ public class HoneyFactory {
 	}
 
 	public DbFeature getDbFeature() {
-		if(dbFeature!=null) return dbFeature;
-		else return _getDbDialectFeature();
+		
+		String dbName = HoneyContext.getRealTimeDbName();
+		if (dbName != null) return _getDbDialectFeature(dbName);
+		
+		if (dbFeature != null)
+			return dbFeature;
+		else
+			return _getDbDialectFeature();
 	}
-
+	
 	public void setDbFeature(DbFeature dbFeature) {
 		this.dbFeature = dbFeature;
 	}

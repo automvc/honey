@@ -136,7 +136,7 @@ public class ObjSQL implements Suid {
 
 	@Override
 	public void beginSameConnection() {
-		OneTimeParameter.setAttribute("_SYS_Bee_SAME_CONN_BEGIN"); 
+		OneTimeParameter.setTrueForKey("_SYS_Bee_SAME_CONN_BEGIN"); 
 	}
 
 	@Override

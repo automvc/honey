@@ -26,7 +26,7 @@ public class ConditionHelper {
 	static boolean isNeedAnd = true;
 	private static final String ONE_SPACE = " ";
 
-	private static DbFeature dbFeature = BeeFactory.getHoneyFactory().getDbFeature();
+//	private static DbFeature dbFeature = BeeFactory.getHoneyFactory().getDbFeature();
 	
 	
 	private static final String setAdd = "setAdd";
@@ -36,6 +36,10 @@ public class ConditionHelper {
 	private static final String setMultiplyField = "setMultiplyField";
 	
 	private static final String setWithField="setWithField";
+	
+	private static DbFeature getDbFeature() {
+		return BeeFactory.getHoneyFactory().getDbFeature();
+	}
 	
 	//ForUpdate
 //	static boolean processConditionForUpdateSet(StringBuffer sqlBuffer, StringBuffer valueBuffer, List<PreparedValue> list, Condition condition) {
@@ -380,24 +384,24 @@ public class ConditionHelper {
 		//>>>>>>>>>>>>>>>>>>>paging start
 		
 		if (SuidType.SELECT == conditionImpl.getSuidType()) {
-			
-			Integer size = conditionImpl.getSize();
-			
-			String sql = "";
-			if (start != null && size != null) {
-				HoneyUtil.regPagePlaceholder();
-				sql = dbFeature.toPageSql(sqlBuffer.toString(), start, size);
-				//			sqlBuffer=new StringBuffer(sql); //new 之后不是原来的sqlBuffer,不能带回去.
-				sqlBuffer.delete(0, sqlBuffer.length());
-				sqlBuffer.append(sql);
-				HoneyUtil.setPageNum(list);
-			} else if (size != null) {
-				HoneyUtil.regPagePlaceholder();
-				sql = dbFeature.toPageSql(sqlBuffer.toString(), size);
-				//			sqlBuffer=new StringBuffer(sql);
-				sqlBuffer.delete(0, sqlBuffer.length());
-				sqlBuffer.append(sql);
-				HoneyUtil.setPageNum(list);
+			if (! OneTimeParameter.isTrue(StringConst.Select_Fun)) {
+				Integer size = conditionImpl.getSize();
+				String sql = "";
+				if (start != null && size != null) {
+					HoneyUtil.regPagePlaceholder();
+					sql = getDbFeature().toPageSql(sqlBuffer.toString(), start, size);
+					//			sqlBuffer=new StringBuffer(sql); //new 之后不是原来的sqlBuffer,不能带回去.
+					sqlBuffer.delete(0, sqlBuffer.length());
+					sqlBuffer.append(sql);
+					HoneyUtil.setPageNum(list);
+				} else if (size != null) {
+					HoneyUtil.regPagePlaceholder();
+					sql = getDbFeature().toPageSql(sqlBuffer.toString(), size);
+					//			sqlBuffer=new StringBuffer(sql);
+					sqlBuffer.delete(0, sqlBuffer.length());
+					sqlBuffer.append(sql);
+					HoneyUtil.setPageNum(list);
+				}
 			}
 		}
 		//>>>>>>>>>>>>>>>>>>>paging end
@@ -500,7 +504,7 @@ public class ConditionHelper {
 			}else if(useSubTableNames[1]!=null && useSubTableNames[1].startsWith(t_tableName_dot)){
 				find_tableName=t_tableName;
 			}else{
-				OneTimeParameter.setAttribute("_SYS_Bee_DoNotCheckAnnotation");//adjust for @Table
+				OneTimeParameter.setTrueForKey("_SYS_Bee_DoNotCheckAnnotation");//adjust for @Table
 				find_tableName=NameTranslateHandle.toTableName(t_tableName);
 			}
 			

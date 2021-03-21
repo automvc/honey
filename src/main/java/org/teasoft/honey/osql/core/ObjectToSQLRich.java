@@ -29,22 +29,40 @@ import org.teasoft.honey.osql.name.NameUtil;
  */
 public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 
-	private DbFeature dbFeature = BeeFactory.getHoneyFactory().getDbFeature();
+//	private DbFeature dbFeature = BeeFactory.getHoneyFactory().getDbFeature();
 	private static final String ASC = K.asc;
 	
 //	private static boolean  showSQL=HoneyConfig.getHoneyConfig().isShowSQL();
 	private int batchSize = HoneyConfig.getHoneyConfig().getBatchSize();
 
+	private DbFeature getDbFeature() {
+		return BeeFactory.getHoneyFactory().getDbFeature();
+	}
+
 	@Override
 	public <T> String toSelectSQL(T entity, int size) {
+		
+		String tableName="";
+		if(isNeedRealTimeDb()) {
+			tableName= _toTableName(entity);  //这里,取过了参数, 到解析sql的,就不能再取
+			OneTimeParameter.setAttribute(StringConst.TABLE_NAME, tableName);
+			HoneyContext.initRouteWhenParseSql(SuidType.SELECT, entity.getClass(),tableName);
+			OneTimeParameter.setTrueForKey(StringConst.ALREADY_SET_ROUTE);
+			OneTimeParameter.setTrueForKey(StringConst.Use_Page);
+		}
 
 		SqlValueWrap wrap = toSelectSQL_0(entity);
 		String sql = wrap.getSql();
 		regPagePlaceholder();
-		sql = dbFeature.toPageSql(sql, size);
+		sql = getDbFeature().toPageSql(sql, size);
 		HoneyUtil.setPageNum(wrap.getList());
-         
-		setContext(sql, wrap.getList(), wrap.getTableNames());
+		
+		if(isNeedRealTimeDb()) {
+			setContext(sql, wrap.getList(), tableName);
+		}else {
+			setContext(sql, wrap.getList(), wrap.getTableNames());
+		}
+		
 		Logger.logSQL("select SQL(entity,size): ", sql);
 		return sql;
 	}
@@ -55,13 +73,27 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 
 	@Override
 	public <T> String toSelectSQL(T entity, int start, int size) {
+		
+		String tableName="";
+		if(isNeedRealTimeDb()) {
+			tableName= _toTableName(entity);  //这里,取过了参数, 到解析sql的,就不能再取
+			OneTimeParameter.setAttribute(StringConst.TABLE_NAME, tableName);
+			HoneyContext.initRouteWhenParseSql(SuidType.SELECT, entity.getClass(),tableName);
+			OneTimeParameter.setTrueForKey(StringConst.ALREADY_SET_ROUTE);
+			OneTimeParameter.setTrueForKey(StringConst.Use_Page);
+		}
 
 		SqlValueWrap wrap = toSelectSQL_0(entity);
 		String sql = wrap.getSql();
 		regPagePlaceholder();
-		sql = dbFeature.toPageSql(sql, start, size);
+		sql = getDbFeature().toPageSql(sql, start, size);
 		HoneyUtil.setPageNum(wrap.getList());
-		setContext(sql, wrap.getList(), wrap.getTableNames());
+		
+		if(isNeedRealTimeDb()) {
+			setContext(sql, wrap.getList(), tableName);
+		}else {
+			setContext(sql, wrap.getList(), wrap.getTableNames());
+		}
 
 		Logger.logSQL("select(entity,start,size) SQL: ", sql);
 		return sql;
@@ -70,12 +102,26 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	@Override
 	public <T> String toSelectSQL(T entity, String selectFields, int start, int size) {
 
+		String tableName="";
+		if(isNeedRealTimeDb()) {
+			tableName= _toTableName(entity);  //这里,取过了参数, 到解析sql的,就不能再取
+			OneTimeParameter.setAttribute(StringConst.TABLE_NAME, tableName);
+			HoneyContext.initRouteWhenParseSql(SuidType.SELECT, entity.getClass(),tableName);
+			OneTimeParameter.setTrueForKey(StringConst.ALREADY_SET_ROUTE);
+			OneTimeParameter.setTrueForKey(StringConst.Use_Page);
+		}
+		
 		SqlValueWrap wrap = toSelectSQL_0(entity, selectFields);
 		String sql = wrap.getSql();
 		regPagePlaceholder();
-		sql = dbFeature.toPageSql(sql, start, size);
+		sql = getDbFeature().toPageSql(sql, start, size);
 		HoneyUtil.setPageNum(wrap.getList());
-		setContext(sql, wrap.getList(), wrap.getTableNames());
+		
+		if(isNeedRealTimeDb()) {
+			setContext(sql, wrap.getList(), tableName);
+		}else {
+			setContext(sql, wrap.getList(), wrap.getTableNames());
+		}
 
 		Logger.logSQL("select(entity,selectFields,start,size) SQL: ", sql);
 		return sql;
@@ -248,6 +294,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 
 			if (condition != null) {
 				condition.setSuidType(SuidType.SELECT);
+				OneTimeParameter.setTrueForKey(StringConst.Select_Fun);
 				ConditionHelper.processCondition(sqlBuffer, list, condition, firstWhere);
 			}
 			
@@ -366,7 +413,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			
 			String t_sql = "";
  
-			OneTimeParameter.setAttribute("_SYS_Bee_Return_PlaceholderValue");
+			OneTimeParameter.setTrueForKey("_SYS_Bee_Return_PlaceholderValue");
 			t_sql = _ObjectToSQLHelper._toInsertSQL0(entity[0], 2, excludeFieldList); // i 默认包含null和空字符串.因为要用统一的sql作批处理
 			sql[0] = t_sql;
 			
@@ -656,7 +703,15 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		StringBuffer sqlBuffer = new StringBuffer();
 		SqlValueWrap wrap = new SqlValueWrap();
 		try {
-			String tableName =_toTableName(entity);
+			String tableName ="";
+			
+			if (isNeedRealTimeDb()) {
+				tableName = (String) OneTimeParameter.getAttribute(StringConst.TABLE_NAME);
+				if (tableName == null) {
+					tableName = _toTableName(entity);
+				}
+			}
+			
 			Field fields[] = entity.getClass().getDeclaredFields(); //返回所有字段,包括公有和私有    
 			String fieldNames ="";
 			if (selectField != null && !"".equals(selectField.trim())) {
@@ -785,5 +840,9 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 				throw ExceptionHelper.convert(e);
 			}
 		}
+	}
+	
+	private boolean isNeedRealTimeDb() {
+		return HoneyContext.isNeedRealTimeDb();
 	}
 }

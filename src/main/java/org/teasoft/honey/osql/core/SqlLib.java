@@ -694,7 +694,7 @@ public class SqlLib implements BeeSql {
 		if (showSQL) {
 			//print log
 			if(start==0 || (end-start!=batchSize)) {
-				if(batchSize==1) OneTimeParameter.setAttribute("_SYS_Bee_BatchInsertFirst");
+				if(batchSize==1) OneTimeParameter.setTrueForKey("_SYS_Bee_BatchInsertFirst");
 				Logger.logSQL(" insert[] SQL : ", batchSqlForPrint);
 			}
 			
@@ -1060,11 +1060,16 @@ public class SqlLib implements BeeSql {
 	
 	private void clearContext(String sql) {
 		HoneyContext.clearPreparedValue(sql);
+		if(HoneyContext.isNeedRealTimeDb() && HoneyContext.isAlreadySetRoute()) { //当可以从缓存拿时，需要清除conn和为分页已设置的路由
+			Connection conn = (Connection) OneTimeParameter.getAttribute(StringConst.CONN_For_Different_DS);
+			if(conn!=null) checkClose(null, conn); //关闭conn时,会清除为分页已设置的路由
+		}
 	}
 	
 	@SuppressWarnings("rawtypes")
 	private void initRoute(SuidType suidType, Class clazz, String sql) {
 		if (!enableMultiDs) return;
+		if(HoneyContext.isNeedRealTimeDb() && HoneyContext.isAlreadySetRoute()) return; // already set in parse entity to sql.
 		HoneyContext.initRoute(suidType, clazz, sql);
 	}
 	

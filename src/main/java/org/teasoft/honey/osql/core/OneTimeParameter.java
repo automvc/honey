@@ -13,14 +13,16 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Kingstar
  * @since  1.8
  */
- class OneTimeParameter {
+class OneTimeParameter {
 	
 	private static ThreadLocal<Map<String, Object>> local= new ThreadLocal<>();
-	private static final String tRue = "tRue";
-
+	
+//	private static final String twiceFix = "<:twiceFix:Bee>";
+//	private static final String needTwiceKey = "<:needTwice:Key:Bee>"; 
+	
 	private OneTimeParameter() {}
 
-	public static Object getAttribute(String key) {
+	private static Object _getAttribute(String key) {
 		
 		Map<String, Object> map = local.get();
 		if (null == map) return null;
@@ -29,16 +31,68 @@ import java.util.concurrent.ConcurrentHashMap;
 		map.remove(key);  //取后即删
 		return obj;
 	}
+	
+	public static Object getAttribute(String key) {
+		Object value = _getAttribute(key);
+//		if (value == null) value = _getAttribute(key + twiceFix);
+		return value;
+	}
 
 	public static void setAttribute(String key, Object obj) {
 		if (obj == null) return;
 		Map<String, Object> map = local.get();
-		if (null == map) map = new ConcurrentHashMap<>();
+		if (null == map) map = new ConcurrentHashMap<>();   //TODO 使用弱引用???
 		map.put(key, obj); 
 		local.set(map);
 	}
 	
-	public static void setAttribute(String key) {
-		setAttribute(key, tRue);
+	/**
+	 * @param key
+	 * @param obj
+	 * @since 1.9
+	 */
+//	public static void setAttributeTwice(String key, Object obj) {
+//		if (obj == null) return;
+//		Map<String, Object> map = local.get();
+//		if (null == map) map = new ConcurrentHashMap<>();
+//		map.put(key, obj); 
+//		map.put(key+twiceFix, obj); 
+//		local.set(map);
+//	}
+	
+	public static void setTrueForKey(String key) {
+		setAttribute(key, StringConst.tRue);
 	}
+	
+	public static boolean isTrue(String key) {
+		Object value = _getAttribute(key);
+		if (StringConst.tRue.equals(value))
+			return true;
+		else
+			return false;
+	}
+	
+//	public static void needTwice() {
+//		setAttribute(needTwiceKey,StringConst.tRue);
+//	}
+//	
+//	public static boolean isNeedTwice() {
+//		Object value = _getAttribute(needTwiceKey);
+//		if (StringConst.tRue.equals(value))
+//			return true;
+//		else
+//			return false;
+//	}
+	
+//	public static void main(String[] args) {
+//		
+////		OneTimeParameter.setAttribute("AAA",111);
+//		OneTimeParameter.setAttributeTwice("AAA",111);
+//		System.out.println(getAttribute("AAA"));
+//		System.out.println(getAttribute("AAA"));
+//		System.out.println(getAttribute("AAA"));
+//		
+//		needTwice();
+//		System.out.println(isNeedTwice());
+//	}
 }

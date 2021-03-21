@@ -171,7 +171,7 @@ public final class HoneyContext {
 		sqlPreValueLocal.set(map);
 	}
 	
-  public static List<PreparedValue> justGetPreparedValue(String sqlStr) {
+   static List<PreparedValue> justGetPreparedValue(String sqlStr) {
 		Map<String, List<PreparedValue>> map = sqlPreValueLocal.get();
 		if (null == map) return null;
 
@@ -260,7 +260,7 @@ public final class HoneyContext {
 	}
 	
 	static void endSameConnection() {
-		OneTimeParameter.setAttribute("_SYS_Bee_SAME_CONN_END");
+		OneTimeParameter.setTrueForKey("_SYS_Bee_SAME_CONN_END");
 		checkClose(null, HoneyContext.getCurrentConnection());
 		removeCurrentConnection();
 	}
@@ -322,7 +322,13 @@ public final class HoneyContext {
 	
 	static Connection getConn() throws SQLException {
 		Connection conn = null;
-
+		
+		if (isNeedRealTimeDb()) { //仅分库多数据源时支持实时判断数据库类型,才决定用DbFeature的实现类
+			//且分页时,已设置了Conn
+			conn = (Connection) OneTimeParameter.getAttribute(StringConst.CONN_For_Different_DS);
+			if (conn != null) return conn;
+		}
+		
 		conn = HoneyContext.getCurrentConnection(); //获取已开启事务的连接
 		if (conn == null) {
 			conn = SessionFactory.getConnection(); //不开启事务时
@@ -417,6 +423,21 @@ public final class HoneyContext {
 		HoneyContext.setCurrentRoute(routeStruct);
 	}
 	
+	@SuppressWarnings("rawtypes")
+	static void initRouteWhenParseSql(SuidType suidType, Class clazz,String tableNames) {
+		
+		if (clazz == null) {
+			clazz = (Class) OneTimeParameter.getAttribute("_SYS_Bee_ROUTE_EC");
+		}
+
+		RouteStruct routeStruct = new RouteStruct();
+		routeStruct.setSuidType(suidType);
+		routeStruct.setEntityClass(clazz);
+		routeStruct.setTableNames(tableNames);
+
+		HoneyContext.setCurrentRoute(routeStruct);
+	}
+	
 	private static void parseEntityListToMap() {
 		String entityList_includes = HoneyConfig.getHoneyConfig().entityList_includes; //in
 		_parseListToMap(entityList_includes, entityList_includes_Map, entityListWithStar_in);
@@ -494,6 +515,41 @@ public final class HoneyContext {
 		}
 
 		return needGenId;
+	}
+	
+	static boolean isNeedRealTimeDb() {
+//		multi-DS.type=2
+//		multi-DS.different.dbType=true
+		return true;
+//		return false;
+	}
+	
+	//有分页等DB特有特性,才会触发.   没有分页时,走原来的流程,到SqlLib,才获取数据源处理Suid操作.
+	static String getRealTimeDbName() {
+		String dbName = null; 
+		if (HoneyContext.isNeedRealTimeDb() && OneTimeParameter.isTrue(StringConst.Use_Page)) {
+			Connection conn = null;
+			boolean isPass=true;
+			try {
+				conn = HoneyContext.getConn();
+				if (conn != null) {
+					dbName = conn.getMetaData().getDatabaseProductName();
+					HoneyConfig.getHoneyConfig().dbName = dbName;
+				}
+			} catch (Exception e) {
+				isPass=false;
+				dbName=null;
+			}
+
+			if(isPass) {
+				OneTimeParameter.setAttribute(StringConst.CONN_For_Different_DS, conn);
+			}
+		}//if
+		return dbName;
+	}
+	
+	static boolean isAlreadySetRoute() {
+		return OneTimeParameter.isTrue(StringConst.ALREADY_SET_ROUTE);
 	}
 	
 }

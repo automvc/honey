@@ -95,6 +95,7 @@ final class _ObjectToSQLHelper {
 		String tableName = _toTableName(entity);
 		List<PreparedValue> list = new ArrayList<>();
 		boolean firstWhere = true;
+		boolean isFun=false;
 		try {
 			Field fields[] = entity.getClass().getDeclaredFields(); 
 			String columnNames;
@@ -105,7 +106,6 @@ final class _ObjectToSQLHelper {
 				columnNames = HoneyUtil.getBeanField(fields);
 				HoneyContext.addBeanField(packageAndClassName, columnNames);
 			}
-			
 			if (condition != null) {
 				condition.setSuidType(SuidType.SELECT);
 				
@@ -121,13 +121,17 @@ final class _ObjectToSQLHelper {
 				}
 				
 				String selectField = ConditionHelper.processSelectField(columnNames, condition);
-				if (isCheckOneFunction)
+				isFun=true;
+				if (isCheckOneFunction) {
 					columnNames = fun;
-				else if (selectField != null && StringUtils.isEmpty(fun))
+				}else if (selectField != null && StringUtils.isEmpty(fun)) {
 					columnNames = selectField;
-				else if (selectField != null && StringUtils.isNotEmpty(fun))
+					isFun=false;
+				}else if (selectField != null && StringUtils.isNotEmpty(fun)) {
 					columnNames = selectField + "," + fun;
-				else if (selectField == null && StringUtils.isNotEmpty(fun)) columnNames = fun;
+				}else if (selectField == null && StringUtils.isNotEmpty(fun)) {
+					columnNames = fun;
+				}
 			}
 			
 //			sqlBuffer.append(K.select+" " + columnNames + " "+K.from+" ");
@@ -179,6 +183,15 @@ final class _ObjectToSQLHelper {
 			
 		if (condition != null) {
 			condition.setSuidType(SuidType.SELECT);
+			if (isFun) {
+				OneTimeParameter.setTrueForKey(StringConst.Select_Fun);
+			} else {
+				if (HoneyContext.isNeedRealTimeDb()) {
+					HoneyContext.initRouteWhenParseSql(SuidType.SELECT, entity.getClass(), tableName);
+					OneTimeParameter.setTrueForKey(StringConst.ALREADY_SET_ROUTE);
+					OneTimeParameter.setTrueForKey(StringConst.Use_Page);
+				}
+			}
 			ConditionHelper.processCondition(sqlBuffer, list, condition, firstWhere);
 		}
 

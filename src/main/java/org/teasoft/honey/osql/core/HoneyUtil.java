@@ -47,11 +47,15 @@ public final class HoneyUtil {
 
 	static {
 		String proFileName = "/jdbcTypeToFieldType-{DbName}.properties";
-		jdbcTypeCustomProp_specificalDB = new PropertiesReader(proFileName.replace("{DbName}", HoneyConfig.getHoneyConfig().getDbName()));
-
+		
 		initJdbcTypeMap();
 		appendJdbcTypeCustomProp();
-		appendJdbcTypeCustomProp_specificalDB();
+		
+		String dbName = HoneyConfig.getHoneyConfig().getDbName();
+		if (dbName != null) {
+			jdbcTypeCustomProp_specificalDB = new PropertiesReader(proFileName.replace("{DbName}", dbName));
+			appendJdbcTypeCustomProp_specificalDB();
+		}
 
 		initJavaTypeMap();
 	}
