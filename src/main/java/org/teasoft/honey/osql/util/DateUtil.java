@@ -24,7 +24,7 @@ public class DateUtil {
 	
 	private static SimpleDateFormat getSimpleDateFormat() {
 		SimpleDateFormat defaultFormat =null;  
-		String dateFormatStr = HoneyConfig.getHoneyConfig().getDateFormat();
+		String dateFormatStr = HoneyConfig.getHoneyConfig().dateFormat;
 		if (dateFormatStr != null && !"".equals(dateFormatStr.trim())) {
 			try {
 				defaultFormat = new SimpleDateFormat(dateFormatStr);
