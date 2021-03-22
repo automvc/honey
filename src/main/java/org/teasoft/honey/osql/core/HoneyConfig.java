@@ -89,11 +89,11 @@ public final class HoneyConfig {
 
 	@SysValue("${bee.osql.selectJson.time.withMillisecond}")
 	boolean selectJson_timeWithMillisecond;
-
 	//----------------------------- selectJson end
-
+	
 	@SysValue("${bee.osql.select.returnStringList.nullToEmptyString}")
 	boolean returnStringList_nullToEmptyString;
+	
 
 	@SysValue("${" + DbConfigConst.DB_DRIVERNAME + "}")
 	private String driverName;
@@ -201,7 +201,6 @@ public final class HoneyConfig {
 	//	支持同时使用多种类型数据库的数据源.support different type muli-Ds at same time.
 	@SysValue("${bee.dosql.multi-DS.different.dbType}")
 	public boolean multiDs_differentDbType;
-
 	//----------------------------- multiDs  end
 
 	public String getDbName() {
@@ -218,6 +217,35 @@ public final class HoneyConfig {
 		this.dbName = dbName;
 		Logger.info("[Bee] ========= reset the dbName in HoneyConfig is :" + HoneyConfig.getHoneyConfig().dbName);
 		BeeFactory.getHoneyFactory().setDbFeature(BeeFactory.getHoneyFactory()._getDbDialectFeature());
+	}
+	
+	private static boolean alreadyPrintDbName = false;
+
+	private static void checkAndInitDbName() {
+		if (HoneyConfig.getHoneyConfig().dbName == null) {
+			Connection conn = null;
+			try {
+				conn = SessionFactory.getConnection();
+				if (conn != null) {
+					HoneyConfig.getHoneyConfig().dbName = conn.getMetaData().getDatabaseProductName();
+					Logger.info("[Bee] ========= get the dbName from the Connection is :" + HoneyConfig.getHoneyConfig().dbName);
+					alreadyPrintDbName = true;
+				}
+			} catch (Exception e) {
+				Logger.error(e.getMessage());
+			} finally {
+				try {
+					if (conn != null) conn.close();
+				} catch (Exception e2) {
+					Logger.error(e2.getMessage());
+				}
+			}
+		} else {
+			if (!alreadyPrintDbName) {
+				Logger.info("[Bee] ========= get the dbName from HoneyConfig is :" + HoneyConfig.getHoneyConfig().dbName);
+				alreadyPrintDbName = true;
+			}
+		}
 	}
 
 	public void setDriverName(String driverName) {
@@ -256,32 +284,4 @@ public final class HoneyConfig {
 		return nocache;
 	}
 
-	private static boolean alreadyPrintDbName = false;
-
-	private static void checkAndInitDbName() {
-		if (HoneyConfig.getHoneyConfig().dbName == null) {
-			Connection conn = null;
-			try {
-				conn = SessionFactory.getConnection();
-				if (conn != null) {
-					HoneyConfig.getHoneyConfig().dbName = conn.getMetaData().getDatabaseProductName();
-					Logger.info("[Bee] ========= get the dbName from the Connection is :" + HoneyConfig.getHoneyConfig().dbName);
-					alreadyPrintDbName = true;
-				}
-			} catch (Exception e) {
-				Logger.error(e.getMessage());
-			} finally {
-				try {
-					if (conn != null) conn.close();
-				} catch (Exception e2) {
-					Logger.error(e2.getMessage());
-				}
-			}
-		} else {
-			if (!alreadyPrintDbName) {
-				Logger.info("[Bee] ========= get the dbName from HoneyConfig is :" + HoneyConfig.getHoneyConfig().dbName);
-				alreadyPrintDbName = true;
-			}
-		}
-	}
 }
