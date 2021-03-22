@@ -25,8 +25,8 @@ public class SystemLogger implements Log{
 	private static final String LEFT="[";
 	private static final String RIGHT="]";
 	
-	private static boolean donotPrintCurrentDate=HoneyConfig.getHoneyConfig().isShowSQL_donotPrint_currentDate();
-	private static boolean donotPrintLevel=HoneyConfig.getHoneyConfig().isLog_donotPrint_level();
+	private static boolean donotPrintCurrentDate=HoneyConfig.getHoneyConfig().showSQL_donotPrint_currentDate;
+	private static boolean donotPrintLevel=HoneyConfig.getHoneyConfig().log_donotPrint_level;
 	
 	private String className=null;
 	
