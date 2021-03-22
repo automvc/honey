@@ -24,7 +24,7 @@ final class _ObjectToSQLHelper {
 //	private final static String INSERT_INTO = "insert into ";
 	private static final String INSERT_INTO = K.insert+K.space+K.into+K.space;
 	
-	private static boolean  showSQL=HoneyConfig.getHoneyConfig().isShowSQL();
+	private static boolean  showSQL=HoneyConfig.getHoneyConfig().showSQL;
 
 	private _ObjectToSQLHelper() {}
 	
@@ -473,7 +473,7 @@ final class _ObjectToSQLHelper {
 		//不允许更新一个表的所有数据
 		//v1.7.2 只支持是否带where检测
 		if (firstWhere) {
-			boolean notUpdateWholeRecords = HoneyConfig.getHoneyConfig().isNotUpdateWholeRecords();
+			boolean notUpdateWholeRecords = HoneyConfig.getHoneyConfig().notUpdateWholeRecords;
 			if (notUpdateWholeRecords) {
 				Logger.logSQL("update SQL: ", sql);
 				throw new BeeIllegalBusinessException("BeeIllegalBusinessException: It is not allowed update whole records in one table.");
@@ -632,7 +632,7 @@ final class _ObjectToSQLHelper {
 		//不允许更新一个表的所有数据
 		//v1.7.2 只支持是否带where检测
 		if (firstWhere) {
-			boolean notUpdateWholeRecords = HoneyConfig.getHoneyConfig().isNotUpdateWholeRecords();
+			boolean notUpdateWholeRecords = HoneyConfig.getHoneyConfig().notUpdateWholeRecords;
 			if (notUpdateWholeRecords) {
 				Logger.logSQL("update SQL: ", sql);
 				throw new BeeIllegalBusinessException("BeeIllegalBusinessException: It is not allowed update whole records in one table.");
@@ -881,7 +881,7 @@ final class _ObjectToSQLHelper {
 			//不允许删整张表
 			//只支持是否带where检测   v1.7.2 
 			if (firstWhere) {
-				boolean notDeleteWholeRecords = HoneyConfig.getHoneyConfig().isNotDeleteWholeRecords();
+				boolean notDeleteWholeRecords = HoneyConfig.getHoneyConfig().notDeleteWholeRecords;
 				if (notDeleteWholeRecords) {
 					Logger.logSQL("delete SQL: ", sql);
 					throw new BeeIllegalBusinessException("BeeIllegalBusinessException: It is not allowed delete whole records in one table.");

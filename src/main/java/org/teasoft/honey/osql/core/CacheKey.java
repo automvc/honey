@@ -19,7 +19,7 @@ import org.teasoft.honey.osql.util.MD5;
 public class CacheKey {
 	
 	private static final String SEPARATOR=" (@separator#) ";
-	private static boolean cacheKeyUseMD5=HoneyConfig.getHoneyConfig().cacheKeyUseMD5;
+	private static boolean cacheKeyUseMD5=HoneyConfig.getHoneyConfig().cache_keyUseMD5;
 	
 	public static String genKey(String key){
 		String str=fullSql(key);

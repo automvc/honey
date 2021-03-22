@@ -1,5 +1,9 @@
 package org.teasoft.honey.osql.core;
 
+import java.sql.Connection;
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.sql.DataSource;
 
 import org.teasoft.bee.osql.BeeAbstractFactory;
@@ -46,6 +50,42 @@ public class BeeFactory extends BeeAbstractFactory {
 		
 		String dsName=Router.getDsName(); 
 		return getDataSourceMap().get(dsName);
+	}
+	
+	@Override
+	protected void parseDbNameByDsMap() {
+		
+//		if(! HoneyContext.isNeedRealTimeDb()) return ;  //在设置DataSourceMap前,就要设置同时支持多种类型数据源的配置信息
+		
+		Map<String, DataSource> dsMap = getDataSourceMap();
+        if(dsMap==null) return ;
+		Map<String, String> dsName2DbName=new HashMap<>();
+		for (Map.Entry<String, DataSource> entry : dsMap.entrySet()) {
+			dsName2DbName.put(entry.getKey(), getDbName(entry.getValue()));
+		}
+		Logger.info("Parse DataSourceMap: dataSource name to database name , result: "+dsName2DbName);
+		HoneyContext.setDsName2DbName(dsName2DbName);
+	}
+	
+	private String getDbName(DataSource ds) {
+		Connection conn = null;
+		String dbName = null;
+		try {
+			conn = ds.getConnection();
+			if (conn != null) {
+				dbName = conn.getMetaData().getDatabaseProductName();
+			}
+		} catch (Exception e) {
+			Logger.error(e.getMessage());
+		} finally {
+			try {
+				if (conn != null) conn.close();
+			} catch (Exception e2) {
+				Logger.error(e2.getMessage());
+			}
+		}
+		
+		return dbName;
 	}
 
 }
