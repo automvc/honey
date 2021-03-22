@@ -38,10 +38,10 @@ public class SqlLib implements BeeSql {
 	
 	private Cache cache=BeeFactory.getHoneyFactory().getCache();
 	
-	private int cacheWorkResultSetSize=HoneyConfig.getHoneyConfig().getCacheWorkResultSetSize();
+	private int cacheWorkResultSetSize=HoneyConfig.getHoneyConfig().cache_workResultSetSize;
 	private boolean enableMultiDs=HoneyConfig.getHoneyConfig().enableMultiDs;
 	
-	private static boolean  showSQL=HoneyConfig.getHoneyConfig().isShowSQL();
+	private static boolean  showSQL=HoneyConfig.getHoneyConfig().showSQL;
 
 	public SqlLib() {}
 
@@ -464,7 +464,7 @@ public class SqlLib implements BeeSql {
 	@Override
 	public int batch(String sql[]) {
 		if(sql==null) return -1;
-		int batchSize = HoneyConfig.getHoneyConfig().getBatchSize();
+		int batchSize = HoneyConfig.getHoneyConfig().insertBatchSize;
 
 		return batch(sql,batchSize);
 	}
@@ -1060,9 +1060,8 @@ public class SqlLib implements BeeSql {
 	
 	private void clearContext(String sql) {
 		HoneyContext.clearPreparedValue(sql);
-		if(HoneyContext.isNeedRealTimeDb() && HoneyContext.isAlreadySetRoute()) { //当可以从缓存拿时，需要清除conn和为分页已设置的路由
-			Connection conn = (Connection) OneTimeParameter.getAttribute(StringConst.CONN_For_Different_DS);
-			if(conn!=null) checkClose(null, conn); //关闭conn时,会清除为分页已设置的路由
+		if(HoneyContext.isNeedRealTimeDb() && HoneyContext.isAlreadySetRoute()) { //当可以从缓存拿时，需要清除为分页已设置的路由
+			HoneyContext.removeCurrentRoute();
 		}
 	}
 	

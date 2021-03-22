@@ -25,12 +25,12 @@ public class TransformResultSet {
 		StringBuffer json = new StringBuffer("");
 		ResultSetMetaData rmeta = rs.getMetaData();
 		int columnCount = rmeta.getColumnCount();
-		boolean ignoreNull = HoneyConfig.getHoneyConfig().isIgnoreNullInSelectJson();
+		boolean ignoreNull = HoneyConfig.getHoneyConfig().selectJson_ignoreNull;
 		String temp = "";
 
-		boolean dateWithMillisecond = HoneyConfig.getHoneyConfig().isDateWithMillisecondInSelectJson();
-		boolean timeWithMillisecond = HoneyConfig.getHoneyConfig().isTimeWithMillisecondInSelectJson();
-		boolean timestampWithMillisecond = HoneyConfig.getHoneyConfig().isTimestampWithMillisecondInSelectJson();
+		boolean dateWithMillisecond = HoneyConfig.getHoneyConfig().selectJson_dateWithMillisecond;
+		boolean timeWithMillisecond = HoneyConfig.getHoneyConfig().selectJson_timeWithMillisecond;
+		boolean timestampWithMillisecond = HoneyConfig.getHoneyConfig().selectJson_timestampWithMillisecond;
 
 		while (rs.next()) {
 			json.append(",{");
@@ -126,7 +126,7 @@ public class TransformResultSet {
 		List<String[]> list = new ArrayList<String[]>();
 		ResultSetMetaData rmeta = rs.getMetaData();
 		int columnCount = rmeta.getColumnCount();
-		boolean nullToEmptyString = HoneyConfig.getHoneyConfig().isNullToEmptyStringInReturnStringList();
+		boolean nullToEmptyString = HoneyConfig.getHoneyConfig().returnStringList_nullToEmptyString;
 		String str[] = null;
 		while (rs.next()) {
 			str = new String[columnCount];

@@ -45,6 +45,8 @@ public final class HoneyContext {
 	private static List<String> entityListWithStar_in = new CopyOnWriteArrayList<>();
 	private static List<String> entityListWithStar_ex = new CopyOnWriteArrayList<>();
 	
+	private static Map<String, String> dsName2DbName;
+	
 /*	private static void _checkSize(ThreadLocal local,String name){
 		if(local==null)
 			System.err.println("==============="+name+"  is null");
@@ -323,12 +325,6 @@ public final class HoneyContext {
 	static Connection getConn() throws SQLException {
 		Connection conn = null;
 		
-		if (isNeedRealTimeDb()) { //仅分库多数据源时支持实时判断数据库类型,才决定用DbFeature的实现类
-			//且分页时,已设置了Conn
-			conn = (Connection) OneTimeParameter.getAttribute(StringConst.CONN_For_Different_DS);
-			if (conn != null) return conn;
-		}
-		
 		conn = HoneyContext.getCurrentConnection(); //获取已开启事务的连接
 		if (conn == null) {
 			conn = SessionFactory.getConnection(); //不开启事务时
@@ -439,10 +435,10 @@ public final class HoneyContext {
 	}
 	
 	private static void parseEntityListToMap() {
-		String entityList_includes = HoneyConfig.getHoneyConfig().entityList_includes; //in
+		String entityList_includes = HoneyConfig.getHoneyConfig().genid_entityList_includes; //in
 		_parseListToMap(entityList_includes, entityList_includes_Map, entityListWithStar_in);
 
-		String entityList_excludes = HoneyConfig.getHoneyConfig().entityList_excludes; //ex
+		String entityList_excludes = HoneyConfig.getHoneyConfig().genid_entityList_excludes; //ex
 		_parseListToMap(entityList_excludes, entityList_excludes_Map, entityListWithStar_ex);
 
 	}
@@ -518,38 +514,35 @@ public final class HoneyContext {
 	}
 	
 	static boolean isNeedRealTimeDb() {
-//		multi-DS.type=2
-//		multi-DS.different.dbType=true
-		return true;
-//		return false;
+		boolean enableMultiDs = HoneyConfig.getHoneyConfig().enableMultiDs;
+		int multiDsType = HoneyConfig.getHoneyConfig().multiDsType;
+		boolean supportDifferentDbType = HoneyConfig.getHoneyConfig().multiDs_differentDbType;
+		if (enableMultiDs && multiDsType == 2 && supportDifferentDbType) {//仅分库,有多个数据源时,且支持同时使用多种类型数据源时
+			return true;
+		}
+
+		return false;
 	}
 	
 	//有分页等DB特有特性,才会触发.   没有分页时,走原来的流程,到SqlLib,才获取数据源处理Suid操作.
 	static String getRealTimeDbName() {
-		String dbName = null; 
+		String dbName = null;
 		if (HoneyContext.isNeedRealTimeDb() && OneTimeParameter.isTrue(StringConst.Use_Page)) {
-			Connection conn = null;
-			boolean isPass=true;
-			try {
-				conn = HoneyContext.getConn();
-				if (conn != null) {
-					dbName = conn.getMetaData().getDatabaseProductName();
-					HoneyConfig.getHoneyConfig().dbName = dbName;
-				}
-			} catch (Exception e) {
-				isPass=false;
-				dbName=null;
-			}
-
-			if(isPass) {
-				OneTimeParameter.setAttribute(StringConst.CONN_For_Different_DS, conn);
-			}
-		}//if
+			return HoneyConfig.getHoneyConfig().getDbName();
+		}
 		return dbName;
 	}
 	
 	static boolean isAlreadySetRoute() {
 		return OneTimeParameter.isTrue(StringConst.ALREADY_SET_ROUTE);
+	}
+
+	public static Map<String, String> getDsName2DbName() {
+		return dsName2DbName;
+	}
+
+	public static void setDsName2DbName(Map<String, String> dsName2DbName) {
+		HoneyContext.dsName2DbName = dsName2DbName;
 	}
 	
 }
