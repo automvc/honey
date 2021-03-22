@@ -7,6 +7,7 @@ import java.util.Map;
 import org.teasoft.bee.osql.BeeSql;
 import org.teasoft.bee.osql.ObjSQLException;
 import org.teasoft.bee.osql.PreparedSql;
+import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.dialect.DbFeature;
 import org.teasoft.bee.osql.exception.BeeIllegalParameterException;
 import org.teasoft.bee.osql.exception.SqlNullException;
@@ -24,7 +25,7 @@ public class PreparedSqlLib implements PreparedSql {
 
 	private BeeSql beeSql;// = BeeFactory.getHoneyFactory().getBeeSql();
 	
-	private DbFeature dbFeature = BeeFactory.getHoneyFactory().getDbFeature();
+//	private DbFeature dbFeature = BeeFactory.getHoneyFactory().getDbFeature();
 
 	public BeeSql getBeeSql() {
 		if(beeSql==null) beeSql = BeeFactory.getHoneyFactory().getBeeSql();
@@ -33,6 +34,10 @@ public class PreparedSqlLib implements PreparedSql {
 
 	public void setBeeSql(BeeSql beeSql) {
 		this.beeSql = beeSql;
+	}
+	
+	private DbFeature getDbFeature() {
+		return BeeFactory.getHoneyFactory().getDbFeature();
 	}
 	
 	@Override
@@ -49,7 +54,16 @@ public class PreparedSqlLib implements PreparedSql {
 		if(start<0) throw new BeeIllegalParameterException("Parameter 'start' need great equal 0!");
 		
 		regPagePlaceholder();
-		sql = dbFeature.toPageSql(sql, start, size);
+		
+		String tableName="";
+		if(isNeedRealTimeDb()) {
+			tableName= _toTableName(entity);  //这里,取过了参数, 到解析sql的,就不能再取
+			OneTimeParameter.setAttribute(StringConst.TABLE_NAME, tableName);
+			HoneyContext.initRouteWhenParseSql(SuidType.SELECT, entity.getClass(),tableName);
+			OneTimeParameter.setTrueForKey(StringConst.ALREADY_SET_ROUTE);
+		}
+		
+		sql = getDbFeature().toPageSql(sql, start, size);
 		initPreparedValues(sql, preValues,entity);
 		
 		Logger.logSQL("PreparedSqlLib select SQL: ", sql);
@@ -69,7 +83,16 @@ public class PreparedSqlLib implements PreparedSql {
 		if(start<0) throw new BeeIllegalParameterException("Parameter 'start' need great equal 0!");
 		
 		regPagePlaceholder();
-		String pageSql = dbFeature.toPageSql(sqlStr, start, size);
+		
+		String tableName="";
+		if(isNeedRealTimeDb()) {
+			tableName= _toTableName(entity);  //这里,取过了参数, 到解析sql的,就不能再取
+			OneTimeParameter.setAttribute(StringConst.TABLE_NAME, tableName);
+			HoneyContext.initRouteWhenParseSql(SuidType.SELECT, entity.getClass(),tableName);
+			OneTimeParameter.setTrueForKey(StringConst.ALREADY_SET_ROUTE);
+		}
+		
+		String pageSql = getDbFeature().toPageSql(sqlStr, start, size);
 		String sql=initPrepareValuesViaMap(pageSql,map,entity);
 		
 		Logger.logSQL("PreparedSqlLib select SQL: ", sql);
@@ -90,7 +113,16 @@ public class PreparedSqlLib implements PreparedSql {
 		if(start<0) throw new BeeIllegalParameterException("Parameter 'start' need great equal 0!");
 
 		regPagePlaceholder();
-		sql = dbFeature.toPageSql(sql, start, size);
+		
+		String tableName="";
+		if(isNeedRealTimeDb()) {
+			tableName= _toTableName(entity);  //这里,取过了参数, 到解析sql的,就不能再取
+			OneTimeParameter.setAttribute(StringConst.TABLE_NAME, tableName);
+			HoneyContext.initRouteWhenParseSql(SuidType.SELECT, entity.getClass(),tableName);
+			OneTimeParameter.setTrueForKey(StringConst.ALREADY_SET_ROUTE);
+		}
+		
+		sql = getDbFeature().toPageSql(sql, start, size);
 		initPreparedValues(sql, preValues,entity);
 		
 		Logger.logSQL("PreparedSqlLib selectSomeField SQL: ", sql);
@@ -110,7 +142,16 @@ public class PreparedSqlLib implements PreparedSql {
 		if(start<0) throw new BeeIllegalParameterException("Parameter 'start' need great equal 0!");
 		
 		regPagePlaceholder();
-		String pageSql = dbFeature.toPageSql(sqlStr, start, size);
+		
+		String tableName="";
+		if(isNeedRealTimeDb()) {
+			tableName= _toTableName(entity);  //这里,取过了参数, 到解析sql的,就不能再取
+			OneTimeParameter.setAttribute(StringConst.TABLE_NAME, tableName);
+			HoneyContext.initRouteWhenParseSql(SuidType.SELECT, entity.getClass(),tableName);
+			OneTimeParameter.setTrueForKey(StringConst.ALREADY_SET_ROUTE);
+		}
+		
+		String pageSql = getDbFeature().toPageSql(sqlStr, start, size);
 		String sql=initPrepareValuesViaMap(pageSql,map,entity);
 		
 		Logger.logSQL("PreparedSqlLib selectSomeField SQL: ", sql);
@@ -145,7 +186,7 @@ public class PreparedSqlLib implements PreparedSql {
 		if(start<0) throw new BeeIllegalParameterException("Parameter 'start' need great equal 0!");
 		
 		regPagePlaceholder();
-		sql = dbFeature.toPageSql(sql, start, size);
+		sql = getDbFeature().toPageSql(sql, start, size);
 		initPreparedValues(sql, preValues);
 		
 		Logger.logSQL("PreparedSqlLib select SQL: ", sql);
@@ -166,7 +207,7 @@ public class PreparedSqlLib implements PreparedSql {
 		if(start<0) throw new BeeIllegalParameterException("Parameter 'start' need great equal 0!");
 		
 		regPagePlaceholder();
-		String pageSql = dbFeature.toPageSql(sqlStr, start, size);
+		String pageSql = getDbFeature().toPageSql(sqlStr, start, size);
 		String sql=initPrepareValuesViaMap(pageSql,map);
 		
 		Logger.logSQL("PreparedSqlLib select SQL: ", sql);
@@ -209,7 +250,7 @@ public class PreparedSqlLib implements PreparedSql {
 		if(start<0) throw new BeeIllegalParameterException("Parameter 'start' need great equal 0!");
 		
 		regPagePlaceholder();
-		sql = dbFeature.toPageSql(sql, start, size);
+		sql = getDbFeature().toPageSql(sql, start, size);
 		initPreparedValues(sql, preValues);
 		
 		Logger.logSQL("PreparedSqlLib selectJson SQL: ", sql);
@@ -229,7 +270,7 @@ public class PreparedSqlLib implements PreparedSql {
 		if(start<0) throw new BeeIllegalParameterException("Parameter 'start' need great equal 0!");
 		
 		regPagePlaceholder();
-		String pageSql = dbFeature.toPageSql(sqlStr, start, size);
+		String pageSql = getDbFeature().toPageSql(sqlStr, start, size);
 		String sql=initPrepareValuesViaMap(pageSql,map);
 		
 		Logger.logSQL("PreparedSqlLib selectJson SQL: ", sql);  //TODO 能输出可执行sql吗?
@@ -257,9 +298,19 @@ public class PreparedSqlLib implements PreparedSql {
 	private <T> void initPreparedValues(String sql, Object[] preValues, T entity) {
 		List list=_initPreparedValues(sql, preValues);
 //		if (valueBuffer.length() > 0) {//bug. no placeholder will have problem.
-			String tableName = _toTableName(entity);
+//			String tableName = _toTableName(entity);
 //			HoneyContext.setPreparedValue(sql, list);  
 //			addInContextForCache(sql, tableName);  //有T才放缓存.
+			
+		    String tableName ="";
+			if (isNeedRealTimeDb()) {
+				tableName = (String) OneTimeParameter.getAttribute(StringConst.TABLE_NAME);
+				if (tableName == null) {
+					tableName = _toTableName(entity);
+				}
+			}else {
+				tableName = _toTableName(entity);
+			}
 			
 			//pre page 1, 3
 			HoneyUtil.setPageNum(list);
@@ -310,7 +361,17 @@ public class PreparedSqlLib implements PreparedSql {
 		SqlValueWrap wrap = processSql(sqlStr); //will return null when sql no placeholder like: select * from tableName
 		String reSql;
 		List list =null;
-		String tableName = _toTableName(entity);
+		
+	    String tableName ="";
+		if (isNeedRealTimeDb()) {
+			tableName = (String) OneTimeParameter.getAttribute(StringConst.TABLE_NAME);
+			if (tableName == null) {
+				tableName = _toTableName(entity);
+			}
+		}else {
+			tableName = _toTableName(entity);
+		}
+//		String tableName = _toTableName(entity);
 		
 		if (wrap == null) {
 			reSql=sqlStr;
@@ -401,6 +462,10 @@ public class PreparedSqlLib implements PreparedSql {
 	
 	private void regPagePlaceholder(){
 		HoneyUtil.regPagePlaceholder();
+	}
+	
+	private boolean isNeedRealTimeDb() {
+		return HoneyContext.isNeedRealTimeDb();
 	}
 
 }

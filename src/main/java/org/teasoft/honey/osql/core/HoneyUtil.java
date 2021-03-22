@@ -1152,11 +1152,11 @@ public final class HoneyUtil {
 	}
 
 	public static boolean isRegPagePlaceholder() {
-		return ("tRue".equals((String) OneTimeParameter.getAttribute("_SYS_Bee_Paing_Placeholder")));
+	    return OneTimeParameter.isTrue("_SYS_Bee_Paing_Placeholder");
 	}
 
 	public static void regPagePlaceholder() {
-		OneTimeParameter.setAttribute("_SYS_Bee_Paing_Placeholder", "tRue");
+		OneTimeParameter.setTrueForKey("_SYS_Bee_Paing_Placeholder");
 	}
 
 	public static void regPageNumArray(int array[]) {

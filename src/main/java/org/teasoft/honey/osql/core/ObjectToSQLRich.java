@@ -48,7 +48,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			OneTimeParameter.setAttribute(StringConst.TABLE_NAME, tableName);
 			HoneyContext.initRouteWhenParseSql(SuidType.SELECT, entity.getClass(),tableName);
 			OneTimeParameter.setTrueForKey(StringConst.ALREADY_SET_ROUTE);
-			OneTimeParameter.setTrueForKey(StringConst.Use_Page);
+//			OneTimeParameter.setTrueForKey(StringConst.Use_Page);
 		}
 
 		SqlValueWrap wrap = toSelectSQL_0(entity);
@@ -80,7 +80,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			OneTimeParameter.setAttribute(StringConst.TABLE_NAME, tableName);
 			HoneyContext.initRouteWhenParseSql(SuidType.SELECT, entity.getClass(),tableName);
 			OneTimeParameter.setTrueForKey(StringConst.ALREADY_SET_ROUTE);
-			OneTimeParameter.setTrueForKey(StringConst.Use_Page);
+//			OneTimeParameter.setTrueForKey(StringConst.Use_Page);
 		}
 
 		SqlValueWrap wrap = toSelectSQL_0(entity);
@@ -108,7 +108,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			OneTimeParameter.setAttribute(StringConst.TABLE_NAME, tableName);
 			HoneyContext.initRouteWhenParseSql(SuidType.SELECT, entity.getClass(),tableName);
 			OneTimeParameter.setTrueForKey(StringConst.ALREADY_SET_ROUTE);
-			OneTimeParameter.setTrueForKey(StringConst.Use_Page);
+//			OneTimeParameter.setTrueForKey(StringConst.Use_Page);
 		}
 		
 		SqlValueWrap wrap = toSelectSQL_0(entity, selectFields);

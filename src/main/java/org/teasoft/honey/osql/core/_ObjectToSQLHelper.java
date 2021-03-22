@@ -189,7 +189,7 @@ final class _ObjectToSQLHelper {
 				if (HoneyContext.isNeedRealTimeDb()) {
 					HoneyContext.initRouteWhenParseSql(SuidType.SELECT, entity.getClass(), tableName);
 					OneTimeParameter.setTrueForKey(StringConst.ALREADY_SET_ROUTE);
-					OneTimeParameter.setTrueForKey(StringConst.Use_Page);
+//					OneTimeParameter.setTrueForKey(StringConst.Use_Page);
 				}
 			}
 			ConditionHelper.processCondition(sqlBuffer, list, condition, firstWhere);

@@ -66,10 +66,7 @@ class OneTimeParameter {
 	
 	public static boolean isTrue(String key) {
 		Object value = _getAttribute(key);
-		if (StringConst.tRue.equals(value))
-			return true;
-		else
-			return false;
+		return StringConst.tRue.equals(value) ? true : false;
 	}
 	
 //	public static void needTwice() {
@@ -78,10 +75,7 @@ class OneTimeParameter {
 //	
 //	public static boolean isNeedTwice() {
 //		Object value = _getAttribute(needTwiceKey);
-//		if (StringConst.tRue.equals(value))
-//			return true;
-//		else
-//			return false;
+//	    return StringConst.tRue.equals(value) ? true : false;
 //	}
 	
 //	public static void main(String[] args) {

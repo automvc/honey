@@ -159,7 +159,7 @@ public class HoneyFactory {
 		return _getDbDialectFeature(HoneyContext.getDbDialect());
 	}
 
-	DbFeature _getDbDialectFeature(String dbName) {
+	private DbFeature _getDbDialectFeature(String dbName) {
 		if (DatabaseConst.MYSQL.equalsIgnoreCase((dbName)) || DatabaseConst.MariaDB.equalsIgnoreCase((dbName)))
 			return new MySqlFeature();
 		else if (DatabaseConst.ORACLE.equalsIgnoreCase((dbName)))
@@ -185,6 +185,7 @@ public class HoneyFactory {
 	public DbFeature getDbFeature() {
 
 		String dbName = HoneyContext.getRealTimeDbName();
+		System.err.println("dbName:    "+ dbName);
 		if (dbName != null) return _getDbDialectFeature(dbName);
 
 		if (dbFeature != null)

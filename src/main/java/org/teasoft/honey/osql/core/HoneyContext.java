@@ -527,7 +527,8 @@ public final class HoneyContext {
 	//有分页等DB特有特性,才会触发.   没有分页时,走原来的流程,到SqlLib,才获取数据源处理Suid操作.
 	static String getRealTimeDbName() {
 		String dbName = null;
-		if (HoneyContext.isNeedRealTimeDb() && OneTimeParameter.isTrue(StringConst.Use_Page)) {
+//		if (HoneyContext.isNeedRealTimeDb() && OneTimeParameter.isTrue(StringConst.Use_Page)) {
+		if (HoneyContext.isNeedRealTimeDb()) {
 			return HoneyConfig.getHoneyConfig().getDbName();
 		}
 		return dbName;
