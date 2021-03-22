@@ -11,9 +11,9 @@ import org.teasoft.honey.logging.LoggerFactory;
  */
 public class Logger {
 
-	private static boolean showSQL = HoneyConfig.getHoneyConfig().isShowSQL();
-	private static boolean showSQLShowType = HoneyConfig.getHoneyConfig().isShowSQLShowType();
-	private static boolean showExecutableSql = HoneyConfig.getHoneyConfig().isShowExecutableSql();
+	private static boolean showSQL = HoneyConfig.getHoneyConfig().showSQL;
+	private static boolean showSQLShowType = HoneyConfig.getHoneyConfig().showSQL_showType;
+	private static boolean showExecutableSql = HoneyConfig.getHoneyConfig().showSQL_executableSql;
 
 	private static Log log = null;
 

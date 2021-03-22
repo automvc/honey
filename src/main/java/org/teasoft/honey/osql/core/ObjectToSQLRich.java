@@ -33,7 +33,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	private static final String ASC = K.asc;
 	
 //	private static boolean  showSQL=HoneyConfig.getHoneyConfig().isShowSQL();
-	private int batchSize = HoneyConfig.getHoneyConfig().getBatchSize();
+	private int batchSize = HoneyConfig.getHoneyConfig().insertBatchSize;
 
 	private DbFeature getDbFeature() {
 		return BeeFactory.getHoneyFactory().getDbFeature();

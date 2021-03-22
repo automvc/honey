@@ -134,7 +134,7 @@ public class MapSqlProcessor {
 		//不允许删整张表
 		//只支持是否带where检测   v1.7.2 
 		if (firstWhere) {
-			boolean notDeleteWholeRecords = HoneyConfig.getHoneyConfig().isNotDeleteWholeRecords();
+			boolean notDeleteWholeRecords = HoneyConfig.getHoneyConfig().notDeleteWholeRecords;
 			if (notDeleteWholeRecords) {
 				Logger.logSQL("In MapSuid, delete SQL: ", sql);
 				throw new BeeIllegalBusinessException(

@@ -1,7 +1,5 @@
 package org.teasoft.honey.osql.core;
 
-import java.sql.Connection;
-
 import org.teasoft.bee.osql.BeeSql;
 import org.teasoft.bee.osql.Cache;
 import org.teasoft.bee.osql.CallableSql;
@@ -185,10 +183,10 @@ public class HoneyFactory {
 	}
 
 	public DbFeature getDbFeature() {
-		
+
 		String dbName = HoneyContext.getRealTimeDbName();
 		if (dbName != null) return _getDbDialectFeature(dbName);
-		
+
 		if (dbFeature != null)
 			return dbFeature;
 		else
@@ -202,7 +200,7 @@ public class HoneyFactory {
 	NameTranslate getInitNameTranslate() {
 		if(nameTranslate==null) {
 			//since 1.7.2
-			int translateType=HoneyConfig.getHoneyConfig().getNamingTranslateType();
+			int translateType=HoneyConfig.getHoneyConfig().namingTranslateType;
 			if(translateType==1) nameTranslate=new UnderScoreAndCamelName();
 			else if(translateType==2) nameTranslate=new UpperCaseUnderScoreAndCamelName();
 			else if(translateType==3) nameTranslate=new OriginalName();
