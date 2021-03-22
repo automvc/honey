@@ -22,7 +22,7 @@ public class GenIdFactory {
 	private static String defaultGenType;
 	
 	static{
-		int idGenerator=HoneyConfig.getHoneyConfig().idGeneratorType;
+		int idGenerator=HoneyConfig.getHoneyConfig().genid_idGeneratorType;
 		
 		if(idGenerator==1) defaultGenType = "SerialUniqueId";
 		else if(idGenerator==2) defaultGenType = "OneTimeSnowflakeId";
