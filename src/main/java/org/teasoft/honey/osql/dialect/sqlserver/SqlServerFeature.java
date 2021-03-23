@@ -25,18 +25,8 @@ public class SqlServerFeature implements DbFeature {
 		int insertIndex=index1 + (index2 == index1 ? 15 : 6);
 
 		StringBuilder sb=new StringBuilder(sql.length() + 6 + (size + "").length()).append(sql);
-
-		if (HoneyUtil.isRegPagePlaceholder()) {
-			int array[]=new int[1];
-			array[0]=size;
-			HoneyUtil.regPageNumArray(array);
-//			sb.insert(insertIndex, " top ?");
-			sb.insert(insertIndex, " "+K.top+" ?");
-		} else {
-//			sb.insert(insertIndex, " top " + size);
-			sb.insert(insertIndex, " "+K.top+" " + size);
-		}
-
+		sb.insert(insertIndex, " "+K.top+" " + size);
+		
 		return sb.toString();
 	}
 }

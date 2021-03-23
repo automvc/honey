@@ -153,9 +153,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		
 		SqlValueWrap wrap=toSelectSQL_0(entity);
 		String sql=wrap.getSql();
-//		sql=sql.replace(";", " "); //close on 2019-04-27
-//		sql+="order by "+orderBy+" ;";
-		sql+=K.orderBy+" "+orderBy;
+		sql+=" "+K.orderBy+" "+orderBy;
 		setContext(sql, wrap.getList(), wrap.getTableNames());
 		
 		return sql;
@@ -177,9 +175,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 
 		SqlValueWrap wrap = toSelectSQL_0(entity);
 		String sql = wrap.getSql();
-//		sql = sql.replace(";", " "); //close on 2019-04-27
-//		sql += "order by " + orderBy + " ;";
-		sql += K.orderBy+" " + orderBy;
+		sql += " "+K.orderBy+" " + orderBy;
 		setContext(sql, wrap.getList(), wrap.getTableNames());
 
 		return sql;

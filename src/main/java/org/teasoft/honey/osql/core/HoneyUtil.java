@@ -1156,6 +1156,7 @@ public final class HoneyUtil {
 	}
 
 	public static void regPagePlaceholder() {
+	    if(isSqlServer()) return ;
 		OneTimeParameter.setTrueForKey("_SYS_Bee_Paing_Placeholder");
 	}
 
