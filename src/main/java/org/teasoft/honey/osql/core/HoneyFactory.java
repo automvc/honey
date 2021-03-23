@@ -185,7 +185,6 @@ public class HoneyFactory {
 	public DbFeature getDbFeature() {
 
 		String dbName = HoneyContext.getRealTimeDbName();
-		System.err.println("dbName:    "+ dbName);
 		if (dbName != null) return _getDbDialectFeature(dbName);
 
 		if (dbFeature != null)

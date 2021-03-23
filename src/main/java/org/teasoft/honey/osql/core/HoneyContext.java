@@ -517,17 +517,16 @@ public final class HoneyContext {
 		boolean enableMultiDs = HoneyConfig.getHoneyConfig().enableMultiDs;
 		int multiDsType = HoneyConfig.getHoneyConfig().multiDsType;
 		boolean supportDifferentDbType = HoneyConfig.getHoneyConfig().multiDs_differentDbType;
-		if (enableMultiDs && multiDsType == 2 && supportDifferentDbType) {//仅分库,有多个数据源时,且支持同时使用多种类型数据源时
+		if (enableMultiDs && multiDsType == 2 && supportDifferentDbType) {//仅分库,有多个数据源时,且支持同时使用多种类型数据库时
 			return true;
 		}
 
 		return false;
 	}
 	
-	//有分页等DB特有特性,才会触发.   没有分页时,走原来的流程,到SqlLib,才获取数据源处理Suid操作.
+	//同时使用多种类型数据库时,才会触发.   没有分页时,走原来的流程,到SqlLib,才获取数据源处理Suid操作.
 	static String getRealTimeDbName() {
 		String dbName = null;
-//		if (HoneyContext.isNeedRealTimeDb() && OneTimeParameter.isTrue(StringConst.Use_Page)) {
 		if (HoneyContext.isNeedRealTimeDb()) {
 			return HoneyConfig.getHoneyConfig().getDbName();
 		}

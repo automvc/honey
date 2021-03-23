@@ -48,7 +48,6 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			OneTimeParameter.setAttribute(StringConst.TABLE_NAME, tableName);
 			HoneyContext.initRouteWhenParseSql(SuidType.SELECT, entity.getClass(),tableName);
 			OneTimeParameter.setTrueForKey(StringConst.ALREADY_SET_ROUTE);
-//			OneTimeParameter.setTrueForKey(StringConst.Use_Page);
 		}
 
 		SqlValueWrap wrap = toSelectSQL_0(entity);
@@ -80,7 +79,6 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			OneTimeParameter.setAttribute(StringConst.TABLE_NAME, tableName);
 			HoneyContext.initRouteWhenParseSql(SuidType.SELECT, entity.getClass(),tableName);
 			OneTimeParameter.setTrueForKey(StringConst.ALREADY_SET_ROUTE);
-//			OneTimeParameter.setTrueForKey(StringConst.Use_Page);
 		}
 
 		SqlValueWrap wrap = toSelectSQL_0(entity);
@@ -108,7 +106,6 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			OneTimeParameter.setAttribute(StringConst.TABLE_NAME, tableName);
 			HoneyContext.initRouteWhenParseSql(SuidType.SELECT, entity.getClass(),tableName);
 			OneTimeParameter.setTrueForKey(StringConst.ALREADY_SET_ROUTE);
-//			OneTimeParameter.setTrueForKey(StringConst.Use_Page);
 		}
 		
 		SqlValueWrap wrap = toSelectSQL_0(entity, selectFields);
@@ -710,6 +707,8 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 				if (tableName == null) {
 					tableName = _toTableName(entity);
 				}
+			}else {
+				tableName = _toTableName(entity);
 			}
 			
 			Field fields[] = entity.getClass().getDeclaredFields(); //返回所有字段,包括公有和私有    

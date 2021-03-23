@@ -28,12 +28,14 @@ public class AbstractSelectToSql extends AbstractToSql{
 			return addPage(sql.toString())+";";
 		}
 	}
-	private DbFeature dbFeature = BeeFactory.getHoneyFactory().getDbFeature();
+	private DbFeature getDbFeature() {
+		return BeeFactory.getHoneyFactory().getDbFeature();
+	}
 	private String addPage(String sqlStr){
 		if (this.start != 0 && size != 0) {
-			sqlStr= dbFeature.toPageSql(sqlStr, start,size);
+			sqlStr= getDbFeature().toPageSql(sqlStr, start,size);
 		}else if (size != 0){
-			sqlStr= dbFeature.toPageSql(sqlStr.toString(), size);
+			sqlStr= getDbFeature().toPageSql(sqlStr.toString(), size);
 		}
 		return sqlStr;
 	}

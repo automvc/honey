@@ -536,5 +536,11 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		
 		return entity;
 	}
+	
+	@Override
+	public SuidRich setDynamicParameter(String para, String value) {
+		OneTimeParameter.setAttribute(para, value);
+		return this;
+	}
 
 }

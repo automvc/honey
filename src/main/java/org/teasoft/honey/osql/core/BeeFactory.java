@@ -55,7 +55,7 @@ public class BeeFactory extends BeeAbstractFactory {
 	@Override
 	protected void parseDbNameByDsMap() {
 		
-//		if(! HoneyContext.isNeedRealTimeDb()) return ;  //在设置DataSourceMap前,就要设置同时支持多种类型数据源的配置信息
+//		if(! HoneyContext.isNeedRealTimeDb()) return ;  //在设置DataSourceMap前,就要设置同时使用多种类型数据库时的配置信息
 		
 		Map<String, DataSource> dsMap = getDataSourceMap();
         if(dsMap==null) return ;
