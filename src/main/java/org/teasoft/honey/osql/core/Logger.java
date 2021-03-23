@@ -62,8 +62,7 @@ public class Logger {
 				_print("[Bee] " + hardStr, sql);
 				//				if(showExecutableSql) _println("[Bee] ExecutableSql: "+hardStr, sql);  //无占位的情况       same as log sql.
 			} else {
-				String batchInsertFirst = (String) OneTimeParameter.getAttribute("_SYS_Bee_BatchInsertFirst");
-				if("tRue".equals(batchInsertFirst)) {//batchSize==1
+				if(OneTimeParameter.isTrue("_SYS_Bee_BatchInsertFirst")){//batchSize==1	
 					_print("[Bee] " + hardStr, sql);
 				}else if (insertIndex != null) {
 					if ("0".equals(insertIndex) && !HoneyUtil.isMysql()) {

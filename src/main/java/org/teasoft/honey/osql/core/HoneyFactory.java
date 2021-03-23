@@ -186,7 +186,7 @@ public class HoneyFactory {
 
 		String dbName = HoneyContext.getRealTimeDbName();
 		if (dbName != null) return _getDbDialectFeature(dbName);
-
+//		dbName == null则表示不同时使用多种数据库
 		if (dbFeature != null)
 			return dbFeature;
 		else

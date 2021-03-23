@@ -763,7 +763,7 @@ final class _ObjectToSQLHelper {
 		sqlBuffer.append(sqlValue);
 		sql=sqlBuffer.toString();
 		
-		if("tRue".equals((String)OneTimeParameter.getAttribute("_SYS_Bee_Return_PlaceholderValue"))){
+		if(OneTimeParameter.isTrue("_SYS_Bee_Return_PlaceholderValue")){
 			OneTimeParameter.setAttribute("_SYS_Bee_PlaceholderValue", sqlValue.toString());
 		}
 		

@@ -330,8 +330,7 @@ public final class HoneyContext {
 			conn = SessionFactory.getConnection(); //不开启事务时
 			
 			//如果设置了同一Connection
-			String beginSameConn = (String) OneTimeParameter.getAttribute("_SYS_Bee_SAME_CONN_BEGIN");
-			if ("tRue".equals(beginSameConn)) {
+			if(OneTimeParameter.isTrue("_SYS_Bee_SAME_CONN_BEGIN")) {	
 				HoneyContext.setCurrentConnection(conn); //存入上下文
 				setSameConnctionDoing();
 			}
@@ -363,9 +362,8 @@ public final class HoneyContext {
 		try {
 //			如果设置了同一Connection
 //			并且调用了endSameConnection才关闭   
-			if ("tRue".equals(getSameConnctionDoing())) {
-				String endSameConn = (String) OneTimeParameter.getAttribute("_SYS_Bee_SAME_CONN_END");
-				if ("tRue".equals(endSameConn)) {  // 调用suid.endSameConnection();前的SQL操作 不会触发这里的.
+			if (StringConst.tRue.equals(getSameConnctionDoing())) {
+				if(OneTimeParameter.isTrue("_SYS_Bee_SAME_CONN_END")) {	// 调用suid.endSameConnection();前的SQL操作 不会触发这里的.
 					removeSameConnctionDoing();
 					if (conn != null) conn.close();
 				}
@@ -515,10 +513,12 @@ public final class HoneyContext {
 	
 	static boolean isNeedRealTimeDb() {
 		boolean enableMultiDs = HoneyConfig.getHoneyConfig().enableMultiDs;
-		int multiDsType = HoneyConfig.getHoneyConfig().multiDsType;
-		boolean supportDifferentDbType = HoneyConfig.getHoneyConfig().multiDs_differentDbType;
-		if (enableMultiDs && multiDsType == 2 && supportDifferentDbType) {//仅分库,有多个数据源时,且支持同时使用多种类型数据库时
-			return true;
+		if (enableMultiDs) {
+			int multiDsType = HoneyConfig.getHoneyConfig().multiDsType;
+			boolean supportDifferentDbType = HoneyConfig.getHoneyConfig().multiDs_differentDbType;
+			if (multiDsType == 2 && supportDifferentDbType) {//仅分库,有多个数据源时,且支持同时使用多种类型数据库时
+				return true;
+			}
 		}
 
 		return false;

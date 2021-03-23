@@ -205,10 +205,10 @@ public final class HoneyConfig {
 
 	public String getDbName() {
 		checkAndInitDbName();
-		if (HoneyContext.isNeedRealTimeDb()) {
-			String dsName=Router.getDsName();
-			if(dsName!=null && HoneyContext.getDsName2DbName()!=null)
-			   return HoneyContext.getDsName2DbName().get(dsName);
+		if (HoneyContext.isNeedRealTimeDb()) { //支持同时使用多种数据库的,需要动态获取,才准确
+			String dsName = Router.getDsName();
+			if (dsName != null && HoneyContext.getDsName2DbName() != null) 
+				return HoneyContext.getDsName2DbName().get(dsName);
 		}
 		return dbName;
 	}
