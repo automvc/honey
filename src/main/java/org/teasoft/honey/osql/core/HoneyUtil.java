@@ -39,7 +39,7 @@ import org.teasoft.honey.util.StringUtils;
  */
 public final class HoneyUtil {
 
-	private static Map<String, String> jdbcTypeMap = new HashMap<String, String>();
+	private static Map<String, String> jdbcTypeMap = new HashMap<String, String>(); 
 	private static Map<String, Integer> javaTypeMap = new HashMap<String, Integer>();
 
 	private static PropertiesReader jdbcTypeCustomProp = new PropertiesReader("/jdbcTypeToFieldType.properties");
@@ -420,6 +420,8 @@ public final class HoneyUtil {
 		jdbcTypeMap.put("BINARY", "byte[]");
 		jdbcTypeMap.put("VARBINARY", "byte[]");
 		jdbcTypeMap.put("LONGVARBINARY", "byte[]");
+		
+		jdbcTypeMap.put("image","byte[]");
 
 		jdbcTypeMap.put("DATE", "Date");
 		jdbcTypeMap.put("TIME", "Time");
@@ -478,6 +480,20 @@ public final class HoneyUtil {
 //			 DATETIMEOFFSET // SQL Server 2008  microsoft.sql.DateTimeOffset
 			jdbcTypeMap.put("DATETIMEOFFSET", "microsoft.sql.DateTimeOffset");
 			jdbcTypeMap.put("microsoft.sql.Types.DATETIMEOFFSET", "microsoft.sql.DateTimeOffset");
+			
+			jdbcTypeMap.put("datetime","Timestamp");
+			jdbcTypeMap.put("money","BigDecimal");
+			jdbcTypeMap.put("smallmoney","BigDecimal");
+			
+			jdbcTypeMap.put("ntext","String");
+			jdbcTypeMap.put("text","String");
+			jdbcTypeMap.put("xml","String");
+			
+			jdbcTypeMap.put("smalldatetime","Timestamp");
+			jdbcTypeMap.put("uniqueidentifier","String");
+			
+			jdbcTypeMap.put("hierarchyid","byte[]");
+			jdbcTypeMap.put("image","byte[]");
 			
 		} else if (DatabaseConst.PostgreSQL.equalsIgnoreCase(dbName)) {	
 
@@ -1062,7 +1078,7 @@ public final class HoneyUtil {
 			}
 			if (newField != null) {
 				if (isSQLite()) {
-					colName=colName + K.as + " '" + newField + "'";
+					colName=colName +"  "+ K.as + " '" + newField + "'";
 				} else {//oracle
 					colName=colName + " " + newField;
 				}

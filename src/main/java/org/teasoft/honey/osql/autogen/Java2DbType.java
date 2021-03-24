@@ -21,6 +21,7 @@ public class Java2DbType {
 	
 	static {
 		java2DbTypeMap.put(DatabaseConst.ORACLE.toLowerCase(),forOracle());
+		java2DbTypeMap.put(DatabaseConst.SQLite.toLowerCase(),forSQLite());
 		//mysql
 		//...
 	}
@@ -41,8 +42,8 @@ public class Java2DbType {
 		java2DbType.put("java.lang.String", "varchar2(100)");
 		java2DbType.put("java.lang.Integer", "number(10)");
 		java2DbType.put("java.lang.Long", "number(19)");
-		java2DbType.put("java.lang.Double", "number(64,16)");
-		java2DbType.put("java.lang.Float", "number(38,7)");
+		java2DbType.put("java.lang.Double", "number(19,6)");
+		java2DbType.put("java.lang.Float", "number(19,6)");
 		java2DbType.put("java.lang.Short", "number(5)");
 		java2DbType.put("java.lang.Byte", "number(3)");
 //		java2DbType.put("[B", 8); //byte[]  
@@ -51,8 +52,8 @@ public class Java2DbType {
 		//支持原生类型
 		java2DbType.put("int", "number(10)");
 		java2DbType.put("long", "number(19)");
-		java2DbType.put("double", "number(64,16)");
-		java2DbType.put("float", "number(38,7)");
+		java2DbType.put("double", "number(19,6)");
+		java2DbType.put("float", "number(19,6)");
 		java2DbType.put("short", "number(5)");
 		java2DbType.put("byte", "number(3)");
 		java2DbType.put("boolean", "varchar2(1)");
@@ -73,6 +74,41 @@ public class Java2DbType {
 
 		java2DbType.put("java.math.BigInteger", "number(19,6)");
 		
+		return java2DbType;
+	}
+	
+	private static Map<String,String> forSQLite(){
+		
+		Map<String,String> java2DbType=new HashMap<>();
+		
+		java2DbType.put("java.lang.String", "varchar(100)");
+		java2DbType.put("java.lang.Integer", "int(11)");
+		java2DbType.put("java.lang.Long", "bigint(20)");
+		java2DbType.put("java.lang.Double", "FLOAT8");
+		java2DbType.put("java.lang.Float", "FLOAT4");
+		java2DbType.put("java.lang.Short", "INT2");
+		java2DbType.put("java.lang.Byte", "TINYINT");
+		java2DbType.put("java.lang.Boolean", "BOOLEAN");
+		
+		//支持原生类型
+		java2DbType.put("int", "int(11)");
+		java2DbType.put("long", "bigint(20)");
+		java2DbType.put("double","FLOAT8");
+		java2DbType.put("float", "FLOAT4");
+		java2DbType.put("short", "INT2");
+		java2DbType.put("byte", "TINYINT");
+		java2DbType.put("boolean", "BOOLEAN");
+
+		java2DbType.put("java.math.BigDecimal", "number(19,6)");
+
+		java2DbType.put("java.sql.Date", "datetime");
+		java2DbType.put("java.sql.Time", "datetime");
+		java2DbType.put("java.sql.Timestamp", "timestamp");
+		java2DbType.put("java.sql.Blob", "Blob");
+		java2DbType.put("java.sql.Clob", "text");
+
+		java2DbType.put("java.math.BigInteger", "number(19)");
+
 		return java2DbType;
 	}
 
