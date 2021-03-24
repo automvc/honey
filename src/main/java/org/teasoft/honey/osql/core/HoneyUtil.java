@@ -96,12 +96,23 @@ public final class HoneyUtil {
 	}
 
 	static <T> MoreTableStruct[] getMoreTableStructAndCheckBefore(T entity) {
+		
+		
 		String packageAndClassName = entity.getClass().getName();
-		String key = "ForMoreTable:" + packageAndClassName; //ForMoreTable
-		MoreTableStruct moreTableStruct[] = HoneyContext.getMoreTableStructs(key);
-		if (moreTableStruct == null) {
+		String key = "ForMoreTable:" + packageAndClassName; //ForMoreTable  
+		
+//		String key = "ForMoreTable:" +tableName+":"+ packageAndClassName; //ForMoreTable  
+		//是否会受多表有Table标签影响??? 不会. 是包名+类名.不是表名,也没有解析标签. 不管是否有标签,对应的Javabean结构都一样的.
+		//但解析的查询字段(带表名时,因为注解的原因,可能不一样)不一样,所以不能混在一起
+		//在sqlLib用后删除. 因从表的字段也有可能带表名(而该表名有参数解析.)
+		
+		MoreTableStruct moreTableStruct[] =null;
+		
+		if(OneTimeParameter.isTrue(StringConst.MoreStruct_to_SqlLib)) {
 			moreTableStruct = _getMoreTableStructAndCheckBefore(entity);
-			HoneyContext.addMoreTableStructs(key, moreTableStruct);
+			OneTimeParameter.setAttribute(key, moreTableStruct);
+		}else {//供SqlLib,多表查询使用
+			moreTableStruct=(MoreTableStruct[])OneTimeParameter.getAttribute(key);
 		}
 
 		return moreTableStruct;
@@ -122,8 +133,13 @@ public final class HoneyUtil {
 		
 		Set<String> mainFieldSet =new HashSet<>();
 		Map<String,String> dulMap=new HashMap<>();
-
-		String tableName = _toTableName(entity);
+		
+		//V1.9
+		String tableName = (String) OneTimeParameter.getAttribute(StringConst.TABLE_NAME);
+		if (tableName == null) {
+			tableName = _toTableName(entity);
+		}
+		
 		StringBuffer columns = new StringBuffer();
 		int len = field.length;
 		boolean isFirst = true;
@@ -254,7 +270,6 @@ public final class HoneyUtil {
 		}//end subFieldEntity for
 
 		moreTableStruct[0].columnsFull = columns.toString(); //包含子表的列
-		
 		moreTableStruct[0].subDulFieldMap=dulMap;
 
 		//		return columns.toString();
@@ -262,7 +277,9 @@ public final class HoneyUtil {
 	}
 
 	//for moreTable
-	static StringBuffer _getBeanFullField_0(Field entityField, String tableName,String entityFullName,Set<String> mainFieldSet,Map<String,String> dulMap) {
+	static StringBuffer _getBeanFullField_0(Field entityField, String tableName,String entityFullName,
+			Set<String> mainFieldSet,Map<String,String> dulMap) {
+		
 //		entityFullName just for tip
 		//		    if(entityField==null) return "";
 		//		    Field field[] = entity.getClass().getDeclaredFields(); //error
@@ -294,7 +311,6 @@ public final class HoneyUtil {
 			subFieldName=NameTranslateHandle.toColumnName(field[i].getName());
 			
 			if(!mainFieldSet.add(subFieldName) && isConfuseDuplicateFieldDB()){
-				
 				if (isSQLite()) {
 					dulMap.put(tableName + "." + subFieldName, tableName + "." + subFieldName); 
 				} else {
@@ -1115,7 +1131,6 @@ public final class HoneyUtil {
 	
 	//oracle,SQLite
 	public static boolean isConfuseDuplicateFieldDB(){
-		
 		return DatabaseConst.ORACLE.equalsIgnoreCase(HoneyConfig.getHoneyConfig().getDbName())
 			|| DatabaseConst.SQLite.equalsIgnoreCase(HoneyConfig.getHoneyConfig().getDbName())
 				;

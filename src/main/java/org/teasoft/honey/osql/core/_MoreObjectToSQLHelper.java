@@ -16,6 +16,7 @@ import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.annotation.JoinType;
 import org.teasoft.bee.osql.dialect.DbFeature;
 import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
+import org.teasoft.honey.osql.name.NameUtil;
 
 /**
  * @author Kingstar
@@ -23,10 +24,13 @@ import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
  */
 public class _MoreObjectToSQLHelper {
 	
-	private static final DbFeature dbFeature = BeeFactory.getHoneyFactory().getDbFeature();
 	private static final String COMMA=",";
 	private static final String ONE_SPACE = " ";
 	private static final String DOT=".";
+	
+	private static DbFeature getDbFeature() {
+		return BeeFactory.getHoneyFactory().getDbFeature();
+	}
 	
 	static <T> String _toSelectSQL(T entity) {
         return _toSelectSQL(entity, -1, null,-1,-1);
@@ -58,6 +62,16 @@ public class _MoreObjectToSQLHelper {
 			
 			Field fields[] = entity.getClass().getDeclaredFields(); 
 			
+			String tableName = _toTableName(entity); 
+			OneTimeParameter.setAttribute(StringConst.TABLE_NAME, tableName);
+			OneTimeParameter.setTrueForKey(StringConst.MoreStruct_to_SqlLib);
+			
+			//不能到分页时才设置,因多表时,有重名字段,也需要用到dbName,而动态获取dbName要用到路由.
+			if(HoneyContext.isNeedRealTimeDb()) { //V1.9
+				HoneyContext.initRouteWhenParseSql(SuidType.SELECT, entity.getClass(),tableName);  //main table confirm the Datasource.
+				OneTimeParameter.setTrueForKey(StringConst.ALREADY_SET_ROUTE);
+			}
+			
 			MoreTableStruct moreTableStruct[]=HoneyUtil.getMoreTableStructAndCheckBefore(entity);
 			
 			if (moreTableStruct[1] == null) { //v1.9
@@ -88,7 +102,7 @@ public class _MoreObjectToSQLHelper {
 			}
 			
 //			String tableName = _toTableName(entity);
-			String tableName = moreTableStruct[0].tableName;
+//			String tableName = moreTableStruct[0].tableName;
 			
 			String tableNamesForCache=tableName;//V1.9
 					
@@ -236,7 +250,7 @@ public class _MoreObjectToSQLHelper {
 			
 			if(start!=-1 && size!=-1){ //若传参及Condition都有分页,转出来的sql可能语法不对.
 				HoneyUtil.regPagePlaceholder();
-				sql=dbFeature.toPageSql(sqlBuffer.toString(), start, size);
+				sql=getDbFeature().toPageSql(sqlBuffer.toString(), start, size);
 				HoneyUtil.setPageNum(list);
 			}else{
 				sql=sqlBuffer.toString();
@@ -344,9 +358,9 @@ public class _MoreObjectToSQLHelper {
 		HoneyUtil.checkPackage(entity);
 	}
 	
-//	private static String _toTableName(Object entity){
-//		return NameTranslateHandle.toTableName(NameUtil.getClassFullName(entity));
-//	}
+	private static String _toTableName(Object entity){
+		return NameTranslateHandle.toTableName(NameUtil.getClassFullName(entity));
+	}
 	
 	private static String _toColumnName(String fieldName){
 		return NameTranslateHandle.toColumnName(fieldName);

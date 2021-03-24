@@ -824,7 +824,8 @@ public class SqlLib implements BeeSql {
             
             Map<String,String> dulSubFieldMap=moreTableStruct[0].subDulFieldMap;
 			
-			String tableName=_toTableName(entity);
+//			String tableName=_toTableName(entity);
+			String tableName=moreTableStruct[0].tableName;
 			while (rs.next()) {
 				
 				//从表1设置

@@ -62,5 +62,11 @@ public class MoreObjSQL implements MoreTable{
 		Logger.logSQL("select SQL: ", sql);
 		return getBeeSql().moreTableSelect(sql, entity); 
 	}
+	
+	@Override
+	public MoreObjSQL setDynamicParameter(String para, String value) {
+		OneTimeParameter.setAttribute(para, value);
+		return this;
+	}
 
 }
