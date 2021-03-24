@@ -21,7 +21,7 @@ public final class HoneyContext {
 
 	private static ConcurrentMap<String, String> beanMap;
 //	since v1.7.0
-	private static ConcurrentMap<String, MoreTableStruct[]> moreTableStructMap;
+//	private static ConcurrentMap<String, MoreTableStruct[]> moreTableStructMap;
 
 	private static ThreadLocal<Map<String, List<PreparedValue>>> sqlPreValueLocal;
 //	private static ThreadLocal<Map<String, String>> sqlValueLocal;
@@ -65,7 +65,7 @@ public final class HoneyContext {
 	
 	static {
 		beanMap = new ConcurrentHashMap<>();
-		moreTableStructMap= new ConcurrentHashMap<>();
+//		moreTableStructMap= new ConcurrentHashMap<>();
 		
 		sqlPreValueLocal = new ThreadLocal<>();
 //		sqlValueLocal = new ThreadLocal<>();
@@ -155,14 +155,14 @@ public final class HoneyContext {
 		 beanMap.clear();
 	}
 	
-	static MoreTableStruct[] addMoreTableStructs(String key, MoreTableStruct[] value) {
-		return moreTableStructMap.put(key, value);
-	}
-
-	public static MoreTableStruct[] getMoreTableStructs(String key) {
-		return moreTableStructMap.get(key);
-	}
-
+//	static MoreTableStruct[] addMoreTableStructs(String key, MoreTableStruct[] value) {
+//		return moreTableStructMap.put(key, value);
+//	}
+//
+//	public static MoreTableStruct[] getMoreTableStructs(String key) {
+//		return moreTableStructMap.get(key);
+//	}
+	
 	static void setPreparedValue(String sqlStr, List<PreparedValue> list) {
 		if (list == null || list.size() == 0) return;
 		if(sqlStr==null || "".equals(sqlStr.trim())) return;
@@ -545,4 +545,14 @@ public final class HoneyContext {
 		HoneyContext.dsName2DbName = dsName2DbName;
 	}
 	
+	private static boolean configRefresh=false;
+
+	public static boolean isConfigRefresh() {
+		return configRefresh;
+	}
+
+	public static void setConfigRefresh(boolean configRefresh) {
+		HoneyContext.configRefresh = configRefresh;
+	}
+
 }
