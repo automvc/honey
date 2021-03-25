@@ -374,11 +374,6 @@ public final class HoneyUtil {
 					javaType =jdbcTypeMap.get(jdbcType.toUpperCase());
 					if (javaType != null) return javaType;
 				}
-				
-				if (javaType == null){
-					javaType =jdbcTypeMap.get(jdbcType.toUpperCase());
-					if (javaType != null) return javaType;
-				}
 			}
 			
 			javaType = "[UNKNOWN TYPE]" + jdbcType;

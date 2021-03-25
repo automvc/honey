@@ -9,6 +9,7 @@ package org.teasoft.honey.osql.autogen;
 import java.lang.reflect.Field;
 import java.util.Map;
 
+import org.teasoft.bee.osql.DatabaseConst;
 import org.teasoft.bee.osql.PreparedSql;
 import org.teasoft.bee.osql.annotation.JoinTable;
 import org.teasoft.honey.osql.core.BeeFactory;
@@ -35,14 +36,18 @@ public class Ddl {
 			String tableName = _toTableName(entity);
 			try {
 				String sql0 = "";
-				if (HoneyUtil.isMysql() || HoneyUtil.isSQLite()) {
-					sql0 = " DROP TABLE IF EXISTS " + tableName;
-				} else {
+				if (HoneyUtil.isOracle() || HoneyUtil.isSqlServer()) {
 					sql0 = "DROP TABLE " + tableName;
+				} else {
+					sql0 = " DROP TABLE IF EXISTS " + tableName;
 				}
 				preparedSql.modify(sql0);
 			} catch (Exception e) {
-				Logger.warn(e.getMessage());
+				try {
+					preparedSql.modify("DROP TABLE " + tableName);
+				} catch (Exception e2) {
+					Logger.warn(e2.getMessage());
+				}
 			}
 			return createTable(entity, tableName);
 
@@ -90,11 +95,27 @@ public class Ddl {
 	}
 
 	private static <T> String toCreateTableSQL(T entity, String tableName) {
-		
+
 		if (HoneyUtil.isSQLite()) {
 			return toCreateTableSQLForSQLite(entity, tableName);
+		} else if (HoneyUtil.isMysql()) {
+			return toCreateTableSQLForMySQL(entity, tableName);
+		} else if (DatabaseConst.H2.equalsIgnoreCase(HoneyContext.getDbDialect())) {
+			return toCreateTableSQLForH2(entity, tableName);
+		} else if (DatabaseConst.PostgreSQL.equalsIgnoreCase(HoneyContext.getDbDialect())) {
+			return toCreateTableSQLForPostgreSQL(entity, tableName);
+		} else if (HoneyUtil.isSqlServer()) {
+			return toCreateTableSQLForSQLSERVER(entity, tableName);
+		} else {
+			//ORACLE ...
+			return _toCreateTableSQL(entity, tableName);
 		}
-		
+
+	}
+
+	//ORACLE
+	private static <T> String _toCreateTableSQL(T entity, String tableName) {
+
 		if (tableName == null) tableName = _toTableName(entity);
 		StringBuffer sqlBuffer = new StringBuffer();
 		sqlBuffer.append("CREATE TABLE " + tableName + " (").append(LINE_SEPARATOR);
@@ -134,14 +155,175 @@ public class Ddl {
 
 			if ("id".equalsIgnoreCase(fields[i].getName()))
 				sqlBuffer.append(" INTEGER PRIMARY KEY NOT NULL");
-			else
+			else {
 				sqlBuffer.append(java2DbType.get(fields[i].getType().getName()));
 
-			String type = java2DbType.get(fields[i].getType().getName());
-			if ("timestamp".equalsIgnoreCase(type) || "datetime".equalsIgnoreCase(type)) {
-				sqlBuffer.append(" DEFAULT CURRENT_TIMESTAMP");
-			} else {
-				sqlBuffer.append(" DEFAULT NULL");
+				String type = java2DbType.get(fields[i].getType().getName());
+				if ("timestamp".equalsIgnoreCase(type) || "datetime".equalsIgnoreCase(type)) {
+					sqlBuffer.append(" DEFAULT CURRENT_TIMESTAMP");
+				} else {
+					sqlBuffer.append(" DEFAULT NULL");
+				}
+			}
+			if (i != fields.length - 1)
+				sqlBuffer.append(",  ");
+			else
+				sqlBuffer.append("  ");
+			sqlBuffer.append(LINE_SEPARATOR);
+		}
+		sqlBuffer.append(" )");
+
+		return sqlBuffer.toString();
+
+	}
+
+	//MySQL
+	private static <T> String toCreateTableSQLForMySQL(T entity, String tableName) {
+		if (tableName == null) tableName = _toTableName(entity);
+		StringBuffer sqlBuffer = new StringBuffer();
+		sqlBuffer.append("CREATE TABLE " + tableName + " (").append(LINE_SEPARATOR);
+		Field fields[] = entity.getClass().getDeclaredFields();
+		for (int i = 0; i < fields.length; i++) {
+			if (isSkipField(fields[i])) {
+				if (i == fields.length - 1) sqlBuffer.delete(sqlBuffer.length() - 5, sqlBuffer.length() - 2);
+				continue;
+			}
+			sqlBuffer.append(_toColumnName(fields[i].getName())).append("  ");
+
+			if ("id".equalsIgnoreCase(fields[i].getName()))
+				sqlBuffer.append("bigint(20) PRIMARY KEY NOT NULL AUTO_INCREMENT");
+			else {
+				sqlBuffer.append(java2DbType.get(fields[i].getType().getName()));
+
+				String type = java2DbType.get(fields[i].getType().getName());
+				if ("timestamp".equalsIgnoreCase(type) || "datetime".equalsIgnoreCase(type)) {
+					sqlBuffer.append(" DEFAULT CURRENT_TIMESTAMP");
+				} else {
+					sqlBuffer.append(" DEFAULT NULL");
+				}
+			}
+
+			if (i != fields.length - 1)
+				sqlBuffer.append(",  ");
+			else
+				sqlBuffer.append("  ");
+			sqlBuffer.append(LINE_SEPARATOR);
+		}
+		sqlBuffer.append(" )");
+
+		return sqlBuffer.toString();
+
+	}
+
+	//H2
+	private static <T> String toCreateTableSQLForH2(T entity, String tableName) {
+		if (tableName == null) tableName = _toTableName(entity);
+		StringBuffer sqlBuffer = new StringBuffer();
+		sqlBuffer.append("CREATE TABLE " + tableName + " (").append(LINE_SEPARATOR);
+		Field fields[] = entity.getClass().getDeclaredFields();
+		for (int i = 0; i < fields.length; i++) {
+			if (isSkipField(fields[i])) {
+				if (i == fields.length - 1) sqlBuffer.delete(sqlBuffer.length() - 5, sqlBuffer.length() - 2);
+				continue;
+			}
+			sqlBuffer.append(_toColumnName(fields[i].getName())).append("  ");
+
+			if ("id".equalsIgnoreCase(fields[i].getName()))
+				sqlBuffer.append("bigint PRIMARY KEY NOT NULL");
+			else {
+				sqlBuffer.append(java2DbType.get(fields[i].getType().getName()));
+
+				String type = java2DbType.get(fields[i].getType().getName());
+				if ("timestamp".equalsIgnoreCase(type) || "datetime".equalsIgnoreCase(type)) {
+					sqlBuffer.append(" DEFAULT CURRENT_TIMESTAMP");
+				} else {
+					sqlBuffer.append(" DEFAULT NULL");
+				}
+			}
+
+			if (i != fields.length - 1)
+				sqlBuffer.append(",  ");
+			else
+				sqlBuffer.append("  ");
+			sqlBuffer.append(LINE_SEPARATOR);
+		}
+		sqlBuffer.append(" )");
+
+		return sqlBuffer.toString();
+
+	}
+
+	//PostgreSQL
+	private static <T> String toCreateTableSQLForPostgreSQL(T entity, String tableName) {
+		if (tableName == null) tableName = _toTableName(entity);
+		StringBuffer sqlBuffer = new StringBuffer();
+		sqlBuffer.append("CREATE TABLE " + tableName + " (").append(LINE_SEPARATOR);
+		Field fields[] = entity.getClass().getDeclaredFields();
+		for (int i = 0; i < fields.length; i++) {
+			if (isSkipField(fields[i])) {
+				if (i == fields.length - 1) sqlBuffer.delete(sqlBuffer.length() - 5, sqlBuffer.length() - 2);
+				continue;
+			}
+			sqlBuffer.append(_toColumnName(fields[i].getName())).append("  ");
+
+			if ("id".equalsIgnoreCase(fields[i].getName()))
+				sqlBuffer.append("bigserial NOT NULL");
+			else {
+				sqlBuffer.append(java2DbType.get(fields[i].getType().getName()));
+
+				String type = java2DbType.get(fields[i].getType().getName());
+				if ("timestamp".equalsIgnoreCase(type) || "datetime".equalsIgnoreCase(type)) {
+					sqlBuffer.append(" DEFAULT CURRENT_TIMESTAMP");
+				} else {
+					sqlBuffer.append(" DEFAULT NULL");
+				}
+			}
+
+			if (i != fields.length - 1)
+				sqlBuffer.append(",  ");
+			else
+				sqlBuffer.append("  ");
+			sqlBuffer.append(LINE_SEPARATOR);
+		}
+		sqlBuffer.append(" )");
+
+		return sqlBuffer.toString();
+
+	}
+
+	//SQLSERVER
+	private static <T> String toCreateTableSQLForSQLSERVER(T entity, String tableName) {
+		if (tableName == null) tableName = _toTableName(entity);
+		StringBuffer sqlBuffer = new StringBuffer();
+		sqlBuffer.append("CREATE TABLE " + tableName + " (").append(LINE_SEPARATOR);
+		Field fields[] = entity.getClass().getDeclaredFields();
+		boolean hasCurrentTime = false;
+		for (int i = 0; i < fields.length; i++) {
+			if (isSkipField(fields[i])) {
+				if (i == fields.length - 1) sqlBuffer.delete(sqlBuffer.length() - 5, sqlBuffer.length() - 2);
+				continue;
+			}
+			sqlBuffer.append(_toColumnName(fields[i].getName())).append("  ");
+
+			if ("id".equalsIgnoreCase(fields[i].getName()))
+				sqlBuffer.append("bigint PRIMARY KEY NOT NULL");
+			else {
+				//				sqlBuffer.append(java2DbType.get(fields[i].getType().getName()));
+
+				String type = java2DbType.get(fields[i].getType().getName());
+				if (("timestamp".equalsIgnoreCase(type))) {
+					if (!hasCurrentTime) {
+						sqlBuffer.append(type);
+						sqlBuffer.append(" ");
+						hasCurrentTime = true;
+					} else {
+						sqlBuffer.append("datetime DEFAULT NULL");
+						//						sqlBuffer.append(" DEFAULT CURRENT_TIMESTAMP");
+					}
+				} else {
+					sqlBuffer.append(type);
+					sqlBuffer.append(" DEFAULT NULL");
+				}
 			}
 
 			if (i != fields.length - 1)

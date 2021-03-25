@@ -325,6 +325,9 @@ public class GenBean {
 			for (int i=1; i <= columCount; i++) {
 				table.getColumNames().add(rmeta.getColumnName(i).trim());
 				table.getColumTypes().add(rmeta.getColumnTypeName(i).trim());
+				
+//				System.err.println(rmeta.getColumnName(i).trim()+"   ---  "+rmeta.getColumnTypeName(i).trim());
+				System.err.println(rmeta.getColumnName(i).trim()+" ---"+ rmeta.getColumnTypeName(i).trim()+"   ---  "+rmeta.getColumnClassName(i).trim());
 			}
 		} finally {
 			HoneyContext.checkClose(rs, ps, null);

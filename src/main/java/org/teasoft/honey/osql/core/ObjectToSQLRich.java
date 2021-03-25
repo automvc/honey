@@ -471,7 +471,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		if(ids==null || "".equals(ids.trim())) return null;
 		checkPackageByClass(c);
 		SqlValueWrap sqlBuffer=toDeleteByIdSQL0(c);
-		return _toSelectAndDeleteByIdSQL(sqlBuffer,ids);
+		return _toSelectAndDeleteByIdSQL(sqlBuffer,ids,getIdTypeByClass(c));
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -519,6 +519,19 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		String type=null;
 		try {
 			field = entity.getClass().getDeclaredField("id");
+			type=field.getType().getSimpleName();
+		} catch (Exception e) {
+			//ignore
+		}
+		
+		return type;
+	}
+	
+	private <T> String getIdTypeByClass(Class c) {
+		Field field = null;
+		String type=null;
+		try {
+			field = c.getDeclaredField("id");
 			type=field.getType().getSimpleName();
 		} catch (Exception e) {
 			//ignore
@@ -604,9 +617,9 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		return sqlBuffer.toString();
 	}
 	
-	private <T> String _toSelectAndDeleteByIdSQL(SqlValueWrap wrap, String ids) {
-		return _toSelectAndDeleteByIdSQL(wrap, ids,null);
-	}
+//	private <T> String _toSelectAndDeleteByIdSQL(SqlValueWrap wrap, String ids) {
+//		return _toSelectAndDeleteByIdSQL(wrap, ids,null);
+//	}
 	
 	private <T> String _toSelectAndDeleteByIdSQL(SqlValueWrap wrap, String ids, String idType) {
 
@@ -626,6 +639,8 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 				preparedValue.setValue(Long.parseLong(idArray[0]));
 			} else if ("Integer".equals(idType) || "int".equals(idType)) {
 				preparedValue.setValue(Integer.parseInt(idArray[0]));
+			} else if ("Short".equals(idType) || "short".equals(idType)) {
+				preparedValue.setValue(Short.parseShort(idArray[0]));
 			} else {
 				preparedValue.setValue(idArray[0]);
 			}
@@ -647,6 +662,8 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 					preparedValue.setValue(Long.parseLong(idArray[i]));
 				} else if ("Integer".equals(idType) || "int".equals(idType)) {
 					preparedValue.setValue(Integer.parseInt(idArray[i]));
+				} else if ("Short".equals(idType) || "short".equals(idType)) {
+					preparedValue.setValue(Short.parseShort(idArray[0]));
 				} else {
 					preparedValue.setValue(idArray[i]);
 				}
