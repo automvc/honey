@@ -63,15 +63,15 @@ public class PearFlowerId implements GenId {
 	private static int randomNumBound;
 	
 	{
-		boolean t_useHalfWorkId = HoneyConfig.getHoneyConfig().pearId_useHalfWorkId;
-		long t_tolerateSecond = HoneyConfig.getHoneyConfig().pearId_tolerateSecond;
-		long t_switchWorkIdTimeThreshold = HoneyConfig.getHoneyConfig().pearId_switchWorkIdTimeThreshold;
+		boolean t_useHalfWorkId = HoneyConfig.getHoneyConfig().pearFlowerId_useHalfWorkId;
+		long t_tolerateSecond = HoneyConfig.getHoneyConfig().pearFlowerId_tolerateSecond;
+		long t_switchWorkIdTimeThreshold = HoneyConfig.getHoneyConfig().pearFlowerId_switchWorkIdTimeThreshold;
 
 		useHalfWorkId = t_useHalfWorkId;
 		if (t_tolerateSecond > 0) tolerateSecond = t_tolerateSecond;
 		if (t_switchWorkIdTimeThreshold > 0) switchWorkIdTimeThreshold = t_switchWorkIdTimeThreshold;
 		
-		int t_randomNumBound = HoneyConfig.getHoneyConfig().pearId_randomNumBound;
+		int t_randomNumBound = HoneyConfig.getHoneyConfig().pearFlowerId_randomNumBound;
 		if (t_randomNumBound < 1 || t_randomNumBound > 512)
 			randomNumBound = 2;
 		else
