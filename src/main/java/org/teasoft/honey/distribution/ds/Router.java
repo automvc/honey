@@ -26,8 +26,8 @@ public class Router {
 	}
 	
 	private static void init(){
-		multiDsType = HoneyConfig.getHoneyConfig().multiDsType;
-		defaultDs = HoneyConfig.getHoneyConfig().multiDsDefalutDS;
+		multiDsType = HoneyConfig.getHoneyConfig().multiDS_type;
+		defaultDs = HoneyConfig.getHoneyConfig().multiDS_defalutDS;
 
 		if (multiDsType == 1) {
 			route = new RwDs();

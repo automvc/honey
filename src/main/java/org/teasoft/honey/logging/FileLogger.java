@@ -34,8 +34,8 @@ public class FileLogger implements Log{
 	private static final String LEFT="[";
 	private static final String RIGHT="]";
 	
-	private static boolean donotPrintCurrentDate=HoneyConfig.getHoneyConfig().showSQL_donotPrint_currentDate;
-	private static boolean donotPrintLevel=HoneyConfig.getHoneyConfig().log_donotPrint_level;
+	private static boolean donotPrintCurrentDate=HoneyConfig.getHoneyConfig().showSQL_donotPrintCurrentDate;
+	private static boolean donotPrintLevel=HoneyConfig.getHoneyConfig().logDonotPrintLevel;
 	
 	public FileLogger(){
 	}

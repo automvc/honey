@@ -39,14 +39,14 @@ public class OnlyMulitiDB implements Route {
 	private void init(){
 		  String matchEntityClassPath;
 		  String matchTable;
-		   defaultDs = HoneyConfig.getHoneyConfig().multiDsDefalutDS;
+		   defaultDs = HoneyConfig.getHoneyConfig().multiDS_defalutDS;
 		   
 			//仅分库,需要配置默认DB
 			if( defaultDs==null || "".equals(defaultDs.trim()) ){
 				throw new NoConfigException("Error: bee.dosql.multi-DS.defalut-DS can not null or empty when bee.dosql.multi-DS.type=2! ");
 			}
-			matchEntityClassPath = HoneyConfig.getHoneyConfig().multiDs_matchEntityClassPath;
-			matchTable = HoneyConfig.getHoneyConfig().multiDs_matchTable;
+			matchEntityClassPath = HoneyConfig.getHoneyConfig().multiDS_matchEntityClassPath;
+			matchTable = HoneyConfig.getHoneyConfig().multiDS_matchTable;
 			if( (matchEntityClassPath==null || "".equals(matchEntityClassPath.trim()))  &&  (matchTable==null || "".equals(matchTable.trim())) ){
 				throw new NoConfigException("Error: bee.dosql.multi-DS.match.entityClassPath and bee.dosql.multi-DS.match.table can not null or empty at same time when bee.dosql.multi-DS.type=2! ");
 			}
