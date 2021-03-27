@@ -39,7 +39,7 @@ public class SqlLib implements BeeSql {
 	private Cache cache=BeeFactory.getHoneyFactory().getCache();
 	
 	private int cacheWorkResultSetSize=HoneyConfig.getHoneyConfig().cache_workResultSetSize;
-	private boolean enableMultiDs=HoneyConfig.getHoneyConfig().enableMultiDs;
+	private boolean enableMultiDs=HoneyConfig.getHoneyConfig().multiDS_enable;
 	
 	private static boolean  showSQL=HoneyConfig.getHoneyConfig().showSQL;
 
