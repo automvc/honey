@@ -26,10 +26,10 @@ public class CacheArrayIndex {
 	private static int fullClearCacheSize; 
 	
 	static{
-		startDeleteCacheRate=(int) (HoneyConfig.getHoneyConfig().cache_startDeleteCacheRate*100);  //转成百分比
+		startDeleteCacheRate=(int) (HoneyConfig.getHoneyConfig().cache_startDeleteRate*100);  //转成百分比
 		fullUsedRate=(int) (HoneyConfig.getHoneyConfig().cache_fullUsedRate*100); //转成百分比
 		size=HoneyConfig.getHoneyConfig().cache_mapSize;
-		fullClearCacheSize=(int) (HoneyConfig.getHoneyConfig().cache_fullClearCacheRate *size);
+		fullClearCacheSize=(int) (HoneyConfig.getHoneyConfig().cache_fullClearRate *size);
 	}
 	
 	public CacheArrayIndex(){}

@@ -79,7 +79,7 @@ public class _MoreObjectToSQLHelper {
 						"MoreObject select on " + entity.getClass().getName() + " must own at least one JoinTable annotation!");
 			}
 			
-			boolean twoTablesWithJoinOnStyle=HoneyConfig.getHoneyConfig().moreTable_2tablesWithJoinOnStyle;
+			boolean twoTablesWithJoinOnStyle=HoneyConfig.getHoneyConfig().moreTable_twoTablesWithJoinOnStyle;
 			
 			boolean moreTable_columnListWithStar=HoneyConfig.getHoneyConfig().moreTable_columnListWithStar;
 			String columnNames;

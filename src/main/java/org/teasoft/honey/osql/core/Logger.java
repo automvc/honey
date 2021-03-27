@@ -11,16 +11,29 @@ import org.teasoft.honey.logging.LoggerFactory;
  */
 public class Logger {
 
-	private static boolean showSQL = HoneyConfig.getHoneyConfig().showSQL;
-	private static boolean showSQLShowType = HoneyConfig.getHoneyConfig().showSQL_showType;
-	private static boolean showExecutableSql = HoneyConfig.getHoneyConfig().showSQL_executableSql;
+//	private static boolean showSQL = HoneyConfig.getHoneyConfig().showSQL;
+//	private static boolean showSQLShowType = HoneyConfig.getHoneyConfig().showSQL_showType;
+//	private static boolean showExecutableSql = HoneyConfig.getHoneyConfig().showSQL_showExecutableSql;
+	
+	private static boolean isShowSQL() {
+		return HoneyConfig.getHoneyConfig().showSQL;
+	}
+	
+	private static boolean isShowSQLShowType() {
+		return HoneyConfig.getHoneyConfig().showSQL_showType;
+	}
+	
+	private static boolean isShowExecutableSql() {
+		return HoneyConfig.getHoneyConfig().showSQL_showExecutableSql;
+	}
+	
 
 	private static Log log = null;
 
 	//专门用于Bee框架输出SQL日志.
 	 static void logSQL(String hardStr, String sql) {
 
-		if (!showSQL) return;
+		if (!isShowSQL()) return;
 		
 		//=================================start
 		if (LoggerFactory.isNoArgInConstructor()) {
@@ -45,7 +58,7 @@ public class Logger {
 		}
 		//=================================end
 
-		if (showSQL) {
+		if (isShowSQL()) {
 			List list = null;
 			String insertIndex = (String) OneTimeParameter.getAttribute("_SYS_Bee_BatchInsert");
 			if (HoneyUtil.isMysql() && insertIndex != null) {
@@ -56,7 +69,7 @@ public class Logger {
 			}
 //			list = HoneyContext._justGetPreparedValue(sql); //统一用这个.  bug,只用于打印的,没有删
 
-			String value = HoneyUtil.list2Value(list, showSQLShowType);
+			String value = HoneyUtil.list2Value(list, isShowSQLShowType());
 
 			if (value == null || "".equals(value.trim())) {
 				_print("[Bee] " + hardStr, sql);
@@ -74,7 +87,7 @@ public class Logger {
 					_print("[Bee] " + hardStr, sql + "   [values]: " + value);
 				}
 
-				if (showExecutableSql) {
+				if (isShowExecutableSql()) {
 					String executableSql = HoneyUtil.getExecutableSql(sql, list);
 					if (insertIndex != null && !"0".equals(insertIndex)) {
 						int endIndex = executableSql.indexOf("]_End ");

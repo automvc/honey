@@ -200,7 +200,7 @@ public class HoneyFactory {
 	NameTranslate getInitNameTranslate() {
 		if(nameTranslate==null) {
 			//since 1.7.2
-			int translateType=HoneyConfig.getHoneyConfig().namingTranslateType;
+			int translateType=HoneyConfig.getHoneyConfig().naming_translateType;
 			if(translateType==1) nameTranslate=new UnderScoreAndCamelName();
 			else if(translateType==2) nameTranslate=new UpperCaseUnderScoreAndCamelName();
 			else if(translateType==3) nameTranslate=new OriginalName();
@@ -217,7 +217,7 @@ public class HoneyFactory {
 	
 	public Cache getCache() {
 		if (cache == null) {
-			boolean nocache = HoneyConfig.getHoneyConfig().isNocache();
+			boolean nocache = HoneyConfig.getHoneyConfig().cache_nocache;
 			if (nocache) return new NoCache(); //v1.7.2
 			return new DefaultCache();
 		} else {

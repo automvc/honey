@@ -1,5 +1,6 @@
 package org.teasoft.honey.osql.core;
 
+import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -12,6 +13,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.teasoft.bee.osql.SuidType;
 import org.teasoft.honey.distribution.ds.RouteStruct;
+import org.teasoft.honey.util.ObjectUtils;
 
 /**
  * @author Kingstar
@@ -20,122 +22,123 @@ import org.teasoft.honey.distribution.ds.RouteStruct;
 public final class HoneyContext {
 
 	private static ConcurrentMap<String, String> beanMap;
-//	since v1.7.0
-//	private static ConcurrentMap<String, MoreTableStruct[]> moreTableStructMap;
+	//	since v1.7.0
+	//	private static ConcurrentMap<String, MoreTableStruct[]> moreTableStructMap;
 
 	private static ThreadLocal<Map<String, List<PreparedValue>>> sqlPreValueLocal;
-//	private static ThreadLocal<Map<String, String>> sqlValueLocal;
-	
-	private static ThreadLocal<Map<String, CacheSuidStruct>> cacheLocal;
-	
-	private static ThreadLocal<RouteStruct> currentRoute; 
+	//	private static ThreadLocal<Map<String, String>> sqlValueLocal;
 
-	private static ThreadLocal<Connection> currentConnection;  //当前事务的Conn
-	
-	private static ThreadLocal<String> sameConnctionDoing;  //当前多个ORM操作使用同一个connection.
-	
-//	private static ThreadLocal<Transaction> transactionLocal;  
-	
-	private static ConcurrentMap<String,String> entity2table;
-	private static ConcurrentMap<String,String> table2entity=null; //for creat Javabean (just one to one can work well)
-	
+	private static ThreadLocal<Map<String, CacheSuidStruct>> cacheLocal;
+
+	private static ThreadLocal<RouteStruct> currentRoute;
+
+	private static ThreadLocal<Connection> currentConnection; //当前事务的Conn
+
+	private static ThreadLocal<String> sameConnctionDoing; //当前多个ORM操作使用同一个connection.
+
+	//	private static ThreadLocal<Transaction> transactionLocal;  
+
+	private static ConcurrentMap<String, String> entity2table;
+	private static ConcurrentMap<String, String> table2entity = null; //for creat Javabean (just one to one can work well)
+
 	private static Map<String, String> entityList_includes_Map = new ConcurrentHashMap<>();
 	private static Map<String, String> entityList_excludes_Map = new ConcurrentHashMap<>();
-	
+
 	private static List<String> entityListWithStar_in = new CopyOnWriteArrayList<>();
 	private static List<String> entityListWithStar_ex = new CopyOnWriteArrayList<>();
-	
+
 	private static Map<String, String> dsName2DbName;
-	
-/*	private static void _checkSize(ThreadLocal local,String name){
-		if(local==null)
-			System.err.println("==============="+name+"  is null");
-		else
-			System.err.println("==============="+name+"  size is : "+ local.get());
+
+	/*	private static void _checkSize(ThreadLocal local,String name){
+			if(local==null)
+				System.err.println("==============="+name+"  is null");
+			else
+				System.err.println("==============="+name+"  size is : "+ local.get());
+			
+		}
 		
-	}
-	
-	public static void checkSize(){
-		System.err.println("==============checkSize============");
-		_checkSize(sqlPreValueLocal,"sqlPreValueLocal");
-		_checkSize(cacheLocal,"cacheLocal");
-		_checkSize(currentConnection,"currentConnection");
-		_checkSize(currentRoute,"currentRoute");
-	}*/
-	
+		public static void checkSize(){
+			System.err.println("==============checkSize============");
+			_checkSize(sqlPreValueLocal,"sqlPreValueLocal");
+			_checkSize(cacheLocal,"cacheLocal");
+			_checkSize(currentConnection,"currentConnection");
+			_checkSize(currentRoute,"currentRoute");
+		}*/
+
 	static {
 		beanMap = new ConcurrentHashMap<>();
-//		moreTableStructMap= new ConcurrentHashMap<>();
-		
+		//		moreTableStructMap= new ConcurrentHashMap<>();
+
 		sqlPreValueLocal = new ThreadLocal<>();
-//		sqlValueLocal = new ThreadLocal<>();
+		//		sqlValueLocal = new ThreadLocal<>();
 		cacheLocal = new ThreadLocal<>();
 
 		currentConnection = new ThreadLocal<>();
-//		transactionLocal = new ThreadLocal<>();
-		sameConnctionDoing= new ThreadLocal<>();
-		
+		//		transactionLocal = new ThreadLocal<>();
+		sameConnctionDoing = new ThreadLocal<>();
+
 		currentRoute = new ThreadLocal<>();
-		
-		entity2table=new ConcurrentHashMap<>();
-//		table2entity=new ConcurrentHashMap<>();
+
+		entity2table = new ConcurrentHashMap<>();
+		//		table2entity=new ConcurrentHashMap<>();
 		initEntity2Table();
-		
+
 		parseEntityListToMap();
 	}
 
 	private HoneyContext() {}
-	
-	static ConcurrentMap<String,String> getEntity2tableMap(){
+
+	static ConcurrentMap<String, String> getEntity2tableMap() {
 		return entity2table;
 	}
-	
-	static ConcurrentMap<String,String> getTable2entityMap(){ //just create the Javabean files would use
-		if(table2entity==null){
-			table2entity=new ConcurrentHashMap<>();
+
+	static ConcurrentMap<String, String> getTable2entityMap() { //just create the Javabean files would use
+		if (table2entity == null) {
+			table2entity = new ConcurrentHashMap<>();
 			initTable2Entity();
 		}
-		
+
 		return table2entity;
 	}
-	
-	
-	
-	private static void initEntity2Table(){
-		String entity2tableMappingList=HoneyConfig.getHoneyConfig().entity2tableMappingList;
-		if(entity2tableMappingList!=null){
-			String entity2table_array[]=entity2tableMappingList.split(",");
+
+	private static void initEntity2Table() {
+		String entity2tableMappingList = HoneyConfig.getHoneyConfig().naming_entity2tableMappingList;
+		if (entity2tableMappingList != null) {
+			String entity2table_array[] = entity2tableMappingList.split(",");
 			String item[];
 			for (int i = 0; i < entity2table_array.length; i++) {
-				item=entity2table_array[i].trim().split(":");  //User2:temp_user,com.abc.user.User:temp_user
-				if(item.length!=2){
-					Logger.error("["+entity2table_array[i].trim()+"] wrong formatter,separate option is not colon(:). (in bee.properties file, key: bee.osql.name.mapping.entity2table)");
-				}else{
+				item = entity2table_array[i].trim().split(":"); //User2:temp_user,com.abc.user.User:temp_user
+				if (item.length != 2) {
+					Logger.error("[" + entity2table_array[i].trim()
+							+ "] wrong formatter,separate option is not colon(:). (in bee.properties file, key: bee.osql.name.mapping.entity2table)");
+				} else {
 					entity2table.put(item[0].trim(), item[1].trim());
-					
-//					if(table2entity.containsKey(item[1].trim())){ //check
-//						Logger.warn(table2entity.get(item[1].trim()) +" and "+ item[0].trim() +" mapping same table: "+item[1].trim());
-//					}
-//					table2entity.put(item[1].trim(), item[0].trim());
+
+					//					if(table2entity.containsKey(item[1].trim())){ //check
+					//						Logger.warn(table2entity.get(item[1].trim()) +" and "+ item[0].trim() +" mapping same table: "+item[1].trim());
+					//					}
+					//					table2entity.put(item[1].trim(), item[0].trim());
 				}
 			}
 		}
 	}
-	
-	private static void initTable2Entity(){
-		String entity2tableMappingList=HoneyConfig.getHoneyConfig().entity2tableMappingList;
-		if(entity2tableMappingList!=null){
-			String entity2table_array[]=entity2tableMappingList.split(",");
+
+	private static void initTable2Entity() {
+		String entity2tableMappingList = HoneyConfig.getHoneyConfig().naming_entity2tableMappingList;
+		if (entity2tableMappingList != null) {
+			String entity2table_array[] = entity2tableMappingList.split(",");
 			String item[];
 			for (int i = 0; i < entity2table_array.length; i++) {
-				item=entity2table_array[i].trim().split(":");  //User2:temp_user,com.abc.user.User:temp_user
-				if(item.length!=2){
-					Logger.error("["+entity2table_array[i].trim()+"] wrong formatter,separate option is not colon(:). (in bee.properties file, key: bee.osql.name.mapping.entity2table)");
-				}else{
-//					entity2table.put(item[0].trim(), item[1].trim());
-					
-					if(table2entity.containsKey(item[1].trim())){ //check   只是生成javabean时会用到,SqlLib不会用到.因会传入T entity   所以不会引起混淆
-						Logger.warn(table2entity.get(item[1].trim()) +" and "+ item[0].trim() +" mapping same table: "+item[1].trim());
+				item = entity2table_array[i].trim().split(":"); //User2:temp_user,com.abc.user.User:temp_user
+				if (item.length != 2) {
+					Logger.error("[" + entity2table_array[i].trim()
+							+ "] wrong formatter,separate option is not colon(:). (in bee.properties file, key: bee.osql.name.mapping.entity2table)");
+				} else {
+					//					entity2table.put(item[0].trim(), item[1].trim());
+
+					if (table2entity.containsKey(item[1].trim())) { //check   只是生成javabean时会用到,SqlLib不会用到.因会传入T entity   所以不会引起混淆
+						Logger.warn(table2entity.get(item[1].trim()) + " and " + item[0].trim() + " mapping same table: "
+								+ item[1].trim());
 					}
 					table2entity.put(item[1].trim(), item[0].trim());
 				}
@@ -150,30 +153,30 @@ public final class HoneyContext {
 	public static String getBeanField(String key) {
 		return beanMap.get(key);
 	}
-	
+
 	static void clearFieldNameCache() {
-		 beanMap.clear();
+		beanMap.clear();
 	}
-	
-//	static MoreTableStruct[] addMoreTableStructs(String key, MoreTableStruct[] value) {
-//		return moreTableStructMap.put(key, value);
-//	}
-//
-//	public static MoreTableStruct[] getMoreTableStructs(String key) {
-//		return moreTableStructMap.get(key);
-//	}
-	
+
+	//	static MoreTableStruct[] addMoreTableStructs(String key, MoreTableStruct[] value) {
+	//		return moreTableStructMap.put(key, value);
+	//	}
+	//
+	//	public static MoreTableStruct[] getMoreTableStructs(String key) {
+	//		return moreTableStructMap.get(key);
+	//	}
+
 	static void setPreparedValue(String sqlStr, List<PreparedValue> list) {
 		if (list == null || list.size() == 0) return;
-		if(sqlStr==null || "".equals(sqlStr.trim())) return;
+		if (sqlStr == null || "".equals(sqlStr.trim())) return;
 		Map<String, List<PreparedValue>> map = sqlPreValueLocal.get();
-//		if (null == map) map = new HashMap<>();
+		//		if (null == map) map = new HashMap<>();
 		if (null == map) map = new ConcurrentHashMap<>();
 		map.put(sqlStr, list);
 		sqlPreValueLocal.set(map);
 	}
-	
-   static List<PreparedValue> justGetPreparedValue(String sqlStr) {
+
+	static List<PreparedValue> justGetPreparedValue(String sqlStr) {
 		Map<String, List<PreparedValue>> map = sqlPreValueLocal.get();
 		if (null == map) return null;
 
@@ -183,60 +186,59 @@ public final class HoneyContext {
 
 	static void clearPreparedValue(String sqlStr) {
 		Map<String, List<PreparedValue>> map = sqlPreValueLocal.get();
-		if (null == map) return ;
+		if (null == map) return;
 		List<PreparedValue> list = map.get(sqlStr);
 		if (list != null) map.remove(sqlStr);
 	}
-	 
+
 	static List<PreparedValue> getAndClearPreparedValue(String sqlStr) {
 		Map<String, List<PreparedValue>> map = sqlPreValueLocal.get();
 		if (null == map) return null;
 		List<PreparedValue> list = map.get(sqlStr);
 		if (list != null) map.remove(sqlStr);
-		
+
 		return list;
 	}
 
-/*    static void setSqlValue(String sqlStr, String value) {
-		if (value == null || "".equals(value.trim())) return;
-		if(sqlStr==null || "".equals(sqlStr.trim())) return;
-		Map<String, String> map = sqlValueLocal.get();
-		if (null == map) map = new HashMap<>();
-		map.put(sqlStr, value); 
-		sqlValueLocal.set(map);
-	}
+	/*    static void setSqlValue(String sqlStr, String value) {
+			if (value == null || "".equals(value.trim())) return;
+			if(sqlStr==null || "".equals(sqlStr.trim())) return;
+			Map<String, String> map = sqlValueLocal.get();
+			if (null == map) map = new HashMap<>();
+			map.put(sqlStr, value); 
+			sqlValueLocal.set(map);
+		}
+	
+		public static String getSqlValue(String sqlStr) {
+			Map<String, String> map = sqlValueLocal.get();
+			if (null == map) return null;
+			String s = map.get(sqlStr);
+			if (s != null) map.remove(sqlStr);
+			return s;
+		}*/
 
-	public static String getSqlValue(String sqlStr) {
-		Map<String, String> map = sqlValueLocal.get();
-		if (null == map) return null;
-		String s = map.get(sqlStr);
-		if (s != null) map.remove(sqlStr);
-		return s;
-	}*/
-	
-	
 	static void setCacheInfo(String sqlStr, CacheSuidStruct cacheInfo) {
 		if (cacheInfo == null) return;
-		if(sqlStr==null || "".equals(sqlStr.trim())) return;
+		if (sqlStr == null || "".equals(sqlStr.trim())) return;
 		Map<String, CacheSuidStruct> map = cacheLocal.get();
 		if (null == map) map = new ConcurrentHashMap<>();
-		map.put(sqlStr, cacheInfo); 
+		map.put(sqlStr, cacheInfo);
 		cacheLocal.set(map);
 	}
 
 	public static CacheSuidStruct getCacheInfo(String sqlStr) {
 		Map<String, CacheSuidStruct> map = cacheLocal.get();
 		if (null == map) return null;
-		CacheSuidStruct struct=map.get(sqlStr);
-		return  struct;
+		CacheSuidStruct struct = map.get(sqlStr);
+		return struct;
 	}
-	
-	static void deleteCacheInfo(String sqlStr){
+
+	static void deleteCacheInfo(String sqlStr) {
 		Map<String, CacheSuidStruct> map = cacheLocal.get();
-//		map.remove(sqlStr); //bug
-		if(map!=null) map.remove(sqlStr); 
+		//		map.remove(sqlStr); //bug
+		if (map != null) map.remove(sqlStr);
 	}
-	
+
 	public static String getDbDialect() {
 		return HoneyConfig.getHoneyConfig().getDbName();
 	}
@@ -244,93 +246,97 @@ public final class HoneyContext {
 	public static Connection getCurrentConnection() {
 		return currentConnection.get();
 	}
+
 	public static void setCurrentConnection(Connection conn) {
 		currentConnection.set(conn);
 	}
+
 	public static void removeCurrentConnection() {
 		currentConnection.remove();
 	}
-	
+
 	private static String getSameConnctionDoing() {
 		return sameConnctionDoing.get();
 	}
+
 	private static void setSameConnctionDoing() {
 		sameConnctionDoing.set("tRue");
 	}
+
 	private static void removeSameConnctionDoing() {
 		sameConnctionDoing.remove();
 	}
-	
+
 	static void endSameConnection() {
 		OneTimeParameter.setTrueForKey("_SYS_Bee_SAME_CONN_END");
 		checkClose(null, HoneyContext.getCurrentConnection());
 		removeCurrentConnection();
 	}
-	
-//	public static Transaction getCurrentTransaction() {
-//		return transactionLocal.get();
-//	}
-//
-//	public static void setCurrentTransaction(Transaction transaction) {
-//		transactionLocal.set(transaction);
-//	}
-	
-//	static void setRouteInfo(String sqlStr, RouteStruct routeStruct) {
-//		if (routeStruct == null) return;
-//		if(sqlStr==null || "".equals(sqlStr.trim())) return;
-//		Map<String, RouteStruct> map = routeLocal.get();
-//		if (null == map) map = new HashMap<>();  //
-//		map.put(sqlStr, routeStruct); 
-//		routeLocal.set(map);
-//	}
-//
-//	public static RouteStruct getRouteInfo(String sqlStr) {
-//		Map<String, RouteStruct> map = routeLocal.get();
-//		if (null == map) return null;
-//		RouteStruct struct=map.get(sqlStr);
-//		return  struct;
-//	}
-	
+
+	//	public static Transaction getCurrentTransaction() {
+	//		return transactionLocal.get();
+	//	}
+	//
+	//	public static void setCurrentTransaction(Transaction transaction) {
+	//		transactionLocal.set(transaction);
+	//	}
+
+	//	static void setRouteInfo(String sqlStr, RouteStruct routeStruct) {
+	//		if (routeStruct == null) return;
+	//		if(sqlStr==null || "".equals(sqlStr.trim())) return;
+	//		Map<String, RouteStruct> map = routeLocal.get();
+	//		if (null == map) map = new HashMap<>();  //
+	//		map.put(sqlStr, routeStruct); 
+	//		routeLocal.set(map);
+	//	}
+	//
+	//	public static RouteStruct getRouteInfo(String sqlStr) {
+	//		Map<String, RouteStruct> map = routeLocal.get();
+	//		if (null == map) return null;
+	//		RouteStruct struct=map.get(sqlStr);
+	//		return  struct;
+	//	}
+
 	public static RouteStruct getCurrentRoute() {
-		 RouteStruct routeStruct=currentRoute.get();
-//		 currentRoute.remove();  //需要多次,不能拿了就删
-		 return routeStruct;
+		RouteStruct routeStruct = currentRoute.get();
+		//		 currentRoute.remove();  //需要多次,不能拿了就删
+		return routeStruct;
 	}
 
 	public static void setCurrentRoute(RouteStruct routeStruct) {
 		currentRoute.set(routeStruct);
 	}
-	
+
 	public static void removeCurrentRoute() {
 		currentRoute.remove();
 	}
-	
-	static void setContext(String sql,List<PreparedValue> list,String tableName){
+
+	static void setContext(String sql, List<PreparedValue> list, String tableName) {
 		HoneyContext.setPreparedValue(sql, list);
 		addInContextForCache(sql, tableName);
 	}
-	
-    static void addInContextForCache(String sql, String tableName){
-		CacheSuidStruct struct=new CacheSuidStruct();
+
+	static void addInContextForCache(String sql, String tableName) {
+		CacheSuidStruct struct = new CacheSuidStruct();
 		struct.setSql(sql);
 		struct.setTableNames(tableName);
 		HoneyContext.setCacheInfo(sql, struct);
 	}
-    
-    @SuppressWarnings("rawtypes")
+
+	@SuppressWarnings("rawtypes")
 	static void regEntityClass(Class clazz) {
 		OneTimeParameter.setAttribute("_SYS_Bee_ROUTE_EC", clazz); //EC:Entity Class
 	}
-	
+
 	static Connection getConn() throws SQLException {
 		Connection conn = null;
-		
+
 		conn = HoneyContext.getCurrentConnection(); //获取已开启事务的连接
 		if (conn == null) {
 			conn = SessionFactory.getConnection(); //不开启事务时
-			
+
 			//如果设置了同一Connection
-			if(OneTimeParameter.isTrue("_SYS_Bee_SAME_CONN_BEGIN")) {	
+			if (OneTimeParameter.isTrue("_SYS_Bee_SAME_CONN_BEGIN")) {
 				HoneyContext.setCurrentConnection(conn); //存入上下文
 				setSameConnctionDoing();
 			}
@@ -338,11 +344,11 @@ public final class HoneyContext {
 
 		return conn;
 	}
-	
+
 	public static void checkClose(Statement stmt, Connection conn) {
 		checkClose(null, stmt, conn);
 	}
-	
+
 	public static void checkClose(ResultSet rs, Statement stmt, Connection conn) {
 		if (rs != null) {
 			try {
@@ -360,14 +366,14 @@ public final class HoneyContext {
 			}
 		}
 		try {
-//			如果设置了同一Connection
-//			并且调用了endSameConnection才关闭   
+			//			如果设置了同一Connection
+			//			并且调用了endSameConnection才关闭   
 			if (StringConst.tRue.equals(getSameConnctionDoing())) {
-				if(OneTimeParameter.isTrue("_SYS_Bee_SAME_CONN_END")) {	// 调用suid.endSameConnection();前的SQL操作 不会触发这里的.
+				if (OneTimeParameter.isTrue("_SYS_Bee_SAME_CONN_END")) { // 调用suid.endSameConnection();前的SQL操作 不会触发这里的.
 					removeSameConnctionDoing();
 					if (conn != null) conn.close();
 				}
-//				else { do not close}
+				//				else { do not close}
 			} else {
 				if (conn != null && conn.getAutoCommit()) {//自动提交时才关闭.如果开启事务,则由事务负责
 					conn.close();
@@ -376,14 +382,14 @@ public final class HoneyContext {
 		} catch (SQLException e) {
 			throw ExceptionHelper.convert(e);
 		} finally {
-			boolean enableMultiDs=HoneyConfig.getHoneyConfig().enableMultiDs;
-			int multiDsType=HoneyConfig.getHoneyConfig().multiDsType;
+			boolean enableMultiDs = HoneyConfig.getHoneyConfig().multiDS_enable;
+			int multiDsType = HoneyConfig.getHoneyConfig().multiDS_type;
 			if (enableMultiDs && multiDsType == 2) {//仅分库,有多个数据源时
 				HoneyContext.removeCurrentRoute();
 			}
 		}
 	}
-	
+
 	//for SqlLib
 	static boolean updateInfoInCache(String sql, String returnType, SuidType suidType) {
 		CacheSuidStruct struct = HoneyContext.getCacheInfo(sql);
@@ -396,10 +402,10 @@ public final class HoneyContext {
 		//要是没有更新缓存,证明之前还没有登记过缓存,就不能去查缓存.
 		return false;
 	}
-	
+
 	//for SqlLib
 	@SuppressWarnings("rawtypes")
-	static void initRoute(SuidType suidType, Class clazz,String sql) {
+	static void initRoute(SuidType suidType, Class clazz, String sql) {
 
 		if (clazz == null) {
 			clazz = (Class) OneTimeParameter.getAttribute("_SYS_Bee_ROUTE_EC");
@@ -408,7 +414,7 @@ public final class HoneyContext {
 		RouteStruct routeStruct = new RouteStruct();
 		routeStruct.setSuidType(suidType);
 		routeStruct.setEntityClass(clazz);
-		
+
 		CacheSuidStruct struct = HoneyContext.getCacheInfo(sql);
 		if (struct != null) {
 			routeStruct.setTableNames(struct.getTableNames());
@@ -416,10 +422,10 @@ public final class HoneyContext {
 
 		HoneyContext.setCurrentRoute(routeStruct);
 	}
-	
+
 	@SuppressWarnings("rawtypes")
-	static void initRouteWhenParseSql(SuidType suidType, Class clazz,String tableNames) {
-		
+	static void initRouteWhenParseSql(SuidType suidType, Class clazz, String tableNames) {
+
 		if (clazz == null) {
 			clazz = (Class) OneTimeParameter.getAttribute("_SYS_Bee_ROUTE_EC");
 		}
@@ -431,12 +437,12 @@ public final class HoneyContext {
 
 		HoneyContext.setCurrentRoute(routeStruct);
 	}
-	
+
 	private static void parseEntityListToMap() {
-		String entityList_includes = HoneyConfig.getHoneyConfig().genid_entityList_includes; //in
+		String entityList_includes = HoneyConfig.getHoneyConfig().genid_includesEntityList; //in
 		_parseListToMap(entityList_includes, entityList_includes_Map, entityListWithStar_in);
 
-		String entityList_excludes = HoneyConfig.getHoneyConfig().genid_entityList_excludes; //ex
+		String entityList_excludes = HoneyConfig.getHoneyConfig().genid_excludesEntityList; //ex
 		_parseListToMap(entityList_excludes, entityList_excludes_Map, entityListWithStar_ex);
 
 	}
@@ -510,12 +516,12 @@ public final class HoneyContext {
 
 		return needGenId;
 	}
-	
+
 	static boolean isNeedRealTimeDb() {
-		boolean enableMultiDs = HoneyConfig.getHoneyConfig().enableMultiDs;
+		boolean enableMultiDs = HoneyConfig.getHoneyConfig().multiDS_enable;
 		if (enableMultiDs) {
-			int multiDsType = HoneyConfig.getHoneyConfig().multiDsType;
-			boolean supportDifferentDbType = HoneyConfig.getHoneyConfig().multiDs_differentDbType;
+			int multiDsType = HoneyConfig.getHoneyConfig().multiDS_type;
+			boolean supportDifferentDbType = HoneyConfig.getHoneyConfig().multiDS_differentDbType;
 			if (multiDsType == 2 && supportDifferentDbType) {//仅分库,有多个数据源时,且支持同时使用多种类型数据库时
 				return true;
 			}
@@ -523,7 +529,7 @@ public final class HoneyContext {
 
 		return false;
 	}
-	
+
 	//同时使用多种类型数据库时,才会触发.   没有分页时,走原来的流程,到SqlLib,才获取数据源处理Suid操作.
 	static String getRealTimeDbName() {
 		String dbName = null;
@@ -532,7 +538,7 @@ public final class HoneyContext {
 		}
 		return dbName;
 	}
-	
+
 	static boolean isAlreadySetRoute() {
 		return OneTimeParameter.isTrue(StringConst.ALREADY_SET_ROUTE);
 	}
@@ -544,8 +550,8 @@ public final class HoneyContext {
 	public static void setDsName2DbName(Map<String, String> dsName2DbName) {
 		HoneyContext.dsName2DbName = dsName2DbName;
 	}
-	
-	private static boolean configRefresh=false;
+
+	private static boolean configRefresh = false;
 
 	public static boolean isConfigRefresh() {
 		return configRefresh;
@@ -555,4 +561,23 @@ public final class HoneyContext {
 		HoneyContext.configRefresh = configRefresh;
 	}
 
+	public static void updateConfig(Map<String, Object> map) {
+
+		if (ObjectUtils.isEmpty(map)) return;
+		Object obj = HoneyConfig.getHoneyConfig();
+		Class clazz = obj.getClass();
+		for (Map.Entry<String, Object> entry : map.entrySet()) {
+			try {
+
+				Field field = clazz.getDeclaredField(entry.getKey());
+				field.setAccessible(true);
+				field.set(obj, entry.getValue());
+
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
+		setConfigRefresh(true);
+	}
 }

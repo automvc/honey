@@ -47,8 +47,8 @@ public class CacheKey {
 		StringBuffer strBuf=new StringBuffer();
 		
 //		v1.8
-		boolean enableMultiDs = HoneyConfig.getHoneyConfig().enableMultiDs;
-		int multiDsType = HoneyConfig.getHoneyConfig().multiDsType;
+		boolean enableMultiDs = HoneyConfig.getHoneyConfig().multiDS_enable;
+		int multiDsType = HoneyConfig.getHoneyConfig().multiDS_type;
 		if (enableMultiDs && multiDsType == 2) {//仅分库,有多个数据源时
 			String ds=Router.getDsName();
 			strBuf.append("DataSourceName:");

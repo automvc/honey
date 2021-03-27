@@ -70,9 +70,9 @@ public final class CacheUtil {
 		
 		arrayIndex=new CacheArrayIndex();
 		
-		initSpecialTable(HoneyConfig.getHoneyConfig().cache_neverCacheTableList, 
-				         HoneyConfig.getHoneyConfig().cache_foreverCacheTableList,
-				         HoneyConfig.getHoneyConfig().cache_foreverCacheModifySynTableList
+		initSpecialTable(HoneyConfig.getHoneyConfig().cache_never, 
+				         HoneyConfig.getHoneyConfig().cache_forever,
+				         HoneyConfig.getHoneyConfig().cache_modifySyn
 				);
 	}
 	
@@ -329,8 +329,8 @@ public final class CacheUtil {
 	
 	//adjust tableName
 	private static String adjust(String tableName){
-		boolean enableMultiDs = HoneyConfig.getHoneyConfig().enableMultiDs;
-		int multiDsType = HoneyConfig.getHoneyConfig().multiDsType;
+		boolean enableMultiDs = HoneyConfig.getHoneyConfig().multiDS_enable;
+		int multiDsType = HoneyConfig.getHoneyConfig().multiDS_type;
 		if (enableMultiDs && multiDsType == 2) {//仅分库,有多个数据源时
 			String ds=Router.getDsName();
 			tableName=ds+"."+tableName;
@@ -443,9 +443,9 @@ public final class CacheUtil {
 	}
 	
 	private static boolean _inConfigCacheTableMap(Map map, List<String> list) {
-		boolean enableMultiDs = HoneyConfig.getHoneyConfig().enableMultiDs;
+		boolean enableMultiDs = HoneyConfig.getHoneyConfig().multiDS_enable;
 		if (enableMultiDs) {
-			int multiDsType = HoneyConfig.getHoneyConfig().multiDsType;
+			int multiDsType = HoneyConfig.getHoneyConfig().multiDS_type;
 			if (multiDsType == 2) {//仅分库,有多个数据源时
 				String tableName = list.get(0);
 				if (map.get(tableName.toLowerCase()) != null){
@@ -462,9 +462,9 @@ public final class CacheUtil {
 	
 	private static Integer _getConfigCacheTableMapValue(Map<String,Integer> map, List<String> list) {
 		
-		boolean enableMultiDs = HoneyConfig.getHoneyConfig().enableMultiDs;
+		boolean enableMultiDs = HoneyConfig.getHoneyConfig().multiDS_enable;
 		if (enableMultiDs) {
-			int multiDsType = HoneyConfig.getHoneyConfig().multiDsType;
+			int multiDsType = HoneyConfig.getHoneyConfig().multiDS_type;
 			if (multiDsType == 2) {//仅分库,有多个数据源时
 				String tableName = list.get(0);
 				Integer v1=map.get(tableName.toLowerCase());

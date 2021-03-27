@@ -29,128 +29,132 @@ public final class HoneyConfig {
 		SysValueProcessor.process(honeyConfig);
 	}
 
+	//----------------------------- bee.osql
 	// 启动时动态获取
-	@SysValue("${bee.log.loggerType}")
+	@SysValue("${bee.osql.loggerType}")
 	public String loggerType; //v1.8
 	
-	@SysValue("${bee.osql.log.donotPrint.level}")
-	public boolean log_donotPrint_level = true; //v1.7.2
+	@SysValue("${bee.osql.logDonotPrintLevel}")
+	public boolean logDonotPrintLevel = true; //v1.7.2
 
-	@SysValue("${bee.osql.date.format}")
+	@SysValue("${bee.osql.dateFormat}")
 	public String dateFormat; //v1.7.2   use in DateUtil
+	
+	@SysValue("${bee.osql.sqlKeyWordCase}")
+	public String sqlKeyWordCase;
+	
+	@SysValue("${bee.osql.notDeleteWholeRecords}")
+	boolean notDeleteWholeRecords = true; //v1.7.2
 
+	@SysValue("${bee.osql.notUpdateWholeRecords}")
+	boolean notUpdateWholeRecords = true; //v1.7.2
+	
+	@SysValue("${bee.osql.insertBatchSize}")
+	int insertBatchSize = 10000; //不设置,默认10000
+	
+	
+	@SysValue("${bee.osql.showSQL}")   //属于 bee.osql
+	public boolean showSQL = false;
 	//----------------------------- showSQL start
-	@SysValue("${bee.osql.showSQL}")
-	boolean showSQL = false;
 
 	@SysValue("${bee.osql.showSQL.showType}")
 	boolean showSQL_showType;//v1.8
 
 	@SysValue("${bee.osql.showSQL.showExecutableSql}")
-	boolean showSQL_executableSql;//v1.8
+	boolean showSQL_showExecutableSql;//v1.8
 
-	@SysValue("${bee.osql.showSQL.donotPrint.currentDate}")
-	public boolean showSQL_donotPrint_currentDate; //v1.7.0
+	@SysValue("${bee.osql.showSQL.donotPrintCurrentDate}")
+	public boolean showSQL_donotPrintCurrentDate; //v1.7.0
 	//----------------------------- showSQL end
+	
+	
+	@SysValue("${bee.osql.naming.toLowerCaseBefore}")
+	public boolean naming_toLowerCaseBefore = true; //default : to LowerCase before
 
-	@SysValue("${bee.osql.donot.allowed.deleteWholeRecords}")
-	boolean notDeleteWholeRecords = true; //v1.7.2
-
-	@SysValue("${bee.osql.donot.allowed.updateWholeRecords}")
-	boolean notUpdateWholeRecords = true; //v1.7.2
+	@SysValue("${bee.osql.naming.translateType}")
+	int naming_translateType = 1;
+	
+	@SysValue("${bee.osql.naming.entity2tableMappingList}")
+	public String naming_entity2tableMappingList;
+	
 
 	@SysValue("${bee.osql.moreTable.columnListWithStar}")
 	boolean moreTable_columnListWithStar;
 
-	@SysValue("${bee.osql.moreTable.select.2tablesWithJoinOnStyle}")
-	boolean moreTable_2tablesWithJoinOnStyle;
-
-	@SysValue("${bee.databaseName}")
-	public String dbName;
-//	private boolean underScoreAndCamelTransform;//closed since v1.7
-
-	@SysValue("${bee.osql.dbNaming.toLowerCaseBefore}")
-	public boolean dbNamingToLowerCaseBefore = true; //default : to LowerCase before
-
-	@SysValue("${bee.osql.naming.translate.type}")
-	int namingTranslateType = 1;
-
-	@SysValue("${bee.osql.sql.keyword.case}")
-	public String sqlKeyWordCase = "";
+	@SysValue("${bee.osql.moreTable.twoTablesWithJoinOnStyle}")
+	boolean moreTable_twoTablesWithJoinOnStyle;
+	
 
 	//----------------------------- selectJson start
 	@SysValue("${bee.osql.selectJson.ignoreNull}")
 	boolean selectJson_ignoreNull = true;
-	@SysValue("${bee.osql.selectJson.timestamp.withMillisecond}")
+	@SysValue("${bee.osql.selectJson.timestampWithMillisecond}")
 	boolean selectJson_timestampWithMillisecond;
 
-	@SysValue("${bee.osql.selectJson.date.withMillisecond}")
+	@SysValue("${bee.osql.selectJson.dateWithMillisecond}")
 	boolean selectJson_dateWithMillisecond;
 
-	@SysValue("${bee.osql.selectJson.time.withMillisecond}")
+	@SysValue("${bee.osql.selectJson.timeWithMillisecond}")
 	boolean selectJson_timeWithMillisecond;
 	//----------------------------- selectJson end
-	
-	@SysValue("${bee.osql.select.returnStringList.nullToEmptyString}")
+
+	@SysValue("${bee.osql.returnStringList.nullToEmptyString}")
 	boolean returnStringList_nullToEmptyString;
 	
+	
+	@SysValue("${bee.db.dbName}")
+	String dbName;
 
 	@SysValue("${" + DbConfigConst.DB_DRIVERNAME + "}")
-	private String driverName;
+	String driverName;
 
 	@SysValue("${" + DbConfigConst.DB_URL + "}")
-	private String url;
+	String url;
 
 	@SysValue("${" + DbConfigConst.DB_USERNAM + "}")
-	private String username;
+	String username;
 
 	@SysValue("${" + DbConfigConst.DB_PWORD + "}")
-	private String password;
+	String password;
 
 	//	@SysValue("${aaa}")
 
-	@SysValue("${bee.osql.name.mapping.entity2table}")
-	public String entity2tableMappingList;
-
-	//	@SysValue("${bee.osql.select.batchSize}") //closed. the name is confused.  v1.9
-	@SysValue("${bee.osql.insert.batchSize}")
-	int insertBatchSize = 10000; //不设置,默认10000
 
 	//----------------------------- cache start
 	@SysValue("${bee.osql.cache.timeout}")
-	int cache_timeout = 10000; //缓存保存时间(毫秒 ms)
+	public int cache_timeout = 10000; //缓存保存时间(毫秒 ms)
 
-	@SysValue("${bee.osql.cache.map.size}")
+	@SysValue("${bee.osql.cache.mapSize}")
 	int cache_mapSize = 1000; //缓存集数据量大小
 
 //	private String cacheType="FIFO";
 
-	@SysValue("${bee.osql.cache.startDeleteCache.rate}")
-	double cache_startDeleteCacheRate = 0.6; //when timeout use
+	@SysValue("${bee.osql.cache.startDeleteRate}")
+	public Double cache_startDeleteRate = 0.6; //when timeout use
 
-	@SysValue("${bee.osql.cache.fullUsed.rate}")
-	double cache_fullUsedRate = 0.8; //when add element in cache use
+	@SysValue("${bee.osql.cache.fullUsedRate}")
+	Double cache_fullUsedRate = 0.8; //when add element in cache use
 
-	@SysValue("${bee.osql.cache.fullClearCache.rate}")
-	double cache_fullClearCacheRate = 0.2; //when add element in cache use
+	@SysValue("${bee.osql.cache.fullClearRate}")
+	Double cache_fullClearRate = 0.2; //when add element in cache use
 
-	@SysValue("${bee.osql.cache.key.useMD5}")
+	@SysValue("${bee.osql.cache.keyUseMD5}")
 	boolean cache_keyUseMD5 = true;
 
 	@SysValue("${bee.osql.cache.nocache}")
-	private boolean nocache; //v1.7.2
+	boolean cache_nocache; //v1.7.2
 
-	@SysValue("${bee.osql.cache.work.resultSet.size}")
+	@SysValue("${bee.osql.cache.workResultSetSize}")
 	int cache_workResultSetSize = 300;
 
 	@SysValue("${bee.osql.cache.never}")
-	String cache_neverCacheTableList;
+	String cache_never;
 
 	@SysValue("${bee.osql.cache.forever}")
-	String cache_foreverCacheTableList;
+	String cache_forever;
 
-	@SysValue("${bee.osql.cache.forever.modifySyn}")
-	String cache_foreverCacheModifySynTableList;
+	@SysValue("${bee.osql.cache.modifySyn}")
+	String cache_modifySyn;
 	//----------------------------- cache end
 
 	//----------------------------- genid  start
@@ -158,49 +162,51 @@ public final class HoneyConfig {
 	@SysValue("${bee.distribution.genid.workerid}")
 	public int genid_workerid = 0;
 
-	@SysValue("${bee.distribution.genid.idGeneratorType}")
-	public int genid_idGeneratorType = 1;
+	@SysValue("${bee.distribution.genid.generatorType}")
+	public int genid_generatorType = 1;
 
 	@SysValue("${bee.distribution.genid.forAllTableLongId}")
 	public boolean genid_forAllTableLongId;
-	@SysValue("${bee.distribution.genid.entityList.includes}")
-	public String genid_entityList_includes;
-	@SysValue("${bee.distribution.genid.entityList.excludes}")
-	public String genid_entityList_excludes;
-
-	@SysValue("${bee.distribution.PearFlowerId.tolerateSecond}")
-	public long pearId_tolerateSecond = 10;
-	@SysValue("${bee.distribution.PearFlowerId.useHalfWorkId}")
-	public boolean pearId_useHalfWorkId;
-	@SysValue("${bee.distribution.PearFlowerId.switchWorkId.timeThreshold}")
-	public long pearId_switchWorkIdTimeThreshold = 120;
-	@SysValue("${bee.distribution.PearFlowerId.randomNum.bound}")
-	public int pearId_randomNumBound = 2; //v1.8.15
+	@SysValue("${bee.distribution.genid.includesEntityList}")
+	public String genid_includesEntityList;
+	@SysValue("${bee.distribution.genid.excludesEntityList}")
+	public String genid_excludesEntityList;
 	//----------------------------- genid  end
+	
+	//----------------------------- genid  pearFlowerId start	
+	@SysValue("${bee.distribution.pearFlowerId.tolerateSecond}")
+	public long pearFlowerId_tolerateSecond = 10;
+	@SysValue("${bee.distribution.pearFlowerId.useHalfWorkId}")
+	public boolean pearFlowerId_useHalfWorkId;
+	@SysValue("${bee.distribution.pearFlowerId.switchWorkIdTimeThreshold}")
+	public long pearFlowerId_switchWorkIdTimeThreshold = 120;
+	@SysValue("${bee.distribution.pearFlowerId.randomNumBound}")
+	public int pearFlowerId_randomNumBound = 2; //v1.8.15
+	//----------------------------- genid  pearFlowerId end
 
 	//----------------------------- multiDs  start
-	@SysValue("${bee.dosql.multi-DS.enable}")
-	public boolean enableMultiDs;
-	@SysValue("${bee.dosql.multi-DS.type}")
-	public int multiDsType; //注意,系统会设初值0
-	@SysValue("${bee.dosql.multi-DS.defalut-DS}")
-	public String multiDsDefalutDS;
-	@SysValue("${bee.dosql.multi-DS.writeDB}")
-	public String multiDs_writeDB; //multiDsType=1
-	@SysValue("${bee.dosql.multi-DS.readDB}")
-	public String multiDs_readDB; //multiDsType=1
-	@SysValue("${bee.dosql.multi-DS.rDB.routeWay}")
-	public int rDbRouteWay; //注意,系统会设初值0  //multiDsType=1
+	@SysValue("${bee.dosql.multiDS.enable}")
+	public boolean multiDS_enable;
+	@SysValue("${bee.dosql.multiDS.type}")
+	public int multiDS_type; //注意,系统会设初值0
+	@SysValue("${bee.dosql.multiDS.defalutDS}")
+	public String multiDS_defalutDS;
+	@SysValue("${bee.dosql.multiDS.writeDB}")
+	public String multiDS_writeDB; //multiDsType=1
+	@SysValue("${bee.dosql.multiDS.readDB}")
+	public String multiDS_readDB; //multiDsType=1
+	@SysValue("${bee.dosql.multiDS.rDbRouteWay}")
+	public int multiDS_rDbRouteWay; //注意,系统会设初值0  //multiDsType=1
 
-	@SysValue("${bee.dosql.multi-DS.match.entityClassPath}")
-	public String multiDs_matchEntityClassPath = ""; //multiDsType=2
+	@SysValue("${bee.dosql.multiDS.matchEntityClassPath}")
+	public String multiDS_matchEntityClassPath = ""; //multiDsType=2
 
-	@SysValue("${bee.dosql.multi-DS.match.table}")
-	public String multiDs_matchTable = ""; //multiDsType=2
+	@SysValue("${bee.dosql.multiDS.matchTable}")
+	public String multiDS_matchTable = ""; //multiDsType=2
 
 	//	支持同时使用多种类型数据库的数据源.support different type muli-Ds at same time.
-	@SysValue("${bee.dosql.multi-DS.different.dbType}")
-	public boolean multiDs_differentDbType;
+	@SysValue("${bee.dosql.multiDS.differentDbType}")
+	public boolean multiDS_differentDbType;
 	//----------------------------- multiDs  end
 
 	public String getDbName() {
@@ -278,10 +284,6 @@ public final class HoneyConfig {
 
 	public String getPassword() {
 		return password;
-	}
-
-	public boolean isNocache() {
-		return nocache;
 	}
 
 }
