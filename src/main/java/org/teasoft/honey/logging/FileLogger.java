@@ -193,12 +193,13 @@ public class FileLogger implements Log{
 
 		if (Path.getFullPath() == null || "".equals(Path.getFullPath())) { //v1.8.15
 			
-			SimpleDateFormat df=new SimpleDateFormat("yyyy-MM-dd HH.mm.ss.SS");
+//			SimpleDateFormat df=new SimpleDateFormat("yyyy-MM-dd HH.mm.ss.SS");
+			SimpleDateFormat df=new SimpleDateFormat("yyyy-MM-dd");
 			String datetime=df.format(System.currentTimeMillis());
 			
 			String fileSeparator=File.separator;
 			String path=System.getProperty("user.dir") + fileSeparator + "src" + fileSeparator + "main" + fileSeparator
-					+ "resources" + fileSeparator + "log" + fileSeparator + "{datatime}.txt".replace("{datatime}", datetime);
+					+ "resources" + fileSeparator + "log" + fileSeparator + "noname-{datatime}.txt".replace("{datatime}", datetime);
 			System.err.println("[Bee] [WARN] Set the path for FileLogger automatically:  " + path);
 			
 			//set the path and file name of log file

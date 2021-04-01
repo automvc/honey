@@ -31,6 +31,10 @@ public class LoggerFactory {
 	private static boolean isNoArgInConstructor;
 	
 	static {
+		init();
+	}
+	
+	private static void init() {
         
 		String loggerType = HoneyConfig.getHoneyConfig().loggerType;
 		if (loggerType != null && !"".equals(loggerType.trim())) {
