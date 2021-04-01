@@ -9,7 +9,9 @@ import org.teasoft.honey.osql.core.HoneyUtil;
  */
 public class OracleFeature implements DbFeature {
 	
-	private boolean isUpper=HoneyUtil.isSqlKeyWordUpper();
+	private boolean isUpper() {
+		return HoneyUtil.isSqlKeyWordUpper();
+	}
 
 	@Override
 	public String toPageSql(String sql, int start, int size) {
@@ -34,27 +36,27 @@ public class OracleFeature implements DbFeature {
 
 		StringBuilder pageSql = new StringBuilder(sql.length() + 130);
 		if (isStartSize) {
-			if (isUpper) pageSql.append("SELECT * FROM ( SELECT TABLE_.*, ROWNUM RN_ FROM ( ");
-			else         pageSql.append("select * from ( select table_.*, rownum rn_ from ( ");
+			if (isUpper()) pageSql.append("SELECT * FROM ( SELECT TABLE_.*, ROWNUM RN_ FROM ( ");
+			else           pageSql.append("select * from ( select table_.*, rownum rn_ from ( ");
 		} else {
-			if (isUpper) pageSql.append("SELECT * FROM ( ");
-			else         pageSql.append("select * from ( ");
+			if (isUpper()) pageSql.append("SELECT * FROM ( ");
+			else           pageSql.append("select * from ( ");
 		}
 		
 		pageSql.append(sql);
 		
 		if (HoneyUtil.isRegPagePlaceholder()) {
 			if (isStartSize) {
-				if (isUpper) pageSql.append(" ) TABLE_ WHERE ROWNUM < ?) WHERE RN_ >= ?");
-				else         pageSql.append(" ) table_ where rownum < ?) where rn_ >= ?");
+				if (isUpper()) pageSql.append(" ) TABLE_ WHERE ROWNUM < ?) WHERE RN_ >= ?");
+				else           pageSql.append(" ) table_ where rownum < ?) where rn_ >= ?");
 				int array[] = new int[2];
 				array[0] = start + size;
 				array[1] = start;
 				HoneyUtil.regPageNumArray(array);
 
 			} else {
-				if (isUpper) pageSql.append(" ) WHERE ROWNUM <= ?");
-				else         pageSql.append(" ) where rownum <= ?");
+				if (isUpper()) pageSql.append(" ) WHERE ROWNUM <= ?");
+				else           pageSql.append(" ) where rownum <= ?");
 				int array[] = new int[1];
 				array[0] = size;
 				HoneyUtil.regPageNumArray(array);
@@ -62,11 +64,11 @@ public class OracleFeature implements DbFeature {
 			
 		} else {
 			if (isStartSize) {
-				if (isUpper) pageSql.append(" ) TABLE_ WHERE ROWNUM < " + (start + size) + ") WHERE RN_ >= " + start);
-				else         pageSql.append(" ) table_ where rownum < " + (start + size) + ") where rn_ >= " + start);
+				if (isUpper()) pageSql.append(" ) TABLE_ WHERE ROWNUM < " + (start + size) + ") WHERE RN_ >= " + start);
+				else           pageSql.append(" ) table_ where rownum < " + (start + size) + ") where rn_ >= " + start);
 			} else {
-				if (isUpper) pageSql.append(" ) WHERE ROWNUM <= " + size);
-				else         pageSql.append(" ) where rownum <= " + size);
+				if (isUpper()) pageSql.append(" ) WHERE ROWNUM <= " + size);
+				else           pageSql.append(" ) where rownum <= " + size);
 			}
 		}
 
