@@ -43,12 +43,12 @@ public class OnlyMulitiDB implements Route {
 		   
 			//仅分库,需要配置默认DB
 			if( defaultDs==null || "".equals(defaultDs.trim()) ){
-				throw new NoConfigException("Error: bee.dosql.multi-DS.defalut-DS can not null or empty when bee.dosql.multi-DS.type=2! ");
+				throw new NoConfigException("Error: bee.dosql.multiDS.defalutDS can not null or empty when bee.dosql.multiDS.type=2! ");
 			}
 			matchEntityClassPath = HoneyConfig.getHoneyConfig().multiDS_matchEntityClassPath;
 			matchTable = HoneyConfig.getHoneyConfig().multiDS_matchTable;
 			if( (matchEntityClassPath==null || "".equals(matchEntityClassPath.trim()))  &&  (matchTable==null || "".equals(matchTable.trim())) ){
-				throw new NoConfigException("Error: bee.dosql.multi-DS.match.entityClassPath and bee.dosql.multi-DS.match.table can not null or empty at same time when bee.dosql.multi-DS.type=2! ");
+				throw new NoConfigException("Error: bee.dosql.multiDS.matchEntityClassPath and bee.dosql.multiDS.matchTable can not null or empty at same time when bee.dosql.multi-DS.type=2! ");
 			}
 
 			parseListToMap(matchEntityClassPath, entityClassPathToDs, true);
@@ -84,7 +84,7 @@ public class OnlyMulitiDB implements Route {
 		String tables = routeStruct.getTableNames();
 		Class clazz = routeStruct.getEntityClass();
 		if (clazz == null) {
-			//用map传递查询信息,没有Javabean,则class=null.但可以通过bee.dosql.multi-DS.match.table指定数据源.
+			//用map传递查询信息,没有Javabean,则class=null.但可以通过bee.dosql.multiDS.matchTable指定数据源.
 			ds=getDsViaTables(tables);
 			if(ds!=null) return ds;
 			
