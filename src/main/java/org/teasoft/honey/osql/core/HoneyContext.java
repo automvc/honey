@@ -268,8 +268,14 @@ public final class HoneyContext {
 	}
 
 	static void endSameConnection() {
-		OneTimeParameter.setTrueForKey("_SYS_Bee_SAME_CONN_END");
-		checkClose(null, HoneyContext.getCurrentConnection());
+		if (OneTimeParameter.isTrue("_SYS_Bee_SAME_CONN_BEGIN")) {
+			Logger.warn("Do not get the new Connection in the SameConnection.");
+		} else if (!StringConst.tRue.equals(getSameConnctionDoing())) {
+			Logger.warn("Calling the endSameConnection(), but did not set the beginSameConnection()");
+		} else {
+			OneTimeParameter.setTrueForKey("_SYS_Bee_SAME_CONN_END");
+			checkClose(null, HoneyContext.getCurrentConnection());
+		}
 		removeCurrentConnection();
 	}
 
@@ -331,18 +337,37 @@ public final class HoneyContext {
 	static Connection getConn() throws SQLException {
 		Connection conn = null;
 
-		conn = HoneyContext.getCurrentConnection(); //获取已开启事务的连接
+		conn = HoneyContext.getCurrentConnection(); //获取已开启事务或同一Connection的连接
 		if (conn == null) {
 			conn = SessionFactory.getConnection(); //不开启事务时
 
 			//如果设置了同一Connection
 			if (OneTimeParameter.isTrue("_SYS_Bee_SAME_CONN_BEGIN")) {
+//                System.out.println("=====================设置了同一Connection===================");
 				HoneyContext.setCurrentConnection(conn); //存入上下文
 				setSameConnctionDoing();
 			}
 		}
 
 		return conn;
+	}
+	
+	//when have exception, must close the conn.
+	public static void closeConn(Connection conn) {
+		try {
+			if (conn != null) conn.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw ExceptionHelper.convert(e);
+		} finally {
+			removeCurrentConnection(); //事务结束时要删除;在事务中间报异常也要删除;同一conn也要删除
+//			removeSameConnctionDoing(); //同一conn
+			boolean enableMultiDs = HoneyConfig.getHoneyConfig().multiDS_enable;
+			int multiDsType = HoneyConfig.getHoneyConfig().multiDS_type;
+			if (enableMultiDs && multiDsType == 2) {//仅分库,有多个数据源时
+				HoneyContext.removeCurrentRoute();
+			}
+		}
 	}
 
 	public static void checkClose(Statement stmt, Connection conn) {
@@ -365,6 +390,7 @@ public final class HoneyContext {
 				throw ExceptionHelper.convert(e);
 			}
 		}
+		if(conn!=null) {
 		try {
 			//			如果设置了同一Connection
 			//			并且调用了endSameConnection才关闭   
@@ -373,13 +399,14 @@ public final class HoneyContext {
 					removeSameConnctionDoing();
 					if (conn != null) conn.close();
 				}
-				//				else { do not close}
+				//else { do not close}
 			} else {
 				if (conn != null && conn.getAutoCommit()) {//自动提交时才关闭.如果开启事务,则由事务负责
 					conn.close();
 				}
 			}
 		} catch (SQLException e) {
+			Logger.debug(e.getMessage());
 			throw ExceptionHelper.convert(e);
 		} finally {
 			boolean enableMultiDs = HoneyConfig.getHoneyConfig().multiDS_enable;
@@ -387,6 +414,7 @@ public final class HoneyContext {
 			if (enableMultiDs && multiDsType == 2) {//仅分库,有多个数据源时
 				HoneyContext.removeCurrentRoute();
 			}
+		}
 		}
 	}
 

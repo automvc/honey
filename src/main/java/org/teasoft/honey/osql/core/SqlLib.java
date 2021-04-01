@@ -146,6 +146,7 @@ public class SqlLib implements BeeSql {
 		T targetObj = null;
 		List<T> rsList = null;
 		Map<String,Field> map=null;
+		boolean hasException=false;
 		try {
 			conn = getConn();
 			String exe_sql=HoneyUtil.deleteLastSemicolon(sql);
@@ -195,14 +196,22 @@ public class SqlLib implements BeeSql {
 			addInCache(sql, rsList,"List<T>",SuidType.SELECT,rsList.size());
 			
 		} catch (SQLException e) {
+			hasException=true;
 			throw ExceptionHelper.convert(e);
 		} catch (IllegalAccessException e) {
+			hasException=true;
 			throw ExceptionHelper.convert(e);
 		} catch (InstantiationException e) {
+			hasException=true;
 			throw ExceptionHelper.convert(e);
 		} finally {
 			clearContext(sql);
-			checkClose(rs,pst, conn);
+			if (hasException) {
+				checkClose(rs, pst, null);
+				closeConn(conn);
+			} else {
+				checkClose(rs, pst, conn);
+			}
 			entity = null;
 			targetObj = null;
 			map=null;
@@ -235,6 +244,7 @@ public class SqlLib implements BeeSql {
 		Connection conn = null;
 		PreparedStatement pst = null;
 		ResultSet rs = null;
+		boolean hasException = false;
 		try {
 			conn = getConn();
 			String exe_sql=HoneyUtil.deleteLastSemicolon(sql);
@@ -263,10 +273,16 @@ public class SqlLib implements BeeSql {
 			addInCache(sql, result,"String",SuidType.SELECT,1);
 
 		} catch (SQLException e) {
+			hasException=true;
 			throw ExceptionHelper.convert(e);
 		} finally {
 			clearContext(sql);
-			checkClose(rs, pst, conn);
+			if (hasException) {
+				checkClose(rs, pst, null);
+				closeConn(conn);
+			} else {
+				checkClose(rs, pst, conn);
+			}
 		}
 
 		return result;
@@ -295,7 +311,7 @@ public class SqlLib implements BeeSql {
 		Connection conn = null;
 		PreparedStatement pst = null;
 		ResultSet rs = null;
-
+		boolean hasException = false;
 		try {
 			conn = getConn();
 			String exe_sql=HoneyUtil.deleteLastSemicolon(sql);
@@ -323,10 +339,16 @@ public class SqlLib implements BeeSql {
 			addInCache(sql, list,"List<String[]>",SuidType.SELECT,list.size());
 			
 		} catch (SQLException e) {
+			hasException=true;
 			throw ExceptionHelper.convert(e);
 		} finally {
 			clearContext(sql);
-			checkClose(pst, conn);
+			if (hasException) {
+				checkClose(rs, pst, null);
+				closeConn(conn);
+			} else {
+				checkClose(rs, pst, conn);
+			}
 		}
 
 		return list;
@@ -355,7 +377,7 @@ public class SqlLib implements BeeSql {
 		Connection conn = null;
 		PreparedStatement pst = null;
 		ResultSet rs = null;
-
+		boolean hasException = false;
 		try {
 			conn = getConn();
 			String exe_sql=HoneyUtil.deleteLastSemicolon(sql);
@@ -370,10 +392,16 @@ public class SqlLib implements BeeSql {
 			addInCache(sql, list,"List<Map<String,Object>>",SuidType.SELECT,list.size());
 			
 		} catch (SQLException e) {
+			hasException=true;
 			throw ExceptionHelper.convert(e);
 		} finally {
 			clearContext(sql);
-			checkClose(pst, conn);
+			if (hasException) {
+				checkClose(rs, pst, null);
+				closeConn(conn);
+			} else {
+				checkClose(rs, pst, conn);
+			}
 		}
 
 		return list;
@@ -393,6 +421,7 @@ public class SqlLib implements BeeSql {
 		int num = 0;
 		Connection conn = null;
 		PreparedStatement pst = null;
+		boolean hasException = false;
 		try {
 			conn = getConn();
 			String exe_sql=HoneyUtil.deleteLastSemicolon(sql);
@@ -403,15 +432,19 @@ public class SqlLib implements BeeSql {
 			num = pst.executeUpdate(); //该语句必须是一个 SQL 数据操作语言（Data Manipulation Language，DML）语句
 										//，比如 INSERT、UPDATE 或 DELETE 语句；或者是无返回内容的 SQL 语句，比如 DDL 语句。
 		} catch (SQLException e) {
-			clearContext(sql);
+			hasException=true;
 			throw ExceptionHelper.convert(e);
 		} finally {
-			checkClose(pst, conn);
+			clearInCache(sql, "int",SuidType.MODIFY,num); //has clearContext(sql)
+			if (hasException) {
+				checkClose(pst, null);
+				closeConn(conn);
+			} else {
+				checkClose(pst, conn);
+			}
 		}
 		
 		Logger.logSQL(" | <--  Affected rows: ", num+"");
-		
-		clearInCache(sql, "int",SuidType.MODIFY,num);
 		
 		return num;
 	}
@@ -438,7 +471,7 @@ public class SqlLib implements BeeSql {
 		Connection conn = null;
 		PreparedStatement pst = null;
 		ResultSet rs = null;
-
+		boolean hasException = false;
 		try {
 			conn = getConn();
 			String exe_sql=HoneyUtil.deleteLastSemicolon(sql);
@@ -455,7 +488,12 @@ public class SqlLib implements BeeSql {
 			throw ExceptionHelper.convert(e);
 		} finally {
 			clearContext(sql);
-			checkClose(pst, conn);
+			if (hasException) {
+				checkClose(rs, pst, null);
+				closeConn(conn);
+			} else {
+				checkClose(rs, pst, conn);
+			}
 		}
 
 		return json.toString();
@@ -484,8 +522,9 @@ public class SqlLib implements BeeSql {
 		
 		Connection conn = null;
 		PreparedStatement pst = null;
-		
 		boolean oldAutoCommit=false;
+		boolean hasException = false;
+		
 		try {
 			conn = getConn();
 			oldAutoCommit = conn.getAutoCommit();
@@ -510,6 +549,7 @@ public class SqlLib implements BeeSql {
 		}
 //		conn.setAutoCommit(oldAutoCommit);
 		} catch (SQLException e) {
+			hasException=true;
 			if (isConstraint(e)) {
 				Logger.error("Please confirm whether it is Primary Key violation !!");
 				clearContext(sql[0],batchSize,len);
@@ -517,18 +557,26 @@ public class SqlLib implements BeeSql {
 				Logger.error(e.getMessage());
 				return total;
 			}
+			Logger.debug(e.getMessage());
 			throw ExceptionHelper.convert(e);
 		} finally {
 //			bug :Lock wait timeout exceeded; 
 //			如果分批处理时有异常,如主键冲突,则又没有提交,就关不了连接.
 //			所以需要先将提交改回原来的状态.
-//			要是原来就是自动提交,报异常,还是不能关
+//			要是原来就是自动提交,报异常,  也要关
 			try {
 				if (conn != null) conn.setAutoCommit(oldAutoCommit);
-			} catch (Exception e2) {
+			} catch (Exception e3) {
 				//ignore
+				Logger.debug(e3.getMessage());
 			}
-			checkClose(pst, conn);   
+			if (hasException) {
+				checkClose(pst, null);
+				closeConn(conn);
+			} else {
+				checkClose(pst, conn);
+			}
+				
 			//更改操作需要清除缓存
 			clearInCache(sql[0], "int[]",SuidType.INSERT,total);
 		}
@@ -598,6 +646,7 @@ public class SqlLib implements BeeSql {
 		Connection conn = null;
 		PreparedStatement pst = null;
 		boolean oldAutoCommit=false;
+		boolean hasException = false;
 		try {
 			conn = getConn();
 			oldAutoCommit = conn.getAutoCommit();
@@ -629,25 +678,34 @@ public class SqlLib implements BeeSql {
 			}
 //			conn.setAutoCommit(oldAutoCommit);
 		} catch (SQLException e) {
+			hasException=true;
 			if (isConstraint(e)) {
 				Logger.error("Please confirm whether it is Primary Key violation !!");
-//				e.printStackTrace();
 				clearContextForMysql(sql[0],batchSize,len);
-				Logger.error(e.getMessage());
+				
 				return total;
 			}
+			Logger.debug(e.getMessage());
 			throw ExceptionHelper.convert(e);
 		} finally {
 //			bug :Lock wait timeout exceeded; 
 //			如果分批处理时有异常,如主键冲突,则又没有提交,就关不了连接.
 //			所以需要先将提交改回原来的状态.
-//			要是原来就是自动提交,报异常,还是不能关
+//			要是原来就是自动提交,报异常, 也要关
 			try {
 				if (conn != null) conn.setAutoCommit(oldAutoCommit);
 			} catch (Exception e2) {
 				//ignore
+				Logger.debug(e2.getMessage());
 			}
-			checkClose(pst, conn);
+			
+			if (hasException) {
+				checkClose(pst, null);
+				closeConn(conn);
+			} else {
+				checkClose(pst, conn);
+			}
+			
 			//更改操作需要清除缓存
 			clearInCache(sql[0], "int[]", SuidType.INSERT,total);
 		}
@@ -679,7 +737,7 @@ public class SqlLib implements BeeSql {
 				|| e.getMessage().startsWith("Duplicate entry ") //mysql  
 				|| (e instanceof SQLIntegrityConstraintViolationException) 
 				|| e.getMessage().contains("ORA-00001:")    //Oracle 
-				|| (e instanceof BatchUpdateException) //PostgreSQL
+				|| (e instanceof BatchUpdateException) //PostgreSQL,...
 				|| e.getMessage().contains("duplicate key") || e.getMessage().contains("DUPLICATE KEY")  //PostgreSQL
 				|| e.getMessage().contains("primary key violation") || "org.h2.jdbc.JdbcBatchUpdateException".equals(fullClassName) //h2
 				|| e.getMessage().contains("SQLITE_CONSTRAINT_PRIMARYKEY") || e.getMessage().contains("PRIMARY KEY constraint") //SQLite
@@ -758,6 +816,10 @@ public class SqlLib implements BeeSql {
 		HoneyContext.checkClose(rs, stmt, conn);
 	}
 	
+	protected void closeConn(Connection conn) {
+		HoneyContext.closeConn(conn);
+	}
+	
 	@Override
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public <T> List<T> moreTableSelect(String sql, T entity) {
@@ -783,6 +845,7 @@ public class SqlLib implements BeeSql {
 		ResultSet rs=null;
 		T targetObj=null;
 		List<T> rsList=null;
+		boolean hasException = false;
 		try {
 			conn = getConn();
 			String exe_sql=HoneyUtil.deleteLastSemicolon(sql);
@@ -947,14 +1010,22 @@ public class SqlLib implements BeeSql {
 			addInCache(sql, rsList,"List<T>",SuidType.SELECT,rsList.size());
 			
 		} catch (SQLException e) {
+			hasException=true;
 			throw ExceptionHelper.convert(e);
 		} catch (IllegalAccessException e) {
+			hasException=true;
 			throw ExceptionHelper.convert(e);
 		} catch (InstantiationException e) {
+			hasException=true;
 			throw ExceptionHelper.convert(e);
 		} finally {
 			clearContext(sql);
-			checkClose(rs, pst, conn);
+			if (hasException) {
+				checkClose(rs, pst, null);
+				closeConn(conn);
+			} else {
+				checkClose(rs, pst, conn);
+			}
 		}
 
 		entity = null;
