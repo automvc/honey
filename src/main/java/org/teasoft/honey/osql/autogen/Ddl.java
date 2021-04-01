@@ -27,9 +27,14 @@ import org.teasoft.honey.osql.name.NameUtil;
  */
 public class Ddl {
 
-	private static Map<String, String> java2DbType = Java2DbType.getJava2DbType(HoneyContext.getDbDialect());
+//	private static Map<String, String> java2DbType = Java2DbType.getJava2DbType(HoneyContext.getDbDialect());
 	private static String LINE_SEPARATOR = System.getProperty("line.separator"); // 换行符
 	private static PreparedSql preparedSql = BeeFactory.getHoneyFactory().getPreparedSql();
+	
+	private static Map<String, String> getJava2DbType(){
+		return Java2DbType.getJava2DbType(HoneyContext.getDbDialect());
+	}
+			
 
 	public static <T> boolean createTable(T entity, boolean isDropExistTable) {
 		if (isDropExistTable) {
@@ -126,7 +131,7 @@ public class Ddl {
 				continue;
 			}
 			sqlBuffer.append(_toColumnName(fields[i].getName())).append("  ");
-			sqlBuffer.append(java2DbType.get(fields[i].getType().getName()));
+			sqlBuffer.append(getJava2DbType().get(fields[i].getType().getName()));
 			if ("id".equalsIgnoreCase(fields[i].getName())) sqlBuffer.append(" PRIMARY KEY");
 			if (i != fields.length - 1)
 				sqlBuffer.append(",  ");
@@ -156,9 +161,9 @@ public class Ddl {
 			if ("id".equalsIgnoreCase(fields[i].getName()))
 				sqlBuffer.append(" INTEGER PRIMARY KEY NOT NULL");
 			else {
-				sqlBuffer.append(java2DbType.get(fields[i].getType().getName()));
+				sqlBuffer.append(getJava2DbType().get(fields[i].getType().getName()));
 
-				String type = java2DbType.get(fields[i].getType().getName());
+				String type = getJava2DbType().get(fields[i].getType().getName());
 				if ("timestamp".equalsIgnoreCase(type) || "datetime".equalsIgnoreCase(type)) {
 					sqlBuffer.append(" DEFAULT CURRENT_TIMESTAMP");
 				} else {
@@ -193,9 +198,9 @@ public class Ddl {
 			if ("id".equalsIgnoreCase(fields[i].getName()))
 				sqlBuffer.append("bigint(20) PRIMARY KEY NOT NULL AUTO_INCREMENT");
 			else {
-				sqlBuffer.append(java2DbType.get(fields[i].getType().getName()));
+				sqlBuffer.append(getJava2DbType().get(fields[i].getType().getName()));
 
-				String type = java2DbType.get(fields[i].getType().getName());
+				String type = getJava2DbType().get(fields[i].getType().getName());
 				if ("timestamp".equalsIgnoreCase(type) || "datetime".equalsIgnoreCase(type)) {
 					sqlBuffer.append(" DEFAULT CURRENT_TIMESTAMP");
 				} else {
@@ -231,9 +236,9 @@ public class Ddl {
 			if ("id".equalsIgnoreCase(fields[i].getName()))
 				sqlBuffer.append("bigint PRIMARY KEY NOT NULL");
 			else {
-				sqlBuffer.append(java2DbType.get(fields[i].getType().getName()));
+				sqlBuffer.append(getJava2DbType().get(fields[i].getType().getName()));
 
-				String type = java2DbType.get(fields[i].getType().getName());
+				String type = getJava2DbType().get(fields[i].getType().getName());
 				if ("timestamp".equalsIgnoreCase(type) || "datetime".equalsIgnoreCase(type)) {
 					sqlBuffer.append(" DEFAULT CURRENT_TIMESTAMP");
 				} else {
@@ -269,9 +274,9 @@ public class Ddl {
 			if ("id".equalsIgnoreCase(fields[i].getName()))
 				sqlBuffer.append("bigserial NOT NULL");
 			else {
-				sqlBuffer.append(java2DbType.get(fields[i].getType().getName()));
+				sqlBuffer.append(getJava2DbType().get(fields[i].getType().getName()));
 
-				String type = java2DbType.get(fields[i].getType().getName());
+				String type = getJava2DbType().get(fields[i].getType().getName());
 				if ("timestamp".equalsIgnoreCase(type) || "datetime".equalsIgnoreCase(type)) {
 					sqlBuffer.append(" DEFAULT CURRENT_TIMESTAMP");
 				} else {
@@ -308,9 +313,9 @@ public class Ddl {
 			if ("id".equalsIgnoreCase(fields[i].getName()))
 				sqlBuffer.append("bigint PRIMARY KEY NOT NULL");
 			else {
-				//				sqlBuffer.append(java2DbType.get(fields[i].getType().getName()));
+				//				sqlBuffer.append(getJava2DbType().get(fields[i].getType().getName()));
 
-				String type = java2DbType.get(fields[i].getType().getName());
+				String type = getJava2DbType().get(fields[i].getType().getName());
 				if (("timestamp".equalsIgnoreCase(type))) {
 					if (!hasCurrentTime) {
 						sqlBuffer.append(type);

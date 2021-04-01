@@ -221,20 +221,30 @@ public final class HoneyConfig {
 
 	public void setDbName(String dbName) {
 		this.dbName = dbName;
-		Logger.info("[Bee] ========= reset the dbName in HoneyConfig is :" + HoneyConfig.getHoneyConfig().dbName);
-		BeeFactory.getHoneyFactory().setDbFeature(BeeFactory.getHoneyFactory()._getDbDialectFeature());
+		Logger.info("[Bee] ========= reset the dbName in HoneyConfig is :" + dbName);
+//		BeeFactory.getHoneyFactory().setDbFeature(BeeFactory.getHoneyFactory()._getDbDialectFeature());  //循环调用
+		BeeFactory.getHoneyFactory().setDbFeature(null);
 	}
 	
 	private static boolean alreadyPrintDbName = false;
+	private static boolean changeDataSource = false;
 
 	private static void checkAndInitDbName() {
-		if (HoneyConfig.getHoneyConfig().dbName == null) {
+		if (HoneyConfig.getHoneyConfig().dbName == null || changeDataSource) {
+
 			Connection conn = null;
 			try {
 				conn = SessionFactory.getConnection();
 				if (conn != null) {
-					HoneyConfig.getHoneyConfig().dbName = conn.getMetaData().getDatabaseProductName();
-					Logger.info("[Bee] ========= get the dbName from the Connection is :" + HoneyConfig.getHoneyConfig().dbName);
+					String newDbName=conn.getMetaData().getDatabaseProductName();
+					if (changeDataSource) {
+						HoneyConfig.getHoneyConfig().setDbName(newDbName);
+					} else {
+						HoneyConfig.getHoneyConfig().dbName = newDbName;
+					}
+					
+					String logMsg="[Bee] ========= get the dbName from the Connection is :" + HoneyConfig.getHoneyConfig().dbName;
+					Logger.info(logMsg);
 					alreadyPrintDbName = true;
 				}
 			} catch (Exception e) {
@@ -245,6 +255,12 @@ public final class HoneyConfig {
 				} catch (Exception e2) {
 					Logger.error(e2.getMessage());
 				}
+				
+				if(alreadyPrintDbName && changeDataSource) { //auto refresh the type map config
+					changeDataSource=false;
+					HoneyUtil.refreshTypeMapConfig();
+				}
+				changeDataSource=false;
 			}
 		} else {
 			if (!alreadyPrintDbName) {
@@ -259,6 +275,7 @@ public final class HoneyConfig {
 	}
 
 	public void setUrl(String url) {
+		changeDataSource=true;
 		this.url = url;
 	}
 

@@ -19,7 +19,6 @@ import org.teasoft.bee.osql.exception.BeeInstantiationException;
  */
 public class ExceptionHelper {
 
-	//convertSQLException
 	public static BeeSQLException convert(SQLException e) {
 		return new BeeSQLException(e.getMessage(),e.getSQLState(), e.getErrorCode(), e);
 	}

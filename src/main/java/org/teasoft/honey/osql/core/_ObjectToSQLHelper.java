@@ -131,6 +131,8 @@ final class _ObjectToSQLHelper {
 					columnNames = selectField + "," + fun;
 				}else if (selectField == null && StringUtils.isNotEmpty(fun)) {
 					columnNames = fun;
+				}else {
+					isFun=false;
 				}
 			}
 			

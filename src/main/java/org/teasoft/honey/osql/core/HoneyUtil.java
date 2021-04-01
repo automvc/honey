@@ -46,6 +46,14 @@ public final class HoneyUtil {
 	private static PropertiesReader jdbcTypeCustomProp_specificalDB = null;
 
 	static {
+		initTypeMapConfig();
+	}
+
+	static void refreshTypeMapConfig() {
+		initTypeMapConfig();
+	}
+	
+	private static void initTypeMapConfig() {
 		String proFileName = "/jdbcTypeToFieldType-{DbName}.properties";
 		
 		initJdbcTypeMap();

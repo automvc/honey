@@ -63,8 +63,8 @@ public class BeeFactory extends BeeAbstractFactory {
 		for (Map.Entry<String, DataSource> entry : dsMap.entrySet()) {
 			dsName2DbName.put(entry.getKey(), getDbName(entry.getValue()));
 		}
-		Logger.info("Parse DataSourceMap: dataSource name to database name , result: "+dsName2DbName);
 		HoneyContext.setDsName2DbName(dsName2DbName);
+		Logger.info("Parse DataSourceMap: dataSource name to database name , result: "+dsName2DbName);
 	}
 	
 	private String getDbName(DataSource ds) {

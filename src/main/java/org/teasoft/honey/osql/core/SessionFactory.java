@@ -10,6 +10,7 @@ import org.teasoft.bee.osql.exception.NoConfigException;
 import org.teasoft.bee.osql.transaction.Transaction;
 import org.teasoft.honey.osql.constant.DbConfigConst;
 import org.teasoft.honey.osql.transaction.JdbcTransaction;
+import org.teasoft.honey.util.StringUtils;
 
 /**
  * @author Kingstar
@@ -44,7 +45,8 @@ public final class SessionFactory {
 				conn = getOriginalConn();
 			}
 		} catch (SQLException e) {
-//			e.printStackTrace();
+			Logger.debug(e.getMessage());
+			e.printStackTrace();
 			throw ExceptionHelper.convert(e);
 		} catch (ClassNotFoundException e) {
 			Logger.error("Can not find the Database driver!  " + e.getMessage());
@@ -95,9 +97,9 @@ public final class SessionFactory {
 			}
 		}
 		Connection conn = null;
-		if (driverName != null && !"".equals(driverName.trim())) Class.forName(driverName);  //some db,no need set the driverName //v1.8.15
+		if (StringUtils.isNotBlank(driverName)) Class.forName(driverName);  //some db,no need set the driverName //v1.8.15
 
-		if (username != null && !"".equals(username.trim()) && password != null)
+		if (StringUtils.isNotBlank(username) && password != null)
 			conn = DriverManager.getConnection(url, username, password);
 		else
 			conn = DriverManager.getConnection(url);  //v1.8.15
