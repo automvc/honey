@@ -42,7 +42,7 @@ public class RwDs implements Route{
 		String rDB=HoneyConfig.getHoneyConfig().multiDS_readDB;
 		//要判断从配置文件拿来的信息不能为空。
 		if( (wDB==null || "".equals(wDB.trim()))  ||  (rDB==null || "".equals(rDB.trim()))){
-			throw new NoConfigException("Error: bee.dosql.multi-DS.writeDB and bee.dosql.multi-DS.readDB can not null or empty when bee.dosql.multi-DS.type=1! ");
+			throw new NoConfigException("Error: bee.dosql.multiDS.writeDB and bee.dosql.multiDS.readDB can not null or empty when bee.dosql.multiDS.type=1! ");
 		}
 		
 		setWriteDs(wDB);  
