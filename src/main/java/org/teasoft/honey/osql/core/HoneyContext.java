@@ -268,13 +268,23 @@ public final class HoneyContext {
 	}
 
 	static void endSameConnection() {
-		if (OneTimeParameter.isTrue("_SYS_Bee_SAME_CONN_BEGIN")) {
-			Logger.warn("Do not get the new Connection in the SameConnection.");
+		
+		if (OneTimeParameter.isTrue("_SYS_Bee_SAME_CONN_BEGIN")) { //all get from cache.
+			Logger.warn("Do not get the new Connection in the SameConnection.Maybe all the results get from cache! ");
 		} else if (!StringConst.tRue.equals(getSameConnctionDoing())) {
-			Logger.warn("Calling the endSameConnection(), but did not set the beginSameConnection()");
-		} else {
+			if (OneTimeParameter.isTrue("_SYS_Bee_SAME_CONN_EXCEPTION")) {//exception,   //异常时,会删除上下文连接 
+//				next select will get every conn like normal case.
+//				若报异常后到调用endSameConnection()之时, 1)没有新获取连接,则直接到这个方法;  不用特别处理
+//				2)有新的连接,用完后,正常关闭,到这里,也是这个提示.
+				Logger.warn("Do not use same Connection, because have exception in between the begin and end SameConnection !");
+			} else { //miss beginSameConnection          
+				Logger.warn("Calling the endSameConnection(), but miss the beginSameConnection()");
+			}
+		}else if (StringConst.tRue.equals(getSameConnctionDoing())) { // 正常流程
 			OneTimeParameter.setTrueForKey("_SYS_Bee_SAME_CONN_END");
 			checkClose(null, HoneyContext.getCurrentConnection());
+		}else {
+			
 		}
 		removeCurrentConnection();
 	}
@@ -352,8 +362,8 @@ public final class HoneyContext {
 		return conn;
 	}
 	
-	//when have exception, must close the conn.
-	public static void closeConn(Connection conn) {
+	//For exception case. when have exception, must close the conn.
+	static void closeConn(Connection conn) {
 		try {
 			if (conn != null) conn.close();
 		} catch (SQLException e) {
@@ -361,7 +371,10 @@ public final class HoneyContext {
 			throw ExceptionHelper.convert(e);
 		} finally {
 			removeCurrentConnection(); //事务结束时要删除;在事务中间报异常也要删除;同一conn也要删除
-//			removeSameConnctionDoing(); //同一conn
+			if (StringConst.tRue.equals(getSameConnctionDoing())) {
+				removeSameConnctionDoing(); //同一conn
+				OneTimeParameter.setTrueForKey("_SYS_Bee_SAME_CONN_EXCEPTION");
+			}
 			boolean enableMultiDs = HoneyConfig.getHoneyConfig().multiDS_enable;
 			int multiDsType = HoneyConfig.getHoneyConfig().multiDS_type;
 			if (enableMultiDs && multiDsType == 2) {//仅分库,有多个数据源时

@@ -137,6 +137,9 @@ public class ObjSQL implements Suid {
 	@Override
 	public void beginSameConnection() {
 		OneTimeParameter.setTrueForKey("_SYS_Bee_SAME_CONN_BEGIN"); 
+		if(OneTimeParameter.isTrue("_SYS_Bee_SAME_CONN_EXCEPTION")) {//获取后,该key不会再存在
+			Logger.warn("Last SameConnection do not have endSameConnection() or do not run endSameConnection() after having exception.");
+		}
 	}
 
 	@Override
