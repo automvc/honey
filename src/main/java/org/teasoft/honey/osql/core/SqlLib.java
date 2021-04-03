@@ -448,6 +448,46 @@ public class SqlLib implements BeeSql {
 		
 		return num;
 	}
+	
+	@Override
+	public long insertAndReturnId(String sql) {
+
+		if (sql == null || "".equals(sql)) return -2L;
+
+		initRoute(SuidType.INSERT, null, sql);
+
+		int num = 0;
+		long returnId = -1L;
+		Connection conn = null;
+		PreparedStatement pst = null;
+		boolean hasException = false;
+		try {
+			conn = getConn();
+			String exe_sql = HoneyUtil.deleteLastSemicolon(sql);
+			pst = conn.prepareStatement(exe_sql, new String[] { "id" });
+			setPreparedValues(pst, sql);
+			num = pst.executeUpdate();
+
+			ResultSet rsKey = pst.getGeneratedKeys();
+			rsKey.next();
+			returnId = rsKey.getLong(1);
+		} catch (SQLException e) {
+			hasException = true;
+			throw ExceptionHelper.convert(e);
+		} finally {
+			clearInCache(sql, "int", SuidType.INSERT, num); //has clearContext(sql)
+			if (hasException) {
+				checkClose(pst, null);
+				closeConn(conn);
+			} else {
+				checkClose(pst, conn);
+			}
+		}
+
+		Logger.logSQL(" | <--  Affected rows: ", num + "");
+
+		return returnId; //id
+	}
 
 	/**
 	 * @since  1.1
@@ -553,7 +593,6 @@ public class SqlLib implements BeeSql {
 			if (isConstraint(e)) {
 				Logger.error("Please confirm whether it is Primary Key violation !!");
 				clearContext(sql[0],batchSize,len);
-//				e.printStackTrace();
 				Logger.error(e.getMessage());
 				return total;
 			}

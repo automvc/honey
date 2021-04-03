@@ -37,7 +37,6 @@ public class LimitOffsetPaging implements DbFeature {
 			int array[] = new int[1];
 			array[0] = size;
 			HoneyUtil.regPageNumArray(array);
-//			return sql + " limit ?";
 			return sql + " "+K.limit+" ?";
 		} else {
 			return sql + " "+K.limit+" " + size;

@@ -112,21 +112,33 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Override
 	public <T> int insert(T entity[]) {
 		if (entity == null || entity.length<1) return -1;
+		checkNull(entity);
 //		int len = entity.length;
 //		String insertSql[] = new String[len];
 		String insertSql[] = getObjToSQLRich().toInsertSQL(entity);
 		_regEntityClass1(entity[0]);
 		
+		HoneyUtil.revertId(entity);
+		
 		return getBeeSql().batch(insertSql);
+	}
+	
+	private <T> void checkNull(T entity[]) {
+		for (int i = 0; i < entity.length; i++) {
+			if(entity[i]==null) throw new ObjSQLException("entity[] have null element, index: "+i);
+		}
 	}
 
 	@Override
 	public <T> int insert(T entity[], String excludeFields) {
 		if (entity == null || entity.length<1) return -1;
+		checkNull(entity);
 //		int len = entity.length;
 //		String insertSql[] = new String[len];
 		String insertSql[] = getObjToSQLRich().toInsertSQL(entity, excludeFields);
 		_regEntityClass1(entity[0]);
+		
+		HoneyUtil.revertId(entity);
 		
 		return getBeeSql().batch(insertSql);
 	}
@@ -139,9 +151,12 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Override
 	public <T> int insert(T entity[], int batchSize, String excludeFields) {
 		if (entity == null || entity.length<1) return -1;
+		checkNull(entity);
 		if(batchSize<=0) batchSize=10;
 		String insertSql[] = getObjToSQLRich().toInsertSQL(entity,batchSize, excludeFields);
 		_regEntityClass1(entity[0]);
+		
+		HoneyUtil.revertId(entity);
 		
 		return getBeeSql().batch(insertSql, batchSize);
 	}

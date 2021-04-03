@@ -167,6 +167,8 @@ public final class HoneyConfig {
 
 	@SysValue("${bee.distribution.genid.forAllTableLongId}")
 	public boolean genid_forAllTableLongId;
+	@SysValue("${bee.distribution.genid.replaceOldId}")
+	public boolean genid_replaceOldId=true;
 	@SysValue("${bee.distribution.genid.includesEntityList}")
 	public String genid_includesEntityList;
 	@SysValue("${bee.distribution.genid.excludesEntityList}")

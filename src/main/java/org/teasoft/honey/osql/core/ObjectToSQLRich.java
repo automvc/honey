@@ -332,6 +332,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		try {
 			_ObjectToSQLHelper.setInitIdByAuto(entity);
 			sql = _ObjectToSQLHelper._toInsertSQL0(entity, includeType.getValue(),"");
+			HoneyUtil.revertId(entity); //v1.9
 		} catch (IllegalAccessException e) {
 			throw ExceptionHelper.convert(e);
 		}
@@ -816,19 +817,58 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	
 	private <T> void setInitArrayIdByAuto(T entity[]) {
 		
-//		boolean needGenId=HoneyConfig.getHoneyConfig().genid_forAllTableLongId;
-//		if(!needGenId) return ;
-		
 		if(entity==null || entity.length<1) return ;
 		boolean needGenId = HoneyContext.isNeedGenId(entity[0].getClass());
 		if (!needGenId) return;
+		
+		boolean hasValue = false;
+		Long v = null;
 
-		Field field = null;
+		Field field0 = null;
 		try {
 			
-			field = entity[0].getClass().getDeclaredField("id");
+			field0 = entity[0].getClass().getDeclaredField("id");
+			if (field0==null || !field0.getType().equals(Long.class)) return; //just set the null Long id field
 //			field.setAccessible(true);
 //			if (field.get(entity[0]) != null) return; //即使没值,运行一次后也会有值,下次再用就会重复.而用户又不知道.    //todo 要提醒是被覆盖了。
+		
+			boolean replaceOldValue = HoneyConfig.getHoneyConfig().genid_replaceOldId;
+			
+			int len = entity.length;
+			String tableKey = _toTableName(entity[0]);
+			long ids[] = GenIdFactory.getRangeId(tableKey, len);
+			long id = ids[0];
+			Field field = null;
+			for (int i = 0; i < len; id++, i++) {
+				if(entity[i]==null) continue;
+				hasValue = false;
+				v = null;
+				
+				field = entity[i].getClass().getDeclaredField("id");
+				field.setAccessible(true);
+				Object obj = field.get(entity[i]);
+				
+				if (obj != null) {
+					if (!replaceOldValue) return ;
+					hasValue = true;
+					v = (Long) obj;
+				}
+				
+				OneTimeParameter.setTrueForKey("_SYS_Bee_OLD_ID_FOR_AUTO_ID_EXIST"+i);
+				OneTimeParameter.setAttribute("_SYS_Bee_OLD_ID_FOR_AUTO_ID"+i, obj);
+				
+				field.setAccessible(true);
+				try {
+					field.set(entity[i], id);
+					if (hasValue) {
+						Logger.warn(" [ID WOULD BE OVERRIDE] entity["+i+"] : " + entity.getClass() + " 's id field value is " + v
+								+ " would be replace by " + id);
+					}
+				} catch (IllegalAccessException e) {
+					throw ExceptionHelper.convert(e);
+				}
+			}
+		
 		} catch (NoSuchFieldException e) {
 			//is no id field , ignore.
 			return;
@@ -838,20 +878,6 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			return;
 		}
 
-		if (!field.getType().equals(Long.class)) return; //just set the null Long id field
-
-		int len = entity.length;
-		String tableKey = _toTableName(entity[0]);
-		long ids[] = GenIdFactory.getRangeId(tableKey, len);
-		long id = ids[0];
-		for (int i = 0; i < len; id++, i++) {
-			field.setAccessible(true);
-			try {
-				field.set(entity[i], id);
-			} catch (IllegalAccessException e) {
-				throw ExceptionHelper.convert(e);
-			}
-		}
 	}
 	
 	private boolean isNeedRealTimeDb() {

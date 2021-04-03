@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.teasoft.bee.osql.DatabaseConst;
+import org.teasoft.bee.osql.ObjSQLException;
 import org.teasoft.bee.osql.annotation.Ignore;
 import org.teasoft.bee.osql.annotation.JoinTable;
 import org.teasoft.bee.osql.annotation.JoinType;
@@ -1201,6 +1202,57 @@ public final class HoneyUtil {
 	public static boolean isSqlKeyWordUpper() {
 		String kwCase = HoneyConfig.getHoneyConfig().sqlKeyWordCase;
 		return "upper".equalsIgnoreCase(kwCase) ? true : false;
+	}
+	
+	public static <T> Object getIdValue(T entity) {
+		Field field = null;
+		Object obj = null;
+		try {
+			field = entity.getClass().getDeclaredField("id");
+			field.setAccessible(true);
+			obj = field.get(entity);
+		} catch (NoSuchFieldException e) {
+			throw new ObjSQLException("Miss id field: the entity no id field!");
+		} catch (IllegalAccessException e) {
+			throw ExceptionHelper.convert(e);
+		}
+
+		return obj;
+	}
+	
+	public static <T> void revertId(T entity) {
+		Field field = null;
+		if (OneTimeParameter.isTrue("_SYS_Bee_OLD_ID_FOR_AUTO_ID_EXIST")) {
+			try {
+				Object obj = OneTimeParameter.getAttribute("_SYS_Bee_OLD_ID_FOR_AUTO_ID");
+				field = entity.getClass().getDeclaredField("id");
+				field.setAccessible(true);
+				field.set(entity, obj);
+			} catch (NoSuchFieldException e) {
+				throw new ObjSQLException("Miss id field: the entity no id field!");
+			} catch (IllegalAccessException e) {
+				throw ExceptionHelper.convert(e);
+			}
+		}
+	}
+	
+	public static <T> void revertId(T entity[]) {
+		Field field = null;
+		for (int i = 0; i < entity.length; i++) {
+
+			if (OneTimeParameter.isTrue("_SYS_Bee_OLD_ID_FOR_AUTO_ID_EXIST"+i)) {
+				try {
+					Object obj = OneTimeParameter.getAttribute("_SYS_Bee_OLD_ID_FOR_AUTO_ID"+i);
+					field = entity[i].getClass().getDeclaredField("id");
+					field.setAccessible(true);
+					field.set(entity[i], obj);
+				} catch (NoSuchFieldException e) {
+					throw new ObjSQLException("entity[] miss id field: the element in entity[] no id field!");
+				} catch (IllegalAccessException e) {
+					throw ExceptionHelper.convert(e);
+				}
+			}
+		}
 	}
 
 }

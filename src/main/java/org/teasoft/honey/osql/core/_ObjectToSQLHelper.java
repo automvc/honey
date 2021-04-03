@@ -940,45 +940,44 @@ final class _ObjectToSQLHelper {
 	
 	static <T> void setInitIdByAuto(T entity) {
 
-//		boolean needGenId = HoneyConfig.getHoneyConfig().genid_forAllTableLongId;
-//		if (!needGenId) return;
-		if(entity==null) return ;
+		if (entity == null) return ;
 		boolean needGenId = HoneyContext.isNeedGenId(entity.getClass());
-		if (!needGenId) return;
+		if (!needGenId) return ;
 
 		Field field = null;
-		boolean hasValue=false;
-		Long v=null;
+		boolean hasValue = false;
+		Long v = null;
 		try {
 			field = entity.getClass().getDeclaredField("id");
+			if (field==null || !field.getType().equals(Long.class)) return ; //just set the Long id field
+			boolean replaceOldValue = HoneyConfig.getHoneyConfig().genid_replaceOldId;
 			field.setAccessible(true);
-		  //if (field.get(entity) != null) return;
-			if (field.get(entity) != null) {
-				hasValue=true;
+			Object obj = field.get(entity);
+			if (obj != null) {
+				if (!replaceOldValue) return ;
+				hasValue = true;
+				v = (Long) obj;
 			}
+			OneTimeParameter.setTrueForKey("_SYS_Bee_OLD_ID_FOR_AUTO_ID_EXIST");
+			OneTimeParameter.setAttribute("_SYS_Bee_OLD_ID_FOR_AUTO_ID", obj);
 		} catch (NoSuchFieldException e) {
 			//is no id field , ignore.
-			return;	
+			return ;
 		} catch (Exception e) {
-//			e.printStackTrace();
 			Logger.error(e.getMessage());
-			return;
+			return ;
 		}
-
-		if (!field.getType().equals(Long.class)) return; //just set the Long id field
 
 		String tableKey = _toTableName(entity);
 		long id = GenIdFactory.get(tableKey);
 		field.setAccessible(true);
 		try {
 			field.set(entity, id);
-			if(hasValue){
-				v=(Long)field.get(entity);
-				Logger.warn(" [ID WOULD BE OVERRIDE] "+entity.getClass()+" 's id field value is "+v +" would be replace by "+id);
+			if (hasValue) {
+				Logger.warn(" [ID WOULD BE OVERRIDE] " + entity.getClass() + " 's id field value is " + v + " would be replace by "+ id);
 			}
 		} catch (IllegalAccessException e) {
 			throw ExceptionHelper.convert(e);
 		}
-
 	}
 }

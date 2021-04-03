@@ -12,6 +12,7 @@ import org.teasoft.bee.osql.BeeSql;
 import org.teasoft.bee.osql.Condition;
 import org.teasoft.bee.osql.ObjToSQL;
 import org.teasoft.bee.osql.Suid;
+import org.teasoft.bee.osql.exception.NotSupportedException;
 
 /**
  * 通过对象来操作数据库，并返回结果
@@ -82,9 +83,52 @@ public class ObjSQL implements Suid {
 		int insertNum = -1;
 		Logger.logSQL("insert SQL: ", sql);
 		_regEntityClass(entity);
+		HoneyUtil.revertId(entity); //v1.9
 		insertNum = getBeeSql().modify(sql);
 		return insertNum;
 	}
+	
+	@Override
+	public <T> long insertAndReturnId(T entity) {
+		if (entity == null) return -1L;
+
+		if (!HoneyContext.isNeedGenId(entity.getClass())
+				&& !(HoneyUtil.isMysql() || HoneyUtil.isOracle() || HoneyUtil.isSQLite())) {
+			throw new NotSupportedException("The current database don't support return the id after insert."
+					+ " You can use the distribute id via set config information,eg: bee.distribution.genid.forAllTableLongId=true");
+		}
+
+		String sql = getObjToSQL().toInsertSQL(entity);
+		Logger.logSQL("insert SQL: ", sql);
+		_regEntityClass(entity);
+
+		Object obj = HoneyUtil.getIdValue(entity);
+		HoneyUtil.revertId(entity);
+		
+		long returnId = -1;
+		if (obj != null) {
+			returnId = (long) obj;
+			if (returnId > 1) {
+				int insertNum = getBeeSql().modify(sql);
+				if (insertNum == 1) {
+					return returnId;
+				} else {
+					return insertNum;
+				}
+			} else {
+				if (HoneyUtil.isOracle()) {
+					Logger.debug("Need create Sequence and Trigger for auto increment id. "
+							+ "By the way,maybe use distribute id is better!");
+				}
+			}
+		}
+
+		//id will gen by db
+		returnId = getBeeSql().insertAndReturnId(sql);
+
+		return returnId;
+	}
+	
 
 	@Override
 	public int delete(Object entity) {
