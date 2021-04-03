@@ -17,5 +17,8 @@ public interface StringConst {
     String ALREADY_SET_ROUTE="_SYS_Bee_ALREADY_SET_ROUTE";
     String Select_Fun="_SYS_Bee_Select_Fun";
     String MoreStruct_to_SqlLib="_SYS_Bee_MoreStruct_to_SqlLib";
+    
+    String OLD_ID_EXIST="_SYS_Bee_OLD_ID_FOR_AUTO_ID_EXIST";
+    String OLD_ID="_SYS_Bee_OLD_ID_FOR_AUTO_ID";
 
 }

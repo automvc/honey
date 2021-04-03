@@ -958,8 +958,8 @@ final class _ObjectToSQLHelper {
 				hasValue = true;
 				v = (Long) obj;
 			}
-			OneTimeParameter.setTrueForKey("_SYS_Bee_OLD_ID_FOR_AUTO_ID_EXIST");
-			OneTimeParameter.setAttribute("_SYS_Bee_OLD_ID_FOR_AUTO_ID", obj);
+			OneTimeParameter.setTrueForKey(StringConst.OLD_ID_EXIST);
+			OneTimeParameter.setAttribute(StringConst.OLD_ID, obj);
 		} catch (NoSuchFieldException e) {
 			//is no id field , ignore.
 			return ;

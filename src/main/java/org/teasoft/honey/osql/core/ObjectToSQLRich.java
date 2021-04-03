@@ -854,8 +854,8 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 					v = (Long) obj;
 				}
 				
-				OneTimeParameter.setTrueForKey("_SYS_Bee_OLD_ID_FOR_AUTO_ID_EXIST"+i);
-				OneTimeParameter.setAttribute("_SYS_Bee_OLD_ID_FOR_AUTO_ID"+i, obj);
+				OneTimeParameter.setTrueForKey(StringConst.OLD_ID_EXIST+i);
+				OneTimeParameter.setAttribute(StringConst.OLD_ID+i, obj);
 				
 				field.setAccessible(true);
 				try {
