@@ -48,8 +48,9 @@ public class PearFlowerId implements GenId {
 	private static final long segmentShift =   workerIdBits + sequenceBits;
 	private static final long workerIdShift =  sequenceBits;
 	
-	private static final long sequenceMask = ~(-1L << sequenceBits);
+//	private static final long sequenceMask = ~(-1L << sequenceBits);
 	private static final long maxSegment=(1L<<segmentBits)-1L;
+	private static final long maxSequence = 1L<<sequenceBits;
 	
 	private static final long halfWorkid=1<<(workerIdBits-1);
 	private static final long fullWorkid=1<<workerIdBits;
@@ -94,18 +95,26 @@ public class PearFlowerId implements GenId {
 
 	@Override
 	public synchronized long[] getRangeId(int sizeOfIds) {
+		if(sizeOfIds>maxSequence) {
+			Logger.error("parameter sizeOfIds("+sizeOfIds+") greate maxSequence("+maxSequence+") will cause range Id do not continue!");
+		    return null;
+		}
 		long r[]=new long[2];
 		r[0]=getNextId();
 //		sequence=sequence+sizeOfIds-1;
 		sequence=sequence+sizeOfIds-1-1; //r[0]相当于已获取了第一个元素
 		if ((sequence >> sequenceBits) > 0) { // 超过序列位表示的最大值
-			sequence = sequence & sequenceMask;
+//			sequence = sequence & sequenceMask;
 			if (segment >= maxSegment) { // 已用完
 				lastTimestamp++; //批获取时,提前消费1s
 				segment = 0L;
 			} else {
 				segment++;
 			}
+			
+			sequence=0;
+			//取max时,超过序列位表示的最大值,不连续,要重新获取
+			return getRangeId(sizeOfIds); 
 		}
 		isBatch=true;
 		r[1]=getNextId(); //要去组装一个id
@@ -120,7 +129,8 @@ public class PearFlowerId implements GenId {
 		timestamp = currentSecond();
 		if (timestamp < lastTimestamp) {//分支1:回拨 
 //			if(tolerateSecond<=0) return -1;  //不允许回拨
-			if(tolerateSecond<=0) return tolerateSecond=1;  //处理润秒问题,至少容忍1秒
+//			if(tolerateSecond<=0) return tolerateSecond=1;  //处理润秒问题,至少容忍1秒  bug
+			if(tolerateSecond<=0) tolerateSecond=1;  //处理润秒问题,至少容忍1秒
 			long offset = lastTimestamp - timestamp;
 			if (offset <= tolerateSecond) {
 				try {
@@ -161,7 +171,7 @@ public class PearFlowerId implements GenId {
 			}
 		}// 分支1:回拨  结束
 
-		if (timestamp == lastTimestamp) { // 分支2
+		if (timestamp == lastTimestamp) { // 分支2  新的if
 			sequence++;
 //			sequence=sequence+524288 ; //TEST  19
 //			sequence=sequence+262144 ; //TEST  18
@@ -194,7 +204,7 @@ public class PearFlowerId implements GenId {
 		return ((timestamp - twepoch) << timestampShift) | (segment << segmentShift) | (workerId << workerIdShift)  | (sequence);
 	}
 	
-	private void setStartSequence() {
+	private void setStartSequence() {  //批获取时,是否为引起数量不够 ??????  不会
 		if (isBatch) {
 			isBatch = false;
 			sequence = 0L;
