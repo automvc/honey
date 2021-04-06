@@ -861,7 +861,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 				try {
 					field.set(entity[i], id);
 					if (hasValue) {
-						Logger.warn(" [ID WOULD BE OVERRIDE] entity["+i+"] : " + entity.getClass() + " 's id field value is " + v
+						Logger.warn(" [ID WOULD BE REPLACED] entity["+i+"] : " + entity.getClass() + " 's id field value is " + v
 								+ " would be replace by " + id);
 					}
 				} catch (IllegalAccessException e) {

@@ -974,7 +974,7 @@ final class _ObjectToSQLHelper {
 		try {
 			field.set(entity, id);
 			if (hasValue) {
-				Logger.warn(" [ID WOULD BE OVERRIDE] " + entity.getClass() + " 's id field value is " + v + " would be replace by "+ id);
+				Logger.warn(" [ID WOULD BE REPLACED] " + entity.getClass() + " 's id field value is " + v + " would be replace by "+ id);
 			}
 		} catch (IllegalAccessException e) {
 			throw ExceptionHelper.convert(e);
