@@ -44,7 +44,7 @@ public class PreparedSqlLib implements PreparedSql {
 	public <T> List<T> select(String sql, T entity, Object[] preValues) {
 		
 		initPreparedValues(sql, preValues,entity);
-		Logger.logSQL("PreparedSqlLib select SQL: ", sql);
+		Logger.logSQL("PreparedSql select SQL: ", sql);
 		return getBeeSql().select(sql, entity);
 	}
 	
@@ -66,14 +66,14 @@ public class PreparedSqlLib implements PreparedSql {
 		sql = getDbFeature().toPageSql(sql, start, size);
 		initPreparedValues(sql, preValues,entity);
 		
-		Logger.logSQL("PreparedSqlLib select SQL: ", sql);
+		Logger.logSQL("PreparedSql select SQL: ", sql);
 		return getBeeSql().select(sql, entity);
 	}
 	
 	@Override
 	public <T> List<T> select(String sqlStr, T entity, Map<String, Object> map) {
 		String sql=initPrepareValuesViaMap(sqlStr,map,entity);
-		Logger.logSQL("PreparedSqlLib select SQL: ", sql);
+		Logger.logSQL("PreparedSql select SQL: ", sql);
 		return getBeeSql().select(sql, entity);
 	}
 	
@@ -95,7 +95,7 @@ public class PreparedSqlLib implements PreparedSql {
 		String pageSql = getDbFeature().toPageSql(sqlStr, start, size);
 		String sql=initPrepareValuesViaMap(pageSql,map,entity);
 		
-		Logger.logSQL("PreparedSqlLib select SQL: ", sql);
+		Logger.logSQL("PreparedSql select SQL: ", sql);
 		return getBeeSql().select(sql, entity);
 	}
 	
@@ -103,7 +103,7 @@ public class PreparedSqlLib implements PreparedSql {
 	public <T> List<T> selectSomeField(String sql, T entity, Object[] preValues) {
 
 		initPreparedValues(sql, preValues,entity);
-		Logger.logSQL("PreparedSqlLib selectSomeField SQL: ", sql);
+		Logger.logSQL("PreparedSql selectSomeField SQL: ", sql);
 		return getBeeSql().selectSomeField(sql, entity);
 	}
 	
@@ -125,14 +125,14 @@ public class PreparedSqlLib implements PreparedSql {
 		sql = getDbFeature().toPageSql(sql, start, size);
 		initPreparedValues(sql, preValues,entity);
 		
-		Logger.logSQL("PreparedSqlLib selectSomeField SQL: ", sql);
+		Logger.logSQL("PreparedSql selectSomeField SQL: ", sql);
 		return getBeeSql().selectSomeField(sql, entity);
 	}
 
 	@Override
 	public <T> List<T> selectSomeField(String sqlStr, T entity, Map<String, Object> map) {
 		String sql=initPrepareValuesViaMap(sqlStr,map,entity);
-		Logger.logSQL("PreparedSqlLib selectSomeField SQL: ", sql);
+		Logger.logSQL("PreparedSql selectSomeField SQL: ", sql);
 		return getBeeSql().selectSomeField(sql, entity);
 	}
 	
@@ -154,7 +154,7 @@ public class PreparedSqlLib implements PreparedSql {
 		String pageSql = getDbFeature().toPageSql(sqlStr, start, size);
 		String sql=initPrepareValuesViaMap(pageSql,map,entity);
 		
-		Logger.logSQL("PreparedSqlLib selectSomeField SQL: ", sql);
+		Logger.logSQL("PreparedSql selectSomeField SQL: ", sql);
 		return getBeeSql().selectSomeField(sql, entity);
 	}
 
@@ -162,21 +162,21 @@ public class PreparedSqlLib implements PreparedSql {
 	public String selectFun(String sql, Object[] preValues) throws ObjSQLException {
 
 		initPreparedValues(sql, preValues);
-		Logger.logSQL("PreparedSqlLib selectFun SQL: ", sql);
+		Logger.logSQL("PreparedSql selectFun SQL: ", sql);
 		return getBeeSql().selectFun(sql);
 	}
 
 	@Override
 	public String selectFun(String sqlStr, Map<String, Object> map) throws ObjSQLException {
 		String sql=initPrepareValuesViaMap(sqlStr,map);
-		Logger.logSQL("PreparedSqlLib selectFun SQL: ", sql);
+		Logger.logSQL("PreparedSql selectFun SQL: ", sql);
 		return getBeeSql().selectFun(sql);
 	}
 
 	@Override
 	public List<String[]> select(String sql, Object[] preValues) {
 		initPreparedValues(sql, preValues);
-		Logger.logSQL("PreparedSqlLib select SQL: ", sql);
+		Logger.logSQL("PreparedSql select SQL: ", sql);
 		return getBeeSql().select(sql);
 	}
 	
@@ -189,7 +189,7 @@ public class PreparedSqlLib implements PreparedSql {
 		sql = getDbFeature().toPageSql(sql, start, size);
 		initPreparedValues(sql, preValues);
 		
-		Logger.logSQL("PreparedSqlLib select SQL: ", sql);
+		Logger.logSQL("PreparedSql select SQL: ", sql);
 		return getBeeSql().select(sql);
 	}
 	
@@ -197,7 +197,7 @@ public class PreparedSqlLib implements PreparedSql {
 	@Override
 	public List<String[]> select(String sqlStr, Map<String, Object> map) {
 		String sql=initPrepareValuesViaMap(sqlStr,map);
-		Logger.logSQL("PreparedSqlLib select SQL: ", sql);
+		Logger.logSQL("PreparedSql select SQL: ", sql);
 		return getBeeSql().select(sql);
 	}
 	
@@ -210,7 +210,7 @@ public class PreparedSqlLib implements PreparedSql {
 		String pageSql = getDbFeature().toPageSql(sqlStr, start, size);
 		String sql=initPrepareValuesViaMap(pageSql,map);
 		
-		Logger.logSQL("PreparedSqlLib select SQL: ", sql);
+		Logger.logSQL("PreparedSql select SQL: ", sql);
 		return getBeeSql().select(sql);
 	}
 
@@ -218,7 +218,7 @@ public class PreparedSqlLib implements PreparedSql {
 	@Deprecated
 	public int modify(String sql, Object[] preValues) {
 		initPreparedValues(sql, preValues);
-		Logger.logSQL("PreparedSqlLib modify SQL: ", sql);
+		Logger.logSQL("PreparedSql modify SQL: ", sql);
 		return getBeeSql().modify(sql);
 	}
 
@@ -226,7 +226,7 @@ public class PreparedSqlLib implements PreparedSql {
 	@Deprecated
 	public int modify(String sqlStr, Map<String, Object> map) {
 		String sql=initPrepareValuesViaMap(sqlStr,map);
-		Logger.logSQL("PreparedSqlLib modify SQL: ", sql);
+		Logger.logSQL("PreparedSql modify SQL: ", sql);
 		return getBeeSql().modify(sql);
 	}
 	
@@ -240,7 +240,7 @@ public class PreparedSqlLib implements PreparedSql {
 	@Override
 	public String selectJson(String sql, Object[] preValues) {
 		initPreparedValues(sql, preValues);
-		Logger.logSQL("PreparedSqlLib selectJson SQL: ", sql);
+		Logger.logSQL("PreparedSql selectJson SQL: ", sql);
 		return getBeeSql().selectJson(sql);
 	}
 	
@@ -253,14 +253,14 @@ public class PreparedSqlLib implements PreparedSql {
 		sql = getDbFeature().toPageSql(sql, start, size);
 		initPreparedValues(sql, preValues);
 		
-		Logger.logSQL("PreparedSqlLib selectJson SQL: ", sql);
+		Logger.logSQL("PreparedSql selectJson SQL: ", sql);
 		return getBeeSql().selectJson(sql);
 	}
 	
 	@Override
 	public String selectJson(String sqlStr, Map<String, Object> map) {
 		String sql=initPrepareValuesViaMap(sqlStr,map);
-		Logger.logSQL("PreparedSqlLib selectJson SQL: ", sql);
+		Logger.logSQL("PreparedSql selectJson SQL: ", sql);
 		return getBeeSql().selectJson(sql);
 	}
 	
@@ -273,7 +273,7 @@ public class PreparedSqlLib implements PreparedSql {
 		String pageSql = getDbFeature().toPageSql(sqlStr, start, size);
 		String sql=initPrepareValuesViaMap(pageSql,map);
 		
-		Logger.logSQL("PreparedSqlLib selectJson SQL: ", sql);  //TODO 能输出可执行sql吗?
+		Logger.logSQL("PreparedSql selectJson SQL: ", sql); 
 		return getBeeSql().selectJson(sql);
 	}
 	
