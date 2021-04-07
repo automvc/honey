@@ -32,7 +32,7 @@ class OneTimeParameter {
 	public static void setAttribute(String key, Object obj) {
 		if (obj == null) return;
 		Map<String, Object> map = local.get();
-		if (null == map) map = new ConcurrentHashMap<>();   //TODO 使用弱引用???
+		if (null == map) map = new ConcurrentHashMap<>();
 		map.put(key, obj); 
 		local.set(map);
 	}
