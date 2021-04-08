@@ -309,12 +309,12 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	}
 	
 	//v1.9
-	public <T> String toSelectFunSQL(T entity, Condition condition) {
-		if (condition == null || condition.getIncludeType() == null)
-			return _ObjectToSQLHelper._toSelectSQL(entity, -1, condition, true); // 过滤NULL和空字符串
-		else
-			return _ObjectToSQLHelper._toSelectSQL(entity, condition.getIncludeType().getValue(), condition, true);
-	}
+//	public <T> String toSelectFunSQL(T entity, Condition condition) {
+//		if (condition == null || condition.getIncludeType() == null)
+//			return _ObjectToSQLHelper._toSelectSQL(entity, -1, condition, true); // 过滤NULL和空字符串
+//		else
+//			return _ObjectToSQLHelper._toSelectSQL(entity, condition.getIncludeType().getValue(), condition, true);
+//	}
 	
 	@Override
 	public <T> String toSelectSQL(T entity, IncludeType includeType) {
@@ -352,10 +352,10 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		return toInsertSQL(entity, "");
 	}
 	
-	@Override
-	public <T> String[] toInsertSQL(T entity[], int batchSize) {
-		return toInsertSQL(entity, batchSize, "");
-	}
+//	@Override
+//	public <T> String[] toInsertSQL(T entity[], int batchSize) {
+//		return toInsertSQL(entity, batchSize, "");
+//	}
 
 	private static final String index1 = "_SYS[index";
 	private static final String index2 = "]_End ";

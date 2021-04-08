@@ -921,10 +921,10 @@ final class _ObjectToSQLHelper {
 		HoneyContext.setContext(sql, list, tableName);
 	}
 	
-//  static void addInContextForCache(String sql,String sqlValue, String tableName){ //changed v1.8
-    static void addInContextForCache(String sql, String tableName){
-    	HoneyContext.addInContextForCache(sql, tableName);
-	}
+////  static void addInContextForCache(String sql,String sqlValue, String tableName){ //changed v1.8
+//    static void addInContextForCache(String sql, String tableName){
+//    	HoneyContext.addInContextForCache(sql, tableName);
+//	}
     
 	private static <T> void checkPackage(T entity) {
 		HoneyUtil.checkPackage(entity);
