@@ -3,6 +3,7 @@ package org.teasoft.honey.osql.core;
 import org.teasoft.bee.osql.BeeSql;
 import org.teasoft.bee.osql.Cache;
 import org.teasoft.bee.osql.CallableSql;
+import org.teasoft.bee.osql.Condition;
 import org.teasoft.bee.osql.DatabaseConst;
 import org.teasoft.bee.osql.LowerKey;
 import org.teasoft.bee.osql.MapSql;
@@ -41,6 +42,7 @@ public class HoneyFactory {
 	private ObjToSQLRich objToSQLRich;
 	private PreparedSql preparedSql;
 	private CallableSql callableSql;
+	private Condition condition;
 	
 	private DbFeature dbFeature;
 	private NameTranslate nameTranslate;
@@ -137,6 +139,15 @@ public class HoneyFactory {
 		this.callableSql = callableSql;
 	}
 	
+	public Condition getCondition() {
+		if(condition==null) return new ConditionImpl();
+		else return condition;
+	}
+
+	public void setCondition(Condition condition) {
+		this.condition = condition;
+	}
+
 	public MapSql getMapSql() {
 		if (mapSql == null) return new MapSqlImpl();
 		return mapSql;
