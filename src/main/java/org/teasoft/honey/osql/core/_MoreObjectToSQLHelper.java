@@ -197,8 +197,8 @@ public class _MoreObjectToSQLHelper {
 					if (fields[i].get(entity) == null && "id".equalsIgnoreCase(fields[i].getName())) 
 						continue; //id=null不作为过滤条件
 					
-					if(whereFields!=null && whereFields.contains(fields[i].getName())) 
-						continue; //Condition已包含的,不再遍历
+//					if(whereFields!=null && whereFields.contains(fields[i].getName()))   //closed in V1.9
+//						continue; //Condition已包含的,不再遍历
 
 					if (firstWhere) {
 //						sqlBuffer2.append(" where ");
@@ -303,8 +303,8 @@ public class _MoreObjectToSQLHelper {
 				if (fields[i].get(entity) == null && "id".equalsIgnoreCase(fields[i].getName())) 
 					continue; //id=null不作为过滤条件
 				
-				if(conditionFieldSet!=null && conditionFieldSet.contains(fields[i].getName())) 
-					continue; //Condition已包含的,不再遍历
+//				if(conditionFieldSet!=null && conditionFieldSet.contains(fields[i].getName()))   //closed in V1.9
+//					continue; //Condition已包含的,不再遍历
 
 				if (firstWhere) {
 //					sqlBuffer2.append(" where ");

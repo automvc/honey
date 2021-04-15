@@ -88,8 +88,8 @@ final class _ObjectToSQLHelper {
 	static <T> String _toSelectSQL(T entity, int includeType, Condition condition,boolean isCheckOneFunction) {
 		checkPackage(entity);
 		
-		Set<String> conditionFieldSet=null;
-		if(condition!=null) conditionFieldSet=condition.getWhereFields();
+//		Set<String> conditionFieldSet=null;
+//		if(condition!=null) conditionFieldSet=condition.getWhereFields();
 		
 		StringBuffer sqlBuffer = new StringBuffer();
 		String tableName = _toTableName(entity);
@@ -151,8 +151,8 @@ final class _ObjectToSQLHelper {
 					if (fields[i].get(entity) == null && "id".equalsIgnoreCase(fields[i].getName())) 
 						continue; //id=null不作为过滤条件
 					
-					if(conditionFieldSet!=null && conditionFieldSet.contains(fields[i].getName())) 
-						continue; //Condition已包含的,不再遍历
+//					if(conditionFieldSet!=null && conditionFieldSet.contains(fields[i].getName()))  //closed in V1.9
+//						continue; //Condition已包含的,不再遍历
 
 					if (firstWhere) {
 //						sqlBuffer.append(" where ");
@@ -331,8 +331,8 @@ final class _ObjectToSQLHelper {
 	static <T> String _toUpdateSQL(T entity, String setColmns[], int includeType, Condition condition) {
 		checkPackage(entity);
 
-		Set<String> conditionFieldSet = null;
-		if (condition != null) conditionFieldSet = condition.getWhereFields();
+//		Set<String> conditionFieldSet = null;
+//		if (condition != null) conditionFieldSet = condition.getWhereFields();
 		
 		Set<String> updatefieldSet=null;
 		if (condition != null) updatefieldSet=condition.getUpdatefields();
@@ -378,7 +378,7 @@ final class _ObjectToSQLHelper {
 				fields[i].setAccessible(true);
 //				if (isContainField(setColmns, fields[i].getName())) { //set value.setColmn不受includeType影响,都会转换
 				if (isContainField(setColmns, fields[i].getName())     
-						&& ( (updatefieldSet ==null) || (updatefieldSet != null && !updatefieldSet.contains(fields[i].getName())) ) // 在updatefieldSet为新值，entity 的为旧值可放在where条件    v1.8
+//						&& ( (updatefieldSet ==null) || (updatefieldSet != null && !updatefieldSet.contains(fields[i].getName())) ) // 在updatefieldSet为新值，entity 的为旧值可放在where条件    v1.8
 						) {	//在指定的setColmns,且还没有用在set,setAdd,setMultiply的字段,才转成update set的部分.
 					
 //					在updatefieldSet为新值，entity 的为旧值可放在where条件    v1.8
@@ -416,8 +416,8 @@ final class _ObjectToSQLHelper {
 							continue; //id=null不作为过滤条件
 						
 						//v1.7.2
-						if (conditionFieldSet != null && conditionFieldSet.contains(fields[i].getName())) 
-							continue; //Condition已包含的,不再遍历
+//						if (conditionFieldSet != null && conditionFieldSet.contains(fields[i].getName()))  //closed in V1.9
+//							continue; //Condition已包含的,不再遍历
 
 						if (firstWhere) {
 //							whereStament.append(" where ");
@@ -495,8 +495,8 @@ final class _ObjectToSQLHelper {
 	static <T> String _toUpdateBySQL(T entity, String whereColumns[], int includeType, Condition condition){
 		checkPackage(entity);
 		
-		Set<String> conditionFieldSet=null;
-		if(condition!=null) conditionFieldSet=condition.getWhereFields();
+//		Set<String> conditionFieldSet=null;
+//		if(condition!=null) conditionFieldSet=condition.getWhereFields();
 		
 		Set<String> updatefieldSet=null;
 		if (condition != null) updatefieldSet=condition.getUpdatefields();
@@ -574,8 +574,8 @@ final class _ObjectToSQLHelper {
 //				} else {
 				
 //				v1.7.2
-				if(conditionFieldSet!=null && conditionFieldSet.contains(fields[i].getName())) 
-					continue; //Condition已包含的,不再遍历
+//				if(conditionFieldSet!=null && conditionFieldSet.contains(fields[i].getName()))  //closed in V1.9
+//					continue; //Condition已包含的,不再遍历
 				
 				//指定作为条件的,都转换
 					if (fields[i].get(entity) == null && "id".equalsIgnoreCase(fields[i].getName()))
@@ -813,8 +813,8 @@ final class _ObjectToSQLHelper {
 	static <T> String _toDeleteSQL(T entity, int includeType, Condition condition) {
 		checkPackage(entity);
 		
-		Set<String> conditionFieldSet=null;
-		if(condition!=null) conditionFieldSet=condition.getWhereFields();
+//		Set<String> conditionFieldSet=null;
+//		if(condition!=null) conditionFieldSet=condition.getWhereFields();
 		
 		String sql = "";
 		StringBuffer sqlBuffer = new StringBuffer();
@@ -840,8 +840,8 @@ final class _ObjectToSQLHelper {
 					if (fields[i].get(entity) == null && "id".equalsIgnoreCase(fields[i].getName())) 
 						continue; //id=null不作为过滤条件
 					
-					if(conditionFieldSet!=null && conditionFieldSet.contains(fields[i].getName())) 
-						continue; //Condition已包含的,不再遍历
+//					if(conditionFieldSet!=null && conditionFieldSet.contains(fields[i].getName()))  //closed in V1.9
+//						continue; //Condition已包含的,不再遍历
 
 					if (firstWhere) {
 //						sqlBuffer.append(" where ");
