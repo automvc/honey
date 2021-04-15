@@ -186,7 +186,7 @@ public class ConditionHelper {
 			if (Op.in.getOperator().equalsIgnoreCase(opType) || Op.notIn.getOperator().equalsIgnoreCase(opType)) {
 				adjustAnd(sqlBuffer);
 				sqlBuffer.append(_toColumnName(expression.getFieldName(),useSubTableNames));
-				sqlBuffer.append(" ");
+//				sqlBuffer.append(" ");
 //				sqlBuffer.append(expression.getOpType());
 				if(HoneyUtil.isSqlKeyWordUpper()) sqlBuffer.append(expression.getOpType().toUpperCase());
 				else sqlBuffer.append(expression.getOpType());

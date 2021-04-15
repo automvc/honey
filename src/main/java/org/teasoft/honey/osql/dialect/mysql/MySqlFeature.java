@@ -27,7 +27,7 @@ public class MySqlFeature implements DbFeature {
 			int array[]=new int[2];
 //			 limitStament = " limit " + start + "," + size;
 //			 limitStament = " limit ? , ?";
-			 limitStament = " "+K.limit+" ? , ?";
+			 limitStament = " "+K.limit+" ?,?";
 			 array[0]=start;
 			 array[1]=size;
 			 HoneyUtil.regPageNumArray(array);
