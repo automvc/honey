@@ -385,12 +385,25 @@ public class ConditionImpl implements Condition {
 	
 	@Override
 	public Condition selectField(String fieldList) {
-		
+		checkField(fieldList);
 		this.selectField=fieldList;
 		
 		return this;
 	}
 	
+	@Override
+	public Condition selectDistinctField(String fieldName) {
+		funExpList.add(new FunExpress("distinct", fieldName, null));
+		return this;
+	}
+	
+	@Override
+	public Condition selectDistinctField(String fieldName,String alias) {
+		checkField(alias);
+		funExpList.add(new FunExpress("distinct", fieldName, alias));
+		return this;
+	}
+
 	@Override
 	public String getSelectField(){
 		return this.selectField;
@@ -468,6 +481,7 @@ public class ConditionImpl implements Condition {
 	//v1.9
 	@Override
 	public Condition selectFun(FunctionType functionType, String fieldForFun, String alias) {
+		checkField(alias);
 		funExpList.add(new FunExpress(functionType, fieldForFun, alias));
 		return this;
 	}
@@ -479,31 +493,39 @@ public class ConditionImpl implements Condition {
 	}
 
 	final class FunExpress{
-		private FunctionType functionType;
+//		private FunctionType functionType;
+		private String functionType;
 		private String field;
 		private String alias;
 		
 		public FunExpress(FunctionType functionType, String field, String alias) {
+			checkField(field);
+			this.functionType = functionType.getName();
+			this.field = field;
+			this.alias = alias;
+		}
+		
+		public FunExpress(String functionType, String field, String alias) {
 			checkField(field);
 			this.functionType = functionType;
 			this.field = field;
 			this.alias = alias;
 		}
 
-		public FunExpress() {}
+		FunExpress() {}
 
-		public FunctionType getFunctionType() {
+		public String getFunctionType() {
 			return functionType;
 		}
 
-		public void setFunctionType(FunctionType functionType) {
+		public void setFunctionType(String functionType) {
 			this.functionType = functionType;
 		}
 
 		public String getField() {
 			return field;
 		}
-
+		
 		public void setField(String field) {
 			this.field = field;
 		}

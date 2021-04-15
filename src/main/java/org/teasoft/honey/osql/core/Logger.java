@@ -71,9 +71,9 @@ public class Logger {
 
 			String value = HoneyUtil.list2Value(list, isShowSQLShowType());
 
-			if (value == null || "".equals(value.trim())) {
+//			if (value == null || "".equals(value.trim())) {
+			if (value == null) {
 				_print("[Bee] " + hardStr, sql);
-				//				if(showExecutableSql) _println("[Bee] ExecutableSql: "+hardStr, sql);  //无占位的情况       same as log sql.
 			} else {
 				if(OneTimeParameter.isTrue("_SYS_Bee_BatchInsertFirst")){//batchSize==1	
 					_print("[Bee] " + hardStr, sql);

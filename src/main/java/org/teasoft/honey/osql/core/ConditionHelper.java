@@ -471,7 +471,8 @@ public class ConditionHelper {
 				funStr+=",";
 			}
 //			funStr+=funExpList.get(i).getFunctionType().getName()+"("+columnName+")"; // funType要能转大小写风格
-			String functionTypeName=funExpList.get(i).getFunctionType().getName();
+//			String functionTypeName=funExpList.get(i).getFunctionType().getName();
+			String functionTypeName=funExpList.get(i).getFunctionType();
 			funStr+=FunAndOrderTypeMap.transfer(functionTypeName)+"("+columnName+")"; 
 			
 			alias=funExpList.get(i).getAlias();

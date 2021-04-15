@@ -165,10 +165,18 @@ public final class HoneyContext {
 	//	public static MoreTableStruct[] getMoreTableStructs(String key) {
 	//		return moreTableStructMap.get(key);
 	//	}
-
+	
+	private static boolean isShowExecutableSql() {
+		return HoneyConfig.getHoneyConfig().showSQL_showExecutableSql;
+	}
+	
 	static void setPreparedValue(String sqlStr, List<PreparedValue> list) {
-		if (list == null || list.size() == 0) return;
+		if (list == null ) return;
 		if (sqlStr == null || "".equals(sqlStr.trim())) return;
+		if (list.size() == 0) {
+			if (!isShowExecutableSql()) return;
+		}
+		
 		Map<String, List<PreparedValue>> map = sqlPreValueLocal.get();
 		//		if (null == map) map = new HashMap<>();
 		if (null == map) map = new ConcurrentHashMap<>();

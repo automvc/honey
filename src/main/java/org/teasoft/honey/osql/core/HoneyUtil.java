@@ -960,14 +960,16 @@ public final class HoneyUtil {
 		return map;
 	}
 	
-	public static String list2Value(List<PreparedValue> list){
-		
-		return list2Value(list,false);
-	}
+//	public static String list2Value(List<PreparedValue> list){
+//		
+//		return list2Value(list,false);
+//	}
+	
 	//List<PreparedValue>  to valueBuffer
 	public static String list2Value(List<PreparedValue> list,boolean needType){
 		StringBuffer b=new StringBuffer();
-		if(list==null || list.size()==0) return "";
+		if(list==null ) return null;
+		if(list.size()==0) return "";
 		
 		String type="";
 		

@@ -121,18 +121,18 @@ final class _ObjectToSQLHelper {
 				}
 				
 				String selectField = ConditionHelper.processSelectField(columnNames, condition);
-				isFun=true;
+//				isFun=true;
 				if (isCheckOneFunction) {
 					columnNames = fun;
 				}else if (selectField != null && StringUtils.isEmpty(fun)) {
 					columnNames = selectField;
-					isFun=false;
+//					isFun=false;
 				}else if (selectField != null && StringUtils.isNotEmpty(fun)) {
 					columnNames = selectField + "," + fun;
 				}else if (selectField == null && StringUtils.isNotEmpty(fun)) {
 					columnNames = fun;
 				}else {
-					isFun=false;
+//					isFun=false;
 				}
 			}
 			
@@ -185,8 +185,8 @@ final class _ObjectToSQLHelper {
 			
 		if (condition != null) {
 			condition.setSuidType(SuidType.SELECT);
-			if (isFun) {
-				OneTimeParameter.setTrueForKey(StringConst.Select_Fun);
+			if (isFun) { //close
+				OneTimeParameter.setTrueForKey(StringConst.Select_Fun);  //不用分页
 			} else {
 				if (HoneyContext.isNeedRealTimeDb()) {
 					HoneyContext.initRouteWhenParseSql(SuidType.SELECT, entity.getClass(), tableName);
@@ -387,7 +387,7 @@ final class _ObjectToSQLHelper {
 //						continue; //Condition已包含的set条件,不再作转换处理
 
 					if (firstSet) {
-						sqlBuffer.append(" ");
+//						sqlBuffer.append(" ");
 						firstSet = false;
 					} else {
 						sqlBuffer.append(" , ");//update 的set部分不是用and  ，而是用逗号的
@@ -547,7 +547,7 @@ final class _ObjectToSQLHelper {
 					continue; //Condition已包含的set条件,不再作转换处理
 				
 				if (firstSet) {
-					sqlBuffer.append(" ");
+//					sqlBuffer.append(" ");
 					firstSet = false;
 				} else {
 					sqlBuffer.append(" , ");//update 的set部分不是用and  ，而是用逗号的
