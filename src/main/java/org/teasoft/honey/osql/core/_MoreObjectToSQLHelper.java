@@ -17,6 +17,7 @@ import org.teasoft.bee.osql.annotation.JoinType;
 import org.teasoft.bee.osql.dialect.DbFeature;
 import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
 import org.teasoft.honey.osql.name.NameUtil;
+import org.teasoft.honey.util.StringUtils;
 
 /**
  * @author Kingstar
@@ -88,9 +89,18 @@ public class _MoreObjectToSQLHelper {
 			if (condition != null) {
 				condition.setSuidType(SuidType.SELECT);
 				String selectField = ConditionHelper.processSelectField(columnNames, condition,moreTableStruct[0].subDulFieldMap);
-				if (selectField != null){
-					columnNames = selectField;  //若指定了字段,则测试也不用*代替
-				}else{
+				
+				//v1.9
+				String fun=ConditionHelper.processFunction(columnNames, condition);  //字段相同,要取不一样的别名,才要传subDulFieldMap
+				
+				if (selectField != null && StringUtils.isEmpty(fun)) {
+					columnNames = selectField;
+				}else if (selectField != null && StringUtils.isNotEmpty(fun)) {
+					columnNames = selectField + "," + fun;
+				}else if (selectField == null && StringUtils.isNotEmpty(fun)) {
+					columnNames = fun;
+				}else {
+				    //若指定了字段,则测试也不用*代替
 					if(moreTable_columnListWithStar){
 						columnNames="*";
 					}
@@ -240,6 +250,11 @@ public class _MoreObjectToSQLHelper {
 //					firstWhere=parseSubObject(sqlBuffer, valueBuffer, list, conditionFieldSet, firstWhere, includeType, moreTableStruct, index);
 					firstWhere=parseSubObject(sqlBuffer, list, whereFields, firstWhere, includeType, moreTableStruct, index);
 				}
+			}
+			
+			if (HoneyContext.isNeedRealTimeDb()) {
+				HoneyContext.initRouteWhenParseSql(SuidType.SELECT, entity.getClass(), tableName);
+				OneTimeParameter.setTrueForKey(StringConst.ALREADY_SET_ROUTE);
 			}
 			
 			if(condition!=null){
