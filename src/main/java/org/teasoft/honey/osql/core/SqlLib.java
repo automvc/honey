@@ -591,12 +591,13 @@ public class SqlLib implements BeeSql {
 		} catch (SQLException e) {
 			hasException=true;
 			if (isConstraint(e)) {
-				Logger.error("Please confirm whether it is Primary Key violation !!");
+				Logger.warn(e.getMessage());
+//				Logger.error("Please confirm whether it is Primary Key violation !!");
 				clearContext(sql[0],batchSize,len);
 				Logger.error(e.getMessage());
 				return total;
 			}
-			Logger.debug(e.getMessage());
+			Logger.warn(e.getMessage());
 			throw ExceptionHelper.convert(e);
 		} finally {
 //			bug :Lock wait timeout exceeded; 
@@ -719,12 +720,13 @@ public class SqlLib implements BeeSql {
 		} catch (SQLException e) {
 			hasException=true;
 			if (isConstraint(e)) {
-				Logger.error("Please confirm whether it is Primary Key violation !!");
+				Logger.warn(e.getMessage());
+//				Logger.error("Please confirm whether it is Primary Key violation !!");
 				clearContextForMysql(sql[0],batchSize,len);
 				
 				return total;
 			}
-			Logger.debug(e.getMessage());
+			Logger.warn(e.getMessage());
 			throw ExceptionHelper.convert(e);
 		} finally {
 //			bug :Lock wait timeout exceeded; 
