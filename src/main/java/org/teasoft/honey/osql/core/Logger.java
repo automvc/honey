@@ -20,11 +20,11 @@ public class Logger {
 	}
 	
 	private static boolean isShowSQLShowType() {
-		return HoneyConfig.getHoneyConfig().showSQL_showType;
+		return HoneyConfig.getHoneyConfig().showSql_showType;
 	}
 	
 	private static boolean isShowExecutableSql() {
-		return HoneyConfig.getHoneyConfig().showSQL_showExecutableSql;
+		return HoneyConfig.getHoneyConfig().showSql_showExecutableSql;
 	}
 	
 

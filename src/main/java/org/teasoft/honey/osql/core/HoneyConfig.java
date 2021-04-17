@@ -55,17 +55,17 @@ public final class HoneyConfig {
 	
 	@SysValue("${bee.osql.showSQL}")   //属于 bee.osql
 	public boolean showSQL = false;
-	//----------------------------- showSQL start
+	//----------------------------- showSql start
 
-	@SysValue("${bee.osql.showSQL.showType}")
-	boolean showSQL_showType;//v1.8
+	@SysValue("${bee.osql.showSql.showType}")
+	boolean showSql_showType;//v1.8
 
-	@SysValue("${bee.osql.showSQL.showExecutableSql}")
-	boolean showSQL_showExecutableSql;//v1.8
+	@SysValue("${bee.osql.showSql.showExecutableSql}")
+	boolean showSql_showExecutableSql;//v1.8
 
-	@SysValue("${bee.osql.showSQL.donotPrintCurrentDate}")
-	public boolean showSQL_donotPrintCurrentDate; //v1.7.0
-	//----------------------------- showSQL end
+	@SysValue("${bee.osql.showSql.donotPrintCurrentDate}")
+	public boolean showSql_donotPrintCurrentDate; //v1.7.0
+	//----------------------------- showSql end
 	
 	
 	@SysValue("${bee.osql.naming.toLowerCaseBefore}")

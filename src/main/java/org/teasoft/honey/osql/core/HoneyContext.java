@@ -167,7 +167,7 @@ public final class HoneyContext {
 	//	}
 	
 	private static boolean isShowExecutableSql() {
-		return HoneyConfig.getHoneyConfig().showSQL_showExecutableSql;
+		return HoneyConfig.getHoneyConfig().showSql_showExecutableSql;
 	}
 	
 	static void setPreparedValue(String sqlStr, List<PreparedValue> list) {
