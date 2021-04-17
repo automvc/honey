@@ -5,7 +5,6 @@ import org.teasoft.bee.osql.Cache;
 import org.teasoft.bee.osql.CallableSql;
 import org.teasoft.bee.osql.Condition;
 import org.teasoft.bee.osql.DatabaseConst;
-import org.teasoft.bee.osql.LowerKey;
 import org.teasoft.bee.osql.MapSql;
 import org.teasoft.bee.osql.MapSuid;
 import org.teasoft.bee.osql.MoreObjToSQL;
@@ -14,10 +13,8 @@ import org.teasoft.bee.osql.NameTranslate;
 import org.teasoft.bee.osql.ObjToSQL;
 import org.teasoft.bee.osql.ObjToSQLRich;
 import org.teasoft.bee.osql.PreparedSql;
-import org.teasoft.bee.osql.SqlKeyWord;
 import org.teasoft.bee.osql.Suid;
 import org.teasoft.bee.osql.SuidRich;
-import org.teasoft.bee.osql.UpperKey;
 import org.teasoft.bee.osql.dialect.DbFeature;
 import org.teasoft.bee.osql.exception.NoConfigException;
 import org.teasoft.honey.osql.dialect.LimitOffsetPaging;
@@ -239,12 +236,5 @@ public class HoneyFactory {
 //	public void setCache(Cache cache) {
 //		this.cache = cache;
 //	}
-	
-	public SqlKeyWord getSqlKeyWord() {
-		if (HoneyUtil.isSqlKeyWordUpper())
-			return new UpperKey();
-		else
-			return new LowerKey(); //default
-	}
 	
 }

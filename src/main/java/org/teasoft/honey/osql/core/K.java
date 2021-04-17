@@ -6,7 +6,9 @@
 
 package org.teasoft.honey.osql.core;
 
+import org.teasoft.bee.osql.LowerKey;
 import org.teasoft.bee.osql.SqlKeyWord;
+import org.teasoft.bee.osql.UpperKey;
 
 /**
  * @author Kingstar
@@ -14,7 +16,7 @@ import org.teasoft.bee.osql.SqlKeyWord;
  */
 public class K {
 	
-	private static SqlKeyWord k=BeeFactory.getHoneyFactory().getSqlKeyWord();
+	private static SqlKeyWord k=getSqlKeyWord();
 	
 	private K() {}
 	
@@ -61,5 +63,12 @@ public class K {
 	public static final String notIn=k.notIn();
 	public static final String exists=k.exists();
 	public static final String notExists=k.notExists();
+	
+	private static SqlKeyWord getSqlKeyWord() {
+		if (HoneyUtil.isSqlKeyWordUpper())
+			return new UpperKey();
+		else
+			return new LowerKey(); //default
+	}
 
 }
