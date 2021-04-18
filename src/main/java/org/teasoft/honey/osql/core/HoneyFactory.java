@@ -41,22 +41,24 @@ public class HoneyFactory {
 	private CallableSql callableSql;
 	private Condition condition;
 	
-	private DbFeature dbFeature;
-	private NameTranslate nameTranslate;
-	private static Cache cache;
-	
-	//@since  1.7
-	private MoreObjToSQL moreObjToSQL;
 	//@since  1.7
 	private MoreTable moreTable;
+	private MoreObjToSQL moreObjToSQL;
 	
 	//@since  1.9
 	private MapSql mapSql;
 	private MapSuid mapSuid;
+	
+	private DbFeature dbFeature;
+	private NameTranslate nameTranslate;
+	private static Cache cache;
+	
+	public HoneyFactory(){
+	}
 
 	public Suid getSuid() {
 		if(suid==null) return new ObjSQL();
-		else return suid; //可以通过配置spring bean的方式注入
+		return suid; //可以通过配置spring bean的方式注入
 	}
 
 	public void setSuid(Suid suid) {
@@ -65,7 +67,7 @@ public class HoneyFactory {
 	
 	public SuidRich getSuidRich() {
 		if(suidRich==null) return new ObjSQLRich();
-		else return suidRich;
+		return suidRich;
 	}
 
 	public void setSuidRich(SuidRich suidRich) {
@@ -73,9 +75,8 @@ public class HoneyFactory {
 	}
 	
 	public MoreTable getMoreTable() {
-//		return moreTable;
 		if(moreTable==null) return new MoreObjSQL();
-		else return moreTable;
+		return moreTable;
 	}
 
 	public void setMoreTable(MoreTable moreTable) {
@@ -93,7 +94,7 @@ public class HoneyFactory {
 
 	public ObjToSQL getObjToSQL() {
 		if(objToSQL==null) return new ObjectToSQL();
-		else return objToSQL;
+		return objToSQL;
 	}
 
 	public void setObjToSQL(ObjToSQL objToSQL) {
@@ -102,7 +103,7 @@ public class HoneyFactory {
 
 	public ObjToSQLRich getObjToSQLRich() {
 		if(objToSQLRich==null) return new ObjectToSQLRich();
-		else return objToSQLRich;
+		return objToSQLRich;
 	}
 
 	public void setObjToSQLRich(ObjToSQLRich objToSQLRich) {
@@ -111,7 +112,7 @@ public class HoneyFactory {
 
 	public MoreObjToSQL getMoreObjToSQL() {
 		if(moreObjToSQL==null) return new MoreObjectToSQL();
-		else return moreObjToSQL;
+		return moreObjToSQL;
 	}
 
 	public void setMoreObjToSQL(MoreObjToSQL moreObjToSQL) {
@@ -120,7 +121,7 @@ public class HoneyFactory {
 
 	public PreparedSql getPreparedSql() {
 		if(preparedSql==null) return new PreparedSqlLib();
-		else return preparedSql;
+		return preparedSql;
 	}
 
 	public void setPreparedSql(PreparedSql preparedSql) {
@@ -129,7 +130,7 @@ public class HoneyFactory {
 
 	public CallableSql getCallableSql() {
 		if(callableSql==null) return new CallableSqlLib();
-		else return callableSql;
+		return callableSql;
 	}
 
 	public void setCallableSql(CallableSql callableSql) {
@@ -138,7 +139,7 @@ public class HoneyFactory {
 	
 	public Condition getCondition() {
 		if(condition==null) return new ConditionImpl();
-		else return condition;
+		return condition;
 	}
 
 	public void setCondition(Condition condition) {
