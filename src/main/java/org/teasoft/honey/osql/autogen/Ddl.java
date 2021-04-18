@@ -12,7 +12,7 @@ import java.util.Map;
 import org.teasoft.bee.osql.DatabaseConst;
 import org.teasoft.bee.osql.PreparedSql;
 import org.teasoft.bee.osql.annotation.JoinTable;
-import org.teasoft.honey.osql.core.BeeFactory;
+import org.teasoft.honey.osql.core.BeeFactoryHelper;
 import org.teasoft.honey.osql.core.HoneyContext;
 import org.teasoft.honey.osql.core.HoneyUtil;
 import org.teasoft.honey.osql.core.Logger;
@@ -27,31 +27,35 @@ import org.teasoft.honey.osql.name.NameUtil;
  */
 public class Ddl {
 
-//	private static Map<String, String> java2DbType = Java2DbType.getJava2DbType(HoneyContext.getDbDialect());
+	//	private static Map<String, String> java2DbType = Java2DbType.getJava2DbType(HoneyContext.getDbDialect());
 	private static String LINE_SEPARATOR = System.getProperty("line.separator"); // 换行符
-	private static PreparedSql preparedSql = BeeFactory.getHoneyFactory().getPreparedSql();
-	
-	private static Map<String, String> getJava2DbType(){
+	private static PreparedSql preparedSql = BeeFactoryHelper.getPreparedSql();
+
+	private static Map<String, String> getJava2DbType() {
 		return Java2DbType.getJava2DbType(HoneyContext.getDbDialect());
 	}
-			
 
 	public static <T> boolean createTable(T entity, boolean isDropExistTable) {
 		if (isDropExistTable) {
 			String tableName = _toTableName(entity);
+			boolean second = false;
 			try {
 				String sql0 = "";
+
 				if (HoneyUtil.isOracle() || HoneyUtil.isSqlServer()) {
 					sql0 = "DROP TABLE " + tableName;
 				} else {
 					sql0 = " DROP TABLE IF EXISTS " + tableName;
+					second = true;
 				}
 				preparedSql.modify(sql0);
 			} catch (Exception e) {
-				try {
-					preparedSql.modify("DROP TABLE " + tableName);
-				} catch (Exception e2) {
-					Logger.warn(e2.getMessage());
+				if (second) {
+					try {
+						preparedSql.modify("DROP TABLE " + tableName);
+					} catch (Exception e2) {
+						Logger.warn(e2.getMessage());
+					}
 				}
 			}
 			return createTable(entity, tableName);
@@ -80,6 +84,7 @@ public class Ddl {
 			preparedSql.modify(toCreateTableSQL(entity, tableName));
 			result = true;
 		} catch (Exception e) {
+			e.printStackTrace();
 			Logger.error(e.getMessage());
 			result = false;
 		}
@@ -344,7 +349,7 @@ public class Ddl {
 	}
 
 	public static void setDynamicParameter(String para, String value) {
-		BeeFactory.getHoneyFactory().getSuid().setDynamicParameter(para, value);
+		BeeFactoryHelper.getSuid().setDynamicParameter(para, value);
 	}
 
 	private static String _toTableName(Object entity) {
