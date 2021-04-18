@@ -10,14 +10,27 @@ import org.teasoft.honey.osql.core.BeeFactory;
  * @since  1.0
  */
 public class ObjSQLRichServiceImpl extends ObjSQLRichAbstractServiceImpl {
+	
+	private Suid suid;
+	private SuidRich suidRich;
+	
+	public void setSuid(Suid suid) {
+		this.suid = suid;
+	}
+	
+	public void setSuidRich(SuidRich suidRich) {
+		this.suidRich = suidRich;
+	}
 
 	@Override
 	public Suid getSuid() {
-		return BeeFactory.getHoneyFactory().getSuid();
+		if(suid==null) return BeeFactory.getHoneyFactory().getSuid();
+		return suid;
 	}
 
 	@Override
 	public SuidRich getSuidRich() {
-		return BeeFactory.getHoneyFactory().getSuidRich();
+		if(suidRich==null) return BeeFactory.getHoneyFactory().getSuidRich();
+		return suidRich;
 	}
 }
