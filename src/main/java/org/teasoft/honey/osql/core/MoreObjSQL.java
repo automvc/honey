@@ -20,8 +20,8 @@ import org.teasoft.bee.osql.exception.BeeIllegalParameterException;
  */
 public class MoreObjSQL implements MoreTable{
 
-	private BeeSql beeSql;// = BeeFactory.getHoneyFactory().getBeeSql();
-	private MoreObjToSQL moreObjToSQL = BeeFactory.getHoneyFactory().getMoreObjToSQL();
+	private BeeSql beeSql;
+	private MoreObjToSQL moreObjToSQL;
 
 	public MoreObjSQL() {}
 
@@ -32,6 +32,15 @@ public class MoreObjSQL implements MoreTable{
 
 	public void setBeeSql(BeeSql beeSql) {
 		this.beeSql = beeSql;
+	}
+	
+	public MoreObjToSQL getMoreObjToSQL() {
+		if(moreObjToSQL==null) return BeeFactory.getHoneyFactory().getMoreObjToSQL();
+		return moreObjToSQL;
+	}
+
+	public void setMoreObjToSQL(MoreObjToSQL moreObjToSQL) {
+		this.moreObjToSQL = moreObjToSQL;
 	}
 
 	@Override
