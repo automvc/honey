@@ -23,9 +23,11 @@ import org.teasoft.bee.osql.exception.BeeIllegalParameterException;
  */
 public class ObjSQLRich extends ObjSQL implements SuidRich {
 
-	private ObjToSQLRich objToSQLRich; // = BeeFactory.getHoneyFactory().getObjToSQLRich();
-//	private BeeSql beeSql = BeeFactory.getHoneyFactory().getBeeSql();
+    private ObjToSQLRich objToSQLRich; 
 	
+    public ObjSQLRich() {
+    }
+    
 	public ObjToSQLRich getObjToSQLRich() {
 		if(objToSQLRich==null) objToSQLRich=BeeFactory.getHoneyFactory().getObjToSQLRich();
 		return objToSQLRich;

@@ -23,8 +23,8 @@ import org.teasoft.bee.osql.exception.NotSupportedException;
 public class ObjSQL implements Suid {
 	
 
-	private BeeSql beeSql;// = BeeFactory.getHoneyFactory().getBeeSql();
-	private ObjToSQL objToSQL;// = BeeFactory.getHoneyFactory().getObjToSQL();
+	private BeeSql beeSql;
+	private ObjToSQL objToSQL;
 
 	public ObjSQL() {}
 
