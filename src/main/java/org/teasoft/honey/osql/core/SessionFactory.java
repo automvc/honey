@@ -88,6 +88,12 @@ public final class SessionFactory {
 		if (url == null) nullInfo += DbConfigConst.DB_URL + " do not config; ";
 		if (username == null) nullInfo += DbConfigConst.DB_USERNAM + " do not config; ";
 		if (password == null) nullInfo += DbConfigConst.DB_PWORD + " do not config; ";
+		
+		if (url == null) {
+			Logger.error("The url can not null when get the Connection directly from DriverManager!  "+nullInfo);
+			Logger.warn("The system will be exit!......");
+			System.exit(0);
+		}
 
 		if (!"".equals(nullInfo)) {
 //			throw new NoConfigException("NoConfigException,Do not set the database info: " + nullInfo);
