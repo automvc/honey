@@ -18,10 +18,10 @@ public final class HoneyConfig {
 		honeyConfig.init(); // just run one time
 	}
 
-	private HoneyConfig() {}
+	private HoneyConfig() {
+	}
 
 	public static HoneyConfig getHoneyConfig() {
-
 		return honeyConfig;
 	}
 
@@ -72,7 +72,7 @@ public final class HoneyConfig {
 	public boolean naming_toLowerCaseBefore = true; //default : to LowerCase before
 
 	@SysValue("${bee.osql.naming.translateType}")
-	int naming_translateType = 1;
+	public int naming_translateType = 1;
 	
 	@SysValue("${bee.osql.naming.entity2tableMappingList}")
 	public String naming_entity2tableMappingList;
@@ -122,10 +122,10 @@ public final class HoneyConfig {
 
 	//----------------------------- cache start
 	@SysValue("${bee.osql.cache.timeout}")
-	public int cache_timeout = 10000; //缓存保存时间(毫秒 ms)
+	public int cache_timeout = 30000; //缓存保存时间(毫秒 ms)
 
 	@SysValue("${bee.osql.cache.mapSize}")
-	int cache_mapSize = 1000; //缓存集数据量大小
+	int cache_mapSize = 20000; //缓存集数据量大小
 
 //	private String cacheType="FIFO";
 
