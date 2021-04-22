@@ -362,7 +362,7 @@ public class SqlLib implements BeeSql {
 		if(sql==null || "".equals(sql.trim())) return Collections.emptyList();
 		
 		boolean isReg = updateInfoInCache(sql, "List<Map<String,Object>>", SuidType.SELECT);
-		if (isReg) {
+		if (isReg) { //V1.9还未使用
 			Object cacheObj = cache.get(sql); //这里的sql还没带有值
 			if (cacheObj != null) {
 				clearContext(sql);
