@@ -12,6 +12,7 @@ import java.util.Map;
 
 import org.teasoft.bee.logging.Log;
 import org.teasoft.honey.osql.core.HoneyConfig;
+import org.teasoft.honey.util.StringUtils;
 
 /**
  * @author Kingstar
@@ -95,7 +96,11 @@ public class LoggerFactory {
 						Class implClassNoArg = genClassByName(implClassName);
 						logNoArgConstructor = implClassNoArg.getConstructor();
 						isNoArgInConstructor = true;
-						System.out.println("[Bee] LoggerFactory Use the Logger is : " + implClassName);
+						String s1 = "[Bee] LoggerFactory Use the Logger is : " + implClassName;
+
+						if (StringUtils.isNotBlank(testClassName)) 
+							s1 += " , Logger adapt from : " + testClassName;
+						System.out.println(s1);
 						return true;
 
 					} catch (ClassNotFoundException e) {
@@ -111,7 +116,10 @@ public class LoggerFactory {
 			Class implClass = genClassByName(implClassName);
 			logConstructor = implClass.getConstructor(new Class[] { String.class });
 
-			System.out.println("[Bee] LoggerFactory Use the Logger is : " + implClassName);
+			String s2 = "[Bee] LoggerFactory Use the Logger is : " + implClassName;
+			if (StringUtils.isNotBlank(testClassName)) 
+				s2 += " , Logger adapt from : " + testClassName;
+			System.out.println(s2);
 			return true;
 
 		} catch (ClassNotFoundException e) {
@@ -172,7 +180,12 @@ public class LoggerFactory {
 			clazz = Thread.currentThread().getContextClassLoader().loadClass(className);
 		} catch (Exception e) {
 			//ignore
+//			e.printStackTrace();
+		}catch (Error e) {
+			//ignore
+//			e.printStackTrace();
 		}
+		
 		if (clazz == null) {
 			clazz = Class.forName(className);
 		}
