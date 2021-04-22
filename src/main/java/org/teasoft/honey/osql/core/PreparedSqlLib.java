@@ -23,9 +23,7 @@ import org.teasoft.honey.osql.name.NameUtil;
  */
 public class PreparedSqlLib implements PreparedSql {
 
-	private BeeSql beeSql;// = BeeFactory.getHoneyFactory().getBeeSql();
-	
-//	private DbFeature dbFeature = BeeFactory.getHoneyFactory().getDbFeature();
+	private BeeSql beeSql;
 
 	public BeeSql getBeeSql() {
 		if(beeSql==null) beeSql = BeeFactory.getHoneyFactory().getBeeSql();
