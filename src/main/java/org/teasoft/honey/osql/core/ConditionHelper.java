@@ -360,6 +360,10 @@ public class ConditionHelper {
 					sqlBuffer.append(" "+K.isNull);
 				}else{
 					sqlBuffer.append(" "+K.isNotNull);
+					if(! "!=".equals(expression.getOpType())) {
+						String fieldName=_toColumnName(expression.getFieldName(),useSubTableNames);
+						Logger.warn(fieldName+expression.getOpType()+"null transfer to : " +fieldName+" "+K.isNotNull);
+					}
 				}
 			} else {
 				if (expression.getOpNum() == -3) { //eg:field1=field2   could not use for having in mysql 
