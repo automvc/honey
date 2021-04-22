@@ -365,10 +365,10 @@ Rapid application development:
 =========	
 **Let Java more quicker programming than php and Rails.**  
 
-**Faster development of new combinations of Java Web：**  
+**Faster development of new combinations for Java Web：**  
 [Bee+Spring+SpringMVC](../../../../aiteasoft/bee-spring-springmvc)  
 
-**Faster development of new combinations of Spring Cloud microservices：**  
+**Faster development of new combinations for Spring Cloud microservices：**  
 [Bee + Spring Boot](../../../bee-springboot)  
 
 ...  
