@@ -43,7 +43,7 @@ public class Logger {
 			String callerClass = "";
 			try {
 				callerClass = sun.reflect.Reflection.getCallerClass().getName();
-			} catch (InternalError e) {
+			} catch (Error e) {
 				try {
 					callerClass = sun.reflect.Reflection.getCallerClass(2).getName();
 				} catch (Throwable t) {
@@ -126,7 +126,7 @@ public class Logger {
 			String callerClass = "";
 			try {
 				callerClass = sun.reflect.Reflection.getCallerClass().getName();
-			} catch (InternalError e) {
+			} catch (Error e) {
 				try {
 					callerClass = sun.reflect.Reflection.getCallerClass(2).getName();
 				} catch (Throwable t) {
@@ -154,7 +154,7 @@ public class Logger {
 			String callerClass = "";
 			try {
 				callerClass = sun.reflect.Reflection.getCallerClass().getName();
-			} catch (InternalError e) {
+			} catch (Error e) {
 				try {
 					callerClass = sun.reflect.Reflection.getCallerClass(2).getName();
 				} catch (Throwable t) {
@@ -182,7 +182,7 @@ public class Logger {
 			String callerClass = "";
 			try {
 				callerClass = sun.reflect.Reflection.getCallerClass().getName();
-			} catch (InternalError e) {
+			} catch (Error e) {
 				try {
 					callerClass = sun.reflect.Reflection.getCallerClass(2).getName();
 				} catch (Throwable t) {
@@ -210,7 +210,7 @@ public class Logger {
 			String callerClass = "";
 			try {
 				callerClass = sun.reflect.Reflection.getCallerClass().getName();
-			} catch (InternalError e) {
+			} catch (Error e) {
 				try {
 					callerClass = sun.reflect.Reflection.getCallerClass(2).getName();
 				} catch (Throwable t) {
@@ -238,7 +238,7 @@ public class Logger {
 			String callerClass = "";
 			try {
 				callerClass = sun.reflect.Reflection.getCallerClass().getName();
-			} catch (InternalError e) {
+			} catch (Error e) {
 				try {
 					callerClass = sun.reflect.Reflection.getCallerClass(2).getName();
 				} catch (Throwable t) {
@@ -266,7 +266,7 @@ public class Logger {
 			String callerClass = "";
 			try {
 				callerClass = sun.reflect.Reflection.getCallerClass().getName();
-			} catch (InternalError e) {
+			} catch (Error e) {
 				try {
 					callerClass = sun.reflect.Reflection.getCallerClass(2).getName();
 				} catch (Throwable t) {
@@ -294,7 +294,7 @@ public class Logger {
 			String callerClass = "";
 			try {
 				callerClass = sun.reflect.Reflection.getCallerClass().getName();
-			} catch (InternalError e) {
+			} catch (Error e) {
 				try {
 					callerClass = sun.reflect.Reflection.getCallerClass(2).getName();
 				} catch (Throwable t) {
