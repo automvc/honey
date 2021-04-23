@@ -15,6 +15,7 @@ import org.teasoft.bee.osql.Suid;
 import org.teasoft.bee.osql.SuidRich;
 
 /**
+ * 获取接口相应对象的帮助类.Helper Class for get the corresponding object of the interface.
  * @author Kingstar
  * @since  1.9
  */
