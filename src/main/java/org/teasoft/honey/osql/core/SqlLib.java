@@ -39,8 +39,6 @@ public class SqlLib implements BeeSql {
 	private Cache cache=BeeFactory.getHoneyFactory().getCache();
 	
 	private int cacheWorkResultSetSize=HoneyConfig.getHoneyConfig().cache_workResultSetSize;
-	private boolean enableMultiDs=HoneyConfig.getHoneyConfig().multiDS_enable;
-	
 	private static boolean  showSQL=HoneyConfig.getHoneyConfig().showSQL;
 
 	public SqlLib() {}
@@ -592,7 +590,6 @@ public class SqlLib implements BeeSql {
 			hasException=true;
 			if (isConstraint(e)) {
 				Logger.warn(e.getMessage());
-//				Logger.error("Please confirm whether it is Primary Key violation !!");
 				clearContext(sql[0],batchSize,len);
 				Logger.error(e.getMessage());
 				return total;
@@ -652,6 +649,7 @@ public class SqlLib implements BeeSql {
 		int array[]=pst.executeBatch();    //oracle will return [-2,-2,...,-2]
 		
 		if(HoneyUtil.isOracle()){
+//			int array[]=pst.executeBatch();  //不能放在此处.executeBatch()是都要运行的
 			a=pst.getUpdateCount();//oracle is ok. but mysql will return 1 alway.So mysql use special branch.
 		}else{
 			a=countFromArray(array);
@@ -665,6 +663,7 @@ public class SqlLib implements BeeSql {
 	
 	private int countFromArray(int array[]){
 		int a=0;
+		if(array==null) return a;
 		for (int i=0; i < array.length; i++) {
 			a+=array[i];
 		}
@@ -710,7 +709,7 @@ public class SqlLib implements BeeSql {
 				}
 
 				if (len % batchSize != 0) { //尾数不成批
-					batchExeSql = getBatchExeSql(exe_sql, (len % batchSize), placeholderValue);
+					batchExeSql = getBatchExeSql(exe_sql, (len % batchSize), placeholderValue);  //最后一批,getBatchExeSql返回的语句可能不一样
 					pst = conn.prepareStatement(batchExeSql[0]);   //fixed bug
 					temp = _batchForMysql(sql[0], len - (len % batchSize), len, conn, pst, batchSize, batchExeSql[1]);
 					total += temp;
@@ -721,7 +720,6 @@ public class SqlLib implements BeeSql {
 			hasException=true;
 			if (isConstraint(e)) {
 				Logger.warn(e.getMessage());
-//				Logger.error("Please confirm whether it is Primary Key violation !!");
 				clearContextForMysql(sql[0],batchSize,len);
 				
 				return total;
@@ -1180,6 +1178,7 @@ public class SqlLib implements BeeSql {
 	
 	@SuppressWarnings("rawtypes")
 	private void initRoute(SuidType suidType, Class clazz, String sql) {
+		boolean enableMultiDs=HoneyConfig.getHoneyConfig().multiDS_enable;
 		if (!enableMultiDs) return;
 		if(HoneyContext.isNeedRealTimeDb() && HoneyContext.isAlreadySetRoute()) return; // already set in parse entity to sql.
 		HoneyContext.initRoute(suidType, clazz, sql);
