@@ -20,10 +20,11 @@ import org.teasoft.bee.osql.MapSqlSetting;
  */
 public class MapSqlImpl implements MapSql {
 
-	Map<MapSqlKey, String> sqlkeyMap = new HashMap<>();
+	private Map<MapSqlKey, String> sqlkeyMap = new HashMap<>();
 //	Map<String, Object> whereConditonMap = new HashMap<>();
-	Map<String, Object> whereConditonMap = new LinkedHashMap<>();
-	Map<MapSqlSetting, Boolean> settingMap = new HashMap<>();
+//	private Map<String, Object> whereConditonMap = new LinkedHashMap<>();
+	private Map<String, Object> kv = new LinkedHashMap<>();
+	private Map<MapSqlSetting, Boolean> settingMap = new HashMap<>();
 
 	@Override
 	public void put(MapSqlKey key, String value) {
@@ -32,7 +33,7 @@ public class MapSqlImpl implements MapSql {
 
 	@Override
 	public void put(String fieldName, Object value) {
-		whereConditonMap.put(fieldName, value);
+		kv.put(fieldName, value);
 	}
 	
 	@Override
@@ -44,8 +45,8 @@ public class MapSqlImpl implements MapSql {
 		return sqlkeyMap;
 	}
 
-	Map<String, Object> getWhereCondtionMap() {
-		return whereConditonMap;
+	Map<String, Object> getKvMap() {
+		return kv;
 	}
 	
 	Map<MapSqlSetting, Boolean> getSqlSettingMap() {
