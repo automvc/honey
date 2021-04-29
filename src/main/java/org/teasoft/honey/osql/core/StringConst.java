@@ -14,6 +14,7 @@ public interface StringConst {
 	
 	String tRue = "tRue";
     String TABLE_NAME="_SYS_Bee_TableName";
+    String DoNotCheckAnnotation="_SYS_Bee_DoNotCheckAnnotation";
     String ALREADY_SET_ROUTE="_SYS_Bee_ALREADY_SET_ROUTE";
     String Select_Fun="_SYS_Bee_Select_Fun";
     String MoreStruct_to_SqlLib="_SYS_Bee_MoreStruct_to_SqlLib";

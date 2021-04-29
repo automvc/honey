@@ -566,6 +566,8 @@ public final class HoneyContext {
 		return needGenId;
 	}
 
+	//仅分库,有多个数据源时,且支持同时使用多种类型数据库时,
+	//才可能需要实时确认是什么数据库,没有分页的不需要
 	static boolean isNeedRealTimeDb() {
 		boolean enableMultiDs = HoneyConfig.getHoneyConfig().multiDS_enable;
 		if (enableMultiDs) {

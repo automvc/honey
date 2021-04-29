@@ -509,7 +509,7 @@ public class ConditionHelper {
 			}else if(useSubTableNames[1]!=null && useSubTableNames[1].startsWith(t_tableName_dot)){
 				find_tableName=t_tableName;
 			}else{
-				OneTimeParameter.setTrueForKey("_SYS_Bee_DoNotCheckAnnotation");//adjust for @Table
+				OneTimeParameter.setTrueForKey(StringConst.DoNotCheckAnnotation);//adjust for @Table
 				find_tableName=NameTranslateHandle.toTableName(t_tableName);
 			}
 			

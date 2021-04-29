@@ -43,7 +43,7 @@ public class NameTranslateHandle {
 	@SuppressWarnings({"rawtypes","unchecked"}) 
 	public static String toTableName(String entityName) {
 		try {
-			if(OneTimeParameter.isTrue("_SYS_Bee_DoNotCheckAnnotation")) {	
+			if(OneTimeParameter.isTrue(StringConst.DoNotCheckAnnotation)) {	
 				//nothing
 			} else {
 				//Table注解不再需要命名转换,Entity注解解析动态命名参数后还需要命名转换
