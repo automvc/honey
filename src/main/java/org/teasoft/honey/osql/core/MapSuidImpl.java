@@ -75,10 +75,35 @@ public class MapSuidImpl implements MapSuid {
 
 	@Override
 	public long insert(MapSql mapSql) {
+		
 		if(mapSql==null) return -1;
+		
 		String sql = MapSqlProcessor.toInsertSqlByMap(mapSql);
 		Logger.logSQL("In MapSuid, insert SQL: ", sql);
-		return getBeeSql().modify(sql);
+		
+		Object obj =OneTimeParameter.getAttribute("_SYS_Bee_MapSuid_Insert_Has_ID");
+		long newId;
+		if (obj != null) {
+			newId = Long.parseLong(obj.toString());
+			if (newId > 1) {
+				int insertNum = getBeeSql().modify(sql);
+				if (insertNum == 1) {
+					return newId;
+				} else {
+					return insertNum;
+				}
+			} else {
+				if (HoneyUtil.isOracle()) {
+					Logger.debug("Need create Sequence and Trigger for auto increment id. "
+							+ "By the way,maybe use distribute id is better!");
+				}
+			}
+		}
+//		假如处理后id为空,则用db生成.
+		//id will gen by db
+		newId = getBeeSql().insertAndReturnId(sql);
+
+		return newId;
 		
 	}
 

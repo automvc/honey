@@ -107,7 +107,8 @@ public class ObjSQL implements Suid {
 		
 		long returnId = -1;
 		if (obj != null) {
-			returnId = (long) obj;
+//			returnId = (long) obj;
+			returnId = Long.parseLong(obj.toString());
 			if (returnId > 1) {
 				int insertNum = getBeeSql().modify(sql);
 				if (insertNum == 1) {

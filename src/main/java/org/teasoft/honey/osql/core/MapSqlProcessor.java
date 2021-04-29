@@ -15,6 +15,7 @@ import org.teasoft.bee.osql.MapSql;
 import org.teasoft.bee.osql.MapSqlKey;
 import org.teasoft.bee.osql.MapSqlSetting;
 import org.teasoft.bee.osql.exception.BeeIllegalBusinessException;
+import org.teasoft.honey.distribution.GenIdFactory;
 import org.teasoft.honey.util.ObjectUtils;
 import org.teasoft.honey.util.StringUtils;
 
@@ -165,8 +166,10 @@ public class MapSqlProcessor {
 		StringBuffer sqlBuffer = new StringBuffer();
 		sqlBuffer.append(K.insert).append(K.space).append(K.into).append(K.space).append(tableName);
 
+		Object oldId=null;
 		List<PreparedValue> list = new ArrayList<>();
 		if (ObjectUtils.isNotEmpty(insertKvMap)) {
+			oldId=processId(insertKvMap,tableName);
 			toInsertSql(insertKvMap, list, sqlBuffer, isTransfer, getIncludeType(sqlSettingMap));
 		}else {
 			throw new BeeException("Must set the insert vlaue with MapSql.put(String fieldName, Object value) !");
@@ -174,13 +177,67 @@ public class MapSqlProcessor {
 
 		String sql = sqlBuffer.toString();
 		setContext(sql, list, tableName);
+		
+		revertId(insertKvMap,oldId);
 
 		return sql;
 	}
-
+	
 	private static void checkTable(String tableName) {
 		if (StringUtils.isBlank(tableName)) {
 			throw new BeeException("The Map which key is SqlMapKey.Table must define!");
+		}
+	}
+	
+	private static Object processId(Map<String, Object> insertKvMap,String tableName) {
+		Object id=insertKvMap.get("id");
+		boolean isUpper=false;
+		if(id==null) {
+			id=insertKvMap.get("ID");
+			isUpper=true;
+		}
+		
+//		Long replaceId=null;
+		
+		boolean genAll = HoneyConfig.getHoneyConfig().genid_forAllTableLongId;
+		boolean replaceOldValue = HoneyConfig.getHoneyConfig().genid_replaceOldId;
+		if(id!=null) {
+			if(genAll && replaceOldValue) {
+				long newId = GenIdFactory.get(tableName);
+				if(isUpper) insertKvMap.put("ID", newId);
+				else insertKvMap.put("id", newId);
+				OneTimeParameter.setAttribute("_SYS_Bee_MapSuid_Insert_Has_ID", newId);
+//				replaceId=newId;
+			}else {
+				OneTimeParameter.setAttribute("_SYS_Bee_MapSuid_Insert_Has_ID", id);
+			}
+		}else {
+			if(genAll) {
+				long newId = GenIdFactory.get(tableName);
+				insertKvMap.put("id", newId);
+				OneTimeParameter.setAttribute("_SYS_Bee_MapSuid_Insert_Has_ID", newId);
+//				replaceId=newId;
+			}
+		}
+		
+		return id;
+	}
+	
+	private static void revertId(Map<String, Object> insertKvMap, Object oldId) {
+		Object id = insertKvMap.get("id");
+		if (id != null) {
+			if (oldId == null)
+				insertKvMap.remove("id");
+			else
+				insertKvMap.put("id", oldId);
+		} else {
+			id = insertKvMap.get("ID");
+			if (id != null) {
+				if (oldId == null)
+					insertKvMap.remove("ID");
+				else
+					insertKvMap.put("ID", oldId);
+			}
 		}
 	}
 
