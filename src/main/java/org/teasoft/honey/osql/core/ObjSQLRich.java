@@ -560,4 +560,10 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		return this;
 	}
 
+	@Override
+	public <T> boolean exist(T entity) {
+		int r = count(entity);
+		return r > 0 ? true : false;
+	}
+
 }
