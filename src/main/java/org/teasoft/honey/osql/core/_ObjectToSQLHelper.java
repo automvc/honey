@@ -381,10 +381,11 @@ final class _ObjectToSQLHelper {
 //						&& ( (updatefieldSet ==null) || (updatefieldSet != null && !updatefieldSet.contains(fields[i].getName())) ) // 在updatefieldSet为新值，entity 的为旧值可放在where条件    v1.8
 						) {	//在指定的setColmns,且还没有用在set,setAdd,setMultiply的字段,才转成update set的部分.
 					
-//					在updatefieldSet为新值，entity 的为旧值可放在where条件    v1.8
-//					//v1.7.2
-//					if (updatefieldSet != null && updatefieldSet.contains(fields[i].getName())) 
-//						continue; //Condition已包含的set条件,不再作转换处理
+//					在updatefieldSet为新值，entity 的为旧值可放在where条件    v1.8      V1.9但指定了是setColmns,则只会转为set部分
+					if (updatefieldSet != null && updatefieldSet.contains(fields[i].getName())) { 
+						Logger.warn("The field ["+fields[i].getName()+"] which value is '"+fields[i].get(entity)+"', already set in condition! It will be ignored!");
+						continue; //Condition已包含的set条件,不再作转换处理
+					}
 
 					if (firstSet) {
 //						sqlBuffer.append(" ");
@@ -462,7 +463,7 @@ final class _ObjectToSQLHelper {
 
 		if (condition != null) {
 			condition.setSuidType(SuidType.UPDATE); //UPDATE
-			//即使condition包含的字段是whereColumn里的字段也会转化到sql语句.
+			//即使condition包含的字段是setColmns里的字段也会转化到sql语句.
 //			firstWhere = ConditionHelper.processCondition(sqlBuffer, valueBuffer, list, condition, firstWhere);
 			firstWhere = ConditionHelper.processCondition(sqlBuffer, list, condition, firstWhere);
 		}
@@ -495,8 +496,8 @@ final class _ObjectToSQLHelper {
 	static <T> String _toUpdateBySQL(T entity, String whereColumns[], int includeType, Condition condition){
 		checkPackage(entity);
 		
-//		Set<String> conditionFieldSet=null;
-//		if(condition!=null) conditionFieldSet=condition.getWhereFields();
+		Set<String> conditionFieldSet=null;
+		if(condition!=null) conditionFieldSet=condition.getWhereFields();
 		
 		Set<String> updatefieldSet=null;
 		if (condition != null) updatefieldSet=condition.getUpdatefields();
@@ -543,8 +544,10 @@ final class _ObjectToSQLHelper {
 					continue; //id=null跳过,id不更改.
 				
 				//v1.7.2
-				if (updatefieldSet != null && updatefieldSet.contains(fields[i].getName())) 
+				if (updatefieldSet != null && updatefieldSet.contains(fields[i].getName())) { 
+					Logger.warn("The field ["+fields[i].getName()+"] which value is '"+fields[i].get(entity)+"', already set in condition! It will be ignored!");
 					continue; //Condition已包含的set条件,不再作转换处理
+				}
 				
 				if (firstSet) {
 //					sqlBuffer.append(" ");
@@ -567,19 +570,25 @@ final class _ObjectToSQLHelper {
 					preparedValue.setValue(fields[i].get(entity));
 					list.add(preparedValue);
 				}
-			} else {// where .   此部分只会有whereColumn的字段
+			} else {// where .   此部分只会有显式指定的whereColumn的字段
 
 //				if (HoneyUtil.isContinue(includeType, fields[i].get(entity),fields[i])) {
 //					continue;
 //				} else {
 				
 //				v1.7.2
-//				if(conditionFieldSet!=null && conditionFieldSet.contains(fields[i].getName()))  //closed in V1.9
-//					continue; //Condition已包含的,不再遍历
+				if(conditionFieldSet!=null && conditionFieldSet.contains(fields[i].getName())) {  
+//					continue; //Condition已包含的,不再遍历 //closed in V1.9
+					//if the field use in set part, will filter the default value.
+					if (HoneyUtil.isContinue(includeType, fields[i].get(entity),fields[i])) {
+						continue;   //指定作为条件的,都转换.  但condition已有设置为where条件的, entity的字段要遵循默认过虑
+					}
+				}
 				
 				//指定作为条件的,都转换
 					if (fields[i].get(entity) == null && "id".equalsIgnoreCase(fields[i].getName()))
 						continue; //id=null不作为过滤条件
+					
 					if (firstWhere) {
 //						whereStament.append(" where ");
 						whereStament.append(" ").append(K.where).append(" ");
