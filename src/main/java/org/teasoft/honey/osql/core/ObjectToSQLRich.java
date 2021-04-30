@@ -873,7 +873,6 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			//is no id field , ignore.
 			return;
 		} catch (Exception e) {
-//			e.printStackTrace();
 			Logger.error(e.getMessage());
 			return;
 		}

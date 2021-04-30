@@ -57,7 +57,6 @@ public class NameTranslateHandle {
 				}
 			}
 		} catch (Exception e) {
-//			e.printStackTrace();
 			Logger.error("In NameTranslateHandle: "+e.getMessage());
 		}
 		

@@ -106,7 +106,7 @@ public class LoggerFactory {
 					} catch (ClassNotFoundException e) {
 						// ignore
 					} catch (Exception e) {
-						e.printStackTrace();
+						// ignore
 					}
 
 				}
@@ -126,7 +126,6 @@ public class LoggerFactory {
 			// ignore
 			return false;
 		} catch (Throwable t) {
-			t.printStackTrace();
 			return false;
 		}
 		
@@ -144,7 +143,7 @@ public class LoggerFactory {
 				setCacheInfo("NoArg",log);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			//ignore
 		}
 
 		if (log != null) return log;
@@ -180,10 +179,8 @@ public class LoggerFactory {
 			clazz = Thread.currentThread().getContextClassLoader().loadClass(className);
 		} catch (Exception e) {
 			//ignore
-//			e.printStackTrace();
 		}catch (Error e) {
 			//ignore
-//			e.printStackTrace();
 		}
 		
 		if (clazz == null) {

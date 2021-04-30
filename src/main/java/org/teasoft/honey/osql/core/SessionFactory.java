@@ -46,7 +46,6 @@ public final class SessionFactory {
 			}
 		} catch (SQLException e) {
 			Logger.debug(e.getMessage());
-			e.printStackTrace();
 			throw ExceptionHelper.convert(e);
 		} catch (ClassNotFoundException e) {
 			Logger.error("Can not find the Database driver!  " + e.getMessage());

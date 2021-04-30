@@ -84,7 +84,6 @@ public class Ddl {
 			preparedSql.modify(toCreateTableSQL(entity, tableName));
 			result = true;
 		} catch (Exception e) {
-			e.printStackTrace();
 			Logger.error(e.getMessage());
 			result = false;
 		}

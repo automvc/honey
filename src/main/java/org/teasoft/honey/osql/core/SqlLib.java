@@ -962,7 +962,6 @@ public class SqlLib implements BeeSql {
 						    fields1[i].set(subObj1, rs.getObject(subUseTable[0]+"."+columnName));
 						}
 					} catch (IllegalArgumentException e) {
-//						e.printStackTrace();
 						if(isConfuseDuplicateFieldDB()){
 							fields1[i].set(subObj1,_getObjectForMoreTable_ConfuseField(rs,fields1[i],isDul,dulField));
 						}else{

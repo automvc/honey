@@ -361,7 +361,6 @@ public final class HoneyContext {
 
 			//如果设置了同一Connection
 			if (OneTimeParameter.isTrue("_SYS_Bee_SAME_CONN_BEGIN")) {
-//                System.out.println("=====================设置了同一Connection===================");
 				HoneyContext.setCurrentConnection(conn); //存入上下文
 				setSameConnctionDoing();
 			}
@@ -375,7 +374,6 @@ public final class HoneyContext {
 		try {
 			if (conn != null) conn.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
 			throw ExceptionHelper.convert(e);
 		} finally {
 			removeCurrentConnection(); //事务结束时要删除;在事务中间报异常也要删除;同一conn也要删除
@@ -625,7 +623,7 @@ public final class HoneyContext {
 				field.set(obj, entry.getValue());
 
 			} catch (Exception e) {
-				e.printStackTrace();
+				throw ExceptionHelper.convert(e);
 			}
 		}
 		
