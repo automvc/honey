@@ -47,7 +47,7 @@ public class MoreObjSQL implements MoreTable{
 	public <T> List<T> select(T entity) {
 		if (entity == null) return null;
 
-		String sql = moreObjToSQL.toSelectSQL(entity);
+		String sql = getMoreObjToSQL().toSelectSQL(entity);
 		Logger.logSQL("select SQL: ", sql);
 		return getBeeSql().moreTableSelect(sql, entity); 
 	}
@@ -58,7 +58,7 @@ public class MoreObjSQL implements MoreTable{
 		if(size<=0) throw new BeeIllegalParameterException("Parameter 'size' need great than 0!");
 		if(start<0) throw new BeeIllegalParameterException("Parameter 'start' need great equal 0!");
 
-		String sql = moreObjToSQL.toSelectSQL(entity,start,size);
+		String sql = getMoreObjToSQL().toSelectSQL(entity,start,size);
 		Logger.logSQL("select SQL: ", sql);
 		return getBeeSql().moreTableSelect(sql, entity); 
 	}
@@ -67,7 +67,7 @@ public class MoreObjSQL implements MoreTable{
 	public <T> List<T> select(T entity, Condition condition) {
 		if (entity == null) return null;
 
-		String sql = moreObjToSQL.toSelectSQL(entity,condition);
+		String sql = getMoreObjToSQL().toSelectSQL(entity,condition);
 		Logger.logSQL("select SQL: ", sql);
 		return getBeeSql().moreTableSelect(sql, entity); 
 	}
