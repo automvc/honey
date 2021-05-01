@@ -157,7 +157,7 @@ public class PreparedSqlLib implements PreparedSql {
 	}
 
 	@Override
-	public String selectFun(String sql, Object[] preValues) throws ObjSQLException {
+	public String selectFun(String sql, Object[] preValues) {
 
 		initPreparedValues(sql, preValues);
 		Logger.logSQL("PreparedSql selectFun SQL: ", sql);
@@ -165,8 +165,8 @@ public class PreparedSqlLib implements PreparedSql {
 	}
 
 	@Override
-	public String selectFun(String sqlStr, Map<String, Object> map) throws ObjSQLException {
-		String sql=initPrepareValuesViaMap(sqlStr,map);
+	public String selectFun(String sqlStr, Map<String, Object> map) {
+		String sql = initPrepareValuesViaMap(sqlStr, map);
 		Logger.logSQL("PreparedSql selectFun SQL: ", sql);
 		return getBeeSql().selectFun(sql);
 	}
@@ -288,8 +288,8 @@ public class PreparedSqlLib implements PreparedSql {
 	}
 	
 	@Override
-	public String selectFun(String sql) throws ObjSQLException {
-		Object[] preValues=null;
+	public String selectFun(String sql) {
+		Object[] preValues = null;
 		return selectFun(sql, preValues);
 	}
 

@@ -40,16 +40,9 @@ public class ObjectToSQL implements ObjToSQL {
 	}
 
 	@Override
-//	public <T> String toUpdateSQL(T entity) throws ObjSQLException {
 	public <T> String toUpdateSQL(T entity) {
 		String sql = null;
-//		try {
-//			sql = _ObjectToSQLHelper._toUpdateSQL(entity, "id", -1);
 		sql = _ObjectToSQLHelper._toUpdateSQL(entity, -1);
-			// Logger.logSQL("update SQL : ", sql);
-//		} catch (IllegalAccessException e) {
-//			throw ExceptionHelper.convert(e);
-//		}
 		return sql;
 	}
 

@@ -75,12 +75,13 @@ public class Logger {
 			if (value == null) {
 				_print("[Bee] " + hardStr, sql);
 			} else {
-				if(OneTimeParameter.isTrue("_SYS_Bee_BatchInsertFirst")){//batchSize==1	
-					_print("[Bee] " + hardStr, sql);
-				}else if (insertIndex != null) {
-					if ("0".equals(insertIndex) && !HoneyUtil.isMysql()) {
-						_print("[Bee] " + hardStr, sql);
-					}
+//				if(OneTimeParameter.isTrue("_SYS_Bee_BatchInsertFirst")){//batchSize==1	
+//					_print("[Bee] " + hardStr, sql);
+//				}else 
+				if (insertIndex != null) {
+//					if ("0".equals(insertIndex) && !HoneyUtil.isMysql()) {
+//						_print("[Bee] " + hardStr, sql);
+//					}
 					print("[Bee] --> index:" + insertIndex + " ,  [values]: " + value);
 
 				} else {
@@ -89,13 +90,13 @@ public class Logger {
 
 				if (isShowExecutableSql()) {
 					String executableSql = HoneyUtil.getExecutableSql(sql, list);
-					if (insertIndex != null && !"0".equals(insertIndex)) {
+					if (insertIndex != null ) {
 						int endIndex = executableSql.indexOf("]_End ");
 						_println("[Bee] " + hardStr + " ( ExecutableSql " + executableSql.substring(4, endIndex + 1) + " )", executableSql.substring(endIndex + 6) + " ;");
 					} else {
-						if ("0".equals(insertIndex))
-							_println("[Bee] " + hardStr + " ( ExecutableSql [index0])", executableSql);
-						else
+//						if ("0".equals(insertIndex))
+//							_println("[Bee] " + hardStr + " ( ExecutableSql [index0])", executableSql);
+//						else
 							_println("[Bee] " + hardStr + " ( ExecutableSql )", executableSql);
 					}
 				}

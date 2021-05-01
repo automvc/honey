@@ -125,7 +125,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	}
 	
 	@Override
-	public <T> String toSelectSQL(T entity, String fields) throws ObjSQLException {
+	public <T> String toSelectSQL(T entity, String fields) {
 		
 		String newSelectFields=HoneyUtil.checkAndProcessSelectField(entity,fields);
 		
@@ -140,7 +140,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	}
 
 	@Override
-	public <T> String toSelectOrderBySQL(T entity, String orderFieldList) throws ObjSQLException {
+	public <T> String toSelectOrderBySQL(T entity, String orderFieldList) {
 
 		String orderFields[] = orderFieldList.split(",");
 		int lenA = orderFields.length;
@@ -160,7 +160,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	}
 
 	@Override
-	public <T> String toSelectOrderBySQL(T entity, String orderFieldList, OrderType[] orderTypes) throws ObjSQLException {
+	public <T> String toSelectOrderBySQL(T entity, String orderFieldList, OrderType[] orderTypes) {
 		
 		String orderFields[] = orderFieldList.split(",");
 		int lenA = orderFields.length;
@@ -384,10 +384,15 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			sql[0] = t_sql;
 //			t_sql = t_sql + "[index0]";  //index0 不带,与单条共用.
 
-			for (int i = 1; i < len; i++) { // i=1
+			for (int i = 0; i < len; i++) { // i=1
 				String sql_i=index1 + i + index2+sql[0];
-				_ObjectToSQLHelper._toInsertSQL_for_ValueList(sql_i,entity[i], excludeFieldList); // i 默认包含null和空字符串.因为要用统一的sql作批处理
-//				t_sql = wrap.getSql(); //  每个sql不一定一样,因为设值不一样,有些字段不用转换. 不采用;因为不利于批处理
+				if (i == 0) {
+					HoneyContext.setPreparedValue(sql_i, HoneyContext.getAndClearPreparedValue(sql[0]));   //i=0
+					HoneyContext.deleteCacheInfo(sql[0]);
+				}else {
+				  _ObjectToSQLHelper._toInsertSQL_for_ValueList(sql_i,entity[i], excludeFieldList); // i 默认包含null和空字符串.因为要用统一的sql作批处理
+//				  t_sql = wrap.getSql(); //  每个sql不一定一样,因为设值不一样,有些字段不用转换. 不采用;因为不利于批处理
+				}
 			}
 		} catch (IllegalAccessException e) {
 			throw ExceptionHelper.convert(e);
@@ -418,21 +423,30 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 //			} else {
 //				preparedValueList.addAll(HoneyContext.getPreparedValue(sql[0])); //会删了,打印日志时不能用.  批处理,在v1.8开始,不会用于占位设值.
 //			}
-			preparedValueList.addAll(HoneyContext.justGetPreparedValue(sql[0]));  //统一使用这个.
 			
-			if(len==1 || batchSize==1) {
-				HoneyContext.setPreparedValue(t_sql+ "  [Batch:"+ 0 + index3, preparedValueList); //[Batch:0]
-				preparedValueList = new ArrayList<>();
-			}
+			
+//			preparedValueList.addAll(HoneyContext.justGetPreparedValue(sql[0]));  //统一使用这个.
+			
+//			if(len==1 || batchSize==1) {
+//				HoneyContext.setPreparedValue(t_sql+ "  [Batch:"+ 0 + index3, preparedValueList); //[Batch:0]
+//				preparedValueList = new ArrayList<>();
+////				HoneyContext.clearPreparedValue(sql[0]);
+//			}
 			List<PreparedValue> oneRecoreList;
-			for (int i = 1; i < len; i++) { // i=1
+			for (int i = 0; i < len; i++) { // i=1
 				String sql_i=index1 + i + index2+sql[0]; //mysql批操作时,仅用于打印日志
-				//不需要打印时,不会放上下文
-				oneRecoreList=_ObjectToSQLHelper._toInsertSQL_for_ValueList(sql_i,entity[i], excludeFieldList); // i 默认包含null和空字符串.因为要用统一的sql作批处理
-				//t_sql = wrap.getSql(); //  每个sql不一定一样,因为设值不一样,有些字段不用转换. 不采用;因为不利于批处理
-
-				preparedValueList.addAll(oneRecoreList);
 				
+				if (i == 0) {
+					oneRecoreList = HoneyContext.getAndClearPreparedValue(sql[0]);
+					HoneyContext.setPreparedValue(sql_i, oneRecoreList);   //i=0
+					HoneyContext.deleteCacheInfo(sql[0]);
+				} else {
+					//不需要打印时,不会放上下文
+					oneRecoreList = _ObjectToSQLHelper._toInsertSQL_for_ValueList(sql_i, entity[i],excludeFieldList); // i 默认包含null和空字符串.因为要用统一的sql作批处理
+					//t_sql = wrap.getSql(); //  每个sql不一定一样,因为设值不一样,有些字段不用转换. 不采用;因为不利于批处理
+				}
+				
+				preparedValueList.addAll(oneRecoreList); //用于批量插入时设置值
 				if((i+1)%batchSize==0){ //i+1
 //					t_sql +"  [Batch:"+ (i/batchSize) + index3  // 用于批量插入时设置值
 					HoneyContext.setPreparedValue(t_sql +"  [Batch:"+ (i/batchSize) + index3, preparedValueList); //i

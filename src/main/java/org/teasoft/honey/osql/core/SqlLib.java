@@ -155,7 +155,7 @@ public class SqlLib implements BeeSql {
 			rs = pst.executeQuery();
 			ResultSetMetaData rmeta = rs.getMetaData();
 			int columnCount = rmeta.getColumnCount();
-			rsList = new ArrayList<T>();
+			rsList = new ArrayList<>();
 
 //			Field field[] = entity.getClass().getDeclaredFields();
 			map=new Hashtable<>();
@@ -223,7 +223,7 @@ public class SqlLib implements BeeSql {
 	 * SQL function: max,min,avg,sum,count. 如果统计的结果集为空,除了count返回0,其它都返回空字符.
 	 */
 	@Override
-	public String selectFun(String sql) throws ObjSQLException {
+	public String selectFun(String sql) {
 		
 		if(sql==null || "".equals(sql.trim())) return null;
 		
@@ -589,9 +589,9 @@ public class SqlLib implements BeeSql {
 //		conn.setAutoCommit(oldAutoCommit);
 		} catch (SQLException e) {
 			hasException=true;
+			clearContext(sql[0],batchSize,len);
 			if (isConstraint(e)) {
 				Logger.warn(e.getMessage());
-				clearContext(sql[0],batchSize,len);
 				Logger.error(e.getMessage());
 				return total;
 			}
@@ -631,19 +631,21 @@ public class SqlLib implements BeeSql {
 		for (int i = start; i < end; i++) { //start... (end-1)
 			
 			if (showSQL) {
+				if(i==0) Logger.logSQL(" insert[] SQL : ", sql);
+				
 				OneTimeParameter.setAttribute("_SYS_Bee_BatchInsert", i + "");
 				String sql_i;
-				if (i == 0)
-					sql_i = sql;
-				else
+//				if (i == 0)
+//					sql_i = sql;
+//				else
 					sql_i = index1 + i + index2 + sql;
 
 				Logger.logSQL(" insert[] SQL : ", sql_i);
 			}
 			
-			if (i == 0)
-				setAndClearPreparedValues(pst, sql);
-			else
+//			if (i == 0)
+//				setAndClearPreparedValues(pst, sql);
+//			else
 				setAndClearPreparedValues(pst, index1 + i + index2 + sql);
 			pst.addBatch();
 		}
@@ -681,6 +683,7 @@ public class SqlLib implements BeeSql {
 		int len = sql.length;
 		int total = 0;
 		int temp = 0;
+		//一条插入语句的值的占位符
 		String placeholderValue = (String) OneTimeParameter.getAttribute("_SYS_Bee_PlaceholderValue");
 
 		Connection conn = null;
@@ -719,10 +722,9 @@ public class SqlLib implements BeeSql {
 //			conn.setAutoCommit(oldAutoCommit);
 		} catch (SQLException e) {
 			hasException=true;
+			clearContextForMysql(sql[0],batchSize,len);
 			if (isConstraint(e)) {
 				Logger.warn(e.getMessage());
-				clearContextForMysql(sql[0],batchSize,len);
-				
 				return total;
 			}
 			Logger.warn(e.getMessage());
@@ -792,16 +794,16 @@ public class SqlLib implements BeeSql {
 		if (showSQL) {
 			//print log
 			if(start==0 || (end-start!=batchSize)) {
-				if(batchSize==1) OneTimeParameter.setTrueForKey("_SYS_Bee_BatchInsertFirst");
+//				if(batchSize==1) OneTimeParameter.setTrueForKey("_SYS_Bee_BatchInsertFirst");
 				Logger.logSQL(" insert[] SQL : ", batchSqlForPrint);
 			}
 			
 			for (int i = start; i < end; i++) { //start... (end-1)
 				OneTimeParameter.setAttribute("_SYS_Bee_BatchInsert", i + "");
 				String sql_i;
-				if (i == 0)
-					sql_i = sql;
-				else
+//				if (i == 0)
+//					sql_i = sql;
+//				else
 					sql_i = index1 + i + index2 + sql;
 
 				Logger.logSQL(" insert[] SQL : ", sql_i);

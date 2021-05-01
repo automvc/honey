@@ -110,6 +110,7 @@ public class SuidHelper {
 				if(col==null || (col.length==1 && fieldName.length!=1)) continue; //忽略空行
 				targetObj = (T) entity.getClass().newInstance();
 				for (int j = 0; j < fieldName.length; j++) {
+					if(StringUtils.isBlank(fieldName[j])) continue;
 					try {
 						field = entity.getClass().getDeclaredField(fieldName[j]);//可能会找不到Javabean的字段
 					} catch (NoSuchFieldException e) {
