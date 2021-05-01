@@ -51,7 +51,7 @@ public class HoneyFactory {
 	
 	private DbFeature dbFeature;
 	private NameTranslate nameTranslate;
-	private static Cache cache;
+//	private static Cache cache;
 	
 	public HoneyFactory(){
 	}
@@ -225,13 +225,13 @@ public class HoneyFactory {
 //	}
 	
 	public Cache getCache() {
-		if (cache == null) {
+//		if (cache == null) {
 			boolean nocache = HoneyConfig.getHoneyConfig().cache_nocache;
 			if (nocache) return new NoCache(); //v1.7.2
 			return new DefaultCache();
-		} else {
-			return cache;
-		}
+//		} else {
+//			return cache;
+//		}
 	}
 
 //	public void setCache(Cache cache) {
