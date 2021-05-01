@@ -13,8 +13,8 @@ package org.teasoft.honey.osql.core;
 public class CheckField {
 
 	public static boolean isNotValid(String fieldName) {
-		if (fieldName == null || fieldName.contains(" ") || fieldName.contains("--") || fieldName.contains("#")
-				|| fieldName.contains("|") || fieldName.contains(";")) {
+		if (fieldName == null || fieldName.contains(" ") || fieldName.contains("-") || fieldName.contains("#")
+				|| fieldName.contains("|") || fieldName.contains("+")|| fieldName.contains(";")) {
 			return true;
 		}
 		return false;

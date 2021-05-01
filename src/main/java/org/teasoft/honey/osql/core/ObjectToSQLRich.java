@@ -421,7 +421,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			preparedValueList.addAll(HoneyContext.justGetPreparedValue(sql[0]));  //统一使用这个.
 			
 			if(len==1 || batchSize==1) {
-				HoneyContext.setPreparedValue(t_sql+ "  [Batch:"+ 0 + index3, preparedValueList);
+				HoneyContext.setPreparedValue(t_sql+ "  [Batch:"+ 0 + index3, preparedValueList); //[Batch:0]
 				preparedValueList = new ArrayList<>();
 			}
 			List<PreparedValue> oneRecoreList;
@@ -828,7 +828,12 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		try {
 			
 			field0 = entity[0].getClass().getDeclaredField("id");
-			if (field0==null || !field0.getType().equals(Long.class)) return; //just set the null Long id field
+			if (field0==null) return;
+			if (!field0.getType().equals(Long.class)) {//just set the null Long id field
+				Logger.warn("The id field's "+field0.getType()+" is not Long, can not generate the Long id automatically!");
+				return; 
+			}
+			
 //			field.setAccessible(true);
 //			if (field.get(entity[0]) != null) return; //即使没值,运行一次后也会有值,下次再用就会重复.而用户又不知道.    //todo 要提醒是被覆盖了。
 		

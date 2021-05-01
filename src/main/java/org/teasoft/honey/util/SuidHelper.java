@@ -103,10 +103,11 @@ public class SuidHelper {
 		rsList = new ArrayList<T>();
 		if (startRow < 0) startRow = 0;
 
-		if (endRow + 1 > list.size()) endRow = list.size() - 1;
+		if (endRow > list.size()-1) endRow = list.size() - 1;
 		try {
 			for (int i = startRow; i <= endRow; i++) {
 				col = list.get(i);
+				if(col==null || (col.length==1 && fieldName.length!=1)) continue; //忽略空行
 				targetObj = (T) entity.getClass().newInstance();
 				for (int j = 0; j < fieldName.length; j++) {
 					try {

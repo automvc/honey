@@ -468,7 +468,7 @@ public final class HoneyUtil {
 			jdbcTypeMap.put("LONG", "String");
 			jdbcTypeMap.put("VARCHAR2", "String");
 			jdbcTypeMap.put("NVARCHAR2", "String");
-			jdbcTypeMap.put("NUMBER", "BigDecimal"); //oracle TODO
+			jdbcTypeMap.put("NUMBER", "BigDecimal"); //oracle todo
 			jdbcTypeMap.put("RAW", "byte[]");
 
 			jdbcTypeMap.put("INTERVALYM", "String"); //11g 

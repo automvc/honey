@@ -24,7 +24,7 @@ public class OnlyMulitiDB implements Route {
 
 	//	private static List dsList=new ArrayList();
 	//	private static Map<String,String> map;
-	private static String defaultDs;
+	private String defaultDs;
 
 	private static Map<String, String> entityClassPathToDs = new ConcurrentHashMap<>();
 	private static Map<String, String> tableToDs = new ConcurrentHashMap<>();

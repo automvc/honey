@@ -523,6 +523,7 @@ public class SqlLib implements BeeSql {
 			addInCache(sql, json.toString(),"StringJson",SuidType.SELECT,-1);  //没有作最大结果集判断
 
 		} catch (SQLException e) {
+			hasException = true;  //fixbug  2021-05-01
 			throw ExceptionHelper.convert(e);
 		} finally {
 			clearContext(sql);

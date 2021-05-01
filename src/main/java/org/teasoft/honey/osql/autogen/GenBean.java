@@ -17,6 +17,8 @@ import java.util.Map;
 
 import org.teasoft.bee.osql.BeeException;
 import org.teasoft.bee.osql.DatabaseConst;
+import org.teasoft.bee.osql.exception.BeeIllegalParameterException;
+import org.teasoft.honey.osql.core.CheckField;
 import org.teasoft.honey.osql.core.ExceptionHelper;
 import org.teasoft.honey.osql.core.HoneyContext;
 import org.teasoft.honey.osql.core.HoneyUtil;
@@ -308,11 +310,18 @@ public class GenBean {
 	}
 
 	private Table getTable(String tableName, Connection con) throws SQLException {
+		
+		if(CheckField.isNotValid(tableName)) {
+			throw new BeeIllegalParameterException("The tableName: '"+tableName+ "' is invalid!");
+		}
+		
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		Table table = new Table();
 		try {
-			ps = con.prepareStatement("select * from " + tableName + " where 1<>1"); //delete ;
+			StringBuilder sql=new StringBuilder();
+			sql.append("select * from ").append(tableName).append(" where 1<>1");
+			ps = con.prepareStatement(sql.toString()); 
 			rs = ps.executeQuery();
 			ResultSetMetaData rmeta = rs.getMetaData();
 			//		int index=tableName.indexOf(".");

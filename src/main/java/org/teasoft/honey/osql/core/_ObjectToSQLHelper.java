@@ -809,8 +809,9 @@ final class _ObjectToSQLHelper {
 //		if (showSQL) { //just insert array to this method
 		if (HoneyUtil.isMysql() && !showSQL) {  //if it is mysql batch insert, just use for print log.
              //no need set context
+			//mysql 批操作时,仅用于打印日志. 所以当DB为mysql,且不用打印日志时,不用记录
 		} else {
-			HoneyContext.setPreparedValue(sql_i, list);  //mysql 批操作时,仅用于打印日志
+			HoneyContext.setPreparedValue(sql_i, list);  
 		}
 		return list;
 	}
@@ -958,7 +959,13 @@ final class _ObjectToSQLHelper {
 		Long v = null;
 		try {
 			field = entity.getClass().getDeclaredField("id");
-			if (field==null || !field.getType().equals(Long.class)) return ; //just set the Long id field
+			if (field==null) return ;
+			if (!field.getType().equals(Long.class)) {
+				Logger.warn("The id field's "+field.getType()+" is not Long, can not generate the Long id automatically!");
+				return ; //just set the Long id field
+			}
+			
+			
 			boolean replaceOldValue = HoneyConfig.getHoneyConfig().genid_replaceOldId;
 			field.setAccessible(true);
 			Object obj = field.get(entity);

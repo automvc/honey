@@ -31,7 +31,7 @@ public class RwDs implements Route{
 	private static Random r = new Random();
 	private byte lock[] = new byte[0];
 	
-	private static int r_routeWay;
+	private int r_routeWay;
 	
 	{  //非static,每次new都会执行.若writer有更新,这样可以刷新.
 		init();
@@ -75,7 +75,7 @@ public class RwDs implements Route{
 		return writeDd;
 	}
 
-	public void setWriteDs(String writeDs) {  //TODO if master change, need update
+	public void setWriteDs(String writeDs) {  //todo if master change, need update
 		this.writeDd = writeDs;
 	}
 	

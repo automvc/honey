@@ -89,7 +89,7 @@ public class Jdk14LoggingImpl implements Log {
 
 	@Override
 	public boolean isErrorEnabled() {
-		return log.isLoggable(Level.SEVERE); //TODO
+		return log.isLoggable(Level.SEVERE); //todo
 	}
 
 }
