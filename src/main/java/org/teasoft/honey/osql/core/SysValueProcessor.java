@@ -27,6 +27,7 @@ public class SysValueProcessor {
 
 				value = sysValue.value();
 				if (value == null) {
+					
 				} else if ("".equals(value.trim())) {
 					
 				} else {
