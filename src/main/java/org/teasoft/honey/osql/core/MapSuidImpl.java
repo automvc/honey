@@ -35,7 +35,7 @@ public class MapSuidImpl implements MapSuid {
 	@Override
 	public List<String[]> selectString(MapSql mapSql) {
 		String sql = MapSqlProcessor.toSelectSqlByMap(mapSql);
-		Logger.logSQL("In MapSuid, List<String[]> select SQL: ", sql);
+		Logger.logSQL("In MapSuid, select List<String[]> SQL: ", sql);
 		return getBeeSql().select(sql);
 	}
 
@@ -49,14 +49,22 @@ public class MapSuidImpl implements MapSuid {
 	@Override
 	public List<Map<String, Object>> select(MapSql mapSql) {
 		String sql = MapSqlProcessor.toSelectSqlByMap(mapSql);
-		Logger.logSQL("In MapSuid, selectMap SQL: ", sql);
+		Logger.logSQL("In MapSuid, select List<Map> SQL: ", sql);
 		return getBeeSql().selectMapList(sql);
+	}
+	
+	@Override
+	public int count(MapSql mapSql) {
+		String sql = MapSqlProcessor.toCountSqlByMap(mapSql);
+		Logger.logSQL("In MapSuid, count SQL: ", sql);
+		String total= getBeeSql().selectFun(sql);
+		return total == null ? 0 : Integer.parseInt(total);
 	}
 
 	@Override
 	public Map<String, Object> selectOne(MapSql mapSql) {
 		String sql = MapSqlProcessor.toSelectSqlByMap(mapSql);
-		Logger.logSQL("In MapSuid, selectOneMap SQL: ", sql);
+		Logger.logSQL("In MapSuid, selectOne Map SQL: ", sql);
 		List<Map<String, Object>> list = getBeeSql().selectMapList(sql);
 
 		if (ObjectUtils.isNotEmpty(list)) {
@@ -64,13 +72,6 @@ public class MapSuidImpl implements MapSuid {
 		} else {
 			return Collections.emptyMap();
 		}
-	}
-
-	@Override
-	public int delete(MapSql mapSql) {
-		String sql = MapSqlProcessor.toDeleteSqlByMap(mapSql);
-		Logger.logSQL("In MapSuid, delete SQL: ", sql);
-		return getBeeSql().modify(sql);
 	}
 
 	@Override
@@ -106,5 +107,20 @@ public class MapSuidImpl implements MapSuid {
 		return newId;
 		
 	}
+	
+	@Override
+	public int delete(MapSql mapSql) {
+		String sql = MapSqlProcessor.toDeleteSqlByMap(mapSql);
+		Logger.logSQL("In MapSuid, delete SQL: ", sql);
+		return getBeeSql().modify(sql);
+	}
 
+	@Override
+	public int update(MapSql mapSql) {
+
+		String sql = MapSqlProcessor.toUpdateSqlByMap(mapSql);
+		Logger.logSQL("In MapSuid, update SQL: ", sql);
+		return getBeeSql().modify(sql);
+	}
+	
 }
