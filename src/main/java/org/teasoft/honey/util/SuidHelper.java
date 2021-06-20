@@ -137,5 +137,42 @@ public class SuidHelper {
 
 		return rsList;
 	}
+	
+	//将to在from有的属性,都复制到to中.
+	public static <T> T copyEntity(Object from, T to) {
+
+		if (from == null || to == null) return to;
+
+		Field field = null;
+		Field fields[] = to.getClass().getDeclaredFields();
+		int len = fields.length;
+
+		for (int i = 0; i < len; i++) {
+			
+//			System.out.println(fields[i].getModifiers());
+//			System.out.println(fields[i].toGenericString());
+			int modifiers=fields[i].getModifiers();
+			if(modifiers==8 || modifiers==16 || modifiers==24 || modifiers==26) {
+				continue; //static,final,private static final
+			}
+			
+			fields[i].setAccessible(true);
+			try {
+				field = from.getClass().getDeclaredField(fields[i].getName());
+			} catch (NoSuchFieldException e) {
+				continue;
+			}
+
+			try {
+				field.setAccessible(true);
+				fields[i].set(to, field.get(from));
+			} catch (IllegalAccessException e) {
+				throw ExceptionHelper.convert(e);
+			}
+		}
+
+		return to;
+	}
+	
 
 }
