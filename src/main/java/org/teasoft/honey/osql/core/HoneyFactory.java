@@ -164,6 +164,55 @@ public class HoneyFactory {
 		this.mapSuid = mapSuid;
 	}
 	
+	public Cache getCache() {
+//		if (cache == null) {
+			boolean nocache = HoneyConfig.getHoneyConfig().cache_nocache;
+			if (nocache) return new NoCache(); //v1.7.2
+			return new DefaultCache();
+//		} else {
+//			return cache;
+//		}
+	}
+
+//	public void setCache(Cache cache) {
+//		this.cache = cache;
+//	}
+	
+	public DbFeature getDbFeature() {
+
+		String dbName = HoneyContext.getRealTimeDbName();
+		if (dbName != null) return _getDbDialectFeature(dbName);
+//		dbName == null则表示不同时使用多种数据库
+		if (dbFeature != null)
+			return dbFeature;
+		else
+			return _getDbDialectFeature();
+	}
+	
+	public void setDbFeature(DbFeature dbFeature) {
+		this.dbFeature = dbFeature;
+	}
+	
+	NameTranslate getInitNameTranslate() {
+		if(nameTranslate==null) {
+			//since 1.7.2
+			int translateType=HoneyConfig.getHoneyConfig().naming_translateType;
+			if(translateType==1) nameTranslate=new UnderScoreAndCamelName();
+			else if(translateType==2) nameTranslate=new UpperCaseUnderScoreAndCamelName();
+			else if(translateType==3) nameTranslate=new OriginalName();
+			else nameTranslate=new UnderScoreAndCamelName();  //if the value is not 1,2,3
+				
+			return nameTranslate;
+		}else {
+			return nameTranslate;
+		}
+	}
+
+//	public void setNameTranslate(NameTranslate nameTranslate) {
+//		this.nameTranslate = nameTranslate;
+//		HoneyContext.clearFieldNameCache();
+//	}
+	
 	DbFeature _getDbDialectFeature() {
 		return _getDbDialectFeature(HoneyContext.getDbDialect());
 	}
@@ -190,52 +239,5 @@ public class HoneyFactory {
 				|| DatabaseConst.SQLite.equalsIgnoreCase((HoneyContext.getDbDialect()))
 				|| DatabaseConst.PostgreSQL.equalsIgnoreCase((HoneyContext.getDbDialect()));
 	}
-
-	public DbFeature getDbFeature() {
-
-		String dbName = HoneyContext.getRealTimeDbName();
-		if (dbName != null) return _getDbDialectFeature(dbName);
-//		dbName == null则表示不同时使用多种数据库
-		if (dbFeature != null)
-			return dbFeature;
-		else
-			return _getDbDialectFeature();
-	}
-	
-	public void setDbFeature(DbFeature dbFeature) {
-		this.dbFeature = dbFeature;
-	}
-	
-	NameTranslate getInitNameTranslate() {
-		if(nameTranslate==null) {
-			//since 1.7.2
-			int translateType=HoneyConfig.getHoneyConfig().naming_translateType;
-			if(translateType==1) nameTranslate=new UnderScoreAndCamelName();
-			else if(translateType==2) nameTranslate=new UpperCaseUnderScoreAndCamelName();
-			else if(translateType==3) nameTranslate=new OriginalName();
-			
-			return nameTranslate;
-		}
-		else return nameTranslate;
-	}
-
-//	public void setNameTranslate(NameTranslate nameTranslate) {
-//		this.nameTranslate = nameTranslate;
-//		HoneyContext.clearFieldNameCache();
-//	}
-	
-	public Cache getCache() {
-//		if (cache == null) {
-			boolean nocache = HoneyConfig.getHoneyConfig().cache_nocache;
-			if (nocache) return new NoCache(); //v1.7.2
-			return new DefaultCache();
-//		} else {
-//			return cache;
-//		}
-	}
-
-//	public void setCache(Cache cache) {
-//		this.cache = cache;
-//	}
 	
 }
