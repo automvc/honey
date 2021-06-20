@@ -1010,7 +1010,8 @@ public final class HoneyUtil {
 			if(value==null || value instanceof Number){  //v1.8.15    Null no need ' and '
 				sql=sql.replaceFirst("\\?", String.valueOf(value));
 			}else{
-				sql=sql.replaceFirst("\\?", "'"+String.valueOf(value)+"'");
+//				sql=sql.replaceFirst("\\?", "'"+String.valueOf(value)+"'");
+				sql=sql.replaceFirst("\\?", "'"+String.valueOf(value).replace("$", "\\$")+"'"); //bug 2021-05-25
 			}
 		}
 		
@@ -1020,11 +1021,11 @@ public final class HoneyUtil {
 	static <T> String checkAndProcessSelectField(T entity, String fieldList) {
 
 		if (fieldList == null) return null;
-
-		Field fields[]=entity.getClass().getDeclaredFields();
+		
 		String packageAndClassName=entity.getClass().getName();
 		String columnsdNames=HoneyContext.getBeanField(packageAndClassName);
 		if (columnsdNames == null) {
+			Field fields[]=entity.getClass().getDeclaredFields();
 			columnsdNames=HoneyUtil.getBeanField(fields);//获取属性名对应的DB字段名
 			HoneyContext.addBeanField(packageAndClassName, columnsdNames);
 		}
