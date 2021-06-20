@@ -14,6 +14,9 @@ import org.teasoft.bee.osql.BeeException;
 import org.teasoft.bee.osql.MapSql;
 import org.teasoft.bee.osql.MapSqlKey;
 import org.teasoft.bee.osql.MapSqlSetting;
+import org.teasoft.bee.osql.dialect.DbFeature;
+import org.teasoft.bee.osql.exception.BeeErrorFieldException;
+import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
 import org.teasoft.bee.osql.exception.BeeIllegalBusinessException;
 import org.teasoft.honey.distribution.GenIdFactory;
 import org.teasoft.honey.util.ObjectUtils;
@@ -24,13 +27,17 @@ import org.teasoft.honey.util.StringUtils;
  * @since  1.9
  */
 public class MapSqlProcessor {
-
+	
+	private static DbFeature getDbFeature() {
+		return BeeFactory.getHoneyFactory().getDbFeature();
+	}
+	
 	public static String toSelectSqlByMap(MapSql mapSql) {
 
-		MapSqlImpl suidMapImpl = (MapSqlImpl) mapSql;
-		Map<MapSqlKey, String> sqlkeyMap = suidMapImpl.getSqlkeyMap();
-		Map<String, Object> whereConditonMap = suidMapImpl.getKvMap();
-		Map<MapSqlSetting, Boolean> sqlSettingMap = suidMapImpl.getSqlSettingMap();
+		MapSqlImpl mapSqlImpl = (MapSqlImpl) mapSql;
+		Map<MapSqlKey, String> sqlkeyMap = mapSqlImpl.getSqlkeyMap();
+		Map<String, Object> whereConditonMap = mapSqlImpl.getKvMap();
+		Map<MapSqlSetting, Boolean> sqlSettingMap = mapSqlImpl.getSqlSettingMap();
 
 		String tableName = sqlkeyMap.get(MapSqlKey.Table);
 		checkTable(tableName);
@@ -39,7 +46,7 @@ public class MapSqlProcessor {
 		Boolean isTransfer = sqlSettingMap.get(MapSqlSetting.IsNamingTransfer);
 		if (isTransfer == null) isTransfer = false;
 		if (isTransfer) {
-			selectColumns = _toColumnName(selectColumns);
+			selectColumns = _toColumnName(selectColumns);  //just for select
 			OneTimeParameter.setTrueForKey(StringConst.DoNotCheckAnnotation);//map sql do not check notation
 			tableName = _toTableName(tableName);
 		}
@@ -71,8 +78,17 @@ public class MapSqlProcessor {
 		if (StringUtils.isNotBlank(orderByStr)) {
 			sqlBuffer.append(K.space).append(K.orderBy).append(K.space).append(orderByStr);
 		}
-
+		
+		Integer start = mapSqlImpl.getStart();
+		Integer size = mapSqlImpl.getSize();
+		
 		String sql = sqlBuffer.toString();
+		if (start!=null && size!=null) {
+			sql=getDbFeature().toPageSql(sql, start, size);
+		}else if (size!=null) {
+			sql=getDbFeature().toPageSql(sql, size);
+		}
+		
 		setContext(sql, list, tableName);
 
 		return sql;
@@ -144,6 +160,68 @@ public class MapSqlProcessor {
 		return sql;
 
 	}
+	
+	public static String toUpdateSqlByMap(MapSql mapSql) {
+
+		MapSqlImpl suidMapImpl = (MapSqlImpl) mapSql;
+		Map<MapSqlKey, String> sqlkeyMap = suidMapImpl.getSqlkeyMap();
+		Map<String, Object> whereConditonMap = suidMapImpl.getKvMap();
+
+		Map<MapSqlSetting, Boolean> sqlSettingMap = suidMapImpl.getSqlSettingMap();
+
+		String tableName = sqlkeyMap.get(MapSqlKey.Table);
+		checkTable(tableName);
+
+		Boolean isTransfer = sqlSettingMap.get(MapSqlSetting.IsNamingTransfer);
+		if (isTransfer == null) isTransfer = false;
+		if (isTransfer) {
+			OneTimeParameter.setTrueForKey(StringConst.DoNotCheckAnnotation);//map sql do not check notation
+			tableName = _toTableName(tableName);
+		}
+
+		StringBuffer sqlBuffer = new StringBuffer();
+
+		sqlBuffer.append(K.update).append(" ");
+		sqlBuffer.append(tableName);
+
+		List<PreparedValue> list = new ArrayList<>();
+
+		boolean firstSet = false;
+		
+		Map<String, Object> newValueMap = suidMapImpl.getNewKvMap();
+		if (ObjectUtils.isNotEmpty(newValueMap)) {
+			firstSet = updateSet(newValueMap, list, sqlBuffer, isTransfer, getIncludeType(sqlSettingMap));
+		}
+
+		boolean firstWhere = false;
+		if (ObjectUtils.isNotEmpty(whereConditonMap)) {
+			firstWhere = where(whereConditonMap, list, sqlBuffer, isTransfer,
+					getIncludeType(sqlSettingMap));
+		}
+
+		String sql = sqlBuffer.toString();
+
+		if (firstSet) {
+			Logger.logSQL("In MapSuid, update SQL: ", sql);
+			throw new BeeErrorGrammarException(
+					"BeeErrorGrammarException: the SQL update set part is empty!");
+		}
+
+		//不允许更新整张表
+		//只支持是否带where检测   v1.7.2 
+		if (firstWhere) {
+			boolean notUpdateWholeRecords = HoneyConfig.getHoneyConfig().notUpdateWholeRecords;
+			if (notUpdateWholeRecords) {
+				Logger.logSQL("In MapSuid, update SQL: ", sql);
+				throw new BeeIllegalBusinessException(
+						"BeeIllegalBusinessException: It is not allowed delete whole records in one table.");
+			}
+		}
+
+		setContext(sql, list, tableName);
+
+		return sql;
+	}
 
 	public static String toInsertSqlByMap(MapSql mapSql) {
 
@@ -183,10 +261,28 @@ public class MapSqlProcessor {
 		return sql;
 	}
 	
-	private static void checkTable(String tableName) {
-		if (StringUtils.isBlank(tableName)) {
-			throw new BeeException("The Map which key is SqlMapKey.Table must define!");
+	public static String toCountSqlByMap(MapSql mapSql) {
+		MapSqlImpl t = (MapSqlImpl) mapSql;
+		MapSql newOne=copyForCount(t);
+		newOne.put(MapSqlKey.SelectColumns, "count(*)");
+		return toSelectSqlByMap(newOne);
+	}
+	
+	private static MapSql copyForCount(MapSqlImpl old) {
+		MapSqlImpl n = new MapSqlImpl();
+		n.kv = old.getKvMap();
+//		n.sqlkeyMap = old.getSqlkeyMap();
+		n.newKv = old.getNewKvMap();
+		n.settingMap = old.getSqlSettingMap();
+//		n.start(old.getStart()); //ignore
+//		n.size(old.getSize()); //ignore
+		
+		Map<MapSqlKey, String> map=old.getSqlkeyMap();
+		for (Map.Entry<MapSqlKey, String> entry : map.entrySet()) {
+			n.put(entry.getKey(), entry.getValue());
 		}
+		
+		return n;
 	}
 	
 	private static Object processId(Map<String, Object> insertKvMap,String tableName) {
@@ -247,6 +343,10 @@ public class MapSqlProcessor {
 
 		PreparedValue preparedValue = null;
 		for (Map.Entry<String, Object> entry : whereConditonMap.entrySet()) {
+			
+			if("Table".equalsIgnoreCase(entry.getKey())) {
+				Logger.warn("The Key name is "+entry.getKey()+ " , will be ignored in 'where' part!");
+			}
 
 			Object value = entry.getValue();
 
@@ -279,6 +379,50 @@ public class MapSqlProcessor {
 		}
 		return firstWhere;
 	}
+	
+	private static boolean updateSet(Map<String, Object> setConditonMap, List<PreparedValue> list,
+			StringBuffer sqlBuffer, boolean isTransfer, int includeType) {
+		boolean firstSet = true;
+
+		PreparedValue preparedValue = null;
+		for (Map.Entry<String, Object> entry : setConditonMap.entrySet()) {
+			
+			if("Table".equalsIgnoreCase(entry.getKey())) {
+				Logger.warn("The Key name is "+entry.getKey()+ " , will be ignored!");
+			}
+
+			Object value = entry.getValue();
+
+			if (HoneyUtil.isContinue(includeType, value, null)) continue;
+
+			if (firstSet) {
+				sqlBuffer.append(K.space).append(K.set).append(K.space); //set
+				firstSet = false;
+			} else {
+//				sqlBuffer.append(K.space).append(K.and).append(K.space); //and
+				sqlBuffer.append(K.space).append(",").append(K.space); 
+			}
+
+			if (isTransfer) {
+				sqlBuffer.append(_toColumnName(entry.getKey()));
+			} else {
+				sqlBuffer.append(entry.getKey());
+			}
+
+			if (value == null) {
+				sqlBuffer.append(" =").append(K.Null); //  =
+			} else {
+				sqlBuffer.append("=");
+				sqlBuffer.append("?");
+
+				preparedValue = new PreparedValue();
+				preparedValue.setType(entry.getValue().getClass().getSimpleName());
+				preparedValue.setValue(entry.getValue());
+				list.add(preparedValue);
+			}
+		}
+		return firstSet;
+	}
 
 	private static void toInsertSql(Map<String, Object> insertKvMap, List<PreparedValue> list,
 			StringBuffer sqlBuffer, boolean isTransfer, int includeType) {
@@ -288,6 +432,10 @@ public class MapSqlProcessor {
 
 		PreparedValue preparedValue = null;
 		for (Map.Entry<String, Object> entry : insertKvMap.entrySet()) {
+			
+			if("Table".equalsIgnoreCase(entry.getKey())) {
+				Logger.warn("The Key name is "+entry.getKey()+ " , will be ignored!");
+			}
 
 			Object value = entry.getValue();
 			if (HoneyUtil.isContinue(includeType, value, null)) continue;
@@ -329,7 +477,28 @@ public class MapSqlProcessor {
 	}
 
 	private static String _toColumnName(String fieldName) {
+		checkFieldName(fieldName);
 		return NameTranslateHandle.toColumnName(fieldName);
+	}
+	
+	private static void checkTable(String tableName) {
+		if (StringUtils.isBlank(tableName)) {
+			throw new BeeException("The Map which key is SqlMapKey.Table must define!");
+		}
+		
+		checkName(tableName);
+	}
+	
+	private static void checkName(String name){
+		if(CheckField.isNotValid(name)) {
+			throw new BeeErrorFieldException("The name: '"+name+ "' is invalid!");
+		}
+	}
+	
+	private static void checkFieldName(String fieldName){
+		if(CheckField.isNotValid(fieldName)) {
+			throw new BeeErrorFieldException("The fieldName: '"+fieldName+ "' is invalid!");
+		}
 	}
 
 }
