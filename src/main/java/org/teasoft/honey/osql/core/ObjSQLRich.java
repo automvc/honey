@@ -206,8 +206,8 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 
 	@Override
 	public <T> int count(T entity, Condition condition) {
-		String toatl = selectWithFun(entity, FunctionType.COUNT, "*", condition);
-		return toatl == null ? 0 : Integer.parseInt(toatl);
+		String total = selectWithFun(entity, FunctionType.COUNT, "*", condition);
+		return total == null ? 0 : Integer.parseInt(total);
 	}
 
 	@Override
@@ -321,6 +321,12 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Override
 	public <T> T selectById(T entity, Integer id) {
 		if (entity == null) return null;
+
+		if (id==null) {
+			Logger.warn("in method selectById,id is null! ");
+			return null;
+		}
+		
 		String sql = getObjToSQLRich().toSelectByIdSQL(entity, id);
 		Logger.logSQL("selectById SQL: ", sql);
 		List<T> list = getBeeSql().select(sql, entity);
@@ -331,6 +337,11 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Override
 	public <T> T selectById(T entity, Long id) {
 		if (entity == null) return null;
+
+		if (id==null) {
+			Logger.warn("in method selectById,id is null! ");
+			return null;
+		}
 		String sql = getObjToSQLRich().toSelectByIdSQL(entity, id);
 		Logger.logSQL("selectById SQL: ", sql);
 		List<T> list = getBeeSql().select(sql, entity);
@@ -341,6 +352,11 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Override
 	public <T> T selectById(T entity, String id) {
 		if (entity == null) return null;
+
+		if (id==null) {
+			Logger.warn("in method selectById,id is null! ");
+			return null;
+		}
 		if(id.contains(",")) {
 			throw new BeeIllegalParameterException("The parameter 'id' of method selectById does not allow to contain comma!");
 		}
@@ -355,6 +371,11 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Override
 	public <T> List<T> selectByIds(T entity, String ids) {
 		if (entity == null) return null;
+
+		if (ids==null) {
+			Logger.warn("in method selectByIds,ids is null! ");
+			return null;
+		}
 		String sql = getObjToSQLRich().toSelectByIdSQL(entity, ids);
 		Logger.logSQL("selectByIds SQL: ", sql);
 		return getBeeSql().select(sql, entity);
@@ -371,7 +392,8 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Override
 	@SuppressWarnings("rawtypes")
 	public int deleteById(Class c, Integer id) {
-		if (c == null) return 0;
+		if(id==null) Logger.warn("in method deleteById,id is null! ");
+		if (c == null || id==null) return 0;
 		String sql = getObjToSQLRich().toDeleteByIdSQL(c, id);
 		Logger.logSQL("deleteById SQL: ", sql);
 		_regEntityClass2(c);
@@ -381,7 +403,8 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Override
 	@SuppressWarnings("rawtypes")
 	public int deleteById(Class c, Long id) {
-		if (c == null) return 0;
+		if(id==null) Logger.warn("in method deleteById,id is null! ");
+		if (c == null || id==null) return 0;
 		String sql = getObjToSQLRich().toDeleteByIdSQL(c, id);
 		Logger.logSQL("deleteById SQL: ", sql);
 		_regEntityClass2(c);
@@ -391,7 +414,8 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Override
 	@SuppressWarnings("rawtypes")
 	public int deleteById(Class c, String ids) {
-		if (c == null) return 0;
+		if(ids==null) Logger.warn("in method deleteById,ids is null! ");
+		if (c == null || ids==null) return 0;
 		String sql = getObjToSQLRich().toDeleteByIdSQL(c, ids);
 		Logger.logSQL("deleteById SQL: ", sql);
 		_regEntityClass2(c);
@@ -559,6 +583,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		OneTimeParameter.setAttribute(para, value);
 		return this;
 	}
+
 
 	@Override
 	public <T> boolean exist(T entity) {
