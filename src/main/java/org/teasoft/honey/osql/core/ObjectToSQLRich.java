@@ -147,7 +147,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 
 		String orderBy = "";
 		for (int i = 0; i < lenA; i++) {
-			orderBy += orderFields[i] + " " + ASC;
+			orderBy += _toColumnName(orderFields[i]) + " " + ASC;
 			if (i < lenA - 1) orderBy += ",";
 		}
 		
@@ -169,7 +169,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 
 		String orderBy = "";
 		for (int i = 0; i < lenA; i++) {
-			orderBy += orderFields[i] + " " + orderTypes[i].getName();
+			orderBy += _toColumnName(orderFields[i]) + " " + orderTypes[i].getName();
 			if (i < lenA - 1) orderBy += ",";
 		}
 
@@ -700,11 +700,11 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		SqlValueWrap wrap = new SqlValueWrap();
 
 		String tableName = _toTableName(entity);
-		Field fields[] = entity.getClass().getDeclaredFields();
 
 		String packageAndClassName = entity.getClass().getName();
 		String columnNames = HoneyContext.getBeanField(packageAndClassName);
 		if (columnNames == null) {
+			Field fields[] = entity.getClass().getDeclaredFields();
 			columnNames = HoneyUtil.getBeanField(fields);
 			HoneyContext.addBeanField(packageAndClassName, columnNames);
 		}
