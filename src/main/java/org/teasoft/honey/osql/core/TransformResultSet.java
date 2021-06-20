@@ -10,7 +10,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -149,7 +149,8 @@ public class TransformResultSet {
 		int columnCount = rmeta.getColumnCount();
 		Map<String,Object> rowMap=null;
 		while (rs.next()) {
-			rowMap=new HashMap<>();
+//			rowMap=new HashMap<>();
+			rowMap=new LinkedHashMap<>(); //2021-06-13
 			for (int i = 1; i <= columnCount; i++) {
 				rowMap.put(_toFieldName(rmeta.getColumnName(i)), rs.getObject(i));
 			}
