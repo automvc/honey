@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.teasoft.bee.osql.BeeSql;
-import org.teasoft.bee.osql.ObjSQLException;
 import org.teasoft.bee.osql.PreparedSql;
 import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.dialect.DbFeature;
@@ -465,5 +464,25 @@ public class PreparedSqlLib implements PreparedSql {
 	private boolean isNeedRealTimeDb() {
 		return HoneyContext.isNeedRealTimeDb();
 	}
+	
+	
+	@Override
+	public List<Map<String, Object>> selectMapList(String sql) {
+		Logger.logSQL("PreparedSql selectMapList SQL: ", sql);
+		return getBeeSql().selectMapList(sql);
+	}
+	
+	@Override
+	public List<Map<String, Object>> selectMapList(String sql,int start,int size) {
+		
+		if(size<=0) throw new BeeIllegalParameterException("Parameter 'size' need great than 0!");
+		if(start<0) throw new BeeIllegalParameterException("Parameter 'start' need great equal 0!");
+		
+		sql = getDbFeature().toPageSql(sql, start, size);
+		Logger.logSQL("PreparedSql selectMapList SQL: ", sql);
+		
+		return getBeeSql().selectMapList(sql);
+	}
+
 
 }
