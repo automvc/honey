@@ -16,6 +16,7 @@ public class ObjectCreatorFactory {
 	public static Object create(String s, Class c) {
 
 		if (c == null) return null;
+		if(s==null) return null; //fix bug 2021-05-24
 		
 		if (c.equals(String.class))
 			return ObjectCreator.createString(s);
