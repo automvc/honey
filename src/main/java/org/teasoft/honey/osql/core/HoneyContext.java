@@ -186,7 +186,7 @@ public final class HoneyContext {
 
 	static List<PreparedValue> justGetPreparedValue(String sqlStr) {
 		Map<String, List<PreparedValue>> map = sqlPreValueLocal.get();
-		if (null == map) return null;
+		if (null == map || sqlStr==null) return null;
 
 		List<PreparedValue> list = map.get(sqlStr);
 		return list;
@@ -194,14 +194,14 @@ public final class HoneyContext {
 
 	static void clearPreparedValue(String sqlStr) {
 		Map<String, List<PreparedValue>> map = sqlPreValueLocal.get();
-		if (null == map) return;
+		if (null == map || sqlStr==null) return;
 		List<PreparedValue> list = map.get(sqlStr);
 		if (list != null) map.remove(sqlStr);
 	}
 
 	static List<PreparedValue> getAndClearPreparedValue(String sqlStr) {
 		Map<String, List<PreparedValue>> map = sqlPreValueLocal.get();
-		if (null == map) return null;
+		if (null == map || sqlStr==null) return null;
 		List<PreparedValue> list = map.get(sqlStr);
 		if (list != null) map.remove(sqlStr);
 
@@ -236,7 +236,7 @@ public final class HoneyContext {
 
 	public static CacheSuidStruct getCacheInfo(String sqlStr) {
 		Map<String, CacheSuidStruct> map = cacheLocal.get();
-		if (null == map) return null;
+		if (null == map || sqlStr==null) return null;
 		CacheSuidStruct struct = map.get(sqlStr);
 		return struct;
 	}
@@ -290,7 +290,7 @@ public final class HoneyContext {
 			}
 		}else if (StringConst.tRue.equals(getSameConnctionDoing())) { // 正常流程
 			OneTimeParameter.setTrueForKey("_SYS_Bee_SAME_CONN_END");
-			checkClose(null, HoneyContext.getCurrentConnection());
+			checkClose(null, getCurrentConnection());
 		}else {
 			
 		}
@@ -336,7 +336,7 @@ public final class HoneyContext {
 	}
 
 	static void setContext(String sql, List<PreparedValue> list, String tableName) {
-		HoneyContext.setPreparedValue(sql, list);
+		setPreparedValue(sql, list);
 		addInContextForCache(sql, tableName);
 	}
 
@@ -344,7 +344,7 @@ public final class HoneyContext {
 		CacheSuidStruct struct = new CacheSuidStruct();
 		struct.setSql(sql);
 		struct.setTableNames(tableName);
-		HoneyContext.setCacheInfo(sql, struct);
+		setCacheInfo(sql, struct);
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -355,13 +355,13 @@ public final class HoneyContext {
 	static Connection getConn() throws SQLException {
 		Connection conn = null;
 
-		conn = HoneyContext.getCurrentConnection(); //获取已开启事务或同一Connection的连接
+		conn = getCurrentConnection(); //获取已开启事务或同一Connection的连接
 		if (conn == null) {
 			conn = SessionFactory.getConnection(); //不开启事务时
 
 			//如果设置了同一Connection
 			if (OneTimeParameter.isTrue("_SYS_Bee_SAME_CONN_BEGIN")) {
-				HoneyContext.setCurrentConnection(conn); //存入上下文
+				setCurrentConnection(conn); //存入上下文
 				setSameConnctionDoing();
 			}
 		}
@@ -384,7 +384,7 @@ public final class HoneyContext {
 			boolean enableMultiDs = HoneyConfig.getHoneyConfig().multiDS_enable;
 			int multiDsType = HoneyConfig.getHoneyConfig().multiDS_type;
 			if (enableMultiDs && multiDsType == 2) {//仅分库,有多个数据源时
-				HoneyContext.removeCurrentRoute();
+				removeCurrentRoute();
 			}
 		}
 	}
@@ -431,7 +431,7 @@ public final class HoneyContext {
 			boolean enableMultiDs = HoneyConfig.getHoneyConfig().multiDS_enable;
 			int multiDsType = HoneyConfig.getHoneyConfig().multiDS_type;
 			if (enableMultiDs && multiDsType == 2) {//仅分库,有多个数据源时
-				HoneyContext.removeCurrentRoute();
+				removeCurrentRoute();
 			}
 		}
 		}
@@ -439,11 +439,11 @@ public final class HoneyContext {
 
 	//for SqlLib
 	static boolean updateInfoInCache(String sql, String returnType, SuidType suidType) {
-		CacheSuidStruct struct = HoneyContext.getCacheInfo(sql);
+		CacheSuidStruct struct = getCacheInfo(sql);
 		if (struct != null) {
 			struct.setReturnType(returnType);
 			struct.setSuidType(suidType.getType());
-			HoneyContext.setCacheInfo(sql, struct);
+			setCacheInfo(sql, struct);
 			return true;
 		}
 		//要是没有更新缓存,证明之前还没有登记过缓存,就不能去查缓存.
@@ -462,12 +462,12 @@ public final class HoneyContext {
 		routeStruct.setSuidType(suidType);
 		routeStruct.setEntityClass(clazz);
 
-		CacheSuidStruct struct = HoneyContext.getCacheInfo(sql);
+		CacheSuidStruct struct = getCacheInfo(sql);
 		if (struct != null) {
 			routeStruct.setTableNames(struct.getTableNames());
 		}
 
-		HoneyContext.setCurrentRoute(routeStruct);
+		setCurrentRoute(routeStruct);
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -482,7 +482,7 @@ public final class HoneyContext {
 		routeStruct.setEntityClass(clazz);
 		routeStruct.setTableNames(tableNames);
 
-		HoneyContext.setCurrentRoute(routeStruct);
+		setCurrentRoute(routeStruct);
 	}
 
 	private static void parseEntityListToMap() {
@@ -582,7 +582,7 @@ public final class HoneyContext {
 	//同时使用多种类型数据库时,才会触发.   没有分页时,走原来的流程,到SqlLib,才获取数据源处理Suid操作.
 	static String getRealTimeDbName() {
 		String dbName = null;
-		if (HoneyContext.isNeedRealTimeDb()) {
+		if (isNeedRealTimeDb()) {
 			return HoneyConfig.getHoneyConfig().getDbName();
 		}
 		return dbName;
