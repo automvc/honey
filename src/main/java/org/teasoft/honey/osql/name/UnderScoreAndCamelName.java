@@ -20,7 +20,7 @@ public class UnderScoreAndCamelName implements NameTranslate{
 	
 	@Override
 	public String toTableName(String entityName) {
-		return NameUtil.toUnderscoreNaming(entityName);
+		return NameUtil.toUnderscoreNaming(NameUtil.firstLetterToLowerCase(entityName));
 	}
 
 	@Override
