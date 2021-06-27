@@ -10,8 +10,8 @@ import org.teasoft.bee.osql.Op;
 import org.teasoft.bee.osql.chain.Update;
 import org.teasoft.bee.osql.exception.BeeErrorFieldException;
 import org.teasoft.honey.osql.core.Check;
-import org.teasoft.honey.osql.core.CheckField;
 import org.teasoft.honey.osql.core.K;
+import org.teasoft.honey.osql.util.NameCheckUtil;
 
 
 /**
@@ -282,9 +282,10 @@ public class UpdateImpl extends AbstractToSql implements Update {
 		}
 		
 		private void checkField(String field){
-			if(CheckField.isNotValid(field)) {
-				throw new BeeErrorFieldException("The field: '"+field+ "' is invalid!");
-			}
+//			if(CheckField.isIllegal(field)) {
+//				throw new BeeErrorFieldException("The field: '"+field+ "' is illegal!");
+//			}
+			NameCheckUtil.checkName(field);
 		}
 		
 		private void checkExpression(String expression){
