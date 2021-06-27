@@ -7,9 +7,8 @@
 package org.teasoft.honey.osql.chain;
 
 import org.teasoft.bee.osql.FunctionType;
-import org.teasoft.bee.osql.exception.BeeErrorFieldException;
-import org.teasoft.honey.osql.core.CheckField;
 import org.teasoft.honey.osql.core.FunAndOrderTypeMap;
+import org.teasoft.honey.osql.util.NameCheckUtil;
 
 /**
  * @author Kingstar
@@ -45,8 +44,9 @@ public class Aggregate {
 	}
 	
 	private static void checkField(String field){
-		if(CheckField.isNotValid(field)) {
-			throw new BeeErrorFieldException("The field: '"+field+ "' is invalid!");
-		}
+//		if(CheckField.isIllegal(field)) {
+//			throw new BeeErrorFieldException("The field: '"+field+ "' is illegal!");
+//		}
+		NameCheckUtil.checkName(field);
 	}
 }
