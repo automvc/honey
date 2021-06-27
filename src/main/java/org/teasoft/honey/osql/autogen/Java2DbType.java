@@ -136,6 +136,11 @@ public class Java2DbType {
 		java2DbType.put("short", "SMALLINT");
 		java2DbType.put("byte", "TINYINT");
 		java2DbType.put("boolean", "BIT");
+		
+		java2DbType.put("integer", "int(11)"); //for finding easily
+		java2DbType.put("Integer", "int(11)"); //方便匹配
+		java2DbType.put("string", "varchar(255)");
+		java2DbType.put("String", "varchar(255)");
 
 		java2DbType.put("java.math.BigDecimal", "DECIMAL(19,6)");
 

@@ -17,8 +17,6 @@ import java.util.Map;
 
 import org.teasoft.bee.osql.BeeException;
 import org.teasoft.bee.osql.DatabaseConst;
-import org.teasoft.bee.osql.exception.BeeIllegalParameterException;
-import org.teasoft.honey.osql.core.CheckField;
 import org.teasoft.honey.osql.core.ExceptionHelper;
 import org.teasoft.honey.osql.core.HoneyContext;
 import org.teasoft.honey.osql.core.HoneyUtil;
@@ -27,6 +25,7 @@ import org.teasoft.honey.osql.core.NameTranslateHandle;
 import org.teasoft.honey.osql.core.SessionFactory;
 import org.teasoft.honey.osql.name.NameUtil;
 import org.teasoft.honey.osql.util.DateUtil;
+import org.teasoft.honey.osql.util.NameCheckUtil;
 
 //是否覆盖文件,       支持写生成其中一个文件或几个文件(已实现)
 public class GenBean {
@@ -311,9 +310,11 @@ public class GenBean {
 
 	private Table getTable(String tableName, Connection con) throws SQLException {
 		
-		if(CheckField.isNotValid(tableName)) {
-			throw new BeeIllegalParameterException("The tableName: '"+tableName+ "' is invalid!");
-		}
+//		if(CheckField.isIllegal(tableName)) {
+//			throw new BeeIllegalParameterException("The tableName: '"+tableName+ "' is illegal!");
+//		}
+		
+		NameCheckUtil.checkName(tableName);
 		
 		PreparedStatement ps = null;
 		ResultSet rs = null;

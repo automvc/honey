@@ -202,9 +202,8 @@ public class Ddl {
 			if ("id".equalsIgnoreCase(fields[i].getName()))
 				sqlBuffer.append("bigint(20) PRIMARY KEY NOT NULL AUTO_INCREMENT");
 			else {
-				sqlBuffer.append(getJava2DbType().get(fields[i].getType().getName()));
-
 				String type = getJava2DbType().get(fields[i].getType().getName());
+				sqlBuffer.append(type);
 				if ("timestamp".equalsIgnoreCase(type) || "datetime".equalsIgnoreCase(type)) {
 					sqlBuffer.append(" DEFAULT CURRENT_TIMESTAMP");
 				} else {
