@@ -17,8 +17,8 @@ import org.teasoft.bee.osql.IncludeType;
 import org.teasoft.bee.osql.Op;
 import org.teasoft.bee.osql.OrderType;
 import org.teasoft.bee.osql.SuidType;
-import org.teasoft.bee.osql.exception.BeeErrorFieldException;
 import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
+import org.teasoft.honey.osql.util.NameCheckUtil;
 
 /**
  * @author Kingstar
@@ -487,9 +487,10 @@ public class ConditionImpl implements Condition {
 	}
 
 	private void checkField(String field){
-		if(CheckField.isNotValid(field)) {
-			throw new BeeErrorFieldException("The field: '"+field+ "' is invalid!");
-		}
+//		if(CheckField.isIllegal(field)) {
+//			throw new BeeErrorFieldException("The field: '"+field+ "' is illegal!");
+//		}
+		NameCheckUtil.checkName(field);
 	}
 
 	final class FunExpress{

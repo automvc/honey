@@ -19,6 +19,7 @@ import org.teasoft.bee.osql.exception.BeeErrorFieldException;
 import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
 import org.teasoft.bee.osql.exception.BeeIllegalBusinessException;
 import org.teasoft.honey.distribution.GenIdFactory;
+import org.teasoft.honey.osql.util.NameCheckUtil;
 import org.teasoft.honey.util.ObjectUtils;
 import org.teasoft.honey.util.StringUtils;
 
@@ -346,7 +347,10 @@ public class MapSqlProcessor {
 			
 			if("Table".equalsIgnoreCase(entry.getKey())) {
 				Logger.warn("The Key name is "+entry.getKey()+ " , will be ignored in 'where' part!");
+				continue;
 			}
+			
+			checkName(entry.getKey());  //v1.9.8
 
 			Object value = entry.getValue();
 
@@ -389,7 +393,10 @@ public class MapSqlProcessor {
 			
 			if("Table".equalsIgnoreCase(entry.getKey())) {
 				Logger.warn("The Key name is "+entry.getKey()+ " , will be ignored!");
+				continue;
 			}
+			
+			checkName(entry.getKey());  //v1.9.8
 
 			Object value = entry.getValue();
 
@@ -435,8 +442,11 @@ public class MapSqlProcessor {
 			
 			if("Table".equalsIgnoreCase(entry.getKey())) {
 				Logger.warn("The Key name is "+entry.getKey()+ " , will be ignored!");
+				continue;
 			}
 
+			checkName(entry.getKey());  //v1.9.8
+			
 			Object value = entry.getValue();
 			if (HoneyUtil.isContinue(includeType, value, null)) continue;
 			if (isFirst) {
@@ -477,7 +487,7 @@ public class MapSqlProcessor {
 	}
 
 	private static String _toColumnName(String fieldName) {
-		checkFieldName(fieldName);
+		checkName(fieldName);
 		return NameTranslateHandle.toColumnName(fieldName);
 	}
 	
@@ -485,20 +495,17 @@ public class MapSqlProcessor {
 		if (StringUtils.isBlank(tableName)) {
 			throw new BeeException("The Map which key is SqlMapKey.Table must define!");
 		}
-		
 		checkName(tableName);
 	}
 	
-	private static void checkName(String name){
-		if(CheckField.isNotValid(name)) {
-			throw new BeeErrorFieldException("The name: '"+name+ "' is invalid!");
-		}
+	private static void checkName(String tableName){
+		NameCheckUtil.checkName(tableName);
 	}
 	
-	private static void checkFieldName(String fieldName){
-		if(CheckField.isNotValid(fieldName)) {
-			throw new BeeErrorFieldException("The fieldName: '"+fieldName+ "' is invalid!");
-		}
-	}
+//	private static void checkTableName(String name){
+//		if(CheckField.isNotValid(name)) {
+//			throw new BeeErrorFieldException("The name: '"+name+ "' is invalid!");
+//		}
+//	}
 
 }
