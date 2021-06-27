@@ -11,9 +11,9 @@ import org.teasoft.bee.osql.OrderType;
 import org.teasoft.bee.osql.chain.Select;
 import org.teasoft.bee.osql.exception.BeeErrorFieldException;
 import org.teasoft.honey.osql.core.Check;
-import org.teasoft.honey.osql.core.CheckField;
 import org.teasoft.honey.osql.core.FunAndOrderTypeMap;
 import org.teasoft.honey.osql.core.K;
+import org.teasoft.honey.osql.util.NameCheckUtil;
 
 /**
  * @author Kingstar
@@ -490,9 +490,10 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 	}
 	
 	private void checkField(String field){
-		if(CheckField.isNotValid(field)) {
-			throw new BeeErrorFieldException("The field: '"+field+ "' is invalid!");
-		}
+//		if(CheckField.isIllegal(field)) {
+//			throw new BeeErrorFieldException("The field: '"+field+ "' is illegal!");
+//		}
+		NameCheckUtil.checkName(field);
 	}
 	
 	private void checkExpression(String expression){
