@@ -50,7 +50,8 @@ public class NameCheckUtil {
 	}
 
 	public static boolean isValidName(String name) {
-		String p = "^[a-zA-Z]{1}[0-9a-zA-Z_]{0,}$";
+//		String p = "^[a-zA-Z]{1}[0-9a-zA-Z_]{0,}$";
+		String p = "^[0-9a-zA-Z_]{1,}$";
 		Pattern pattern = Pattern.compile(p);
 		return pattern.matcher(name).find();
 	}
