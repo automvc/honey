@@ -22,6 +22,21 @@ import org.teasoft.honey.osql.core.Logger;
  * @since  1.7.1
  */
 public class FileHandle implements FileCreator{
+	
+	private String charsetName;
+	
+
+	@Override
+	public void setCharsetName(String charsetName) {
+		this.charsetName=charsetName;
+	}
+	
+	public String getCharsetName() {
+		if (this.charsetName == null || "".equals(charsetName.trim()))
+			return "UTF-8";
+		else
+			return this.charsetName;
+	}
 
 	@Override
 	public void genFile(String fullPathAndName, String content) {
@@ -34,7 +49,7 @@ public class FileHandle implements FileCreator{
 		}
 		
 		try (
-			  BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f)));
+			  BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f),getCharsetName()));
 			){
 			bw.write(content);
 			bw.flush();
@@ -58,7 +73,7 @@ public class FileHandle implements FileCreator{
 
 		File entityFile = new File(fullPath + fileName);
 		try(
-			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(entityFile)));
+			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(entityFile),getCharsetName()));
 			) {
 			bw.write(content);
 			bw.flush();
@@ -89,7 +104,7 @@ public class FileHandle implements FileCreator{
 		}
 		
 		try (
-			  BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f,true)));//true,追加的方式
+			  BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f,true),getCharsetName()));//true,追加的方式
 			){
 			bw.write(content);
 			bw.append(LINE_SEPARATOR);
