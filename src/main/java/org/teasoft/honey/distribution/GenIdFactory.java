@@ -21,13 +21,17 @@ public class GenIdFactory {
 	private static Map<String, GenId> map = new ConcurrentHashMap<>();
 	private static String defaultGenType;
 	
+	public static final String GenType_SerialUniqueId="SerialUniqueId";
+	public static final String GenType_OneTimeSnowflakeId="OneTimeSnowflakeId";
+	public static final String GenType_PearFlowerId="PearFlowerId";
+	
 	static{
 		int idGenerator=HoneyConfig.getHoneyConfig().genid_generatorType;
 		
-		if(idGenerator==1) defaultGenType = "SerialUniqueId";
-		else if(idGenerator==2) defaultGenType = "OneTimeSnowflakeId";
-		else if(idGenerator==3) defaultGenType = "PearFlowerId";
-		else defaultGenType = "SerialUniqueId";
+		if(idGenerator==1) defaultGenType = GenType_SerialUniqueId;
+		else if(idGenerator==2) defaultGenType = GenType_OneTimeSnowflakeId;
+		else if(idGenerator==3) defaultGenType = GenType_PearFlowerId;
+		else defaultGenType = GenType_SerialUniqueId;
 	}
 	
 	private GenIdFactory() {}
@@ -61,7 +65,7 @@ public class GenIdFactory {
 	/**
 	 * 
 	 * @param bizType bizType作为隔离的命名空间.bizType as namespace.
-	 * @param genType it is one of SerialUniqueId,OneTimeSnowflakeId or PearFlowerId.
+	 * @param genType The value is one of "SerialUniqueId","OneTimeSnowflakeId" or "PearFlowerId".
 	 * @return long id num.
 	 */
 	public static long get(String bizType, String genType) {
@@ -69,10 +73,23 @@ public class GenIdFactory {
 		return genId.get();
 	}
 
+	/**
+	 * 获取一批id号
+	 * @param bizType bizType作为隔离的命名空间.bizType as namespace.
+	 * @param sizeOfIds 一批次获取id号的数量. size of Ids.
+	 * @return 一批id号.array of id num.
+	 */
 	public static long[] getRangeId(String bizType, int sizeOfIds) {
 		return getRangeId(bizType, defaultGenType, sizeOfIds);
 	}
 
+	/**
+	 * 获取一批id号
+	 * @param bizType bizType作为隔离的命名空间.bizType as namespace.
+	 * @param genType The value is one of "SerialUniqueId","OneTimeSnowflakeId" or "PearFlowerId".
+	 * @param sizeOfIds 一批次获取id号的数量. size of Ids.
+	 * @return 一批id号.array of id num.
+	 */
 	public static long[] getRangeId(String bizType, String genType, int sizeOfIds) {
 		GenId genId = getGenId(bizType, genType);
 		return genId.getRangeId(sizeOfIds);
@@ -83,13 +100,13 @@ public class GenIdFactory {
 		GenId genId = map.get(key);
 		if (genId == null) {
 			switch (genType) {
-				case "SerialUniqueId":
+				case GenType_SerialUniqueId:
 					genId = new SerialUniqueId();
 					break;
-				case "OneTimeSnowflakeId":
+				case GenType_OneTimeSnowflakeId:
 					genId = new OneTimeSnowflakeId();
 					break;
-				case "PearFlowerId":
+				case GenType_PearFlowerId:
 					genId = new PearFlowerId();
 					break;
 				default:
@@ -101,4 +118,5 @@ public class GenIdFactory {
 		}
 		return genId;
 	}
+	
 }
