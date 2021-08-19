@@ -56,15 +56,19 @@ public class NameTranslateHandle {
 					entityName = processAutoPara(tntity.value());
 				}
 			}
-		} catch (Exception e) {
-			Logger.error("In NameTranslateHandle: "+e.getMessage());
+		} catch (ClassNotFoundException e) {
+			if(entityName!=null && !entityName.contains("."))
+			   Logger.info("In NameTranslateHandle,ClassNotFoundException : "+e.getMessage());
+			else
+			   Logger.warn("In NameTranslateHandle,ClassNotFoundException : "+e.getMessage());
 		}
 		
 		//entityName maybe include package name
 		//special one, config in :bee.osql.name.mapping.entity2table
 		String tableName=entity2tableMap.get(entityName);
-		if(tableName!=null && !"".equals(tableName.trim())) return tableName;//fix bug 2020-08-22
-		else {//若找不到,检测是否包含包名,若有,则去除包名后再用类名看下是否能找到
+		if (tableName != null && !"".equals(tableName.trim())) {
+			return tableName;//fix bug 2020-08-22
+		}else {//若找不到,检测是否包含包名,若有,则去除包名后再用类名看下是否能找到
 			int index = entityName.lastIndexOf(".");
 			if(index>0){
 				entityName=entityName.substring(index + 1);  //此时entityName只包含类名
