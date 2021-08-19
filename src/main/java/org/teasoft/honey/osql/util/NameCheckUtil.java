@@ -59,11 +59,26 @@ public class NameCheckUtil {
 	public static boolean isNotValidName(String name) {
 		return !isValidName(name);
 	}
-
+	
 	public static void checkName(String name) {
+		if (name != null && name.contains(",")) {
+			String n[] = name.split(",");
+			for (int i = 0; i < n.length; i++) {
+				_checkName(n[i]);
+			}
+		} else {
+			_checkName(name);
+		}
+	}
+
+	private static void _checkName(String name) {
+		
+		if(name==null) throw new BeeErrorNameException("The name is null !");
+		
+		if("count(*)".equalsIgnoreCase(name)) return ;
 
 		if (NameCheckUtil.isKeyName(name)) {
-			Logger.warn("The name : " + name + " , it is key word name!");
+			Logger.warn("The name : '" + name + "' , it is key word name!");
 		}
 
 		if (NameCheckUtil.isValidName(name)) {
@@ -72,16 +87,19 @@ public class NameCheckUtil {
 			if (isIllegal(name)) {
 				throw new BeeErrorNameException("The name: '" + name + "' is illegal!");
 			} else {
-				Logger.warn("The name is " + name + " , does not conform to naming conventions!");
+				Logger.warn("The name is '" + name + "' , does not conform to naming conventions!");
 			}
 		}
 
 	}
 
+	//是否非法名称
 	public static boolean isIllegal(String fieldName) {
 		if (fieldName == null || fieldName.contains(" ") || fieldName.contains("-")
 				|| fieldName.contains("#") || fieldName.contains("|") || fieldName.contains("+")
-				|| fieldName.contains(";")) {
+				|| fieldName.contains("/*")
+				|| fieldName.contains(";")
+				) {
 			return true;
 		}
 		return false;

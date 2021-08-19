@@ -14,7 +14,7 @@ public class Check {
 
 	public static boolean isNotValidExpression(String expression) {
 		if (expression == null || expression.contains("--") || expression.contains("#")
-				|| expression.contains("|") || expression.contains(";")) {
+				|| expression.contains("|") || expression.contains(";") || expression.contains("/*")) {
 			return true;
 		}
 		return false;
