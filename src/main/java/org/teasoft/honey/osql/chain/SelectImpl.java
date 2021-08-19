@@ -9,7 +9,7 @@ package org.teasoft.honey.osql.chain;
 import org.teasoft.bee.osql.Op;
 import org.teasoft.bee.osql.OrderType;
 import org.teasoft.bee.osql.chain.Select;
-import org.teasoft.bee.osql.exception.BeeErrorFieldException;
+import org.teasoft.bee.osql.exception.BeeIllegalSQLException;
 import org.teasoft.honey.osql.core.Check;
 import org.teasoft.honey.osql.core.FunAndOrderTypeMap;
 import org.teasoft.honey.osql.core.K;
@@ -498,7 +498,7 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 	
 	private void checkExpression(String expression){
 		if(Check.isNotValidExpression(expression)) {
-			throw new BeeErrorFieldException("The expression: '"+expression+ "' is invalid!");
+			throw new BeeIllegalSQLException("The expression: '"+expression+ "' is invalid!");
 		}
 	}
 	
