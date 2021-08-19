@@ -93,11 +93,13 @@ public class Logger {
 					if (insertIndex != null ) {
 						int endIndex = executableSql.indexOf("]_End ");
 						_println("[Bee] " + hardStr + " ( ExecutableSql " + executableSql.substring(4, endIndex + 1) + " )", executableSql.substring(endIndex + 6) + " ;");
+//					    if(OneTimeParameter.isTrue("saveSqlString")) System.err.println(executableSql.substring(endIndex + 6));
 					} else {
 //						if ("0".equals(insertIndex))
 //							_println("[Bee] " + hardStr + " ( ExecutableSql [index0])", executableSql);
 //						else
 							_println("[Bee] " + hardStr + " ( ExecutableSql )", executableSql);
+//							if(OneTimeParameter.isTrue("saveSqlString")) System.err.println(executableSql);
 					}
 				}
 			}
@@ -228,6 +230,34 @@ public class Logger {
 
 		log.warn(msg);
 	}
+	
+	public static void warn(String msg,Throwable t) {
+
+		//=================================start
+		if (LoggerFactory.isNoArgInConstructor()) {
+			resetLog();
+		} else {
+			//不能移走,它表示的是调用所在的位置.
+			String callerClass = "";
+			try {
+				callerClass = sun.reflect.Reflection.getCallerClass().getName();
+			} catch (Error e) {
+				try {
+					callerClass = sun.reflect.Reflection.getCallerClass(2).getName();
+				} catch (Throwable t2) {
+					try {
+						callerClass = new Throwable().getStackTrace()[1].getClassName();
+					} catch (Exception e2) {
+						callerClass = Logger.class.getName();
+					}
+				}
+			}
+			resetLog(callerClass);
+		}
+		//=================================end
+
+		log.warn(msg,t);
+	}
 
 	public static void warn(Number msg) {
 
@@ -283,6 +313,34 @@ public class Logger {
 		//=================================end
 
 		log.error(msg);
+	}
+	
+	public static void error(String msg,Throwable t) {
+
+		//=================================start
+		if (LoggerFactory.isNoArgInConstructor()) {
+			resetLog();
+		} else {
+			//不能移走,它表示的是调用所在的位置.
+			String callerClass = "";
+			try {
+				callerClass = sun.reflect.Reflection.getCallerClass().getName();
+			} catch (Error e) {
+				try {
+					callerClass = sun.reflect.Reflection.getCallerClass(2).getName();
+				} catch (Throwable t2) {
+					try {
+						callerClass = new Throwable().getStackTrace()[1].getClassName();
+					} catch (Exception e2) {
+						callerClass = Logger.class.getName();
+					}
+				}
+			}
+			resetLog(callerClass);
+		}
+		//=================================end
+
+		log.error(msg,t);
 	}
 
 	public static void error(Number msg) {
