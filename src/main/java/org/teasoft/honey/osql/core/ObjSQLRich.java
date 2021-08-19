@@ -624,5 +624,23 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		// TODO Auto-generated method stub
 		return 0;
 	}
+	
+	/**
+	 * 保存一个实体(一条记录).
+	 * 如果可以区分开,建议明确调用insert(entity)或者update(entity),这样更加安全和高效.
+	 * @param entity
+	 * @return 返回受影响的行数.
+	 * @since 1.9.8
+	 */
+	@Override
+	public <T> int save(T entity) {
+		Object id = HoneyUtil.getIdValue(entity);
+		if (id == null) return insert(entity);
+		Object one = selectById(entity, id.toString());
+		if (one != null)
+			return update(entity);
+		else
+			return insert(entity);
+	}
 
 }
