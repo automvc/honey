@@ -372,7 +372,8 @@ public final class HoneyContext {
 	//For exception case. when have exception, must close the conn.
 	static void closeConn(Connection conn) {
 		try {
-			if (conn != null) conn.close();
+//			if (conn != null) conn.close();  //bug   can not be closed before transation rollback
+			if (conn != null && conn.getAutoCommit()) conn.close();
 		} catch (SQLException e) {
 			throw ExceptionHelper.convert(e);
 		} finally {
