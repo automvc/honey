@@ -465,7 +465,6 @@ public class PreparedSqlLib implements PreparedSql {
 		return HoneyContext.isNeedRealTimeDb();
 	}
 	
-	
 	@Override
 	public List<Map<String, Object>> selectMapList(String sql) {
 		Logger.logSQL("PreparedSql selectMapList SQL: ", sql);
@@ -483,6 +482,5 @@ public class PreparedSqlLib implements PreparedSql {
 		
 		return getBeeSql().selectMapList(sql);
 	}
-
 
 }

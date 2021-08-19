@@ -317,6 +317,29 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		_regEntityClass1(entity);
 		return getBeeSql().selectJson(sql);
 	}
+	
+	@Override
+	public <T> String selectJson(T entity, String selectField) {
+		if (entity == null) return null;
+		
+		String sql = getObjToSQLRich().toSelectSQL(entity, selectField);
+		Logger.logSQL("selectJson(T entity, String selectField) SQL: ", sql);
+		_regEntityClass1(entity);
+		return getBeeSql().selectJson(sql);
+	}
+	
+	@Override
+	public <T> String selectJson(T entity, String selectFields, int start, int size) {
+		if (entity == null) return null;
+		if(size<=0) throw new BeeIllegalParameterException("Parameter 'size' need great than 0!");
+		if(start<0) throw new BeeIllegalParameterException("Parameter 'start' need great equal 0!");
+		
+		String sql = getObjToSQLRich().toSelectSQL(entity, selectFields,start,size);
+		
+		Logger.logSQL("selectJson(T entity, String selectField, int start, int size) SQL: ", sql);
+		_regEntityClass1(entity);
+		return getBeeSql().selectJson(sql);
+	}
 
 	@Override
 	public <T> T selectById(T entity, Integer id) {
@@ -583,12 +606,23 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		OneTimeParameter.setAttribute(para, value);
 		return this;
 	}
-
+	
+//	@Override
+//	public SuidRich saveSqlString() {
+//		OneTimeParameter.setTrueForKey("saveSqlString");
+//		return this;
+//	}
 
 	@Override
 	public <T> boolean exist(T entity) {
 		int r = count(entity);
 		return r > 0 ? true : false;
+	}
+
+	@Override
+	public <T> int update(T oldEntity, T newEntity) {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 }
