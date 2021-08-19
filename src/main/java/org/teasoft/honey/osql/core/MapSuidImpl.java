@@ -73,14 +73,26 @@ public class MapSuidImpl implements MapSuid {
 			return Collections.emptyMap();
 		}
 	}
-
+	
 	@Override
-	public long insert(MapSql mapSql) {
-		
+	public int insert(MapSql mapSql) {
 		if(mapSql==null) return -1;
 		
 		String sql = MapSqlProcessor.toInsertSqlByMap(mapSql);
 		Logger.logSQL("In MapSuid, insert SQL: ", sql);
+		
+		int insertNum = getBeeSql().modify(sql);
+		
+		return insertNum;
+	}
+
+	@Override
+	public long insertAndReturnId(MapSql mapSql) {
+		
+		if(mapSql==null) return -1;
+		
+		String sql = MapSqlProcessor.toInsertSqlByMap(mapSql,true);
+		Logger.logSQL("In MapSuid, insertAndReturnId SQL: ", sql);
 		
 		Object obj =OneTimeParameter.getAttribute("_SYS_Bee_MapSuid_Insert_Has_ID");
 		long newId;

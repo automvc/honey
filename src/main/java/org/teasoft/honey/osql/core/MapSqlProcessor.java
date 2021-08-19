@@ -15,7 +15,6 @@ import org.teasoft.bee.osql.MapSql;
 import org.teasoft.bee.osql.MapSqlKey;
 import org.teasoft.bee.osql.MapSqlSetting;
 import org.teasoft.bee.osql.dialect.DbFeature;
-import org.teasoft.bee.osql.exception.BeeErrorFieldException;
 import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
 import org.teasoft.bee.osql.exception.BeeIllegalBusinessException;
 import org.teasoft.honey.distribution.GenIdFactory;
@@ -223,8 +222,12 @@ public class MapSqlProcessor {
 
 		return sql;
 	}
-
+	
 	public static String toInsertSqlByMap(MapSql mapSql) {
+		return toInsertSqlByMap(mapSql,false);
+	}
+
+	public static String toInsertSqlByMap(MapSql mapSql,boolean isNeedProcessId) {
 
 		MapSqlImpl suidMapImpl = (MapSqlImpl) mapSql;
 		Map<MapSqlKey, String> sqlkeyMap = suidMapImpl.getSqlkeyMap();
@@ -248,7 +251,7 @@ public class MapSqlProcessor {
 		Object oldId=null;
 		List<PreparedValue> list = new ArrayList<>();
 		if (ObjectUtils.isNotEmpty(insertKvMap)) {
-			oldId=processId(insertKvMap,tableName);
+			if(isNeedProcessId) oldId=processId(insertKvMap,tableName);
 			toInsertSql(insertKvMap, list, sqlBuffer, isTransfer, getIncludeType(sqlSettingMap));
 		}else {
 			throw new BeeException("Must set the insert vlaue with MapSql.put(String fieldName, Object value) !");
@@ -257,7 +260,7 @@ public class MapSqlProcessor {
 		String sql = sqlBuffer.toString();
 		setContext(sql, list, tableName);
 		
-		revertId(insertKvMap,oldId);
+        if(isNeedProcessId) revertId(insertKvMap,oldId);
 
 		return sql;
 	}
