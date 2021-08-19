@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -17,7 +18,10 @@ import java.util.Map;
 
 import org.teasoft.bee.osql.BeeException;
 import org.teasoft.bee.osql.DatabaseConst;
+import org.teasoft.bee.osql.exception.BeeIllegalSQLException;
+import org.teasoft.honey.osql.core.Check;
 import org.teasoft.honey.osql.core.ExceptionHelper;
+import org.teasoft.honey.osql.core.HoneyConfig;
 import org.teasoft.honey.osql.core.HoneyContext;
 import org.teasoft.honey.osql.core.HoneyUtil;
 import org.teasoft.honey.osql.core.Logger;
@@ -33,6 +37,8 @@ public class GenBean {
 	private GenConfig config;
 	private String LINE_SEPARATOR = System.getProperty("line.separator"); // 换行符
 	//	SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	
+	private boolean isNeedKeyColumn=false;
 
 	public GenBean(GenConfig config) {
 		this.config = config;
@@ -41,8 +47,8 @@ public class GenBean {
 	//	生成指定表对象对应的类文件
 	private void genBeanFile(Table table) {
 		String tableName = table.getTableName();
-		List<String> columnNames = table.getColumNames();
-		List<String> columTypes = table.getColumTypes(); //jdbcType
+		List<String> columnNames = table.getColumnNames();
+		List<String> columnTypes = table.getColumnTypes(); //jdbcType
 		Map<String, String> commentMap = table.getCommentMap();
 		// 表名对应的实体类名
 		String entityName = "";
@@ -95,7 +101,7 @@ public class GenBean {
 
 		for (int i = 0; i < columnNames.size(); i++) {
 			String columnName = columnNames.get(i);
-			String columnType = columTypes.get(i);
+			String columnType = columnTypes.get(i);
 			String comment = "";
 			String getOrIs = "get";
 
@@ -332,29 +338,68 @@ public class GenBean {
 			table.setSchema(rmeta.getCatalogName(1));
 			int columCount = rmeta.getColumnCount();
 			for (int i = 1; i <= columCount; i++) {
-				table.getColumNames().add(rmeta.getColumnName(i).trim());
-				table.getColumTypes().add(rmeta.getColumnTypeName(i).trim());
+				table.getColumnNames().add(rmeta.getColumnName(i).trim());
+				table.getColumnTypes().add(rmeta.getColumnTypeName(i).trim());
+				
+//				System.err.println(rmeta.getColumnName(i).trim()+ "     :    " +rmeta.getColumnTypeName(i).trim());
+				
+				if (rmeta.isNullable(i) == 1) table.getYnNulls().add(true);
+				else table.getYnNulls().add(false);
 			}
 		} finally {
 			HoneyContext.checkClose(rs, ps, null);
 		}
-		if (config.isGenComment()) { //v1.8.15
+		if (config==null || config.isGenComment()) { //v1.8.15
 			//set comment
 			initComment(table, con);
 		}
+		
+		if(isNeedKeyColumn) initKeyColumn(table, con);
+		
 		return table;
+	}
+	
+	private void initKeyColumn(Table table, Connection con) throws SQLException {
+		DatabaseMetaData dbmd = con.getMetaData();
+
+		ResultSet rs = null;
+		Map<String, String> primaryKeyNames = new HashMap<String, String>();
+
+		try {
+			rs = dbmd.getPrimaryKeys(null, null, table.getTableName());
+			while (rs.next()) {
+				String keyName = rs.getString(4);
+				primaryKeyNames.put(keyName, keyName);
+			}
+
+		} finally {
+			HoneyContext.checkClose(rs, null, null);
+		}
+		
+		table.setPrimaryKeyNames(primaryKeyNames);
 	}
 
 	private void initComment(Table table, Connection con) throws SQLException {
 		String sql = "";
-		String t_sql = config.getQueryColumnCommnetSql();
-		if (t_sql != null)
+		String t_sql = null;
+		String dbName="";
+		if(config!=null) {
+			t_sql=config.getQueryColumnCommnetSql();
+			dbName=config.getDbName();
+		}else {
+			dbName=HoneyConfig.getHoneyConfig().getDbName();
+		}
+		
+		if (t_sql != null) {
 			sql = t_sql;
-		else if (config.getDbName().equalsIgnoreCase(DatabaseConst.MYSQL)
-				|| config.getDbName().equalsIgnoreCase(DatabaseConst.MariaDB)) {
+			if(Check.isNotValidExpression(sql)) {
+				throw new BeeIllegalSQLException("The sql: '"+sql+ "' is invalid!");
+			}
+		}else if (DatabaseConst.MYSQL.equalsIgnoreCase(dbName)
+				|| DatabaseConst.MariaDB.equalsIgnoreCase(dbName)) {
 			sql = "select column_name,column_comment from information_schema.COLUMNS where TABLE_SCHEMA='" + table.getSchema()
 					+ "' and TABLE_NAME=?"; //the first select column is column name, second is comment
-		} else if (config.getDbName().equalsIgnoreCase(DatabaseConst.ORACLE)) {
+		} else if (DatabaseConst.ORACLE.equalsIgnoreCase(dbName)) {
 			sql = "select column_name,comments from user_col_comments where table_name=?";
 		} else {
 			throw new BeeException(
@@ -368,14 +413,22 @@ public class GenBean {
 			Map<String, String> map = getCommentMap(ps);
 			//get table comment
 			String sql2 = "";
-			String t_sql2 = config.getQueryTableCommnetSql();
-			if (t_sql2 != null)
+			String t_sql2=null;
+			
+			if(config!=null) {
+				t_sql2 = config.getQueryTableCommnetSql();
+			}
+			
+			if (t_sql2 != null) {
 				sql2 = t_sql2;
-			else if (config.getDbName().equalsIgnoreCase(DatabaseConst.MYSQL)
-					|| config.getDbName().equalsIgnoreCase(DatabaseConst.MariaDB)) {
+				if(Check.isNotValidExpression(sql2)) {
+					throw new BeeIllegalSQLException("The sql: '"+sql2+ "' is invalid!");
+				}
+			}else if (DatabaseConst.MYSQL.equalsIgnoreCase(dbName)
+					|| DatabaseConst.MariaDB.equalsIgnoreCase(dbName)) {
 				sql2 = "select TABLE_NAME,TABLE_COMMENT from information_schema.TABLES where TABLE_SCHEMA='" + table.getSchema()
 						+ "' and TABLE_NAME=?";
-			} else if (config.getDbName().equalsIgnoreCase(DatabaseConst.ORACLE)) {
+			} else if (DatabaseConst.ORACLE.equalsIgnoreCase(dbName)) {
 				sql2 = "select table_name,comments from user_tab_comments where table_name=?";
 			} else {
 				throw new BeeException(
@@ -398,11 +451,11 @@ public class GenBean {
 		ResultSet rs = null;
 		try {
 			rs = ps.executeQuery();
-			String column_comment;
+			String comment;
 			while (rs.next()) {
-				column_comment = rs.getString(2);
-				if (column_comment == null) column_comment = "";
-				map.put(rs.getString(1), column_comment);
+				comment = rs.getString(2);
+				if (comment == null) comment = "";
+				map.put(rs.getString(1), comment);
 			}
 		} finally {
 			HoneyContext.checkClose(rs, ps, null);
@@ -431,11 +484,18 @@ public class GenBean {
 		}
 		return table;
 	}
+	
+	public Table getTableInfo(String tableName) {
+		isNeedKeyColumn=true;
+		Table table= getTalbe(tableName);
+		isNeedKeyColumn=false;
+		return table;
+	}
 
 	public List<String> getColumnNames(String tableName) {
 		Table table = getTalbe(tableName);
 		if (table != null) {
-			return table.getColumNames();
+			return table.getColumnNames();
 		}
 		return Collections.emptyList();
 	}
@@ -453,9 +513,13 @@ public class GenBean {
 
 class Table {
 	private String tableName; // 表名
-	private List<String> columNames = new ArrayList<String>(); // 列名集合
-	private List<String> columTypes = new ArrayList<String>(); // 列类型集合，列类型严格对应java类型
-	private Map<String, String> commentMap; // tableName/ColumnName:comment
+	private List<String> columnNames = new ArrayList<>(); // 列名集合
+	private List<String> columnTypes = new ArrayList<>(); // 列类型集合，列类型严格对应java类型
+	private Map<String, String> commentMap; 
+	
+	private List<Boolean> ynNulls= new ArrayList<>();   //生成javabean不需要用到.
+	private Map<String, String> primaryKeyNames;//生成javabean不需要用到.
+	
 	private String schema; //DB库名
 
 	public String getTableName() {
@@ -466,12 +530,12 @@ class Table {
 		this.tableName = tableName;
 	}
 
-	public List<String> getColumNames() {
-		return columNames;
+	public List<String> getColumnNames() {
+		return columnNames;
 	}
 
-	public List<String> getColumTypes() {
-		return columTypes;
+	public List<String> getColumnTypes() {
+		return columnTypes;
 	}
 
 	public Map<String, String> getCommentMap() {
@@ -489,4 +553,18 @@ class Table {
 	public void setSchema(String schema) {
 		this.schema = schema;
 	}
+
+	public List<Boolean> getYnNulls() {
+		return ynNulls;
+	}
+
+	public Map<String, String> getPrimaryKeyNames() {
+		return primaryKeyNames;
+	}
+
+	public void setPrimaryKeyNames(Map<String, String> primaryKeyNames) {
+		this.primaryKeyNames = primaryKeyNames;
+	}
+	
+
 }

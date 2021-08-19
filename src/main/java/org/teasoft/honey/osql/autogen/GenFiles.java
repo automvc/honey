@@ -54,7 +54,6 @@ public class GenFiles {
 				}
 			}
 		}
-//		FileUtil.genAppendFile(targetFilePath, sb.toString());
 		FileUtil.genFile(targetFilePath, sb.toString());
 	}
 }
