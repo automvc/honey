@@ -55,5 +55,10 @@ public class ObjectUtils {
 	public static boolean isNotEmpty(final String strings[]) {
 		return StringUtils.isNotEmpty(strings);
 	}
+	
+	public static boolean isTrue(Boolean b) {
+		boolean f=(b==null?false:b);
+		return f==true;
+	}
 
 }
