@@ -96,6 +96,9 @@ public final class HoneyConfig {
 
 	@SysValue("${bee.osql.selectJson.timeWithMillisecond}")
 	boolean selectJson_timeWithMillisecond;
+
+	@SysValue("${bee.osql.selectJson.longToString}")
+	boolean selectJson_longToString = true;
 	//----------------------------- selectJson end
 
 	@SysValue("${bee.osql.returnStringList.nullToEmptyString}")
