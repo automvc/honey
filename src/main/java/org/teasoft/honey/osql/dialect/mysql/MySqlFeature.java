@@ -11,7 +11,6 @@ import org.teasoft.honey.osql.core.K;
 public class MySqlFeature implements DbFeature {
 
 	public String toPageSql(String sql, int start, int size) {
-//		sql=sql.replace(";", ""); //去掉原来有的分号   只能去掉最后一个
 		sql=HoneyUtil.deleteLastSemicolon(sql);
 		
 		String forUpdateClause = null;
