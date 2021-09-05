@@ -414,7 +414,7 @@ public class PreparedSqlLib implements PreparedSql {
 		String keys[]=mapKeys.split(",");  //map's key
 		
 		
-		for (int i = 0, k = 0; i < keys.length; i++) {
+		for (int i = 0; i < keys.length; i++) {
 			preparedValue = new PreparedValue();
 			value=null;
 			
@@ -440,7 +440,7 @@ public class PreparedSqlLib implements PreparedSql {
 			
 			preparedValue.setType(map.get(keys[i]).getClass().getName());
 			
-			list.add(k++, preparedValue);
+			list.add(preparedValue);
 		}
 		return list;
 	}

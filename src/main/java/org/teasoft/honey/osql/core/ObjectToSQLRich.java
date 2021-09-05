@@ -281,7 +281,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 					preparedValue = new PreparedValue();
 					preparedValue.setType(fields[i].getType().getName());
 					preparedValue.setValue(fields[i].get(entity));
-					list.add(k++, preparedValue);
+					list.add(preparedValue);
 				}
 			}
 
@@ -779,7 +779,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 					preparedValue = new PreparedValue();
 					preparedValue.setType(fields[i].getType().getName());
 					preparedValue.setValue(fields[i].get(entity));
-					list.add(k++, preparedValue);
+					list.add(preparedValue);
 				}
 			}
 
@@ -806,8 +806,9 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	@SuppressWarnings("rawtypes")
 	public static void checkPackageByClass(Class c){
 		if(c==null) return;
-		String packageName=c.getPackage().getName();
-		if(packageName.startsWith("java.") || packageName.startsWith("javax.")){
+//		String packageName=c.getPackage().getName();  //bug
+		String classFullName=c.getName();
+		if(classFullName.startsWith("java.") || classFullName.startsWith("javax.")){
 			throw new BeeIllegalEntityException("BeeIllegalEntityException: Illegal Entity, "+c.getName());
 		}
 	}
