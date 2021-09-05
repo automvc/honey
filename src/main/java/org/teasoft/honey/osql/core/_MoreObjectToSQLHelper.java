@@ -57,17 +57,17 @@ public class _MoreObjectToSQLHelper {
 		Set<String> whereFields=null;
 		if(condition!=null) whereFields=condition.getWhereFields();
 		StringBuffer sqlBuffer = new StringBuffer();
+		StringBuffer sqlBuffer0 = new StringBuffer();//放主表的where条件
 		StringBuffer sqlBuffer2 = new StringBuffer();
-//		StringBuffer valueBuffer = new StringBuffer();
+		boolean firstWhere = true; 
+		
 		try {
-			
-			Field fields[] = entity.getClass().getDeclaredFields(); 
 			
 			String tableName = _toTableName(entity); 
 			OneTimeParameter.setAttribute(StringConst.TABLE_NAME, tableName);
 			OneTimeParameter.setTrueForKey(StringConst.MoreStruct_to_SqlLib);
 			
-			//不能到分页时才设置,因多表时,有重名字段,也需要用到dbName,而动态获取dbName要用到路由.
+			//不能到分页时才设置,因多表时,有重名字段,也需要用到dbName判断使用不同的语法,而动态获取dbName要用到路由.
 			if(HoneyContext.isNeedRealTimeDb()) { //V1.9
 				HoneyContext.initRouteWhenParseSql(SuidType.SELECT, entity.getClass(),tableName);  //main table confirm the Datasource.
 				OneTimeParameter.setTrueForKey(StringConst.ALREADY_SET_ROUTE);
@@ -77,7 +77,7 @@ public class _MoreObjectToSQLHelper {
 			
 			if (moreTableStruct[1] == null) { //v1.9
 				throw new BeeErrorGrammarException(
-						"MoreObject select on " + entity.getClass().getName() + " must own at least one JoinTable annotation!");
+						"MoreTable select on " + entity.getClass().getName() + " must own at least one JoinTable annotation!");
 			}
 			
 			boolean twoTablesWithJoinOnStyle=HoneyConfig.getHoneyConfig().moreTable_twoTablesWithJoinOnStyle;
@@ -86,9 +86,74 @@ public class _MoreObjectToSQLHelper {
 			String columnNames;
 			columnNames=moreTableStruct[0].columnsFull;
 			
+			List<PreparedValue> list = new ArrayList<>();
+			List<PreparedValue> mainList = new ArrayList<>();
+			boolean needAdjustPageForList=false;
+			String sqlStrForList="";
+			
+			//解析主表实体的where条件       分页要调整的,顺序早于opOn,  但where部分却迟于opOn
+//			firstWhere=parseMainObject(entity, tableName, sqlBuffer0, mainList, firstWhere, includeType);  //顺序有问题
+			
+//			Integer pageStart=ConditionHelper.getPageStart(condition); //不需要判断
+			Integer pageSize=ConditionHelper.getPageSize(condition);
+			
+			//多表查询不同时传   start!=-1 && size!=-1 ,   condition
+			if(moreTableStruct[0].subOneIsList) {  //从表1是List,且需要分页
+					
+//				从表有一条记录 已包含在condition!=null里,也是不会转换的
+				if(start==-1 && size==-1 && condition==null) {
+					
+				}else if(start==-1 && size==-1 && pageSize==null) {
+					
+//				}else if(start!=-1 && size!=-1 && condition==null){ 从表有值, 有可能不正确,所以不改写.	
+				}else if(start!=-1 && size!=-1 && condition==null && moreTableStruct[1].subObject==null){ 
+					
+//					若condition!=null, 要判断不包括从表的字段.  TODO
+					
+//					主表id不为空的,也不用.  因主表最多能查一条记录
+					
+					parseMainObject(entity, tableName, sqlBuffer0, mainList, firstWhere, includeType); //因顺序原因,调整时,需要多解析一次
+					Boolean idHasValue=OneTimeParameter.isTrue("idHasValue");
+					
+					if(! idHasValue) {  //right join也不管用.     List类型,不允许用right join
+					
+					needAdjustPageForList=true;
+					StringBuffer sqlForList = new StringBuffer();
+					
+//					String mainColumnsForListType=moreTableStruct[0].mainColumnsForListType;
+					sqlForList.append(K.select).append(" ")
+//					.append(mainColumnsForListType)
+					.append("*")
+					.append(" ").append(K.from).append(" ");
+					sqlForList.append(tableName);
+					sqlForList.append(sqlBuffer0); //添加解析主表实体的where条件
+					
+//					HoneyUtil.regPagePlaceholder();
+					sqlStrForList=getDbFeature().toPageSql(sqlForList.toString(), start, size);
+//					HoneyUtil.setPageNum(list);
+					
+//					System.out.println(sqlStrForList);
+				
+				    //后面不用再分页.
+				    start = -1;
+				    size = -1;
+				
+					}
+				}else if( (start!=-1 && size!=-1) || pageSize!=null) {
+					//因分页,从表是List类型的,得到的数据条数未必准确
+					Logger.warn("MoreTable subTable's type is List, paging maybe not accurate!");
+				}
+			}
+			
 			if (condition != null) {
 				condition.setSuidType(SuidType.SELECT);
+				
+//				ConditionHelper.processOnExpression(condition,moreTableStruct,list);  // on expression    因顺序原因,不放在这
+				
 				String selectField = ConditionHelper.processSelectField(columnNames, condition,moreTableStruct[0].subDulFieldMap);
+				
+				//v1.9.8  给声明要查的字段自动加上 表名.
+				selectField=_addMaintableForSelectField(selectField,tableName);
 				
 				//v1.9
 				String fun=ConditionHelper.processFunction(columnNames, condition);  //字段相同,要取不一样的别名,才要传subDulFieldMap
@@ -114,56 +179,52 @@ public class _MoreObjectToSQLHelper {
 //			String tableName = _toTableName(entity);
 //			String tableName = moreTableStruct[0].tableName;
 			
-			String tableNamesForCache=tableName;//V1.9
-					
-//			sqlBuffer.append("select " + columnNames + " from ");
+//			String tableNamesForCache=tableName;//V1.9
+			StringBuffer tableNamesForCache=new StringBuffer(tableName);//V1.9
 			sqlBuffer.append(K.select).append(" ").append(columnNames).append(" ").append(K.from).append(" ");
-			sqlBuffer.append(tableName);
-			boolean firstWhere = true;
-
-			List<PreparedValue> list = new ArrayList<>();
-			PreparedValue preparedValue = null;
 			
-			String useSubTableNames[]=new String[2];
-			
-			//v1.7.1 当有两个子表时,即使配置了用join..on,也会解析成where m1=sub1f1 and m2=sub2f1
-			if(moreTableStruct[0].joinTableNum>1 && twoTablesWithJoinOnStyle && moreTableStruct[1].joinType==JoinType.JOIN){
-				Logger.warn("SQL grammar type will use 'where ... =' replace 'join .. on' !");
+			if(needAdjustPageForList) {
+				sqlBuffer.append("(");
+				sqlBuffer.append(sqlStrForList);
+				sqlBuffer.append(")");
+				sqlBuffer.append(" ");
+				list.addAll(mainList);
 			}
+			
+			sqlBuffer.append(tableName);
+			
+//			PreparedValue preparedValue = null;
+			
+//			String useSubTableNames[]=new String[2];
+			String useSubTableNames[]=new String[3];  //v1.9.8 useSubTableNames[2] add main tableName 放主表实际表名
+			
+			//closed on v1.9.8
+			//v1.7.1 当有两个子表时,即使配置了用join..on,也会解析成where m1=sub1f1 and m2=sub2f1
+//			if(moreTableStruct[0].joinTableNum>1 && twoTablesWithJoinOnStyle && moreTableStruct[1].joinType==JoinType.JOIN){
+//				Logger.warn("SQL grammar type will use 'where ... =' replace 'join .. on' !");
+//			}
+			
+			if (condition != null) {
+				ConditionHelper.processOnExpression(condition,moreTableStruct,list);  // on expression
+			}
+			
+			// 2 left join, rith join ...  
+			if (moreTableStruct[0].joinTableNum == 2
+				&& StringUtils.isNotBlank(moreTableStruct[1].joinExpression)
+				&& StringUtils.isNotBlank(moreTableStruct[2].joinExpression)) {
+
+				addJoinPart(sqlBuffer, moreTableStruct[1], tableNamesForCache);
+				sqlBuffer.append(ONE_SPACE);
+				addJoinPart(sqlBuffer, moreTableStruct[2], tableNamesForCache);
 			
 			//只有一个子表关联,且选用join type
 			//排除以下情况: where m1=sub1f1 and m2=sub2f1 (放到else处理)
-			if( (moreTableStruct[1].joinType!=JoinType.JOIN || (twoTablesWithJoinOnStyle && moreTableStruct[0].joinTableNum==1) )
-			 &&(moreTableStruct[1].joinExpression != null && !"".equals(moreTableStruct[1].joinExpression))){ //需要有表达式
-			
-				if(moreTableStruct[1].joinType==JoinType.FULL_JOIN){
-					Logger.warn("Pleae confirm the Database supports 'full join' type!");
-				}
-//				sqlBuffer.append(ONE_SPACE);
-//				sqlBuffer.append("join");
-				if(HoneyUtil.isSqlKeyWordUpper())sqlBuffer.append(moreTableStruct[1].joinType.getType().toUpperCase());
-				else                             sqlBuffer.append(moreTableStruct[1].joinType.getType());
-//				sqlBuffer.append(ONE_SPACE);
-				sqlBuffer.append(moreTableStruct[1].tableName);
-				tableNamesForCache+="##"+moreTableStruct[1].tableName;//V1.9
-				if(moreTableStruct[1].hasSubAlias){//从表定义有别名
-					sqlBuffer.append(ONE_SPACE);
-					sqlBuffer.append(moreTableStruct[1].subAlias);
-				}
-				sqlBuffer.append(ONE_SPACE);
-				sqlBuffer.append(K.on);
-				sqlBuffer.append(ONE_SPACE);
-//				if (moreTableStruct[1].joinExpression != null && !"".equals(moreTableStruct[1].joinExpression)) {
-//					if (firstWhere) {
-//						sqlBuffer2.append(" where ");
-//						firstWhere = false;
-//					} else {
-//						sqlBuffer2.append(" and ");
-//					}
-					sqlBuffer.append(moreTableStruct[1].joinExpression);  //sqlBuffer  not sqlBuffer2
-//				}
+		   }else if( (moreTableStruct[1].joinType!=JoinType.JOIN || (twoTablesWithJoinOnStyle && moreTableStruct[0].joinTableNum==1) )
+			 &&(StringUtils.isNotBlank(moreTableStruct[1].joinExpression) ) ){ //需要有表达式
+			   
+				addJoinPart(sqlBuffer, moreTableStruct[1], tableNamesForCache);
 				
-			}else{
+			}else{//where写法
 			  //从表 最多两个
 			  for (int s = 1; s <= 2; s++) { // 从表在数组下标是1和2. 0是主表
 				if (moreTableStruct[s] != null) {
@@ -172,19 +233,18 @@ public class _MoreObjectToSQLHelper {
 					
 					sqlBuffer.append(COMMA);
 					sqlBuffer.append(moreTableStruct[s].tableName);
-					tableNamesForCache+="##"+moreTableStruct[s].tableName; //V1.9
+//					tableNamesForCache+="##"+moreTableStruct[s].tableName; //V1.9
+					tableNamesForCache.append("##").append(moreTableStruct[s].tableName);//v1.9.8
 					if(moreTableStruct[s].hasSubAlias){//从表定义有别名
 						sqlBuffer.append(ONE_SPACE);
 						sqlBuffer.append(moreTableStruct[s].subAlias);
 					}
 
-					if (moreTableStruct[s].joinExpression != null && !"".equals(moreTableStruct[s].joinExpression)) {
+					if (StringUtils.isNotBlank(moreTableStruct[s].joinExpression)) {
 						if (firstWhere) {
-//							sqlBuffer2.append(" where ");
 							sqlBuffer2.append(" ").append(K.where).append(" ");
 							firstWhere = false;
 						} else {
-//							sqlBuffer2.append(" and ");
 							sqlBuffer2.append(" ").append(K.and).append(" ");
 						}
 						sqlBuffer2.append(moreTableStruct[s].joinExpression);
@@ -193,57 +253,16 @@ public class _MoreObjectToSQLHelper {
 			 }//for end
 		    }
 			
-			int len = fields.length;
-			for (int i = 0, k = 0; i < len; i++) {
-				fields[i].setAccessible(true);
-//				if (fields[i].isAnnotationPresent(JoinTable.class)) {
-//					continue;  //JoinTable已在上面另外处理
-//				}
-//				if (HoneyUtil.isContinueForMoreTable(includeType, fields[i].get(entity),fields[i].getName())) {
-				if (HoneyUtil.isContinue(includeType, fields[i].get(entity),fields[i])) {  //包含了fields[i].isAnnotationPresent(JoinTable.class)的判断
-					continue;
-				} else {
-					
-					if (fields[i].get(entity) == null && "id".equalsIgnoreCase(fields[i].getName())) 
-						continue; //id=null不作为过滤条件
-					
-//					if(whereFields!=null && whereFields.contains(fields[i].getName()))   //closed in V1.9
-//						continue; //Condition已包含的,不再遍历
-
-					if (firstWhere) {
-//						sqlBuffer2.append(" where ");
-						sqlBuffer2.append(" ").append(K.where).append(" ");
-						firstWhere = false;
-					} else {
-//						sqlBuffer2.append(" and ");
-						sqlBuffer2.append(" ").append(K.and).append(" ");
-					}
-					sqlBuffer2.append(tableName);
-					sqlBuffer2.append(DOT);
-					sqlBuffer2.append(_toColumnName(fields[i].getName()));
-					
-					if (fields[i].get(entity) == null) {
-//						sqlBuffer2.append(" is null");
-						sqlBuffer2.append(" ").append(K.isNull);
-					} else {
-						sqlBuffer2.append("=");
-						sqlBuffer2.append("?");
-
-//						valueBuffer.append(",");
-//						valueBuffer.append(fields[i].get(entity));
-
-						preparedValue = new PreparedValue();
-						preparedValue.setType(fields[i].getType().getName());
-						preparedValue.setValue(fields[i].get(entity));
-						list.add(k++, preparedValue);
-					}
-				}
-			}//end for
+			//添加解析主表实体的where条件
+//			sqlBuffer2.append(sqlBuffer0);
+//			list.addAll(mainList);
+			
+			firstWhere=parseMainObject(entity, tableName, sqlBuffer2, list, firstWhere, includeType);   //sqlBuffer2
 			
 			sqlBuffer.append(sqlBuffer2);
 			
 			//处理子表相应字段到where条件
-			for (int index = 1; index <= 2; index++) { // 从表在数组下标是1和2. 0是主表
+			for (int index = 1; index <= 2; index++) { // 从表在数组下标是1和2. 0是主表   sub table index is :1 ,2 
 				if (moreTableStruct[index] != null) {
 //					parseSubObject(sqlBuffer, valueBuffer, list, conditionFieldSet, firstWhere, includeType, moreTableStruct, index);
 //					bug: firstWhere需要返回,传给condition才是最新的
@@ -259,6 +278,8 @@ public class _MoreObjectToSQLHelper {
 			
 			if(condition!=null){
 				 condition.setSuidType(SuidType.SELECT);
+				 useSubTableNames[2]=tableName;   //v1.9.8 useSubTableNames[2] add main tableName 放主表实际表名
+				 
 //			     ConditionHelper.processCondition(sqlBuffer, valueBuffer, list, condition, firstWhere,useSubTableNames);
 			     ConditionHelper.processCondition(sqlBuffer, list, condition, firstWhere,useSubTableNames);
 			}
@@ -271,24 +292,18 @@ public class _MoreObjectToSQLHelper {
 				sql=sqlBuffer.toString();
 			}
 			
-//			sqlBuffer.append(";");
-
-//			if (valueBuffer.length() > 0) valueBuffer.deleteCharAt(0);
 			HoneyContext.setPreparedValue(sql, list);
-//			HoneyContext.setSqlValue(sql, valueBuffer.toString()); //用于log显示
-//			addInContextForCache(sql, tableName);// tableName还要加上多表的.
-			addInContextForCache(sql, tableNamesForCache);//tableName还要加上多表的.
+			addInContextForCache(sql, tableNamesForCache.toString());//tableName还要加上多表的.
 		} catch (IllegalAccessException e) {
 			throw ExceptionHelper.convert(e);
 		}
 
-//		return sqlBuffer.toString();//bug
 		return sql;
 	}
 	
 	private static boolean parseSubObject(StringBuffer sqlBuffer2, 
 			List<PreparedValue> list,  Set<String> conditionFieldSet, boolean firstWhere,
-			 int includeType,MoreTableStruct moreTableStruct[],int index) {
+			 int includeType,MoreTableStruct moreTableStruct[],int index) throws IllegalAccessException{
 		
 		Object entity=moreTableStruct[index].subObject;
 		
@@ -299,11 +314,17 @@ public class _MoreObjectToSQLHelper {
 //		String tableName = moreTableStruct[index].tableName;
 		String useSubTableName = moreTableStruct[index].useSubTableName;
 		
-//		moreTableStruct[i].subEntityField;
-//		Field fields[] = subEntityField.getType().getDeclaredFields();
-		Field fields[] = moreTableStruct[index].subEntityField.getType().getDeclaredFields();
+		Field fields[] = null;
+		if (index == 1 && moreTableStruct[0].subOneIsList) {
+			fields = moreTableStruct[index].subClass.getDeclaredFields();
+		} else if (index == 2 && moreTableStruct[0].subTwoIsList) {
+			fields = moreTableStruct[index].subClass.getDeclaredFields();
+		} else {
+			fields = moreTableStruct[index].subEntityField.getType().getDeclaredFields();
+		}
+		
+		
 		int len = fields.length;
-		try{
 //		for (int i = 0, k = 0; i < len; i++) { //bug
 		for (int i = 0; i < len; i++) {
 			fields[i].setAccessible(true);
@@ -352,9 +373,6 @@ public class _MoreObjectToSQLHelper {
 				}
 			}
 		}//end for
-	} catch (IllegalAccessException e) {
-		throw ExceptionHelper.convert(e);
-	}
 		
 		return firstWhere;
 	}
@@ -384,5 +402,108 @@ public class _MoreObjectToSQLHelper {
 //	private static String _toTableNameByEntityName(String entityName){
 //		return NameTranslateHandle.toTableName(entityName);
 //	}
+	
+	//为指定字段,没有带表名的,自动填上主表表名.
+	private static String _addMaintableForSelectField(String selectField, String mainTableName) {
+
+		if (StringUtils.isBlank(selectField)) return selectField;
+
+		//String居然没有检测包含某字符总数的api 
+		
+		String newStr = "";
+		String str[] = selectField.split(",");
+		int len = str.length;
+		for (int i = 0; i < len; i++) {
+			if (!str[i].contains(".")) {
+				str[i] = mainTableName + "." + str[i].trim();
+			}
+			newStr += str[i];
+			if (i != len - 1) newStr += ",";
+		}
+		return newStr;
+	}
+	
+	private static void addJoinPart(StringBuffer sqlBuffer,MoreTableStruct moreTableStruct,StringBuffer tableNamesForCache) {
+		
+		if(moreTableStruct.joinType==JoinType.FULL_JOIN){
+			Logger.warn("Pleae confirm the Database supports 'full join' type!");
+		}
+		
+		if(HoneyUtil.isSqlKeyWordUpper())sqlBuffer.append(moreTableStruct.joinType.getType().toUpperCase());
+		else                             sqlBuffer.append(moreTableStruct.joinType.getType());
+		sqlBuffer.append(moreTableStruct.tableName);
+		tableNamesForCache.append("##").append(moreTableStruct.tableName);//v1.9.8
+		if(moreTableStruct.hasSubAlias){//从表定义有别名
+			sqlBuffer.append(ONE_SPACE);
+			sqlBuffer.append(moreTableStruct.subAlias);
+		}
+		sqlBuffer.append(ONE_SPACE);
+		sqlBuffer.append(K.on);
+		sqlBuffer.append(ONE_SPACE);
+		
+		sqlBuffer.append(moreTableStruct.joinExpression);  //sqlBuffer  not sqlBuffer2
+		
+		if(StringUtils.isNotBlank(moreTableStruct.onExpression)) { //v1.9.8 on expression
+			sqlBuffer.append(ONE_SPACE);
+			sqlBuffer.append(K.and);  //and
+			sqlBuffer.append(ONE_SPACE);
+			sqlBuffer.append(moreTableStruct.onExpression);
+		}
+	}
+	
+	private static <T> boolean parseMainObject(T entity,String tableName,StringBuffer sqlBuffer0, 
+				List<PreparedValue> list, boolean firstWhere, int includeType) throws IllegalAccessException{
+		
+		Field fields[] = entity.getClass().getDeclaredFields(); 
+		PreparedValue preparedValue=null;
+		
+		int len = fields.length;
+		for (int i = 0; i < len; i++) {
+			fields[i].setAccessible(true);
+//			if (fields[i].isAnnotationPresent(JoinTable.class)) {
+//				continue;  //JoinTable已在上面另外处理
+//			}
+//			if (HoneyUtil.isContinueForMoreTable(includeType, fields[i].get(entity),fields[i].getName())) {
+			if (HoneyUtil.isContinue(includeType, fields[i].get(entity),fields[i])) {  //包含了fields[i].isAnnotationPresent(JoinTable.class)的判断
+				continue;
+			} else {
+				
+				if (fields[i].get(entity) == null && "id".equalsIgnoreCase(fields[i].getName())) 
+					continue; //id=null不作为过滤条件
+				
+				if (fields[i].get(entity) != null && "id".equalsIgnoreCase(fields[i].getName())) {
+//					idHasValue=true;
+					OneTimeParameter.setTrueForKey("idHasValue");
+				}
+					
+//				if(whereFields!=null && whereFields.contains(fields[i].getName()))   //closed in V1.9
+//					continue; //Condition已包含的,不再遍历
+
+				if (firstWhere) {
+					sqlBuffer0.append(" ").append(K.where).append(" ");
+					firstWhere = false;
+				} else {
+					sqlBuffer0.append(" ").append(K.and).append(" ");
+				}
+				sqlBuffer0.append(tableName);
+				sqlBuffer0.append(DOT);
+				sqlBuffer0.append(_toColumnName(fields[i].getName()));
+				
+				if (fields[i].get(entity) == null) {
+					sqlBuffer0.append(" ").append(K.isNull);
+				} else {
+					sqlBuffer0.append("=");
+					sqlBuffer0.append("?");
+
+					preparedValue = new PreparedValue();
+					preparedValue.setType(fields[i].getType().getName());
+					preparedValue.setValue(fields[i].get(entity));
+					list.add(preparedValue);
+				}
+			}
+		}//end for
+		
+		return firstWhere;
+	}
 
 }

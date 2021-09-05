@@ -17,6 +17,7 @@ import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -861,6 +862,10 @@ public class SqlLib implements BeeSql {
 	protected void closeConn(Connection conn) {
 		HoneyContext.closeConn(conn);
 	}
+	 
+	private Object createObject(Class c) throws IllegalAccessException,InstantiationException{
+		return c.newInstance();
+	}
 	
 	@Override
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -869,7 +874,10 @@ public class SqlLib implements BeeSql {
 //		if(sql==null || "".equals(sql.trim())) return null;
 		if(sql==null || "".equals(sql.trim())) return Collections.emptyList();
 		
-		boolean isReg = updateInfoInCache(sql, "List<T>", SuidType.SELECT);
+		MoreTableStruct moreTableStruct[]=HoneyUtil.getMoreTableStructAndCheckBefore(entity);
+		String listFieldType=""+moreTableStruct[0].subOneIsList+moreTableStruct[0].subTwoIsList+moreTableStruct[0].oneHasOne;
+//		System.out.println("listFieldType:"+listFieldType);
+		boolean isReg = updateInfoInCache(sql, "List<T>"+listFieldType, SuidType.SELECT);
 		if (isReg) {
 			Object cacheObj = cache.get(sql); //这里的sql还没带有值
 			if (cacheObj != null) {
@@ -888,6 +896,7 @@ public class SqlLib implements BeeSql {
 		T targetObj=null;
 		List<T> rsList=null;
 		boolean hasException = false;
+		int recordRow=0;
 		try {
 			conn = getConn();
 			String exe_sql=HoneyUtil.deleteLastSemicolon(sql);
@@ -901,7 +910,11 @@ public class SqlLib implements BeeSql {
 			Field field[] = entity.getClass().getDeclaredFields();
 			int columnCount = field.length;
 			
-			MoreTableStruct moreTableStruct[]=HoneyUtil.getMoreTableStructAndCheckBefore(entity);
+//			MoreTableStruct moreTableStruct[]=HoneyUtil.getMoreTableStructAndCheckBefore(entity);
+			boolean oneHasOne=moreTableStruct[0].oneHasOne;
+			boolean subOneIsList1=moreTableStruct[0].subOneIsList;
+			boolean subTwoIsList2=moreTableStruct[0].subTwoIsList;
+			
 			Field subField[] = new Field[2];
 			String subUseTable[]=new String[2];
 			String variableName[]=new String[2];
@@ -910,7 +923,13 @@ public class SqlLib implements BeeSql {
 				if(moreTableStruct[i]!=null){
 					subField[i-1]=moreTableStruct[i].subEntityField;
 					variableName[i-1]=subField[i-1].getName();
-					subEntityFieldClass[i-1] = subField[i-1].getType();
+					if (subOneIsList1 && i==1) {
+						subEntityFieldClass[0]=moreTableStruct[1].subClass;  //v1.9.8 List Field
+					} else if (subTwoIsList2 && i==2) {
+						subEntityFieldClass[1]=moreTableStruct[2].subClass;  //v1.9.8 List Field
+					}else {
+						subEntityFieldClass[i - 1] = subField[i - 1].getType();
+					}
 //					if(moreTableStruct[i].hasSubAlias){
 //						subUseTable[i-1]=moreTableStruct[i].subAlias;
 //					}else{
@@ -928,64 +947,38 @@ public class SqlLib implements BeeSql {
             }
             
             Map<String,String> dulSubFieldMap=moreTableStruct[0].subDulFieldMap;
+            
+            boolean sub1_first=true;
+            boolean sub2_first=true;
+            
+            Object v1=null;
+            Object v2=null;
+            
+            Map<String,List> subOneMap=null;
+            Map<String,List> subTwoMap=null;
+            
+            if(subOneIsList1) subOneMap=new HashMap<>();
+            if(subTwoIsList2) subTwoMap=new HashMap<>();
+            
+            StringBuffer checkKey=null;
+            StringBuffer checkKey2ForOneHasOne=null;
 			
 //			String tableName=_toTableName(entity);
 			String tableName=moreTableStruct[0].tableName;
-			while (rs.next()) {
-				
-				//从表1设置
-				Object subObj1 = subEntityFieldClass[0].newInstance();
-				
+		
+		while (rs.next()) {
+			    recordRow++;
 				boolean isDul=false;
 				String dulField="";
 				
-				for (int i = 0; i < fields1.length; i++) {
-					
-//					if("serialVersionUID".equals(fields1[i].getName()) || fields1[i].isSynthetic()) {
-//						continue;
-//					}
-//					if (fields1[i]!= null && fields1[i].isAnnotationPresent(JoinTable.class)) continue;
-					if(HoneyUtil.isSkipField(fields1[i])) continue;
-					
-					
-					fields1[i].setAccessible(true);
-					isDul=false;
-					dulField="";
-					try {
-						String columnName=_toColumnName(fields1[i].getName());
-						if(isConfuseDuplicateFieldDB()){
-							dulField=dulSubFieldMap.get(subUseTable[0]+"."+columnName);
-							if(dulField!=null){
-								isDul=true;  //fixed bug.  need set true before fields1[i].set(  )
-								fields1[i].set(subObj1, rs.getObject(dulField));
-							}else{
-							   fields1[i].set(subObj1, rs.getObject(columnName));
-							}
-						}else{
-						    fields1[i].set(subObj1, rs.getObject(subUseTable[0]+"."+columnName));
-						}
-					} catch (IllegalArgumentException e) {
-						if(isConfuseDuplicateFieldDB()){
-							fields1[i].set(subObj1,_getObjectForMoreTable_ConfuseField(rs,fields1[i],isDul,dulField));
-						}else{
-						    fields1[i].set(subObj1,_getObjectForMoreTable(rs,subUseTable[0],fields1[i]));
-						}
-					}catch (SQLException e) {// for after use condition selectField method
-						fields1[i].set(subObj1,null);
-					}
-				}
-				
-				//从表2设置(如果有)
+				//从表2设置(如果有)  先设置,因oneHasOne
+				sub2_first=true;
 				Object subObj2=null;
 				if(subField[1]!=null){
-					 subObj2 = subEntityFieldClass[1].newInstance();
+//					 subObj2 = subEntityFieldClass[1].newInstance();
 					String columnName="";
 					for (int i = 0; i < fields2.length; i++) {
 						
-//						if("serialVersionUID".equals(fields2[i].getName()) || fields2[i].isSynthetic()) {
-//							continue;
-//						}
-//						if (fields2[i]!= null && fields2[i].isAnnotationPresent(JoinTable.class)) continue;
 						if(HoneyUtil.isSkipField(fields2[i])) continue;
 						
 						fields2[i].setAccessible(true);
@@ -997,26 +990,163 @@ public class SqlLib implements BeeSql {
 								dulField=dulSubFieldMap.get(subUseTable[1]+"."+columnName);
 								if(dulField!=null){
 									isDul=true;  //set true first
-									fields2[i].set(subObj2, rs.getObject(dulField));	
+									v2 = rs.getObject(dulField);
+									if (v2 != null) {
+										if (sub2_first) {
+											subObj2 = createObject(subEntityFieldClass[1]);
+											sub2_first = false;
+										}
+										fields2[i].set(subObj2, v2);
+									}
 								}else{
-									fields2[i].set(subObj2, rs.getObject(columnName));
+									v2= rs.getObject(columnName);
+									if (v2 != null) {
+										if (sub2_first) {
+											subObj2 = createObject(subEntityFieldClass[1]);
+											sub2_first = false;
+										}
+										fields2[i].set(subObj2, v2);
+									}
 								}
 							} else {
-								fields2[i].set(subObj2, rs.getObject(subUseTable[1] + "." + columnName));
+								v2= rs.getObject(subUseTable[1] + "." + columnName);
+								if (v2 != null) {
+									if (sub2_first) {
+										subObj2 = createObject(subEntityFieldClass[1]);
+										sub2_first = false;
+									}
+									fields2[i].set(subObj2, v2);
+								}
 							}
 						} catch (IllegalArgumentException e) {
 							if(isConfuseDuplicateFieldDB()){
-								fields2[i].set(subObj2,_getObjectForMoreTable_ConfuseField(rs,fields2[i],isDul,dulField));  //todo
+								v2=_getObjectForMoreTable_ConfuseField(rs,fields2[i],isDul,dulField);  //todo
+								if (v2 != null) {
+									if (sub2_first) {
+										subObj2 = createObject(subEntityFieldClass[1]);
+										sub2_first = false;
+									}
+									fields2[i].set(subObj2, v2);
+								}
 							}else{
-								fields2[i].set(subObj2,_getObjectForMoreTable(rs,subUseTable[1],fields2[i]));
+								v2=_getObjectForMoreTable(rs,subUseTable[1],fields2[i]);
+								if (v2 != null) {
+									if (sub2_first) {
+										subObj2 = createObject(subEntityFieldClass[1]);
+										sub2_first = false;
+									}
+									fields2[i].set(subObj2, v2);
+								}
 							}
 						}catch (SQLException e) {// for after use condition selectField method
-							fields2[i].set(subObj2,null);
+//							fields2[i].set(subObj2,null);
 						}
 					}
 				}
 				
-				//主表设置
+				
+				sub1_first=true;
+				Field subField2InOneHasOne=null;
+				if(oneHasOne) checkKey2ForOneHasOne=new StringBuffer();
+				//从表1设置
+				Object subObj1 = subEntityFieldClass[0].newInstance();
+//				Object subObj1 =null; //不行.   当它的从表在第1位时,就报null
+				
+				for (int i = 0; i < fields1.length; i++) {
+					
+					if (oneHasOne) {
+						if (HoneyUtil.isSkipFieldForMoreTable(fields1[i])) continue;  //从表1也有1个从表
+					} else {
+						if (HoneyUtil.isSkipField(fields1[i])) continue;
+					}
+					
+					fields1[i].setAccessible(true);
+					isDul=false;
+					dulField="";
+					try {
+						
+						if (oneHasOne && fields1[i]!= null && fields1[i].isAnnotationPresent(JoinTable.class)) {
+							if(subField[1]!=null && fields1[i].getName().equals(variableName[1]) && subObj2!=null){
+								fields1[i].setAccessible(true);
+								if(subTwoIsList2) {
+									subField2InOneHasOne=fields1[i];	
+								}else {
+								    fields1[i].set(subObj1,subObj2); //设置子表2的对象     要考虑List.  TODO
+								}
+								
+								  if(sub1_first) {
+									  sub1_first=false;
+								  }
+							}
+							continue;  // go back
+						}
+						
+						String columnName=_toColumnName(fields1[i].getName());
+						if(isConfuseDuplicateFieldDB()){
+							dulField=dulSubFieldMap.get(subUseTable[0]+"."+columnName);
+							if(dulField!=null){
+								isDul=true;  //fixed bug.  need set true before fields1[i].set(  )
+								v1=rs.getObject(dulField);
+								if(v1!=null) {
+								  if(sub1_first) {
+									  sub1_first=false;
+								  }
+								  fields1[i].set(subObj1, v1);
+								}
+							}else{
+							   v1=rs.getObject(columnName);
+							   if(v1!=null) {
+									if (sub1_first) {
+										sub1_first = false;
+									}
+							     fields1[i].set(subObj1, v1);
+							   }
+							}
+						}else{
+							v1=rs.getObject(subUseTable[0]+"."+columnName);
+							if(v1!=null) {
+								if (sub1_first) {
+									sub1_first = false;
+								}
+						      fields1[i].set(subObj1, v1);
+							}
+						}
+					} catch (IllegalArgumentException e) {
+						if(isConfuseDuplicateFieldDB()){
+							v1=_getObjectForMoreTable_ConfuseField(rs,fields1[i],isDul,dulField);
+							if(v1!=null) {
+								if (sub1_first) {
+									sub1_first = false;
+								}
+							   fields1[i].set(subObj1,v1);
+							}
+						}else{
+							v1=_getObjectForMoreTable(rs,subUseTable[0],fields1[i]);
+							if(v1!=null) {
+								if (sub1_first) {
+									sub1_first = false;
+								}
+						       fields1[i].set(subObj1,v1);
+							}
+						}
+					}catch (SQLException e) {// for after use condition selectField method
+//						fields1[i].set(subObj1,null);
+//						e.printStackTrace();
+					}
+					
+					if(oneHasOne) checkKey2ForOneHasOne.append(v1);
+				}   // end for fields1
+				
+//				if(sub1_first) subObj1=null;  //没有创建过,设置为null
+				if(sub1_first && (!oneHasOne || (oneHasOne && sub2_first))) subObj1=null;  //没有创建过,设置为null(是oneHasOne时,子表1里的子表2也是null才行)
+				
+				
+//				Integer id=null;    //配置一个主键是id的项,即可用,效率也高些    行. 有可能只查几个字段
+				checkKey=new StringBuffer();   
+				Field subOneListField=null;
+				Field subTwoListField=null;
+				
+				//主表设置  oneHasOne can not set here
 				targetObj = (T) entity.getClass().newInstance();
 				for (int i = 0; i < columnCount; i++) {
 //					if("serialVersionUID".equals(field[i].getName()) || field[i].isSynthetic()) continue;
@@ -1024,31 +1154,86 @@ public class SqlLib implements BeeSql {
 					if (field[i]!= null && field[i].isAnnotationPresent(JoinTable.class)) {
 						field[i].setAccessible(true);
 						if(field[i].getName().equals(variableName[0])){
-							field[i].set(targetObj,subObj1); //设置子表1的对象
-						}else if(subField[1]!=null && field[i].getName().equals(variableName[1])){
-							field[i].set(targetObj,subObj2); //设置子表2的对象
+							if(subOneIsList1) subOneListField=field[i];  //子表1字段是List
+							else field[i].set(targetObj,subObj1); //设置子表1的对象
+						}else if(!oneHasOne && subField[1]!=null && field[i].getName().equals(variableName[1])){
+							//oneHasOne在遍历子表1时设置
+							if(subTwoIsList2) subTwoListField=field[i];  
+							else field[i].set(targetObj,subObj2); //设置子表2的对象
 						}
-						continue;
+						continue;  // go back
 					}
 					field[i].setAccessible(true);
 					try {
+						Object v=null;
 						if (isConfuseDuplicateFieldDB()) {
-							field[i].set(targetObj, rs.getObject(_toColumnName(field[i].getName())));
+							v=rs.getObject(_toColumnName(field[i].getName()));
+							field[i].set(targetObj, v);
 						} else {
-							field[i].set(targetObj, rs.getObject(tableName + "." + _toColumnName(field[i].getName())));
+							v=rs.getObject(tableName + "." + _toColumnName(field[i].getName()));
+							field[i].set(targetObj, v);
 						}
+						checkKey.append(v);
 					} catch (IllegalArgumentException e) {
 						field[i].set(targetObj,_getObjectForMoreTable(rs,tableName,field[i]));
 				    } catch (SQLException e) { // for after use condition selectField method
 					  field[i].set(targetObj,null);
 				    }
 					
+				} //end for
+				
+				
+				if(oneHasOne) checkKey2ForOneHasOne.insert(0, checkKey); //主表+从表1
+				if(subTwoIsList2 && oneHasOne && subObj1!=null && subField2InOneHasOne!=null) { //for oneHasOne List   oneHasOne 或者 两个都在主表,只会存在其中一种
+					List subTwoList = subTwoMap.get(checkKey2ForOneHasOne.toString());  //需要等从表1遍历完,等到完整checkKey2ForOneHasOne
+					if (subTwoList == null) { //表示,还没有添加该行记录
+						subTwoList=new ArrayList();
+						subTwoList.add(subObj2);
+						subField2InOneHasOne.set(subObj1, subTwoList);  //subObj1
+						subTwoMap.put(checkKey2ForOneHasOne.toString(), subTwoList);
+						
+//						rsList.add(targetObj);
+					} else {
+						subTwoList.add(subObj2);
+					}
 				}
 				
-				rsList.add(targetObj);
-			}
-			
-			addInCache(sql, rsList,"List<T>",SuidType.SELECT,rsList.size());
+				//全是null的数据不会到这里,所以不用判断
+				if (subOneIsList1 && subObj1!=null) { //子表1是List类型字段
+					List subOneList = subOneMap.get(checkKey.toString());  //需要等主表遍历完,等到完整checkKey
+					if (subOneList == null) { //表示主表,还没有添加该行记录
+						subOneList=new ArrayList();
+						subOneList.add(subObj1);
+						subOneListField.set(targetObj, subOneList);
+						subOneMap.put(checkKey.toString(), subOneList);
+						
+						rsList.add(targetObj);
+					} else {
+						if(!oneHasOne) 
+							subOneList.add(subObj1);
+						else if(subObj2==null)
+							subOneList.add(subObj1);
+					}
+				}else if(subTwoIsList2 && !oneHasOne && subObj2!=null) {
+					List subTwoList = subTwoMap.get(checkKey.toString());  //需要等主表遍历完,等到完整checkKey
+					if (subTwoList == null) { //表示主表,还没有添加该行记录
+						subTwoList=new ArrayList();
+						subTwoList.add(subObj2);
+						subTwoListField.set(targetObj, subTwoList);
+						subTwoMap.put(checkKey.toString(), subTwoList);
+						
+						rsList.add(targetObj);
+					} else {
+						subTwoList.add(subObj2);
+					}
+				}else {
+					rsList.add(targetObj);
+				}
+				
+				
+			} //end  while (rs.next())
+		
+			addInCache(sql, rsList,"List<T>"+listFieldType,SuidType.SELECT,rsList.size());
 			
 		} catch (SQLException e) {
 			hasException=true;
@@ -1071,7 +1256,8 @@ public class SqlLib implements BeeSql {
 
 		entity = null;
 		targetObj = null;
-		
+//		System.err.println("获取出的原始数据有"+recordRow+"行");
+		Logger.logSQL(" | <--  ( select raw record rows: ", recordRow + " )");
 		logSelectRows(rsList.size());
 
 		return rsList;

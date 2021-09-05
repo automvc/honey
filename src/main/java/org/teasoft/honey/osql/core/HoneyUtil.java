@@ -14,12 +14,14 @@ import java.sql.SQLXML;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.teasoft.bee.osql.BeeException;
 import org.teasoft.bee.osql.DatabaseConst;
 import org.teasoft.bee.osql.ObjSQLException;
 import org.teasoft.bee.osql.annotation.Ignore;
@@ -32,6 +34,7 @@ import org.teasoft.bee.osql.exception.JoinTableParameterException;
 import org.teasoft.honey.osql.constant.NullEmpty;
 import org.teasoft.honey.osql.name.NameUtil;
 import org.teasoft.honey.osql.util.PropertiesReader;
+import org.teasoft.honey.util.ObjectUtils;
 import org.teasoft.honey.util.StringUtils;
 
 /**
@@ -113,7 +116,7 @@ public final class HoneyUtil {
 //		String key = "ForMoreTable:" +tableName+":"+ packageAndClassName; //ForMoreTable  
 		//是否会受多表有Table标签影响??? 不会. 是包名+类名.不是表名,也没有解析标签. 不管是否有标签,对应的Javabean结构都一样的.
 		//但解析的查询字段(带表名时,因为注解的原因,可能不一样)不一样,所以不能混在一起
-		//在sqlLib用后删除. 因从表的字段也有可能带表名(而该表名有参数解析.)
+		//在sqlLib用后删除. 因从表的字段也有可能带表名(而该表名有动态参数解析.)
 		
 		MoreTableStruct moreTableStruct[] =null;
 		
@@ -126,7 +129,7 @@ public final class HoneyUtil {
 
 		return moreTableStruct;
 	}
-
+	
 	private static <T> MoreTableStruct[] _getMoreTableStructAndCheckBefore(T entity) {
 
 		if (entity == null) return null;
@@ -150,19 +153,54 @@ public final class HoneyUtil {
 		}
 		
 		StringBuffer columns = new StringBuffer();
+		
+//		StringBuffer listcolumns = new StringBuffer();
+//		String listEntityFullName="";
+//		Class subClass=null;
+		List listOne=null;
+		List listTwo=null;
+		Class list_T_classOne=null;
+		Class list_T_classTwo=null;
+		boolean subOneIsList=false; 
+		boolean subTwoIsList=false; 
+		
 		int len = field.length;
 		boolean isFirst = true;
-		
+		String listStr="";
 		String mailField="";//v1.8
 		for (int i = 0; i < len; i++) {
 //			if ("serialVersionUID".equals(field[i].getName()) || field[i].isSynthetic()) continue;
 			if(isSkipFieldForMoreTable(field[i])) continue; //有Ignore注释,将不再处理JoinTable
 			if (field[i] != null && field[i].isAnnotationPresent(JoinTable.class)) {
-				//s.append(",");
-				//s.append(_getBeanFullField_0(field[i]));
 				subEntityFieldNum++;
 				if (subEntityFieldNum == 1) subField[0] = field[i];
 				if (subEntityFieldNum == 2) subField[1] = field[i];
+				
+				if("java.util.List".equals(field[i].getType().getName())) {
+					try {
+					field[i].setAccessible(true);
+						if (subEntityFieldNum == 1) {
+							subOneIsList = true;
+							moreTableStruct[0].subOneIsList = true; //moreTableStruct[0]
+							List list = (List) field[i].get(entity);
+							listOne = list;
+							if (ObjectUtils.isNotEmpty(list)) {
+								list_T_classOne = list.get(0).getClass(); 
+							} 
+						}else if (subEntityFieldNum == 2) {
+							subTwoIsList = true;
+							moreTableStruct[0].subTwoIsList = true;
+							List list = (List) field[i].get(entity);
+							listTwo = list;
+							if (ObjectUtils.isNotEmpty(list)) {
+								list_T_classTwo = list.get(0).getClass(); 
+							}
+						}
+					} catch (IllegalAccessException e) {
+						e.printStackTrace();
+					}
+				}
+				
 				continue;
 			}
 			if (isFirst) {
@@ -175,7 +213,7 @@ public final class HoneyUtil {
 			
 			mailField=NameTranslateHandle.toColumnName(field[i].getName());
 			columns.append(mailField);  
-			
+//			moreTableStruct[0].mainColumnsForListType=columns.toString(); //v1.9.8
 			mainFieldSet.add(mailField);  //v1.8
 		}// main table for end
 
@@ -186,7 +224,7 @@ public final class HoneyUtil {
 		JoinTable joinTable[] = new JoinTable[2];
 		String subTableName[] = new String[2];
 		
-		boolean hasOtherJoin=false; 
+//		boolean hasOtherJoin=false; 
 
 		if (subField[0] != null) {
 			joinTable[0] = subField[0].getAnnotation(JoinTable.class);
@@ -195,9 +233,66 @@ public final class HoneyUtil {
 			if (!"".equals(errorMsg)) {
 				throw new JoinTableParameterException("Error: mainField and subField can not just use only one." + errorMsg);
 			}
-			if(joinTable[0].joinType()!=JoinType.JOIN) hasOtherJoin=true;
+//			if(joinTable[0].joinType()!=JoinType.JOIN) hasOtherJoin=true;
+			
+			
+			if(subOneIsList && joinTable[0].joinType()==JoinType.RIGHT_JOIN){
+				throw new JoinTableException("The List type subTable donot support JoinType.RIGHT_JOIN, you can adjust with JoinType.LEFT_JOIN.");
+			}
+			
+			if (subOneIsList && list_T_classOne == null) {
+				String subClassStr = joinTable[0].subClass();
+				list_T_classOne=createClass(subClassStr, entityFullName);
+			}
 		}
+		
 
+		//支持两个left join/right join要修改
+		//closed on v1.9.8 
+//		if(hasOtherJoin && subEntityFieldNum==2)
+//		       throw new JoinTableException("Just support JoinType.JOIN in this version when a entity has two JoinTable annotation fields!");
+		
+		
+		//v1.9.8 主表只有一个从表时,检测从表1是否还有从表.
+		boolean oneHasOne=false;
+		StringBuffer subColumnStringBuffer[]=new StringBuffer[2];
+		if(subEntityFieldNum==1 && !subOneIsList) { //支持在主表有一个从表时, 从表1还能有一个从表
+			String t_subAlias = joinTable[0].subAlias();
+			String useSubTableName;
+			if (t_subAlias != null && !"".equals(t_subAlias)) {
+				useSubTableName = t_subAlias;
+			} else {
+				subTableName[0]=_toTableNameByEntityName(subField[0].getType().getName()); 
+				useSubTableName = subTableName[0];
+			}
+			
+			subColumnStringBuffer[0] = _getBeanFullField_0(subField[0], useSubTableName,entityFullName,mainFieldSet,dulMap,true);
+			
+		}else if(subEntityFieldNum==1 && subOneIsList) { //从表1是List类型
+			
+			String t_subAlias = joinTable[0].subAlias();
+			String useSubTableName;
+			if (t_subAlias != null && !"".equals(t_subAlias)) {
+				useSubTableName = t_subAlias;
+			} else {
+				subTableName[0]=_toTableNameByEntityName(list_T_classOne.getName()); 
+				useSubTableName = subTableName[0];
+			}
+			Field ff[]=list_T_classOne.getDeclaredFields();
+			subColumnStringBuffer[0] = _getBeanFullField_0(ff, useSubTableName,entityFullName,mainFieldSet,dulMap,true,list_T_classOne.getName());
+		}
+		
+		//处理从表1返回的从表字段
+		if (subEntityFieldNum == 1) {
+			subField[1] = (Field) OneTimeParameter.getAttribute(StringConst.SUBENTITY_FIRSTANNOTATION_FIELD);
+			if (subField[1] != null) {
+				subEntityFieldNum = 2; //v1.9.8  在主表只有从表1, 从表1也只有1个从表.   调整为2
+				oneHasOne = true;
+				moreTableStruct[0].oneHasOne = true;
+			}
+		}
+		
+		
 		if (subField[1] != null) {
 			joinTable[1] = subField[1].getAnnotation(JoinTable.class);
 
@@ -205,35 +300,73 @@ public final class HoneyUtil {
 			if (!"".equals(errorMsg)) {
 				throw new JoinTableParameterException("Error: mainField and subField can not just use only one." + errorMsg);
 			}
-			if(joinTable[1].joinType()!=JoinType.JOIN) hasOtherJoin=true;
+//			if(joinTable[1].joinType()!=JoinType.JOIN) hasOtherJoin=true;
+			
+			
+			if(subTwoIsList && joinTable[1].joinType()==JoinType.RIGHT_JOIN){  //TODO oneHasOne还未判断到
+				throw new JoinTableException("The List type subTable donot support JoinType.RIGHT_JOIN, you can adjust with JoinType.LEFT_JOIN.");
+			}
 		}
 		
-		if(hasOtherJoin && subEntityFieldNum==2)
-		       throw new JoinTableException("Just support JoinType.JOIN in this version when a entity has two JoinTable annotation fields!");
 		
 		//if no exception , set for main table
 		moreTableStruct[0].tableName = tableName;
-		moreTableStruct[0].entityFullName = entityFullName;
-		moreTableStruct[0].entityName = entity.getClass().getSimpleName();
-		moreTableStruct[0].joinTableNum=subEntityFieldNum;  //一个实体包含关联的子表数
-		//moreTableStruct[0].columnsFull = columns.toString();  //还要子表列
+//		moreTableStruct[0].entityFullName = entityFullName;
+//		moreTableStruct[0].entityName = entity.getClass().getSimpleName();
+		moreTableStruct[0].joinTableNum=subEntityFieldNum;  //一个实体包含关联的从表数
+		//moreTableStruct[0].columnsFull = columns.toString();  //还要从表列
+		
 
 		//set for subTable1 and subTable2
-		//for (int j = 0; j < subField.length; j++) {
+		//开始全面检测,处理两个从表
 		for (int j = 0; j < 2; j++) { // 2 subTables
 			if (subField[j] != null) {
+				
+//				j==0时此处不执行
+				//返回的subField[1]是List, 要特别处理
+				if(j==1) {  //要等从表1的subObject对象处理完, 再处理从表2的
+					//处理是List oneHasOne字段  
+					if (oneHasOne && "java.util.List".equals(subField[1].getType().getName())) {
+						try {
+							subField[1].setAccessible(true);
+							subTwoIsList = true;
+							moreTableStruct[0].subTwoIsList = true;
+//							List list = (List) subField[1].get(entity);
+							List list = (List) subField[1].get(moreTableStruct[1].subObject);
+							if (ObjectUtils.isNotEmpty(list)) {
+								listTwo = list;
+								list_T_classTwo = list.get(0).getClass();
+							}
+						} catch (IllegalAccessException e) {
+							e.printStackTrace();  //TODO 
+						}
+					}
+					
+					if (subTwoIsList && list_T_classTwo == null) {
+						String subClassStr = joinTable[1].subClass();
+						list_T_classTwo=createClass(subClassStr, entityFullName);
+					}
+				}
 
 				String mainColumn = _toColumnName(joinTable[j].mainField());
 				String subColumn = _toColumnName(joinTable[j].subField());
-//				subTableName[j] = _toTableNameByEntityName(subField[j].getType().getSimpleName());
-				subTableName[j] = _toTableNameByEntityName(subField[j].getType().getName());  //从表可能有注解,要用包名去检查
-
+				
+				if (j == 0 && subOneIsList) {
+					subTableName[j] = _toTableNameByEntityName(list_T_classOne.getName());
+				} else if (j == 1 && subTwoIsList) {
+					subTableName[j] = _toTableNameByEntityName(list_T_classTwo.getName());
+				} else {
+//				    subTableName[j] = _toTableNameByEntityName(subField[j].getType().getSimpleName());
+					subTableName[j] = _toTableNameByEntityName(subField[j].getType().getName()); //从表可能有注解,要用包名去检查
+				}
+				
 				moreTableStruct[1 + j] = new MoreTableStruct();
 				//从表的  
-				moreTableStruct[1 + j].subEntityField = subField[j];
+				moreTableStruct[1 + j].subEntityField = subField[j];  //用于返回拼装数据时,获取字段名
+				
 				moreTableStruct[1 + j].tableName = subTableName[j]; //各实体对应的表名
-				moreTableStruct[1 + j].entityFullName = subField[j].getType().getName();
-				moreTableStruct[1 + j].entityName = subField[j].getType().getSimpleName();
+//				moreTableStruct[1 + j].entityFullName = subField[j].getType().getName();
+//				moreTableStruct[1 + j].entityName = subField[j].getType().getSimpleName();
 
 				moreTableStruct[1 + j].mainField = joinTable[j].mainField();
 				moreTableStruct[1 + j].subField = joinTable[j].subField();
@@ -256,59 +389,151 @@ public final class HoneyUtil {
 						throw new JoinTableException("The number of field in mainField & subField is different , mainField is: "+mainColumnArray.length+" ,subField is : "+subColumnArray.length);
 					}
 					moreTableStruct[1 + j].joinExpression="";
+					String firstTableName="";
 					for (int i = 0; i < mainColumnArray.length; i++) {
 						if(i!=0) moreTableStruct[1 + j].joinExpression += K.space+K.and+K.space;
-						moreTableStruct[1 + j].joinExpression +=tableName + "." + mainColumnArray[i] + "=" + useSubTableName + "." + subColumnArray[i];
+						if(oneHasOne && j==1) {
+							firstTableName=moreTableStruct[1].useSubTableName;
+						}else {
+							firstTableName=tableName;
+						}
+						moreTableStruct[1 + j].joinExpression +=firstTableName + "." + mainColumnArray[i] + "=" + useSubTableName + "." + subColumnArray[i];
 					}
 					
 				}
 				moreTableStruct[1 + j].useSubTableName = useSubTableName;
 				try {
 					subField[j].setAccessible(true);
-					moreTableStruct[1 + j].subObject = subField[j].get(entity);
+					if (j == 0 && subOneIsList) {
+						if (ObjectUtils.isNotEmpty(listOne))
+							moreTableStruct[1 + j].subObject = listOne.get(0);
+					} else if (j == 1 && subTwoIsList) {
+						if (ObjectUtils.isNotEmpty(listTwo))
+							moreTableStruct[1 + j].subObject = listTwo.get(0);
+					} else if (j == 1 && oneHasOne) {
+						if (moreTableStruct[1].subObject == null)
+							moreTableStruct[1 + j].subObject = null;
+						else
+							moreTableStruct[1 + j].subObject = subField[j].get(moreTableStruct[1].subObject);
+					} else {
+						moreTableStruct[1 + j].subObject = subField[j].get(entity);
+					}
 				} catch (IllegalAccessException e) {
 					throw ExceptionHelper.convert(e);
 				}
 
-				StringBuffer subColumns = _getBeanFullField_0(subField[j], useSubTableName,entityFullName,mainFieldSet,dulMap);
-				moreTableStruct[1 + j].columnsFull = subColumns.toString(); 
+				if(subEntityFieldNum==1){ //subEntityFieldNum==1 只有一个从表,从表1上面都有扫描, 表示上面都有扫描过
+					                       //subEntityFieldNum==1  j也不可以等于1(不可能进行两次循环)
+			    }else if(j==0 && subOneIsList && !oneHasOne) { //从主表来的 从表1 List (主表有两个从表时)         
+					Field ff[]=list_T_classOne.getDeclaredFields();
+					subColumnStringBuffer[0] = _getBeanFullField_0(ff, useSubTableName,entityFullName,mainFieldSet,dulMap,true,list_T_classOne.getName());
+				}else if(j==1 && subTwoIsList) { //j==1,表示有第二个存在
+				   Field ff[]=list_T_classTwo.getDeclaredFields();
+				   subColumnStringBuffer[1] = _getBeanFullField_0(ff, useSubTableName,entityFullName,mainFieldSet,dulMap,true,list_T_classTwo.getName());
+			    }else if(!oneHasOne || j==1) { //上面没查， 这里要实现
+//				}else {//有些不需要处理, 如oneHasOne,i==0
+			    	subColumnStringBuffer[j] = _getBeanFullField_0(subField[j], useSubTableName,entityFullName,mainFieldSet,dulMap);
+			    }
+//			    subColumnStringBuffer[j]=listcolumns;
+				moreTableStruct[1 + j].columnsFull = subColumnStringBuffer[j].toString(); 
 
 				columns.append(",");
-				columns.append(subColumns);
+				columns.append(subColumnStringBuffer[j]);
+				
 			}
 		}//end subFieldEntity for
-
-		moreTableStruct[0].columnsFull = columns.toString(); //包含子表的列
+		
+		if(subOneIsList)
+		   moreTableStruct[1].subClass=list_T_classOne;
+		if(subTwoIsList)
+			   moreTableStruct[2].subClass=list_T_classTwo;
+		
+		moreTableStruct[0].columnsFull = columns.toString(); //包含从表的列
 		moreTableStruct[0].subDulFieldMap=dulMap;
 
 		//		return columns.toString();
 		return moreTableStruct;
 	}
+	
+	private static Class createClass(String subClassStr, String packageAndClassName) {
+		//		String subClassStr = joinTable[0].subClass();
+		Class newClazz = null;
+		boolean isOk = false;
+		if (StringUtils.isNotBlank(subClassStr)) {
+			try {
+				newClazz = Class.forName(subClassStr);
+				isOk = true;
+			} catch (ClassNotFoundException e) {
+				try {
+					int index1 = subClassStr.indexOf(".");
+					int index2 = packageAndClassName.lastIndexOf(".");
 
+					if (index1 == -1 && index2 > 0) {
+						String newStr = packageAndClassName.substring(0, index2+1) + subClassStr;
+						newClazz = Class.forName(newStr);
+						isOk = true;
+					}
+				} catch (ClassNotFoundException e2) {
+					// ignore
+				}
+				
+			}
+		}
+
+		if (isOk) {
+			return newClazz;
+		} else {
+			throw new BeeException("MoreTable select, if use List type field , "
+					+ "the object must have element or config the subClass with JoinTable Annotation!");
+		}
+	}
+	
 	//for moreTable
 	static StringBuffer _getBeanFullField_0(Field entityField, String tableName,String entityFullName,
 			Set<String> mainFieldSet,Map<String,String> dulMap) {
-		
-//		entityFullName just for tip
-		//		    if(entityField==null) return "";
-		//		    Field field[] = entity.getClass().getDeclaredFields(); //error
+		return _getBeanFullField_0(entityField, tableName, entityFullName, mainFieldSet, dulMap,false);
+	}
 
+	
+	static StringBuffer _getBeanFullField_0(Field entityField, String tableName,String entityFullName,
+			Set<String> mainFieldSet,Map<String,String> dulMap,boolean checkOneHasOne) {
+		
 		Field field[] = entityField.getType().getDeclaredFields();
+		
+	 return	_getBeanFullField_0(field, tableName, entityFullName, mainFieldSet, dulMap, checkOneHasOne, entityField.getName());
+	}
+	//for moreTable
+	static StringBuffer _getBeanFullField_0(Field field[], String tableName,String entityFullName,
+			Set<String> mainFieldSet,Map<String,String> dulMap,boolean checkOneHasOne,String entityFieldFullName) {
+		
+//		entityFieldFullName just for tip
+
+//		Field field[] = entityField.getType().getDeclaredFields();
 
 		//		String tableName = _toTableNameByEntityName(entityField.getType().getSimpleName());//有可能用别名
 		StringBuffer columns = new StringBuffer();
 		int len = field.length;
 		boolean isFirst = true;
 		String subFieldName="";
+		int currentSubNum=0;
+		Field subEntityFirstAnnotationField=null;
+		List<String> WarnMsglist=new ArrayList<>();
 		for (int i = 0; i < len; i++) {
 //			if ("serialVersionUID".equals(field[i].getName()) || field[i].isSynthetic()) continue;
 			if(HoneyUtil.isSkipFieldForMoreTable(field[i])) continue; //有Ignore注释,将不再处理JoinTable
 			if (field[i] != null && field[i].isAnnotationPresent(JoinTable.class)) {
-//				Logger.error("注解字段的实体: " + entityField.getType().getName() + "里面又包含了注解:" + field[i].getType());
-				String entityFieldName=entityField.getType().getName();
-				if(!entityFieldName.equals(field[i].getType().getName())){
-				   Logger.warn("Annotation JoinTable field: " +entityField.getName()+"(in "+ entityFullName + ") still include JoinTable field:" + field[i].getName() + "(will be ignored)!");
-				}
+				currentSubNum++;
+				if(checkOneHasOne && currentSubNum==1) subEntityFirstAnnotationField=field[i]; //第一个从表里的第一个连接字段
+				
+////				Logger.error("注解字段的实体: " + entityField.getType().getName() + "里面又包含了注解:" + field[i].getType());
+//				String entityFieldName=entityField.getType().getName();
+//				
+//				System.err.println(entityFieldName);
+//				System.err.println(field[i].getType().getName());
+//				if(!entityFieldName.equals(field[i].getType().getName())){ //??
+				   if(checkOneHasOne) WarnMsglist.add("Annotation JoinTable field: " +entityFieldFullName+"(in "+ entityFullName + ") still include JoinTable field:" + field[i].getName() + "(will be ignored)!");
+				   else Logger.warn("Annotation JoinTable field: " +entityFieldFullName+"(in "+ entityFullName + ") still include JoinTable field:" + field[i].getName() + "(will be ignored)!");
+//				}
 				continue;
 			}
 
@@ -339,6 +564,19 @@ public final class HoneyUtil {
 				columns.append(subFieldName);
 			}
 		}
+		
+		if(checkOneHasOne && currentSubNum>1) {  //从表,只能有1个关联字段,  超过1个,将会被忽略.
+			subEntityFirstAnnotationField=null;
+			for (int i = 0; i < currentSubNum; i++) {
+				Logger.warn(WarnMsglist.get(i));
+			}
+		}
+		
+		if (checkOneHasOne && currentSubNum > 2) { //只支持一个实体里最多关联两个实体
+			throw new JoinTableException("One entity only supports two JoinTable at most! " + entityFieldFullName + " has " + currentSubNum + " JoinTable now !");
+		}
+		
+		OneTimeParameter.setAttribute(StringConst.SUBENTITY_FIRSTANNOTATION_FIELD, subEntityFirstAnnotationField);
 		
 		return columns;
 	}
@@ -929,11 +1167,13 @@ public final class HoneyUtil {
 
 	public static <T> void checkPackage(T entity) {
 		if (entity == null) return;
-		if(entity.getClass().getPackage()==null) return ; //2020-04-19 if it is default package or empty package, do not check. Suggest by:pcode
 		
-		String packageName = entity.getClass().getPackage().getName();
+//		if(entity.getClass().getPackage()==null) return ; //2020-04-19 if it is default package or empty package, do not check. Suggest by:pcode
+//		String packageName = entity.getClass().getPackage().getName();
+		
+		String classFullName=entity.getClass().getName();
 		//		传入的实体可以过滤掉常用的包开头的,如:java., javax. ; 但spring开头不能过滤,否则spring想用bee就不行了.
-		if (packageName.startsWith("java.") || packageName.startsWith("javax.")) {
+		if (classFullName.startsWith("java.") || classFullName.startsWith("javax.")) {
 			throw new BeeIllegalEntityException("BeeIllegalEntityException: Illegal Entity, " + entity.getClass().getName());
 		}
 	}
