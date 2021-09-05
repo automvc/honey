@@ -332,7 +332,9 @@ public final class CacheUtil {
 	private static String adjust(String tableName){
 		boolean enableMultiDs = HoneyConfig.getHoneyConfig().multiDS_enable;
 		int multiDsType = HoneyConfig.getHoneyConfig().multiDS_type;
-		if (enableMultiDs && multiDsType == 2) {//仅分库,有多个数据源时
+		boolean differentDbType=HoneyConfig.getHoneyConfig().multiDS_differentDbType;
+//		if (enableMultiDs && multiDsType == 2) {//仅分库,有多个数据源时
+		if (enableMultiDs && (multiDsType ==2 || (multiDsType ==1 && differentDbType ) ) ) {
 			String ds=Router.getDsName();
 			tableName=ds+"."+tableName;
 		}
@@ -447,7 +449,9 @@ public final class CacheUtil {
 		boolean enableMultiDs = HoneyConfig.getHoneyConfig().multiDS_enable;
 		if (enableMultiDs) {
 			int multiDsType = HoneyConfig.getHoneyConfig().multiDS_type;
-			if (multiDsType == 2) {//仅分库,有多个数据源时
+			boolean differentDbType=HoneyConfig.getHoneyConfig().multiDS_differentDbType;
+//			if (multiDsType == 2) {//仅分库,有多个数据源时
+			if ((multiDsType ==2 || (multiDsType ==1 && differentDbType) )) {
 				String tableName = list.get(0);
 				if (map.get(tableName.toLowerCase()) != null){
 					return true;
@@ -464,9 +468,12 @@ public final class CacheUtil {
 	private static Integer _getConfigCacheTableMapValue(Map<String,Integer> map, List<String> list) {
 		
 		boolean enableMultiDs = HoneyConfig.getHoneyConfig().multiDS_enable;
+		
 		if (enableMultiDs) {
 			int multiDsType = HoneyConfig.getHoneyConfig().multiDS_type;
-			if (multiDsType == 2) {//仅分库,有多个数据源时
+			boolean differentDbType=HoneyConfig.getHoneyConfig().multiDS_differentDbType;
+//			if (multiDsType == 2) {//仅分库,有多个数据源时
+			if ((multiDsType ==2 || (multiDsType ==1 && differentDbType ))) {//仅分库,有多个数据源时
 				String tableName = list.get(0);
 				Integer v1=map.get(tableName.toLowerCase());
 				if ( v1 != null){ //先检测不带数据源的

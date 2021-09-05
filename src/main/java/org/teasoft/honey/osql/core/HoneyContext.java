@@ -384,7 +384,9 @@ public final class HoneyContext {
 			}
 			boolean enableMultiDs = HoneyConfig.getHoneyConfig().multiDS_enable;
 			int multiDsType = HoneyConfig.getHoneyConfig().multiDS_type;
-			if (enableMultiDs && multiDsType == 2) {//仅分库,有多个数据源时
+			boolean differentDbType=HoneyConfig.getHoneyConfig().multiDS_differentDbType;
+//			if (enableMultiDs && multiDsType == 2) {//仅分库,有多个数据源时
+			if (enableMultiDs && (multiDsType ==2 || (multiDsType ==1 && differentDbType) )) {//仅分库,有多个数据源时
 				removeCurrentRoute();
 			}
 		}
@@ -431,7 +433,9 @@ public final class HoneyContext {
 		} finally {
 			boolean enableMultiDs = HoneyConfig.getHoneyConfig().multiDS_enable;
 			int multiDsType = HoneyConfig.getHoneyConfig().multiDS_type;
-			if (enableMultiDs && multiDsType == 2) {//仅分库,有多个数据源时
+			boolean differentDbType=HoneyConfig.getHoneyConfig().multiDS_differentDbType;
+//			if (enableMultiDs && multiDsType == 2) {//仅分库,有多个数据源时
+			if (enableMultiDs && (multiDsType ==2 || (multiDsType ==1 && differentDbType) )) {
 				removeCurrentRoute();
 			}
 		}
@@ -572,7 +576,8 @@ public final class HoneyContext {
 		if (enableMultiDs) {
 			int multiDsType = HoneyConfig.getHoneyConfig().multiDS_type;
 			boolean supportDifferentDbType = HoneyConfig.getHoneyConfig().multiDS_differentDbType;
-			if (multiDsType == 2 && supportDifferentDbType) {//仅分库,有多个数据源时,且支持同时使用多种类型数据库时
+//			if (multiDsType == 2 && supportDifferentDbType) {//仅分库,有多个数据源时,且支持同时使用多种类型数据库时
+			if ((multiDsType ==2 || multiDsType == 1) && supportDifferentDbType) {  //不同数据库才要实时获取数据库类型
 				return true;
 			}
 		}
