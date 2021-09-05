@@ -174,7 +174,7 @@ final class _ObjectToSQLHelper {
 						preparedValue = new PreparedValue();
 						preparedValue.setType(fields[i].getType().getName());
 						preparedValue.setValue(fields[i].get(entity));
-						list.add(k++, preparedValue);
+						list.add(preparedValue);
 					}
 				}
 			}//end for
@@ -874,7 +874,7 @@ final class _ObjectToSQLHelper {
 						preparedValue = new PreparedValue();
 						preparedValue.setType(fields[i].getType().getName());
 						preparedValue.setValue(fields[i].get(entity));
-						list.add(k++, preparedValue);
+						list.add(preparedValue);
 					}
 				}
 			}//end for
