@@ -12,8 +12,8 @@ import org.teasoft.honey.osql.core.K;
 public class SqlServerFeature implements DbFeature {
 
 	public String toPageSql(String sql, int start, int size) {
-		if (start > 0) throw new NotSupportedException("select result did not support paging skip");
-
+		if (start > 1) throw new NotSupportedException("select result did not support paging skip");
+        //sql server 是从1开始数. start 为0或1, 相当于只取size
 		return toPageSql(sql, size);
 	}
 
