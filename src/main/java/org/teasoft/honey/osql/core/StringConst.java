@@ -21,5 +21,7 @@ public interface StringConst {
     
     String OLD_ID_EXIST="_SYS_Bee_OLD_ID_FOR_AUTO_ID_EXIST";
     String OLD_ID="_SYS_Bee_OLD_ID_FOR_AUTO_ID";
+    
+    String SUBENTITY_FIRSTANNOTATION_FIELD="_SYS_subEntityFirstAnnotationField";
 
 }
