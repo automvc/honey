@@ -39,6 +39,8 @@ public class ConditionImpl implements Condition {
 	
 	private List<FunExpress> funExpList=new ArrayList<>();
 	
+	private List<Expression> onExpList = new ArrayList<>();
+	
 	private boolean isStartGroupBy = true;
 	private boolean isStartHaving = true;
 	private boolean isStartOrderBy = true;
@@ -77,6 +79,15 @@ public class ConditionImpl implements Condition {
 		checkField(field);
 		list.add(new Expression(field, Op, value));
 		this.whereField.add(field);
+		return this;
+	}
+	
+	//v1.9.8
+	@Override
+	public Condition opOn(String field, Op Op, Object value) {
+		
+		checkField(field);
+		onExpList.add(new Expression(field, Op, value));
 		return this;
 	}
 	
@@ -330,6 +341,10 @@ public class ConditionImpl implements Condition {
 	public List<Expression> getExpList() {
 		//todo 若要自动调整顺序,可以在这改.  group by,having, order by另外定义,在这才添加到list.
 		return list;
+	}
+	
+	public List<Expression> getOnExpList() {
+		return onExpList;
 	}
 
 	public Integer getStart() {

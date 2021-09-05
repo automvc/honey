@@ -6,6 +6,7 @@
 
 package org.teasoft.honey.osql.core;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -66,8 +67,8 @@ public class ConditionHelper {
 //				mysql is ok. as below:
 //				update orders set total=total+?   [values]: -0.1  
 			
-			if (expression.getValue() == null) {
-				throw new BeeErrorGrammarException(conditionImpl.getSuidType() + ": the num of " + opType + " is null");
+			if (expression.getValue() == null) {  //TODO BUG  // UPDATE,  fieldName: toolPayWay, the num of null is null
+				throw new BeeErrorGrammarException(conditionImpl.getSuidType() + ",  fieldName: "+expression.getFieldName()+", the num of " + opType + " is null");
 			} else {
 
 				if (firstSet) {
@@ -184,6 +185,11 @@ public class ConditionHelper {
 			}
 			//			} else {
 			if (Op.in.getOperator().equalsIgnoreCase(opType) || Op.notIn.getOperator().equalsIgnoreCase(opType)) {
+				
+				String v = expression.getValue().toString();
+				
+//				if(StringUtils.isBlank(v)) continue; //v1.9.8    in的值不允许为空             这样会有安全隐患, 少了一个条件,会更改很多数据.
+				
 				adjustAnd(sqlBuffer);
 				sqlBuffer.append(_toColumnName(expression.getFieldName(),useSubTableNames));
 //				sqlBuffer.append(" ");
@@ -192,8 +198,7 @@ public class ConditionHelper {
 				else sqlBuffer.append(expression.getOpType());
 				sqlBuffer.append(" (");
 				sqlBuffer.append("?");
-				String str = expression.getValue().toString();
-				String values[] = str.trim().split(",");
+				String values[] = v.trim().split(",");
 
 				for (int i = 1; i < values.length; i++) { //start 1
 					sqlBuffer.append(",?");
@@ -352,7 +357,7 @@ public class ConditionHelper {
 
 			//}
 
-			sqlBuffer.append(_toColumnName(expression.getFieldName(),useSubTableNames));
+			sqlBuffer.append(_toColumnName(expression.getFieldName(),useSubTableNames));   //TODO ???
 
 			if (expression.getValue() == null) {
 				if("=".equals(expression.getOpType())){
@@ -486,11 +491,88 @@ public class ConditionHelper {
 		return funStr;
 	}
 	
+	public static void processOnExpression(Condition condition, MoreTableStruct moreTableStruct[],
+			List<PreparedValue> list) {
+		
+		if (condition == null || moreTableStruct == null) return;
+		
+		List<PreparedValue> list2=new ArrayList<>();
+
+		ConditionImpl conditionImpl = (ConditionImpl) condition;
+		List<Expression> onExpList = conditionImpl.getOnExpList();
+		StringBuffer onExpBuffer = new StringBuffer();
+		Expression exp = null;
+		int sub1 = 0, sub2 = 0;
+		for (int i = 0; i < onExpList.size(); i++) {
+
+			exp = onExpList.get(i);
+			if (moreTableStruct[0].joinTableNum == 1 && i != 0) {
+				onExpBuffer.append(K.space).append(K.and).append(K.space);
+			}
+			onExpBuffer.append(_toColumnName(exp.getFieldName()));
+			onExpBuffer.append(K.space);
+			onExpBuffer.append(exp.opType);
+			//			onExpBuffer.append(K.space);
+			//			onExpBuffer.append(exp.getValue());
+			onExpBuffer.append("?");
+
+			if (moreTableStruct[0].joinTableNum == 2) {
+				String fieldName = exp.getFieldName();
+				if (fieldName.startsWith(moreTableStruct[2].tableName + ".")
+						|| (moreTableStruct[2].hasSubAlias
+								&& fieldName.startsWith(moreTableStruct[2].subAlias + "."))) { //第2个从表
+					if (sub2 != 0) moreTableStruct[2].onExpression += K.space + K.and + K.space;
+					moreTableStruct[2].onExpression += onExpBuffer.toString();
+					sub2++;
+					addValeToList(list2, exp);
+				} else {
+					if (sub1 != 0) moreTableStruct[2].onExpression += K.space + K.and + K.space;
+					moreTableStruct[1].onExpression += onExpBuffer.toString();
+					sub1++;
+					addValeToList(list, exp);
+				}
+				if (i != onExpList.size() - 1) onExpBuffer = new StringBuffer();
+			} else {
+				addValeToList(list, exp);
+			}
+
+			if (i == onExpList.size() - 1) {
+				if (moreTableStruct[0].joinTableNum == 1)
+					moreTableStruct[1].onExpression = onExpBuffer.toString();
+				else if (sub2 != 0) list.addAll(list2);
+			}
+		}
+
+	}
+	
+	private static void addValeToList(List<PreparedValue> list,Expression exp) {
+		PreparedValue preparedValue = new PreparedValue();
+		preparedValue.setType(exp.getValue().getClass().getName());
+		preparedValue.setValue(exp.getValue());
+		list.add(preparedValue);
+	}
+	
+	
 	private static String _toColumnName(String fieldName) {
 		return NameTranslateHandle.toColumnName(fieldName);
 	}
-			
+	
 	private static String _toColumnName(String fieldName,String useSubTableNames[]) {
+		if(StringUtils.isBlank(fieldName)) return fieldName;
+		if(!fieldName.contains(",")) return _toColumnName0(fieldName, useSubTableNames);
+		
+		String str[]=fieldName.split(",");
+		String newFields="";
+		int len=str.length;
+		for (int i = 0; i < len; i++) {
+			newFields+=_toColumnName0(str[i],useSubTableNames);
+			if(i!=len-1) newFields+=",";
+		}
+		return newFields;
+		
+	}
+			
+	private static String _toColumnName0(String fieldName,String useSubTableNames[]) {
 		
 		if(useSubTableNames==null) return _toColumnName(fieldName);   //one table type
 		
@@ -514,6 +596,8 @@ public class ConditionHelper {
 			}
 			
 			return find_tableName+"."+NameTranslateHandle.toColumnName(t_fieldName);
+		}else {
+			fieldName=useSubTableNames[2]+"."+fieldName;
 		}
 		return NameTranslateHandle.toColumnName(fieldName);
 	}
@@ -523,5 +607,11 @@ public class ConditionHelper {
 			sqlBuffer.append(" "+K.and+" ");
 			isNeedAnd = false;
 		}
+	}
+	
+	public static Integer getPageSize(Condition condition) {
+		if(condition==null) return null;
+		ConditionImpl conditionImpl = (ConditionImpl) condition;
+		return conditionImpl.getSize();
 	}
 }
