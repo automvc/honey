@@ -51,7 +51,7 @@ public final class SessionFactory {
 			Logger.error("Can not find the Database driver!  " + e.getMessage());
 			throw new NoConfigException("Can not find the Database driver(maybe miss the jar file).");
 		} catch (Exception e) {
-			Logger.error("Have Exception when getConnection: " + e.getMessage());
+//			Logger.error("Have Exception when getConnection: " + e.getMessage());
 			throw ExceptionHelper.convert(e);
 		}
 
@@ -75,7 +75,7 @@ public final class SessionFactory {
 		return tran;
 	}
 
-	private static Connection getOriginalConn() throws ClassNotFoundException, SQLException {
+	private static Connection getOriginalConn() throws ClassNotFoundException, SQLException,Exception {
 
 		String driverName = HoneyConfig.getHoneyConfig().getDriverName();
 		String url = HoneyConfig.getHoneyConfig().getUrl();
@@ -85,14 +85,16 @@ public final class SessionFactory {
 		String nullInfo = "";
 		if (driverName == null) nullInfo += DbConfigConst.DB_DRIVERNAME + " do not config; ";
 		if (url == null) nullInfo += DbConfigConst.DB_URL + " do not config; ";
-		if (username == null) nullInfo += DbConfigConst.DB_USERNAM + " do not config; ";
-		if (password == null) nullInfo += DbConfigConst.DB_PWORD + " do not config; ";
 		
 		if (url == null) {
-			Logger.error("The url can not null when get the Connection directly from DriverManager!  "+nullInfo);
-			Logger.warn("The system will be exit!......");
-			System.exit(0);
+//			Logger.error("The url can not null when get the Connection directly from DriverManager!  "+nullInfo);
+//			Logger.warn("The system will be exit!......");
+//			System.exit(0);
+			throw new Exception("The url can not null when get the Connection directly from DriverManager!  ("+nullInfo+")");
 		}
+		
+		if (username == null) nullInfo += DbConfigConst.DB_USERNAM + " do not config; ";
+		if (password == null) nullInfo += DbConfigConst.DB_PWORD + " do not config; ";
 
 		if (!"".equals(nullInfo)) {
 //			throw new NoConfigException("NoConfigException,Do not set the database info: " + nullInfo);
