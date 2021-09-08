@@ -31,6 +31,7 @@ public class TransformResultSet {
 		boolean dateWithMillisecond = HoneyConfig.getHoneyConfig().selectJson_dateWithMillisecond;
 		boolean timeWithMillisecond = HoneyConfig.getHoneyConfig().selectJson_timeWithMillisecond;
 		boolean timestampWithMillisecond = HoneyConfig.getHoneyConfig().selectJson_timestampWithMillisecond;
+		boolean selectJson_longToString = HoneyConfig.getHoneyConfig().selectJson_longToString;
 
 		while (rs.next()) {
 			json.append(",{");
@@ -96,6 +97,8 @@ public class TransformResultSet {
 								json.append("\"");
 							}
 						}
+					} else if (selectJson_longToString && "Long".equals(HoneyUtil.getFieldType(rmeta.getColumnTypeName(i)))) {
+						json.append("\"").append(rs.getString(i)).append("\"");
 					} else {
 						json.append(rs.getString(i));
 					}
