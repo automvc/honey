@@ -186,14 +186,14 @@ public class MapSqlProcessor {
 
 		List<PreparedValue> list = new ArrayList<>();
 
-		boolean firstSet = false;
+		boolean firstSet = true;
 		
 		Map<String, Object> newValueMap = suidMapImpl.getNewKvMap();
 		if (ObjectUtils.isNotEmpty(newValueMap)) {
 			firstSet = updateSet(newValueMap, list, sqlBuffer, isTransfer, getIncludeType(sqlSettingMap));
 		}
 
-		boolean firstWhere = false;
+		boolean firstWhere = true;
 		if (ObjectUtils.isNotEmpty(whereConditonMap)) {
 			firstWhere = where(whereConditonMap, list, sqlBuffer, isTransfer,
 					getIncludeType(sqlSettingMap));
@@ -214,7 +214,7 @@ public class MapSqlProcessor {
 			if (notUpdateWholeRecords) {
 				Logger.logSQL("In MapSuid, update SQL: ", sql);
 				throw new BeeIllegalBusinessException(
-						"BeeIllegalBusinessException: It is not allowed delete whole records in one table.");
+						"BeeIllegalBusinessException: It is not allowed update whole records in one table.");
 			}
 		}
 
@@ -409,8 +409,7 @@ public class MapSqlProcessor {
 				sqlBuffer.append(K.space).append(K.set).append(K.space); //set
 				firstSet = false;
 			} else {
-//				sqlBuffer.append(K.space).append(K.and).append(K.space); //and
-				sqlBuffer.append(K.space).append(",").append(K.space); 
+				sqlBuffer.append(K.space).append(",").append(K.space);   // ,
 			}
 
 			if (isTransfer) {
