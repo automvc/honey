@@ -9,12 +9,13 @@ package org.teasoft.honey.util;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.teasoft.honey.osql.core.ExceptionHelper;
+import org.teasoft.honey.osql.core.HoneyUtil;
 import org.teasoft.honey.osql.core.Logger;
-import org.teasoft.honey.util.ObjectCreatorFactory;
-import org.teasoft.honey.util.StringUtils;
 
 /**
  * @author Kingstar
@@ -174,5 +175,27 @@ public class SuidHelper {
 		return to;
 	}
 	
+	public static <T> Map<String, Object> entityToMap(T entity) {
+
+		if (entity == null) return null;
+
+		Map<String, Object> map = null;
+		Object v = null;
+		Field fields[] = entity.getClass().getDeclaredFields();
+
+		for (int i = 0; i < fields.length; i++) {
+			if (i == 0) map = new LinkedHashMap<>();
+			fields[i].setAccessible(true);
+			try {
+				v = fields[i].get(entity);
+				if (v == null) continue;
+				if (HoneyUtil.isSkipField(fields[i])) continue;
+				map.put(fields[i].getName(), v);
+			} catch (Exception e) {
+				Logger.error(e.getMessage(), e);
+			}
+		}
+		return map;
+	}
 
 }
