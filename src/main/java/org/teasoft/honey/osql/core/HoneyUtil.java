@@ -951,7 +951,7 @@ public final class HoneyUtil {
 	}
 	
 	
-	static boolean isSkipField(Field field) {
+	public static boolean isSkipField(Field field) {
 		if (field != null) {
 			if ("serialVersionUID".equals(field.getName())) return true;
 			if (field.isSynthetic()) return true;
