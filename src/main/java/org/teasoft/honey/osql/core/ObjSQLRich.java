@@ -7,15 +7,23 @@
 package org.teasoft.honey.osql.core;
 
 import java.util.List;
+import java.util.Map;
 
 import org.teasoft.bee.osql.Condition;
 import org.teasoft.bee.osql.FunctionType;
 import org.teasoft.bee.osql.IncludeType;
+import org.teasoft.bee.osql.MapSql;
+import org.teasoft.bee.osql.MapSqlKey;
+import org.teasoft.bee.osql.MapSqlSetting;
+import org.teasoft.bee.osql.MapSuid;
 import org.teasoft.bee.osql.ObjSQLException;
 import org.teasoft.bee.osql.ObjToSQLRich;
 import org.teasoft.bee.osql.OrderType;
 import org.teasoft.bee.osql.SuidRich;
+import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
 import org.teasoft.bee.osql.exception.BeeIllegalParameterException;
+import org.teasoft.honey.osql.name.NameUtil;
+import org.teasoft.honey.util.SuidHelper;
 
 /**
  * @author Kingstar
@@ -621,8 +629,31 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 
 	@Override
 	public <T> int update(T oldEntity, T newEntity) {
-		// TODO Auto-generated method stub
-		return 0;
+
+		if (oldEntity == null || newEntity == null) return -1;
+		String oldEntityFullName = oldEntity.getClass().getName();
+		String newEntityFullName = newEntity.getClass().getName();
+		if (!oldEntityFullName.equals(newEntityFullName)) {
+			throw new BeeErrorGrammarException(
+					"BeeErrorGrammarException: the oldEntity and newEntity must be same type!");
+		}
+
+		Map<String, Object> oldMap = SuidHelper.entityToMap(oldEntity);
+		Map<String, Object> newMap = SuidHelper.entityToMap(newEntity);
+
+		MapSql updateMapSql = BeeFactoryHelper.getMapSql();
+		updateMapSql.put(MapSqlKey.Table, _toTableName(oldEntity));
+		updateMapSql.put(MapSqlSetting.IsNamingTransfer, true);
+		updateMapSql.put(oldMap);
+		updateMapSql.putNew(newMap);
+
+		Logger.logSQL("update(T oldEntity, T newEntity) with MapSuid, ", "");
+		MapSuid mapSuid = BeeFactoryHelper.getMapSuid();
+		return mapSuid.update(updateMapSql);
+	}
+	
+	private static String _toTableName(Object entity) {
+		return NameTranslateHandle.toTableName(NameUtil.getClassFullName(entity));
 	}
 	
 	/**
