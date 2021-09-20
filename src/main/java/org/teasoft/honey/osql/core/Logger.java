@@ -27,6 +27,10 @@ public class Logger {
 		return HoneyConfig.getHoneyConfig().showSql_showExecutableSql;
 	}
 	
+	private static String getSqlLoggerLevel() {
+		return HoneyConfig.getHoneyConfig().sqlLoggerLevel;
+	}
+	
 
 	private static Log log = null;
 
@@ -107,16 +111,45 @@ public class Logger {
 	}
 
 	private static void print(String s) {
-		log.info(s);
+		//在此判断输出日志的级别. TODO
+		//用户可以自己定义输出sql的日志级别. 比如定义warn才输出sql.
+		//没意义.  因有一个是否显示sql日志了?   但,如果log4j设置了warn, 它还会输出吗? (用log4j时)    不会输出了,所以还是要设置.
+//		log.info(s);
+		
+		//v1.9.8
+		if (getSqlLoggerLevel() == null)
+			log.info(s);
+		else if ("warn".equalsIgnoreCase(getSqlLoggerLevel()))
+			log.warn(s);
+		else if ("error".equalsIgnoreCase(getSqlLoggerLevel()))
+			log.error(s);
+		else
+			log.info(s);
 	}
 
 	private static void _print(String s1, String s2) {
 		//		log.info(s1+"\n"  +s2);
-		log.info(s1 + s2);
+		//v1.9.8
+		if (getSqlLoggerLevel() == null)
+			log.info(s1 + s2);
+		else if ("warn".equalsIgnoreCase(getSqlLoggerLevel()))
+			log.warn(s1 + s2);
+		else if ("error".equalsIgnoreCase(getSqlLoggerLevel()))
+			log.error(s1 + s2);
+		else
+			log.info(s1 + s2);
 	}
 
 	private static void _println(String s1, String s2) {
-		log.info(s1 + "\n" + s2);
+		//v1.9.8
+		if (getSqlLoggerLevel() == null)
+			log.info(s1 + "\n" + s2);
+		else if ("warn".equalsIgnoreCase(getSqlLoggerLevel()))
+			log.warn(s1 + "\n" + s2);
+		else if ("error".equalsIgnoreCase(getSqlLoggerLevel()))
+			log.error(s1 + "\n" + s2);
+		else
+			log.info(s1 + "\n" + s2);
 	}
 
 	public static void debug(String msg) {
