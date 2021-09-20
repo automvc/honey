@@ -34,6 +34,9 @@ public final class HoneyConfig {
 	@SysValue("${bee.osql.loggerType}")
 	public String loggerType; //v1.8
 	
+	@SysValue("${bee.osql.sqlLoggerLevel}")
+	public String sqlLoggerLevel; //v1.9.8
+	
 	@SysValue("${bee.osql.logDonotPrintLevel}")
 	public boolean logDonotPrintLevel = true; //v1.7.2
 
