@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 /**
+ * InputStream流转字符串的工具
  * @author Kingstar
  * @since  1.9.8
  */
