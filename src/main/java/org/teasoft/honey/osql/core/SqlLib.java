@@ -431,6 +431,12 @@ public class SqlLib implements BeeSql {
 			num = pst.executeUpdate(); //该语句必须是一个 SQL 数据操作语言（Data Manipulation Language，DML）语句
 										//，比如 INSERT、UPDATE 或 DELETE 语句；或者是无返回内容的 SQL 语句，比如 DDL 语句。
 		} catch (SQLException e) {
+			
+			if (isConstraint(e)) {
+				Logger.warn(e.getMessage());
+				return num;
+			}
+			
 			hasException=true;
 			throw ExceptionHelper.convert(e);
 		} finally {
@@ -875,7 +881,10 @@ public class SqlLib implements BeeSql {
 		if(sql==null || "".equals(sql.trim())) return Collections.emptyList();
 		
 		MoreTableStruct moreTableStruct[]=HoneyUtil.getMoreTableStructAndCheckBefore(entity);
-		String listFieldType=""+moreTableStruct[0].subOneIsList+moreTableStruct[0].subTwoIsList+moreTableStruct[0].oneHasOne;
+		
+		boolean subOneIsList1=moreTableStruct[0].subOneIsList;
+		boolean subTwoIsList2=moreTableStruct[0].subTwoIsList;
+		String listFieldType=""+subOneIsList1+subTwoIsList2+moreTableStruct[0].oneHasOne;
 //		System.out.println("listFieldType:"+listFieldType);
 		boolean isReg = updateInfoInCache(sql, "List<T>"+listFieldType, SuidType.SELECT);
 		if (isReg) {
@@ -912,8 +921,6 @@ public class SqlLib implements BeeSql {
 			
 //			MoreTableStruct moreTableStruct[]=HoneyUtil.getMoreTableStructAndCheckBefore(entity);
 			boolean oneHasOne=moreTableStruct[0].oneHasOne;
-			boolean subOneIsList1=moreTableStruct[0].subOneIsList;
-			boolean subTwoIsList2=moreTableStruct[0].subTwoIsList;
 			
 			Field subField[] = new Field[2];
 			String subUseTable[]=new String[2];
@@ -1256,8 +1263,10 @@ public class SqlLib implements BeeSql {
 
 		entity = null;
 		targetObj = null;
-//		System.err.println("获取出的原始数据有"+recordRow+"行");
-		Logger.logSQL(" | <--  ( select raw record rows: ", recordRow + " )");
+		
+//		子表是List类型时，要连原始数据行数也打印日志
+		if(subOneIsList1 || subTwoIsList2)
+		   Logger.logSQL(" | <--  ( select raw record rows: ", recordRow + " )");
 		logSelectRows(rsList.size());
 
 		return rsList;
