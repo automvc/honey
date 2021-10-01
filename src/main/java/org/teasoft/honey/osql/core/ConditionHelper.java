@@ -67,8 +67,11 @@ public class ConditionHelper {
 //				mysql is ok. as below:
 //				update orders set total=total+?   [values]: -0.1  
 			
-			if (expression.getValue() == null) {  //TODO BUG  // UPDATE,  fieldName: toolPayWay, the num of null is null
-				throw new BeeErrorGrammarException(conditionImpl.getSuidType() + ",  fieldName: "+expression.getFieldName()+", the num of " + opType + " is null");
+			if (opType!=null && expression.getValue() == null) {  //TODO BUG  // UPDATE,  fieldName: toolPayWay, the num of null is null
+//				throw new BeeErrorGrammarException(conditionImpl.getSuidType() + ", method:"+opType+", fieldName:"+expression.getFieldName()+", the value is null");
+				throw new BeeErrorGrammarException("the value is null ("+conditionImpl.getSuidType() + ", method:"+opType+", fieldName:"+expression.getFieldName()+")!");
+//			    setWithField("name",null);   //这种,不在这里抛出,字段检测时会抛
+//				String n=null; setAdd("total", n); //这个也是.第二个参数是作为字段,会被检测
 			} else {
 
 				if (firstSet) {
@@ -78,11 +81,18 @@ public class ConditionHelper {
 				}
 				sqlBuffer.append(_toColumnName(expression.getFieldName(), null));
 				sqlBuffer.append("=");
-				if(opType!=null) {
+				
+				//v1.9.8
+				if(opType==null && expression.getValue() == null) { //set("fieldName",null)
+					sqlBuffer.append(K.Null);
+					continue;
+				}
+				
+				if(opType!=null) { //只有set(arg1,arg2) opType=null
 					if (setWithField.equals(opType)) {
 						sqlBuffer.append(_toColumnName((String)expression.getValue()));
 					}else {
-						sqlBuffer.append(_toColumnName(expression.getFieldName()));
+						sqlBuffer.append(_toColumnName(expression.getFieldName()));  //price=[price]+delta   doing [price]
 					}
 				}
 				   
