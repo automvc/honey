@@ -166,7 +166,7 @@ public final class HoneyUtil {
 		
 		int len = field.length;
 		boolean isFirst = true;
-		String listStr="";
+//		String listStr="";
 		String mailField="";//v1.8
 		for (int i = 0; i < len; i++) {
 //			if ("serialVersionUID".equals(field[i].getName()) || field[i].isSynthetic()) continue;
@@ -197,7 +197,8 @@ public final class HoneyUtil {
 							}
 						}
 					} catch (IllegalAccessException e) {
-						e.printStackTrace();
+//						e.printStackTrace();
+						Logger.warn(e.getMessage());
 					}
 				}
 				
@@ -215,7 +216,7 @@ public final class HoneyUtil {
 			columns.append(mailField);  
 //			moreTableStruct[0].mainColumnsForListType=columns.toString(); //v1.9.8
 			mainFieldSet.add(mailField);  //v1.8
-		}// main table for end
+		}// (main table) for end
 
 		if (subEntityFieldNum > 2) { //只支持一个实体里最多关联两个实体
 			throw new JoinTableException("One entity only supports two JoinTable at most! " + entityFullName + " has " + subEntityFieldNum + " JoinTable now !");
@@ -224,8 +225,6 @@ public final class HoneyUtil {
 		JoinTable joinTable[] = new JoinTable[2];
 		String subTableName[] = new String[2];
 		
-//		boolean hasOtherJoin=false; 
-
 		if (subField[0] != null) {
 			joinTable[0] = subField[0].getAnnotation(JoinTable.class);
 
@@ -233,8 +232,6 @@ public final class HoneyUtil {
 			if (!"".equals(errorMsg)) {
 				throw new JoinTableParameterException("Error: mainField and subField can not just use only one." + errorMsg);
 			}
-//			if(joinTable[0].joinType()!=JoinType.JOIN) hasOtherJoin=true;
-			
 			
 			if(subOneIsList && joinTable[0].joinType()==JoinType.RIGHT_JOIN){
 				throw new JoinTableException("The List type subTable donot support JoinType.RIGHT_JOIN, you can adjust with JoinType.LEFT_JOIN.");
@@ -245,11 +242,10 @@ public final class HoneyUtil {
 				list_T_classOne=createClass(subClassStr, entityFullName);
 			}
 		}
-		
 
 		//支持两个left join/right join要修改
 		//closed on v1.9.8 
-//		if(hasOtherJoin && subEntityFieldNum==2)
+//		if(subEntityFieldNum==2)
 //		       throw new JoinTableException("Just support JoinType.JOIN in this version when a entity has two JoinTable annotation fields!");
 		
 		
@@ -259,7 +255,7 @@ public final class HoneyUtil {
 		if(subEntityFieldNum==1 && !subOneIsList) { //支持在主表有一个从表时, 从表1还能有一个从表
 			String t_subAlias = joinTable[0].subAlias();
 			String useSubTableName;
-			if (t_subAlias != null && !"".equals(t_subAlias)) {
+			if (StringUtils.isNotBlank(t_subAlias)) {
 				useSubTableName = t_subAlias;
 			} else {
 				subTableName[0]=_toTableNameByEntityName(subField[0].getType().getName()); 
@@ -272,7 +268,7 @@ public final class HoneyUtil {
 			
 			String t_subAlias = joinTable[0].subAlias();
 			String useSubTableName;
-			if (t_subAlias != null && !"".equals(t_subAlias)) {
+			if (StringUtils.isNotBlank(t_subAlias)) {
 				useSubTableName = t_subAlias;
 			} else {
 				subTableName[0]=_toTableNameByEntityName(list_T_classOne.getName()); 
@@ -284,7 +280,8 @@ public final class HoneyUtil {
 		
 		//处理从表1返回的从表字段
 		if (subEntityFieldNum == 1) {
-			subField[1] = (Field) OneTimeParameter.getAttribute(StringConst.SUBENTITY_FIRSTANNOTATION_FIELD);
+			//子表首个JoinTable注解字段
+			subField[1] = (Field) OneTimeParameter.getAttribute(StringConst.SUBENTITY_FIRSTANNOTATION_FIELD); 
 			if (subField[1] != null) {
 				subEntityFieldNum = 2; //v1.9.8  在主表只有从表1, 从表1也只有1个从表.   调整为2
 				oneHasOne = true;
@@ -295,15 +292,18 @@ public final class HoneyUtil {
 		
 		if (subField[1] != null) {
 			joinTable[1] = subField[1].getAnnotation(JoinTable.class);
+			
+			//之前的subTwoIsList为主表下的从表的  oneHasOne时,在此处再作判断
+			if (oneHasOne && "java.util.List".equals(subField[1].getType().getName())) {
+				subTwoIsList = true;
+			}
 
 			String errorMsg = checkJoinTable(joinTable[1]);
 			if (!"".equals(errorMsg)) {
 				throw new JoinTableParameterException("Error: mainField and subField can not just use only one." + errorMsg);
 			}
-//			if(joinTable[1].joinType()!=JoinType.JOIN) hasOtherJoin=true;
 			
-			
-			if(subTwoIsList && joinTable[1].joinType()==JoinType.RIGHT_JOIN){  //TODO oneHasOne还未判断到
+			if(subTwoIsList && joinTable[1].joinType()==JoinType.RIGHT_JOIN){  
 				throw new JoinTableException("The List type subTable donot support JoinType.RIGHT_JOIN, you can adjust with JoinType.LEFT_JOIN.");
 			}
 		}
@@ -326,19 +326,19 @@ public final class HoneyUtil {
 				//返回的subField[1]是List, 要特别处理
 				if(j==1) {  //要等从表1的subObject对象处理完, 再处理从表2的
 					//处理是List oneHasOne字段  
-					if (oneHasOne && "java.util.List".equals(subField[1].getType().getName())) {
+					if (oneHasOne && subTwoIsList) {
 						try {
 							subField[1].setAccessible(true);
-							subTwoIsList = true;
+//							subTwoIsList = true;
 							moreTableStruct[0].subTwoIsList = true;
 //							List list = (List) subField[1].get(entity);
-							List list = (List) subField[1].get(moreTableStruct[1].subObject);
+							List list = (List) subField[1].get(moreTableStruct[1].subObject);//要等从表1的subObject对象处理完
 							if (ObjectUtils.isNotEmpty(list)) {
 								listTwo = list;
 								list_T_classTwo = list.get(0).getClass();
 							}
 						} catch (IllegalAccessException e) {
-							e.printStackTrace();  //TODO 
+							Logger.warn(e.getMessage());
 						}
 					}
 					
@@ -483,7 +483,7 @@ public final class HoneyUtil {
 		if (isOk) {
 			return newClazz;
 		} else {
-			throw new BeeException("MoreTable select, if use List type field , "
+			throw new BeeException("MoreTable select, if use List type subEntity field , "
 					+ "the object must have element or config the subClass with JoinTable Annotation!");
 		}
 	}
