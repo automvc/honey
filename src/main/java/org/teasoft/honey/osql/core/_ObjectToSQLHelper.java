@@ -38,7 +38,6 @@ final class _ObjectToSQLHelper {
 			String tableName = _toTableName(entity);
 			Field fields[] = entity.getClass().getDeclaredFields();
 
-//			sqlBuffer.append(K.select+" " + fieldNameList + " "+K.from+" "); //need replace
 			sqlBuffer.append(K.select).append(" ").append(fieldNameList).append(" ").append(K.from).append(" ");
 			sqlBuffer.append(tableName);
 			boolean firstWhere = true;
@@ -362,7 +361,7 @@ final class _ObjectToSQLHelper {
 //			sqlBuffer.append(" set ");
 			sqlBuffer.append(" ").append(K.set).append(" ");
 
-			//v1.7.2
+			//v1.7.2  处理通过condition设置的部分
 			if (condition != null) {
 				condition.setSuidType(SuidType.UPDATE); //UPDATE
 				firstSet = ConditionHelper.processConditionForUpdateSet(sqlBuffer, list, condition);
@@ -374,30 +373,34 @@ final class _ObjectToSQLHelper {
 			List<PreparedValue> whereList = new ArrayList<>();
 
 			PreparedValue preparedValue = null;
-			for (int i = 0, w = 0; i < len; i++) {//delete:k = 0,
+			for (int i = 0; i < len; i++) {
 				fields[i].setAccessible(true);
-//				if (isContainField(setColmns, fields[i].getName())) { //set value.setColmn不受includeType影响,都会转换
-				if (isContainField(setColmns, fields[i].getName())     
-//						&& ( (updatefieldSet ==null) || (updatefieldSet != null && !updatefieldSet.contains(fields[i].getName())) ) // 在updatefieldSet为新值，entity 的为旧值可放在where条件    v1.8
-						) {	//在指定的setColmns,且还没有用在set,setAdd,setMultiply的字段,才转成update set的部分.
+				
+////				if (isContainField(setColmns, fields[i].getName())) { //set value.setColmn不受includeType影响,都会转换
+//				if (isContainField(setColmns, fields[i].getName())     
+////						&& ( (updatefieldSet ==null) || (updatefieldSet != null && !updatefieldSet.contains(fields[i].getName())) ) // 在updatefieldSet为新值，entity 的为旧值可放在where条件    v1.8
+//						) {	//在指定的setColmns,且还没有用在set,setAdd,setMultiply的字段,才转成update set的部分.
 					
 //					在updatefieldSet为新值，entity 的为旧值可放在where条件    v1.8      V1.9但指定了是setColmns,则只会转为set部分
-					if (updatefieldSet != null && updatefieldSet.contains(fields[i].getName())) { 
-						Logger.warn("The field ["+fields[i].getName()+"] which value is '"+fields[i].get(entity)+"', already set in condition! It will be ignored!");
-						continue; //Condition已包含的set条件,不再作转换处理
-					}
-
+//					if (updatefieldSet != null && updatefieldSet.contains(fields[i].getName())) { 
+//						Logger.warn("The field ["+fields[i].getName()+"] which value is '"+fields[i].get(entity)+"', already set in condition! It will be ignored!");
+//						continue; //Condition已包含的set条件,不再作转换处理
+//					}
+					
+				if (isContainField(setColmns, fields[i].getName())     
+					//v1.9.8 实体中已通过condition.set(arg1,arg2)等设置的字段,不再转化到set 部分,但可以转到where部分
+					&& ( (updatefieldSet ==null) || (!updatefieldSet.contains(fields[i].getName())) )
+				   ) {	//在指定的setColmns,且还没有用在Condition的set,setAdd,setMultiply的字段(另外处理),才在此处转成update set的部分.
 					if (firstSet) {
-//						sqlBuffer.append(" ");
 						firstSet = false;
 					} else {
-						sqlBuffer.append(" , ");//update 的set部分不是用and  ，而是用逗号的
+						sqlBuffer.append(", ");//update 的set部分不是用and  ，而是用逗号的
 					}
+					
 					sqlBuffer.append(_toColumnName(fields[i].getName()));
 
 					if (fields[i].get(entity) == null) {
-//						sqlBuffer.append(" =null"); //  =
-						sqlBuffer.append(" =").append(K.Null); //  =
+						sqlBuffer.append("=").append(K.Null); //  =
 					} else {
 
 						sqlBuffer.append("=");
@@ -409,7 +412,7 @@ final class _ObjectToSQLHelper {
 						list.add(preparedValue);
 					}
 				} else {//where
-
+					
 					if (HoneyUtil.isContinue(includeType, fields[i].get(entity), fields[i])) {
 						continue;
 					} else {
@@ -419,7 +422,7 @@ final class _ObjectToSQLHelper {
 						//v1.7.2
 //						if (conditionFieldSet != null && conditionFieldSet.contains(fields[i].getName()))  //closed in V1.9
 //							continue; //Condition已包含的,不再遍历
-
+						
 						if (firstWhere) {
 //							whereStament.append(" where ");
 							whereStament.append(" ").append(K.where).append(" ");
@@ -441,7 +444,7 @@ final class _ObjectToSQLHelper {
 							preparedValue = new PreparedValue();
 							preparedValue.setType(fields[i].getType().getName());
 							preparedValue.setValue(fields[i].get(entity));
-							whereList.add(w++, preparedValue);
+							whereList.add(preparedValue);
 						}
 						isExistWhere = true;
 					}
@@ -513,10 +516,8 @@ final class _ObjectToSQLHelper {
 		
 		try{
 		
-//		sqlBuffer.append("update ");
 		sqlBuffer.append(K.update).append(" ");
 		sqlBuffer.append(tableName);
-//		sqlBuffer.append(" set ");
 		sqlBuffer.append(" ").append(K.set).append(" ");
 		
 //		setMultiply,setAdd,是在处理字段前已完成处理的,所以不受指定的where条件的字段(即String whereColumns[])的影响.
@@ -532,7 +533,7 @@ final class _ObjectToSQLHelper {
 		List<PreparedValue> whereList = new ArrayList<>();
 
 		PreparedValue preparedValue = null;
-		for (int i = 0,  w = 0; i < len; i++) { //delete:k = 0,
+		for (int i = 0; i < len; i++) {
 			fields[i].setAccessible(true);
 			if (! isContainField(whereColumns, fields[i].getName())) { //set value.  不属于whereColumn的,将考虑转为set.  同一个实体的某个属性的值,若用于WHERE部分了,再用于UPDATE SET部分就没有意义
 				
@@ -610,7 +611,7 @@ final class _ObjectToSQLHelper {
 						preparedValue = new PreparedValue();
 						preparedValue.setType(fields[i].getType().getName());
 						preparedValue.setValue(fields[i].get(entity));
-						whereList.add(w++, preparedValue);
+						whereList.add(preparedValue);
 					}
 					isExistWhere = true;
 //				}
