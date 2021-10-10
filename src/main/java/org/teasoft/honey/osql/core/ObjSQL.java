@@ -109,11 +109,11 @@ public class ObjSQL implements Suid {
 		if (obj != null) {
 //			returnId = (long) obj;
 			returnId = Long.parseLong(obj.toString());
-			if (returnId > 1) {
+			if (returnId > 1) {//entity实体id设置有大于1的值,使用实体的
 				int insertNum = getBeeSql().modify(sql);
-				if (insertNum == 1) {
+				if (insertNum == 1) {//插入成功
 					return returnId;
-				} else {
+				} else {//插入失败,返回modify(sql)的值
 					return insertNum;
 				}
 			} else {
