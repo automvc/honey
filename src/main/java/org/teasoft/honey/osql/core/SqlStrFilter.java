@@ -7,7 +7,6 @@ package org.teasoft.honey.osql.core;
 public final class SqlStrFilter {
 
 	public static boolean checkFunSql(String sql, String funType) {
-
 		sql = sql.trim().toLowerCase();
 		funType = funType.trim().toLowerCase();
 

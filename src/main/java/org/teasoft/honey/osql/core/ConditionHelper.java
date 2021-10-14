@@ -24,7 +24,7 @@ import org.teasoft.honey.util.StringUtils;
  * @since  1.6
  */
 public class ConditionHelper {
-	static boolean isNeedAnd = true;
+//	static boolean isNeedAnd = true;    //bug 2021-10-14   not thread safe
 	private static final String ONE_SPACE = " ";
 
 //	private static DbFeature dbFeature = BeeFactory.getHoneyFactory().getDbFeature();
@@ -158,6 +158,7 @@ public class ConditionHelper {
 		if(condition==null) return firstWhere;
 		
 		PreparedValue preparedValue = null;
+		boolean isNeedAnd = true;
 		
 		boolean isFirstWhere=firstWhere; //v1.7.2 return for control whether allow to delete/update whole records in one table
 
@@ -200,7 +201,7 @@ public class ConditionHelper {
 				
 //				if(StringUtils.isBlank(v)) continue; //v1.9.8    in的值不允许为空             这样会有安全隐患, 少了一个条件,会更改很多数据.
 				
-				adjustAnd(sqlBuffer);
+				isNeedAnd=adjustAnd(sqlBuffer,isNeedAnd);
 				sqlBuffer.append(_toColumnName(expression.getFieldName(),useSubTableNames));
 //				sqlBuffer.append(" ");
 //				sqlBuffer.append(expression.getOpType());
@@ -231,7 +232,8 @@ public class ConditionHelper {
 				continue;
 			} else if (Op.like.getOperator().equalsIgnoreCase(opType) || Op.notLike.getOperator().equalsIgnoreCase(opType)) {
 				//				else if (opType == Op.like  || opType == Op.notLike) {
-				adjustAnd(sqlBuffer);
+//				adjustAnd(sqlBuffer);
+				isNeedAnd=adjustAnd(sqlBuffer,isNeedAnd);
 
 				sqlBuffer.append(_toColumnName(expression.getFieldName(),useSubTableNames));
 //				sqlBuffer.append(expression.getOpType());
@@ -251,7 +253,8 @@ public class ConditionHelper {
 				continue;
 			} else if (" between ".equalsIgnoreCase(opType) || " not between ".equalsIgnoreCase(opType)) {
 
-				adjustAnd(sqlBuffer);
+//				adjustAnd(sqlBuffer);
+				isNeedAnd=adjustAnd(sqlBuffer,isNeedAnd);
 
 				sqlBuffer.append(_toColumnName(expression.getFieldName(),useSubTableNames));
 				sqlBuffer.append(opType);
@@ -347,7 +350,8 @@ public class ConditionHelper {
 			}//end orderBy
 
 			if (expression.getOpNum() == -2) { // (
-				adjustAnd(sqlBuffer);
+//				adjustAnd(sqlBuffer);
+				isNeedAnd=adjustAnd(sqlBuffer,isNeedAnd);
 				sqlBuffer.append(expression.getValue());
 				continue;
 			}
@@ -363,7 +367,8 @@ public class ConditionHelper {
 				isNeedAnd = false;
 				continue;
 			}
-			adjustAnd(sqlBuffer);
+//			adjustAnd(sqlBuffer);
+			isNeedAnd=adjustAnd(sqlBuffer,isNeedAnd);
 
 			//}
 
@@ -612,11 +617,12 @@ public class ConditionHelper {
 		return NameTranslateHandle.toColumnName(fieldName);
 	}
 
-	private static void adjustAnd(StringBuffer sqlBuffer) {
+	private static boolean adjustAnd(StringBuffer sqlBuffer,boolean isNeedAnd) {
 		if (isNeedAnd) {
 			sqlBuffer.append(" "+K.and+" ");
 			isNeedAnd = false;
 		}
+		return isNeedAnd;
 	}
 	
 	public static Integer getPageSize(Condition condition) {
