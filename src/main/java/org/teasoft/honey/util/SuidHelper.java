@@ -139,7 +139,13 @@ public class SuidHelper {
 		return rsList;
 	}
 	
-	//将to在from有的属性,都复制到to中.
+	/**
+	 * 将to在from有的属性,都复制到to中.
+	 * @param <T>
+	 * @param from
+	 * @param to
+	 * @return
+	 */
 	public static <T> T copyEntity(Object from, T to) {
 
 		if (from == null || to == null) return to;
@@ -175,6 +181,13 @@ public class SuidHelper {
 		return to;
 	}
 	
+	/**
+	 * 将entity实体转为Map,字段为serialVersionUID,JoinTable,Ignore,值为null,将被忽略.
+	 * entity To Map, if the value of field is null will be ignored.
+	 * also ignore serialVersionUID,JoinTable,Ignore.
+	 * @param entity 需要转为Map的entity实体
+	 * @return instance of Map<String, Object>
+	 */
 	public static <T> Map<String, Object> entityToMap(T entity) {
 
 		if (entity == null) return null;
