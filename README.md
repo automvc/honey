@@ -160,13 +160,13 @@ MapSuidImpl change two different method:insert(MapSql mapSql) & insertAndReturnI
 PreparedSqlLib support selectMapList method.  
 Read/Write multi-DataSource support different type DataSource.  
 Logger: two method support have parameter Throwable.  
+sql log support config the log level.  
 add class StreamUtil  
 ObjectUtils add one method: isTrue(Boolean b)  
 enhance check field  
 use LinkedHashMap in List&lt;Map> result for selectMapList(String sql).  
 Condition support condition.set("fieldName", null).  
 selectJson support config long to string  
-sql log support config the log level  
 enhance autoGenBean ,support to generate SQL Json Script.  
 Add general search function support (simplify back-end complex query programming).  
 
@@ -176,6 +176,7 @@ fix null bug in create() of ObjectCreatorFactory.
 fix bug for max column number(excel in bee-ext). 
 fix bug about HoneyContext  
 fix bug about checkPackageByClass  
+fix bug about multi-thread safe in ConditionHelper.  
 
 ## [Function Detail](../../../bee/blob/master/Changed_Log.md)  
 [click for:  Function Detail](../../../bee/blob/master/Changed_Log.md)  
