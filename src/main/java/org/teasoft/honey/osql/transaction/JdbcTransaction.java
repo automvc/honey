@@ -137,7 +137,7 @@ public class JdbcTransaction implements Transaction {
 				int multiDsType = HoneyConfig.getHoneyConfig().multiDS_type;
 				boolean differentDbType=HoneyConfig.getHoneyConfig().multiDS_differentDbType;
 //				if (enableMultiDs && multiDsType == 2) {//仅分库,有多个数据源时
-				if (enableMultiDs && (multiDsType ==1 || (multiDsType ==1 && differentDbType))) {
+				if (enableMultiDs && (multiDsType ==2 || (multiDsType ==1 && differentDbType))) {
 					HoneyContext.removeCurrentRoute();
 				}
 			}

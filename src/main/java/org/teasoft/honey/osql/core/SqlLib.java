@@ -204,12 +204,13 @@ public class SqlLib implements BeeSql {
 			hasException=true;
 			throw ExceptionHelper.convert(e);
 		} finally {
+			closeRs(rs);
 			clearContext(sql);
 			if (hasException) {
-				checkClose(rs, pst, null);
+				checkClose(pst, null);
 				closeConn(conn);
 			} else {
-				checkClose(rs, pst, conn);
+				checkClose(pst, conn);
 			}
 			entity = null;
 			targetObj = null;
@@ -275,12 +276,13 @@ public class SqlLib implements BeeSql {
 			hasException=true;
 			throw ExceptionHelper.convert(e);
 		} finally {
+			closeRs(rs);
 			clearContext(sql);
 			if (hasException) {
-				checkClose(rs, pst, null);
+				checkClose(pst, null);
 				closeConn(conn);
 			} else {
-				checkClose(rs, pst, conn);
+				checkClose(pst, conn);
 			}
 		}
 
@@ -341,19 +343,19 @@ public class SqlLib implements BeeSql {
 			hasException=true;
 			throw ExceptionHelper.convert(e);
 		} finally {
+			closeRs(rs);
 			clearContext(sql);
 			if (hasException) {
-				checkClose(rs, pst, null);
+				checkClose(pst, null);
 				closeConn(conn);
 			} else {
-				checkClose(rs, pst, conn);
+				checkClose(pst, conn);
 			}
 		}
 
 		return list;
 	}
-	
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Map<String,Object>> selectMapList(String sql) {
@@ -394,12 +396,13 @@ public class SqlLib implements BeeSql {
 			hasException=true;
 			throw ExceptionHelper.convert(e);
 		} finally {
+			closeRs(rs);
 			clearContext(sql);
 			if (hasException) {
-				checkClose(rs, pst, null);
+				checkClose(pst, null);
 				closeConn(conn);
 			} else {
-				checkClose(rs, pst, conn);
+				checkClose(pst, conn);
 			}
 		}
 
@@ -466,6 +469,7 @@ public class SqlLib implements BeeSql {
 		Connection conn = null;
 		PreparedStatement pst = null;
 		boolean hasException = false;
+		ResultSet rsKey=null;
 		try {
 			conn = getConn();
 			String exe_sql = HoneyUtil.deleteLastSemicolon(sql);
@@ -473,13 +477,14 @@ public class SqlLib implements BeeSql {
 			setPreparedValues(pst, sql);
 			num = pst.executeUpdate();
 
-			ResultSet rsKey = pst.getGeneratedKeys();
+			rsKey = pst.getGeneratedKeys();
 			rsKey.next();
 			returnId = rsKey.getLong(1);
 		} catch (SQLException e) {
 			hasException = true;
 			throw ExceptionHelper.convert(e);
 		} finally {
+			closeRs(rsKey);
 			clearInCache(sql, "int", SuidType.INSERT, num); //has clearContext(sql)
 			if (hasException) {
 				checkClose(pst, null);
@@ -533,12 +538,13 @@ public class SqlLib implements BeeSql {
 			hasException = true;  //fixbug  2021-05-01
 			throw ExceptionHelper.convert(e);
 		} finally {
+			closeRs(rs);
 			clearContext(sql);
 			if (hasException) {
-				checkClose(rs, pst, null);
+				checkClose(pst, null);
 				closeConn(conn);
 			} else {
-				checkClose(rs, pst, conn);
+				checkClose(pst, conn);
 			}
 		}
 
@@ -861,9 +867,19 @@ public class SqlLib implements BeeSql {
 		HoneyContext.checkClose(stmt, conn);
 	}
 	
-	protected void checkClose(ResultSet rs, Statement stmt, Connection conn) {
-		HoneyContext.checkClose(rs, stmt, conn);
+	private void closeRs(ResultSet rs) {
+		if (rs != null) {
+			try {
+				rs.close();
+			} catch (SQLException e) {
+				//ignore
+			}
+		}
 	}
+	
+//	protected void checkClose(ResultSet rs, Statement stmt, Connection conn) {
+//		HoneyContext.checkClose(rs, stmt, conn);
+//	}
 	
 	protected void closeConn(Connection conn) {
 		HoneyContext.closeConn(conn);
@@ -1252,12 +1268,13 @@ public class SqlLib implements BeeSql {
 			hasException=true;
 			throw ExceptionHelper.convert(e);
 		} finally {
+			closeRs(rs);
 			clearContext(sql);
 			if (hasException) {
-				checkClose(rs, pst, null);
+				checkClose(pst, null);
 				closeConn(conn);
 			} else {
-				checkClose(rs, pst, conn);
+				checkClose(pst, conn);
 			}
 		}
 

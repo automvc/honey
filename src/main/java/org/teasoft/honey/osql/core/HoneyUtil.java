@@ -176,7 +176,8 @@ public final class HoneyUtil {
 				if (subEntityFieldNum == 1) subField[0] = field[i];
 				if (subEntityFieldNum == 2) subField[1] = field[i];
 				
-				if("java.util.List".equals(field[i].getType().getName())) {
+//				if("java.util.List".equals(field[i].getType().getName())) {
+				if(field[i].getType().isAssignableFrom(List.class)) {
 					try {
 					field[i].setAccessible(true);
 						if (subEntityFieldNum == 1) {
@@ -294,8 +295,9 @@ public final class HoneyUtil {
 			joinTable[1] = subField[1].getAnnotation(JoinTable.class);
 			
 			//之前的subTwoIsList为主表下的从表的  oneHasOne时,在此处再作判断
-			if (oneHasOne && "java.util.List".equals(subField[1].getType().getName())) {
-				subTwoIsList = true;
+//			if (oneHasOne && "java.util.List".equals(subField[1].getType().getName())) {
+			if (oneHasOne && subField[1].getType().isAssignableFrom(List.class)) {
+				subTwoIsList = true; 
 			}
 
 			String errorMsg = checkJoinTable(joinTable[1]);

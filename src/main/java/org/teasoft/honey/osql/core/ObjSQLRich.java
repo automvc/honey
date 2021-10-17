@@ -615,12 +615,6 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		return this;
 	}
 	
-//	@Override
-//	public SuidRich saveSqlString() {
-//		OneTimeParameter.setTrueForKey("saveSqlString");
-//		return this;
-//	}
-
 	@Override
 	public <T> boolean exist(T entity) {
 		int r = count(entity);

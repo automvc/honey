@@ -30,6 +30,11 @@ public final class SessionFactory {
 	}
 	
 	public void setBeeFactory(BeeFactory beeFactory) {
+//		SessionFactory.beeFactory = beeFactory;
+		_setBeeFactory(beeFactory);
+	}
+	
+	private static void _setBeeFactory(BeeFactory beeFactory) {
 		SessionFactory.beeFactory = beeFactory;
 	}
 
@@ -87,10 +92,10 @@ public final class SessionFactory {
 		if (url == null) nullInfo += DbConfigConst.DB_URL + " do not config; ";
 		
 		if (url == null) {
-//			Logger.error("The url can not null when get the Connection directly from DriverManager!  "+nullInfo);
+//			Logger.error("The url can not be null when get the Connection directly from DriverManager!  "+nullInfo);
 //			Logger.warn("The system will be exit!......");
 //			System.exit(0);
-			throw new Exception("The url can not null when get the Connection directly from DriverManager!  ("+nullInfo+")");
+			throw new Exception("The url can not be null when get the Connection directly from DriverManager!  ("+nullInfo+")");
 		}
 		
 		if (username == null) nullInfo += DbConfigConst.DB_USERNAM + " do not config; ";

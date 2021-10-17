@@ -65,6 +65,7 @@ public class NameTranslateHandle {
 		
 		//entityName maybe include package name
 		//special one, config in :bee.osql.name.mapping.entity2table
+		if(entityName==null) entityName="";
 		String tableName=entity2tableMap.get(entityName);
 		if (tableName != null && !"".equals(tableName.trim())) {
 			return tableName;//fix bug 2020-08-22
@@ -84,14 +85,15 @@ public class NameTranslateHandle {
 		return nameTranslat.toColumnName(fieldName);
 	}
 
-	public static String toEntityName(String tableName) {//生成javabean时会用到. SqlLib不会用到.因会传入T entity
-		if(table2entityMap==null){
-			table2entityMap=HoneyContext.getTable2entityMap();
+	public synchronized static String toEntityName(String tableName) {//生成javabean时会用到. SqlLib不会用到.因会传入T entity
+		if (table2entityMap == null) {
+			table2entityMap = HoneyContext.getTable2entityMap();
 		}
+		if (tableName == null) tableName = "";
 		//special one, config in :bee.osql.name.mapping.entity2table
-		String entityName=table2entityMap.get(tableName);
-		if(entityName!=null && !"".equals(entityName.trim())) return entityName; //fix bug 2020-08-22
-		
+		String entityName = table2entityMap.get(tableName);
+		if (entityName != null && !"".equals(entityName.trim())) return entityName; //fix bug 2020-08-22
+
 		return nameTranslat.toEntityName(tableName);
 	}
 

@@ -39,8 +39,10 @@ public final class HoneyContext {
 	//	private static ThreadLocal<Transaction> transactionLocal;  
 
 	private static ConcurrentMap<String, String> entity2table;
+//	private static volatile ConcurrentMap<String, String> table2entity = null; //for creat Javabean (just one to one can work well)
+//	private static final byte lock[] = new byte[0];
 	private static ConcurrentMap<String, String> table2entity = null; //for creat Javabean (just one to one can work well)
-
+	
 	private static Map<String, String> entityList_includes_Map = new ConcurrentHashMap<>();
 	private static Map<String, String> entityList_excludes_Map = new ConcurrentHashMap<>();
 
@@ -92,12 +94,24 @@ public final class HoneyContext {
 		return entity2table;
 	}
 
-	static ConcurrentMap<String, String> getTable2entityMap() { //just create the Javabean files would use
+//	static ConcurrentMap<String, String> getTable2entityMap() { //just create the Javabean files would use
+//		if (table2entity == null) {
+////			synchronized (HoneyContext.class) {
+//			synchronized (lock) {
+//				if (table2entity == null) {
+//					table2entity = new ConcurrentHashMap<>();
+//					initTable2Entity();
+//				}
+//			}
+//		}
+//		return table2entity;
+//	}
+	
+	synchronized static ConcurrentMap<String, String> getTable2entityMap() { //just create the Javabean files would use
 		if (table2entity == null) {
 			table2entity = new ConcurrentHashMap<>();
 			initTable2Entity();
 		}
-
 		return table2entity;
 	}
 
@@ -151,6 +165,7 @@ public final class HoneyContext {
 	}
 
 	public static String getBeanField(String key) {
+		if(key==null) key="";
 		return beanMap.get(key);
 	}
 

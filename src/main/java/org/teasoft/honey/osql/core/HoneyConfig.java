@@ -283,8 +283,13 @@ public final class HoneyConfig {
 	}
 
 	public void setUrl(String url) {
-		changeDataSource=true;
+//		changeDataSource=true;
+		HoneyConfig.setChangeDataSource(true);
 		this.url = url;
+	}
+	
+	private static void setChangeDataSource(boolean flag) {
+		HoneyConfig.changeDataSource=true;
 	}
 
 	public void setUsername(String username) {
