@@ -27,6 +27,7 @@ import org.teasoft.honey.osql.name.NameUtil;
  */
 public class Ddl {
 
+	private static final String CREATE_TABLE = "CREATE TABLE ";
 	//	private static Map<String, String> java2DbType = Java2DbType.getJava2DbType(HoneyContext.getDbDialect());
 	private static String LINE_SEPARATOR = System.getProperty("line.separator"); // 换行符
 	private static PreparedSql preparedSql = BeeFactoryHelper.getPreparedSql();
@@ -127,7 +128,7 @@ public class Ddl {
 
 		if (tableName == null) tableName = _toTableName(entity);
 		StringBuffer sqlBuffer = new StringBuffer();
-		sqlBuffer.append("CREATE TABLE " + tableName + " (").append(LINE_SEPARATOR);
+		sqlBuffer.append(CREATE_TABLE + tableName + " (").append(LINE_SEPARATOR);
 		Field fields[] = entity.getClass().getDeclaredFields();
 		for (int i = 0; i < fields.length; i++) {
 			if (isSkipField(fields[i])) {
@@ -153,7 +154,7 @@ public class Ddl {
 	private static <T> String toCreateTableSQLForSQLite(T entity, String tableName) {
 		if (tableName == null) tableName = _toTableName(entity);
 		StringBuffer sqlBuffer = new StringBuffer();
-		sqlBuffer.append("CREATE TABLE " + tableName + " (").append(LINE_SEPARATOR);
+		sqlBuffer.append(CREATE_TABLE + tableName + " (").append(LINE_SEPARATOR);
 		Field fields[] = entity.getClass().getDeclaredFields();
 		for (int i = 0; i < fields.length; i++) {
 			if (isSkipField(fields[i])) {
@@ -190,7 +191,7 @@ public class Ddl {
 	private static <T> String toCreateTableSQLForMySQL(T entity, String tableName) {
 		if (tableName == null) tableName = _toTableName(entity);
 		StringBuffer sqlBuffer = new StringBuffer();
-		sqlBuffer.append("CREATE TABLE " + tableName + " (").append(LINE_SEPARATOR);
+		sqlBuffer.append(CREATE_TABLE + tableName + " (").append(LINE_SEPARATOR);
 		Field fields[] = entity.getClass().getDeclaredFields();
 		for (int i = 0; i < fields.length; i++) {
 			if (isSkipField(fields[i])) {
@@ -227,7 +228,7 @@ public class Ddl {
 	private static <T> String toCreateTableSQLForH2(T entity, String tableName) {
 		if (tableName == null) tableName = _toTableName(entity);
 		StringBuffer sqlBuffer = new StringBuffer();
-		sqlBuffer.append("CREATE TABLE " + tableName + " (").append(LINE_SEPARATOR);
+		sqlBuffer.append(CREATE_TABLE + tableName + " (").append(LINE_SEPARATOR);
 		Field fields[] = entity.getClass().getDeclaredFields();
 		for (int i = 0; i < fields.length; i++) {
 			if (isSkipField(fields[i])) {
@@ -265,7 +266,7 @@ public class Ddl {
 	private static <T> String toCreateTableSQLForPostgreSQL(T entity, String tableName) {
 		if (tableName == null) tableName = _toTableName(entity);
 		StringBuffer sqlBuffer = new StringBuffer();
-		sqlBuffer.append("CREATE TABLE " + tableName + " (").append(LINE_SEPARATOR);
+		sqlBuffer.append(CREATE_TABLE + tableName + " (").append(LINE_SEPARATOR);
 		Field fields[] = entity.getClass().getDeclaredFields();
 		for (int i = 0; i < fields.length; i++) {
 			if (isSkipField(fields[i])) {
@@ -303,7 +304,7 @@ public class Ddl {
 	private static <T> String toCreateTableSQLForSQLSERVER(T entity, String tableName) {
 		if (tableName == null) tableName = _toTableName(entity);
 		StringBuffer sqlBuffer = new StringBuffer();
-		sqlBuffer.append("CREATE TABLE " + tableName + " (").append(LINE_SEPARATOR);
+		sqlBuffer.append(CREATE_TABLE + tableName + " (").append(LINE_SEPARATOR);
 		Field fields[] = entity.getClass().getDeclaredFields();
 		boolean hasCurrentTime = false;
 		for (int i = 0; i < fields.length; i++) {
