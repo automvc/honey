@@ -901,7 +901,6 @@ public class SqlLib implements BeeSql {
 		boolean subOneIsList1=moreTableStruct[0].subOneIsList;
 		boolean subTwoIsList2=moreTableStruct[0].subTwoIsList;
 		String listFieldType=""+subOneIsList1+subTwoIsList2+moreTableStruct[0].oneHasOne;
-//		System.out.println("listFieldType:"+listFieldType);
 		boolean isReg = updateInfoInCache(sql, "List<T>"+listFieldType, SuidType.SELECT);
 		if (isReg) {
 			Object cacheObj = cache.get(sql); //这里的sql还没带有值
@@ -1067,7 +1066,6 @@ public class SqlLib implements BeeSql {
 					}
 				}
 				
-				
 				sub1_first=true;
 				Field subField2InOneHasOne=null;
 				if(oneHasOne) checkKey2ForOneHasOne=new StringBuffer();
@@ -1094,7 +1092,7 @@ public class SqlLib implements BeeSql {
 								if(subTwoIsList2) {
 									subField2InOneHasOne=fields1[i];	
 								}else {
-								    fields1[i].set(subObj1,subObj2); //设置子表2的对象     要考虑List.  TODO
+								    fields1[i].set(subObj1,subObj2); //设置子表2的对象     要考虑List. 
 								}
 								
 								  if(sub1_first) {

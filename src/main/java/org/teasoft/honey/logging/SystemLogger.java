@@ -123,7 +123,7 @@ public class SystemLogger implements Log{
 	public void error(String msg, Throwable t) {
 		error(msg);
         if (t != null) {
-            t.printStackTrace();
+            t.printStackTrace();  //SystemLogger print the error message to console.
         }
 	}
 	

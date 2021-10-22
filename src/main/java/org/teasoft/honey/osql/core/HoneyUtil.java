@@ -530,8 +530,6 @@ public final class HoneyUtil {
 ////				Logger.error("注解字段的实体: " + entityField.getType().getName() + "里面又包含了注解:" + field[i].getType());
 //				String entityFieldName=entityField.getType().getName();
 //				
-//				System.err.println(entityFieldName);
-//				System.err.println(field[i].getType().getName());
 //				if(!entityFieldName.equals(field[i].getType().getName())){ //??
 				   if(checkOneHasOne) WarnMsglist.add("Annotation JoinTable field: " +entityFieldFullName+"(in "+ entityFullName + ") still include JoinTable field:" + field[i].getName() + "(will be ignored)!");
 				   else Logger.warn("Annotation JoinTable field: " +entityFieldFullName+"(in "+ entityFullName + ") still include JoinTable field:" + field[i].getName() + "(will be ignored)!");

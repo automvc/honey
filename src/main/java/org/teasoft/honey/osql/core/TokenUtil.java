@@ -123,8 +123,8 @@ public class TokenUtil {
 		String text="<bee.version>\\${{BeeVersion}}</bee.version><beeaa.sversion>${{projectName##</bee.version>";  //escape
 		//测试SqlValueWrap process是否会   找不到结束标记,死循环.
 		SqlValueWrap warp =TokenUtil.process(text, "${{", "}}", "?");
-		System.out.println(warp.getSql());
-	//		System.out.println(warp.getTableNames());
-		System.out.println(warp.getValueBuffer());
+		Logger.info(warp.getSql());
+	//		Logger.info(warp.getTableNames());
+		Logger.info(warp.getValueBuffer());
 	}*/
 }

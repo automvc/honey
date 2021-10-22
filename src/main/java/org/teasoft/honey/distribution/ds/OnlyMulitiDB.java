@@ -137,18 +137,4 @@ public class OnlyMulitiDB implements Route {
 		return ds;
 	}
 
-/*	public static void main(String[] args) {
-        new OnlyMulitiDB();
-//		String str = "ds2:com.xxx.aa.User,com.xxx.bb.*,com.xxx.cc.**;ds3:com.xxx.dd.User";
-		parseListToMap(matchEntityClassPath, entityClassPathToDs, true);
-		parseListToMap(matchTable, tableToDs, false); //不带*
-		System.out.println(entityClassPathToDs);
-		System.out.println(entityClassPathToDsWithStar);
-		System.out.println(tableToDs);
-
-		System.out.println(String.class.getName());
-		System.out.println(String.class.getSimpleName());
-		System.out.println(String.class.getPackage().getName());
-	}*/
-
 }

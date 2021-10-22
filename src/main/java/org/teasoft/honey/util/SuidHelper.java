@@ -156,8 +156,8 @@ public class SuidHelper {
 
 		for (int i = 0; i < len; i++) {
 			
-//			System.out.println(fields[i].getModifiers());
-//			System.out.println(fields[i].toGenericString());
+//			println(fields[i].getModifiers());
+//			println(fields[i].toGenericString());
 			int modifiers=fields[i].getModifiers();
 			if(modifiers==8 || modifiers==16 || modifiers==24 || modifiers==26) {
 				continue; //static,final,private static final

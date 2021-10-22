@@ -28,16 +28,25 @@ public class SearchProcessor {
 		
 		for (int i = 0; i < search.length; i++) {
 			
-			
 			String field=search[i].getField();
 			Operator operator=search[i].getOp();
 			String value=search[i].getValue1();
 			String value2=search[i].getValue2();
 			String op2=search[i].getOp2();
+			op2=trim(op2);
 			
 //			or("or"),
 //			and("and")	//default
 			if("or".equalsIgnoreCase(op2)) condition.or();
+			else if("(".equals(op2)) condition.lParentheses();
+			else if(")".equals(op2)) condition.rParentheses();
+			else if("or (".equalsIgnoreCase(op2)) condition.or().lParentheses();
+			else if(") or".equalsIgnoreCase(op2)) condition.rParentheses().or();
+			else if("and (".equalsIgnoreCase(op2)) condition.and().lParentheses();
+			else if(") and".equalsIgnoreCase(op2)) condition.rParentheses().and();
+			
+			
+			if(operator==null) continue;
 			
 			switch (operator) {
 				case like:
@@ -155,8 +164,7 @@ public class SearchProcessor {
 					break;
 					
 			}
-			  System.err.println(search[i].getField()+" "+search[i].getOp()+" "+search[i].getValue1());
-			}
+		 }
 		
 		return condition;
 	}
@@ -178,6 +186,11 @@ public class SearchProcessor {
 		if (StringUtils.isBlank(value2)) { 
 			throw new BeeErrorGrammarException("the max value of Between invalid!");
 		}
+	}
+	
+	private static String trim(String str) {
+		if(str!=null) str=str.trim();
+		return str;
 	}
 
 }

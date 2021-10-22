@@ -108,7 +108,7 @@ public class _MoreObjectToSQLHelper {
 //				}else if(start!=-1 && size!=-1 && condition==null){ 从表有值, 有可能不正确,所以不改写.	
 				}else if(start!=-1 && size!=-1 && condition==null && moreTableStruct[1].subObject==null){ 
 					
-//					若condition!=null, 要判断不包括从表的字段.  TODO
+//					若condition!=null, 要判断不包括从表的字段.  todo
 					
 //					主表id不为空的,也不用.  因主表最多能查一条记录
 					
@@ -132,8 +132,6 @@ public class _MoreObjectToSQLHelper {
 					sqlStrForList=getDbFeature().toPageSql(sqlForList.toString(), start, size);
 //					HoneyUtil.setPageNum(list);
 					
-//					System.out.println(sqlStrForList);
-				
 				    //后面不用再分页.
 				    start = -1;
 				    size = -1;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2019 the original author.All rights reserved.
+ * Copyright 2013-2021 the original author.All rights reserved.
  * Kingstar(honeysoft@126.com)
  * The license,see the LICENSE file.
  */
@@ -27,20 +27,19 @@ public class CacheDeleteThread extends Thread {
 		super(name);
 	}
 
+	public static synchronized boolean getFlag() {
+		boolean f=finished;
+		if(f) finished = false;
+		return f;
+	}
 	public void begin() {
-//		try {
-
-			if (finished) {
-				finished = false;
+			if (getFlag()) {
+				
 //				new CacheDeleteThread("CacheDeleteThread start thread" + (num++)).start(); //不能再用new
 //				this.setName("CacheDeleteThread" + (num++));
+				
 				this.start();
-////				Logger.info("========in CacheDeleteThread==============" + Thread.currentThread().getName());
-//				Logger.info("========in CacheDeleteThread==============" + this.getName());
 			}
-//		} catch (Exception e) {
-//			Logger.error(e.getMessage());
-//		}
 	}
 
 	@Override

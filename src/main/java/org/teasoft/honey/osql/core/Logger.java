@@ -97,13 +97,13 @@ public class Logger {
 					if (insertIndex != null ) {
 						int endIndex = executableSql.indexOf("]_End ");
 						_println("[Bee] " + hardStr + " ( ExecutableSql " + executableSql.substring(4, endIndex + 1) + " )", executableSql.substring(endIndex + 6) + " ;");
-//					    if(OneTimeParameter.isTrue("saveSqlString")) System.err.println(executableSql.substring(endIndex + 6));
+//					    if(OneTimeParameter.isTrue("saveSqlString")) print(executableSql.substring(endIndex + 6));
 					} else {
 //						if ("0".equals(insertIndex))
 //							_println("[Bee] " + hardStr + " ( ExecutableSql [index0])", executableSql);
 //						else
 							_println("[Bee] " + hardStr + " ( ExecutableSql )", executableSql);
-//							if(OneTimeParameter.isTrue("saveSqlString")) System.err.println(executableSql);
+//							if(OneTimeParameter.isTrue("saveSqlString")) print(executableSql);
 					}
 				}
 			}
@@ -111,7 +111,7 @@ public class Logger {
 	}
 
 	private static void print(String s) {
-		//在此判断输出日志的级别. TODO
+		//在此判断输出日志的级别. 
 		//用户可以自己定义输出sql的日志级别. 比如定义warn才输出sql.
 		//没意义.  因有一个是否显示sql日志了?   但,如果log4j设置了warn, 它还会输出吗? (用log4j时)    不会输出了,所以还是要设置.
 //		log.info(s);

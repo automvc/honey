@@ -9,6 +9,7 @@ package org.teasoft.honey.util;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Map;
 
 import org.teasoft.honey.osql.core.ExceptionHelper;
 
@@ -19,13 +20,38 @@ import org.teasoft.honey.osql.core.ExceptionHelper;
  */
 public class StreamUtil {
 
+	/**
+	 * InputStream转字符串. InputStream to String.
+	 * @param in  InputStream对象.instance of InputStream.
+	 * @param charsetName 字符集名称.charset name
+	 * @return 字符串.string
+	 */
 	public static String stream2String(InputStream in) {
-
 		return stream2String(in, "UTF-8");
-
 	}
 
+	/**
+	 * InputStream转字符串. InputStream to String.
+	 * @param in  InputStream对象.instance of InputStream.
+	 * @param charsetName 字符集名称.charset name
+	 * @return 字符串.string
+	 */
 	public static String stream2String(InputStream in, String charsetName) {
+		return stream2String(in, null, "UTF-8");
+	}
+	
+	public static String stream2String(InputStream in, Map<String, String> map) {
+		return stream2String(in, map, "UTF-8");
+	}
+	
+	/**
+	 * InputStream转字符串,并可替换字符值. InputStream to String,and replace some String.
+	 * @param in  InputStream对象.instance of InputStream.
+	 * @param map 需要替换的字符map,(key:old-String,value:new-String).
+	 * @param charsetName 字符集名称.charset name
+	 * @return 字符串.string
+	 */
+	public static String stream2String(InputStream in, Map<String, String> map, String charsetName) {
 
 		if (in == null) return null;
 		BufferedReader bfReader = null;
@@ -35,6 +61,7 @@ public class StreamUtil {
 
 			String line = bfReader.readLine();
 			while (line != null) {
+				if (map != null) line = replace(line, map);
 				sb.append(line);
 				line = bfReader.readLine();
 				if (line != null) {
@@ -47,17 +74,17 @@ public class StreamUtil {
 			try {
 				if (bfReader != null) bfReader.close();
 			} catch (Exception e2) {
-				
+
 			}
 		}
-
 		return sb.toString();
-
 	}
-
-	//	public static void main(String[] args) throws Exception{
-	//		InputStream in=new FileInputStream("D:\\temp\\user2.txt");
-	//		System.out.println(stream2String(in));
-	//	}
+	
+	private static String replace(String line, Map<String, String> map) {
+		for (Map.Entry<String, String> entry : map.entrySet()) {
+			line = line.replace(entry.getKey(), entry.getValue());
+		}
+		return line;
+	}
 
 }

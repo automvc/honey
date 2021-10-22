@@ -27,9 +27,6 @@ public class ConditionHelper {
 //	static boolean isNeedAnd = true;    //bug 2021-10-14   not thread safe
 	private static final String ONE_SPACE = " ";
 
-//	private static DbFeature dbFeature = BeeFactory.getHoneyFactory().getDbFeature();
-	
-	
 	private static final String setAdd = "setAdd";
 	private static final String setMultiply = "setMultiply";
 	
@@ -67,7 +64,7 @@ public class ConditionHelper {
 //				mysql is ok. as below:
 //				update orders set total=total+?   [values]: -0.1  
 			
-			if (opType!=null && expression.getValue() == null) {  //TODO BUG  // UPDATE,  fieldName: toolPayWay, the num of null is null
+			if (opType!=null && expression.getValue() == null) {  // BUG  // UPDATE,  fieldName: toolPayWay, the num of null is null
 //				throw new BeeErrorGrammarException(conditionImpl.getSuidType() + ", method:"+opType+", fieldName:"+expression.getFieldName()+", the value is null");
 				throw new BeeErrorGrammarException("the value is null ("+conditionImpl.getSuidType() + ", method:"+opType+", fieldName:"+expression.getFieldName()+")!");
 //			    setWithField("name",null);   //这种,不在这里抛出,字段检测时会抛
@@ -372,7 +369,7 @@ public class ConditionHelper {
 
 			//}
 
-			sqlBuffer.append(_toColumnName(expression.getFieldName(),useSubTableNames));   //TODO ???
+			sqlBuffer.append(_toColumnName(expression.getFieldName(),useSubTableNames));  
 
 			if (expression.getValue() == null) {
 				if("=".equals(expression.getOpType())){

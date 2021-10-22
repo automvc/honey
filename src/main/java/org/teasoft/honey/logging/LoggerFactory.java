@@ -40,30 +40,34 @@ public class LoggerFactory {
 		String loggerType = HoneyConfig.getHoneyConfig().loggerType;
 		if (loggerType != null && !"".equals(loggerType.trim())) {
 			loggerType=loggerType.trim();
+			
+			String LOGGER_UNSUCCESSFULLY="[Bee] [WARN] the loggerType: "            +loggerType +" , set unsuccessfully!";
+			String LOGGER_UNSUCCESSFULLY_MAYBE_DONOT_SET_JAR="[Bee] [WARN] the loggerType: "            +loggerType +" , set unsuccessfully! Maybe do not set the jar!";
+			
 			if (loggerType.equalsIgnoreCase("log4j")) {
-				boolean f=tryImplementation("org.apache.log4j.Logger",              "org.teasoft.beex.logging.Log4jImpl"); //优先选择log4j
-			    if(!f) System.err.println("[Bee] [WARN] the loggerType: "            +loggerType +" , set unsuccessfully! Maybe do not set the jar!");
+				boolean f=tryImplementation("org.apache.log4j.Logger",          "org.teasoft.beex.logging.Log4jImpl"); //优先选择log4j
+			    if(!f) System.err.println(LOGGER_UNSUCCESSFULLY_MAYBE_DONOT_SET_JAR);
 			} else if (loggerType.equalsIgnoreCase("slf4j")) {
-				boolean f=tryImplementation("org.slf4j.Logger",                      "org.teasoft.beex.logging.Slf4jImpl"); //ok,只是要显示多层
-				if(!f) System.err.println("[Bee] [WARN] the loggerType: "            +loggerType +" , set unsuccessfully! Maybe do not set the jar!");
+				boolean f=tryImplementation("org.slf4j.Logger",                 "org.teasoft.beex.logging.Slf4jImpl"); //ok,只是要显示多层
+				if(!f) System.err.println(LOGGER_UNSUCCESSFULLY_MAYBE_DONOT_SET_JAR);
 			} else if (loggerType.equalsIgnoreCase("log4j2")) {
-				boolean f=tryImplementation("org.apache.logging.log4j.Logger",       "org.teasoft.beex.logging.Log4j2Impl"); //Log4j2
-				if(!f) System.err.println("[Bee] [WARN] the loggerType: "            +loggerType +" , set unsuccessfully! Maybe do not set the jar!");
+				boolean f=tryImplementation("org.apache.logging.log4j.Logger",  "org.teasoft.beex.logging.Log4j2Impl"); //Log4j2
+				if(!f) System.err.println(LOGGER_UNSUCCESSFULLY_MAYBE_DONOT_SET_JAR);
 			} else if (loggerType.equalsIgnoreCase("systemLogger")) {//std
-				boolean f=tryImplementation("",                                      "org.teasoft.honey.logging.SystemLogger");
-				if(!f) System.err.println("[Bee] [WARN] the loggerType: "            +loggerType +" , set unsuccessfully!");
+				boolean f=tryImplementation("",                                  "org.teasoft.honey.logging.SystemLogger");
+				if(!f) System.err.println(LOGGER_UNSUCCESSFULLY);
 			} else if (loggerType.equalsIgnoreCase("fileLogger")) {
-				boolean f=tryImplementation("",                                      "org.teasoft.honey.logging.FileLogger");
-				if(!f) System.err.println("[Bee] [WARN] the loggerType: "            +loggerType +" , set unsuccessfully!");
+				boolean f=tryImplementation("",                                  "org.teasoft.honey.logging.FileLogger");
+				if(!f) System.err.println(LOGGER_UNSUCCESSFULLY);
 			} else if (loggerType.equalsIgnoreCase("noLogging")) {
-				boolean f=tryImplementation("",                                      "org.teasoft.honey.logging.NoLogging");
-				if(!f) System.err.println("[Bee] [WARN] the loggerType: "            +loggerType +" , set unsuccessfully!");
+				boolean f=tryImplementation("",                                  "org.teasoft.honey.logging.NoLogging");
+				if(!f) System.err.println(LOGGER_UNSUCCESSFULLY);
 			} else if (loggerType.equalsIgnoreCase("jdkLog")) {
-				boolean f=tryImplementation("java.util.logging.Logger",               "org.teasoft.honey.logging.Jdk14LoggingImpl");//会随着传入的class变化.无行数输出
-				if(!f) System.err.println("[Bee] [WARN] the loggerType: "            +loggerType +" , set unsuccessfully!");
+				boolean f=tryImplementation("java.util.logging.Logger",          "org.teasoft.honey.logging.Jdk14LoggingImpl");//会随着传入的class变化.无行数输出
+				if(!f) System.err.println(LOGGER_UNSUCCESSFULLY);
 			} else if (loggerType.equalsIgnoreCase("commonsLog")) {
 				boolean f=tryImplementation("org.apache.commons.logging.LogFactory", "org.teasoft.beex.logging.JakartaCommonsLoggingImpl");//无法显示调用类的信息
-				if(!f) System.err.println("[Bee] [WARN] the loggerType: "            +loggerType +" , set unsuccessfully! Maybe do not set the jar!");
+				if(!f) System.err.println(LOGGER_UNSUCCESSFULLY_MAYBE_DONOT_SET_JAR);
 			}
 		}
 		

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2019 the original author.All rights reserved.
+ * Copyright 2013-2021 the original author.All rights reserved.
  * Kingstar(honeysoft@126.com)
  * The license,see the LICENSE file.
  */
@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.teasoft.honey.distribution.ds.Router;
 
@@ -23,18 +24,20 @@ import org.teasoft.honey.distribution.ds.Router;
  * @since  1.4
  */
 public final class CacheUtil {
-
+	
+	private static final byte lock[] = new byte[0];
+	
 	private static final int MAX_SIZE;
 	private static final int timeout;
 	
-	private static ConcurrentHashMap<String,Integer> map;  //<key,index>  能O(1)从key得到index
+	private static ConcurrentMap<String,Integer> map;  //<key,index>  能O(1)从key得到index
 	private static long time[];  //放时间点
 	private static Object obj[]; //cache obj
 	private static String keys[]; //超时批量删除时,用这个得到key,再去map删.
 	
-	private static Map<String,Set<Integer>> map_tableIndexSet;  //<tableName,tableIndexSet>  用于记录某个表的所有缓存index
+	private static ConcurrentMap<String,Set<Integer>> map_tableIndexSet;  //<tableName,tableIndexSet>  用于记录某个表的所有缓存index
 	
-	private static Map<String,List<String>> map_tableNameList;  //<key,tableName's list>  通过缓存的key找到表的key
+	private static ConcurrentMap<String,List<String>> map_tableNameList;  //<key,tableName's list>  通过缓存的key找到表的key
 	
 	private static CacheArrayIndex arrayIndex;
 	
@@ -64,8 +67,8 @@ public final class CacheUtil {
 		obj=new Object[MAX_SIZE];
 		keys=new String[MAX_SIZE]; //超时批量删除时,用这个得到key,再去map删.
 		
-		map_tableIndexSet=new Hashtable<>();
-		map_tableNameList=new Hashtable<>();
+		map_tableIndexSet=new ConcurrentHashMap<>();
+		map_tableNameList=new ConcurrentHashMap<>();
 		
 		timeout=HoneyConfig.getHoneyConfig().cache_timeout;
 		
@@ -77,15 +80,15 @@ public final class CacheUtil {
 				);
 	}
 	
-	public static Object get(String sql) {
+	public  static Object get(String sql) {
+		
 		String key = CacheKey.genKey(sql);
 		if (key == null) return null;
-
+		
 		Integer index = map.get(key);
 		if (index != null) { //已有缓存结果
 			if (_isTimeout(index)) {
 				//			arrayIndex.setKnow(index); //标识已知超时的元素边界     删除时,才传入.  满时,不超时,也会删除一定比例
-
 				if (!arrayIndex.isStartDelete()) {
 					delCache(key); //只删除一个
 				} else {
@@ -93,13 +96,12 @@ public final class CacheUtil {
 				}
 				return null;
 			}
-			if(isShowSql) Logger.info(logCacheMsg);
+			if(isShowSql) Logger.logSQL(logCacheMsg,"");
 
 			// 要是能返回缓存的结果集,说明不用上下文的缓存结构信息了. 可以删
 			HoneyContext.deleteCacheInfo(sql);
-
 			return obj[index];
-		} else { //还没有放一般缓存的
+		} else { //还没有放一般缓存的  , 则判断是否有在永久或长久缓存
 
 			List<String> tableNameList = CacheKey.genTableNameList(sql); //支持多表的情况  
 			//forever 判断是否在永久缓存表
@@ -109,13 +111,13 @@ public final class CacheUtil {
 				
 				if (forever != null) { //检测到是forever //并且已放缓存(只是该表有放过而矣,不一定是相同查询)
 					if (foreverCacheTableMap_sqlkey2exist.get(key) != null) { //查forever的结果已在缓存
-						Object obj = foreverCacheObjectMap.get(key);
-						if (obj != null) { //是该查询放缓存才删缓存cacheStruct信息
+						Object obj0 = foreverCacheObjectMap.get(key);
+						if (obj0 != null) { //是该查询放缓存才删缓存cacheStruct信息
 							HoneyContext.deleteCacheInfo(sql);
-							if(isShowSql) Logger.info(logCacheMsg);
+							if(isShowSql) Logger.logSQL(logCacheMsg,"");
 						}
 						
-						return obj;
+						return obj0;
 					}
 				}
 				
@@ -124,13 +126,13 @@ public final class CacheUtil {
 				
 				if (foreverModifySyn != null){ //检测到是forever modifySyn
 //				 && foreverModifySyn == 1) { //并且已放缓存  (同一个表,但不一定是相同查询)
-					Object obj = foreverModifySynCacheObjectMap.get(key);
-					if (obj != null) { //放缓存了
+					Object obj1 = foreverModifySynCacheObjectMap.get(key);
+					if (obj1 != null) { //放缓存了
 						HoneyContext.deleteCacheInfo(sql);//是该查询放缓存才删缓存cacheStruct信息
-						if(isShowSql) Logger.info(logCacheMsg);
+						if(isShowSql) Logger.logSQL(logCacheMsg,"");
 					}
 					
-					return obj;
+					return obj1;
 				}
 			}
 			
@@ -155,7 +157,7 @@ public final class CacheUtil {
 		}
 	}
 
-	//超时,或者满了都要删除
+	//超时,或者满了都要删除   由新起线程执行
 	 static void delCacheInBetween(int knowIndex) {
 		int low = arrayIndex.getLow();
 		int high = arrayIndex.getHigh();
@@ -200,7 +202,7 @@ public final class CacheUtil {
 			map.remove(keys[i]);
 			//要考虑维护表相关的index
 			if (includeTableName)
-				_delTableIndexSetByKey(keys[i], i); //表有更新时,整个set都被删除,不用在这里一个个删   也方法内也会维护map_tableNameList
+				_delTableIndexSetByKey(keys[i], i); //表有更新时,整个set都被删除,不用在这里一个个删   该方法内也会维护map_tableNameList
 			else
 				map_tableNameList.remove(keys[i]);
 		}
@@ -221,7 +223,7 @@ public final class CacheUtil {
 	}
 	
 	// 添加缓存是否可以另起一个线程执行,不用影响到原来的.   但一次只能添加一个元素,作用不是很大.要考虑起线程的开销
-	 static void addInCache(String sql,Object rs){
+	static void addInCache(String sql,Object rs){
 		 
 		 String key=CacheKey.genKey(sql);
 		 List<String> tableNameList=CacheKey.genTableNameList(sql);  //支持多表的情况
@@ -284,7 +286,7 @@ public final class CacheUtil {
 			}
 		}
 		
-		tableNameList=CacheKey.genTableNameList(sql);  //支持多表的情况    
+//		tableNameList=CacheKey.genTableNameList(sql);  //支持多表的情况           重复?????  
 		HoneyContext.deleteCacheInfo(sql);//要清除cacheStruct
 		
 		int i=arrayIndex.getNext();  //要保证是线程安全的,否则可能会错
@@ -294,12 +296,12 @@ public final class CacheUtil {
 		obj[i] = rs;
 		keys[i] = key; 
 		
-//		Logger.info("==========================add in cache i:"+i);
-		// NULL
+	   synchronized (lock) {
 		for (int k = 0; tableNameList!=null && k < tableNameList.size(); k++) {
 			_regTabCache(tableNameList.get(k),i);
 			_addIntableNameList(key,tableNameList.get(k));
 		}
+	  }
 	}
 	 
 	/**
@@ -416,25 +418,38 @@ public final class CacheUtil {
 		}
 	}
 	
-	 private static void _addIntableNameList(String key,String tableName){
+	private static void _addIntableNameList(String key,String tableName){
 		 List<String> tableNameList=map_tableNameList.get(key); 
 		 if(tableNameList!=null){
 			 tableNameList.add(tableName);
 		 }else{
-			 tableNameList= new ArrayList<>(3);  //一般一条语句最多三个表
-			 tableNameList.add(tableName);
+//			 tableNameList= new ArrayList<>(3);  //一般一条语句最多三个表  
+			 tableNameList= new ArrayList<>();  // 但多线程,不同线程但一样的语句,都会放进来, 会超过3个.  已改为同步
+			 tableNameList.add(tableName);         //多个线程都添加数据, 可能导致越界  ,但删除时,可以删完. 
 			 map_tableNameList.put(key, tableNameList);
 		 }
 	 }
 	
-	 private static void _delTableIndexSetByKey(String key,int index){
-		 List<String> tableNameList=map_tableNameList.get(key);
-		 
-		 for (int i = 0; tableNameList!=null &&  i < tableNameList.size(); i++) {
-			 _deleteTableIndexSet(tableNameList.get(i),index);
+	
+	private static void _delTableIndexSetByKey(String key, int index) {
+		List<String> tableNameList = map_tableNameList.get(key);
+
+		if (tableNameList != null) {
+			Set<String> set = new HashSet<>();
+			int size = tableNameList.size();
+			for (int i = 0; i < size; i++) {
+				if (!set.add(tableNameList.get(i))) { // V1.9.8  多线程时(有相同表名),需要将整个对应的map_tableIndexSet里set删除.
+					_clearOneTabCache(tableNameList.get(i));
+//					---------------- map_tableIndexSet :  {test_user=[0, 1, 2, 3, 4, 5, 6, 7]}
+//					---------------- map_tableNameList :  {select * from test_user (@separator#) [returnType]: List<T>=
+//					[test_user, test_user, test_user, test_user, test_user, test_user, test_user, test_user]}
+				} else {
+					_deleteTableIndexSet(tableNameList.get(i), index);
+				}
+			}
 		}
-		 map_tableNameList.remove(key);  //v1.9
-	 }
+		map_tableNameList.remove(key); //v1.9
+	}
 	
 	//用于删除缓存时, 表关联的index记录也要维护(删除)
 	//假如不维护tableIndexSet,则在删了缓存后,index给新的缓存用了,要是旧的表有更新,就会把新的缓存也删了.

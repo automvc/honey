@@ -53,14 +53,14 @@ public final class HoneyContext {
 
 	/*	private static void _checkSize(ThreadLocal local,String name){
 			if(local==null)
-				System.err.println("==============="+name+"  is null");
+				err.println("==============="+name+"  is null");
 			else
-				System.err.println("==============="+name+"  size is : "+ local.get());
+				err.println("==============="+name+"  size is : "+ local.get());
 			
 		}
 		
 		public static void checkSize(){
-			System.err.println("==============checkSize============");
+			err.println("==============checkSize============");
 			_checkSize(sqlPreValueLocal,"sqlPreValueLocal");
 			_checkSize(cacheLocal,"cacheLocal");
 			_checkSize(currentConnection,"currentConnection");
@@ -210,8 +210,7 @@ public final class HoneyContext {
 	static void clearPreparedValue(String sqlStr) {
 		Map<String, List<PreparedValue>> map = sqlPreValueLocal.get();
 		if (null == map || sqlStr==null) return;
-		List<PreparedValue> list = map.get(sqlStr);
-		if (list != null) map.remove(sqlStr);
+		if (map.get(sqlStr) != null) map.remove(sqlStr);
 	}
 
 	static List<PreparedValue> getAndClearPreparedValue(String sqlStr) {

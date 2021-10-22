@@ -21,10 +21,10 @@ public class CacheKey {
 	private static final String SEPARATOR=" (@separator#) ";
 	private static boolean cacheKeyUseMD5=HoneyConfig.getHoneyConfig().cache_keyUseMD5;
 	
-	public static String genKey(String key){
-		String str=fullSql(key);
-		if(cacheKeyUseMD5) {//v1.8.99
-			str=MD5.getMd5(str);
+	public static String genKey(String key) {
+		String str = fullSql(key);
+		if (cacheKeyUseMD5) {//v1.8.99
+			str = MD5.getMd5(str);
 		}
 		return str;
 	}
