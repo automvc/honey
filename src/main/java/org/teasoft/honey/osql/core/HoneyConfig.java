@@ -28,6 +28,22 @@ public final class HoneyConfig {
 	private void init() {
 		SysValueProcessor.process(honeyConfig);
 	}
+	
+	/**
+	 * 使用指定路径的bee.properties进行配置.
+	 * 若使用第三方框架管理配置,不建议在此处重置配置.
+	 * @param filePath bee.properties所在的路径
+	 */
+	public void resetBeeProperties(String filePath) {
+		try {
+			BeeProp.resetBeeProperties(filePath);
+			honeyConfig = new HoneyConfig();
+			honeyConfig.init();
+			Logger.warn("[Bee] ========= reset the bee.properties with filePath:" + filePath);
+		} catch (Exception e) {
+			Logger.warn(e.getMessage());
+		}
+	}
 
 	//----------------------------- bee.osql
 	// 启动时动态获取

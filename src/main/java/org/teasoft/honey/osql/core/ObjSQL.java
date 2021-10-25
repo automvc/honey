@@ -95,7 +95,7 @@ public class ObjSQL implements Suid {
 		if (!HoneyContext.isNeedGenId(entity.getClass())
 				&& !(HoneyUtil.isMysql() || HoneyUtil.isOracle() || HoneyUtil.isSQLite())) {
 			throw new NotSupportedException("The current database don't support return the id after insert."
-					+ " You can use the distribute id via set config information,eg: bee.distribution.genid.forAllTableLongId=true");
+					+ "\nYou can use the distribute id via set config information,eg: bee.distribution.genid.forAllTableLongId=true");
 		}
 
 		String sql = getObjToSQL().toInsertSQL(entity);

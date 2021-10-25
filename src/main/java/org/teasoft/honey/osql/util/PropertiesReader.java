@@ -1,10 +1,13 @@
 package org.teasoft.honey.osql.util;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 import java.util.Set;
 
+import org.teasoft.bee.osql.exception.ConfigWrongException;
 import org.teasoft.honey.osql.core.Logger;
 
 /**
@@ -13,17 +16,38 @@ import org.teasoft.honey.osql.core.Logger;
  */
 public class PropertiesReader {
 	private Properties prop;
+	
+	public PropertiesReader() {}
 
 	public PropertiesReader(String fileName) {
 		try {
 			if (!fileName.trim().startsWith("/")) fileName = "/" + fileName.trim();
+//			if (fileName!=null && !fileName.trim().startsWith(File.separator)) fileName = File.separator + fileName.trim();
 			prop = new Properties();
 			InputStream in = PropertiesReader.class.getResourceAsStream(fileName);
 			prop.load(in);
 		} catch (IOException | NullPointerException e) {
 			Logger.warn("  In PropertiesReader not found the file :"+fileName+"  .  " + e.getMessage());
+			throw new ConfigWrongException("file: "+fileName+" config wrong!  "+ e.getMessage());
 		}
 	}
+	
+	/**
+	 * 使用指定路径的文件进行配置.
+	 * @param filePathAndName
+	 * @param custom
+	 */
+	public PropertiesReader(String filePathAndName,boolean custom) {
+		try {
+			prop = new Properties();
+			InputStream in = new FileInputStream(new File(filePathAndName));
+			prop.load(in);
+		} catch (IOException | NullPointerException e) {
+			Logger.warn("  In PropertiesReader not found the file :"+filePathAndName+"  .  " + e.getMessage());
+			throw new ConfigWrongException("filePathAndName: "+filePathAndName+" config wrong!  "+ e.getMessage());
+		}
+	}
+	
 
 	/**
 	 * @param key
