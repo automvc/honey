@@ -38,12 +38,17 @@ public final class HoneyConfig {
 	public void resetBeeProperties(String filePath) {
 		try {
 			BeeProp.resetBeeProperties(filePath);
-			honeyConfig = new HoneyConfig();
+//			HoneyConfig.honeyConfig = new HoneyConfig();
+			_setFoneyConfig();
 			honeyConfig.init();
 			Logger.warn("[Bee] ========= reset the bee.properties with filePath:" + filePath);
 		} catch (Exception e) {
 			Logger.warn(e.getMessage());
 		}
+	}
+	
+	private static void _setFoneyConfig() {
+		HoneyConfig.honeyConfig = new HoneyConfig();
 	}
 
 	//----------------------------- bee.osql
@@ -139,9 +144,6 @@ public final class HoneyConfig {
 
 	@SysValue("${" + DbConfigConst.DB_PWORD + "}")
 	String password;
-
-	//	@SysValue("${aaa}")
-
 
 	//----------------------------- cache start
 	@SysValue("${bee.osql.cache.timeout}")
