@@ -28,7 +28,6 @@ public class PropertiesReader {
 			prop.load(in);
 		} catch (IOException | NullPointerException e) {
 			Logger.warn("  In PropertiesReader not found the file :"+fileName+"  .  " + e.getMessage());
-			throw new ConfigWrongException("file: "+fileName+" config wrong!  "+ e.getMessage());
 		}
 	}
 	
@@ -36,6 +35,7 @@ public class PropertiesReader {
 	 * 使用指定路径的文件进行配置.
 	 * @param filePathAndName
 	 * @param custom
+	 * @since 1.9.8
 	 */
 	public PropertiesReader(String filePathAndName,boolean custom) {
 		try {

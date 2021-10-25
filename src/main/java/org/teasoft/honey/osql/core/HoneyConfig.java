@@ -33,6 +33,7 @@ public final class HoneyConfig {
 	 * 使用指定路径的bee.properties进行配置.
 	 * 若使用第三方框架管理配置,不建议在此处重置配置.
 	 * @param filePath bee.properties所在的路径
+	 * @since 1.9.8
 	 */
 	public void resetBeeProperties(String filePath) {
 		try {
