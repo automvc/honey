@@ -1,5 +1,9 @@
 package org.teasoft.honey.osql.autogen;
-
+/**
+ * 生成Javabean的相关配置信息.Gen Javabean config.
+ * @author Kingstar
+ *
+ */
 public class GenConfig {
 	private String encode = "UTF-8"; // 字符编码
 

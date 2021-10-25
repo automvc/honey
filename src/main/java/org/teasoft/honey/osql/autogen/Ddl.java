@@ -20,8 +20,7 @@ import org.teasoft.honey.osql.core.NameTranslateHandle;
 import org.teasoft.honey.osql.name.NameUtil;
 
 /**
- * 根据Javabean创建表
- * <br> create table according to Javabean
+ * 根据Javabean创建表.Create table according to Javabean
  * @author Kingstar
  * @since  1.9
  */

@@ -32,6 +32,11 @@ import org.teasoft.honey.osql.util.DateUtil;
 import org.teasoft.honey.osql.util.NameCheckUtil;
 
 //是否覆盖文件,       支持写生成其中一个文件或几个文件(已实现)
+/**
+ * 生成Javabean.Generate Javabean.
+ * @author Kingstar
+ * @since 1.0
+ */
 public class GenBean {
 
 	private GenConfig config;
