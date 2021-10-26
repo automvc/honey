@@ -80,6 +80,8 @@ public final class CacheUtil {
 				);
 	}
 	
+	private CacheUtil() {}
+	
 	public  static Object get(String sql) {
 		
 		String key = CacheKey.genKey(sql);

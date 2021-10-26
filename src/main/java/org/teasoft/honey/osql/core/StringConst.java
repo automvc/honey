@@ -11,6 +11,8 @@ package org.teasoft.honey.osql.core;
  * @since  1.9
  */
 public final class StringConst {
+	
+	private StringConst() {}
 
 	public static final String tRue = "tRue";
 	public static final String TABLE_NAME = "_SYS_Bee_TableName";
