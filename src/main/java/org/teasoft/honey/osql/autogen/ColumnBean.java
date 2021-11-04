@@ -15,7 +15,7 @@ public class ColumnBean {
 	private String name;
 	private String type;
 	private Boolean ynnull; //是否允许为空  yes or no null
-	private Boolean ynkey; //是否是主键      yes or no key?
+	private Boolean ynkey; //是否是主键      yes or no key
 	private String label;//标题,列名注释
 	private String tablename;
 	private String tablecomment;
