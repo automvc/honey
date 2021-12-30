@@ -24,32 +24,31 @@ public class OnlyMulitiDB implements Route {
 
 	//	private static List dsList=new ArrayList();
 	//	private static Map<String,String> map;
-	private static String defaultDs;
+	private String defaultDs;
 
 	private static Map<String, String> entityClassPathToDs = new ConcurrentHashMap<>();
 	private static Map<String, String> tableToDs = new ConcurrentHashMap<>();
 
 	private static List<String> entityClassPathToDsWithStar = new CopyOnWriteArrayList<>();
-
-	private static String matchEntityClassPath;
-	private static String matchTable;
-
+	
 //	static {
 	{ //will run every time use new. for refresh.
 		init();
 	}
 	
 	private void init(){
-		   defaultDs = HoneyConfig.getHoneyConfig().multiDsDefalutDS;
+		  String matchEntityClassPath;
+		  String matchTable;
+		   defaultDs = HoneyConfig.getHoneyConfig().multiDS_defalutDS;
 		   
 			//仅分库,需要配置默认DB
 			if( defaultDs==null || "".equals(defaultDs.trim()) ){
-				throw new NoConfigException("Error: bee.dosql.multi-DS.defalut-DS can not null or empty when bee.dosql.multi-DS.type=2! ");
+				throw new NoConfigException("Error: bee.dosql.multiDS.defalutDS can not be null or empty when bee.dosql.multiDS.type=2! ");
 			}
-			matchEntityClassPath = HoneyConfig.getHoneyConfig().matchEntityClassPath;
-			matchTable = HoneyConfig.getHoneyConfig().matchTable;
+			matchEntityClassPath = HoneyConfig.getHoneyConfig().multiDS_matchEntityClassPath;
+			matchTable = HoneyConfig.getHoneyConfig().multiDS_matchTable;
 			if( (matchEntityClassPath==null || "".equals(matchEntityClassPath.trim()))  &&  (matchTable==null || "".equals(matchTable.trim())) ){
-				throw new NoConfigException("Error: bee.dosql.multi-DS.match.entityClassPath and bee.dosql.multi-DS.match.table can not null or empty at same time when bee.dosql.multi-DS.type=2! ");
+				throw new NoConfigException("Error: bee.dosql.multiDS.matchEntityClassPath and bee.dosql.multiDS.matchTable can not be null or empty at same time when bee.dosql.multi-DS.type=2! ");
 			}
 
 			parseListToMap(matchEntityClassPath, entityClassPathToDs, true);
@@ -81,11 +80,18 @@ public class OnlyMulitiDB implements Route {
 	public String getDsName() {
 		RouteStruct routeStruct = HoneyContext.getCurrentRoute();
 		if (routeStruct == null) return defaultDs;
-
-		Class clazz = routeStruct.getEntityClass();
-		if (clazz == null) return defaultDs;
-		String fullName = clazz.getName();
 		String ds = null;
+		String tables = routeStruct.getTableNames();
+		Class clazz = routeStruct.getEntityClass();
+		if (clazz == null) {
+			//用map传递查询信息,没有Javabean,则class=null.但可以通过bee.dosql.multiDS.matchTable指定数据源.
+			ds=getDsViaTables(tables);
+			if(ds!=null) return ds;
+			
+			return defaultDs;
+		}
+		String fullName = clazz.getName();
+//		String ds = null;
 		ds = entityClassPathToDs.get(fullName);
 		if (ds != null) return ds;
 
@@ -108,35 +114,27 @@ public class OnlyMulitiDB implements Route {
 //				}
 
 			}
-
-			String tables = routeStruct.getTableNames();
-			if (tables != null) {
-				if (!tables.contains("##")) {
-					ds = tableToDs.get(tables.trim().toLowerCase());
-					if (ds != null) return ds;
-				} else { //only multi-Ds,tables don't allow in different db.仅分库时，多表查询的多个表要在同一个数据源.
-                    String ts[]=tables.split("##");
-					ds = tableToDs.get(ts[0].toLowerCase());
-					if (ds != null) return ds;
-				}
-			}
+			ds=getDsViaTables(tables);
+			if(ds!=null) return ds;
 		}
 
 		return defaultDs;
 	}
-
-/*	public static void main(String[] args) {
-        new OnlyMulitiDB();
-//		String str = "ds2:com.xxx.aa.User,com.xxx.bb.*,com.xxx.cc.**;ds3:com.xxx.dd.User";
-		parseListToMap(matchEntityClassPath, entityClassPathToDs, true);
-		parseListToMap(matchTable, tableToDs, false); //不带*
-		System.out.println(entityClassPathToDs);
-		System.out.println(entityClassPathToDsWithStar);
-		System.out.println(tableToDs);
-
-		System.out.println(String.class.getName());
-		System.out.println(String.class.getSimpleName());
-		System.out.println(String.class.getPackage().getName());
-	}*/
+	
+	private String getDsViaTables(String tables) {
+//		String tables = routeStruct.getTableNames();  
+		String ds = null;
+		if (tables != null) {
+			if (!tables.contains("##")) {
+				ds = tableToDs.get(tables.trim().toLowerCase());
+				if (ds != null) return ds;
+			} else { //only multi-Ds,tables don't allow in different db.仅分库时，多表查询的多个表要在同一个数据源.
+                String ts[]=tables.split("##");
+				ds = tableToDs.get(ts[0].toLowerCase());
+				if (ds != null) return ds;
+			}
+		}
+		return ds;
+	}
 
 }

@@ -13,11 +13,13 @@ import org.teasoft.bee.osql.chain.UnionSelect;
  * @author Kingstar
  * @since  1.3
  */
-public class UnionSelectImpl extends AbstractSelectToSql implements UnionSelect {
+public class UnionSelectImpl implements UnionSelect {
 
-	private static String L_PARENTHESES = "(";
-	private static String R_PARENTHESES = ")";
-	private static String ONE_SPACE = " ";
+	private static final String L_PARENTHESES = "(";
+	private static final String R_PARENTHESES = ")";
+	private static final String ONE_SPACE = " ";
+	
+	private StringBuffer sql = new StringBuffer();
 
 	public UnionSelectImpl(){
 	}
@@ -39,7 +41,7 @@ public class UnionSelectImpl extends AbstractSelectToSql implements UnionSelect 
 
 	@Override
 	public UnionSelect union(Select subSelect1, Select subSelect2) {
-		return union(subSelect1.toSQL(true), subSelect2.toSQL(true));
+		return union(subSelect1.toSQL(), subSelect2.toSQL());
 	}
 
 	@Override
@@ -49,11 +51,26 @@ public class UnionSelectImpl extends AbstractSelectToSql implements UnionSelect 
 
 	@Override
 	public UnionSelect unionAll(Select subSelect1, Select subSelect2) {
-		return unionAll(subSelect1.toSQL(true), subSelect2.toSQL(true));
+		return unionAll(subSelect1.toSQL(), subSelect2.toSQL());
 	}
 
 	@Override
 	public UnionSelect unionAll(String subSelect1, String subSelect2) {
 		return useUnionSelect("union all", subSelect1, subSelect2);
+	}
+	
+	public String toSQL() {
+		return toSQL(true);
+	}
+
+	public String toSQL(boolean noSemicolon) {
+		String sqlStr;
+		if (noSemicolon){
+			sqlStr=sql.toString();
+		}else{
+			sqlStr= sql.toString()+";";
+		}
+		sql = new StringBuffer();
+		return sqlStr;
 	}
 }

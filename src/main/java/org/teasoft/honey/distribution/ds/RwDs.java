@@ -31,24 +31,24 @@ public class RwDs implements Route{
 	private static Random r = new Random();
 	private byte lock[] = new byte[0];
 	
-	private static int r_routeWay;
+	private int r_routeWay;
 	
 	{  //非static,每次new都会执行.若writer有更新,这样可以刷新.
 		init();
 	}
 	
 	private void init(){
-		String wDB=HoneyConfig.getHoneyConfig().multiDs_writeDB;
-		String rDB=HoneyConfig.getHoneyConfig().multiDs_readDB;
+		String wDB=HoneyConfig.getHoneyConfig().multiDS_writeDB;
+		String rDB=HoneyConfig.getHoneyConfig().multiDS_readDB;
 		//要判断从配置文件拿来的信息不能为空。
 		if( (wDB==null || "".equals(wDB.trim()))  ||  (rDB==null || "".equals(rDB.trim()))){
-			throw new NoConfigException("Error: bee.dosql.multi-DS.writeDB and bee.dosql.multi-DS.readDB can not null or empty when bee.dosql.multi-DS.type=1! ");
+			throw new NoConfigException("Error: bee.dosql.multiDS.writeDB and bee.dosql.multiDS.readDB can not be null or empty when bee.dosql.multiDS.type=1! ");
 		}
 		
 		setWriteDs(wDB);  
 		setReadDsList(parseRDb(rDB));
 		getReadDsList().remove(wDB); //写库不能放在只读库列表
-		r_routeWay=HoneyConfig.getHoneyConfig().rDbRouteWay; 
+		r_routeWay=HoneyConfig.getHoneyConfig().multiDS_rDbRouteWay; 
 	}
 	
 	private List<String> parseRDb(String rDB_str){
@@ -75,14 +75,14 @@ public class RwDs implements Route{
 		return writeDd;
 	}
 
-	public void setWriteDs(String writeDs) {  //TODO if master change, need update
+	public void setWriteDs(String writeDs) {  //todo if master change, need update
 		this.writeDd = writeDs;
 	}
 	
-	public String getReadDs() {
-		
-		return getReadDs(0); //rand
-	}
+//	public String getReadDs() {
+//		
+//		return getReadDs(0); //rand
+//	}
 
 	public String getReadDs(int type) {
 

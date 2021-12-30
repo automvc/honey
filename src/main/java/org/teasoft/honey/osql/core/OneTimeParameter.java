@@ -13,13 +13,13 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Kingstar
  * @since  1.8
  */
- class OneTimeParameter {
+class OneTimeParameter {
 	
 	private static ThreadLocal<Map<String, Object>> local= new ThreadLocal<>();
-
+	
 	private OneTimeParameter() {}
 
-	public static Object getAttribute(String key) {
+	static Object getAttribute(String key) {
 		
 		Map<String, Object> map = local.get();
 		if (null == map) return null;
@@ -36,5 +36,14 @@ import java.util.concurrent.ConcurrentHashMap;
 		map.put(key, obj); 
 		local.set(map);
 	}
-
+	
+	public static void setTrueForKey(String key) {
+		setAttribute(key, StringConst.tRue);
+	}
+	
+	public static boolean isTrue(String key) {
+		Object value = getAttribute(key);
+		return StringConst.tRue.equals(value) ? true : false;
+	}
+	
 }

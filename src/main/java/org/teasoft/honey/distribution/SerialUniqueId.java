@@ -10,6 +10,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.teasoft.bee.distribution.GenId;
 import org.teasoft.bee.distribution.Worker;
+import org.teasoft.honey.osql.core.Logger;
 
 /**
  * 在一个workerid内连续唯一的ID生成方法(绝对连续单调递增，全局唯一).Serial Unique Id in one workerid.
@@ -47,17 +48,17 @@ public class SerialUniqueId implements GenId{
 
 	private long workerId = getWorker().getWorkerId(); //10
 	private long startTime; // second 31
-	private final long segment = 0L; // 3
-	private final long sequence = 1L; // 19
+	private static final long segment = 0L; // 3
+	private static final long sequence = 1L; // 19
 	
 //	private final long workerIdBits = 10L;
-	private final long timeBits=31L;
-	private final long segmentBits = 3L;
-	private final long sequenceBits = 19L;
+	private static final long timeBits=31L;
+	private static final long segmentBits = 3L;
+	private static final long sequenceBits = 19L;
 	
-	private final long workerIdShift = sequenceBits+segmentBits+timeBits;
-	private final long timestampLeftShift = sequenceBits+segmentBits;
-	private final long segmentShift = sequenceBits;
+	private static final long workerIdShift = sequenceBits+segmentBits+timeBits;
+	private static final long timestampLeftShift = sequenceBits+segmentBits;
+	private static final long segmentShift = sequenceBits;
 
 
 	private long twepoch = 1483200000; // 单位：s    2017-01-01 (yyyy-MM-dd)
@@ -113,7 +114,7 @@ public class SerialUniqueId implements GenId{
 		sequenceNumber.set(newNum);
 	}
 	
-	private void testSpeedLimit(long currentLong) {
+	private synchronized void testSpeedLimit(long currentLong) {
 
 		long spentTime = _curSecond() - startTime + 1;
 
@@ -124,7 +125,7 @@ public class SerialUniqueId implements GenId{
 			wait(10);
 			testSpeedLimit(currentLong);
 		} catch (Exception e) {
-		  e.printStackTrace();
+		  Logger.error(e.getMessage());
 		}
 	}
 

@@ -12,6 +12,7 @@ import org.teasoft.bee.osql.BeeSql;
 import org.teasoft.bee.osql.Condition;
 import org.teasoft.bee.osql.ObjToSQL;
 import org.teasoft.bee.osql.Suid;
+import org.teasoft.bee.osql.exception.NotSupportedException;
 
 /**
  * 通过对象来操作数据库，并返回结果
@@ -22,8 +23,8 @@ import org.teasoft.bee.osql.Suid;
 public class ObjSQL implements Suid {
 	
 
-	private BeeSql beeSql;// = BeeFactory.getHoneyFactory().getBeeSql();
-	private ObjToSQL objToSQL;// = BeeFactory.getHoneyFactory().getObjToSQL();
+	private BeeSql beeSql;
+	private ObjToSQL objToSQL;
 
 	public ObjSQL() {}
 
@@ -82,9 +83,53 @@ public class ObjSQL implements Suid {
 		int insertNum = -1;
 		Logger.logSQL("insert SQL: ", sql);
 		_regEntityClass(entity);
+		HoneyUtil.revertId(entity); //v1.9
 		insertNum = getBeeSql().modify(sql);
 		return insertNum;
 	}
+	
+	@Override
+	public <T> long insertAndReturnId(T entity) {
+		if (entity == null) return -1L;
+
+		if (!HoneyContext.isNeedGenId(entity.getClass())
+				&& !(HoneyUtil.isMysql() || HoneyUtil.isOracle() || HoneyUtil.isSQLite())) {
+			throw new NotSupportedException("The current database don't support return the id after insert."
+					+ "\nYou can use the distribute id via set config information,eg: bee.distribution.genid.forAllTableLongId=true");
+		}
+
+		String sql = getObjToSQL().toInsertSQL(entity);
+		Logger.logSQL("insert SQL: ", sql);
+		_regEntityClass(entity);
+
+		Object obj = HoneyUtil.getIdValue(entity);
+		HoneyUtil.revertId(entity);
+		
+		long returnId = -1;
+		if (obj != null) {
+//			returnId = (long) obj;
+			returnId = Long.parseLong(obj.toString());
+			if (returnId > 1) {//entity实体id设置有大于1的值,使用实体的
+				int insertNum = getBeeSql().modify(sql);
+				if (insertNum == 1) {//插入成功
+					return returnId;
+				} else {//插入失败,返回modify(sql)的值
+					return insertNum;
+				}
+			} else {
+				if (HoneyUtil.isOracle()) {
+					Logger.debug("Need create Sequence and Trigger for auto increment id. "
+							+ "By the way,maybe use distribute id is better!");
+				}
+			}
+		}
+
+		//id will gen by db
+		returnId = getBeeSql().insertAndReturnId(sql);
+
+		return returnId;
+	}
+	
 
 	@Override
 	public int delete(Object entity) {
@@ -133,4 +178,18 @@ public class ObjSQL implements Suid {
 	private <T> void _regEntityClass(T entity){
 		HoneyContext.regEntityClass(entity.getClass());
 	}
+
+	@Override
+	public void beginSameConnection() {
+		OneTimeParameter.setTrueForKey("_SYS_Bee_SAME_CONN_BEGIN"); 
+		if(OneTimeParameter.isTrue("_SYS_Bee_SAME_CONN_EXCEPTION")) {//获取后,该key不会再存在
+			Logger.warn("Last SameConnection do not have endSameConnection() or do not run endSameConnection() after having exception.");
+		}
+	}
+
+	@Override
+	public void endSameConnection() {
+		HoneyContext.endSameConnection(); 
+	}
+	
 }

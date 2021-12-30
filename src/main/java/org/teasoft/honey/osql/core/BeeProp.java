@@ -1,5 +1,7 @@
 package org.teasoft.honey.osql.core;
 
+import java.io.File;
+
 import org.teasoft.honey.osql.util.PropertiesReader;
 
 /**
@@ -20,5 +22,16 @@ class BeeProp {
 
 	public static String getBeePropText(String key) {
 		return beeProp.getValueText(key);
+	}
+	
+	/**
+	 * 使用指定路径的bee.properties进行配置.
+	 * @param filePath bee.properties所在的路径
+	 * @since 1.9.8
+	 */
+	static void resetBeeProperties(String filePath) {
+		if (!filePath.trim().endsWith(File.separator)) filePath = filePath.trim()+File.separator;
+		filePath+="bee.properties";
+		beeProp = new PropertiesReader(filePath, true);
 	}
 }

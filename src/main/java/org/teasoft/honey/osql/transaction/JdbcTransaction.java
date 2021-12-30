@@ -9,6 +9,7 @@ import org.teasoft.bee.osql.transaction.TransactionIsolationLevel;
 import org.teasoft.honey.osql.core.ExceptionHelper;
 import org.teasoft.honey.osql.core.HoneyConfig;
 import org.teasoft.honey.osql.core.HoneyContext;
+import org.teasoft.honey.osql.core.Logger;
 import org.teasoft.honey.osql.core.SessionFactory;
 
 /**
@@ -30,6 +31,7 @@ public class JdbcTransaction implements Transaction {
 
 	@Override
 	public void begin() {
+		Logger.info(" JdbcTransaction begin. ");
 		try {
 			this.conn = initOneConn();
 
@@ -46,29 +48,33 @@ public class JdbcTransaction implements Transaction {
 
 	@Override
 	public void commit() {
+		Logger.info(" JdbcTransaction commit. ");
 		if (!isBegin) throw new BeeSQLException("The Transaction did not to begin!");
 		try {
 			if (conn != null && !conn.getAutoCommit()) {
 				conn.commit();
 				if (oldAutoCommit != conn.getAutoCommit()) conn.setAutoCommit(oldAutoCommit);
-				close();
-				isBegin = false;
 			}
 		} catch (SQLException e) {
 			throw ExceptionHelper.convert(e);
+		} finally {
+			_close();
+			isBegin = false;
 		}
 	}
 
 	@Override
 	public void rollback() {
+		Logger.info(" JdbcTransaction rollback. ");
 		try {
 			if (conn != null && !conn.getAutoCommit()) {
 				conn.rollback();
 				if (oldAutoCommit != conn.getAutoCommit()) conn.setAutoCommit(oldAutoCommit);
-				close();
 			}
 		} catch (SQLException e) {
 			throw ExceptionHelper.convert(e);
+		} finally {
+			_close();
 		}
 	}
 
@@ -82,9 +88,9 @@ public class JdbcTransaction implements Transaction {
 	}
 
 	@Override
-	public void setTransactionIsolation(TransactionIsolationLevel level) {
+	public void setTransactionIsolation(TransactionIsolationLevel transactionIsolationLevel) {
 		try {
-			conn.setTransactionIsolation(level.getLevel());
+			conn.setTransactionIsolation(transactionIsolationLevel.getLevel());
 		} catch (SQLException e) {
 			throw ExceptionHelper.convert(e);
 		}
@@ -110,14 +116,15 @@ public class JdbcTransaction implements Transaction {
 
 	@Override
 	public void setTimeout(int second) {
-		//TODO
+		//todo
+		Logger.error("Donot support setTimeout(int second) in JdbcTransaction");
 	}
 
 	private void setOldAutoCommit(boolean oldAutoCommit) {
 		this.oldAutoCommit = oldAutoCommit;
 	}
 
-	private void close() {
+	private void _close() {
 		if (conn != null) {
 			try {
 				conn.close();
@@ -126,9 +133,11 @@ public class JdbcTransaction implements Transaction {
 			} finally {
 				HoneyContext.removeCurrentConnection(); //事务结束时要删除
 				
-				boolean enableMultiDs = HoneyConfig.getHoneyConfig().enableMultiDs;
-				int multiDsType = HoneyConfig.getHoneyConfig().multiDsType;
-				if (enableMultiDs && multiDsType == 2) {//仅分库,有多个数据源时
+				boolean enableMultiDs = HoneyConfig.getHoneyConfig().multiDS_enable;
+				int multiDsType = HoneyConfig.getHoneyConfig().multiDS_type;
+				boolean differentDbType=HoneyConfig.getHoneyConfig().multiDS_differentDbType;
+//				if (enableMultiDs && multiDsType == 2) {//仅分库,有多个数据源时
+				if (enableMultiDs && (multiDsType ==2 || (multiDsType ==1 && differentDbType))) {
 					HoneyContext.removeCurrentRoute();
 				}
 			}

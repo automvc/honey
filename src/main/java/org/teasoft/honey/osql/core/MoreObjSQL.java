@@ -20,8 +20,8 @@ import org.teasoft.bee.osql.exception.BeeIllegalParameterException;
  */
 public class MoreObjSQL implements MoreTable{
 
-	private BeeSql beeSql;// = BeeFactory.getHoneyFactory().getBeeSql();
-	private MoreObjToSQL moreObjToSQL = BeeFactory.getHoneyFactory().getMoreObjToSQL();
+	private BeeSql beeSql;
+	private MoreObjToSQL moreObjToSQL;
 
 	public MoreObjSQL() {}
 
@@ -33,12 +33,21 @@ public class MoreObjSQL implements MoreTable{
 	public void setBeeSql(BeeSql beeSql) {
 		this.beeSql = beeSql;
 	}
+	
+	public MoreObjToSQL getMoreObjToSQL() {
+		if(moreObjToSQL==null) return BeeFactory.getHoneyFactory().getMoreObjToSQL();
+		return moreObjToSQL;
+	}
+
+	public void setMoreObjToSQL(MoreObjToSQL moreObjToSQL) {
+		this.moreObjToSQL = moreObjToSQL;
+	}
 
 	@Override
 	public <T> List<T> select(T entity) {
 		if (entity == null) return null;
 
-		String sql = moreObjToSQL.toSelectSQL(entity);
+		String sql = getMoreObjToSQL().toSelectSQL(entity);
 		Logger.logSQL("select SQL: ", sql);
 		return getBeeSql().moreTableSelect(sql, entity); 
 	}
@@ -49,7 +58,7 @@ public class MoreObjSQL implements MoreTable{
 		if(size<=0) throw new BeeIllegalParameterException("Parameter 'size' need great than 0!");
 		if(start<0) throw new BeeIllegalParameterException("Parameter 'start' need great equal 0!");
 
-		String sql = moreObjToSQL.toSelectSQL(entity,start,size);
+		String sql = getMoreObjToSQL().toSelectSQL(entity,start,size);
 		Logger.logSQL("select SQL: ", sql);
 		return getBeeSql().moreTableSelect(sql, entity); 
 	}
@@ -58,9 +67,15 @@ public class MoreObjSQL implements MoreTable{
 	public <T> List<T> select(T entity, Condition condition) {
 		if (entity == null) return null;
 
-		String sql = moreObjToSQL.toSelectSQL(entity,condition);
+		String sql = getMoreObjToSQL().toSelectSQL(entity,condition);
 		Logger.logSQL("select SQL: ", sql);
 		return getBeeSql().moreTableSelect(sql, entity); 
+	}
+	
+	@Override
+	public MoreObjSQL setDynamicParameter(String para, String value) {
+		OneTimeParameter.setAttribute(para, value);
+		return this;
 	}
 
 }

@@ -12,6 +12,7 @@ import java.util.Map;
 
 import org.teasoft.bee.logging.Log;
 import org.teasoft.honey.osql.core.HoneyConfig;
+import org.teasoft.honey.util.StringUtils;
 
 /**
  * @author Kingstar
@@ -31,34 +32,42 @@ public class LoggerFactory {
 	private static boolean isNoArgInConstructor;
 	
 	static {
+		init();
+	}
+	
+	private static void init() {
         
 		String loggerType = HoneyConfig.getHoneyConfig().loggerType;
 		if (loggerType != null && !"".equals(loggerType.trim())) {
 			loggerType=loggerType.trim();
+			
+			String LOGGER_UNSUCCESSFULLY="[Bee] [WARN] the loggerType: "            +loggerType +" , set unsuccessfully!";
+			String LOGGER_UNSUCCESSFULLY_MAYBE_DONOT_SET_JAR="[Bee] [WARN] the loggerType: "            +loggerType +" , set unsuccessfully! Maybe do not set the jar!";
+			
 			if (loggerType.equalsIgnoreCase("log4j")) {
-				boolean f=tryImplementation("org.apache.log4j.Logger",              "org.teasoft.beex.logging.Log4jImpl"); //优先选择log4j
-			    if(!f) System.err.println("[Bee] [WARN] the loggerType: "            +loggerType +" , set unsuccessfully! Maybe do not set the jar!");
+				boolean f=tryImplementation("org.apache.log4j.Logger",          "org.teasoft.beex.logging.Log4jImpl"); //优先选择log4j
+			    if(!f) System.err.println(LOGGER_UNSUCCESSFULLY_MAYBE_DONOT_SET_JAR);
 			} else if (loggerType.equalsIgnoreCase("slf4j")) {
-				boolean f=tryImplementation("org.slf4j.Logger",                      "org.teasoft.beex.logging.Slf4jImpl"); //ok,只是要显示多层
-				if(!f) System.err.println("[Bee] [WARN] the loggerType: "            +loggerType +" , set unsuccessfully! Maybe do not set the jar!");
+				boolean f=tryImplementation("org.slf4j.Logger",                 "org.teasoft.beex.logging.Slf4jImpl"); //ok,只是要显示多层
+				if(!f) System.err.println(LOGGER_UNSUCCESSFULLY_MAYBE_DONOT_SET_JAR);
 			} else if (loggerType.equalsIgnoreCase("log4j2")) {
-				boolean f=tryImplementation("org.apache.logging.log4j.Logger",       "org.teasoft.beex.logging.Log4j2Impl"); //Log4j2
-				if(!f) System.err.println("[Bee] [WARN] the loggerType: "            +loggerType +" , set unsuccessfully! Maybe do not set the jar!");
+				boolean f=tryImplementation("org.apache.logging.log4j.Logger",  "org.teasoft.beex.logging.Log4j2Impl"); //Log4j2
+				if(!f) System.err.println(LOGGER_UNSUCCESSFULLY_MAYBE_DONOT_SET_JAR);
 			} else if (loggerType.equalsIgnoreCase("systemLogger")) {//std
-				boolean f=tryImplementation("",                                      "org.teasoft.honey.logging.SystemLogger");
-				if(!f) System.err.println("[Bee] [WARN] the loggerType: "            +loggerType +" , set unsuccessfully!");
+				boolean f=tryImplementation("",                                  "org.teasoft.honey.logging.SystemLogger");
+				if(!f) System.err.println(LOGGER_UNSUCCESSFULLY);
 			} else if (loggerType.equalsIgnoreCase("fileLogger")) {
-				boolean f=tryImplementation("",                                      "org.teasoft.honey.logging.FileLogger");
-				if(!f) System.err.println("[Bee] [WARN] the loggerType: "            +loggerType +" , set unsuccessfully!");
+				boolean f=tryImplementation("",                                  "org.teasoft.honey.logging.FileLogger");
+				if(!f) System.err.println(LOGGER_UNSUCCESSFULLY);
 			} else if (loggerType.equalsIgnoreCase("noLogging")) {
-				boolean f=tryImplementation("",                                      "org.teasoft.honey.logging.NoLogging");
-				if(!f) System.err.println("[Bee] [WARN] the loggerType: "            +loggerType +" , set unsuccessfully!");
+				boolean f=tryImplementation("",                                  "org.teasoft.honey.logging.NoLogging");
+				if(!f) System.err.println(LOGGER_UNSUCCESSFULLY);
 			} else if (loggerType.equalsIgnoreCase("jdkLog")) {
-				boolean f=tryImplementation("java.util.logging.Logger",               "org.teasoft.honey.logging.Jdk14LoggingImpl");//会随着传入的class变化.无行数输出
-				if(!f) System.err.println("[Bee] [WARN] the loggerType: "            +loggerType +" , set unsuccessfully!");
+				boolean f=tryImplementation("java.util.logging.Logger",          "org.teasoft.honey.logging.Jdk14LoggingImpl");//会随着传入的class变化.无行数输出
+				if(!f) System.err.println(LOGGER_UNSUCCESSFULLY);
 			} else if (loggerType.equalsIgnoreCase("commonsLog")) {
 				boolean f=tryImplementation("org.apache.commons.logging.LogFactory", "org.teasoft.beex.logging.JakartaCommonsLoggingImpl");//无法显示调用类的信息
-				if(!f) System.err.println("[Bee] [WARN] the loggerType: "            +loggerType +" , set unsuccessfully! Maybe do not set the jar!");
+				if(!f) System.err.println(LOGGER_UNSUCCESSFULLY_MAYBE_DONOT_SET_JAR);
 			}
 		}
 		
@@ -91,13 +100,17 @@ public class LoggerFactory {
 						Class implClassNoArg = genClassByName(implClassName);
 						logNoArgConstructor = implClassNoArg.getConstructor();
 						isNoArgInConstructor = true;
-						System.out.println("[Bee] LoggerFactory Use the Logger is : " + implClassName);
+						String s1 = "[Bee] LoggerFactory Use the Logger is : " + implClassName;
+
+						if (StringUtils.isNotBlank(testClassName)) 
+							s1 += " , Logger adapt from : " + testClassName;
+						System.out.println(s1);
 						return true;
 
 					} catch (ClassNotFoundException e) {
 						// ignore
 					} catch (Exception e) {
-						e.printStackTrace();
+						// ignore
 					}
 
 				}
@@ -107,14 +120,16 @@ public class LoggerFactory {
 			Class implClass = genClassByName(implClassName);
 			logConstructor = implClass.getConstructor(new Class[] { String.class });
 
-			System.out.println("[Bee] LoggerFactory Use the Logger is : " + implClassName);
+			String s2 = "[Bee] LoggerFactory Use the Logger is : " + implClassName;
+			if (StringUtils.isNotBlank(testClassName)) 
+				s2 += " , Logger adapt from : " + testClassName;
+			System.out.println(s2);
 			return true;
 
 		} catch (ClassNotFoundException e) {
 			// ignore
 			return false;
 		} catch (Throwable t) {
-			t.printStackTrace();
 			return false;
 		}
 		
@@ -132,7 +147,7 @@ public class LoggerFactory {
 				setCacheInfo("NoArg",log);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			//ignore
 		}
 
 		if (log != null) return log;
@@ -168,7 +183,10 @@ public class LoggerFactory {
 			clazz = Thread.currentThread().getContextClassLoader().loadClass(className);
 		} catch (Exception e) {
 			//ignore
+		}catch (Error e) {
+			//ignore
 		}
+		
 		if (clazz == null) {
 			clazz = Class.forName(className);
 		}

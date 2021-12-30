@@ -8,6 +8,7 @@ package org.teasoft.honey.distribution;
 
 import org.teasoft.bee.distribution.GenId;
 import org.teasoft.bee.distribution.Worker;
+import org.teasoft.honey.osql.core.Logger;
 
 /**
  * OneTimeSnowflakeId，进一步改进了梨花算法。
@@ -43,19 +44,19 @@ public class OneTimeSnowflakeId implements GenId {
 	private long sequence = 0L; 
 
 	//以下三部分加起来要等于32位.
-	private final long segmentBits = 9L;
-	private final long workerIdBits = 10L;
-	private final long sequenceBits = 13L;
+	private static final long segmentBits = 9L;
+	private static final long workerIdBits = 10L;
+	private static final long sequenceBits = 13L;
 
-	private final long timestampShift = workerIdBits + segmentBits + sequenceBits;
-	private final long segmentShift = workerIdBits + sequenceBits;
-	private final long workerIdShift = sequenceBits;
+	private static final long timestampShift = workerIdBits + segmentBits + sequenceBits;
+	private static final long segmentShift = workerIdBits + sequenceBits;
+	private static final long workerIdShift = sequenceBits;
 
-	private final long sequenceMask = ~(-1L << sequenceBits);
-	private final long maxSegment = (1 << segmentBits) - 1;
+//	private static final long sequenceMask = ~(-1L << sequenceBits);
+	private static final long maxSegment = (1L << segmentBits) - 1L;
+	private static final long maxSequence = 1L<<sequenceBits;
 
 	private long twepoch = 1483200000; // 单位：s    2017-01-01 (yyyy-MM-dd)
-	
 	private long _counter=0;
 
 	public OneTimeSnowflakeId() {
@@ -75,32 +76,38 @@ public class OneTimeSnowflakeId implements GenId {
 	@Override
 	public synchronized long get() {
 		long id=getNextId();
-		
 		testSpeedLimit();
-		
 		return id;
 	}
 
 	@Override
 	public synchronized long[] getRangeId(int sizeOfIds) {
+		
+		if(sizeOfIds>maxSequence) {
+			Logger.error("parameter sizeOfIds("+sizeOfIds+") greate maxSequence("+maxSequence+") will cause range Id do not continue!");
+			return null;
+		}
+		
 		long r[] = new long[2];
 		r[0] = getNextId();
 
 		sequence = sequence + sizeOfIds - 1 - 1; //r[0]相当于已获取了第一个元素
 		_counter=_counter + sizeOfIds - 1 - 1;
 		if ((sequence >> sequenceBits) > 0) { // 超过序列位表示的最大值
-			sequence = sequence & sequenceMask;
+//			sequence = sequence & sequenceMask;
 			if (segment >= maxSegment) { // 已用完
 				time++;
 				segment = 0L;
 			} else {
 				segment++;
 			}
+			
+			sequence=0;
+			//取max时,超过序列位表示的最大值,不连续,要重新获取
+			return getRangeId(sizeOfIds); 
 		}
-		r[1] = getNextId();
-		
+		r[1] = getNextId(); //r[0]到r[1]是加1递增的吗? 不是. 因workid在太低位,会跳跃. v1.9,在往上两行重新设置segment和sequence,让其在segment内连续
 		testSpeedLimit();
-
 		return r;
 	}
 
@@ -119,7 +126,6 @@ public class OneTimeSnowflakeId implements GenId {
 				segment++;
 			}
 		}
-
 		return (time << timestampShift) | (segment << segmentShift) | (workerId << workerIdShift) | (sequence);
 	}
 
@@ -127,11 +133,9 @@ public class OneTimeSnowflakeId implements GenId {
 		return (System.currentTimeMillis()) / 1000L;
 	}
 	
-	
-	private void testSpeedLimit() {
-
-		long spentTime = _curSecond() - startTime + 1;
-
+//	private void testSpeedLimit() {
+	private synchronized void testSpeedLimit() {
+		long spentTime=_curSecond() - startTime + 1;
 		if (spentTime > 0) {
 			if ((spentTime << (segmentBits + sequenceBits)) > _counter) return; //check some one workerid.
 		}
@@ -139,7 +143,8 @@ public class OneTimeSnowflakeId implements GenId {
 			wait(10);
 			testSpeedLimit();
 		} catch (Exception e) {
-          e.printStackTrace();
+			Logger.error(e.getMessage());
 		}
 	}
+
 }

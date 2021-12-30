@@ -22,6 +22,21 @@ import org.teasoft.honey.osql.core.Logger;
  * @since  1.7.1
  */
 public class FileHandle implements FileCreator{
+	
+	private String charsetName;
+	
+
+	@Override
+	public void setCharsetName(String charsetName) {
+		this.charsetName=charsetName;
+	}
+	
+	public String getCharsetName() {
+		if (this.charsetName == null || "".equals(charsetName.trim()))
+			return "UTF-8";
+		else
+			return this.charsetName;
+	}
 
 	@Override
 	public void genFile(String fullPathAndName, String content) {
@@ -33,12 +48,12 @@ public class FileHandle implements FileCreator{
 			Logger.info("Create file: "+fullPathAndName);
 		}
 		
-		BufferedWriter bw;
-		try {
-			bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f)));
+		try (
+			  BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f),getCharsetName()));
+			){
 			bw.write(content);
 			bw.flush();
-			bw.close();
+//			bw.close();
 		} catch (Exception e) {
 			Logger.error(e.getMessage());
 		}
@@ -57,12 +72,12 @@ public class FileHandle implements FileCreator{
 		}
 
 		File entityFile = new File(fullPath + fileName);
-		BufferedWriter bw;
-		try {
-			bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(entityFile)));
+		try(
+			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(entityFile),getCharsetName()));
+			) {
 			bw.write(content);
 			bw.flush();
-			bw.close();
+//			bw.close();
 		} catch (Exception e) {
 			Logger.error(e.getMessage());
 		}
@@ -88,14 +103,13 @@ public class FileHandle implements FileCreator{
 			new File(substr).mkdirs();
 		}
 		
-		BufferedWriter bw;
-		try {
-			bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f,true)));//true,追加的方式
+		try (
+			  BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f,true),getCharsetName()));//true,追加的方式
+			){
 			bw.write(content);
 			bw.append(LINE_SEPARATOR);
 			bw.flush();
-			bw.close();
-			
+//			bw.close();
 		} catch (Exception e) {
 			Logger.error(e.getMessage());
 		}

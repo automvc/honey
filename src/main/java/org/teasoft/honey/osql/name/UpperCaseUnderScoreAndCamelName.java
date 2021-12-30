@@ -23,5 +23,18 @@ public class UpperCaseUnderScoreAndCamelName extends UnderScoreAndCamelName{
 		return super.toColumnName(fieldName).toUpperCase();
 	}
 	
+	@Override
+	public String toEntityName(String tableName) {
+		//need lowercase first if the name has upper case
+		tableName = tableName.toLowerCase();
+		return NameUtil.firstLetterToUpperCase(NameUtil.toCamelNaming(tableName));
+	}
+
+	@Override
+	public String toFieldName(String columnName) {
+		//need lowercase first if the name has upper case
+		columnName = columnName.toLowerCase(); //if not , BEE_NAME->BEENAME  -> ??
+		return NameUtil.toCamelNaming(columnName);
+	}
 	
 }

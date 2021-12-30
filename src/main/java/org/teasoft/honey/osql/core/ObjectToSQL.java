@@ -21,7 +21,7 @@ public class ObjectToSQL implements ObjToSQL {
 		// return _toInsertSQL(entity,false);
 		String sql = null;
 		try {
-			_ObjectToSQLHelper.setInitIdByAuto(entity);
+			_ObjectToSQLHelper.setInitIdByAuto(entity); // 更改了原来的对象
 			sql = _ObjectToSQLHelper._toInsertSQL0(entity, -1,"");
 		} catch (IllegalAccessException e) {
 			throw ExceptionHelper.convert(e);
@@ -40,26 +40,19 @@ public class ObjectToSQL implements ObjToSQL {
 	}
 
 	@Override
-//	public <T> String toUpdateSQL(T entity) throws ObjSQLException {
 	public <T> String toUpdateSQL(T entity) {
 		String sql = null;
-//		try {
-//			sql = _ObjectToSQLHelper._toUpdateSQL(entity, "id", -1);
 		sql = _ObjectToSQLHelper._toUpdateSQL(entity, -1);
-			// Logger.logSQL("update SQL : ", sql);
-//		} catch (IllegalAccessException e) {
-//			throw ExceptionHelper.convert(e);
-//		}
 		return sql;
 	}
 
 	@Override
 	public <T> String toSelectSQL(T entity, Condition condition) {
-		
-		if(condition==null || condition.getIncludeType()==null)
-		  return _ObjectToSQLHelper._toSelectSQL(entity, -1,condition); // 过滤NULL和空字符串
+
+		if (condition == null || condition.getIncludeType() == null)
+			return _ObjectToSQLHelper._toSelectSQL(entity, -1, condition); // 过滤NULL和空字符串
 		else
-		  return _ObjectToSQLHelper._toSelectSQL(entity, condition.getIncludeType().getValue(),condition); //v1.7.0	
+			return _ObjectToSQLHelper._toSelectSQL(entity, condition.getIncludeType().getValue(), condition); //v1.7.0	
 	}
 	
 	//v1.7.2

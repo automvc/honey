@@ -18,18 +18,23 @@ import org.teasoft.honey.osql.core.HoneyConfig;
  */
 public class GenIdFactory {
 
-	private static GenId genId;
 	private static Map<String, GenId> map = new ConcurrentHashMap<>();
 	private static String defaultGenType;
 	
+	public static final String GenType_SerialUniqueId="SerialUniqueId";
+	public static final String GenType_OneTimeSnowflakeId="OneTimeSnowflakeId";
+	public static final String GenType_PearFlowerId="PearFlowerId";
+	
 	static{
-		int idGenerator=HoneyConfig.getHoneyConfig().idGeneratorType;
+		int idGenerator=HoneyConfig.getHoneyConfig().genid_generatorType;
 		
-		if(idGenerator==1) defaultGenType = "SerialUniqueId";
-		else if(idGenerator==2) defaultGenType = "OneTimeSnowflakeId";
-		else if(idGenerator==3) defaultGenType = "PearFlowerId";
-		else defaultGenType = "SerialUniqueId";
+		if(idGenerator==1) defaultGenType = GenType_SerialUniqueId;
+		else if(idGenerator==2) defaultGenType = GenType_OneTimeSnowflakeId;
+		else if(idGenerator==3) defaultGenType = GenType_PearFlowerId;
+		else defaultGenType = GenType_SerialUniqueId;
 	}
+	
+	private GenIdFactory() {}
 	
 	/**
 	 * 使用默认的命名key来获取id.
@@ -41,7 +46,7 @@ public class GenIdFactory {
 	
 	/**
 	 * 获取一个范围的id.
-	 * @param sizeOfIds
+	 * @param sizeOfIds size of Ids
 	 * @return array of long id.
 	 */
 	public static long[] getRangeId(int sizeOfIds) {
@@ -60,42 +65,58 @@ public class GenIdFactory {
 	/**
 	 * 
 	 * @param bizType bizType作为隔离的命名空间.bizType as namespace.
-	 * @param genType it is one of SerialUniqueId,OneTimeSnowflakeId or PearFlowerId.
-	 * @return
+	 * @param genType The value is one of "SerialUniqueId","OneTimeSnowflakeId" or "PearFlowerId".
+	 * @return long id num.
 	 */
 	public static long get(String bizType, String genType) {
-		genId = getGenId(bizType, genType);
+		GenId genId = getGenId(bizType, genType);
 		return genId.get();
 	}
 
+	/**
+	 * 获取一批id号
+	 * @param bizType bizType作为隔离的命名空间.bizType as namespace.
+	 * @param sizeOfIds 一批次获取id号的数量. size of Ids.
+	 * @return 一批id号.array of id num.
+	 */
 	public static long[] getRangeId(String bizType, int sizeOfIds) {
 		return getRangeId(bizType, defaultGenType, sizeOfIds);
 	}
 
+	/**
+	 * 获取一批id号
+	 * @param bizType bizType作为隔离的命名空间.bizType as namespace.
+	 * @param genType The value is one of "SerialUniqueId","OneTimeSnowflakeId" or "PearFlowerId".
+	 * @param sizeOfIds 一批次获取id号的数量. size of Ids.
+	 * @return 一批id号.array of id num.
+	 */
 	public static long[] getRangeId(String bizType, String genType, int sizeOfIds) {
-		genId = getGenId(bizType, genType);
+		GenId genId = getGenId(bizType, genType);
 		return genId.getRangeId(sizeOfIds);
 	}
 
 	private static GenId getGenId(String bizType, String genType) {
 		String key = genType + "::" + bizType;
-		genId = map.get(key);
+		GenId genId = map.get(key);
 		if (genId == null) {
 			switch (genType) {
-				case "SerialUniqueId":
+				case GenType_SerialUniqueId:
 					genId = new SerialUniqueId();
 					break;
-				case "OneTimeSnowflakeId":
+				case GenType_OneTimeSnowflakeId:
 					genId = new OneTimeSnowflakeId();
 					break;
-				case "PearFlowerId":
+				case GenType_PearFlowerId:
 					genId = new PearFlowerId();
 					break;
+				default:
+					genId = new SerialUniqueId();
 			}
 			map.put(key, genId);
-			//TODO 要选择不同类型   每种ID,还要选择不同的业务类型,如不同的表名,只给自己的表拿ID(表名隔离).
+			// 要选择不同类型   每种ID,还要选择不同的业务类型,如不同的表名,只给自己的表拿ID(表名隔离).
 			//单机默认用SerialUniqueId, 用workerid=0.  插入到表可以保证单调连续,全局唯一.
 		}
 		return genId;
 	}
+	
 }

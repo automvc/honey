@@ -9,9 +9,16 @@ import org.teasoft.honey.osql.core.BeeFactory;
  * @since  1.0
  */
 public class ObjSQLServiceImpl extends ObjSQLAbstractServiceImpl {
+	
+	private Suid suid;
+	
+	public void setSuid(Suid suid) {
+		this.suid = suid;
+	}
 
 	@Override
 	public Suid getSuid() {
-		return BeeFactory.getHoneyFactory().getSuid();
+		if(suid==null) return BeeFactory.getHoneyFactory().getSuid();
+		return suid;
 	}
 }

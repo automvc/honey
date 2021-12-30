@@ -19,6 +19,7 @@ public class FileUtil {
 	private static FileCreator fileCreator=null;
 	static{
 		 fileCreator=new FileHandle();
+		 fileCreator.setCharsetName("UTF-8");
 	}
 
 	public static void genFile(String fullPathAndName, String content) {

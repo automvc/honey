@@ -20,9 +20,15 @@ import org.teasoft.honey.osql.util.StringUtil;
  */
 public class GenFiles {
 
-	private static String LINE_SEPARATOR = System.getProperty("line.separator"); // 换行符
-
+	private static final String LINE_SEPARATOR = System.getProperty("line.separator"); // 换行符
+	
+	private GenFiles() {}
+	
 	public static void genFile(String templatePath, Map<String, String> map, String targetFilePath) {
+		genFile(templatePath, map, targetFilePath, "#{", "}");
+	}
+
+	public static void genFile(String templatePath, Map<String, String> map, String targetFilePath,String startToken,String endToken) {
 
 		BufferedReader br = null;
 		StringBuffer sb = new StringBuffer();
@@ -31,7 +37,7 @@ public class GenFiles {
 			br = FileUtil.readFile(templatePath);
 			String temp = null;
 			while ((temp = br.readLine()) != null) {
-				temp = StringUtil.replaceWithMap(temp, map);
+				temp = StringUtil.replaceWithMap(temp, map,startToken,endToken);
 				if(firstLine) firstLine=false;
 				else sb.append(LINE_SEPARATOR);
 				sb.append(temp);
@@ -48,7 +54,6 @@ public class GenFiles {
 				}
 			}
 		}
-//		FileUtil.genAppendFile(targetFilePath, sb.toString());
 		FileUtil.genFile(targetFilePath, sb.toString());
 	}
 }

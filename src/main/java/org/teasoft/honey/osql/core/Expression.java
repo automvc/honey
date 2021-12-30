@@ -31,12 +31,12 @@ public final class Expression {
 		this.opNum = 2;
 	}
 
-	public Expression(String field, Object value) {
-		this.fieldName = field;
-		this.opType = Op.eq.getOperator();
-		this.value = value;
-		this.opNum = 2;
-	}
+//	public Expression(String field, Object value) {
+//		this.fieldName = field;
+//		this.opType = Op.eq.getOperator();
+//		this.value = value;
+//		this.opNum = 2;
+//	}
 
 	public String getFieldName() {
 		return fieldName;

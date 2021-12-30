@@ -18,7 +18,7 @@ public class OriginalName implements NameTranslate{
 
 	@Override
 	public String toTableName(String entityName) {
-		return entityName;
+		return NameUtil.firstLetterToLowerCase(entityName);
 	}
 
 	@Override

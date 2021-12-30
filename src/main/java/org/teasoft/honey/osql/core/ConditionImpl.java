@@ -18,6 +18,7 @@ import org.teasoft.bee.osql.Op;
 import org.teasoft.bee.osql.OrderType;
 import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
+import org.teasoft.honey.osql.util.NameCheckUtil;
 
 /**
  * @author Kingstar
@@ -26,15 +27,19 @@ import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
 public class ConditionImpl implements Condition {
 
 	private SuidType suidType;
-	public List<Expression> list = new ArrayList<>();
-	private Set<String> fieldSet = new HashSet<>(); //条件表达式用到的字段
+	private List<Expression> list = new ArrayList<>();
+	private Set<String> whereField = new HashSet<>(); //条件表达式用到的字段
 	private IncludeType includeType;
 	
 	private String selectField;
 	private Boolean isForUpdate;
 	
 	private List<Expression> updateSetList = new ArrayList<>();
-	private Set<String> updatefieldSet = new HashSet<>();
+	private Set<String> updatefields = new HashSet<>();//update set 部分用到的字段
+	
+	private List<FunExpress> funExpList=new ArrayList<>();
+	
+	private List<Expression> onExpList = new ArrayList<>();
 	
 	private boolean isStartGroupBy = true;
 	private boolean isStartHaving = true;
@@ -70,21 +75,46 @@ public class ConditionImpl implements Condition {
 
 	@Override
 	public Condition op(String field, Op Op, Object value) {
+		
+		checkField(field);
 		list.add(new Expression(field, Op, value));
-		this.fieldSet.add(field);
+		this.whereField.add(field);
 		return this;
 	}
-
+	
+	//v1.9.8
 	@Override
-	public Set<String> getFieldSet() {
-		return fieldSet;
+	public Condition opOn(String field, Op Op, Object value) {
+		
+		checkField(field);
+		onExpList.add(new Expression(field, Op, value));
+		return this;
+	}
+	
+	@Override
+	public Condition opWithField(String field1, Op Op, String field2) {
+		checkField(field1);
+		checkField(field2);
+		
+		Expression exp = new Expression(field1, Op, field2);
+		exp.setOpNum(-3); // eg:field1=field2
+		
+		list.add(exp);
+		this.whereField.add(field1);
+//		this.fieldSet.add(field2);
+		return this;
+	}
+	
+	@Override
+	public Set<String> getWhereFields() {
+		return whereField;
 	}
 
 	@Override
 	public Condition and() {
 		Expression exp = new Expression();
 		exp.setOpNum(1);
-		exp.value = "and";
+		exp.value = K.and;
 		list.add(exp);
 
 		return this;
@@ -94,7 +124,7 @@ public class ConditionImpl implements Condition {
 	public Condition or() {
 		Expression exp = new Expression();
 		exp.setOpNum(1);
-		exp.value = "or";
+		exp.value = K.or;
 		list.add(exp);
 
 		return this;
@@ -122,13 +152,15 @@ public class ConditionImpl implements Condition {
 
 	@Override
 	public Condition groupBy(String field) {
+		checkField(field);
 		Expression exp = new Expression();
 		exp.fieldName = field;
 		exp.opType = "groupBy";
 		
 		if (isStartGroupBy) {
 			isStartGroupBy = false;
-			exp.value =" group by ";
+//			exp.value =" group by ";
+			exp.value =" "+K.groupBy+" ";
 		} else {
 			//exp.fieldName=","+field; //不能这样写,field需要转换
 			exp.value = COMMA;
@@ -137,28 +169,35 @@ public class ConditionImpl implements Condition {
 		return this;
 	}
 
-	@Override
-	public Condition having(String expressionStr) {
-		Expression exp = new Expression();
-		exp.opType = "having";
-		//exp.value
-		exp.opNum = 2;
-		exp.value2=expressionStr;
-		
-		if (isStartHaving) {
-			if(isStartGroupBy) throw new BeeErrorGrammarException("The 'having' must be after 'group by' !");
-			isStartHaving = false;
-			exp.value = " having ";
-		} else {
-			exp.value = " and ";
-		}
-				
-		list.add(exp);
-		return this;
-	}
+//	@Override
+//	public Condition having(String expressionStr) {
+//		checkHavingException(expressionStr);
+//		Expression exp = new Expression();
+//		exp.opType = "having";
+//		//exp.value
+//		exp.opNum = 2;
+//		exp.value2=expressionStr;
+//		
+//		if (isStartHaving) {
+//			if(isStartGroupBy) throw new BeeErrorGrammarException("The 'having' must be after 'group by' !");
+//			isStartHaving = false;
+////			exp.value = " having ";
+//			exp.value = " "+K.having+" ";
+//		} else {
+////			exp.value = " and ";
+//			exp.value = " "+K.and+" ";
+//		}
+//				
+//		list.add(exp);
+//		return this;
+//	}
+	//closed. because can use:
+//	 .having(FunctionType.COUNT, "*", Op.ge, 1)
+//	 .having(FunctionType.COUNT, "distinct(userid)", Op.ge, 1)
 
 	@Override
 	public Condition having(FunctionType functionType, String field, Op Op, Number value) {
+		checkField(field);
 		Expression exp = new Expression();
 		exp.opType = "having";
 		//exp.value
@@ -171,9 +210,11 @@ public class ConditionImpl implements Condition {
 		if (isStartHaving) {
 			if(isStartGroupBy) throw new BeeErrorGrammarException("The 'having' must be after 'group by' !");
 			isStartHaving = false;
-			exp.value = " having ";
+//			exp.value = " having ";
+			exp.value = " "+K.having+" ";
 		} else {
-			exp.value = " and ";
+//			exp.value = " and ";
+			exp.value = " "+K.and+" ";
 		}
 				
 		list.add(exp);
@@ -182,7 +223,7 @@ public class ConditionImpl implements Condition {
 
 	@Override
 	public Condition orderBy(String field) {
-
+		checkField(field);
 		Expression exp = new Expression();
 		exp.opType = "orderBy";
 		//		exp.value
@@ -191,7 +232,8 @@ public class ConditionImpl implements Condition {
 
 		if (isStartOrderBy) {
 			isStartOrderBy = false;
-			exp.value = " order by ";
+//			exp.value = " order by ";
+			exp.value = " "+K.orderBy+" ";
 		} else {
 			exp.value = COMMA;
 		}
@@ -201,7 +243,7 @@ public class ConditionImpl implements Condition {
 
 	@Override
 	public Condition orderBy(String field, OrderType orderType) {
-
+		checkField(field);
 		Expression exp = new Expression();
 		exp.opType = "orderBy";
 		//		exp.value
@@ -211,7 +253,8 @@ public class ConditionImpl implements Condition {
 
 		if (isStartOrderBy) {
 			isStartOrderBy = false;
-			exp.value = " order by ";
+//			exp.value = " order by ";
+			exp.value = " "+K.orderBy+" ";
 		} else {
 			exp.value = COMMA;
 		}
@@ -221,6 +264,7 @@ public class ConditionImpl implements Condition {
 	
 	@Override
 	public Condition orderBy(FunctionType functionType, String field, OrderType orderType) {
+		checkField(field);
 		Expression exp = new Expression();
 		exp.opType = "orderBy";
 		//		exp.value
@@ -231,7 +275,8 @@ public class ConditionImpl implements Condition {
 
 		if (isStartOrderBy) {
 			isStartOrderBy = false;
-			exp.value = " order by ";
+//			exp.value = " order by ";
+			exp.value = " "+K.orderBy+" ";
 		} else {
 			exp.value = COMMA;
 		}
@@ -240,6 +285,7 @@ public class ConditionImpl implements Condition {
 	}
 	
 	private void setForBetween(String field, Object low, Object high,String type){
+		checkField(field);
 		Expression exp = new Expression();
 		exp.fieldName = field;
 //		exp.opType = "between";
@@ -248,7 +294,7 @@ public class ConditionImpl implements Condition {
 		exp.value2=high;
 		exp.opNum=3;  //即使不用也不能省,因为默认值是0会以为是其它的
 		
-		this.fieldSet.add(field);
+		this.whereField.add(field);
 		
 		list.add(exp);
 	}
@@ -256,28 +302,29 @@ public class ConditionImpl implements Condition {
 	@Override
 	public Condition between(String field, Number low, Number high) {
 		
-		setForBetween(field, low, high, " between ");
+//		setForBetween(field, low, high, " between ");
+		setForBetween(field, low, high, " "+K.between+" ");
 		
 		return this;
 	}
 
 	@Override
 	public Condition notBetween(String field, Number low, Number high) {
-		setForBetween(field, low, high, " not between ");
+		setForBetween(field, low, high, " "+K.notBetween+" ");
 		
 		return this;
 	}
 
 	@Override
 	public Condition between(String field, String low, String high) {
-		setForBetween(field, low, high, " between ");
+		setForBetween(field, low, high, " "+K.between+" ");
 		
 		return this;
 	}
 
 	@Override
 	public Condition notBetween(String field, String low, String high) {
-		setForBetween(field, low, high, " not between ");
+		setForBetween(field, low, high, " "+K.notBetween+" ");
 		
 		return this;
 	}
@@ -292,7 +339,12 @@ public class ConditionImpl implements Condition {
 	}
 
 	public List<Expression> getExpList() {
+		//todo 若要自动调整顺序,可以在这改.  group by,having, order by另外定义,在这才添加到list.
 		return list;
+	}
+	
+	public List<Expression> getOnExpList() {
+		return onExpList;
 	}
 
 	public Integer getStart() {
@@ -303,11 +355,13 @@ public class ConditionImpl implements Condition {
 		return size;
 	}
 	
-	private static String setAdd="setAdd";
-	private static String setMultiply="setMultiply";
+	private static final String setAdd="setAdd";
+	private static final String setMultiply="setMultiply";
 	
-	private static String setAddField = "setAddField";
-	private static String setMultiplyField = "setMultiplyField";
+	private static final String setAddField = "setAddField";
+	private static final String setMultiplyField = "setMultiplyField";
+	
+	private static final String setWithField="setWithField"; //v1.9
 
 	@Override
 	public Condition setAdd(String field, Number num) {  //for field self
@@ -320,13 +374,18 @@ public class ConditionImpl implements Condition {
 	}
 	
 	@Override
-	public Condition setAdd(String field, String fieldName) {
-		return forUpdateSet(field, fieldName, setAddField);
+	public Condition setAdd(String field, String otherFieldName) {
+		return forUpdateSet(field, otherFieldName, setAddField);
 	}
 
 	@Override
-	public Condition setMultiply(String field, String fieldName) {
-		return forUpdateSet(field, fieldName, setMultiplyField);
+	public Condition setMultiply(String field, String otherFieldName) {
+		return forUpdateSet(field, otherFieldName, setMultiplyField);
+	}
+	
+	@Override
+	public Condition setWithField(String field1, String field2) {
+		return forUpdateSet(field1, field2, setWithField);
 	}
 	
 	@Override
@@ -341,12 +400,25 @@ public class ConditionImpl implements Condition {
 	
 	@Override
 	public Condition selectField(String fieldList) {
-		
+		checkField(fieldList);
 		this.selectField=fieldList;
 		
 		return this;
 	}
 	
+	@Override
+	public Condition selectDistinctField(String fieldName) {
+		funExpList.add(new FunExpress("distinct", fieldName, null));
+		return this;
+	}
+	
+	@Override
+	public Condition selectDistinctField(String fieldName,String alias) {
+		checkField(alias);
+		funExpList.add(new FunExpress("distinct", fieldName, alias));
+		return this;
+	}
+
 	@Override
 	public String getSelectField(){
 		return this.selectField;
@@ -356,8 +428,13 @@ public class ConditionImpl implements Condition {
 		return updateSetList;
 	}
 	
-	private Condition forUpdateSet(String field, String fieldName,String opType){
-		return _forUpdateSet(field, fieldName, opType);
+	public List<FunExpress> getFunExpList() {
+		return funExpList;
+	}
+	
+	private Condition forUpdateSet(String field, String otherFieldName,String opType){
+		checkField(otherFieldName);
+		return _forUpdateSet(field, otherFieldName, opType);
 	}
 	
 	private Condition forUpdateSet(String field, Number num,String opType){
@@ -365,13 +442,14 @@ public class ConditionImpl implements Condition {
 	}
 	
 	private Condition _forUpdateSet(String field, Object ojb,String opType){
+		checkField(field);
 		Expression exp = new Expression();
 		exp.fieldName = field;
-		exp.opType =opType; //"setAdd" or "setMultiply";  setAddField; setMultiplyField
+		exp.opType =opType; //"setAdd" or "setMultiply";  setAddField; setMultiplyField; setWithField
 		exp.value=ojb;
 		exp.opNum=1;  
 		
-		this.updatefieldSet.add(field);
+		this.updatefields.add(field);
 		updateSetList.add(exp);
 		
 		return this;
@@ -379,21 +457,22 @@ public class ConditionImpl implements Condition {
 	
 	//set field=value
 	private Condition _forUpdateSet2(String field, Object ojb) {
+		checkField(field);
 		Expression exp = new Expression();
 		exp.fieldName = field;
 	  //exp.opType =opType; 
 		exp.value = ojb;
 		exp.opNum = 1;
 
-		this.updatefieldSet.add(field);
+		this.updatefields.add(field);
 		updateSetList.add(exp);
 
 		return this;
 	}
 	
 	@Override
-	public Set<String> getUpdatefieldSet() {
-		return updatefieldSet;
+	public Set<String> getUpdatefields() {
+		return updatefields;
 	}
 
 	@Override
@@ -405,6 +484,75 @@ public class ConditionImpl implements Condition {
 	@Override
 	public Boolean getForUpdate() {
 		return isForUpdate;
+	}
+	
+	//v1.9
+	@Override
+	public Condition selectFun(FunctionType functionType, String fieldForFun) {
+		funExpList.add(new FunExpress(functionType, fieldForFun, null));
+		return this;
+	}
+
+	//v1.9
+	@Override
+	public Condition selectFun(FunctionType functionType, String fieldForFun, String alias) {
+		checkField(alias);
+		funExpList.add(new FunExpress(functionType, fieldForFun, alias));
+		return this;
+	}
+
+	private void checkField(String field){
+//		if(CheckField.isIllegal(field)) {
+//			throw new BeeErrorFieldException("The field: '"+field+ "' is illegal!");
+//		}
+		NameCheckUtil.checkName(field);
+	}
+
+	final class FunExpress{
+//		private FunctionType functionType;
+		private String functionType;
+		private String field;
+		private String alias;
+		
+		public FunExpress(FunctionType functionType, String field, String alias) {
+			checkField(field);
+			this.functionType = functionType.getName();
+			this.field = field;
+			this.alias = alias;
+		}
+		
+		public FunExpress(String functionType, String field, String alias) {
+			checkField(field);
+			this.functionType = functionType;
+			this.field = field;
+			this.alias = alias;
+		}
+
+		FunExpress() {}
+
+		public String getFunctionType() {
+			return functionType;
+		}
+
+		public void setFunctionType(String functionType) {
+			this.functionType = functionType;
+		}
+
+		public String getField() {
+			return field;
+		}
+		
+		public void setField(String field) {
+			this.field = field;
+		}
+
+		public String getAlias() {
+			return alias;
+		}
+
+		public void setAlias(String alias) {
+			this.alias = alias;
+		}
 	}
 	
 }

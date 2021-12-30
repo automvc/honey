@@ -5,13 +5,15 @@ package org.teasoft.honey.osql.core;
  * @since  1.0
  */
 public final class SqlStrFilter {
+	
+	private SqlStrFilter() {}
 
 	public static boolean checkFunSql(String sql, String funType) {
-
 		sql = sql.trim().toLowerCase();
 		funType = funType.trim().toLowerCase();
 
-		if ("count".equals(funType) || funType.length() == 3) {
+		if ("count".equalsIgnoreCase(funType) || funType.length() == 3) {
+
 		} else {
 			return true;// illegal
 		}

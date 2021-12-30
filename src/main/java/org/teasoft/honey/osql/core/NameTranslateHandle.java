@@ -19,7 +19,7 @@ import org.teasoft.bee.osql.annotation.Table;
  * @since  1.5
  */
 public class NameTranslateHandle {
-	private static NameTranslate nameTranslat = BeeFactory.getHoneyFactory().getNameTranslate();
+	private static NameTranslate nameTranslat = BeeFactory.getHoneyFactory().getInitNameTranslate();
 	private static ConcurrentMap<String,String> entity2tableMap;
 	private static ConcurrentMap<String,String> table2entityMap=null;
 	static{
@@ -31,15 +31,19 @@ public class NameTranslateHandle {
 	 * 指定命名转换实现类
 	 * @param nameTranslat
 	 */
-	public static void setNameTranslat(NameTranslate nameTranslat) { //TODO remove??
+	public static void setNameTranslat(NameTranslate nameTranslat) { // for set customer naming.
 		NameTranslateHandle.nameTranslat = nameTranslat;
+		HoneyContext.clearFieldNameCache();
+	}
+	
+	public static NameTranslate getNameTranslate() {
+		return NameTranslateHandle.nameTranslat;
 	}
 
 	@SuppressWarnings({"rawtypes","unchecked"}) 
 	public static String toTableName(String entityName) {
 		try {
-			String flag = (String) OneTimeParameter.getAttribute("_SYS_Bee_DoNotCheckAnnotation");
-			if ("tRue".equals(flag)) {
+			if(OneTimeParameter.isTrue(StringConst.DoNotCheckAnnotation)) {	
 				//nothing
 			} else {
 				//Table注解不再需要命名转换,Entity注解解析动态命名参数后还需要命名转换
@@ -52,15 +56,20 @@ public class NameTranslateHandle {
 					entityName = processAutoPara(tntity.value());
 				}
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			if(entityName!=null && !entityName.contains("."))
+			   Logger.info("In NameTranslateHandle,ClassNotFoundException : "+e.getMessage());
+			else
+			   Logger.warn("In NameTranslateHandle,ClassNotFoundException : "+e.getMessage());
 		}
 		
 		//entityName maybe include package name
 		//special one, config in :bee.osql.name.mapping.entity2table
+		if(entityName==null) entityName="";
 		String tableName=entity2tableMap.get(entityName);
-		if(tableName!=null && !"".equals(tableName.trim())) return tableName;//fix bug 2020-08-22
-		else {//若找不到,检测是否包含包名,若有,则去除包名后再用类名看下是否能找到
+		if (tableName != null && !"".equals(tableName.trim())) {
+			return tableName;//fix bug 2020-08-22
+		}else {//若找不到,检测是否包含包名,若有,则去除包名后再用类名看下是否能找到
 			int index = entityName.lastIndexOf(".");
 			if(index>0){
 				entityName=entityName.substring(index + 1);  //此时entityName只包含类名
@@ -76,14 +85,15 @@ public class NameTranslateHandle {
 		return nameTranslat.toColumnName(fieldName);
 	}
 
-	public static String toEntityName(String tableName) {//生成javabean时会用到. SqlLib不会用到.因会传入T entity
-		if(table2entityMap==null){
-			table2entityMap=HoneyContext.getTable2entityMap();
+	public synchronized static String toEntityName(String tableName) {//生成javabean时会用到. SqlLib不会用到.因会传入T entity
+		if (table2entityMap == null) {
+			table2entityMap = HoneyContext.getTable2entityMap();
 		}
+		if (tableName == null) tableName = "";
 		//special one, config in :bee.osql.name.mapping.entity2table
-		String entityName=table2entityMap.get(tableName);
-		if(entityName!=null && !"".equals(entityName.trim())) return entityName; //fix bug 2020-08-22
-		
+		String entityName = table2entityMap.get(tableName);
+		if (entityName != null && !"".equals(entityName.trim())) return entityName; //fix bug 2020-08-22
+
 		return nameTranslat.toEntityName(tableName);
 	}
 
@@ -99,8 +109,9 @@ public class NameTranslateHandle {
 			Map<String,String> map=new HashMap<>();
 			String value=(String)OneTimeParameter.getAttribute(key);
 			if(value==null){
-				Logger.error("Auto table error: parameter  ${"+key+"} in "+autoPara+" still has not value!");
-				return autoPara;
+				Logger.warn("Auto table: parameter  ${"+key+"} in "+autoPara+" still has not value, will be ignore it!");
+//				return autoPara;
+				value=""; //V1.9 没设置时,直接去掉变量表达式
 			}
 			map.put(key, value);
 			return TokenUtil.processWithMap(autoPara, "${", "}", map);

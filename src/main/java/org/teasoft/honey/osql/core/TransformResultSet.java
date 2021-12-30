@@ -10,7 +10,9 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Transform ResultSet
@@ -23,12 +25,13 @@ public class TransformResultSet {
 		StringBuffer json = new StringBuffer("");
 		ResultSetMetaData rmeta = rs.getMetaData();
 		int columnCount = rmeta.getColumnCount();
-		boolean ignoreNull = HoneyConfig.getHoneyConfig().isIgnoreNullInSelectJson();
+		boolean ignoreNull = HoneyConfig.getHoneyConfig().selectJson_ignoreNull;
 		String temp = "";
 
-		boolean dateWithMillisecond = HoneyConfig.getHoneyConfig().isDateWithMillisecondInSelectJson();
-		boolean timeWithMillisecond = HoneyConfig.getHoneyConfig().isTimeWithMillisecondInSelectJson();
-		boolean timestampWithMillisecond = HoneyConfig.getHoneyConfig().isTimestampWithMillisecondInSelectJson();
+		boolean dateWithMillisecond = HoneyConfig.getHoneyConfig().selectJson_dateWithMillisecond;
+		boolean timeWithMillisecond = HoneyConfig.getHoneyConfig().selectJson_timeWithMillisecond;
+		boolean timestampWithMillisecond = HoneyConfig.getHoneyConfig().selectJson_timestampWithMillisecond;
+		boolean longToString = HoneyConfig.getHoneyConfig().selectJson_longToString;
 
 		while (rs.next()) {
 			json.append(",{");
@@ -94,6 +97,10 @@ public class TransformResultSet {
 								json.append("\"");
 							}
 						}
+					} else if (longToString && "Long".equals(HoneyUtil.getFieldType(rmeta.getColumnTypeName(i)))) {
+						json.append("\"");
+						json.append(rs.getString(i));
+						json.append("\"");
 					} else {
 						json.append(rs.getString(i));
 					}
@@ -124,7 +131,7 @@ public class TransformResultSet {
 		List<String[]> list = new ArrayList<String[]>();
 		ResultSetMetaData rmeta = rs.getMetaData();
 		int columnCount = rmeta.getColumnCount();
-		boolean nullToEmptyString = HoneyConfig.getHoneyConfig().isNullToEmptyStringInReturnStringList();
+		boolean nullToEmptyString = HoneyConfig.getHoneyConfig().returnStringList_nullToEmptyString;
 		String str[] = null;
 		while (rs.next()) {
 			str = new String[columnCount];
@@ -136,6 +143,23 @@ public class TransformResultSet {
 				}
 			}
 			list.add(str);
+		}
+		return list;
+	}
+	
+	
+	public static List<Map<String,Object>> toMapList(ResultSet rs) throws SQLException {
+		List<Map<String,Object>> list = new ArrayList<>();
+		ResultSetMetaData rmeta = rs.getMetaData();
+		int columnCount = rmeta.getColumnCount();
+		Map<String,Object> rowMap=null;
+		while (rs.next()) {
+//			rowMap=new HashMap<>();
+			rowMap=new LinkedHashMap<>(); //2021-06-13
+			for (int i = 1; i <= columnCount; i++) {
+				rowMap.put(_toFieldName(rmeta.getColumnName(i)), rs.getObject(i));
+			}
+			list.add(rowMap);
 		}
 		return list;
 	}

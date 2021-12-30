@@ -10,6 +10,7 @@ import org.teasoft.bee.osql.exception.NoConfigException;
 import org.teasoft.bee.osql.transaction.Transaction;
 import org.teasoft.honey.osql.constant.DbConfigConst;
 import org.teasoft.honey.osql.transaction.JdbcTransaction;
+import org.teasoft.honey.util.StringUtils;
 
 /**
  * @author Kingstar
@@ -27,9 +28,14 @@ public final class SessionFactory {
 		}
 		return beeFactory;
 	}
-
+	
 	public void setBeeFactory(BeeFactory beeFactory) {
-		this.beeFactory = beeFactory;
+//		SessionFactory.beeFactory = beeFactory;
+		_setBeeFactory(beeFactory);
+	}
+	
+	private static void _setBeeFactory(BeeFactory beeFactory) {
+		SessionFactory.beeFactory = beeFactory;
 	}
 
 	public SessionFactory() {}
@@ -44,13 +50,13 @@ public final class SessionFactory {
 				conn = getOriginalConn();
 			}
 		} catch (SQLException e) {
-//			e.printStackTrace();
+			Logger.debug(e.getMessage());
 			throw ExceptionHelper.convert(e);
 		} catch (ClassNotFoundException e) {
 			Logger.error("Can not find the Database driver!  " + e.getMessage());
 			throw new NoConfigException("Can not find the Database driver(maybe miss the jar file).");
 		} catch (Exception e) {
-			Logger.error("Have Exception when getConnection: " + e.getMessage());
+//			Logger.error("Have Exception when getConnection: " + e.getMessage());
 			throw ExceptionHelper.convert(e);
 		}
 
@@ -74,7 +80,7 @@ public final class SessionFactory {
 		return tran;
 	}
 
-	private static Connection getOriginalConn() throws ClassNotFoundException, SQLException {
+	private static Connection getOriginalConn() throws ClassNotFoundException, SQLException,Exception {
 
 		String driverName = HoneyConfig.getHoneyConfig().getDriverName();
 		String url = HoneyConfig.getHoneyConfig().getUrl();
@@ -84,20 +90,28 @@ public final class SessionFactory {
 		String nullInfo = "";
 		if (driverName == null) nullInfo += DbConfigConst.DB_DRIVERNAME + " do not config; ";
 		if (url == null) nullInfo += DbConfigConst.DB_URL + " do not config; ";
+		
+		if (url == null) {
+//			Logger.error("The url can not be null when get the Connection directly from DriverManager!  "+nullInfo);
+//			Logger.warn("The system will be exit!......");
+//			System.exit(0);
+			throw new Exception("The url can not be null when get the Connection directly from DriverManager!  ("+nullInfo+")");
+		}
+		
 		if (username == null) nullInfo += DbConfigConst.DB_USERNAM + " do not config; ";
-		if (password == null) nullInfo += DbConfigConst.DB_PASSWORD + " do not config; ";
+		if (password == null) nullInfo += DbConfigConst.DB_PWORD + " do not config; ";
 
 		if (!"".equals(nullInfo)) {
 //			throw new NoConfigException("NoConfigException,Do not set the database info: " + nullInfo);
 			if(isFirst){
-			  Logger.warn("NoConfigException,Do not set the database info: " + nullInfo); 
+			  Logger.warn("Do not set the database info: " + nullInfo); 
 			  isFirst=false;
 			}
 		}
 		Connection conn = null;
-		if (driverName != null && !"".equals(driverName.trim())) Class.forName(driverName);  //some db,no need set the driverName //v1.8.15
+		if (StringUtils.isNotBlank(driverName)) Class.forName(driverName);  //some db,no need set the driverName //v1.8.15
 
-		if (username != null && !"".equals(username.trim()) && password != null)
+		if (StringUtils.isNotBlank(username) && password != null)
 			conn = DriverManager.getConnection(url, username, password);
 		else
 			conn = DriverManager.getConnection(url);  //v1.8.15

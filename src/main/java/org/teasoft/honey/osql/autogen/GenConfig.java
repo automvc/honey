@@ -1,12 +1,16 @@
 package org.teasoft.honey.osql.autogen;
-
+/**
+ * 生成Javabean的相关配置信息.Gen Javabean config.
+ * @author Kingstar
+ *
+ */
 public class GenConfig {
 	private String encode = "UTF-8"; // 字符编码
 
 	private String baseDir = "";
 	private String packagePath = "";
-	private String dbName = ""; // 数据库类型 mysql oracle等
-	private String queryTableSql = ""; // 查询所有表名的SQL语句，mysqll,oracle和sql server不用设置
+	private String dbName = ""; // 数据库类型 MySQL, Oracle等
+	private String queryTableSql = ""; // 查询所有表名的SQL语句，MySQL,Oracle和SQL Server不用设置
 	private boolean genToString;
 	private boolean genSerializable;
 	
@@ -94,7 +98,7 @@ public class GenConfig {
 	}
 
 	/**
-	 * !!!Automatic translation is highly recommended
+	 * @deprecated !!!Automatic translation is highly recommended
 	 */
 	@Deprecated
 	public String getEntityNamePre() {
@@ -102,7 +106,7 @@ public class GenConfig {
 	}
 
 	/**
-	 * !!!Automatic translation is highly recommended
+	 * @deprecated !!!Automatic translation is highly recommended
 	 * @param entityNamePre  prefix of entityName
 	 */
 	@Deprecated

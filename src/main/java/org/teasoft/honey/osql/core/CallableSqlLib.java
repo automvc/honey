@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.teasoft.bee.osql.CallableSql;
-import org.teasoft.bee.osql.annotation.JoinTable;
 
 /**
  * @author Kingstar
@@ -20,9 +19,7 @@ import org.teasoft.bee.osql.annotation.JoinTable;
  */
 public class CallableSqlLib implements CallableSql {
 
-	public static ThreadLocal<Connection> connLocal2 = new ThreadLocal<>();
-
-	public static ThreadLocal<Map<String, Connection>> connLocal = new ThreadLocal<>();
+	private static final ThreadLocal<Map<String, Connection>> connLocal = new ThreadLocal<>();
 
 	@Override
 	public <T> List<T> select(String callSql, T entity, Object[] preValues) {
@@ -34,7 +31,7 @@ public class CallableSqlLib implements CallableSql {
 		T targetObj = null;
 		try {
 			conn = getConn();
-			//      callSql = "{call batchOrder(?,?,?)}"; 
+//          callSql = "{call batchOrder(?,?,?)}"; 
 			callSql = "{call " + callSql + "}"; // callSql like : batchOrder(?,?,?)
 			cstmt = conn.prepareCall(callSql);
 
@@ -50,8 +47,7 @@ public class CallableSqlLib implements CallableSql {
 			while (rs.next()) {
 				targetObj = (T) entity.getClass().newInstance();
 				for (int i = 0; i < columnCount; i++) {
-					if ("serialVersionUID".equals(field[i].getName())) continue;
-					if (field[i]!= null && field[i].isAnnotationPresent(JoinTable.class)) continue;
+					if(HoneyUtil.isSkipField(field[i])) continue;
 					field[i].setAccessible(true);
 					try {
 						field[i].set(targetObj, rs.getObject(_toColumnName(field[i].getName())));
@@ -69,6 +65,11 @@ public class CallableSqlLib implements CallableSql {
 		} catch (InstantiationException e) {
 			throw ExceptionHelper.convert(e);
 		} finally {
+			try {
+				if(rs!=null) rs.close();
+			} catch (Exception e2) {
+				// ignore
+			}
 			checkClose(cstmt, conn);
 		}
 
@@ -79,7 +80,7 @@ public class CallableSqlLib implements CallableSql {
 	}
 
 	@Override
-	public int modify(String callSql, Object[] preValues) { //TODO 没有 输出参数情形
+	public int modify(String callSql, Object[] preValues) { //没有 输出参数情形
 		int result = 0;
 		Connection conn = null;
 		CallableStatement cstmt =null;
@@ -88,7 +89,6 @@ public class CallableSqlLib implements CallableSql {
 //          callSql = "{call batchOrder(?,?,?)}"; 
 			callSql = "{call " + callSql + "}"; // callSql like : batchOrder(?,?,?)
 			cstmt = conn.prepareCall(callSql);
-//          cstmt.setInt(1,barcodeNum);
 
 			StringBuffer values = initPreparedValues(cstmt, preValues);
 			Logger.logSQL("Callable SQL: ", callSql + "  values: " + values);
@@ -113,8 +113,9 @@ public class CallableSqlLib implements CallableSql {
 			//      callSql = "{call batchOrder(?,?,?)}"; 
 			callSql = "{call " + callSql + "}"; // callSql like : batchOrder(?,?,?)
 			cstmt = conn.prepareCall(callSql);
-
-			setConnLocal(getIdString(cstmt), conn);
+			Logger.logSQL("Callable SQL,getCallableStatement: ",callSql);
+			String key=getIdString(cstmt);
+			setConnLocal(key, conn);
 
 		} catch (SQLException e) {
 			throw ExceptionHelper.convert(e);
@@ -125,12 +126,14 @@ public class CallableSqlLib implements CallableSql {
 	}
 
 	@Override
-	public int modify(CallableStatement cstmt) { //TODO 无输出参数情形
+	public int modify(CallableStatement cstmt) { //无输出参数情形
 		int result = 0;
 		try {
-			Connection conn = getConnLocal(getIdString(cstmt));
+			String key=getIdString(cstmt);
+			Connection conn = getConnLocal(key);
 			result = cstmt.executeUpdate();
 			checkClose(cstmt, conn);
+			
 		} catch (SQLException e) {
 			throw ExceptionHelper.convert(e);
 		}
@@ -148,7 +151,7 @@ public class CallableSqlLib implements CallableSql {
 
 		try {
 			conn = getConn();
-			//      callSql = "{call batchOrder(?,?,?)}"; 
+//          callSql = "{call batchOrder(?,?,?)}"; 
 			callSql = "{call " + callSql + "}"; // callSql like : batchOrder(?,?,?)
 			cstmt = conn.prepareCall(callSql);
 
@@ -178,7 +181,7 @@ public class CallableSqlLib implements CallableSql {
 
 		try {
 			conn = getConn();
-			//      callSql = "{call batchOrder(?,?,?)}"; 
+//          callSql = "{call batchOrder(?,?,?)}"; 
 			callSql = "{call " + callSql + "}"; // callSql like : batchOrder(?,?,?)
 			cstmt = conn.prepareCall(callSql);
 
@@ -208,14 +211,15 @@ public class CallableSqlLib implements CallableSql {
 	private Connection getConnLocal(String key) {
 		Map<String, Connection> map = connLocal.get();
 		if (null == map) return null;
-
 		Connection s = map.get(key);
-		if (s != null) map.remove(key);
+		map.remove(key);
+		connLocal.remove();
 		return s;
 	}
-
+	
 	private String getIdString(CallableStatement cstmt) {
-		return cstmt.toString();
+//		return cstmt.toString(); //mysql is different in  modify(CallableStatement cstmt),getCallableStatement(String callSql)
+		return cstmt.hashCode()+"";
 	}
 
 	private StringBuffer initPreparedValues(CallableStatement cstmt, Object[] preValues) throws SQLException {

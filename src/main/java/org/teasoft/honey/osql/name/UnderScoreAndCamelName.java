@@ -20,7 +20,7 @@ public class UnderScoreAndCamelName implements NameTranslate{
 	
 	@Override
 	public String toTableName(String entityName) {
-		return NameUtil.toUnderscoreNaming(entityName);
+		return NameUtil.toUnderscoreNaming(NameUtil.firstLetterToLowerCase(entityName));
 	}
 
 	@Override
@@ -30,7 +30,7 @@ public class UnderScoreAndCamelName implements NameTranslate{
 
 	@Override
 	public String toEntityName(String tableName) {
-		if (HoneyConfig.getHoneyConfig().isDbNamingToLowerCaseBefore()) {
+		if (HoneyConfig.getHoneyConfig().naming_toLowerCaseBefore) {
 			//need lowercase first if the name has upper case
 			tableName = tableName.toLowerCase(); 
 		}
@@ -39,7 +39,7 @@ public class UnderScoreAndCamelName implements NameTranslate{
 
 	@Override
 	public String toFieldName(String columnName) {
-		if (HoneyConfig.getHoneyConfig().isDbNamingToLowerCaseBefore()) {
+		if (HoneyConfig.getHoneyConfig().naming_toLowerCaseBefore) {
 			//need lowercase first if the name has upper case
 			columnName = columnName.toLowerCase();  //if not , BEE_NAME->BEENAME  -> ??
 		}

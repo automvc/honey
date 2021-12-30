@@ -25,17 +25,17 @@ public class FileLogger implements Log{
 	
 	private String LINE_SEPARATOR = System.getProperty("line.separator"); // 换行符
 	
-	private static String TRACE="TRACE";
-	private static String DEBUG="DEBUG";
-	private static String INFO="INFO";
-	private static String WARN="WARN";
-	private static String ERROR="ERROR";
-	private static String SPACE=" ";
-	private static String LEFT="[";
-	private static String RIGHT="]";
+	private static final String TRACE="TRACE";
+	private static final String DEBUG="DEBUG";
+	private static final String INFO="INFO";
+	private static final String WARN="WARN";
+	private static final String ERROR="ERROR";
+	private static final String SPACE=" ";
+	private static final String LEFT="[";
+	private static final String RIGHT="]";
 	
-	private static boolean donotPrintCurrentDate=HoneyConfig.getHoneyConfig().isShowSQL_donotPrint_currentDate();
-	private static boolean donotPrintLevel=HoneyConfig.getHoneyConfig().isLog_donotPrint_level();
+	private static boolean donotPrintCurrentDate=HoneyConfig.getHoneyConfig().showSql_donotPrintCurrentDate;
+	private static boolean donotPrintLevel=HoneyConfig.getHoneyConfig().logDonotPrintLevel;
 	
 	public FileLogger(){
 	}
@@ -193,12 +193,13 @@ public class FileLogger implements Log{
 
 		if (Path.getFullPath() == null || "".equals(Path.getFullPath())) { //v1.8.15
 			
-			SimpleDateFormat df=new SimpleDateFormat("yyyy-MM-dd HH.mm.ss.SS");
+//			SimpleDateFormat df=new SimpleDateFormat("yyyy-MM-dd HH.mm.ss.SS");
+			SimpleDateFormat df=new SimpleDateFormat("yyyy-MM-dd");
 			String datetime=df.format(System.currentTimeMillis());
 			
 			String fileSeparator=File.separator;
 			String path=System.getProperty("user.dir") + fileSeparator + "src" + fileSeparator + "main" + fileSeparator
-					+ "resources" + fileSeparator + "log" + fileSeparator + "{datatime}.txt".replace("{datatime}", datetime);
+					+ "resources" + fileSeparator + "log" + fileSeparator + "noname-{datatime}.txt".replace("{datatime}", datetime);
 			System.err.println("[Bee] [WARN] Set the path for FileLogger automatically:  " + path);
 			
 			//set the path and file name of log file

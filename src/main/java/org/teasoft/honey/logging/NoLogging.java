@@ -30,9 +30,9 @@ public class NoLogging implements Log {
     @Override
     public void error(String msg, Throwable e) {
         error(msg);
-        if (e != null) {
-            e.printStackTrace();
-        }
+//        if (e != null) {
+//            e.printStackTrace();
+//        }
     }
 
     @Override
@@ -60,9 +60,9 @@ public class NoLogging implements Log {
     @Override
     public void warn(String msg, Throwable e) {
     	warn(msg);
-        if (e != null) {
-            e.printStackTrace();
-        }
+//        if (e != null) {
+//            e.printStackTrace();
+//        }
     }
 
 	@Override

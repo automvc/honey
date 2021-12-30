@@ -8,6 +8,7 @@ package org.teasoft.honey.distribution.ds;
 
 import org.teasoft.bee.distribution.ds.Route;
 import org.teasoft.honey.osql.core.HoneyConfig;
+import org.teasoft.honey.osql.core.HoneyContext;
 
 /**
  * @author Kingstar
@@ -25,28 +26,27 @@ public class Router {
 	}
 	
 	private static void init(){
-		multiDsType = HoneyConfig.getHoneyConfig().multiDsType;
-		defaultDs = HoneyConfig.getHoneyConfig().multiDsDefalutDS;
+		multiDsType = HoneyConfig.getHoneyConfig().multiDS_type;
+		defaultDs = HoneyConfig.getHoneyConfig().multiDS_defalutDS;
 
 		if (multiDsType == 1) {
 			route = new RwDs();
-
 		} else if (multiDsType == 2) {
 			route = new OnlyMulitiDB();
 		}
 	}
 
 	public static String getDsName() {
-
+		if (HoneyContext.isConfigRefresh()) {
+			refresh();
+			HoneyContext.setConfigRefresh(false);
+		}
 		if (route == null) return defaultDs;
 
 		return route.getDsName();
 	}
 
 	public static void refresh() {
-//		if (multiDsType == 1) {
-//			route = new RwDs();
-//		}
 		init();  //refresh all model
 	}
 
