@@ -6,7 +6,6 @@
 
 package org.teasoft.honey.osql.name;
 
-
 /**
  * @author Kingstar
  * @since  1.5
@@ -22,28 +21,32 @@ public class NameUtil {
 	}
 	
 	/**
+	 * 驼峰转下划线命名.CamelNaming to UnderscoreNaming
 	 * @param name
 	 * @return UnderscoreNaming String
 	 * eg: beeName->bee_name,beeTName->bee_t_name
 	 */
 	public static String toUnderscoreNaming(String name) {
 		StringBuffer buf = new StringBuffer(name);
-		for (int i = 1; i < buf.length() - 1; i++) {
+		for (int i = 1; i < buf.length(); i++) {
 			if (Character.isUpperCase(buf.charAt(i))) {
+				buf.setCharAt(i, (char)(buf.charAt(i)+32));
 				buf.insert(i++, '_');
 			}
 		}
-		return buf.toString().toLowerCase();
+		return buf.toString();
 	}
 	
 	/**
+	 * 下划线转驼峰命名.UnderscoreNaming to CamelNaming
+	 * 首个与最后一个若是下划线则不会处理
 	 * @param name
 	 * @return a string of CamelNaming
 	 * eg:  bee_name->beeName,bee_t_name->beeTName
 	 */
 	public static String toCamelNaming(String name){
 //		StringBuffer buf = new StringBuffer(name.toLowerCase()); //HELLO_WORLD->HelloWorld 字段名有可能是全大写的
-		//在具体接口实现类会先转成小写(如果有必要)
+		//在具体接口实现类可先转成小写(如果有必要)
 		StringBuffer buf = new StringBuffer(name.trim());
 		char temp;
 		for (int i = 1; i < buf.length() - 1; i++) {
@@ -85,24 +88,5 @@ public class NameUtil {
 
 		return result;
 	}
-	
-	
-/*	public static void main(String[] args) {
-		Logger.info(getClassFullName(Class.class));
-		
-		Logger.info(getClassFullName(User.class));
-		Logger.info(getClassFullName(new User()));
-		
-//		beeName->bee_name,beeTName->bee_t_name
-		Logger.info(toUnderscoreNaming("beeName"));
-		Logger.info(toUnderscoreNaming("beeTName"));
-		
-//		bee_name->beeName,bee_t_name->beeTName
-		Logger.info(toCamelNaming("bee_name"));
-		Logger.info(toCamelNaming("bee_t_name"));
-		
-		Logger.info(toCamelNaming("BEE_NAME"));
-		Logger.info(toCamelNaming("BEE_T_NAME"));
-	}*/
 
 }
