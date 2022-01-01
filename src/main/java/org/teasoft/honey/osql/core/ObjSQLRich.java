@@ -255,6 +255,18 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		_regEntityClass1(entity);
 		return getBeeSql().modify(sql);
 	}
+	
+	@Override
+	public <T> long insertAndReturnId(T entity, IncludeType includeType) {
+		if (entity == null) return -1;
+		String sql = getObjToSQLRich().toInsertSQL(entity, includeType);
+		Logger.logSQL("insert SQL: ", sql);
+		
+		return _insertAndReturnId(entity, sql);
+		
+	}
+	
+	
 
 	@Override
 	public <T> int delete(T entity, IncludeType includeType) {

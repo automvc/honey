@@ -100,6 +100,12 @@ public class ObjSQL implements Suid {
 
 		String sql = getObjToSQL().toInsertSQL(entity);
 		Logger.logSQL("insert SQL: ", sql);
+
+		return _insertAndReturnId(entity, sql);
+	}
+	
+	 <T> long _insertAndReturnId(T entity,String sql) {
+		
 		_regEntityClass(entity);
 
 		Object obj = HoneyUtil.getIdValue(entity);
@@ -126,7 +132,7 @@ public class ObjSQL implements Suid {
 
 		//id will gen by db
 		returnId = getBeeSql().insertAndReturnId(sql);
-
+		
 		return returnId;
 	}
 	
