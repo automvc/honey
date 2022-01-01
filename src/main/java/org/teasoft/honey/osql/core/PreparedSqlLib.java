@@ -38,13 +38,19 @@ public class PreparedSqlLib implements PreparedSql {
 	}
 	
 	@Override
-	public <T> List<T> select(String sql, T entity, Object[] preValues) {
+	public <T> List<T> select(String sql, T returnType, Object[] preValues) {
 		
-		initPreparedValues(sql, preValues,entity);
+		initPreparedValues(sql, preValues,returnType);
 		Logger.logSQL("PreparedSql select SQL: ", sql);
-		return getBeeSql().select(sql, entity);
+		return getBeeSql().select(sql, returnType);
 	}
 	
+	@Override
+	public <T> List<T> select(String sql, T returnType) {
+		Object[] preValues=null;
+		return select(sql, returnType, preValues);
+	}
+
 	@Override
 	public <T> List<T> select(String sql, T entity, Object[] preValues,int start,int size) {
 		if(size<=0) throw new BeeIllegalParameterException("Parameter 'size' need great than 0!");
