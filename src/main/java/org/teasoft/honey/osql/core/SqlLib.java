@@ -31,6 +31,8 @@ import org.teasoft.honey.osql.name.NameUtil;
 
 /**
  * 直接操作数据库，并返回结果.在该类中的sql字符串要是DB能识别的SQL语句
+ * Directly operate the database and return the result. 
+ * <br>The SQL string in this class should be an SQL statement recognized by DB.
  * @author Kingstar
  * Create on 2013-6-30 下午10:32:53
  * @since  1.0
@@ -52,73 +54,6 @@ public class SqlLib implements BeeSql {
 	public <T> List<T> select(String sql, T entity) {
 		return selectSomeField(sql, entity);
 	}
-
-/*	//要是写的sql对应的结构与entity的结构不一致,将会有问题
-	@Override
-	@SuppressWarnings("unchecked")
-	public <T> List<T> select(String sql, T entity) {
-		
-		if(sql==null || "".equals(sql.trim())) return null;
-		
-		//要是没有更新缓存,证明之前还没有登记过缓存,就不能去查缓存.
-		boolean isReg=updateInfoInCache(sql,"List<T>",SuidType.SELECT);
-		if(isReg){
-		Object cacheObj=cache.get(sql);  //这里的sql还没带有值
-		if(cacheObj!=null) return (List<T>)cacheObj;
-		initRoute(SuidType.SELECT,entity.getClass());
-		}
-		
-		Connection conn = null;
-		PreparedStatement pst = null;
-		T targetObj = null;
-		List<T> rsList = null;
-		try {
-			conn = getConn();
-			String exe_sql=HoneyUtil.deleteLastSemicolon(sql);
-			pst = conn.prepareStatement(exe_sql);
-			
-			setPreparedValues(pst, sql);
-
-			ResultSet rs = pst.executeQuery();
-			rsList = new ArrayList<T>();
-
-			Field field[] = entity.getClass().getDeclaredFields();
-			int columnCount = field.length;
-
-			while (rs.next()) {
-
-				targetObj = (T) entity.getClass().newInstance();
-				for (int i = 0; i < columnCount; i++) {
-					if("serialVersionUID".equals(field[i].getName())) continue;
-					if (field[i]!= null && field[i].isAnnotationPresent(JoinTable.class)) continue;
-					field[i].setAccessible(true);
-					try {
-						field[i].set(targetObj, rs.getObject(_toColumnName(field[i].getName())));
-					} catch (IllegalArgumentException e) {
-						field[i].set(targetObj,_getObject(rs,field[i]));
-					}
-					
-				}
-				rsList.add(targetObj);
-			}
-			
-			addInCache(sql, rsList,"List<T>",SuidType.SELECT,rsList.size());
-			
-		} catch (SQLException e) {
-			throw ExceptionHelper.convert(e);
-		} catch (IllegalAccessException e) {
-			throw ExceptionHelper.convert(e);
-		} catch (InstantiationException e) {
-			throw ExceptionHelper.convert(e);
-		} finally {
-			checkClose(pst, conn);
-		}
-
-		entity = null;
-		targetObj = null;
-
-		return rsList;
-	}*/
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -317,26 +252,11 @@ public class SqlLib implements BeeSql {
 			conn = getConn();
 			String exe_sql=HoneyUtil.deleteLastSemicolon(sql);
 			pst = conn.prepareStatement(exe_sql);
-
 			setPreparedValues(pst, sql);
-
 			rs = pst.executeQuery();
-			
-//			ResultSetMetaData rmeta = rs.getMetaData();
-//			int columnCount = rmeta.getColumnCount();
-//			String str[] = null;
-//			while (rs.next()) {
-//				str = new String[columnCount];
-//				for (int i = 0; i < columnCount; i++) {
-//					str[i] = rs.getString(i + 1);
-//				}
-//				list.add(str);
-//			}
-
 			list=TransformResultSet.toStringsList(rs);
 			
 			logSelectRows(list.size());
-			
 			addInCache(sql, list,"List<String[]>",SuidType.SELECT,list.size());
 			
 		} catch (SQLException e) {
@@ -409,10 +329,11 @@ public class SqlLib implements BeeSql {
 		return list;
 	}
 	
-	/*
-	 * include insert,delete and update.
-	 */
+
 	//对应jdbc的executeUpdate方法
+	/*
+	 * modify include insert,delete and update.
+	 */
 	@Override
 	public int modify(String sql) {
 		
@@ -884,7 +805,8 @@ public class SqlLib implements BeeSql {
 	protected void closeConn(Connection conn) {
 		HoneyContext.closeConn(conn);
 	}
-	 
+	
+	@SuppressWarnings("rawtypes")
 	private Object createObject(Class c) throws IllegalAccessException,InstantiationException{
 		return c.newInstance();
 	}
