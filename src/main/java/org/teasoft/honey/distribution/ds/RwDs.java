@@ -45,6 +45,7 @@ public class RwDs implements Route{
 			throw new NoConfigException("Error: bee.dosql.multiDS.writeDB and bee.dosql.multiDS.readDB can not be null or empty when bee.dosql.multiDS.type=1! ");
 		}
 		
+		wDB=wDB.trim();//v1.11
 		setWriteDs(wDB);  
 		setReadDsList(parseRDb(rDB));
 		getReadDsList().remove(wDB); //写库不能放在只读库列表
@@ -55,7 +56,7 @@ public class RwDs implements Route{
 		String s[]=rDB_str.split(",");
 		List<String> rList=new ArrayList<>();
 		for (int i = 0; i < s.length; i++) {
-			rList.add(s[i]);
+			rList.add(s[i].trim()); //v1.11
 		}
 		return rList;
 	}
