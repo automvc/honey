@@ -237,6 +237,8 @@ public class MapSqlProcessor {
 
 		String tableName = sqlkeyMap.get(MapSqlKey.Table);
 		checkTable(tableName);
+		String pkName=sqlkeyMap.get(MapSqlKey.PrimaryKey);
+		String orgi_tableName=tableName;
 
 		Boolean isTransfer = sqlSettingMap.get(MapSqlSetting.IsNamingTransfer);
 		if (isTransfer == null) isTransfer = false;
@@ -251,7 +253,7 @@ public class MapSqlProcessor {
 		Object oldId=null;
 		List<PreparedValue> list = new ArrayList<>();
 		if (ObjectUtils.isNotEmpty(insertKvMap)) {
-			if(isNeedProcessId) oldId=processId(insertKvMap,tableName);
+			if(isNeedProcessId) oldId=processId(insertKvMap,orgi_tableName,pkName); //bug,用于获取分布式id的表名要一致
 			toInsertSql(insertKvMap, list, sqlBuffer, isTransfer, getIncludeType(sqlSettingMap));
 		}else {
 			throw new BeeException("Must set the insert vlaue with MapSql.put(String fieldName, Object value) !");
@@ -260,7 +262,7 @@ public class MapSqlProcessor {
 		String sql = sqlBuffer.toString();
 		setContext(sql, list, tableName);
 		
-        if(isNeedProcessId) revertId(insertKvMap,oldId);
+        if(isNeedProcessId) revertId(insertKvMap,oldId,pkName);
 
 		return sql;
 	}
@@ -289,12 +291,21 @@ public class MapSqlProcessor {
 		return n;
 	}
 	
-	private static Object processId(Map<String, Object> insertKvMap,String tableName) {
-		Object id=insertKvMap.get("id");
+	private static Object processId(Map<String, Object> insertKvMap,String tableName,String customPkName) {
+		
 		boolean isUpper=false;
-		if(id==null) {
+		boolean isPrimaryKey=false;
+		Object id=insertKvMap.get("id");
+		String pkName="id";
+		
+		if(StringUtils.isNotBlank(customPkName)) {
+			isPrimaryKey=true;
+			id=insertKvMap.get(customPkName);
+			pkName=customPkName;
+		}else if(id==null) {
 			id=insertKvMap.get("ID");
 			isUpper=true;
+			pkName="ID";
 		}
 		
 //		Long replaceId=null;
@@ -304,7 +315,8 @@ public class MapSqlProcessor {
 		if(id!=null) {
 			if(genAll && replaceOldValue) {
 				long newId = GenIdFactory.get(tableName);
-				if(isUpper) insertKvMap.put("ID", newId);
+				if(isPrimaryKey) insertKvMap.put(customPkName, newId);
+				else if(isUpper) insertKvMap.put("ID", newId);
 				else insertKvMap.put("id", newId);
 				OneTimeParameter.setAttribute("_SYS_Bee_MapSuid_Insert_Has_ID", newId);
 //				replaceId=newId;
@@ -314,18 +326,32 @@ public class MapSqlProcessor {
 		}else {
 			if(genAll) {
 				long newId = GenIdFactory.get(tableName);
-				insertKvMap.put("id", newId);
+				if(isPrimaryKey) insertKvMap.put(customPkName, newId);
+				else insertKvMap.put("id", newId);
 				OneTimeParameter.setAttribute("_SYS_Bee_MapSuid_Insert_Has_ID", newId);
 //				replaceId=newId;
 			}
 		}
 		
+		OneTimeParameter.setAttribute(StringConst.PK_Name_For_ReturnId, pkName);  //V1.11 for SqlLib
+		
 		return id;
 	}
 	
-	private static void revertId(Map<String, Object> insertKvMap, Object oldId) {
+	private static void revertId(Map<String, Object> insertKvMap, Object oldId,String customPkName) {
 		Object id = insertKvMap.get("id");
-		if (id != null) {
+		Object pkId=null;
+		
+		if(ObjectUtils.isNotEmpty(customPkName)) {
+			pkId= insertKvMap.get(customPkName);
+		}
+		
+		if(pkId!=null) {
+			if (oldId == null)
+				insertKvMap.remove(customPkName);
+			else
+				insertKvMap.put(customPkName, oldId);
+		}else if (id != null) {
 			if (oldId == null)
 				insertKvMap.remove("id");
 			else

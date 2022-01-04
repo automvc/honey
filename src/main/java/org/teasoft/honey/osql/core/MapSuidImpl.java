@@ -91,14 +91,15 @@ public class MapSuidImpl implements MapSuid {
 		
 		if(mapSql==null) return -1;
 		
-		String sql = MapSqlProcessor.toInsertSqlByMap(mapSql,true);
+		String sql = MapSqlProcessor.toInsertSqlByMap(mapSql,true);  // will get pkName and set into OneTimeParameter
 		Logger.logSQL("In MapSuid, insertAndReturnId SQL: ", sql);
 		
 		Object obj =OneTimeParameter.getAttribute("_SYS_Bee_MapSuid_Insert_Has_ID");
 		long newId;
 		if (obj != null) {
 			newId = Long.parseLong(obj.toString());
-			if (newId > 1) {
+			if (newId > 1) { //设置有大于1的值,使用设置的
+				OneTimeParameter.getAttribute(StringConst.PK_Name_For_ReturnId); //不使用insertAndReturnId,提前消费一次性变量
 				int insertNum = getBeeSql().modify(sql);
 				if (insertNum == 1) {
 					return newId;
