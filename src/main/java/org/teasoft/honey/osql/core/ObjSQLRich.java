@@ -535,7 +535,16 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	//v1.9
 	@Override
 	public <T> int updateById(T entity, Condition condition) {
-       return updateBy(entity, "id", condition);
+		String pkName="";
+		try {
+			entity.getClass().getDeclaredField("id");
+			pkName="id";
+		} catch (NoSuchFieldException e) {
+			pkName = HoneyUtil.getPkFieldName(entity);
+		}
+		
+	   //支持联合主键
+       return updateBy(entity, pkName, condition);
 	}
 
 	//v1.7.2

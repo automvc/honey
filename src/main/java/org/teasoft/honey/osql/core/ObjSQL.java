@@ -130,6 +130,9 @@ public class ObjSQL implements Suid {
 			}
 		}
 
+		String pkName=HoneyUtil.getPkFieldName(entity);
+		if("".equals(pkName) || pkName.contains(",")) pkName="id";
+		OneTimeParameter.setAttribute(StringConst.PK_Name_For_ReturnId, pkName);
 		//id will gen by db
 		returnId = getBeeSql().insertAndReturnId(sql);
 		

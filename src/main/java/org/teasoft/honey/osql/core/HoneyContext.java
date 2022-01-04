@@ -22,6 +22,10 @@ import org.teasoft.honey.util.ObjectUtils;
 public final class HoneyContext {
 
 	private static ConcurrentMap<String, String> beanMap;
+	
+	//since 1.11
+	private static ConcurrentMap<String, String> beanCustomPKey; //Custom Primary Key
+	
 	//	since v1.7.0
 	//	private static ConcurrentMap<String, MoreTableStruct[]> moreTableStructMap;
 
@@ -69,6 +73,7 @@ public final class HoneyContext {
 
 	static {
 		beanMap = new ConcurrentHashMap<>();
+		beanCustomPKey = new ConcurrentHashMap<>();
 		//		moreTableStructMap= new ConcurrentHashMap<>();
 
 		sqlPreValueLocal = new ThreadLocal<>();
@@ -159,7 +164,7 @@ public final class HoneyContext {
 			}
 		}
 	}
-
+	
 	static String addBeanField(String key, String value) {
 		return beanMap.put(key, value);
 	}
@@ -172,6 +177,16 @@ public final class HoneyContext {
 	static void clearFieldNameCache() {
 		beanMap.clear();
 	}
+	
+	static String addBeanCustomPKey(String key, String value) {
+		return beanCustomPKey.put(key, value);
+	}
+	
+	public static String getBeanCustomPKey(String key) {
+		if(key==null) key=null;
+		return beanCustomPKey.get(key);
+	}
+
 
 	//	static MoreTableStruct[] addMoreTableStructs(String key, MoreTableStruct[] value) {
 	//		return moreTableStructMap.put(key, value);

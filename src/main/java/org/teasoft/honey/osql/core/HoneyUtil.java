@@ -27,6 +27,7 @@ import org.teasoft.bee.osql.ObjSQLException;
 import org.teasoft.bee.osql.annotation.Ignore;
 import org.teasoft.bee.osql.annotation.JoinTable;
 import org.teasoft.bee.osql.annotation.JoinType;
+import org.teasoft.bee.osql.annotation.PrimaryKey;
 import org.teasoft.bee.osql.exception.BeeErrorFieldException;
 import org.teasoft.bee.osql.exception.BeeIllegalEntityException;
 import org.teasoft.bee.osql.exception.JoinTableException;
@@ -1454,10 +1455,28 @@ public final class HoneyUtil {
 		Object obj = null;
 		try {
 			field = entity.getClass().getDeclaredField("id");
+		} catch (NoSuchFieldException e) {
+			String pkName = getPkFieldName(entity);
+			
+			boolean hasException = false;
+			if ("".equals(pkName)) {
+				hasException = true;
+			} else if (!pkName.contains(",")){
+				try {
+					field = entity.getClass().getDeclaredField(pkName);
+				} catch (NoSuchFieldException e2) {
+					hasException = true;
+				}
+			}else {
+				//DB是否支持联合主键返回??    不支持
+				Logger.warn("Don't support return id value when the primary key more than one field!");
+			}
+			if (hasException) throw new ObjSQLException("Miss id field: the entity no id field!");
+		}
+
+		try {
 			field.setAccessible(true);
 			obj = field.get(entity);
-		} catch (NoSuchFieldException e) {
-			throw new ObjSQLException("Miss id field: the entity no id field!");
 		} catch (IllegalAccessException e) {
 			throw ExceptionHelper.convert(e);
 		}
@@ -1470,7 +1489,8 @@ public final class HoneyUtil {
 		if (OneTimeParameter.isTrue(StringConst.OLD_ID_EXIST)) {
 			try {
 				Object obj = OneTimeParameter.getAttribute(StringConst.OLD_ID);
-				field = entity.getClass().getDeclaredField("id");
+				String pkName=(String)OneTimeParameter.getAttribute(StringConst.Primary_Key_Name);
+				field = entity.getClass().getDeclaredField(pkName);
 				field.setAccessible(true);
 				field.set(entity, obj);
 			} catch (NoSuchFieldException e) {
@@ -1483,12 +1503,13 @@ public final class HoneyUtil {
 	
 	public static <T> void revertId(T entity[]) {
 		Field field = null;
+		String pkName=(String)OneTimeParameter.getAttribute(StringConst.Primary_Key_Name);
 		for (int i = 0; i < entity.length; i++) {
 
 			if (OneTimeParameter.isTrue(StringConst.OLD_ID_EXIST+i)) {
 				try {
 					Object obj = OneTimeParameter.getAttribute(StringConst.OLD_ID+i);
-					field = entity[i].getClass().getDeclaredField("id");
+					field = entity[i].getClass().getDeclaredField(pkName);
 					field.setAccessible(true);
 					field.set(entity[i], obj);
 				} catch (NoSuchFieldException e) {
@@ -1498,6 +1519,40 @@ public final class HoneyUtil {
 				}
 			}
 		}
+	}
+	
+	static <T> String getPkFieldName(T entity) {
+		if (entity == null) return null;
+		return getPkFieldNameByClass(entity.getClass());
+	}
+	
+	@SuppressWarnings("rawtypes")
+	static <T> String getPkFieldNameByClass(Class c) {
+
+		if (c == null) return null;
+		String classFullName = c.getName();
+		String pkey = HoneyContext.getBeanCustomPKey(classFullName);
+		if (pkey != null) return pkey;
+
+		Field field[] = c.getDeclaredFields();
+		int len = field.length;
+		boolean isFirst = true;
+
+		pkey = "";
+		for (int i = 0; i < len; i++) {
+			if (isSkipFieldForMoreTable(field[i])) continue; //JoinTable可以与PrimaryKey合用
+			if (field[i].isAnnotationPresent(PrimaryKey.class)) {
+				if (isFirst)
+					isFirst = false;
+				else
+					pkey += ",";
+				pkey += field[i].getName();
+			}
+		} //end for
+		
+		HoneyContext.addBeanCustomPKey(classFullName,pkey);
+
+		return pkey;
 	}
 
 }

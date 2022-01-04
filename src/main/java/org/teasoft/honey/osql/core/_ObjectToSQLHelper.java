@@ -302,24 +302,45 @@ final class _ObjectToSQLHelper {
 	static <T> String _toUpdateSQL(T entity, int includeType) { //whereColumn is id
 		checkPackage(entity);
 		Field field = null;
+		
+		//V1.11 support custom primary key
+		String pkName=""; //primary key
+		String alias="";
 		try {
 			field = entity.getClass().getDeclaredField("id");
+			pkName="id";
 		} catch (NoSuchFieldException e) {
-			//if have exception, express "id".equalsIgnoreCase(whereColumn) is false.
-			throw new ObjSQLException(
-					"ObjSQLException: in the update(T entity) or update(T entity,IncludeType includeType), the id field is default key field !");
+			pkName = HoneyUtil.getPkFieldName(entity);
+			if (!"".equals(pkName)) {
+				alias = "(" + pkName + ")";
+			} else {
+				//if have exception, express "id".equalsIgnoreCase(whereColumn) is false.
+				throw new ObjSQLException(
+						"ObjSQLException: in the update(T entity) or update(T entity,IncludeType includeType), the id field is missing !");
+			}
+		}
+		
+		if (field == null && !pkName.contains(",")) {//名称不为id的单主键,需要重新获取field,以检测其值是否为null
+			try {
+				field = entity.getClass().getDeclaredField(pkName);
+			} catch (NoSuchFieldException e) {
+
+			}
 		}
 		field.setAccessible(true);
 		try {
-			if (field.get(entity) == null) {
+			//是联合主键时不检测值是否为null
+			if (field != null && field.get(entity) == null) {
 				throw new ObjSQLException(
-						"ObjSQLException: in the update(T entity) or update(T entity,IncludeType includeType), the id field of entity must not be null !");
+						"ObjSQLException: in the update(T entity) or update(T entity,IncludeType includeType), "
+								+ "the id field" + alias + " of entity must not be null !");
 			}
 		} catch (IllegalAccessException e) {
 			throw ExceptionHelper.convert(e);
 		}
 		//		UpdateBy id
-		return _toUpdateBySQL(entity, new String[] { "id" }, includeType); // update by whereColumn(now is id)
+//		return _toUpdateBySQL(entity, new String[] { "id" }, includeType); // update by whereColumn(now is id)
+		return _toUpdateBySQL(entity, new String[] { pkName }, includeType); // update by whereColumn(now is primary key)
 	}
 	
 	static <T> String _toUpdateSQL(T entity, String setColmn[], int includeType) {
@@ -958,11 +979,28 @@ final class _ObjectToSQLHelper {
 		Field field = null;
 		boolean hasValue = false;
 		Long v = null;
+		String pkName ="";
+		String pkAlias="";
 		try {
-			field = entity.getClass().getDeclaredField("id");
+			//V1.11
+			boolean noId = false;
+			try {
+				field = entity.getClass().getDeclaredField("id");
+				pkName="id";
+			} catch (NoSuchFieldException e) {
+				noId = true;
+			}
+			if (noId) {
+				pkName = HoneyUtil.getPkFieldName(entity);
+				if("".equals(pkName) || pkName.contains(",")) return ; //just support single primary key.
+				field = entity.getClass().getDeclaredField(pkName);
+				pkAlias="("+pkName+")";
+			}
+			
+			
 			if (field==null) return ;
 			if (!field.getType().equals(Long.class)) {
-				Logger.warn("The id field's "+field.getType()+" is not Long, can not generate the Long id automatically!");
+				Logger.warn("The id"+pkAlias+" field's "+field.getType()+" is not Long, can not generate the Long id automatically!");
 				return ; //just set the Long id field
 			}
 			
@@ -977,6 +1015,7 @@ final class _ObjectToSQLHelper {
 			}
 			OneTimeParameter.setTrueForKey(StringConst.OLD_ID_EXIST);
 			OneTimeParameter.setAttribute(StringConst.OLD_ID, obj);
+			OneTimeParameter.setAttribute(StringConst.Primary_Key_Name, pkName);
 		} catch (NoSuchFieldException e) {
 			//is no id field , ignore.
 			return ;
@@ -991,7 +1030,7 @@ final class _ObjectToSQLHelper {
 		try {
 			field.set(entity, id);
 			if (hasValue) {
-				Logger.warn(" [ID WOULD BE REPLACED] " + entity.getClass() + " 's id field value is " + v + " would be replace by "+ id);
+				Logger.warn(" [ID WOULD BE REPLACED] " + entity.getClass() + " 's id field"+pkAlias+" value is " + v + " would be replace by "+ id);
 			}
 		} catch (IllegalAccessException e) {
 			throw ExceptionHelper.convert(e);

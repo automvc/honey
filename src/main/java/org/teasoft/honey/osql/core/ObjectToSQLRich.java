@@ -468,7 +468,8 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		if(id==null) return null;
 		checkPackageByClass(c);
 		SqlValueWrap sqlBuffer=toDeleteByIdSQL0(c);
-		return _toSelectAndDeleteByIdSQL(sqlBuffer, id, "java.lang.Integer");
+		String pkName=getPkName(c);
+		return _toSelectAndDeleteByIdSQL(sqlBuffer, id, "java.lang.Integer",pkName);
 	}
 	
 	@Override
@@ -477,7 +478,8 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		if(id==null) return null;
 		checkPackageByClass(c);
 		SqlValueWrap sqlBuffer=toDeleteByIdSQL0(c);
-		return _toSelectAndDeleteByIdSQL(sqlBuffer, id, "java.lang.Long");
+		String pkName=getPkName(c);
+		return _toSelectAndDeleteByIdSQL(sqlBuffer, id, "java.lang.Long",pkName);
 	}
 
 	@Override
@@ -486,7 +488,8 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		if(ids==null || "".equals(ids.trim())) return null;
 		checkPackageByClass(c);
 		SqlValueWrap sqlBuffer=toDeleteByIdSQL0(c);
-		return _toSelectAndDeleteByIdSQL(sqlBuffer,ids,getIdTypeByClass(c));
+		String pkName=getPkName(c);
+		return _toSelectAndDeleteByIdSQL(sqlBuffer,ids,getIdTypeByClass(c,pkName),pkName);
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -509,31 +512,53 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		return wrap;
 	}
 	
+	private <T> String getPkName(T entity) {
+		return getPkName(entity.getClass());
+	}
+	
+	private String getPkName(Class c) {
+		try {
+			c.getDeclaredField("id");  //V1.11 因主键可以不是默认id,多了此步检测
+			return "id";
+		} catch (NoSuchFieldException e) {
+			String pkName = HoneyUtil.getPkFieldNameByClass(c);
+			if ("".equals(pkName))
+				throw new ObjSQLException("No primary key in " + c.getName());
+			if (pkName.contains(",")) throw new ObjSQLException(
+					"method of selectById just need one primary key, but more than one primary key in "
+							+ c.getName());
+			return pkName;
+		}
+	}
+	
 	@Override
 	public <T> String toSelectByIdSQL(T entity, Integer id) {
 		
 		SqlValueWrap sqlBuffer = toSelectByIdSQL0(entity);
-		return _toSelectAndDeleteByIdSQL(sqlBuffer, id, "java.lang.Integer");
+		String pkName=getPkName(entity);
+		return _toSelectAndDeleteByIdSQL(sqlBuffer, id, "java.lang.Integer",pkName);
 	}
 
 	@Override
 	public <T> String toSelectByIdSQL(T entity, Long id) {
 		SqlValueWrap sqlBuffer = toSelectByIdSQL0(entity);
-		return _toSelectAndDeleteByIdSQL(sqlBuffer, id, "java.lang.Long");
+		String pkName=getPkName(entity);
+		return _toSelectAndDeleteByIdSQL(sqlBuffer, id, "java.lang.Long",pkName);
 	}
 
 	@Override
 	public <T> String toSelectByIdSQL(T entity, String ids) {
 		if(ids==null || "".equals(ids.trim())) return null;
 		SqlValueWrap sqlBuffer=toSelectByIdSQL0(entity);
-		return _toSelectAndDeleteByIdSQL(sqlBuffer,ids,getIdType(entity));
+		String pkName=getPkName(entity);
+		return _toSelectAndDeleteByIdSQL(sqlBuffer,ids,getIdType(entity,pkName),pkName);
 	}
 	
-	private <T> String getIdType(T entity) {
+	private <T> String getIdType(T entity,String pkName) {
 		Field field = null;
 		String type=null;
 		try {
-			field = entity.getClass().getDeclaredField("id");
+			field = entity.getClass().getDeclaredField(pkName);
 			type=field.getType().getSimpleName();
 		} catch (Exception e) {
 			//ignore
@@ -542,11 +567,11 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		return type;
 	}
 	
-	private <T> String getIdTypeByClass(Class c) {
+	private <T> String getIdTypeByClass(Class c,String pkName) {
 		Field field = null;
 		String type=null;
 		try {
-			field = c.getDeclaredField("id");
+			field = c.getDeclaredField(pkName);
 			type=field.getType().getSimpleName();
 		} catch (Exception e) {
 			//ignore
@@ -614,15 +639,14 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		}
 	}
 
-	private <T> String _toSelectAndDeleteByIdSQL(SqlValueWrap wrap, Number id,String numType) {
+	private <T> String _toSelectAndDeleteByIdSQL(SqlValueWrap wrap, Number id,String numType,String pkName) {
 		if(id==null) return null;
 		
 		StringBuffer sqlBuffer=wrap.getValueBuffer();  //sqlBuffer
-		sqlBuffer.append(_id()+"=").append("?");
+		sqlBuffer.append(_id(pkName)+"=").append("?");
 
 		List<PreparedValue> list = new ArrayList<>();
-		PreparedValue preparedValue = null;
-		preparedValue = new PreparedValue();
+		PreparedValue preparedValue = new PreparedValue();
 		preparedValue.setType(numType);
 		preparedValue.setValue(id);
 		list.add(preparedValue);
@@ -636,7 +660,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 //		return _toSelectAndDeleteByIdSQL(wrap, ids,null);
 //	}
 	
-	private <T> String _toSelectAndDeleteByIdSQL(SqlValueWrap wrap, String ids, String idType) {
+	private <T> String _toSelectAndDeleteByIdSQL(SqlValueWrap wrap, String ids, String idType,String pkName) {
 
 		StringBuffer sqlBuffer=wrap.getValueBuffer(); //sqlBuffer
 		List<PreparedValue> list=new ArrayList<>();
@@ -644,7 +668,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 
 		String idArray[]=ids.split(",");
 		//		String t_ids="id=?";
-		String t_ids=_id() + "=?";
+		String t_ids=_id(pkName) + "=?";
 
 		preparedValue=new PreparedValue();
 		//		preparedValue.setType(numType);//id的类型Object
@@ -668,7 +692,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		for (int i=1; i < idArray.length; i++) { //i from 1
 			preparedValue=new PreparedValue();
 			//			t_ids+=" or id=?";
-			t_ids+=" " + K.or + " " + _id() + "=?";
+			t_ids+=" " + K.or + " " + _id(pkName) + "=?";
 			//			preparedValue.setType(numType);//id的类型Object
 			if (idType != null) {
 				preparedValue.setType(idType);
@@ -826,8 +850,9 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		return NameTranslateHandle.toColumnName(fieldName);
 	}
 	
-	private static String _id(){
-		return NameTranslateHandle.toColumnName("id");
+	private static String _id(String pkName){
+//		return NameTranslateHandle.toColumnName("id");
+		return NameTranslateHandle.toColumnName(pkName);
 	}
 	
 	private <T> void setInitArrayIdByAuto(T entity[]) {
@@ -840,12 +865,27 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		Long v = null;
 
 		Field field0 = null;
+		String pkName ="";	
+		String pkAlias="";
 		try {
+			//V1.11
+			boolean noId = false;
+			try {
+				field0 = entity[0].getClass().getDeclaredField("id");
+				pkName="id";
+			} catch (NoSuchFieldException e) {
+				noId = true;
+			}
+			if (noId) {
+				pkName = HoneyUtil.getPkFieldName(entity);
+				if("".equals(pkName) || pkName.contains(",")) return ; //just support single primary key.
+				field0 = entity[0].getClass().getDeclaredField("id");
+				pkAlias="("+pkName+")";
+			}	
 			
-			field0 = entity[0].getClass().getDeclaredField("id");
 			if (field0==null) return;
 			if (!field0.getType().equals(Long.class)) {//just set the null Long id field
-				Logger.warn("The id field's "+field0.getType()+" is not Long, can not generate the Long id automatically!");
+				Logger.warn("The id"+pkAlias+" field's "+field0.getType()+" is not Long, can not generate the Long id automatically!");
 				return; 
 			}
 			
@@ -864,7 +904,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 				hasValue = false;
 				v = null;
 				
-				field = entity[i].getClass().getDeclaredField("id");
+				field = entity[i].getClass().getDeclaredField(pkName);
 				field.setAccessible(true);
 				Object obj = field.get(entity[i]);
 				
@@ -881,13 +921,14 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 				try {
 					field.set(entity[i], id);
 					if (hasValue) {
-						Logger.warn(" [ID WOULD BE REPLACED] entity["+i+"] : " + entity.getClass() + " 's id field value is " + v
+						Logger.warn(" [ID WOULD BE REPLACED] entity["+i+"] : " + entity.getClass() + " 's id field"+pkAlias+" value is " + v
 								+ " would be replace by " + id);
 					}
 				} catch (IllegalAccessException e) {
 					throw ExceptionHelper.convert(e);
 				}
 			}
+			OneTimeParameter.setAttribute(StringConst.Primary_Key_Name, pkName);
 		
 		} catch (NoSuchFieldException e) {
 			//is no id field , ignore.

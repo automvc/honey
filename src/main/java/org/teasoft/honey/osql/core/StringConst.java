@@ -23,6 +23,9 @@ public final class StringConst {
 
 	public static final String OLD_ID_EXIST = "_SYS_Bee_OLD_ID_FOR_AUTO_ID_EXIST";
 	public static final String OLD_ID = "_SYS_Bee_OLD_ID_FOR_AUTO_ID";
+	
+	public static final String Primary_Key_Name = "_SYS_Bee_PK_NAME";//PK:Primary_Key
+	public static final String PK_Name_For_ReturnId = "_SYS_Bee_PK_Name_For_InsertAndReturnId"; //PK:Primary_Key
 
 	public static final String SUBENTITY_FIRSTANNOTATION_FIELD = "_SYS_subEntityFirstAnnotationField";
 

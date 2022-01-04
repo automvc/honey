@@ -28,6 +28,7 @@ import org.teasoft.bee.osql.ObjSQLException;
 import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.annotation.JoinTable;
 import org.teasoft.honey.osql.name.NameUtil;
+import org.teasoft.honey.util.StringUtils;
 
 /**
  * 直接操作数据库，并返回结果.在该类中的sql字符串要是DB能识别的SQL语句
@@ -394,7 +395,9 @@ public class SqlLib implements BeeSql {
 		try {
 			conn = getConn();
 			String exe_sql = HoneyUtil.deleteLastSemicolon(sql);
-			pst = conn.prepareStatement(exe_sql, new String[] { "id" });
+			String pkName = (String) OneTimeParameter.getAttribute(StringConst.PK_Name_For_ReturnId);
+			if (StringUtils.isBlank(pkName)) pkName = "id";
+			pst = conn.prepareStatement(exe_sql, new String[] { pkName });
 			setPreparedValues(pst, sql);
 			num = pst.executeUpdate();
 
@@ -644,6 +647,8 @@ public class SqlLib implements BeeSql {
 				for (int i = 0; i < len / batchSize; i++) {
 					temp = _batchForMysql(sql[0], i * batchSize, (i + 1) * batchSize, conn, pst, batchSize, batchExeSql[1]);
 					total += temp;
+//					pst.clearBatch();  //clear Batch
+//					pst.clearParameters();     //TODO
 				}
 
 				if (len % batchSize != 0) { //尾数不成批
