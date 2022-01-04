@@ -12,6 +12,7 @@ import java.util.Map;
 import org.teasoft.bee.osql.DatabaseConst;
 import org.teasoft.bee.osql.PreparedSql;
 import org.teasoft.bee.osql.annotation.JoinTable;
+import org.teasoft.bee.osql.annotation.PrimaryKey;
 import org.teasoft.honey.osql.core.BeeFactoryHelper;
 import org.teasoft.honey.osql.core.HoneyContext;
 import org.teasoft.honey.osql.core.HoneyUtil;
@@ -136,7 +137,7 @@ public class Ddl {
 			}
 			sqlBuffer.append(_toColumnName(fields[i].getName())).append("  ");
 			sqlBuffer.append(getJava2DbType().get(fields[i].getType().getName()));
-			if ("id".equalsIgnoreCase(fields[i].getName())) sqlBuffer.append(" PRIMARY KEY");
+			if (isPrimaryKey(fields[i])) sqlBuffer.append(" PRIMARY KEY");
 			if (i != fields.length - 1)
 				sqlBuffer.append(",  ");
 			else
@@ -148,7 +149,7 @@ public class Ddl {
 		return sqlBuffer.toString();
 
 	}
-
+	
 	//SQLite
 	private static <T> String toCreateTableSQLForSQLite(T entity, String tableName) {
 		if (tableName == null) tableName = _toTableName(entity);
@@ -162,7 +163,7 @@ public class Ddl {
 			}
 			sqlBuffer.append(_toColumnName(fields[i].getName())).append("  ");
 
-			if ("id".equalsIgnoreCase(fields[i].getName()))
+			if (isPrimaryKey(fields[i]))
 				sqlBuffer.append(" INTEGER PRIMARY KEY NOT NULL");
 			else {
 				sqlBuffer.append(getJava2DbType().get(fields[i].getType().getName()));
@@ -199,7 +200,7 @@ public class Ddl {
 			}
 			sqlBuffer.append(_toColumnName(fields[i].getName())).append("  ");
 
-			if ("id".equalsIgnoreCase(fields[i].getName()))
+			if (isPrimaryKey(fields[i]))
 				sqlBuffer.append("bigint(20) PRIMARY KEY NOT NULL AUTO_INCREMENT");
 			else {
 				String type = getJava2DbType().get(fields[i].getType().getName());
@@ -236,7 +237,7 @@ public class Ddl {
 			}
 			sqlBuffer.append(_toColumnName(fields[i].getName())).append("  ");
 
-			if ("id".equalsIgnoreCase(fields[i].getName()))
+			if (isPrimaryKey(fields[i]))
 				sqlBuffer.append("bigint PRIMARY KEY NOT NULL");
 			else {
 				sqlBuffer.append(getJava2DbType().get(fields[i].getType().getName()));
@@ -274,7 +275,7 @@ public class Ddl {
 			}
 			sqlBuffer.append(_toColumnName(fields[i].getName())).append("  ");
 
-			if ("id".equalsIgnoreCase(fields[i].getName()))
+			if (isPrimaryKey(fields[i]))
 				sqlBuffer.append("bigserial NOT NULL");
 			else {
 				sqlBuffer.append(getJava2DbType().get(fields[i].getType().getName()));
@@ -313,7 +314,7 @@ public class Ddl {
 			}
 			sqlBuffer.append(_toColumnName(fields[i].getName())).append("  ");
 
-			if ("id".equalsIgnoreCase(fields[i].getName()))
+			if (isPrimaryKey(fields[i]))
 				sqlBuffer.append("bigint PRIMARY KEY NOT NULL");
 			else {
 				//				sqlBuffer.append(getJava2DbType().get(fields[i].getType().getName()));
@@ -364,6 +365,12 @@ public class Ddl {
 			if (field.isSynthetic()) return true;
 			if (field.isAnnotationPresent(JoinTable.class)) return true;
 		}
+		return false;
+	}
+	
+	private static boolean isPrimaryKey(Field field) {
+		if ("id".equalsIgnoreCase(field.getName())) return true;
+		if (field.isAnnotationPresent(PrimaryKey.class)) return true;
 		return false;
 	}
 
