@@ -27,6 +27,8 @@ public final class StringConst {
 	public static final String Primary_Key_Name = "_SYS_Bee_PK_NAME";//PK:Primary_Key
 	public static final String PK_Name_For_ReturnId = "_SYS_Bee_PK_Name_For_InsertAndReturnId"; //PK:Primary_Key
 
-	public static final String SUBENTITY_FIRSTANNOTATION_FIELD = "_SYS_subEntityFirstAnnotationField";
+	public static final String SUBENTITY_FIRSTANNOTATION_FIELD = "_SYS_Bee_subEntityFirstAnnotationField";
+	
+	public static final String Reset_Ds_OneTime="_SYS_Bee_Reset_Ds_OneTime";
 
 }
