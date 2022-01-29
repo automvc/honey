@@ -8,6 +8,7 @@ package org.teasoft.honey.osql.core;
 
 import java.lang.reflect.Field;
 
+import org.teasoft.bee.osql.Properties;
 import org.teasoft.bee.osql.annotation.SysValue;
 import org.teasoft.honey.util.ObjectCreatorFactory;
 
@@ -16,7 +17,13 @@ import org.teasoft.honey.util.ObjectCreatorFactory;
  * @since  1.4
  */
 public class SysValueProcessor {
+	
 	public static <T> void process(T obj) {
+		process(obj,BeeProp.getBeeProp());
+	}
+	
+	
+	public static <T> void process(T obj,Properties prop) {
 		Field[] f = obj.getClass().getDeclaredFields();
 		String value;
 		String key = "";
@@ -34,7 +41,7 @@ public class SysValueProcessor {
 					value = value.trim();
 					if (value.startsWith("${") && value.endsWith("}")) { //  ${bee.properties.key}
 						key = value.substring(2, value.length() - 1);
-						proValue = BeeProp.getBeeProp(key);
+						proValue = prop.getProp(key);
 						if (proValue == null)
 							continue;
 						else
