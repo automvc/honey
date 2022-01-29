@@ -20,8 +20,8 @@ public class DefaultCache implements Cache{
 	}
 
 	@Override
-	public void add(String sql, Object resultSet) {
-		CacheUtil.add(sql, resultSet);
+	public void add(String sql, Object result) {
+		CacheUtil.add(sql, result);
 	}
 	
 	@Override
