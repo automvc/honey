@@ -48,9 +48,16 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Override
 	public <T> List<T> select(T entity, int size) {
 		if (entity == null) return null;
-		if(size<=0) throw new BeeIllegalParameterException("Parameter 'size' need great than 0!");
+		if (size <= 0) throw new BeeIllegalParameterException("Parameter 'size' need great than 0!");
+
+		doBeforePasreEntity(entity);
 		String sql = getObjToSQLRich().toSelectSQL(entity, size);
-		return getBeeSql().select(sql, entity);
+		sql = doAfterCompleteSql(sql);
+
+		List<T> list = getBeeSql().select(sql, entity);
+		doAfterAccessDB(list);
+
+		return list;
 	}
 
 	@Override
@@ -58,8 +65,13 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		if (entity == null) return null;
 		if(size<=0) throw new BeeIllegalParameterException("Parameter 'size' need great than 0!");
 		if(start<0) throw new BeeIllegalParameterException("Parameter 'start' need great equal 0!");
+		doBeforePasreEntity(entity);
 		String sql = getObjToSQLRich().toSelectSQL(entity, start, size);
-		return getBeeSql().select(sql, entity);
+		sql = doAfterCompleteSql(sql);
+		
+		List<T> list = getBeeSql().select(sql, entity);
+		doAfterAccessDB(list);
+		return list;
 	}
 
 	@Override
@@ -67,12 +79,15 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		if (entity == null) return null;
 		List<T> list = null;
 		try {
+			doBeforePasreEntity(entity);
 			String sql = getObjToSQLRich().toSelectSQL(entity, selectField);
+			sql = doAfterCompleteSql(sql);
 			list = getBeeSql().selectSomeField(sql, entity);
+			doAfterAccessDB(list);
 		} catch (ObjSQLException e) {
 			throw e;
 		}
-
+		
 		return list;
 	}
 
@@ -81,22 +96,26 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		if (entity == null) return null;
 		if(size<=0) throw new BeeIllegalParameterException("Parameter 'size' need great than 0!");
 		if(start<0) throw new BeeIllegalParameterException("Parameter 'start' need great equal 0!");
-		
+		doBeforePasreEntity(entity);
 		List<T> list = null;
 		String sql = getObjToSQLRich().toSelectSQL(entity, selectFields,start,size);
+		sql = doAfterCompleteSql(sql);
 		list = getBeeSql().selectSomeField(sql, entity);
-
+		doAfterAccessDB(list);
 		return list;
 	}
 
 	@Override
 	public <T> List<T> selectOrderBy(T entity, String orderFields) {
 		if (entity == null) return null;
+		doBeforePasreEntity(entity);
 		List<T> list = null;
 		try {
 			String sql = getObjToSQLRich().toSelectOrderBySQL(entity, orderFields);
+			sql = doAfterCompleteSql(sql);
 			Logger.logSQL("selectOrderBy SQL: ", sql);
 			list = getBeeSql().select(sql, entity);
+			doAfterAccessDB(list);
 		} catch (ObjSQLException e) {
 			throw e;
 		}
@@ -107,11 +126,14 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Override
 	public <T> List<T> selectOrderBy(T entity, String orderFields, OrderType[] orderTypes) {
 		if (entity == null) return null;
+		doBeforePasreEntity(entity);
 		List<T> list = null;
 		try {
 			String sql = getObjToSQLRich().toSelectOrderBySQL(entity, orderFields, orderTypes);
+			sql = doAfterCompleteSql(sql);
 			Logger.logSQL("selectOrderBy SQL: ", sql);
 			list = getBeeSql().select(sql, entity);
+			doAfterAccessDB(list);
 		} catch (ObjSQLException e) {
 			throw e;
 		}
@@ -174,21 +196,22 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Override
 	public <T> int update(T entity, String updateFields) {
 		if (entity == null) return -1;
+		doBeforePasreEntity(entity);
 		int r = 0;
 		String sql = getObjToSQLRich().toUpdateSQL(entity, updateFields);
+		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("update SQL(updateFields) :", sql);
 		_regEntityClass1(entity);
 		r = getBeeSql().modify(sql);
-
+		doAfterAccessDB();
 		return r;
 	}
 
 	@Override
 	public <T> T selectOne(T entity) {
 		if (entity == null) return null;
-		List<T> list = select(entity);
+		List<T> list = select(entity);  //已处理拦截器链
 		if (list == null || list.size() != 1) return null;
-
 		return list.get(0);
 	}
 
@@ -200,10 +223,13 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Override
 	public <T> String selectWithFun(T entity, FunctionType functionType, String fieldForFun, Condition condition) {
 		if (entity == null) return null;
+		doBeforePasreEntity(entity);
 		String s = null;
 		String sql = getObjToSQLRich().toSelectFunSQL(entity, functionType, fieldForFun, condition);
+		sql = doAfterCompleteSql(sql);
 		_regEntityClass1(entity);
 		s = getBeeSql().selectFun(sql);
+		doAfterAccessDB();
 		return s;
 	}
 
@@ -221,45 +247,62 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Override
 	public <T> int update(T entity, String updateFields, IncludeType includeType) {
 		if (entity == null) return -1;
+		doBeforePasreEntity(entity);
 		int r = 0;
 		String sql = getObjToSQLRich().toUpdateSQL(entity, updateFields, includeType);
+		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("update SQL(updateFields) :", sql);
 		_regEntityClass1(entity);
 		r = getBeeSql().modify(sql);
-
+		doAfterAccessDB();
 		return r;
 	}
 
 	@Override
 	public <T> List<T> select(T entity, IncludeType includeType) {
 		if (entity == null) return null;
+		doBeforePasreEntity(entity);
 		String sql = getObjToSQLRich().toSelectSQL(entity, includeType);
+		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("select SQL: ", sql);
-		return getBeeSql().select(sql, entity);
+		List<T> list = getBeeSql().select(sql, entity);
+		doAfterAccessDB(list);
+		return list;
 	}
 
 	@Override
 	public <T> int update(T entity, IncludeType includeType) {
 		if (entity == null) return -1;
+		doBeforePasreEntity(entity);
 		String sql = getObjToSQLRich().toUpdateSQL(entity, includeType);
+		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("update SQL: ", sql);
 		_regEntityClass1(entity);
-		return getBeeSql().modify(sql);
+		
+		int r= getBeeSql().modify(sql);
+		doAfterAccessDB();
+		return r;
 	}
 
 	@Override
 	public <T> int insert(T entity, IncludeType includeType) {
 		if (entity == null) return -1;
+		doBeforePasreEntity(entity);
 		String sql = getObjToSQLRich().toInsertSQL(entity, includeType);
+		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("insert SQL: ", sql);
 		_regEntityClass1(entity);
-		return getBeeSql().modify(sql);
+		int r= getBeeSql().modify(sql);
+		doAfterAccessDB();
+		return r;
 	}
 	
 	@Override
 	public <T> long insertAndReturnId(T entity, IncludeType includeType) {
 		if (entity == null) return -1;
+		doBeforePasreEntity(entity);
 		String sql = getObjToSQLRich().toInsertSQL(entity, includeType);
+		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("insert SQL: ", sql);
 		
 		return _insertAndReturnId(entity, sql);
@@ -271,23 +314,29 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Override
 	public <T> int delete(T entity, IncludeType includeType) {
 		if (entity == null) return -1;
+		doBeforePasreEntity(entity);
 		String sql = getObjToSQLRich().toDeleteSQL(entity, includeType);
+		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("delete SQL: ", sql);
 		_regEntityClass1(entity);
-		return getBeeSql().modify(sql);
+		int r= getBeeSql().modify(sql);
+		doAfterAccessDB();
+		return r;
 	}
 
 	@Override
 	public <T> List<String[]> selectString(T entity) {
 
 		if (entity == null) return null;
+		doBeforePasreEntity(entity);
 
 		List<String[]> list = null;
 		String sql = getObjToSQLRich().toSelectSQL(entity);
+		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("List<String[]> select SQL: ", sql);
 		_regEntityClass1(entity);
 		list = getBeeSql().select(sql);
-
+		doAfterAccessDB();
 		return list;
 	}
 
@@ -295,12 +344,15 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	public <T> List<String[]> selectString(T entity, String selectFields) {
 
 		if (entity == null) return null;
-
+		doBeforePasreEntity(entity);
+		
 		List<String[]> list = null;
 		try {
 			String sql = getObjToSQLRich().toSelectSQL(entity, selectFields);
+			sql = doAfterCompleteSql(sql);
 			_regEntityClass1(entity);
 			list = getBeeSql().select(sql);
+			doAfterAccessDB();
 		} catch (ObjSQLException e) {
 			throw e;
 		}
@@ -311,41 +363,58 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Override
 	public <T> List<String[]> selectString(T entity, Condition condition) {
 		if (entity == null) return null;
+		doBeforePasreEntity(entity);
+		List<String[]> list = null;
 		String sql = getObjToSQLRich().toSelectSQL(entity, condition.getIncludeType(), condition);
+		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("select SQL: ", sql);
 		_regEntityClass1(entity);
-		return getBeeSql().select(sql);
+		list= getBeeSql().select(sql);
+		doAfterAccessDB();
+		return list;
 	}
 	
 	@Override
 	public <T> String selectJson(T entity) {
 		
 		if (entity == null) return null;
+		doBeforePasreEntity(entity);
 		
 		String sql = getObjToSQLRich().toSelectSQL(entity);
+		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("selectJson SQL: ", sql);
 		_regEntityClass1(entity);
-		return getBeeSql().selectJson(sql);
+		String json= getBeeSql().selectJson(sql);
+		doAfterAccessDB();
+		return json;
 	}
 
 	@Override
 	public <T> String selectJson(T entity, IncludeType includeType) {
 		if (entity == null) return null;
+		doBeforePasreEntity(entity);
 		
 		String sql = getObjToSQLRich().toSelectSQL(entity, includeType);
+		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("selectJson SQL: ", sql);
 		_regEntityClass1(entity);
-		return getBeeSql().selectJson(sql);
+		String json= getBeeSql().selectJson(sql);
+		doAfterAccessDB();
+		return json;
 	}
 	
 	@Override
 	public <T> String selectJson(T entity, String selectField) {
 		if (entity == null) return null;
+		doBeforePasreEntity(entity);
 		
 		String sql = getObjToSQLRich().toSelectSQL(entity, selectField);
+		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("selectJson(T entity, String selectField) SQL: ", sql);
 		_regEntityClass1(entity);
-		return getBeeSql().selectJson(sql);
+		String json= getBeeSql().selectJson(sql);
+		doAfterAccessDB();
+		return json;
 	}
 	
 	@Override
@@ -354,11 +423,14 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		if(size<=0) throw new BeeIllegalParameterException("Parameter 'size' need great than 0!");
 		if(start<0) throw new BeeIllegalParameterException("Parameter 'start' need great equal 0!");
 		
+		doBeforePasreEntity(entity);
 		String sql = getObjToSQLRich().toSelectSQL(entity, selectFields,start,size);
-		
+		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("selectJson(T entity, String selectField, int start, int size) SQL: ", sql);
 		_regEntityClass1(entity);
-		return getBeeSql().selectJson(sql);
+		String json= getBeeSql().selectJson(sql);
+		doAfterAccessDB();
+		return json;
 	}
 
 	@Override
@@ -369,8 +441,9 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 			Logger.warn("in method selectById,id is null! ");
 			return null;
 		}
-		
+		doBeforePasreEntity(entity);
 		String sql = getObjToSQLRich().toSelectByIdSQL(entity, id);
+		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("selectById SQL: ", sql);
 		List<T> list = getBeeSql().select(sql, entity);
 		
@@ -385,7 +458,9 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 			Logger.warn("in method selectById,id is null! ");
 			return null;
 		}
+		doBeforePasreEntity(entity);
 		String sql = getObjToSQLRich().toSelectByIdSQL(entity, id);
+		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("selectById SQL: ", sql);
 		List<T> list = getBeeSql().select(sql, entity);
 		
@@ -403,7 +478,9 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		if(id.contains(",")) {
 			throw new BeeIllegalParameterException("The parameter 'id' of method selectById does not allow to contain comma!");
 		}
+		doBeforePasreEntity(entity);
 		String sql = getObjToSQLRich().toSelectByIdSQL(entity, id);
+		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("selectById SQL: ", sql);
 		
 		List<T> list = getBeeSql().select(sql, entity);
@@ -419,15 +496,21 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 			Logger.warn("in method selectByIds,ids is null! ");
 			return null;
 		}
+		doBeforePasreEntity(entity);
 		String sql = getObjToSQLRich().toSelectByIdSQL(entity, ids);
+		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("selectByIds SQL: ", sql);
-		return getBeeSql().select(sql, entity);
+		List<T> list= getBeeSql().select(sql, entity);
+		doAfterAccessDB(list);
+		return list;
 	}
 	
 	private <T> T getIdEntity(List<T> list) {
 		if(list==null || list.size()<1) {
+			doAfterAccessDB();
 			return null;
 		}else {
+			doAfterAccessDB(list);
 			return list.get(0);
 		}
 	}
@@ -469,53 +552,68 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Deprecated
 	public <T> List<T> select(T entity, IncludeType includeType, Condition condition) {
 		if (entity == null) return null;
+		doBeforePasreEntity(entity);
 		String sql = getObjToSQLRich().toSelectSQL(entity, includeType, condition);
+		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("select SQL: ", sql);
-		return getBeeSql().select(sql, entity);
+		List<T> list= getBeeSql().select(sql, entity);
+		doAfterAccessDB(list);
+		return list;
 	}
 
 	@Override
 	public <T> String selectJson(T entity, IncludeType includeType, Condition condition) {
 		if (entity == null) return null;
-		
+		doBeforePasreEntity(entity);
 		String sql = getObjToSQLRich().toSelectSQL(entity, includeType,condition);
+		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("selectJson SQL: ", sql);
 		_regEntityClass1(entity);
-		
-		return getBeeSql().selectJson(sql);
+		String json= getBeeSql().selectJson(sql);
+		doAfterAccessDB();
+		return json;
 	}
 	
 	@Override
 	public <T> String selectJson(T entity, Condition condition) {
 		if (entity == null) return null;
-		
+		doBeforePasreEntity(entity);
 		String sql = getObjToSQLRich().toSelectSQL(entity, condition.getIncludeType(),condition);
+		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("selectJson SQL: ", sql);
 		_regEntityClass1(entity);
-		return getBeeSql().selectJson(sql);
+		
+		String json= getBeeSql().selectJson(sql);
+		doAfterAccessDB();
+		
+		return json;
 	}
 
 	@Override
 	public <T> int updateBy(T entity, String whereFields) {
 		if (entity == null) return -1;
+		doBeforePasreEntity(entity);
 		int r = 0;
 		String sql = getObjToSQLRich().toUpdateBySQL(entity, whereFields); //updateBy
+		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("update SQL(whereFields) :", sql);
 		_regEntityClass1(entity);
 		r = getBeeSql().modify(sql);
-
+		doAfterAccessDB();
 		return r;
 	}
 
 	@Override
 	public <T> int updateBy(T entity, String whereFields, IncludeType includeType) {
 		if (entity == null) return -1;
+		doBeforePasreEntity(entity);
 		int r = 0;
 		String sql = getObjToSQLRich().toUpdateBySQL(entity, whereFields, includeType);//updateBy
+		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("update SQL(whereFields) :", sql);
 		_regEntityClass1(entity);
 		r = getBeeSql().modify(sql);
-
+		doAfterAccessDB();
 		return r;
 	}
 	
@@ -523,12 +621,14 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Override
 	public <T> int updateBy(T entity, String whereFields, Condition condition) {
 		if (entity == null) return -1;
+		doBeforePasreEntity(entity);
 		int r = 0;
 		String sql = getObjToSQLRich().toUpdateBySQL(entity, whereFields, condition);//updateBy
+		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("update SQL(whereFields) :", sql);
 		_regEntityClass1(entity);
 		r = getBeeSql().modify(sql);
-
+		doAfterAccessDB();
 		return r;
 	}
 	
@@ -551,12 +651,14 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Override
 	public <T> int update(T entity, String updateFields, Condition condition) {
 		if (entity == null) return -1;
+		doBeforePasreEntity(entity);
 		int r = 0;
 		String sql = getObjToSQLRich().toUpdateSQL(entity, updateFields, condition);
+		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("update SQL(updateFields) :", sql);
 		_regEntityClass1(entity);
 		r = getBeeSql().modify(sql);
-		
+		doAfterAccessDB();
 		return r;
 	}
 	
@@ -564,12 +666,14 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Override
 	public <T> int update(T entity, Condition condition) {
 		if (entity == null) return -1;
+		doBeforePasreEntity(entity);
 		int r = 0;
 		String sql = getObjToSQLRich().toUpdateSQL(entity, "", condition);
+		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("update SQL(condition) :", sql);
 		_regEntityClass1(entity);
 		r = getBeeSql().modify(sql);
-		
+		doAfterAccessDB();
 		return r;
 	}
 	
@@ -642,6 +746,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		return r > 0 ? true : false;
 	}
 
+	//TODO是否支持拦截器??
 	@Override
 	public <T> int update(T oldEntity, T newEntity) {
 
