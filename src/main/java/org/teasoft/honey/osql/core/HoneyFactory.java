@@ -1,5 +1,9 @@
 package org.teasoft.honey.osql.core;
 
+import java.util.Iterator;
+import java.util.ServiceConfigurationError;
+import java.util.ServiceLoader;
+
 import org.teasoft.bee.osql.BeeSql;
 import org.teasoft.bee.osql.Cache;
 import org.teasoft.bee.osql.CallableSql;
@@ -17,11 +21,13 @@ import org.teasoft.bee.osql.Suid;
 import org.teasoft.bee.osql.SuidRich;
 import org.teasoft.bee.osql.dialect.DbFeature;
 import org.teasoft.bee.osql.exception.NoConfigException;
+import org.teasoft.bee.osql.interccept.InterceptorChain;
 import org.teasoft.honey.osql.dialect.LimitOffsetPaging;
 import org.teasoft.honey.osql.dialect.NoPagingSupported;
 import org.teasoft.honey.osql.dialect.mysql.MySqlFeature;
 import org.teasoft.honey.osql.dialect.oracle.OracleFeature;
 import org.teasoft.honey.osql.dialect.sqlserver.SqlServerFeature;
+import org.teasoft.honey.osql.interccept.DefaultInterceptorChain;
 import org.teasoft.honey.osql.name.OriginalName;
 import org.teasoft.honey.osql.name.UnderScoreAndCamelName;
 import org.teasoft.honey.osql.name.UpperCaseUnderScoreAndCamelName;
@@ -53,13 +59,62 @@ public class HoneyFactory {
 	private NameTranslate nameTranslate;
 	private static Cache cache;
 	
+	private InterceptorChain interceptorChain;
+	
 	static {
-		boolean nocache = HoneyConfig.getHoneyConfig().cache_nocache;
-		if (nocache) cache= new NoCache(); //v1.7.2
-		else cache= new DefaultCache(); 
+       cache=initCache();
 	}
 	
-	public HoneyFactory(){
+	public HoneyFactory() {
+
+	}
+	
+	//NoCache>Custom Cache>BeeExtRedisCache>DefaultBeeExtCache>DefaultCache
+	private static Cache initCache() {
+//		System.err.println(">>>>>>>>>>>>>>>>>>>initCache...");
+		Cache cache;
+		boolean nocache = HoneyConfig.getHoneyConfig().cache_nocache;
+		boolean useLevelTow=HoneyConfig.getHoneyConfig().cache_useLevelTow;
+		if (nocache) {
+			cache= new NoCache(); //v1.7.2
+		}else if(useLevelTow) {//V1.11
+			ServiceLoader<Cache> caches = ServiceLoader.load(Cache.class);
+			Cache cache1=null;
+			Cache cache2=null;
+			String className;
+			int num=0;
+	        Iterator<Cache> cacheIterator = caches.iterator();
+			Cache ca;
+			while (cacheIterator.hasNext()) {
+				try {
+					ca = cacheIterator.next();
+					num++;
+					className = ca.getClass().getName();
+					if ("org.teasoft.beex.cache.redis.BeeExtRedisCache".equals(className))
+						cache1 = ca;
+					else
+						cache2 = ca;
+					Logger.warn("[Bee] ==========load Cache's Service by ServiceLoader:" + className);
+				} catch (ServiceConfigurationError e) {
+					Logger.error(e.getMessage(), e);
+				}
+			}
+		
+			if(num!=0) Logger.warn("[Bee] ==========load Cache's Service number: " +num);
+			if(cache2!=null) {//此种,超过1个则没有指定,使用的是后一个
+				cache=cache2;
+				Logger.warn("[Bee] ==========use Cache's Service is:" + cache2.getClass().getName());
+			}else if(cache1!=null) {
+				cache=cache1;
+				Logger.warn("[Bee] ==========use Cache's Service is:" + cache1.getClass().getName());
+		    }else {
+				cache=new DefaultBeeExtCache();
+			}
+		}else {
+			cache= new DefaultCache(); 
+		}
+		
+		return cache;
 	}
 
 	public Suid getSuid() {
@@ -171,18 +226,13 @@ public class HoneyFactory {
 	}
 	
 	public Cache getCache() {
-		if (cache == null) {
-			boolean nocache = HoneyConfig.getHoneyConfig().cache_nocache;
-			if (nocache) return new NoCache(); //v1.7.2
-			return new DefaultCache();  
-		} else {
-			return cache;
-		}
+		if (cache == null) cache = initCache();
+		return cache;
 	}
 
-//	public void setCache(Cache cache) {
-//		this.cache = cache;
-//	}
+	public void setCache(Cache cache) {
+		this.cache = cache;
+	}
 	
 	public DbFeature getDbFeature() {
 
@@ -218,6 +268,8 @@ public class HoneyFactory {
 //		this.nameTranslate = nameTranslate;
 //		HoneyContext.clearFieldNameCache();
 //	}
+//	使用:
+//	NameTranslateHandle.setNameTranslat(nameTranslat) { // for set customer naming.
 	
 	DbFeature _getDbDialectFeature() {
 		return _getDbDialectFeature(HoneyContext.getDbDialect());
@@ -244,6 +296,15 @@ public class HoneyFactory {
 		return  DatabaseConst.H2.equalsIgnoreCase((HoneyContext.getDbDialect())) 
 				|| DatabaseConst.SQLite.equalsIgnoreCase((HoneyContext.getDbDialect()))
 				|| DatabaseConst.PostgreSQL.equalsIgnoreCase((HoneyContext.getDbDialect()));
+	}
+
+	public InterceptorChain getInterceptorChain() {
+		if (interceptorChain == null) return new DefaultInterceptorChain();
+		return interceptorChain;
+	}
+
+	public void setInterceptorChain(InterceptorChain interceptorChain) {
+		this.interceptorChain = interceptorChain;
 	}
 	
 }
