@@ -41,6 +41,9 @@ public class Router {
 			refresh();
 			HoneyContext.setConfigRefresh(false);
 		}
+		String dsName =HoneyContext.getAppointDS();
+		if (dsName != null) return dsName;
+		
 		if (route == null) return defaultDs;
 
 		return route.getDsName();
