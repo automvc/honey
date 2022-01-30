@@ -40,7 +40,7 @@ import org.teasoft.honey.util.StringUtils;
  */
 public class SqlLib implements BeeSql {
 	
-	private Cache cache=BeeFactory.getHoneyFactory().getCache();
+	private Cache cache;
 	
 	private int cacheWorkResultSetSize=HoneyConfig.getHoneyConfig().cache_workResultSetSize;
 	private static boolean  showSQL=HoneyConfig.getHoneyConfig().showSQL;
@@ -51,6 +51,17 @@ public class SqlLib implements BeeSql {
 		return HoneyContext.getConn();
 	}
 	
+	public Cache getCache() {
+		if(cache==null) {
+			cache=BeeFactory.getHoneyFactory().getCache();
+		}
+		return cache;
+	}
+
+	public void setCache(Cache cache) {
+		this.cache = cache;
+	}
+
 	@Override
 	public <T> List<T> select(String sql, T entity) {
 		return selectSomeField(sql, entity);
@@ -65,7 +76,7 @@ public class SqlLib implements BeeSql {
 
 		boolean isReg=updateInfoInCache(sql,"List<T>",SuidType.SELECT);
 		if (isReg) {
-			Object cacheObj = cache.get(sql); //这里的sql还没带有值
+			Object cacheObj = getCache().get(sql); //这里的sql还没带有值
 			if (cacheObj != null) {
 				clearContext(sql);
 				List<T> list=(List<T>) cacheObj;
@@ -167,7 +178,7 @@ public class SqlLib implements BeeSql {
 		
 		boolean isReg = updateInfoInCache(sql, "String", SuidType.SELECT);
 		if (isReg) {
-			Object cacheObj = cache.get(sql); //这里的sql还没带有值
+			Object cacheObj = getCache().get(sql); //这里的sql还没带有值
 			if (cacheObj != null) {
 				clearContext(sql);
 				return (String) cacheObj;
@@ -234,7 +245,7 @@ public class SqlLib implements BeeSql {
 		
 		boolean isReg = updateInfoInCache(sql, "List<String[]>", SuidType.SELECT);
 		if (isReg) {
-			Object cacheObj = cache.get(sql); //这里的sql还没带有值
+			Object cacheObj = getCache().get(sql); //这里的sql还没带有值
 			if (cacheObj != null) {
 				clearContext(sql);
 				List<String[]> list=(List<String[]>) cacheObj;
@@ -285,7 +296,7 @@ public class SqlLib implements BeeSql {
 		
 		boolean isReg = updateInfoInCache(sql, "List<Map<String,Object>>", SuidType.SELECT);
 		if (isReg) { //V1.9还未使用
-			Object cacheObj = cache.get(sql); //这里的sql还没带有值
+			Object cacheObj = getCache().get(sql); //这里的sql还没带有值
 			if (cacheObj != null) {
 				clearContext(sql);
 				List<Map<String,Object>> list=(List<Map<String,Object>>) cacheObj;
@@ -433,7 +444,7 @@ public class SqlLib implements BeeSql {
 		
 		boolean isReg = updateInfoInCache(sql, "StringJson", SuidType.SELECT);
 		if (isReg) {
-			Object cacheObj = cache.get(sql); //这里的sql还没带有值
+			Object cacheObj = getCache().get(sql); //这里的sql还没带有值
 			if (cacheObj != null) {
 				clearContext(sql);
 				return (String) cacheObj;
@@ -830,7 +841,7 @@ public class SqlLib implements BeeSql {
 		String listFieldType=""+subOneIsList1+subTwoIsList2+moreTableStruct[0].oneHasOne;
 		boolean isReg = updateInfoInCache(sql, "List<T>"+listFieldType, SuidType.SELECT);
 		if (isReg) {
-			Object cacheObj = cache.get(sql); //这里的sql还没带有值
+			Object cacheObj = getCache().get(sql); //这里的sql还没带有值
 			if (cacheObj != null) {
 				clearContext(sql);
 				
@@ -1286,7 +1297,7 @@ public class SqlLib implements BeeSql {
 //			struct.setReturnType(returnType);  //因一进来updateInfoInCache时,已添加有
 //			struct.setSuidType(suidType.getType());
 //			HoneyContext.setCacheInfo(sql, struct);
-			cache.add(sql, rs);
+			getCache().add(sql, rs);
 		}
 	}
 	
@@ -1304,7 +1315,7 @@ public class SqlLib implements BeeSql {
 		}
 		clearContext(sql);
 		if (affectRow > 0) { //INSERT、UPDATE 或 DELETE成功,才清除结果缓存
-			cache.clear(sql);
+			getCache().clear(sql);
 		}
 	}
 	
