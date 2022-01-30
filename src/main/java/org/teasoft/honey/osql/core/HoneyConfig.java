@@ -1,6 +1,9 @@
 package org.teasoft.honey.osql.core;
 
 import java.sql.Connection;
+import java.util.Map;
+
+import javax.sql.DataSource;
 
 import org.teasoft.bee.osql.annotation.SysValue;
 import org.teasoft.honey.distribution.ds.Router;
@@ -168,7 +171,7 @@ public final class HoneyConfig {
 
 	@SysValue("${bee.osql.cache.nocache}")
 	boolean cache_nocache; //v1.7.2
-
+	
 	@SysValue("${bee.osql.cache.workResultSetSize}")
 	int cache_workResultSetSize = 300;
 
@@ -180,6 +183,15 @@ public final class HoneyConfig {
 
 	@SysValue("${bee.osql.cache.modifySyn}")
 	String cache_modifySyn;
+	
+	//V1.11
+	@SysValue("${bee.osql.cache.useLevelTow}")
+	boolean cache_useLevelTow; 
+	@SysValue("${bee.osql.cache.levelOneAllTolevelTow}")
+	boolean cache_levelOneAllTolevelTow; 
+	@SysValue("${bee.osql.cache.levelTowTimeout}")
+	public int cache_levelTowTimeout=60000; 
+	
 	//----------------------------- cache end
 
 	//----------------------------- genid  start
@@ -334,5 +346,14 @@ public final class HoneyConfig {
 	public String getPassword() {
 		return password;
 	}
+	
+//	public void setDataSourceMap(Map<String, DataSource> dataSourceMap) {
+//		BeeFactory.getInstance().setDataSourceMap(dataSourceMap);
+//	}
+	
+//	context有:
+//	public static void setDsName2DbName(Map<String, String> dsName2DbName) {
+//		HoneyContext.dsName2DbName = dsName2DbName;
+//	}
 
 }
