@@ -41,10 +41,6 @@ public class DefaultInterceptor implements Interceptor{
 	@Override
 	public void afterAccessDB(List list) {
 	}
-
-	@Override
-	public void afterAccessDB(Object entity) {
-	}
 	
 	@Override
 	public void afterAccessDB() {

@@ -83,14 +83,6 @@ public class CommInterceptorChain implements InterceptorChain {
 			chain.get(i).afterAccessDB(list);
 		}
 	}
-
-	@Override
-	public void afterAccessDB(Object entity) {
-		HoneyContext.removeAppointDS();
-		for (int i = 0; i < chain.size(); i++) {
-			chain.get(i).afterAccessDB(entity);
-		}
-	}
 	
 	//用于update,insert,delete
 	@Override
