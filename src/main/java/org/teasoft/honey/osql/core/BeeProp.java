@@ -2,26 +2,35 @@ package org.teasoft.honey.osql.core;
 
 import java.io.File;
 
+import org.teasoft.bee.osql.Properties;
 import org.teasoft.honey.osql.util.PropertiesReader;
 
 /**
  * @author Kingstar
  * @since  1.0
  */
-class BeeProp {
+public class BeeProp implements Properties{
 
-	private static PropertiesReader beeProp;
+	private static PropertiesReader beePropReader;
+	private static BeeProp beeProp = null;
 
 	static {
-		beeProp = new PropertiesReader("/bee.properties");
+		beePropReader = new PropertiesReader("/bee.properties");
+		beeProp=new BeeProp();
+	}
+	
+	private BeeProp() {}
+	
+	public static BeeProp getBeeProp() {
+		return beeProp;
 	}
 
-	public static String getBeeProp(String key) {
-		return beeProp.getValue(key);
+	public String getProp(String key) {
+		return beePropReader.getValue(key);
 	}
 
-	public static String getBeePropText(String key) {
-		return beeProp.getValueText(key);
+	public  String getPropText(String key) {
+		return beePropReader.getValueText(key);
 	}
 	
 	/**
@@ -32,6 +41,6 @@ class BeeProp {
 	static void resetBeeProperties(String filePath) {
 		if (!filePath.trim().endsWith(File.separator)) filePath = filePath.trim()+File.separator;
 		filePath+="bee.properties";
-		beeProp = new PropertiesReader(filePath, true);
+		beePropReader = new PropertiesReader(filePath, true);
 	}
 }
