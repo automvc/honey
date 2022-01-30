@@ -87,7 +87,7 @@ public class NameCheckUtil {
 			if (isIllegal(name)) {
 				throw new BeeErrorNameException("The name: '" + name + "' is illegal!");
 			} else {
-				Logger.warn("The name is '" + name + "' , does not conform to naming conventions!");
+				Logger.warn("The name is '" + name + "' , does not conform to naming conventions!",new Exception()); 
 			}
 		}
 
