@@ -39,6 +39,8 @@ public final class HoneyContext {
 	private static ThreadLocal<Connection> currentConnection; //当前事务的Conn
 
 	private static ThreadLocal<String> sameConnctionDoing; //当前多个ORM操作使用同一个connection.
+	
+	private static ThreadLocal<String> appointDS; 
 
 	//	private static ThreadLocal<Transaction> transactionLocal;  
 
@@ -83,6 +85,7 @@ public final class HoneyContext {
 		currentConnection = new ThreadLocal<>();
 		//		transactionLocal = new ThreadLocal<>();
 		sameConnctionDoing = new ThreadLocal<>();
+		appointDS = new ThreadLocal<>();
 
 		currentRoute = new ThreadLocal<>();
 
@@ -297,12 +300,29 @@ public final class HoneyContext {
 	}
 
 	private static void setSameConnctionDoing() {
-		sameConnctionDoing.set("tRue");
+		sameConnctionDoing.set(StringConst.tRue);
 	}
 
 	private static void removeSameConnctionDoing() {
 		sameConnctionDoing.remove();
 	}
+	
+	
+	public static String getAppointDS() {
+		System.out.println("------------------getAppointDS");
+		return appointDS.get();
+	}
+
+	public static void setAppointDS(String dsName) {
+		System.out.println("------------------setAppointDS");
+		appointDS.set(dsName);
+	}
+
+	public static void removeAppointDS() {
+		System.out.println("------------------removeAppointDS");
+		appointDS.remove();
+	}
+	
 
 	static void endSameConnection() {
 		
