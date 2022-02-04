@@ -42,7 +42,7 @@ public final class HoneyConfig {
 		try {
 			BeeProp.resetBeeProperties(filePath);
 //			HoneyConfig.honeyConfig = new HoneyConfig();
-			_setFoneyConfig();
+			_setHoneyConfig();
 			honeyConfig.init();
 			Logger.warn("[Bee] ========= reset the bee.properties with filePath:" + filePath);
 		} catch (Exception e) {
@@ -50,7 +50,7 @@ public final class HoneyConfig {
 		}
 	}
 	
-	private static void _setFoneyConfig() {
+	private static void _setHoneyConfig() {
 		HoneyConfig.honeyConfig = new HoneyConfig();
 	}
 
@@ -185,12 +185,15 @@ public final class HoneyConfig {
 	String cache_modifySyn;
 	
 	//V1.11
-	@SysValue("${bee.osql.cache.useLevelTow}")
-	boolean cache_useLevelTow; 
-	@SysValue("${bee.osql.cache.levelOneAllTolevelTow}")
-	boolean cache_levelOneAllTolevelTow; 
-	@SysValue("${bee.osql.cache.levelTowTimeout}")
-	public int cache_levelTowTimeout=60000; 
+	@SysValue("${bee.osql.cache.useLevelTwo}")
+	boolean cache_useLevelTwo; 
+	@SysValue("${bee.osql.cache.levelOneTolevelTwo}")
+	boolean cache_levelOneTolevelTwo; 
+	@SysValue("${bee.osql.cache.levelTwoTimeout}")
+	public int cache_levelTwoTimeout=60000; //二级缓存保存时间(毫秒 ms)
+	
+	@SysValue("${bee.osql.cache.levelTwoEntityList}")
+	public String cache_levelTwoEntityList;
 	
 	//----------------------------- cache end
 

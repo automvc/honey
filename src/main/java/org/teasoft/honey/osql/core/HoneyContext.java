@@ -54,8 +54,14 @@ public final class HoneyContext {
 
 	private static List<String> entityListWithStar_in = new CopyOnWriteArrayList<>();
 	private static List<String> entityListWithStar_ex = new CopyOnWriteArrayList<>();
+	
+	//V1.11
+	private static Map<String, String> entityList_levelTwo_Map = new ConcurrentHashMap<>();
+	private static List<String> entityListWithStar_levelTwo = new CopyOnWriteArrayList<>();
 
 	private static Map<String, String> dsName2DbName;
+	
+	private static ConcurrentMap<String, Boolean> modifiedFlagMapForCache2;
 
 	/*	private static void _checkSize(ThreadLocal local,String name){
 			if(local==null)
@@ -94,6 +100,8 @@ public final class HoneyContext {
 		initEntity2Table();
 
 		parseEntityListToMap();
+		
+		modifiedFlagMapForCache2 = new ConcurrentHashMap<>();
 	}
 
 	private HoneyContext() {}
@@ -545,6 +553,9 @@ public final class HoneyContext {
 
 		String entityList_excludes = HoneyConfig.getHoneyConfig().genid_excludesEntityList; //ex
 		_parseListToMap(entityList_excludes, entityList_excludes_Map, entityListWithStar_ex);
+		
+		String levelTwoEntityList=HoneyConfig.getHoneyConfig().cache_levelTwoEntityList;  //cache level 2
+		_parseListToMap(levelTwoEntityList,entityList_levelTwo_Map,entityListWithStar_levelTwo);
 
 	}
 
@@ -571,6 +582,8 @@ public final class HoneyContext {
 
 	@SuppressWarnings("rawtypes")
 	private static boolean _isConfig(Class clazz, Map<String, String> map, List<String> starList) {
+		
+		if(clazz==null) return false;
 
 		String fullName = clazz.getName();
 		String ds = null;
@@ -616,6 +629,11 @@ public final class HoneyContext {
 		}
 
 		return needGenId;
+	}
+	
+	@SuppressWarnings("rawtypes")
+	public static boolean isLevelTwoCache(Class clazz) {
+		return _isConfig(clazz, entityList_levelTwo_Map, entityListWithStar_levelTwo);
 	}
 
 	//仅分库,有多个数据源时,且支持同时使用多种类型数据库时,
@@ -684,4 +702,14 @@ public final class HoneyContext {
 		
 		setConfigRefresh(true);
 	}
+
+	public static boolean getModifiedFlagForCache2(String tableName) {
+		Boolean f=modifiedFlagMapForCache2.get(tableName);
+		return f==null?false:f;
+	}
+
+	public static void addModifiedFlagForCache2(String tableName,boolean isModified) {
+		modifiedFlagMapForCache2.put(tableName, isModified);
+	}
+
 }

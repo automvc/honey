@@ -220,12 +220,18 @@ public final class CacheUtil {
 		else return false;
 	}
 	
-	public static void add(String sql,Object rs){
-		addInCache(sql,rs);
+	/**
+	 * false未放缓存,true已放缓存
+	 * @param sql
+	 * @param rs
+	 * @return 返回是否已放缓存
+	 */
+	public static boolean add(String sql,Object rs){
+		return addInCache(sql,rs);
 	}
 	
 	// 添加缓存是否可以另起一个线程执行,不用影响到原来的.   但一次只能添加一个元素,作用不是很大.要考虑起线程的开销
-	static void addInCache(String sql,Object rs){
+	static boolean addInCache(String sql,Object rs){
 		 
 		 String key=CacheKey.genKey(sql);
 		 List<String> tableNameList=CacheKey.genTableNameList(sql);  //支持多表的情况
@@ -236,7 +242,7 @@ public final class CacheUtil {
 			if(_inConfigCacheTableMap(neverCacheTableMap,tableNameList)) { //检测到是never
 				//要清除cacheStruct
 				HoneyContext.deleteCacheInfo(sql);
-				return ;
+				return false;
 			}
 		 }
 		 
@@ -252,7 +258,7 @@ public final class CacheUtil {
 				
 				//要清除cacheStruct
 				HoneyContext.deleteCacheInfo(sql);
-				return ;
+				return false;  //永久缓存默认不放二级缓存
 			}
 			
 //			常驻缓存,但有更新时会清除缓存(下次重新查询并放缓存)
@@ -266,7 +272,7 @@ public final class CacheUtil {
 				_regForeverSynTable(tableNameList.get(0),key);
 				foreverModifySynCacheObjectMap.put(key, rs);
 				HoneyContext.deleteCacheInfo(sql);//要清除cacheStruct
-				return ;
+				return false; //长久缓存默认不放二级缓存
 			}
 			
 		 }
@@ -284,7 +290,7 @@ public final class CacheUtil {
 			if(arrayIndex.getUsedRate() >=90) {
 				if(isShowSql) Logger.warn("[Bee] ==========Cache already used more than 90% !");
 				HoneyContext.deleteCacheInfo(sql);//要清除cacheStruct
-				return ;  //快满了,本次不放缓存,直接返回
+				return false;  //快满了,本次不放缓存,直接返回
 			}
 		}
 		
@@ -304,6 +310,8 @@ public final class CacheUtil {
 			_addIntableNameList(key,tableNameList.get(k));
 		}
 	  }
+	   
+	  return true;
 	}
 	 
 	/**

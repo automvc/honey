@@ -16,7 +16,7 @@ import org.teasoft.honey.osql.util.MD5;
  * @author Kingstar
  * @since  1.4
  */
-public class CacheKey {
+public final class CacheKey {
 	
 	private static final String SEPARATOR=" (@separator#) ";
 	private static boolean cacheKeyUseMD5=HoneyConfig.getHoneyConfig().cache_keyUseMD5;

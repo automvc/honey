@@ -74,10 +74,10 @@ public class HoneyFactory {
 //		System.err.println(">>>>>>>>>>>>>>>>>>>initCache...");
 		Cache cache;
 		boolean nocache = HoneyConfig.getHoneyConfig().cache_nocache;
-		boolean useLevelTow=HoneyConfig.getHoneyConfig().cache_useLevelTow;
+		boolean useLevelTwo=HoneyConfig.getHoneyConfig().cache_useLevelTwo;
 		if (nocache) {
 			cache= new NoCache(); //v1.7.2
-		}else if(useLevelTow) {//V1.11
+		}else if(useLevelTwo) {//V1.11
 			ServiceLoader<Cache> caches = ServiceLoader.load(Cache.class);
 			Cache cache1=null;
 			Cache cache2=null;
