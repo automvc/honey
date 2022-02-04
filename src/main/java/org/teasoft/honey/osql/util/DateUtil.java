@@ -6,7 +6,9 @@
 
 package org.teasoft.honey.osql.util;
 
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 import org.teasoft.honey.osql.core.HoneyConfig;
@@ -51,6 +53,70 @@ public class DateUtil {
 		else 
 		   format = new SimpleDateFormat(formatStr);
 		return format.format(new Date());
+	}
+	
+	/**
+	 * 往前或往后指定天数
+	 * @param days
+	 * @return new Date
+	 * @since 1.11
+	 */
+//	public static Date jumpDays(int days) {
+//		Calendar cal = Calendar.getInstance();//使用默认时区和语言环境获得一个日历。    
+//		cal.add(Calendar.DAY_OF_MONTH, days);
+//		return cal.getTime();
+//	}
+	
+	/**
+	 * 获取当前Timestamp
+	 * @return 当前Timestamp
+	 * @since 1.11
+	 */
+	public static Timestamp currentTimestamp(){
+		return new Timestamp(System.currentTimeMillis());
+	}
+	
+	/**
+	 * 往前或往后指定天数
+	 * @param days
+	 * @return new Date
+	 * @since 1.11
+	 */
+	public static Timestamp jumpDaysExact(int days) {
+		Calendar cal = Calendar.getInstance();//使用默认时区和语言环境获得一个日历。    
+		cal.add(Calendar.DAY_OF_MONTH, days);
+		return new Timestamp(cal.getTimeInMillis()); 
+	}
+	
+	/**
+	 * 往前或往后指定天数,指定天最后秒设置为23:59:59
+	 * @param days
+	 * @return
+	 */
+	public static Timestamp jumpDays(int days) {
+		Calendar cal = Calendar.getInstance();//使用默认时区和语言环境获得一个日历。    
+		cal.add(Calendar.DAY_OF_MONTH, days);
+		cal.set(Calendar.HOUR, 23);
+		cal.set(Calendar.MINUTE, 59);
+		cal.set(Calendar.SECOND, 59);
+		return new Timestamp(cal.getTimeInMillis()); 
+	}
+	
+	
+	public static Timestamp jumpDays(Timestamp base, int days) {
+		Calendar cal = Calendar.getInstance();//使用默认时区和语言环境获得一个日历。   
+		
+		cal.setTime(base); //set to base
+		
+		cal.add(Calendar.DAY_OF_MONTH, days);
+		
+		return new Timestamp(cal.getTimeInMillis()); 
+	}
+	
+	
+	public static boolean isNowEffect(Timestamp expirationDate) {
+		Calendar now = Calendar.getInstance();
+		return now.getTime().before(expirationDate);
 	}
 
 }
