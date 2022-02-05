@@ -28,12 +28,7 @@ public class DefaultBeeExtCache implements BeeExtCache {
 			
 			//一级缓存获取不到,还有可能是因为有修改原因清了缓存.
 			//要检测,不是因为修改的原因,才给查二级的  (这样的话,就要维护修改的语句关联了哪个表, 查询的语句关联了哪个表)
-			boolean isModified=false; //  改成动态的   Bee-Ext要能更新
-			
-			List<String> tableNameList=CacheKey.genTableNameList(sql); 
-			for (int j = 0; tableNameList!=null && j < tableNameList.size(); j++) { //涉及的表都没有被更改才获取二级的
-				isModified= HoneyContext.getModifiedFlagForCache2(tableNameList.get(j))  ||  isModified ;
-			}
+			boolean isModified=getModified(sql);
 			
 			//按表来区分 
 			if(! isModified) {
@@ -44,21 +39,35 @@ public class DefaultBeeExtCache implements BeeExtCache {
 
 		return obj;
 	}
+	
+	private boolean getModified(String sql) {
+		boolean isModified=false; //  改成动态的   Bee-Ext要能更新
+		
+		List<String> tableNameList=CacheKey.genTableNameList(sql); 
+		for (int j = 0; tableNameList!=null && j < tableNameList.size(); j++) { //涉及的表都没有被更改才获取二级的
+			isModified= HoneyContext.getModifiedFlagForCache2(tableNameList.get(j))  ||  isModified ;
+		}
+		return isModified;
+	}
 
 	@Override
 	public void add(String sql, Object result) {
+
 		boolean f = CacheUtil.add(sql, result); //需要知道,哪些不放缓存.  是否放缓存与一级缓存一致.若有例外,还需要另外检测
 		if (useLevelTwo) {
-			if (f && levelOneTolevelTwo) { //放一级缓存,要levelOneTolevelTwo=true,才放二级(永久和长久缓存默认不放二级缓存,其它一级缓存可通过该配置设置)     
-				String key = CacheKey.genKey(sql);
-				addInExtCache(key, result);
-			} else {
-				//不放一级缓存, 二级也有可能放        这种情况不多,所以只需要特别声明只放二级缓存的即可
-				RouteStruct routeStruct = HoneyContext.getCurrentRoute();
-				boolean f2 = HoneyContext.isLevelTwoCache(routeStruct.getEntityClass());
-				if (f2) {
+			boolean isModified = getModified(sql);
+			if (isModified) {//没被修改过才放缓存
+				if (f && levelOneTolevelTwo) { //放一级缓存,要levelOneTolevelTwo=true,才放二级(永久和长久缓存默认不放二级缓存,其它一级缓存可通过该配置设置)     
 					String key = CacheKey.genKey(sql);
 					addInExtCache(key, result);
+				} else {
+					//不放一级缓存, 二级也有可能放        这种情况不多,所以只需要特别声明只放二级缓存的即可
+					RouteStruct routeStruct = HoneyContext.getCurrentRoute();
+					boolean f2 = HoneyContext.isLevelTwoCache(routeStruct.getEntityClass());
+					if (f2) {
+						String key = CacheKey.genKey(sql);
+						addInExtCache(key, result);
+					}
 				}
 			}
 		}
@@ -88,7 +97,7 @@ public class DefaultBeeExtCache implements BeeExtCache {
 
 			//要修改时,才要清缓存.   
 			//redis如何清缓存????  如何多节点同步???
-			clearInExtCache(key); //TODO 2 删除具体二级缓存的
+			clearInExtCache(key); //todo 2 删除具体二级缓存的
 
 			for (int j = 0; tableNameList != null && j < tableNameList.size(); j++) {
 				HoneyContext.addModifiedFlagForCache2(tableNameList.get(j), Boolean.FALSE);
