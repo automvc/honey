@@ -11,6 +11,7 @@ import java.lang.reflect.Field;
 import org.teasoft.bee.osql.Properties;
 import org.teasoft.bee.osql.annotation.SysValue;
 import org.teasoft.honey.util.ObjectCreatorFactory;
+import org.teasoft.honey.util.StringUtils;
 
 /**
  * @author Kingstar
@@ -42,10 +43,13 @@ public class SysValueProcessor {
 					if (value.startsWith("${") && value.endsWith("}")) { //  ${bee.properties.key}
 						key = value.substring(2, value.length() - 1);
 						proValue = prop.getProp(key);
-						if (proValue == null)
+						if (proValue == null) {
 							continue;
-						else
+						}else if(StringUtils.isBlank(proValue) && !"java.lang.String".equals(f[i].getType().getName())) {
+							continue;
+						}else {
 							value = proValue;
+						}
 					}
 					try {
 						Class c = f[i].getType();
