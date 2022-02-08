@@ -1,9 +1,6 @@
 package org.teasoft.honey.osql.core;
 
 import java.sql.Connection;
-import java.util.Map;
-
-import javax.sql.DataSource;
 
 import org.teasoft.bee.osql.annotation.SysValue;
 import org.teasoft.honey.distribution.ds.Router;
@@ -196,6 +193,34 @@ public final class HoneyConfig {
 	public String cache_levelTwoEntityList;
 	
 	//----------------------------- cache end
+
+	//-----------------------------Redis cache start
+	@SysValue("${bee.osql.cacheRedis.host}")
+	public String cacheRedis_host;
+	              
+	@SysValue("${bee.osql.cacheRedis.port}")
+	public Integer cacheRedis_port;
+	
+	@SysValue("${bee.osql.cacheRedis.password}")
+	public String cacheRedis_password;
+	
+	@SysValue("${ee.osql.cacheRedis.connectionTimeout}")
+	public Integer cacheRedis_connectionTimeout;
+	
+	@SysValue("${bee.osql.cacheRedis.soTimeout}")
+	public Integer cacheRedis_soTimeout;
+	
+	@SysValue("${bee.osql.cacheRedis.database}")
+	public Integer cacheRedis_database;
+	
+	@SysValue("${bee.osql.cacheRedis.clientName}")
+	public String cacheRedis_clientName;
+	
+	@SysValue("${bee.osql.cacheRedis.ssl}")
+	public boolean cacheRedis_ssl;
+	
+	//-----------------------------Redis cache end
+	
 
 	//----------------------------- genid  start
 	//v1.8
