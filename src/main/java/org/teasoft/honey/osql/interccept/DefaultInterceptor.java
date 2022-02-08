@@ -20,14 +20,12 @@ public class DefaultInterceptor implements Interceptor{
 	
 	@Override
 	public Object beforePasreEntity(Object entity) {
-		System.out.println("beforePasreEntity---------------------------");
 		return entity;
 	}
 	
 	@Override
 	public void setDataSourceOneTime(String ds) {
 		this.ds=ds;
-		System.out.println("--------------------------------ds:"+ds);
 	}
 	
 	@Override
@@ -37,19 +35,17 @@ public class DefaultInterceptor implements Interceptor{
 
 	@Override
 	public String afterCompleteSql(String sql) {
-		System.out.println("afterCompleteSql---------------------------");
 		return sql;
 	}
 
 	@Override
+	@SuppressWarnings("rawtypes")
 	public void afterAccessDB(List list) {
-		System.out.println("afterQueryResult(List list)---------------------------");
 		
 	}
 	
 	@Override
 	public void afterAccessDB() {
-		System.out.println("afterAccessDB()---------------------------");
 	}
 
 }
