@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2021 the original author.All rights reserved.
+ * Copyright 2016-2022 the original author.All rights reserved.
  * Kingstar(honeysoft@126.com)
  * The license,see the LICENSE file.
  */
@@ -20,12 +20,14 @@ public class DefaultInterceptor implements Interceptor{
 	
 	@Override
 	public Object beforePasreEntity(Object entity) {
+		System.out.println("beforePasreEntity---------------------------");
 		return entity;
 	}
 	
 	@Override
 	public void setDataSourceOneTime(String ds) {
 		this.ds=ds;
+		System.out.println("--------------------------------ds:"+ds);
 	}
 	
 	@Override
@@ -35,15 +37,19 @@ public class DefaultInterceptor implements Interceptor{
 
 	@Override
 	public String afterCompleteSql(String sql) {
+		System.out.println("afterCompleteSql---------------------------");
 		return sql;
 	}
 
 	@Override
 	public void afterAccessDB(List list) {
+		System.out.println("afterQueryResult(List list)---------------------------");
+		
 	}
 	
 	@Override
 	public void afterAccessDB() {
+		System.out.println("afterAccessDB()---------------------------");
 	}
 
 }
