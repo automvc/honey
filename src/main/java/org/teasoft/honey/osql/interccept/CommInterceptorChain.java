@@ -23,7 +23,7 @@ public class CommInterceptorChain implements InterceptorChain {
 
 	private final List<Interceptor> chain = new ArrayList<>();
 
-	public void addInterceptor(Interceptor interceptor) {  //如何以配置的形式出现?? 参考:DefaultInterceptorChain
+	public void addInterceptor(Interceptor interceptor) {
 		chain.add(interceptor);
 	}
 
@@ -76,18 +76,23 @@ public class CommInterceptorChain implements InterceptorChain {
 		return sql;
 	}
 
+	//用于有返回Javabean结构的查询
 	@Override
-	public void afterAccessDB(List list) {
-		HoneyContext.removeAppointDS();  //放在这可能影响异步.  更新操作,不执行这方法
+	@SuppressWarnings("rawtypes")
+	public void beforeReturn(List list) {
+		HoneyContext.removeAppointDS();  //放在这可能影响异步. 
 		for (int i = 0; i < chain.size(); i++) {
-			chain.get(i).afterAccessDB(list);
+			chain.get(i).beforeReturn(list);
 		}
 	}
 	
-	//用于update,insert,delete
+	//用于update,insert,delete及没有返回Javabean结构的查询方法
 	@Override
-	public void afterAccessDB() {
+	public void beforeReturn() {
 		HoneyContext.removeAppointDS(); 
+		for (int i = 0; i < chain.size(); i++) {
+			chain.get(i).beforeReturn();
+		}
 	}
 	
 }
