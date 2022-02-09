@@ -632,7 +632,7 @@ public final class HoneyContext {
 	}
 	
 	@SuppressWarnings("rawtypes")
-	public static boolean isLevelTwoCache(Class clazz) {
+	public static boolean isConfigLevelTwoCache(Class clazz) {
 		return _isConfig(clazz, entityList_levelTwo_Map, entityListWithStar_levelTwo);
 	}
 

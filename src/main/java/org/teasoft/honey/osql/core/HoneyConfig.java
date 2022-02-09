@@ -194,7 +194,7 @@ public final class HoneyConfig {
 	
 	//----------------------------- cache end
 
-	//-----------------------------Redis cache start
+	//-----------------------------Redis cache start V1.11
 	@SysValue("${bee.osql.cacheRedis.host}")
 	public String cacheRedis_host;
 	              

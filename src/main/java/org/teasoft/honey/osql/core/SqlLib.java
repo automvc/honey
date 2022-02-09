@@ -27,7 +27,6 @@ import org.teasoft.bee.osql.Cache;
 import org.teasoft.bee.osql.ObjSQLException;
 import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.annotation.JoinTable;
-import org.teasoft.honey.osql.name.NameUtil;
 import org.teasoft.honey.util.StringUtils;
 
 /**
@@ -1271,9 +1270,9 @@ public class SqlLib implements BeeSql {
 		return HoneyUtil.getResultObjectByIndex(rs, field.getType().getName(),index);
 	}
 	
-	private static String _toTableName(Object entity){
-		return NameTranslateHandle.toTableName(NameUtil.getClassFullName(entity));
-	}
+//	private static String _toTableName(Object entity){
+//		return NameTranslateHandle.toTableName(NameUtil.getClassFullName(entity));
+//	}
 	
 	private static String _toColumnName(String fieldName) {
 		return NameTranslateHandle.toColumnName(fieldName);

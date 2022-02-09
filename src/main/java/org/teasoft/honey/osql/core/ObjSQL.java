@@ -251,10 +251,10 @@ public class ObjSQL implements Suid {
 	}
 
 	void doAfterAccessDB(List list) {
-		getInterceptorChain().afterAccessDB(list);
+		getInterceptorChain().beforeReturn(list);
 	}
 
 	void doAfterAccessDB() {
-		getInterceptorChain().afterAccessDB();
+		getInterceptorChain().beforeReturn();
 	}
 }
