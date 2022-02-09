@@ -55,7 +55,9 @@ public final class CacheUtil {
 	private static Map<String,Object> foreverModifySynCacheObjectMap=new Hashtable<>();
 	
 	private static boolean isShowSql=false;
-	private static String logCacheMsg="[Bee] ==========get from Cache.";
+	private static String logCacheMsg="==========get from Cache.";
+	
+	private static boolean useLevelTwo = HoneyConfig.getHoneyConfig().cache_useLevelTwo;
 	
 	static {
 		MAX_SIZE=HoneyConfig.getHoneyConfig().cache_mapSize;
@@ -295,7 +297,8 @@ public final class CacheUtil {
 		}
 		
 //		tableNameList=CacheKey.genTableNameList(sql);  //支持多表的情况           重复?????  
-		HoneyContext.deleteCacheInfo(sql);//要清除cacheStruct
+		if(!useLevelTwo)  //使用level two cache后,要处理了二级才能删 
+		   HoneyContext.deleteCacheInfo(sql);//要清除cacheStruct    
 		
 		int i=arrayIndex.getNext();  //要保证是线程安全的,否则可能会错
 		long ms=System.currentTimeMillis();
