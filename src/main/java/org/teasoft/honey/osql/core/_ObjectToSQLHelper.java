@@ -141,7 +141,7 @@ final class _ObjectToSQLHelper {
 			
 			int len = fields.length;
 			PreparedValue preparedValue = null;
-			for (int i = 0, k = 0; i < len; i++) {
+			for (int i = 0; i < len; i++) {
 				fields[i].setAccessible(true);
 				if (HoneyUtil.isContinue(includeType, fields[i].get(entity),fields[i])) {
 					continue;
@@ -819,7 +819,8 @@ final class _ObjectToSQLHelper {
 //			if ("serialVersionUID".equals(fields[i].getName()) || fields[i].isSynthetic()) {
 //				continue;
 //			} else if (fields[i] != null && fields[i].isAnnotationPresent(JoinTable.class)) {
-			if(HoneyUtil.isSkipField(fields[i])) continue;
+			if(HoneyUtil.isSkipField(fields[i])) continue; 
+			else if(HoneyUtil.isSkipFieldJustFetch(fields[i])) continue; 
 			else if (!"".equals(excludeFieldList) && isExcludeField(excludeFieldList, fields[i].getName())) continue;
 
 			preparedValue = new PreparedValue();
