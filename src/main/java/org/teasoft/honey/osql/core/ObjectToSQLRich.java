@@ -782,7 +782,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			int len = fields.length;
 			List<PreparedValue> list = new ArrayList<>();
 			PreparedValue preparedValue = null;
-			for (int i = 0, k = 0; i < len; i++) {
+			for (int i = 0; i < len; i++) {
 				fields[i].setAccessible(true);
 				if (HoneyUtil.isContinue(-1, fields[i].get(entity),fields[i])) {
 					continue;	
