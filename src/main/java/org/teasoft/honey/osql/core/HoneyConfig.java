@@ -187,7 +187,7 @@ public final class HoneyConfig {
 	@SysValue("${bee.osql.cache.levelOneTolevelTwo}")
 	boolean cache_levelOneTolevelTwo; 
 	@SysValue("${bee.osql.cache.levelTwoTimeout}")
-	public int cache_levelTwoTimeout=60000; //二级缓存保存时间(毫秒 ms)
+	public int cache_levelTwoTimeout=180; //二级缓存保存时间(秒 second)
 	
 	@SysValue("${bee.osql.cache.levelTwoEntityList}")
 	public String cache_levelTwoEntityList;

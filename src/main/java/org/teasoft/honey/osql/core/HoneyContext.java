@@ -62,6 +62,8 @@ public final class HoneyContext {
 	private static Map<String, String> dsName2DbName;
 	
 	private static ConcurrentMap<String, Boolean> modifiedFlagMapForCache2;
+	
+	private static ConcurrentMap<String, Boolean> entityInterceptorFlag;
 
 	/*	private static void _checkSize(ThreadLocal local,String name){
 			if(local==null)
@@ -102,6 +104,7 @@ public final class HoneyContext {
 		parseEntityListToMap();
 		
 		modifiedFlagMapForCache2 = new ConcurrentHashMap<>();
+		entityInterceptorFlag = new ConcurrentHashMap<>();
 	}
 
 	private HoneyContext() {}
@@ -710,6 +713,14 @@ public final class HoneyContext {
 
 	public static void addModifiedFlagForCache2(String tableName,boolean isModified) {
 		modifiedFlagMapForCache2.put(tableName, isModified);
+	}
+	
+	public static Boolean getEntityInterceptorFlag(String fullClassName) {
+		return entityInterceptorFlag.get(fullClassName);
+	}
+	
+	public static void addEntityInterceptorFlag(String fullClassName,boolean isHas) {
+		entityInterceptorFlag.put(fullClassName, isHas);
 	}
 
 }
