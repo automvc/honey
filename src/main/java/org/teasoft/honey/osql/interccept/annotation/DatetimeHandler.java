@@ -7,6 +7,7 @@
 package org.teasoft.honey.osql.interccept.annotation;
 
 import java.lang.reflect.Field;
+import java.sql.Timestamp;
 
 import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.annotation.Createtime;
@@ -55,7 +56,7 @@ public class DatetimeHandler {
 
 	private static void process(Field field, Object entity, SuidType sqlSuidType, String formatter,
 			boolean override, SuidType setSuidType) {
-		
+
 		try {
 			if (!(setSuidType == sqlSuidType || setSuidType == SuidType.SUID
 					|| (setSuidType == SuidType.MODIFY && (sqlSuidType == SuidType.UPDATE
@@ -67,12 +68,22 @@ public class DatetimeHandler {
 			}
 
 			field.setAccessible(true);
-			if (StringUtils.isNotBlank(formatter))
-				field.set(entity, DateUtil.currentDate(formatter));
-			else
-				field.set(entity, DateUtil.currentDate());
+
+//			if (field.getType() == Timestamp.class) {
+			if(field.getType().equals(Timestamp.class)) {
+				field.set(entity, DateUtil.currentTimestamp());
+			}else if(field.getType().equals(java.sql.Date.class)) {
+				field.set(entity, DateUtil.currentSqlDate());
+			}else if(field.getType().equals(java.util.Date.class)) {
+				field.set(entity, new java.util.Date());
+			}else {
+				if (StringUtils.isNotBlank(formatter))
+					field.set(entity, DateUtil.currentDate(formatter));
+				else
+					field.set(entity, DateUtil.currentDate());
+			}
 		} catch (Exception e) {
-			Logger.info(e.getMessage());
+			Logger.error(e.getMessage(), e);
 		}
 
 	}
