@@ -20,6 +20,7 @@ import org.teasoft.bee.osql.ObjSQLException;
 import org.teasoft.bee.osql.ObjToSQLRich;
 import org.teasoft.bee.osql.OrderType;
 import org.teasoft.bee.osql.SuidRich;
+import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
 import org.teasoft.bee.osql.exception.BeeIllegalParameterException;
 import org.teasoft.honey.osql.name.NameUtil;
@@ -50,7 +51,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		if (entity == null) return null;
 		if (size <= 0) throw new BeeIllegalParameterException("Parameter 'size' need great than 0!");
 
-		doBeforePasreEntity(entity);
+		doBeforePasreEntity(entity,SuidType.SELECT);
 		String sql = getObjToSQLRich().toSelectSQL(entity, size);
 		sql = doAfterCompleteSql(sql);
 
@@ -65,7 +66,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		if (entity == null) return null;
 		if(size<=0) throw new BeeIllegalParameterException("Parameter 'size' need great than 0!");
 		if(start<0) throw new BeeIllegalParameterException("Parameter 'start' need great equal 0!");
-		doBeforePasreEntity(entity);
+		doBeforePasreEntity(entity,SuidType.SELECT);
 		String sql = getObjToSQLRich().toSelectSQL(entity, start, size);
 		sql = doAfterCompleteSql(sql);
 		
@@ -79,7 +80,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		if (entity == null) return null;
 		List<T> list = null;
 		try {
-			doBeforePasreEntity(entity);
+			doBeforePasreEntity(entity,SuidType.SELECT);
 			String sql = getObjToSQLRich().toSelectSQL(entity, selectField);
 			sql = doAfterCompleteSql(sql);
 			list = getBeeSql().selectSomeField(sql, entity);
@@ -96,7 +97,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		if (entity == null) return null;
 		if(size<=0) throw new BeeIllegalParameterException("Parameter 'size' need great than 0!");
 		if(start<0) throw new BeeIllegalParameterException("Parameter 'start' need great equal 0!");
-		doBeforePasreEntity(entity);
+		doBeforePasreEntity(entity,SuidType.SELECT);
 		List<T> list = null;
 		String sql = getObjToSQLRich().toSelectSQL(entity, selectFields,start,size);
 		sql = doAfterCompleteSql(sql);
@@ -108,7 +109,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Override
 	public <T> List<T> selectOrderBy(T entity, String orderFields) {
 		if (entity == null) return null;
-		doBeforePasreEntity(entity);
+		doBeforePasreEntity(entity,SuidType.SELECT);
 		List<T> list = null;
 		try {
 			String sql = getObjToSQLRich().toSelectOrderBySQL(entity, orderFields);
@@ -126,7 +127,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Override
 	public <T> List<T> selectOrderBy(T entity, String orderFields, OrderType[] orderTypes) {
 		if (entity == null) return null;
-		doBeforePasreEntity(entity);
+		doBeforePasreEntity(entity,SuidType.SELECT);
 		List<T> list = null;
 		try {
 			String sql = getObjToSQLRich().toSelectOrderBySQL(entity, orderFields, orderTypes);
@@ -196,7 +197,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Override
 	public <T> int update(T entity, String updateFields) {
 		if (entity == null) return -1;
-		doBeforePasreEntity(entity);
+		doBeforePasreEntity(entity,SuidType.UPDATE);
 		int r = 0;
 		String sql = getObjToSQLRich().toUpdateSQL(entity, updateFields);
 		sql = doAfterCompleteSql(sql);
@@ -223,7 +224,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Override
 	public <T> String selectWithFun(T entity, FunctionType functionType, String fieldForFun, Condition condition) {
 		if (entity == null) return null;
-		doBeforePasreEntity(entity);
+		doBeforePasreEntity(entity,SuidType.SELECT);
 		String s = null;
 		String sql = getObjToSQLRich().toSelectFunSQL(entity, functionType, fieldForFun, condition);
 		sql = doAfterCompleteSql(sql);
@@ -247,7 +248,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Override
 	public <T> int update(T entity, String updateFields, IncludeType includeType) {
 		if (entity == null) return -1;
-		doBeforePasreEntity(entity);
+		doBeforePasreEntity(entity,SuidType.UPDATE);
 		int r = 0;
 		String sql = getObjToSQLRich().toUpdateSQL(entity, updateFields, includeType);
 		sql = doAfterCompleteSql(sql);
@@ -261,7 +262,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Override
 	public <T> List<T> select(T entity, IncludeType includeType) {
 		if (entity == null) return null;
-		doBeforePasreEntity(entity);
+		doBeforePasreEntity(entity,SuidType.SELECT);
 		String sql = getObjToSQLRich().toSelectSQL(entity, includeType);
 		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("select SQL: ", sql);
@@ -273,7 +274,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Override
 	public <T> int update(T entity, IncludeType includeType) {
 		if (entity == null) return -1;
-		doBeforePasreEntity(entity);
+		doBeforePasreEntity(entity,SuidType.UPDATE);
 		String sql = getObjToSQLRich().toUpdateSQL(entity, includeType);
 		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("update SQL: ", sql);
@@ -287,7 +288,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Override
 	public <T> int insert(T entity, IncludeType includeType) {
 		if (entity == null) return -1;
-		doBeforePasreEntity(entity);
+		doBeforePasreEntity(entity,SuidType.INSERT);
 		String sql = getObjToSQLRich().toInsertSQL(entity, includeType);
 		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("insert SQL: ", sql);
@@ -300,7 +301,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Override
 	public <T> long insertAndReturnId(T entity, IncludeType includeType) {
 		if (entity == null) return -1;
-		doBeforePasreEntity(entity);
+		doBeforePasreEntity(entity,SuidType.INSERT);
 		String sql = getObjToSQLRich().toInsertSQL(entity, includeType);
 		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("insert SQL: ", sql);
@@ -314,7 +315,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Override
 	public <T> int delete(T entity, IncludeType includeType) {
 		if (entity == null) return -1;
-		doBeforePasreEntity(entity);
+		doBeforePasreEntity(entity,SuidType.DELETE);
 		String sql = getObjToSQLRich().toDeleteSQL(entity, includeType);
 		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("delete SQL: ", sql);
@@ -328,7 +329,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	public <T> List<String[]> selectString(T entity) {
 
 		if (entity == null) return null;
-		doBeforePasreEntity(entity);
+		doBeforePasreEntity(entity,SuidType.SELECT);
 
 		List<String[]> list = null;
 		String sql = getObjToSQLRich().toSelectSQL(entity);
@@ -344,7 +345,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	public <T> List<String[]> selectString(T entity, String selectFields) {
 
 		if (entity == null) return null;
-		doBeforePasreEntity(entity);
+		doBeforePasreEntity(entity,SuidType.SELECT);
 		
 		List<String[]> list = null;
 		try {
@@ -363,7 +364,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Override
 	public <T> List<String[]> selectString(T entity, Condition condition) {
 		if (entity == null) return null;
-		doBeforePasreEntity(entity);
+		doBeforePasreEntity(entity,SuidType.SELECT);
 		List<String[]> list = null;
 		String sql = getObjToSQLRich().toSelectSQL(entity, condition.getIncludeType(), condition);
 		sql = doAfterCompleteSql(sql);
@@ -378,7 +379,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	public <T> String selectJson(T entity) {
 		
 		if (entity == null) return null;
-		doBeforePasreEntity(entity);
+		doBeforePasreEntity(entity,SuidType.SELECT);
 		
 		String sql = getObjToSQLRich().toSelectSQL(entity);
 		sql = doAfterCompleteSql(sql);
@@ -392,7 +393,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Override
 	public <T> String selectJson(T entity, IncludeType includeType) {
 		if (entity == null) return null;
-		doBeforePasreEntity(entity);
+		doBeforePasreEntity(entity,SuidType.SELECT);
 		
 		String sql = getObjToSQLRich().toSelectSQL(entity, includeType);
 		sql = doAfterCompleteSql(sql);
@@ -406,7 +407,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Override
 	public <T> String selectJson(T entity, String selectField) {
 		if (entity == null) return null;
-		doBeforePasreEntity(entity);
+		doBeforePasreEntity(entity,SuidType.SELECT);
 		
 		String sql = getObjToSQLRich().toSelectSQL(entity, selectField);
 		sql = doAfterCompleteSql(sql);
@@ -423,7 +424,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		if(size<=0) throw new BeeIllegalParameterException("Parameter 'size' need great than 0!");
 		if(start<0) throw new BeeIllegalParameterException("Parameter 'start' need great equal 0!");
 		
-		doBeforePasreEntity(entity);
+		doBeforePasreEntity(entity,SuidType.SELECT);
 		String sql = getObjToSQLRich().toSelectSQL(entity, selectFields,start,size);
 		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("selectJson(T entity, String selectField, int start, int size) SQL: ", sql);
@@ -441,7 +442,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 			Logger.warn("in method selectById,id is null! ");
 			return null;
 		}
-		doBeforePasreEntity(entity);
+		doBeforePasreEntity(entity,SuidType.SELECT);
 		String sql = getObjToSQLRich().toSelectByIdSQL(entity, id);
 		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("selectById SQL: ", sql);
@@ -458,7 +459,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 			Logger.warn("in method selectById,id is null! ");
 			return null;
 		}
-		doBeforePasreEntity(entity);
+		doBeforePasreEntity(entity,SuidType.SELECT);
 		String sql = getObjToSQLRich().toSelectByIdSQL(entity, id);
 		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("selectById SQL: ", sql);
@@ -478,7 +479,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		if(id.contains(",")) {
 			throw new BeeIllegalParameterException("The parameter 'id' of method selectById does not allow to contain comma!");
 		}
-		doBeforePasreEntity(entity);
+		doBeforePasreEntity(entity,SuidType.SELECT);
 		String sql = getObjToSQLRich().toSelectByIdSQL(entity, id);
 		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("selectById SQL: ", sql);
@@ -496,7 +497,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 			Logger.warn("in method selectByIds,ids is null! ");
 			return null;
 		}
-		doBeforePasreEntity(entity);
+		doBeforePasreEntity(entity,SuidType.SELECT);
 		String sql = getObjToSQLRich().toSelectByIdSQL(entity, ids);
 		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("selectByIds SQL: ", sql);
@@ -552,7 +553,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Deprecated
 	public <T> List<T> select(T entity, IncludeType includeType, Condition condition) {
 		if (entity == null) return null;
-		doBeforePasreEntity(entity);
+		doBeforePasreEntity(entity,SuidType.SELECT);
 		String sql = getObjToSQLRich().toSelectSQL(entity, includeType, condition);
 		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("select SQL: ", sql);
@@ -564,7 +565,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Override
 	public <T> String selectJson(T entity, IncludeType includeType, Condition condition) {
 		if (entity == null) return null;
-		doBeforePasreEntity(entity);
+		doBeforePasreEntity(entity,SuidType.SELECT);
 		String sql = getObjToSQLRich().toSelectSQL(entity, includeType,condition);
 		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("selectJson SQL: ", sql);
@@ -577,7 +578,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Override
 	public <T> String selectJson(T entity, Condition condition) {
 		if (entity == null) return null;
-		doBeforePasreEntity(entity);
+		doBeforePasreEntity(entity,SuidType.SELECT);
 		String sql = getObjToSQLRich().toSelectSQL(entity, condition.getIncludeType(),condition);
 		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("selectJson SQL: ", sql);
@@ -592,7 +593,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Override
 	public <T> int updateBy(T entity, String whereFields) {
 		if (entity == null) return -1;
-		doBeforePasreEntity(entity);
+		doBeforePasreEntity(entity,SuidType.UPDATE);
 		int r = 0;
 		String sql = getObjToSQLRich().toUpdateBySQL(entity, whereFields); //updateBy
 		sql = doAfterCompleteSql(sql);
@@ -606,7 +607,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Override
 	public <T> int updateBy(T entity, String whereFields, IncludeType includeType) {
 		if (entity == null) return -1;
-		doBeforePasreEntity(entity);
+		doBeforePasreEntity(entity,SuidType.UPDATE);
 		int r = 0;
 		String sql = getObjToSQLRich().toUpdateBySQL(entity, whereFields, includeType);//updateBy
 		sql = doAfterCompleteSql(sql);
@@ -621,7 +622,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Override
 	public <T> int updateBy(T entity, String whereFields, Condition condition) {
 		if (entity == null) return -1;
-		doBeforePasreEntity(entity);
+		doBeforePasreEntity(entity,SuidType.UPDATE);
 		int r = 0;
 		String sql = getObjToSQLRich().toUpdateBySQL(entity, whereFields, condition);//updateBy
 		sql = doAfterCompleteSql(sql);
@@ -651,7 +652,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Override
 	public <T> int update(T entity, String updateFields, Condition condition) {
 		if (entity == null) return -1;
-		doBeforePasreEntity(entity);
+		doBeforePasreEntity(entity,SuidType.UPDATE);
 		int r = 0;
 		String sql = getObjToSQLRich().toUpdateSQL(entity, updateFields, condition);
 		sql = doAfterCompleteSql(sql);
@@ -666,7 +667,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Override
 	public <T> int update(T entity, Condition condition) {
 		if (entity == null) return -1;
-		doBeforePasreEntity(entity);
+		doBeforePasreEntity(entity,SuidType.UPDATE);
 		int r = 0;
 		String sql = getObjToSQLRich().toUpdateSQL(entity, "", condition);
 		sql = doAfterCompleteSql(sql);
