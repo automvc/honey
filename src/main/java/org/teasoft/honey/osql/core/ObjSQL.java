@@ -12,6 +12,7 @@ import org.teasoft.bee.osql.BeeSql;
 import org.teasoft.bee.osql.Condition;
 import org.teasoft.bee.osql.ObjToSQL;
 import org.teasoft.bee.osql.Suid;
+import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.exception.NotSupportedException;
 import org.teasoft.bee.osql.interccept.InterceptorChain;
 
@@ -63,7 +64,7 @@ public class ObjSQL implements Suid {
 
 		if (entity == null) return null;
 		
-		doBeforePasreEntity(entity);
+		doBeforePasreEntity(entity,SuidType.SELECT);
 
 		List<T> list = null;
 		String sql = getObjToSQL().toSelectSQL(entity);
@@ -83,7 +84,7 @@ public class ObjSQL implements Suid {
 
 		if (entity == null) return -1;
 		
-		doBeforePasreEntity(entity);
+		doBeforePasreEntity(entity,SuidType.UPDATE);
 		
 		String sql = "";
 		int updateNum = -1;
@@ -104,7 +105,7 @@ public class ObjSQL implements Suid {
 	public <T> int insert(T entity){
 
 		if (entity == null) return -1;
-		doBeforePasreEntity(entity);
+		doBeforePasreEntity(entity,SuidType.INSERT);
 
 		String sql = getObjToSQL().toInsertSQL(entity);
 		sql=doAfterCompleteSql(sql);
@@ -128,7 +129,7 @@ public class ObjSQL implements Suid {
 			throw new NotSupportedException("The current database don't support return the id after insert."
 					+ "\nYou can use the distribute id via set config information,eg: bee.distribution.genid.forAllTableLongId=true");
 		}
-		doBeforePasreEntity(entity);
+		doBeforePasreEntity(entity,SuidType.INSERT);
 		String sql = getObjToSQL().toInsertSQL(entity);
 		sql=doAfterCompleteSql(sql);
 		Logger.logSQL("insert SQL: ", sql);
@@ -176,7 +177,7 @@ public class ObjSQL implements Suid {
 	public int delete(Object entity) {
 
 		if (entity == null) return -1;
-		doBeforePasreEntity(entity);
+		doBeforePasreEntity(entity,SuidType.DELETE);
 		String sql = getObjToSQL().toDeleteSQL(entity);
 		sql=doAfterCompleteSql(sql);
 		int deleteNum = -1;
@@ -190,7 +191,7 @@ public class ObjSQL implements Suid {
 	@Override
 	public <T> List<T> select(T entity, Condition condition) {
 		if (entity == null) return null;
-		doBeforePasreEntity(entity);
+		doBeforePasreEntity(entity,SuidType.SELECT);
 		List<T> list = null;
 		String sql = getObjToSQL().toSelectSQL(entity,condition);
 		sql=doAfterCompleteSql(sql);
@@ -203,7 +204,7 @@ public class ObjSQL implements Suid {
 	@Override
 	public <T> int delete(T entity, Condition condition) {
 		if (entity == null) return -1;
-		doBeforePasreEntity(entity);
+		doBeforePasreEntity(entity,SuidType.DELETE);
 		String sql = getObjToSQL().toDeleteSQL(entity,condition);
 		sql=doAfterCompleteSql(sql);
 		int deleteNum = -1;
@@ -239,10 +240,12 @@ public class ObjSQL implements Suid {
 		HoneyContext.endSameConnection(); 
 	}
 	
+//	void doBeforePasreEntity(Object entity) {
+//		doBeforePasreEntity(entity,SuidType.INSERT);
+//	}
 	
-	
-	void doBeforePasreEntity(Object entity) {
-		getInterceptorChain().beforePasreEntity(entity);
+	void doBeforePasreEntity(Object entity, SuidType SuidType) {
+		getInterceptorChain().beforePasreEntity(entity, SuidType);
 	}
 
 	String doAfterCompleteSql(String sql) {
