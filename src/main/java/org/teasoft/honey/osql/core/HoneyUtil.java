@@ -27,6 +27,7 @@ import org.teasoft.bee.osql.ObjSQLException;
 import org.teasoft.bee.osql.annotation.Ignore;
 import org.teasoft.bee.osql.annotation.JoinTable;
 import org.teasoft.bee.osql.annotation.JoinType;
+import org.teasoft.bee.osql.annotation.JustFetch;
 import org.teasoft.bee.osql.annotation.PrimaryKey;
 import org.teasoft.bee.osql.exception.BeeErrorFieldException;
 import org.teasoft.bee.osql.exception.BeeIllegalEntityException;
@@ -95,8 +96,6 @@ public final class HoneyUtil {
 		boolean isFirst = true;
 
 		for (int i = 0; i < len; i++) {
-//			if ("serialVersionUID".equals(field[i].getName()) || field[i].isSynthetic()) continue;
-//			if (field[i] != null && field[i].isAnnotationPresent(JoinTable.class)) continue;
 			if(isSkipField(field[i])) continue;
 			if (isFirst) {
 				isFirst = false;
@@ -104,11 +103,36 @@ public final class HoneyUtil {
 				s.append(",");
 			}
 
-			s.append(NameTranslateHandle.toColumnName(field[i].getName()));
-			//			if(i<len-1) s.append(",");
+			if(field[i].isAnnotationPresent(JustFetch.class)) {
+				s.append(getJustFetchColumn(field[i]));
+			}else {
+			   s.append(NameTranslateHandle.toColumnName(field[i].getName()));
+			}
+			
 		}
 		return s.toString();
 	}
+	
+	private static String getJustFetchColumn(Field field) {
+		
+		String expression = getJustFetchDefineName(field);
+		String c = "";
+		String fName = NameTranslateHandle.toColumnName(field.getName());
+		if (isSQLite()) {
+			c = expression + K.as + fName;
+		} else {
+			c = expression + " " + fName;
+		}
+
+		return c;
+	}
+	
+	private static String getJustFetchDefineName(Field field) {
+		JustFetch justFetch= field.getAnnotation(JustFetch.class);
+		String expression=justFetch.value();
+		return expression;
+	}
+	
 
 	static <T> MoreTableStruct[] getMoreTableStructAndCheckBefore(T entity) {
 		
@@ -525,7 +549,7 @@ public final class HoneyUtil {
 		List<String> WarnMsglist=new ArrayList<>();
 		for (int i = 0; i < len; i++) {
 //			if ("serialVersionUID".equals(field[i].getName()) || field[i].isSynthetic()) continue;
-			if(HoneyUtil.isSkipFieldForMoreTable(field[i])) continue; //有Ignore注释,将不再处理JoinTable
+			if(HoneyUtil.isSkipFieldForMoreTable(field[i])) continue; //有Ignore注解,将不再处理JoinTable
 			if (field[i] != null && field[i].isAnnotationPresent(JoinTable.class)) {
 				currentSubNum++;
 				if(checkOneHasOne && currentSubNum==1) subEntityFirstAnnotationField=field[i]; //第一个从表里的第一个连接字段
@@ -547,24 +571,25 @@ public final class HoneyUtil {
 			}
 			subFieldName=NameTranslateHandle.toColumnName(field[i].getName());
 			
+			if (field[i].isAnnotationPresent(JustFetch.class)) {
+				columns.append(getJustFetchDefineName(field[i]));
+			} else {
+				columns.append(tableName);
+				columns.append(".");
+				columns.append(subFieldName);
+			}
+			
 			if(!mainFieldSet.add(subFieldName) && isConfuseDuplicateFieldDB()){
 				if (isSQLite()) {
 					dulMap.put(tableName + "." + subFieldName, tableName + "." + subFieldName); 
 				} else {
 					dulMap.put(tableName + "." + subFieldName, tableName + "_" + subFieldName + "_$"); 
 				}
-				columns.append(tableName);
-				columns.append(".");
-				columns.append(subFieldName);
 				if (isSQLite()) {
-					columns.append("  "+K.as+" '" + tableName + "." + subFieldName+"'");
+					columns.append(" "+K.as+" '" + tableName + "." + subFieldName+"'");
 				} else {
-					columns.append("  " + tableName + "_" + subFieldName + "_$");
+					columns.append(" " + tableName + "_" + subFieldName + "_$");
 				}
-			}else{
-				columns.append(tableName);
-				columns.append(".");
-				columns.append(subFieldName);
 			}
 		}
 		
@@ -934,6 +959,8 @@ public final class HoneyUtil {
 //			if (field.isAnnotationPresent(JoinTable.class)) return true; //v1.7.0  
 //			if (field.isSynthetic()) return true;
 			if(isSkipField(field)) return true;
+			
+			if(isSkipFieldJustFetch(field)) return true;  //V1.11  JustFetch不用于where
 		}
 
 //		String fieldName ="";
@@ -952,7 +979,6 @@ public final class HoneyUtil {
 		return (((includeType == NullEmpty.EXCLUDE || includeType == NullEmpty.EMPTY_STRING) && object == null)
 				|| ((includeType == NullEmpty.EXCLUDE || includeType == NullEmpty.NULL) && "".equals(object)) );
 	}
-	
 	
 	public static boolean isSkipField(Field field) {
 		if (field != null) {
@@ -975,6 +1001,12 @@ public final class HoneyUtil {
 		return false;
 	}
 	
+	public static boolean isSkipFieldJustFetch(Field field) {
+		if (field != null) {
+			if (field.isAnnotationPresent(JustFetch.class)) return true;
+		}
+		return false;
+	}
 
 	/**
 	 * 

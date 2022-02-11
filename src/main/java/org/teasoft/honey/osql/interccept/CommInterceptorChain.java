@@ -9,6 +9,7 @@ package org.teasoft.honey.osql.interccept;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.interccept.Interceptor;
 import org.teasoft.bee.osql.interccept.InterceptorChain;
 import org.teasoft.honey.osql.core.HoneyContext;
@@ -28,10 +29,10 @@ public class CommInterceptorChain implements InterceptorChain {
 	}
 
 	@Override
-	public Object beforePasreEntity(Object entity) {
+	public Object beforePasreEntity(Object entity,SuidType SuidType) {
 
 		for (int i = 0; i < chain.size(); i++) {
-			chain.get(i).beforePasreEntity(entity);
+			chain.get(i).beforePasreEntity(entity,SuidType);
 		}
 		
 		doResetDataSourceOneTime();
