@@ -55,6 +55,10 @@ public class DateUtil {
 		return format.format(new Date());
 	}
 	
+	public static java.sql.Date currentSqlDate(){
+		return new java.sql.Date(System.currentTimeMillis());
+	}
+	
 	/**
 	 * 往前或往后指定天数
 	 * @param days
