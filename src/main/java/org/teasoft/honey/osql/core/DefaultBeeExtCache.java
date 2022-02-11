@@ -23,56 +23,62 @@ public class DefaultBeeExtCache implements BeeExtCache {
 
 	private static boolean useLevelTwo = HoneyConfig.getHoneyConfig().cache_useLevelTwo;
 	private static boolean levelOneTolevelTwo = HoneyConfig.getHoneyConfig().cache_levelOneTolevelTwo;
-	
-	private static String logCache2Msg="==========get from Level 2 Cache.";
-	private static boolean isShowSql=false;
-	
-	private static ConcurrentMap<String,Set<String>> map_tableSqlKey;
-	
+
+	private static String logCache2Msg = "==========get from Level 2 Cache.";
+	private static boolean isShowSql = false;
+
+	private static ConcurrentMap<String, Set<String>> map_tableSqlKey;
+
 	static {
-		isShowSql=HoneyConfig.getHoneyConfig().showSQL;
-		map_tableSqlKey=new ConcurrentHashMap<>();
+		isShowSql = HoneyConfig.getHoneyConfig().showSQL;
+		map_tableSqlKey = new ConcurrentHashMap<>();
 	}
-	
+
 	@Override
 	public Object get(String sql) {
 
 		Object obj = CacheUtil.get(sql);
 		if (useLevelTwo && obj == null) {
-			
+
 			//一级缓存获取不到,还有可能是因为有修改原因清了缓存.
 			//要检测,不是因为修改的原因,才给查二级的  (这样的话,就要维护修改的语句关联了哪个表, 查询的语句关联了哪个表)
-			boolean isModified=getModified(sql);
-			
+			boolean isModified = getModified(sql);
+
 			//按表来区分 
-			if(! isModified) {
-				boolean canGetInLevelTow=false;
-				if(levelOneTolevelTwo) {
-					canGetInLevelTow=true;
-				}else {
+			if (!isModified) {
+				boolean canGetInLevelTow = false;
+				if (levelOneTolevelTwo) {
+					canGetInLevelTow = true;
+				} else {
 					RouteStruct routeStruct = HoneyContext.getCurrentRoute();
 					boolean f2 = HoneyContext.isConfigLevelTwoCache(routeStruct.getEntityClass());
-				    if(f2) canGetInLevelTow=true;
+					if (f2) canGetInLevelTow = true;
 				}
-				if(canGetInLevelTow) {
+				if (canGetInLevelTow) {
 					//才到二级缓存查.
-					 String key = CacheKey.genKey(sql);
-//					   System.out.println("get, key is: "+key);
-					   obj = getInExtCache(key);   //通过sql生成key,要执行两次,效率???
-					   if(isShowSql && obj!=null) Logger.logSQL(logCache2Msg,"");
+					String key = CacheKey.genKey(sql);
+					//					   System.out.println("get, key is: "+key);
+
+					try {
+						obj = getInExtCache(key); //通过sql生成key,要执行两次,效率???
+					} catch (Exception e) {
+						Logger.error(e.getMessage(), e);
+					}
+
+					if (isShowSql && obj != null) Logger.logSQL(logCache2Msg, "");
 				}
 			}
 		}
 
 		return obj;
 	}
-	
+
 	private boolean getModified(String sql) {
-		boolean isModified=false; //  改成动态的   Bee-Ext要能更新
-		
-		List<String> tableNameList=CacheKey.genTableNameList(sql); 
-		for (int j = 0; tableNameList!=null && j < tableNameList.size(); j++) { //涉及的表都没有被更改才获取二级的
-			isModified= HoneyContext.getModifiedFlagForCache2(tableNameList.get(j))  ||  isModified ;
+		boolean isModified = false; //  改成动态的   Bee-Ext要能更新
+
+		List<String> tableNameList = CacheKey.genTableNameList(sql);
+		for (int j = 0; tableNameList != null && j < tableNameList.size(); j++) { //涉及的表都没有被更改才获取二级的
+			isModified = HoneyContext.getModifiedFlagForCache2(tableNameList.get(j)) || isModified;
 		}
 		return isModified;
 	}
@@ -97,10 +103,15 @@ public class DefaultBeeExtCache implements BeeExtCache {
 				}
 				if (canAddInLevelTow) {
 					String key = CacheKey.genKey(sql);
-					addInExtCache(key, result);
-					
-					List<String> tableNameList=CacheKey.genTableNameList(sql); 
-					for (int j = 0; tableNameList!=null && j < tableNameList.size(); j++) { 
+
+					try {
+						addInExtCache(key, result);
+					} catch (Exception e) {
+						Logger.error(e.getMessage(), e);
+					}
+
+					List<String> tableNameList = CacheKey.genTableNameList(sql);
+					for (int j = 0; tableNameList != null && j < tableNameList.size(); j++) {
 						_regTabCache(tableNameList.get(j), key);
 					}
 				}
@@ -108,47 +119,51 @@ public class DefaultBeeExtCache implements BeeExtCache {
 			if (f) HoneyContext.deleteCacheInfo(sql);
 		}
 	}
-	
-	private void _regTabCache(String tableName,String sqlKey){
-		Set<String> set=map_tableSqlKey.get(tableName);
-		if(set!=null){
+
+	private void _regTabCache(String tableName, String sqlKey) {
+		Set<String> set = map_tableSqlKey.get(tableName);
+		if (set != null) {
 			set.add(sqlKey);
-		}else{
-			set=new LinkedHashSet<String>();
+		} else {
+			set = new LinkedHashSet<String>();
 			set.add(sqlKey);
-			map_tableSqlKey.put(tableName, set); 
+			map_tableSqlKey.put(tableName, set);
 		}
 	}
-	
-	private void _clearOneTabCache(String tableName){
-		Set<String> set=map_tableSqlKey.get(tableName);
-		if(set!=null){
+
+	private void _clearOneTabCache(String tableName) {
+		Set<String> set = map_tableSqlKey.get(tableName);
+		if (set != null) {
 			//清除相关index
-			for(String sqlKey : set){
-				clearInExtCache(sqlKey);
+			for (String sqlKey : set) {
+				try {
+					clearInExtCache(sqlKey);
+				} catch (Exception e) {
+					Logger.error(e.getMessage(), e);
+				}
 			}
 			//最后将set=null;
-			set=null;
-			map_tableSqlKey.remove(tableName);  //不能少
+			set = null;
+			map_tableSqlKey.remove(tableName); //不能少
 		}
 	}
 
 	@Override
 	public void clear(String sql) {
-		
-//		sql要知道关联了哪个表
-//		表对应所有缓存      CacheUtil是记录表缓存的下标到一个set. 下标是一级缓存的,只有一级缓存才有用.   所以二级缓存要另外定义
-		
+
+		//		sql要知道关联了哪个表
+		//		表对应所有缓存      CacheUtil是记录表缓存的下标到一个set. 下标是一级缓存的,只有一级缓存才有用.   所以二级缓存要另外定义
+
 		if (useLevelTwo) {
 			//标记对应表已修改过(缓存是脏的).  以便不再给获取缓存
 			//todo 这里是用表名,  但二级列表,则是用带包名实体       将所有数据源的同表名的缓存都清除,脏数据风险更小.
 			List<String> tableNameList = CacheKey.genTableNameList(sql);
 			for (int j = 0; tableNameList != null && j < tableNameList.size(); j++) {
 				HoneyContext.addModifiedFlagForCache2(tableNameList.get(j), Boolean.TRUE);
-				_clearOneTabCache(tableNameList.get(j));  //clearInExtCache
+				_clearOneTabCache(tableNameList.get(j)); //clearInExtCache
 			}
 
-//			String key = CacheKey.genKey(sql);
+			//			String key = CacheKey.genKey(sql);
 
 			//要放在Bee-Ext
 			//步骤: 1.用sql从genTableNameList获取到对应的表, 2.再用表获取到redis对应缓存的key. 3.循环key,将对应的缓存删了. 
@@ -158,27 +173,25 @@ public class DefaultBeeExtCache implements BeeExtCache {
 
 			//要修改时,才要清缓存.   
 			//redis如何清缓存????  如何多节点同步???
-//			clearInExtCache(key); //todo 2 删除具体二级缓存的     在_clearOneTabCache
+			//			clearInExtCache(key); //todo 2 删除具体二级缓存的     在_clearOneTabCache
 
 			for (int j = 0; tableNameList != null && j < tableNameList.size(); j++) {
 				HoneyContext.addModifiedFlagForCache2(tableNameList.get(j), Boolean.FALSE);
 			}
 		} //end if  useLevelTwo
-		
+
 		CacheUtil.clear(sql); //原来是维护有关系结构,知道sql对应表相关的缓存.然后才删除.
 		//要放在后面, 原来的会清除结构体   所以先清除二级的
 	}
-	
+
 	@Override
 	public Object getInExtCache(String key) {
 		return null;
 	}
 
 	@Override
-	public void addInExtCache(String key, Object result) {
-	}
+	public void addInExtCache(String key, Object result) {}
 
 	@Override
-	public void clearInExtCache(String key) {
-	}
+	public void clearInExtCache(String key) {}
 }
