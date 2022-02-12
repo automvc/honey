@@ -29,10 +29,10 @@ public class CommInterceptorChain implements InterceptorChain {
 	}
 
 	@Override
-	public Object beforePasreEntity(Object entity,SuidType SuidType) {
+	public Object beforePasreEntity(Object entity,SuidType suidType) {
 
 		for (int i = 0; i < chain.size(); i++) {
-			chain.get(i).beforePasreEntity(entity,SuidType);
+			chain.get(i).beforePasreEntity(entity,suidType);
 		}
 		
 		doResetDataSourceOneTime();
@@ -40,6 +40,16 @@ public class CommInterceptorChain implements InterceptorChain {
 		return entity;
 	}
 	
+	@Override
+	public Object beforePasreEntity(Object[] entityArray, SuidType suidType) {
+		for (int i = 0; i < chain.size(); i++) {
+			chain.get(i).beforePasreEntity(entityArray,suidType);
+		}
+		doResetDataSourceOneTime();
+
+		return entityArray;
+	}
+
 	@Override
 	public void setDataSourceOneTime(String ds) {
 		//do nothing
