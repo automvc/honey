@@ -25,6 +25,8 @@ public class DefaultInterceptor implements Interceptor{
 	
 	@Override
 	public Object beforePasreEntity(Object entity,SuidType suidType) {
+		System.out.println("---1:--beforePasreEntity---------------------------");
+		
 		Boolean f=HoneyContext.getEntityInterceptorFlag(entity.getClass().getName());
 		if(f==Boolean.FALSE) return entity;
 		
@@ -45,15 +47,27 @@ public class DefaultInterceptor implements Interceptor{
 			}
 		}
 		
-		if(f==null)
+		if(f==null) //原来为null,还没设置的,会进行初次设置
 		  HoneyContext.addEntityInterceptorFlag(entity.getClass().getName(), isHas);
 		
 		return entity;
 	}
 	
+	
+	@Override
+	public Object beforePasreEntity(Object[] entityArray, SuidType suidType) {
+		
+		for (int i = 0; i < entityArray.length; i++) {
+			beforePasreEntity(entityArray[i], suidType);
+		}
+		
+		return entityArray;
+	}
+
 	@Override
 	public void setDataSourceOneTime(String ds) {
 		this.ds=ds;
+		System.out.println("--------------------------------ds:"+ds);
 	}
 	
 	@Override
@@ -63,17 +77,21 @@ public class DefaultInterceptor implements Interceptor{
 
 	@Override
 	public String afterCompleteSql(String sql) {
+		System.out.println("---2:--afterCompleteSql---------------------------");
+		//NOTICE:if change the sql,need update the context.
 		return sql;
 	}
 
 	@Override
 	@SuppressWarnings("rawtypes")
 	public void beforeReturn(List list) {
+		System.out.println("---3:--beforeReturn(List list)---------------------------");
 		
 	}
 	
 	@Override
 	public void beforeReturn() {
+		System.out.println("---3:--beforeReturn()---------------------------");
 	}
 
 }
