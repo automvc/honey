@@ -30,5 +30,7 @@ public final class StringConst {
 	public static final String SUBENTITY_FIRSTANNOTATION_FIELD = "_SYS_Bee_subEntityFirstAnnotationField";
 	
 	public static final String Reset_Ds_OneTime="_SYS_Bee_Reset_Ds_OneTime";
+	
+	public static final String InterceptorChainForMoreTable="_SYS_Bee_InterceptorChainForMoreTable";
 
 }
