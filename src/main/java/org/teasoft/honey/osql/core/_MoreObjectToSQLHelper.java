@@ -16,6 +16,7 @@ import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.annotation.JoinType;
 import org.teasoft.bee.osql.dialect.DbFeature;
 import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
+import org.teasoft.bee.osql.interccept.InterceptorChain;
 import org.teasoft.honey.osql.name.NameUtil;
 import org.teasoft.honey.util.StringUtils;
 
@@ -259,12 +260,16 @@ public class _MoreObjectToSQLHelper {
 			
 			sqlBuffer.append(sqlBuffer2);
 			
+			
+			InterceptorChain chain=null;
 			//处理子表相应字段到where条件
 			for (int index = 1; index <= 2; index++) { // 从表在数组下标是1和2. 0是主表   sub table index is :1 ,2 
+				if(index==1) chain=(InterceptorChain)OneTimeParameter.getAttribute(StringConst.InterceptorChainForMoreTable);
 				if (moreTableStruct[index] != null) {
 //					parseSubObject(sqlBuffer, valueBuffer, list, conditionFieldSet, firstWhere, includeType, moreTableStruct, index);
 //					bug: firstWhere需要返回,传给condition才是最新的
 //					firstWhere=parseSubObject(sqlBuffer, valueBuffer, list, conditionFieldSet, firstWhere, includeType, moreTableStruct, index);
+					doBeforePasreSubEntity(moreTableStruct[index].subObject, chain);//V1.11
 					firstWhere=parseSubObject(sqlBuffer, list, whereFields, firstWhere, includeType, moreTableStruct, index);
 				}
 			}
@@ -298,6 +303,10 @@ public class _MoreObjectToSQLHelper {
 
 		return sql;
 	}
+	private static void doBeforePasreSubEntity(Object entity,InterceptorChain chain) {
+		if(entity!=null) chain.beforePasreEntity(entity, SuidType.SELECT);
+	}
+	
 	
 	private static boolean parseSubObject(StringBuffer sqlBuffer2, 
 			List<PreparedValue> list,  Set<String> conditionFieldSet, boolean firstWhere,
