@@ -983,9 +983,9 @@ public final class HoneyUtil {
 	public static boolean isSkipField(Field field) {
 		if (field != null) {
 			if ("serialVersionUID".equals(field.getName())) return true;
-			if (field.isSynthetic()) return true;
-			if (field.isAnnotationPresent(JoinTable.class)) return true;
 			if (field.isAnnotationPresent(Ignore.class)) return true; //v1.9
+			if (field.isAnnotationPresent(JoinTable.class)) return true;
+			if (field.isSynthetic()) return true;
 		}
 		return false;
 	}
@@ -993,9 +993,9 @@ public final class HoneyUtil {
 	static boolean isSkipFieldForMoreTable(Field field) {
 		if (field != null) {
 			if ("serialVersionUID".equals(field.getName())) return true;
-			if (field.isSynthetic()) return true;
-//			if (field.isAnnotationPresent(JoinTable.class)) return true;
 			if (field.isAnnotationPresent(Ignore.class)) return true; //v1.9
+//			if (field.isAnnotationPresent(JoinTable.class)) return true;
+			if (field.isSynthetic()) return true;
 		}
 		
 		return false;
