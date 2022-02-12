@@ -73,7 +73,7 @@ public class ObjSQL implements Suid {
 		
 		Logger.logSQL("select SQL: ", sql);
 		list = getBeeSql().select(sql, entity); // 返回值用到泛型
-		doAfterAccessDB(list);
+		doBeforeReturn(list);
 		
 		return list;
 	}
@@ -96,7 +96,7 @@ public class ObjSQL implements Suid {
 		_regEntityClass(entity);
 		updateNum = getBeeSql().modify(sql);
 		
-		doAfterAccessDB();
+		doBeforeReturn();
 		
 		return updateNum;
 	}
@@ -115,7 +115,7 @@ public class ObjSQL implements Suid {
 		HoneyUtil.revertId(entity); //v1.9
 		insertNum = getBeeSql().modify(sql);
 		
-		doAfterAccessDB();
+		doBeforeReturn();
 		
 		return insertNum;
 	}
@@ -168,7 +168,7 @@ public class ObjSQL implements Suid {
 		OneTimeParameter.setAttribute(StringConst.PK_Name_For_ReturnId, pkName);
 		//id will gen by db
 		returnId = getBeeSql().insertAndReturnId(sql);
-		doAfterAccessDB();
+		doBeforeReturn();
 		return returnId;
 	}
 	
@@ -184,7 +184,7 @@ public class ObjSQL implements Suid {
 		Logger.logSQL("delete SQL: ", sql);
 		_regEntityClass(entity);
 		deleteNum = getBeeSql().modify(sql);
-		doAfterAccessDB();
+		doBeforeReturn();
 		return deleteNum;
 	}
 
@@ -197,7 +197,7 @@ public class ObjSQL implements Suid {
 		sql=doAfterCompleteSql(sql);
 		Logger.logSQL("select SQL: ", sql);
 		list = getBeeSql().select(sql, entity); 
-		doAfterAccessDB(list);
+		doBeforeReturn(list);
 		return list;
 	}
 
@@ -213,7 +213,7 @@ public class ObjSQL implements Suid {
 		}
 		_regEntityClass(entity);
 		deleteNum = getBeeSql().modify(sql);
-		doAfterAccessDB();
+		doBeforeReturn();
 		return deleteNum;
 	}
 
@@ -247,17 +247,20 @@ public class ObjSQL implements Suid {
 	void doBeforePasreEntity(Object entity, SuidType SuidType) {
 		getInterceptorChain().beforePasreEntity(entity, SuidType);
 	}
+	
 
 	String doAfterCompleteSql(String sql) {
+		//if change the sql,need update the context.
 		sql = getInterceptorChain().afterCompleteSql(sql);
 		return sql;
 	}
 
-	void doAfterAccessDB(List list) {
+	@SuppressWarnings("rawtypes")
+	void doBeforeReturn(List list) {
 		getInterceptorChain().beforeReturn(list);
 	}
 
-	void doAfterAccessDB() {
+	void doBeforeReturn() {
 		getInterceptorChain().beforeReturn();
 	}
 }
