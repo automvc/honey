@@ -19,5 +19,13 @@ public class Check {
 		}
 		return false;
 	}
+	
+	public static boolean isNotValidExpressionForJustFetch(String expression) {
+		if (expression == null || expression.contains("--") || expression.contains("#")
+		 || expression.contains(";") || expression.contains("/*")) {  //no this:  || expression.contains("|")
+			return true;
+		}
+		return false;
+	}
 
 }

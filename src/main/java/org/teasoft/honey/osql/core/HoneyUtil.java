@@ -31,6 +31,7 @@ import org.teasoft.bee.osql.annotation.JustFetch;
 import org.teasoft.bee.osql.annotation.PrimaryKey;
 import org.teasoft.bee.osql.exception.BeeErrorFieldException;
 import org.teasoft.bee.osql.exception.BeeIllegalEntityException;
+import org.teasoft.bee.osql.exception.BeeIllegalSQLException;
 import org.teasoft.bee.osql.exception.JoinTableException;
 import org.teasoft.bee.osql.exception.JoinTableParameterException;
 import org.teasoft.honey.osql.constant.NullEmpty;
@@ -130,9 +131,17 @@ public final class HoneyUtil {
 	private static String getJustFetchDefineName(Field field) {
 		JustFetch justFetch= field.getAnnotation(JustFetch.class);
 		String expression=justFetch.value();
+		
+		checkExpression(expression);
+		
 		return expression;
 	}
 	
+	private static void checkExpression(String expression){
+		if(Check.isNotValidExpressionForJustFetch(expression)) {
+			throw new BeeIllegalSQLException("The expression: '"+expression+ "' is invalid in JustFetch Annotation!");
+		}
+	}
 
 	static <T> MoreTableStruct[] getMoreTableStructAndCheckBefore(T entity) {
 		
