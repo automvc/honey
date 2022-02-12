@@ -266,8 +266,13 @@ public final class HoneyUtil {
 			}
 			
 			if (subOneIsList && list_T_classOne == null) {
-				String subClassStr = joinTable[0].subClass();
-				list_T_classOne=createClass(subClassStr, entityFullName);
+				Class c=joinTable[0].subClazz();
+				if(! "java.lang.Object".equals(c.getName())) {//V1.11
+					list_T_classOne=c;
+				}else {
+					String subClassStr = joinTable[0].subClass();
+					list_T_classOne=createClass(subClassStr, entityFullName);
+				}
 			}
 		}
 
@@ -361,7 +366,10 @@ public final class HoneyUtil {
 //							subTwoIsList = true;
 							moreTableStruct[0].subTwoIsList = true;
 //							List list = (List) subField[1].get(entity);
-							List list = (List) subField[1].get(moreTableStruct[1].subObject);//要等从表1的subObject对象处理完
+							List list =null;
+							if(moreTableStruct[1].subObject!=null) {  //bug fixed V1.11
+								list=(List) subField[1].get(moreTableStruct[1].subObject);//要等从表1的subObject对象处理完
+							}
 							if (ObjectUtils.isNotEmpty(list)) {
 								listTwo = list;
 								list_T_classTwo = list.get(0).getClass();
@@ -372,8 +380,13 @@ public final class HoneyUtil {
 					}
 					
 					if (subTwoIsList && list_T_classTwo == null) {
-						String subClassStr = joinTable[1].subClass();
-						list_T_classTwo=createClass(subClassStr, entityFullName);
+						Class c=joinTable[1].subClazz();
+						if(! "java.lang.Object".equals(c.getName())) {//V1.11
+							list_T_classTwo=c;
+						}else {
+							String subClassStr = joinTable[1].subClass();
+							list_T_classTwo=createClass(subClassStr, entityFullName);
+						}
 					}
 				}
 
