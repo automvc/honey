@@ -12,6 +12,7 @@ import java.util.Map;
 
 import org.teasoft.bee.logging.Log;
 import org.teasoft.honey.osql.core.HoneyConfig;
+import org.teasoft.honey.osql.core.Logger;
 import org.teasoft.honey.util.StringUtils;
 
 /**
@@ -183,8 +184,10 @@ public class LoggerFactory {
 			clazz = Thread.currentThread().getContextClassLoader().loadClass(className);
 		} catch (Exception e) {
 			//ignore
+			Logger.warn(e.getMessage(),e);
 		}catch (Error e) {
 			//ignore
+			Logger.warn(e.getMessage(),e);
 		}
 		
 		if (clazz == null) {
