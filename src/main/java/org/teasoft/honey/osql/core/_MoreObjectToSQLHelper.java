@@ -304,7 +304,7 @@ public class _MoreObjectToSQLHelper {
 		return sql;
 	}
 	private static void doBeforePasreSubEntity(Object entity,InterceptorChain chain) {
-		if(entity!=null) chain.beforePasreEntity(entity, SuidType.SELECT);
+		if(entity!=null && chain!=null) chain.beforePasreEntity(entity, SuidType.SELECT);
 	}
 	
 	

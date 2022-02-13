@@ -320,17 +320,14 @@ public final class HoneyContext {
 	
 	
 	public static String getAppointDS() {
-		System.out.println("------------------getAppointDS");
 		return appointDS.get();
 	}
 
 	public static void setAppointDS(String dsName) {
-		System.out.println("------------------setAppointDS");
 		appointDS.set(dsName);
 	}
 
 	public static void removeAppointDS() {
-		System.out.println("------------------removeAppointDS");
 		appointDS.remove();
 	}
 	

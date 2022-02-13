@@ -209,7 +209,7 @@ public final class HoneyConfig {
 	@SysValue("${bee.osql.cacheRedis.password}")
 	public String cacheRedis_password;
 	
-	@SysValue("${ee.osql.cacheRedis.connectionTimeout}")
+	@SysValue("${bee.osql.cacheRedis.connectionTimeout}")
 	public Integer cacheRedis_connectionTimeout;
 	
 	@SysValue("${bee.osql.cacheRedis.soTimeout}")
