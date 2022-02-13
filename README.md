@@ -5,7 +5,7 @@ Bee
 **Bee** is an ORM framework.   
 **Bee** is an easy and high efficiency ORM framework.    
 **Coding Complexity is O(1),it means that Bee will do the Dao for you**.  
-**You don't need to write the Dao by yourself anymore**.  
+**You don't need to write the Dao by yourself anymore**.Help you to focus more on the development of business logic.  
 **Good Feature:**  AI, Timesaving/Tasteful, Easy, Automatic (**AiTeaSoft Style**)   
 **Bee** see:  
 https://github.com/automvc/bee  
@@ -21,7 +21,7 @@ jdk1.7+
 ## Feature & Function: 
 
 **Support many Database**(MySQL,MariaDB,Oracle,H2,SQLite,PostgreSQL,SQL Server and so on) and easily extend。 
-**Good performance, close to the speed of JDBC; Small files：Bee V1.8 jar 217k**, **V1.9.5 jar,315k**。  
+**Good performance, close to the speed of JDBC; Small files：Bee V1.8 jar 217k**, **V1.9.5 jar,315k, V1.9.8 jar 310k**。  
 
 **V1.0**  
 Single entity(table) Suid (select,update,insert,delete) object-oriented operation.  
@@ -96,23 +96,7 @@ fixed null bug about:PreparedSql's method select(String sql,Object preValues[]).
 4.Fix bug about checkSelectField.  
 
 **V1.9**  
-SuidRich add new methods support list parameter in batch insert.  
-enhance SuidRich function, SuidRich add method:  
-	public <T> List<String[]> selectString(T entity,Condition condition);  
-	public <T> int updateById(T entity,Condition condition);  
-	public <T> String selectWithFun(T entity, FunctionType functionType, String fieldForFun, Condition condition);  
-	public <T> int count(T entity);  
-	public <T> int count(T entity, Condition condition);  
-	public <T> boolean exist(T entity); //check the record whether exist in table  
-SuidRich adjust methods selectById for unique entity and intelligently judge the Javabean id type of string id parameter.  
-Suid add method insertAndReturnId.  
-enhance aggregate function cont,sum,avg,min,max,Condition add method:  
-	public Condition selectFun(FunctionType functionType,String fieldForFun);  
-	public Condition selectFun(FunctionType functionType,String fieldForFun,String alias);  
-Condition add method:opWithField,setWithField support like :field1=field2  
-Condition add method:selectDistinctField,support distinct as select distinct(userid) from table_name  
-MapSuid,no need Javabean, use map to set the entity information that needs to be transformed and operate the database(select/insert/delete record).  
-support read Excel(*.xls,*.xlsx), converting data into List<String[]> and importing them into database(bee-ext).  
+(just a part)   
 more table join select support more join condition.  
 same Connection for some ORM operation.  
 support different type muli-Ds at same time.  
@@ -148,21 +132,14 @@ annotation JoinTable add method:subClass() for List type field
 Condition add method:  
 public Condition opOn(String field, Op Op, Object value);  
 
-MapSuid:  
+MapSuid(the Javabean corresponding to the table is not required):  
 add method update,count,paging select, add and adjust insert and insertAndReturnId.  
-add method putNew(String fieldName, Object newValue),putNew(Map map),put(Map map),support page in MapSql.  
-add method count(MapSql mapSql),update(MapSql mapSql),insertAndReturnId(MapSql mapSql),support page in MapSuid.  
-add method putNew(String fieldName, Object newValue),putNew(Map map),put(Map map),support page in MapSqlImpl.  
-add method toUpdateSqlByMap ,toCountSqlByMap ,support page in MapSqlProcessor.  
-add method count(MapSql mapSql),update(MapSql mapSql),support page in MapSuidImpl.  
-MapSuidImpl change two different method:insert(MapSql mapSql) & insertAndReturnId(MapSql mapSql)  
 
 PreparedSqlLib support selectMapList method.  
 Read/Write multi-DataSource support different type DataSource.  
 Logger: two method support have parameter Throwable.  
 sql log support config the log level.  
 add class StreamUtil  
-ObjectUtils add one method: isTrue(Boolean b)  
 enhance check field  
 use LinkedHashMap in List&lt;Map> result for selectMapList(String sql).  
 Condition support condition.set("fieldName", null).  
@@ -181,6 +158,35 @@ fix bug about HoneyContext
 fix bug about checkPackageByClass  
 fix bug about multi-thread safe in ConditionHelper.  
 
+**V1.11**  
+V1.11.0.1.1(2022 New Year)  
+SuidRich add method:  
+  public <T> long insertAndReturnId(T entity,IncludeType includeType);  
+PreparedSql add method:  
+  public <T> List<T> select(String sql,T returnType);  
+add annotation PrimaryKey  
+MapSqlKey support PrimaryKey  
+BF is shortcut for BeeFactoryHelper  
+Enhance:config info add trim() about multi-DataSource Write/Read  
+fix a bug for naming transfer  
+
+V1.11.0.2.1(2022 Spring Festival)  
+add function: Interceptor、multi-tenant  
+add Interceptor,InterceptorChain  
+add DefaultInterceptor,CommInterceptorChain,DefaultInterceptorChain  
+
+V1.11.0.2.4(2022 Beijing Winter Olympics)  
+level tow ext cache support  
+Redis cache support  
+add BeeExtCache,DefaultBeeExtCache  
+add BeeExtRedisCache  
+
+V1.11.0.2.15(2022 the Lantern Festival)  
+add annotation:Datetime,Createtime,Updatetime;JustFetch  
+add support Jndi DataSource  
+
+
+
 ## [Function Detail](../../../bee/blob/master/Changed_Log.md)  
 [click for:  Function Detail](../../../bee/blob/master/Changed_Log.md)  
 
@@ -191,6 +197,8 @@ fix bug about multi-thread safe in ConditionHelper.
 Test Evn : Local windows.  
 DB: MySQL (Version 5.6.24).  
 Test point: Batch Insert;Paging Select; Transaction(update and select).  
+
+<img src="batch-insert-compare.png">  
 
 <table cellspacing="0" cellpadding="0">
   <col width="62" />
@@ -423,6 +431,9 @@ public class SuidExamEN {
 
 #### [Bee+Spring-boot Demo](../../../bee-starter-demo/)	
 
+### Bee Common Interface  
+<img src="common-interface_en.jpg">  
+
 Rapid application development:
 =========	
 **Let Java more quicker programming than php and Rails.**  
@@ -434,6 +445,12 @@ Rapid application development:
 [Bee + Spring Boot](../../../bee-springboot)  
 
 ...  
+
+Other Document:
+=========	
+[wiki Document](../../../bee/wikis)  
+
+[CSDN: ORM Bee Document](https://blog.csdn.net/abckingaa/article/details/121664398)
   
 Contact & Welcome:
 =========	
