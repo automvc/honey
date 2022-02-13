@@ -44,6 +44,17 @@ public final class SessionFactory {
 		Connection conn = null;
 		try {
 			DataSource ds = getBeeFactory().getDataSource();
+
+			if (ds == null) { //V1.11
+				boolean isJndiType = HoneyConfig.getHoneyConfig().jndiType;
+				if (isJndiType) {//Jndi type
+					ds = new JndiDataSource().getDataSource();
+					if (ds != null) {
+						getBeeFactory().setDataSource(ds);
+					}
+				}
+			}
+
 			if (ds != null) {
 				conn = ds.getConnection();
 			} else {//do not set the dataSource

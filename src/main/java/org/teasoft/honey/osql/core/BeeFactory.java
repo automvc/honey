@@ -49,13 +49,13 @@ public class BeeFactory extends BeeAbstractFactory {
 	
 	private DataSource _getDsFromDsMap() {
 
-//		String dsName = Router.getDsName();
-//		return getDataSourceMap().get(dsName);
-		
-//		V1.11
-		String dsName = (String) OneTimeParameter.getAttribute(StringConst.Reset_Ds_OneTime);
-		if (dsName == null) dsName = Router.getDsName();
+		String dsName = Router.getDsName();
 		return getDataSourceMap().get(dsName);
+		
+//		V1.11   其它地方有用到:Router.getDsName()
+//		String dsName = (String) OneTimeParameter.getAttribute(StringConst.Reset_Ds_OneTime);
+//		if (dsName == null) dsName = Router.getDsName();
+//		return getDataSourceMap().get(dsName);
 	}
 	
 	@Override
@@ -82,12 +82,12 @@ public class BeeFactory extends BeeAbstractFactory {
 				dbName = conn.getMetaData().getDatabaseProductName();
 			}
 		} catch (Exception e) {
-			Logger.error(e.getMessage());
+			Logger.error(e.getMessage(),e);
 		} finally {
 			try {
 				if (conn != null) conn.close();
 			} catch (Exception e2) {
-				Logger.error(e2.getMessage());
+				Logger.error(e2.getMessage(),e2);
 			}
 		}
 		

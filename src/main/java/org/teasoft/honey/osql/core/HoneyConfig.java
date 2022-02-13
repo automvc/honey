@@ -144,6 +144,11 @@ public final class HoneyConfig {
 
 	@SysValue("${" + DbConfigConst.DB_PWORD + "}")
 	String password;
+	
+    @SysValue("${bee.db.jndiType}")
+	boolean jndiType;
+    @SysValue("${bee.db.jndiName}")
+	String jndiName;
 
 	//----------------------------- cache start
 	@SysValue("${bee.osql.cache.timeout}")
