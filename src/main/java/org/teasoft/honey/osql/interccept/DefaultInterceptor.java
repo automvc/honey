@@ -25,7 +25,12 @@ public class DefaultInterceptor implements Interceptor{
 	
 	@Override
 	public Object beforePasreEntity(Object entity,SuidType suidType) {
-		System.out.println("---1:--beforePasreEntity---------------------------");
+//		System.out.println("---1:--beforePasreEntity---------------------------");
+		
+		if(entity.getClass().equals(Class.class)) {
+//			System.out.println("是Class类型,默认不处理."); //deleteById
+			return entity;
+		}
 		
 		Boolean f=HoneyContext.getEntityInterceptorFlag(entity.getClass().getName());
 		if(f==Boolean.FALSE) return entity;
@@ -67,7 +72,7 @@ public class DefaultInterceptor implements Interceptor{
 	@Override
 	public void setDataSourceOneTime(String ds) {
 		this.ds=ds;
-		System.out.println("--------------------------------ds:"+ds);
+//		System.out.println("--------------------------------ds:"+ds);
 	}
 	
 	@Override
@@ -77,7 +82,7 @@ public class DefaultInterceptor implements Interceptor{
 
 	@Override
 	public String afterCompleteSql(String sql) {
-		System.out.println("---2:--afterCompleteSql---------------------------");
+//		System.out.println("---2:--afterCompleteSql---------------------------");
 		//NOTICE:if change the sql,need update the context.
 		return sql;
 	}
@@ -85,13 +90,13 @@ public class DefaultInterceptor implements Interceptor{
 	@Override
 	@SuppressWarnings("rawtypes")
 	public void beforeReturn(List list) {
-		System.out.println("---3:--beforeReturn(List list)---------------------------");
+//		System.out.println("---3:--beforeReturn(List list)---------------------------");
 		
 	}
 	
 	@Override
 	public void beforeReturn() {
-		System.out.println("---3:--beforeReturn()---------------------------");
+//		System.out.println("---3:--beforeReturn()---------------------------");
 	}
 
 }

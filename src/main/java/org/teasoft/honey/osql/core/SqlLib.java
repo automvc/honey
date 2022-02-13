@@ -339,7 +339,6 @@ public class SqlLib implements BeeSql {
 
 		return list;
 	}
-	
 
 	//对应jdbc的executeUpdate方法
 	/*
@@ -360,11 +359,8 @@ public class SqlLib implements BeeSql {
 			conn = getConn();
 			String exe_sql=HoneyUtil.deleteLastSemicolon(sql);
 			pst = conn.prepareStatement(exe_sql);
-
 			setPreparedValues(pst, sql);
-
-			num = pst.executeUpdate(); //该语句必须是一个 SQL 数据操作语言（Data Manipulation Language，DML）语句
-										//，比如 INSERT、UPDATE 或 DELETE 语句；或者是无返回内容的 SQL 语句，比如 DDL 语句。
+			num = pst.executeUpdate();
 		} catch (SQLException e) {
 			
 			if (isConstraint(e)) {

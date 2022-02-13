@@ -240,14 +240,9 @@ public class ObjSQL implements Suid {
 		HoneyContext.endSameConnection(); 
 	}
 	
-//	void doBeforePasreEntity(Object entity) {
-//		doBeforePasreEntity(entity,SuidType.INSERT);
-//	}
-	
 	void doBeforePasreEntity(Object entity, SuidType SuidType) {
 		getInterceptorChain().beforePasreEntity(entity, SuidType);
 	}
-	
 
 	String doAfterCompleteSql(String sql) {
 		//if change the sql,need update the context.

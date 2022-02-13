@@ -530,10 +530,14 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	public int deleteById(Class c, Integer id) {
 		if(id==null) Logger.warn("in method deleteById,id is null! ");
 		if (c == null || id==null) return 0;
+		doBeforePasreEntity(c,SuidType.DELETE);
 		String sql = getObjToSQLRich().toDeleteByIdSQL(c, id);
+		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("deleteById SQL: ", sql);
 		_regEntityClass2(c);
-		return getBeeSql().modify(sql);
+		int a=getBeeSql().modify(sql);
+		doBeforeReturn();
+		return a;
 	}
 
 	@Override
@@ -541,10 +545,14 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	public int deleteById(Class c, Long id) {
 		if(id==null) Logger.warn("in method deleteById,id is null! ");
 		if (c == null || id==null) return 0;
+		doBeforePasreEntity(c,SuidType.DELETE);
 		String sql = getObjToSQLRich().toDeleteByIdSQL(c, id);
+		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("deleteById SQL: ", sql);
 		_regEntityClass2(c);
-		return getBeeSql().modify(sql);
+		int a=getBeeSql().modify(sql);
+		doBeforeReturn();
+		return a;
 	}
 
 	@Override
@@ -552,10 +560,14 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	public int deleteById(Class c, String ids) {
 		if(ids==null) Logger.warn("in method deleteById,ids is null! ");
 		if (c == null || ids==null) return 0;
+		doBeforePasreEntity(c,SuidType.DELETE);
 		String sql = getObjToSQLRich().toDeleteByIdSQL(c, ids);
+		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("deleteById SQL: ", sql);
 		_regEntityClass2(c);
-		return getBeeSql().modify(sql);
+		int a=getBeeSql().modify(sql);
+		doBeforeReturn();
+		return a;
 	}
 
 	@Override
