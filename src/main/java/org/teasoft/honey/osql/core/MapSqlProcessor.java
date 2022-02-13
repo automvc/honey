@@ -17,6 +17,7 @@ import org.teasoft.bee.osql.MapSqlSetting;
 import org.teasoft.bee.osql.dialect.DbFeature;
 import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
 import org.teasoft.bee.osql.exception.BeeIllegalBusinessException;
+import org.teasoft.bee.osql.exception.BeeIllegalSQLException;
 import org.teasoft.honey.distribution.GenIdFactory;
 import org.teasoft.honey.osql.util.NameCheckUtil;
 import org.teasoft.honey.util.ObjectUtils;
@@ -66,16 +67,19 @@ public class MapSqlProcessor {
 		//group by
 		String groupByField = sqlkeyMap.get(MapSqlKey.GroupBy);
 		if (StringUtils.isNotBlank(groupByField)) {
+			checkExpression(groupByField);
 			sqlBuffer.append(K.space).append(K.groupBy).append(K.space).append(groupByField);
 		}
 		//having
 		String havingStr = sqlkeyMap.get(MapSqlKey.Having);
 		if (StringUtils.isNotBlank(havingStr)) {
+			checkExpression(havingStr); 
 			sqlBuffer.append(K.space).append(K.having).append(K.space).append(havingStr);
 		}
 		//order by
 		String orderByStr = sqlkeyMap.get(MapSqlKey.OrderBy);
 		if (StringUtils.isNotBlank(orderByStr)) {
+			checkExpression(orderByStr);
 			sqlBuffer.append(K.space).append(K.orderBy).append(K.space).append(orderByStr);
 		}
 		
@@ -530,10 +534,10 @@ public class MapSqlProcessor {
 		NameCheckUtil.checkName(tableName);
 	}
 	
-//	private static void checkTableName(String name){
-//		if(CheckField.isNotValid(name)) {
-//			throw new BeeErrorFieldException("The name: '"+name+ "' is invalid!");
-//		}
-//	}
+	private static void checkExpression(String expression){
+		if(Check.isNotValidExpressionForJustFetch(expression)) {
+			throw new BeeIllegalSQLException(" '"+expression+ "' is invalid in MapSql!");
+		}
+	}
 
 }
