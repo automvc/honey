@@ -36,4 +36,15 @@ public class StringUtils {
 	public static boolean isNotEmpty(final String strings[]) {
 		return !isEmpty(strings);
 	}
+	
+	public static boolean isContainUpperCase(String str) {
+		if(isBlank(str)) return false;
+		StringBuffer buf = new StringBuffer(str);
+		for (int i = 1; i < buf.length(); i++) {
+			if (Character.isUpperCase(buf.charAt(i))) {
+				return true;
+			}
+		}
+		return false;
+	}
 }
