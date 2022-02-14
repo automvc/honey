@@ -52,8 +52,8 @@ public class NameTranslateHandle {
 					Table tab = (Table) obj.getAnnotation(Table.class);
 					return processAutoPara(tab.value());
 				} else if (obj.isAnnotationPresent(Entity.class)) {
-					Entity tntity = (Entity) obj.getAnnotation(Entity.class);
-					entityName = processAutoPara(tntity.value());
+					Entity entity = (Entity) obj.getAnnotation(Entity.class);
+					entityName = processAutoPara(entity.value());
 				}
 			}
 		} catch (ClassNotFoundException e) {
