@@ -19,6 +19,7 @@ import org.teasoft.honey.osql.core.HoneyUtil;
 import org.teasoft.honey.osql.core.Logger;
 import org.teasoft.honey.osql.core.NameTranslateHandle;
 import org.teasoft.honey.osql.name.NameUtil;
+import org.teasoft.honey.util.SqlKeyCheck;
 
 /**
  * 根据Javabean创建表.Create table according to Javabean
@@ -356,7 +357,11 @@ public class Ddl {
 	}
 
 	private static String _toColumnName(String fieldName) {
-		return NameTranslateHandle.toColumnName(fieldName);
+		String name= NameTranslateHandle.toColumnName(fieldName);
+		if(SqlKeyCheck.isKeyWord(name)) {
+			Logger.warn("The '"+name+"' is Sql Keyword. Do not recommend!");
+		}
+		return name;
 	}
 
 	private static boolean isSkipField(Field field) {
