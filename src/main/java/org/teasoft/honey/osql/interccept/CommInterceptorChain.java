@@ -29,20 +29,20 @@ public class CommInterceptorChain implements InterceptorChain {
 	}
 
 	@Override
-	public Object beforePasreEntity(Object entity,SuidType suidType) {
-		for (int i = 0; i < chain.size(); i++) {
-			chain.get(i).beforePasreEntity(entity,suidType);
+	public Object beforePasreEntity(Object entity, SuidType suidType) {
+		for (int i = 0; entity != null && i < chain.size(); i++) { //自定义sql,MapSuid会传入null
+			chain.get(i).beforePasreEntity(entity, suidType);
 		}
-		
+
 		doResetDataSourceOneTime();
 
 		return entity;
 	}
-	
+
 	@Override
 	public Object beforePasreEntity(Object[] entityArray, SuidType suidType) {
-		for (int i = 0; i < chain.size(); i++) {
-			chain.get(i).beforePasreEntity(entityArray,suidType);
+		for (int i = 0; entityArray != null && i < chain.size(); i++) {
+			chain.get(i).beforePasreEntity(entityArray, suidType);
 		}
 		doResetDataSourceOneTime();
 
@@ -53,36 +53,37 @@ public class CommInterceptorChain implements InterceptorChain {
 	public void setDataSourceOneTime(String ds) {
 		//do nothing
 	}
-	
+
 	@Override
 	public String getOneTimeDataSource() {
 		//do nothing
 		return null;
 	}
-	
+
 	private void doResetDataSourceOneTime() {
-		
-		int count=0;
+
+		int count = 0;
 		String ds;
 		for (int i = 0; i < chain.size(); i++) {
-			
-			ds=chain.get(i).getOneTimeDataSource();
-			
-			if(StringUtils.isNotBlank(ds)) {
+
+			ds = chain.get(i).getOneTimeDataSource();
+
+			if (StringUtils.isNotBlank(ds)) {
 				count++;
 				HoneyContext.setAppointDS(ds);
-				Logger.info("[Bee] Reset the DataSource OneTime, ds name:"+ds);
+				Logger.info("[Bee] Reset the DataSource OneTime, ds name:" + ds);
 			}
 		}
-		if(count>1) Logger.warn("[Bee] Just the last DataSource is effective,if set the OneTime DataSource more than one!");
+		if (count > 1) Logger.warn(
+				"[Bee] Just the last DataSource is effective,if set the OneTime DataSource more than one!");
 	}
 
 	@Override
 	public String afterCompleteSql(String sql) {
 		for (int i = 0; i < chain.size(); i++) {
-			sql=chain.get(i).afterCompleteSql(sql);
+			sql = chain.get(i).afterCompleteSql(sql);
 		}
-//		HoneyContext.removeAppointDS();  //放在这影响缓存
+		//		HoneyContext.removeAppointDS();  //放在这影响缓存
 		return sql;
 	}
 
@@ -93,19 +94,19 @@ public class CommInterceptorChain implements InterceptorChain {
 		for (int i = 0; i < chain.size(); i++) {
 			chain.get(i).beforeReturn(list);
 		}
-		HoneyContext.removeAppointDS();  //放在这可能影响异步. 
+		HoneyContext.removeAppointDS(); //放在这可能影响异步. 
 		HoneyContext.removeCurrentRoute();
 	}
-	
+
 	//用于update,insert,delete及没有返回Javabean结构的查询方法
 	@Override
 	public void beforeReturn() {
-		
+
 		for (int i = 0; i < chain.size(); i++) {
 			chain.get(i).beforeReturn();
 		}
-		HoneyContext.removeAppointDS(); 
+		HoneyContext.removeAppointDS();
 		HoneyContext.removeCurrentRoute();
 	}
-	
+
 }
