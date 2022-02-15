@@ -15,7 +15,10 @@ public class OracleFeature implements DbFeature {
 
 	@Override
 	public String toPageSql(String sql, int start, int size) {
-		return getLimitSql(sql, true, start, size);
+		if (start <= 1)//从首页开始,进行改写成简单的
+			return getLimitSql(sql, false, -1, size);
+		else
+			return getLimitSql(sql, true, start, size);
 	}
 
 	@Override
