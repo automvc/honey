@@ -7,7 +7,6 @@ import org.teasoft.bee.osql.BeeSQLException;
 import org.teasoft.bee.osql.transaction.Transaction;
 import org.teasoft.bee.osql.transaction.TransactionIsolationLevel;
 import org.teasoft.honey.osql.core.ExceptionHelper;
-import org.teasoft.honey.osql.core.HoneyConfig;
 import org.teasoft.honey.osql.core.HoneyContext;
 import org.teasoft.honey.osql.core.Logger;
 import org.teasoft.honey.osql.core.SessionFactory;
@@ -23,10 +22,7 @@ public class JdbcTransaction implements Transaction {
 	private boolean isBegin = false;
 
 	private Connection initOneConn() {
-
-		Connection c = null;
-		c = SessionFactory.getConnection();
-		return c;
+		return SessionFactory.getConnection();
 	}
 
 	@Override
@@ -133,13 +129,15 @@ public class JdbcTransaction implements Transaction {
 			} finally {
 				HoneyContext.removeCurrentConnection(); //事务结束时要删除
 				
-				boolean enableMultiDs = HoneyConfig.getHoneyConfig().multiDS_enable;
-				int multiDsType = HoneyConfig.getHoneyConfig().multiDS_type;
-				boolean differentDbType=HoneyConfig.getHoneyConfig().multiDS_differentDbType;
-//				if (enableMultiDs && multiDsType == 2) {//仅分库,有多个数据源时
-				if (enableMultiDs && (multiDsType ==2 || (multiDsType ==1 && differentDbType))) {
-					HoneyContext.removeCurrentRoute();
-				}
+//				boolean enableMultiDs = HoneyConfig.getHoneyConfig().multiDS_enable;
+//				int multiDsType = HoneyConfig.getHoneyConfig().multiDS_type;
+//				boolean differentDbType=HoneyConfig.getHoneyConfig().multiDS_differentDbType;
+////				if (enableMultiDs && multiDsType == 2) {//仅分库,有多个数据源时
+//				if (enableMultiDs && (multiDsType ==2 || (multiDsType ==1 && differentDbType))) {
+
+//				if (HoneyContext.isNeedDs()) {//放到拦截器中
+//					HoneyContext.removeCurrentRoute(); 
+//				}
 			}
 		}
 	}
