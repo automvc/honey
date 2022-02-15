@@ -62,12 +62,11 @@ public class DatetimeHandler {
 					|| (setSuidType == SuidType.MODIFY && (sqlSuidType == SuidType.UPDATE
 							|| sqlSuidType == SuidType.INSERT || sqlSuidType == SuidType.DELETE))))
 				return; //操作类型不对,则返回
-
+			
+			field.setAccessible(true);
 			if (!override) { //不允许覆盖,原来有值则返回
 				if (field.get(entity) != null) return;
 			}
-
-			field.setAccessible(true);
 
 //			if (field.getType() == Timestamp.class) {
 			if(field.getType().equals(Timestamp.class)) {

@@ -8,6 +8,7 @@ package org.teasoft.honey.osql.util;
 
 import java.lang.reflect.Field;
 
+import org.teasoft.bee.osql.annotation.AutoSetString;
 import org.teasoft.bee.osql.annotation.Createtime;
 import org.teasoft.bee.osql.annotation.Datetime;
 import org.teasoft.bee.osql.annotation.Updatetime;
@@ -30,6 +31,11 @@ public class AnnoUtil {
 	
 	public static boolean isUpdatetime(Field field) {
 		if (field.isAnnotationPresent(Updatetime.class)) return true;
+		else return false;
+	}
+	
+	public static boolean isAutoSetString(Field field) {
+		if (field.isAnnotationPresent(AutoSetString.class)) return true;
 		else return false;
 	}
 	
