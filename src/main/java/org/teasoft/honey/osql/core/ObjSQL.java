@@ -30,8 +30,7 @@ public class ObjSQL implements Suid {
 	private InterceptorChain interceptorChain;
 	private String dsName;
 
-	public ObjSQL() {
-	}
+	public ObjSQL() {}
 
 	public BeeSql getBeeSql() {
 		if (beeSql == null) beeSql = BeeFactory.getHoneyFactory().getBeeSql();
@@ -52,17 +51,18 @@ public class ObjSQL implements Suid {
 	}
 
 	public InterceptorChain getInterceptorChain() {
-		if (interceptorChain == null) interceptorChain = BeeFactory.getHoneyFactory().getInterceptorChain();
+		if (interceptorChain == null)
+			interceptorChain = BeeFactory.getHoneyFactory().getInterceptorChain();
 		return interceptorChain;
 	}
 
 	public void setInterceptorChain(InterceptorChain interceptorChain) {
 		this.interceptorChain = interceptorChain;
 	}
-	
+
 	@Override
 	public void setDataSourceName(String dsName) {
-		this.dsName=dsName;
+		this.dsName = dsName;
 	}
 
 	@Override
@@ -249,11 +249,11 @@ public class ObjSQL implements Suid {
 
 	@Override
 	public void endSameConnection() {
-		HoneyContext.endSameConnection(); 
+		HoneyContext.endSameConnection();
 	}
-	
+
 	void doBeforePasreEntity(Object entity, SuidType SuidType) {
-		if(this.dsName!=null) HoneyContext.setTempDS(dsName);
+		if (this.dsName != null) HoneyContext.setTempDS(dsName);
 		getInterceptorChain().beforePasreEntity(entity, SuidType);
 	}
 
@@ -265,12 +265,12 @@ public class ObjSQL implements Suid {
 
 	@SuppressWarnings("rawtypes")
 	void doBeforeReturn(List list) {
-		if(this.dsName!=null) HoneyContext.removeTempDS();
+		if (this.dsName != null) HoneyContext.removeTempDS();
 		getInterceptorChain().beforeReturn(list);
 	}
 
 	void doBeforeReturn() {
-		if(this.dsName!=null) HoneyContext.removeTempDS();
+		if (this.dsName != null) HoneyContext.removeTempDS();
 		getInterceptorChain().beforeReturn();
 	}
 }

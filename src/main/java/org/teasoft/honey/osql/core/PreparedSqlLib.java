@@ -637,12 +637,12 @@ public class PreparedSqlLib implements PreparedSql {
 	}
 	
 	private void doBeforePasreEntity() {
-		if(this.dsName!=null) HoneyContext.setTempDS(dsName);
+		if (this.dsName != null) HoneyContext.setTempDS(dsName);
 		getInterceptorChain().beforePasreEntity(null, SuidType.SELECT);
 	}
-	
+
 	private void doBeforePasreEntity(Object entity, SuidType suidType) {
-		if(this.dsName!=null) HoneyContext.setTempDS(dsName);
+		if (this.dsName != null) HoneyContext.setTempDS(dsName);
 		getInterceptorChain().beforePasreEntity(entity, suidType);
 	}
 
@@ -654,12 +654,12 @@ public class PreparedSqlLib implements PreparedSql {
 
 	@SuppressWarnings("rawtypes")
 	private void doBeforeReturn(List list) {
-		if(this.dsName!=null) HoneyContext.removeTempDS();
+		if (this.dsName != null) HoneyContext.removeTempDS();
 		getInterceptorChain().beforeReturn(list);
 	}
 
 	private void doBeforeReturn() {
-		if(this.dsName!=null) HoneyContext.removeTempDS();
+		if (this.dsName != null) HoneyContext.removeTempDS();
 		getInterceptorChain().beforeReturn();
 	}
 
