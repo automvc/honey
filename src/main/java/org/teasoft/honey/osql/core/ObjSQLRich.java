@@ -394,7 +394,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("selectJson SQL: ", sql);
 		_regEntityClass1(entity);
-		String json= getBeeSql().selectJson(sql);
+		String json = getBeeSql().selectJson(sql);
 		doBeforeReturn();
 		return json;
 	}

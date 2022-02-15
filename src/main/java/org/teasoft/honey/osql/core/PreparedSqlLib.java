@@ -10,6 +10,7 @@ import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.dialect.DbFeature;
 import org.teasoft.bee.osql.exception.BeeIllegalParameterException;
 import org.teasoft.bee.osql.exception.SqlNullException;
+import org.teasoft.bee.osql.interccept.InterceptorChain;
 import org.teasoft.honey.osql.name.NameUtil;
 
 /**
@@ -23,6 +24,10 @@ import org.teasoft.honey.osql.name.NameUtil;
 public class PreparedSqlLib implements PreparedSql {
 
 	private BeeSql beeSql;
+	
+	//V1.11
+	private InterceptorChain interceptorChain;
+	private String dsName;
 
 	public BeeSql getBeeSql() {
 		if(beeSql==null) beeSql = BeeFactory.getHoneyFactory().getBeeSql();
@@ -37,12 +42,37 @@ public class PreparedSqlLib implements PreparedSql {
 		return BeeFactory.getHoneyFactory().getDbFeature();
 	}
 	
+	
+	public InterceptorChain getInterceptorChain() {
+		if (interceptorChain == null) interceptorChain = BeeFactory.getHoneyFactory().getInterceptorChain();
+		return interceptorChain;
+	}
+
+	public void setInterceptorChain(InterceptorChain interceptorChain) {
+		this.interceptorChain = interceptorChain;
+	}
+	
+	@Override
+	public void setDataSourceName(String dsName) {
+		this.dsName=dsName;
+	}
+
+	@Override
+	public String getDataSourceName() {
+		return dsName;
+	}
+	
 	@Override
 	public <T> List<T> select(String sql, T returnType, Object[] preValues) {
-		
+		doBeforePasreEntity(returnType,SuidType.SELECT);//returnType的值,虽然不用作占位参数的值,但可以用作拦截器的业务逻辑判断
 		initPreparedValues(sql, preValues,returnType);
+		sql = doAfterCompleteSql(sql);
+		
 		Logger.logSQL("PreparedSql select SQL: ", sql);
-		return getBeeSql().select(sql, returnType);
+		List<T> list = getBeeSql().select(sql, returnType);
+		
+		doBeforeReturn(list);
+		return list;
 	}
 	
 	@Override
@@ -56,6 +86,8 @@ public class PreparedSqlLib implements PreparedSql {
 		if(size<=0) throw new BeeIllegalParameterException("Parameter 'size' need great than 0!");
 		if(start<0) throw new BeeIllegalParameterException("Parameter 'start' need great equal 0!");
 		
+		doBeforePasreEntity(entity,SuidType.SELECT);
+		
 		regPagePlaceholder();
 		
 		String tableName="";
@@ -69,15 +101,24 @@ public class PreparedSqlLib implements PreparedSql {
 		sql = getDbFeature().toPageSql(sql, start, size);
 		initPreparedValues(sql, preValues,entity);
 		
+		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("PreparedSql select SQL: ", sql);
-		return getBeeSql().select(sql, entity);
+		List<T> list = getBeeSql().select(sql, entity);
+		
+		doBeforeReturn(list);
+		return list;
 	}
 	
 	@Override
 	public <T> List<T> select(String sqlStr, T entity, Map<String, Object> map) {
+		doBeforePasreEntity(entity,SuidType.SELECT);
 		String sql=initPrepareValuesViaMap(sqlStr,map,entity);
+		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("PreparedSql select SQL: ", sql);
-		return getBeeSql().select(sql, entity);
+		List<T> list = getBeeSql().select(sql, entity);
+		
+		doBeforeReturn(list);
+		return list;
 	}
 	
 	@Override
@@ -85,6 +126,8 @@ public class PreparedSqlLib implements PreparedSql {
 		if(size<=0) throw new BeeIllegalParameterException("Parameter 'size' need great than 0!");
 		if(start<0) throw new BeeIllegalParameterException("Parameter 'start' need great equal 0!");
 		
+		doBeforePasreEntity(entity,SuidType.SELECT);
+		
 		regPagePlaceholder();
 		
 		String tableName="";
@@ -97,24 +140,35 @@ public class PreparedSqlLib implements PreparedSql {
 		
 		String pageSql = getDbFeature().toPageSql(sqlStr, start, size);
 		String sql=initPrepareValuesViaMap(pageSql,map,entity);
-		
+		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("PreparedSql select SQL: ", sql);
-		return getBeeSql().select(sql, entity);
+		List<T> list = getBeeSql().select(sql, entity);
+		
+		doBeforeReturn(list);
+		return list;
 	}
 	
 	@Override
 	public <T> List<T> selectSomeField(String sql, T entity, Object[] preValues) {
-
+		
+		doBeforePasreEntity(entity,SuidType.SELECT);
+		
 		initPreparedValues(sql, preValues,entity);
+		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("PreparedSql selectSomeField SQL: ", sql);
-		return getBeeSql().selectSomeField(sql, entity);
+		List<T> list = getBeeSql().selectSomeField(sql, entity);
+		
+		doBeforeReturn(list);
+		return list;
 	}
 	
 	@Override
 	public <T> List<T> selectSomeField(String sql, T entity, Object[] preValues,int start,int size) {
 		if(size<=0) throw new BeeIllegalParameterException("Parameter 'size' need great than 0!");
 		if(start<0) throw new BeeIllegalParameterException("Parameter 'start' need great equal 0!");
-
+		
+		doBeforePasreEntity(entity,SuidType.SELECT);
+		
 		regPagePlaceholder();
 		
 		String tableName="";
@@ -127,16 +181,26 @@ public class PreparedSqlLib implements PreparedSql {
 		
 		sql = getDbFeature().toPageSql(sql, start, size);
 		initPreparedValues(sql, preValues,entity);
-		
+		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("PreparedSql selectSomeField SQL: ", sql);
-		return getBeeSql().selectSomeField(sql, entity);
+		List<T> list = getBeeSql().selectSomeField(sql, entity);
+		
+		doBeforeReturn(list);
+		return list;
 	}
 
 	@Override
 	public <T> List<T> selectSomeField(String sqlStr, T entity, Map<String, Object> map) {
+		
+		doBeforePasreEntity(entity,SuidType.SELECT);
+		
 		String sql=initPrepareValuesViaMap(sqlStr,map,entity);
+		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("PreparedSql selectSomeField SQL: ", sql);
-		return getBeeSql().selectSomeField(sql, entity);
+		List<T> list = getBeeSql().selectSomeField(sql, entity);
+		
+		doBeforeReturn(list);
+		return list;
 	}
 	
 	@Override
@@ -144,6 +208,8 @@ public class PreparedSqlLib implements PreparedSql {
 		if(size<=0) throw new BeeIllegalParameterException("Parameter 'size' need great than 0!");
 		if(start<0) throw new BeeIllegalParameterException("Parameter 'start' need great equal 0!");
 		
+		doBeforePasreEntity(entity,SuidType.SELECT);
+		
 		regPagePlaceholder();
 		
 		String tableName="";
@@ -157,30 +223,50 @@ public class PreparedSqlLib implements PreparedSql {
 		String pageSql = getDbFeature().toPageSql(sqlStr, start, size);
 		String sql=initPrepareValuesViaMap(pageSql,map,entity);
 		
+		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("PreparedSql selectSomeField SQL: ", sql);
-		return getBeeSql().selectSomeField(sql, entity);
+		List<T> list = getBeeSql().selectSomeField(sql, entity);
+		
+		doBeforeReturn(list);
+		return list;
 	}
 
 	@Override
 	public String selectFun(String sql, Object[] preValues) {
+		
+		doBeforePasreEntity();
 
 		initPreparedValues(sql, preValues);
+		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("PreparedSql selectFun SQL: ", sql);
-		return getBeeSql().selectFun(sql);
+		String s= getBeeSql().selectFun(sql);
+		doBeforeReturn();
+		return s;
 	}
 
 	@Override
 	public String selectFun(String sqlStr, Map<String, Object> map) {
+		
+		doBeforePasreEntity();
+		
 		String sql = initPrepareValuesViaMap(sqlStr, map);
+		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("PreparedSql selectFun SQL: ", sql);
-		return getBeeSql().selectFun(sql);
+		String s= getBeeSql().selectFun(sql);
+		doBeforeReturn();
+		return s;
 	}
 
 	@Override
 	public List<String[]> select(String sql, Object[] preValues) {
+		doBeforePasreEntity();
 		initPreparedValues(sql, preValues);
+		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("PreparedSql select SQL: ", sql);
-		return getBeeSql().select(sql);
+		List<String[]> list = getBeeSql().select(sql);
+		
+		doBeforeReturn();
+		return list;
 	}
 	
 	@Override
@@ -188,20 +274,34 @@ public class PreparedSqlLib implements PreparedSql {
 		if(size<=0) throw new BeeIllegalParameterException("Parameter 'size' need great than 0!");
 		if(start<0) throw new BeeIllegalParameterException("Parameter 'start' need great equal 0!");
 		
+		doBeforePasreEntity();
+		
 		regPagePlaceholder();
 		sql = getDbFeature().toPageSql(sql, start, size);
 		initPreparedValues(sql, preValues);
 		
+		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("PreparedSql select SQL: ", sql);
-		return getBeeSql().select(sql);
+		List<String[]> list = getBeeSql().select(sql);
+		
+		doBeforeReturn();
+		return list;
 	}
 	
 
 	@Override
 	public List<String[]> select(String sqlStr, Map<String, Object> map) {
+		
+		doBeforePasreEntity();
+		
 		String sql=initPrepareValuesViaMap(sqlStr,map);
+		
+		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("PreparedSql select SQL: ", sql);
-		return getBeeSql().select(sql);
+		List<String[]> list = getBeeSql().select(sql);
+		
+		doBeforeReturn();
+		return list;
 	}
 	
 	@Override
@@ -209,28 +309,48 @@ public class PreparedSqlLib implements PreparedSql {
 		if(size<=0) throw new BeeIllegalParameterException("Parameter 'size' need great than 0!");
 		if(start<0) throw new BeeIllegalParameterException("Parameter 'start' need great equal 0!");
 		
+		doBeforePasreEntity();
+		
 		regPagePlaceholder();
 		String pageSql = getDbFeature().toPageSql(sqlStr, start, size);
 		String sql=initPrepareValuesViaMap(pageSql,map);
 		
+		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("PreparedSql select SQL: ", sql);
-		return getBeeSql().select(sql);
+		List<String[]> list = getBeeSql().select(sql);
+		
+		doBeforeReturn();
+		return list;
 	}
 
 	@Override
 	@Deprecated
 	public int modify(String sql, Object[] preValues) {
+		
+		doBeforePasreEntity();
+		
 		initPreparedValues(sql, preValues);
+		
+		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("PreparedSql modify SQL: ", sql);
-		return getBeeSql().modify(sql);
+		int r = getBeeSql().modify(sql);
+		doBeforeReturn();
+		return r;
 	}
 
 	@Override
 	@Deprecated
 	public int modify(String sqlStr, Map<String, Object> map) {
+		
+		doBeforePasreEntity();
+		
 		String sql=initPrepareValuesViaMap(sqlStr,map);
+		
+		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("PreparedSql modify SQL: ", sql);
-		return getBeeSql().modify(sql);
+		int r = getBeeSql().modify(sql);
+		doBeforeReturn();
+		return r;
 	}
 	
 	@Override
@@ -242,9 +362,16 @@ public class PreparedSqlLib implements PreparedSql {
 
 	@Override
 	public String selectJson(String sql, Object[] preValues) {
+		
+		doBeforePasreEntity();
+		
 		initPreparedValues(sql, preValues);
+		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("PreparedSql selectJson SQL: ", sql);
-		return getBeeSql().selectJson(sql);
+		
+		String json = getBeeSql().selectJson(sql);
+		doBeforeReturn();
+		return json;
 	}
 	
 	@Override
@@ -252,19 +379,33 @@ public class PreparedSqlLib implements PreparedSql {
 		if(size<=0) throw new BeeIllegalParameterException("Parameter 'size' need great than 0!");
 		if(start<0) throw new BeeIllegalParameterException("Parameter 'start' need great equal 0!");
 		
+		doBeforePasreEntity();
+		
 		regPagePlaceholder();
 		sql = getDbFeature().toPageSql(sql, start, size);
 		initPreparedValues(sql, preValues);
 		
+		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("PreparedSql selectJson SQL: ", sql);
-		return getBeeSql().selectJson(sql);
+		
+		String json = getBeeSql().selectJson(sql);
+		doBeforeReturn();
+		return json;
 	}
 	
 	@Override
 	public String selectJson(String sqlStr, Map<String, Object> map) {
+		
+		doBeforePasreEntity();
+		
 		String sql=initPrepareValuesViaMap(sqlStr,map);
+		
+		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("PreparedSql selectJson SQL: ", sql);
-		return getBeeSql().selectJson(sql);
+		
+		String json = getBeeSql().selectJson(sql);
+		doBeforeReturn();
+		return json;
 	}
 	
 	@Override
@@ -272,18 +413,24 @@ public class PreparedSqlLib implements PreparedSql {
 		if(size<=0) throw new BeeIllegalParameterException("Parameter 'size' need great than 0!");
 		if(start<0) throw new BeeIllegalParameterException("Parameter 'start' need great equal 0!");
 		
+		doBeforePasreEntity();
+		
 		regPagePlaceholder();
 		String pageSql = getDbFeature().toPageSql(sqlStr, start, size);
 		String sql=initPrepareValuesViaMap(pageSql,map);
 		
+		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("PreparedSql selectJson SQL: ", sql); 
-		return getBeeSql().selectJson(sql);
+		
+		String json = getBeeSql().selectJson(sql);
+		doBeforeReturn();
+		return json;
 	}
 	
 	@Override
-	public String selectJson(String sqlStr) {
+	public String selectJson(String sql) {
 		Object[] preValues=null;
-		return selectJson(sqlStr, preValues);
+		return selectJson(sql, preValues);
 	}
 
 	@Override
@@ -487,6 +634,33 @@ public class PreparedSqlLib implements PreparedSql {
 		Logger.logSQL("PreparedSql selectMapList SQL: ", sql);
 		
 		return getBeeSql().selectMapList(sql);
+	}
+	
+	private void doBeforePasreEntity() {
+		if(this.dsName!=null) HoneyContext.setTempDS(dsName);
+		getInterceptorChain().beforePasreEntity(null, SuidType.SELECT);
+	}
+	
+	private void doBeforePasreEntity(Object entity, SuidType suidType) {
+		if(this.dsName!=null) HoneyContext.setTempDS(dsName);
+		getInterceptorChain().beforePasreEntity(entity, suidType);
+	}
+
+	private String doAfterCompleteSql(String sql) {
+		//if change the sql,need update the context.
+		sql = getInterceptorChain().afterCompleteSql(sql);
+		return sql;
+	}
+
+	@SuppressWarnings("rawtypes")
+	private void doBeforeReturn(List list) {
+		if(this.dsName!=null) HoneyContext.removeTempDS();
+		getInterceptorChain().beforeReturn(list);
+	}
+
+	private void doBeforeReturn() {
+		if(this.dsName!=null) HoneyContext.removeTempDS();
+		getInterceptorChain().beforeReturn();
 	}
 
 }

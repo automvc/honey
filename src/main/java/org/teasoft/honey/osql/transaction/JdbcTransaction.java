@@ -27,7 +27,7 @@ public class JdbcTransaction implements Transaction {
 
 	@Override
 	public void begin() {
-		Logger.info(" JdbcTransaction begin. ");
+		Logger.info("[Bee] JdbcTransaction begin. ");
 		try {
 			this.conn = initOneConn();
 
@@ -44,7 +44,7 @@ public class JdbcTransaction implements Transaction {
 
 	@Override
 	public void commit() {
-		Logger.info(" JdbcTransaction commit. ");
+		Logger.info("[Bee] JdbcTransaction commit. ");
 		if (!isBegin) throw new BeeSQLException("The Transaction did not to begin!");
 		try {
 			if (conn != null && !conn.getAutoCommit()) {
@@ -61,7 +61,7 @@ public class JdbcTransaction implements Transaction {
 
 	@Override
 	public void rollback() {
-		Logger.info(" JdbcTransaction rollback. ");
+		Logger.info("[Bee] JdbcTransaction rollback. ");
 		try {
 			if (conn != null && !conn.getAutoCommit()) {
 				conn.rollback();

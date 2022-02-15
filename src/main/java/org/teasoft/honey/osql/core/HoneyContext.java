@@ -343,7 +343,6 @@ public final class HoneyContext {
 
 	static void removeTempDS() {
 		if (isMultiDs()) tempDS.remove();
-		System.out.println(getTempDS());
 	}
 	
 	private static boolean isMultiDs() {
