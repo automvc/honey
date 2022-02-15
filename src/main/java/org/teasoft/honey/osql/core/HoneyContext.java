@@ -41,6 +41,7 @@ public final class HoneyContext {
 	private static ThreadLocal<String> sameConnctionDoing; //当前多个ORM操作使用同一个connection.
 	
 	private static ThreadLocal<String> appointDS; 
+	private static ThreadLocal<String> tempDS;  //for Suid.setDataSourceName(String dsName)
 
 	//	private static ThreadLocal<Transaction> transactionLocal;  
 
@@ -94,6 +95,7 @@ public final class HoneyContext {
 		//		transactionLocal = new ThreadLocal<>();
 		sameConnctionDoing = new ThreadLocal<>();
 		appointDS = new ThreadLocal<>();
+		tempDS = new ThreadLocal<>();
 
 		currentRoute = new ThreadLocal<>();
 
@@ -324,11 +326,28 @@ public final class HoneyContext {
 	}
 
 	public static void setAppointDS(String dsName) {
-		appointDS.set(dsName);
+		if (isMultiDs()) appointDS.set(dsName);
 	}
 
 	public static void removeAppointDS() {
-		appointDS.remove();
+		if (isMultiDs()) appointDS.remove();
+	}
+	
+	public static String getTempDS() {
+		return tempDS.get();
+	}
+
+	static void setTempDS(String dsName) {
+		if (isMultiDs()) tempDS.set(dsName);
+	}
+
+	static void removeTempDS() {
+		if (isMultiDs()) tempDS.remove();
+		System.out.println(getTempDS());
+	}
+	
+	private static boolean isMultiDs() {
+		return HoneyConfig.getHoneyConfig().multiDS_enable;
 	}
 	
 
@@ -439,13 +458,16 @@ public final class HoneyContext {
 				removeSameConnctionDoing(); //同一conn
 				OneTimeParameter.setTrueForKey("_SYS_Bee_SAME_CONN_EXCEPTION");
 			}
-			boolean enableMultiDs = HoneyConfig.getHoneyConfig().multiDS_enable;
-			int multiDsType = HoneyConfig.getHoneyConfig().multiDS_type;
-			boolean differentDbType=HoneyConfig.getHoneyConfig().multiDS_differentDbType;
-//			if (enableMultiDs && multiDsType == 2) {//仅分库,有多个数据源时
-			if (enableMultiDs && (multiDsType ==2 || (multiDsType ==1 && differentDbType) )) {//仅分库,有多个数据源时
-				removeCurrentRoute();
-			}
+//			boolean enableMultiDs = HoneyConfig.getHoneyConfig().multiDS_enable;
+//			int multiDsType = HoneyConfig.getHoneyConfig().multiDS_type;
+//			boolean differentDbType=HoneyConfig.getHoneyConfig().multiDS_differentDbType;
+////			if (enableMultiDs && multiDsType == 2) {//仅分库,有多个数据源时
+//			if (enableMultiDs && (multiDsType ==2 || (multiDsType ==1 && differentDbType) )) {//仅分库,有多个数据源时
+			
+//			if (isNeedDs()) {
+//			if(enableMultiDs) { //放到拦截器中
+//				removeCurrentRoute();
+//			}
 		}
 	}
 
@@ -488,13 +510,16 @@ public final class HoneyContext {
 			Logger.debug(e.getMessage());
 			throw ExceptionHelper.convert(e);
 		} finally {
-			boolean enableMultiDs = HoneyConfig.getHoneyConfig().multiDS_enable;
-			int multiDsType = HoneyConfig.getHoneyConfig().multiDS_type;
-			boolean differentDbType=HoneyConfig.getHoneyConfig().multiDS_differentDbType;
-//			if (enableMultiDs && multiDsType == 2) {//仅分库,有多个数据源时
-			if (enableMultiDs && (multiDsType ==2 || (multiDsType ==1 && differentDbType) )) {
-				removeCurrentRoute();
-			}
+//			boolean enableMultiDs = HoneyConfig.getHoneyConfig().multiDS_enable;
+//			int multiDsType = HoneyConfig.getHoneyConfig().multiDS_type;
+//			boolean differentDbType=HoneyConfig.getHoneyConfig().multiDS_differentDbType;
+////			if (enableMultiDs && multiDsType == 2) {//仅分库,有多个数据源时
+//			if (enableMultiDs && (multiDsType ==2 || (multiDsType ==1 && differentDbType) )) {
+			
+//			if (isNeedDs()) {
+//			if(enableMultiDs) {  //放到拦截器中
+//				removeCurrentRoute();    //RW不用清???? TODO
+//			}
 		}
 		}
 	}
@@ -532,6 +557,7 @@ public final class HoneyContext {
 		setCurrentRoute(routeStruct);
 	}
 
+	//因同时使用不同类型DB,需要实时确认DB,而需要路由
 	@SuppressWarnings("rawtypes")
 	static void initRouteWhenParseSql(SuidType suidType, Class clazz, String tableNames) {
 
@@ -636,20 +662,37 @@ public final class HoneyContext {
 		return _isConfig(clazz, entityList_levelTwo_Map, entityListWithStar_levelTwo);
 	}
 
-	//仅分库,有多个数据源时,且支持同时使用多种类型数据库时,
-	//才可能需要实时确认是什么数据库,没有分页的不需要
+//closeed	//仅分库,有多个数据源时,且支持同时使用多种类型数据库时,
+//closeed	//才可能需要实时确认是什么数据库,没有分页的不需要
+	
+//  是多数据源,有同时使用多种不同类型DB
 	static boolean isNeedRealTimeDb() {
-		boolean enableMultiDs = HoneyConfig.getHoneyConfig().multiDS_enable;
-		if (enableMultiDs) {
-			int multiDsType = HoneyConfig.getHoneyConfig().multiDS_type;
-			boolean supportDifferentDbType = HoneyConfig.getHoneyConfig().multiDS_differentDbType;
-//			if (multiDsType == 2 && supportDifferentDbType) {//仅分库,有多个数据源时,且支持同时使用多种类型数据库时
-			if ((multiDsType ==2 || multiDsType == 1) && supportDifferentDbType) {  //不同数据库才要实时获取数据库类型
-				return true;
-			}
-		}
+//		boolean enableMultiDs = HoneyConfig.getHoneyConfig().multiDS_enable;
+//		if (enableMultiDs) {
+////			int multiDsType = HoneyConfig.getHoneyConfig().multiDS_type;
+//			boolean isDifferentDbType = HoneyConfig.getHoneyConfig().multiDS_differentDbType;
+////			if (multiDsType == 2 && isDifferentDbType) {//仅分库,有多个数据源时,且支持同时使用多种类型数据库时
+////			if ((multiDsType ==2 || multiDsType == 1) && isDifferentDbType) {  //不同数据库才要实时获取数据库类型
+//			if(isDifferentDbType) {
+//			  return true;
+//			}
+//		}
 
-		return false;
+//closeed	//是多数据源, 又不是同种DB类型的只读模式, 则需要动态获取DB类型
+//		if (isNeedDs())
+//			return true;
+//		else
+//			return false;
+		
+//      是多数据源,有同时使用多种不同类型DB
+		boolean enableMultiDs = HoneyConfig.getHoneyConfig().multiDS_enable;
+		boolean isDifferentDbType = HoneyConfig.getHoneyConfig().multiDS_differentDbType;
+		if (enableMultiDs && isDifferentDbType)
+			return true;
+		else
+			return false;
+		
+		
 	}
 
 	//同时使用多种类型数据库时,才会触发.   没有分页时,走原来的流程,到SqlLib,才获取数据源处理Suid操作.
@@ -659,6 +702,19 @@ public final class HoneyContext {
 			return HoneyConfig.getHoneyConfig().getDbName();
 		}
 		return dbName;
+	}
+	
+	public static boolean isNeedDs() {
+		if (isMultiDs()) {
+			int multiDsType = HoneyConfig.getHoneyConfig().multiDS_type;
+			boolean differentDbType = HoneyConfig.getHoneyConfig().multiDS_differentDbType;
+			if (!(multiDsType == 1 && !differentDbType)) // 不是(模式1的同种DB) //sameDbType=!differentDbType
+				return true;
+			else
+				return false;
+		} else {
+			return false;
+		}
 	}
 
 	static boolean isAlreadySetRoute() {

@@ -26,10 +26,10 @@ public class OnlyMulitiDB implements Route {
 	//	private static Map<String,String> map;
 	private String defaultDs;
 
-	private static Map<String, String> entityClassPathToDs = new ConcurrentHashMap<>();
-	private static Map<String, String> tableToDs = new ConcurrentHashMap<>();
+	private Map<String, String> entityClassPathToDs = new ConcurrentHashMap<>();
+	private Map<String, String> tableToDs = new ConcurrentHashMap<>();
 
-	private static List<String> entityClassPathToDsWithStar = new CopyOnWriteArrayList<>();
+	private List<String> entityClassPathToDsWithStar = new CopyOnWriteArrayList<>();
 	
 //	static {
 	{ //will run every time use new. for refresh.
@@ -55,7 +55,7 @@ public class OnlyMulitiDB implements Route {
 			parseListToMap(matchTable, tableToDs, false); //不带*   tableToDs  表名不区分大小
 	}
 
-	private static void parseListToMap(String str, Map<String, String> map, boolean isAdd2List) {
+	private void parseListToMap(String str, Map<String, String> map, boolean isAdd2List) {
 //		ds2:com.xxx.aa.User,com.xxx.bb.*,com.xxx.cc.**;ds3:com.xxx.dd.User
         if(str==null || "".equals(str.trim())) return ;
 		String str1[] = str.split(";");

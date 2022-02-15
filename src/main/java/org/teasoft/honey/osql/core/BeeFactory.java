@@ -48,14 +48,8 @@ public class BeeFactory extends BeeAbstractFactory {
 	}
 	
 	private DataSource _getDsFromDsMap() {
-
 		String dsName = Router.getDsName();
 		return getDataSourceMap().get(dsName);
-		
-//		V1.11   其它地方有用到:Router.getDsName()
-//		String dsName = (String) OneTimeParameter.getAttribute(StringConst.Reset_Ds_OneTime);
-//		if (dsName == null) dsName = Router.getDsName();
-//		return getDataSourceMap().get(dsName);
 	}
 	
 	@Override

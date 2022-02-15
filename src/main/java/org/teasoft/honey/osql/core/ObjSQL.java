@@ -28,6 +28,7 @@ public class ObjSQL implements Suid {
 	private ObjToSQL objToSQL;
 	//V1.11
 	private InterceptorChain interceptorChain;
+	private String dsName;
 
 	public ObjSQL() {
 	}
@@ -59,6 +60,17 @@ public class ObjSQL implements Suid {
 		this.interceptorChain = interceptorChain;
 	}
 	
+	@Override
+	public void setDataSourceName(String dsName) {
+		this.dsName=dsName;
+	}
+
+	@Override
+	public String getDataSourceName() {
+		return dsName;
+//		return Router.getDsName(); //不行. suid的dsName在执行时才通过拦截器设置.若提前通过线程设置,会因顺序原因,被覆盖.
+	}
+
 	@Override
 	public <T> List<T> select(T entity) {
 
@@ -241,6 +253,7 @@ public class ObjSQL implements Suid {
 	}
 	
 	void doBeforePasreEntity(Object entity, SuidType SuidType) {
+		if(this.dsName!=null) HoneyContext.setTempDS(dsName);
 		getInterceptorChain().beforePasreEntity(entity, SuidType);
 	}
 
@@ -252,10 +265,12 @@ public class ObjSQL implements Suid {
 
 	@SuppressWarnings("rawtypes")
 	void doBeforeReturn(List list) {
+		if(this.dsName!=null) HoneyContext.removeTempDS();
 		getInterceptorChain().beforeReturn(list);
 	}
 
 	void doBeforeReturn() {
+		if(this.dsName!=null) HoneyContext.removeTempDS();
 		getInterceptorChain().beforeReturn();
 	}
 }

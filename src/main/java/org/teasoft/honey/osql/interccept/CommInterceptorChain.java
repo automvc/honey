@@ -30,7 +30,6 @@ public class CommInterceptorChain implements InterceptorChain {
 
 	@Override
 	public Object beforePasreEntity(Object entity,SuidType suidType) {
-
 		for (int i = 0; i < chain.size(); i++) {
 			chain.get(i).beforePasreEntity(entity,suidType);
 		}
@@ -91,19 +90,22 @@ public class CommInterceptorChain implements InterceptorChain {
 	@Override
 	@SuppressWarnings("rawtypes")
 	public void beforeReturn(List list) {
-		HoneyContext.removeAppointDS();  //放在这可能影响异步. 
 		for (int i = 0; i < chain.size(); i++) {
 			chain.get(i).beforeReturn(list);
 		}
+		HoneyContext.removeAppointDS();  //放在这可能影响异步. 
+		HoneyContext.removeCurrentRoute();
 	}
 	
 	//用于update,insert,delete及没有返回Javabean结构的查询方法
 	@Override
 	public void beforeReturn() {
-		HoneyContext.removeAppointDS(); 
+		
 		for (int i = 0; i < chain.size(); i++) {
 			chain.get(i).beforeReturn();
 		}
+		HoneyContext.removeAppointDS(); 
+		HoneyContext.removeCurrentRoute();
 	}
 	
 }

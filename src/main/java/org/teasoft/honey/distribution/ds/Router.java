@@ -34,14 +34,20 @@ public class Router {
 		} else if (multiDsType == 2) {
 			route = new OnlyMulitiDB();
 		}
+		
+//		TODO 要定义一个通用多数据源路由
 	}
 
+	//order:1.appointDS -> 2.tempDS(suid.getDataSourceName()) -> 3.route.getDsName()
 	public static String getDsName() {
 		if (HoneyContext.isConfigRefresh()) {
 			refresh();
 			HoneyContext.setConfigRefresh(false);
 		}
 		String dsName =HoneyContext.getAppointDS();
+		if (dsName != null) return dsName;
+		
+		dsName =HoneyContext.getTempDS();
 		if (dsName != null) return dsName;
 		
 		if (route == null) return defaultDs;
