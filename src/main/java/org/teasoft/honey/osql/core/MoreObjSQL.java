@@ -27,6 +27,7 @@ public class MoreObjSQL implements MoreTable{
 	
 	//V1.11
 	private InterceptorChain interceptorChain;
+	private String dsName;
 
 	public MoreObjSQL() {}
 
@@ -55,6 +56,16 @@ public class MoreObjSQL implements MoreTable{
 
 	public void setInterceptorChain(InterceptorChain interceptorChain) {
 		this.interceptorChain = interceptorChain;
+	}
+	
+	@Override
+	public void setDataSourceName(String dsName) {
+		this.dsName=dsName;
+	}
+
+	@Override
+	public String getDataSourceName() {
+		return dsName;
 	}
 
 	@Override
@@ -100,10 +111,11 @@ public class MoreObjSQL implements MoreTable{
 		OneTimeParameter.setAttribute(para, value);
 		return this;
 	}
-	
+
 	private void doBeforePasreEntity(Object entity) {
+		if (this.dsName != null) HoneyContext.setTempDS(dsName);
 		getInterceptorChain().beforePasreEntity(entity, SuidType.SELECT);
-		OneTimeParameter.setAttribute(StringConst.InterceptorChainForMoreTable, getInterceptorChain());
+		OneTimeParameter.setAttribute(StringConst.InterceptorChainForMoreTable, getInterceptorChain());//用于子表
 	}
 
 	private String doAfterCompleteSql(String sql) {
@@ -113,6 +125,7 @@ public class MoreObjSQL implements MoreTable{
 
 	@SuppressWarnings("rawtypes")
 	private void doBeforeReturn(List list) {
+		if (this.dsName != null) HoneyContext.removeTempDS();
 		getInterceptorChain().beforeReturn(list);
 	}
 
