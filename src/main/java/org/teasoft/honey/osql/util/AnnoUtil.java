@@ -11,12 +11,12 @@ import java.lang.reflect.Field;
 import org.teasoft.bee.osql.annotation.Createtime;
 import org.teasoft.bee.osql.annotation.Datetime;
 import org.teasoft.bee.osql.annotation.Dict;
+import org.teasoft.bee.osql.annotation.ReplaceInto;
 import org.teasoft.bee.osql.annotation.Updatetime;
 import org.teasoft.bee.osql.annotation.customizable.AutoSetString;
 import org.teasoft.bee.osql.annotation.customizable.Desensitize;
 import org.teasoft.bee.osql.annotation.customizable.DictI18n;
 import org.teasoft.bee.osql.annotation.customizable.MultiTenancy;
-import org.teasoft.bee.osql.annotation.customizable.ReplaceInto;
 
 /**
  * @author Kingstar

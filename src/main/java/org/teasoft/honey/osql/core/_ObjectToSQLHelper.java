@@ -12,6 +12,7 @@ import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
 import org.teasoft.bee.osql.exception.BeeIllegalBusinessException;
 import org.teasoft.honey.distribution.GenIdFactory;
 import org.teasoft.honey.osql.name.NameUtil;
+import org.teasoft.honey.osql.util.AnnoUtil;
 import org.teasoft.honey.util.ObjectUtils;
 import org.teasoft.honey.util.StringUtils;
 
@@ -23,6 +24,7 @@ final class _ObjectToSQLHelper {
 
 //	private final static String INSERT_INTO = "insert into ";
 	private static final String INSERT_INTO = K.insert+K.space+K.into+K.space;
+	private static final String REPLACE_INTO = K.replace+K.space+K.into+K.space;
 	
 	private static boolean  showSQL=HoneyConfig.getHoneyConfig().showSQL;
 
@@ -758,7 +760,10 @@ final class _ObjectToSQLHelper {
 		StringBuffer sqlValue = new StringBuffer(" (");
 		boolean isFirst = true;
 		String tableName = _toTableName(entity);
-		sqlBuffer.append(INSERT_INTO);
+		if (HoneyUtil.isMysql() && AnnoUtil.isReplaceInto(entity)) //V1.11
+			sqlBuffer.append(REPLACE_INTO);
+		else
+			sqlBuffer.append(INSERT_INTO);
 		sqlBuffer.append(tableName);
 		sqlBuffer.append("(");
 

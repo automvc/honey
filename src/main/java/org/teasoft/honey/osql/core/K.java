@@ -26,6 +26,7 @@ public class K {
 	public static final String from=k.from(); 
 	public static final String where=k.where();
 	public static final String insert=k.insert();
+	public static final String replace=k.replace();
 	public static final String into=k.into();
 	public static final String values=k.values();
 	public static final String and=k.and();
