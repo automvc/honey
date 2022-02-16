@@ -8,35 +8,57 @@ package org.teasoft.honey.osql.util;
 
 import java.lang.reflect.Field;
 
-import org.teasoft.bee.osql.annotation.AutoSetString;
 import org.teasoft.bee.osql.annotation.Createtime;
 import org.teasoft.bee.osql.annotation.Datetime;
+import org.teasoft.bee.osql.annotation.Dict;
 import org.teasoft.bee.osql.annotation.Updatetime;
+import org.teasoft.bee.osql.annotation.customizable.AutoSetString;
+import org.teasoft.bee.osql.annotation.customizable.Desensitize;
+import org.teasoft.bee.osql.annotation.customizable.DictI18n;
+import org.teasoft.bee.osql.annotation.customizable.MultiTenancy;
+import org.teasoft.bee.osql.annotation.customizable.ReplaceInto;
 
 /**
  * @author Kingstar
  * @since  1.11
  */
 public class AnnoUtil {
-	
+
 	public static boolean isDatetime(Field field) {
-		if (field.isAnnotationPresent(Datetime.class)) return true;
-		else return false;
+
+		return field.isAnnotationPresent(Datetime.class);
 	}
-	
+
 	public static boolean isCreatetime(Field field) {
-		if (field.isAnnotationPresent(Createtime.class)) return true;
-		else return false;
+		return field.isAnnotationPresent(Createtime.class);
 	}
-	
+
 	public static boolean isUpdatetime(Field field) {
-		if (field.isAnnotationPresent(Updatetime.class)) return true;
-		else return false;
+		return field.isAnnotationPresent(Updatetime.class);
 	}
-	
+
 	public static boolean isAutoSetString(Field field) {
-		if (field.isAnnotationPresent(AutoSetString.class)) return true;
-		else return false;
+		return field.isAnnotationPresent(AutoSetString.class);
 	}
-	
+
+	public static boolean isDesensitize(Field field) {
+		return field.isAnnotationPresent(Desensitize.class);
+	}
+
+	public static boolean isMultiTenancy(Field field) {
+		return field.isAnnotationPresent(MultiTenancy.class);
+	}
+
+	public static boolean isDict(Field field) {
+		return field.isAnnotationPresent(Dict.class);
+	}
+
+	public static boolean isDictI18n(Field field) {
+		return field.isAnnotationPresent(DictI18n.class);
+	}
+
+	public static boolean isReplaceInto(Object entity) {
+		return entity.getClass().isAnnotationPresent(ReplaceInto.class);
+	}
+
 }
