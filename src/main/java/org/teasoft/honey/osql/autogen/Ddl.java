@@ -11,9 +11,9 @@ import java.util.Map;
 
 import org.teasoft.bee.osql.DatabaseConst;
 import org.teasoft.bee.osql.PreparedSql;
-import org.teasoft.bee.osql.annotation.JoinTable;
 import org.teasoft.bee.osql.annotation.PrimaryKey;
 import org.teasoft.honey.osql.core.BeeFactoryHelper;
+import org.teasoft.honey.osql.core.HoneyConfig;
 import org.teasoft.honey.osql.core.HoneyContext;
 import org.teasoft.honey.osql.core.HoneyUtil;
 import org.teasoft.honey.osql.core.Logger;
@@ -83,7 +83,11 @@ public class Ddl {
 	private static <T> boolean createTable(T entity, String tableName) {
 		boolean result = false;
 		try {
+			//V1.11 创建语句的可执行语句与占位的是一样的,无需要重复输出.
+			boolean old=HoneyConfig.getHoneyConfig().showSql_showExecutableSql;
+			if(old) HoneyConfig.getHoneyConfig().showSql_showExecutableSql=false;
 			preparedSql.modify(toCreateTableSQL(entity, tableName));
+			if(old) HoneyConfig.getHoneyConfig().showSql_showExecutableSql=old;
 			result = true;
 		} catch (Exception e) {
 			Logger.error(e.getMessage());
@@ -365,12 +369,13 @@ public class Ddl {
 	}
 
 	private static boolean isSkipField(Field field) {
-		if (field != null) {
-			if ("serialVersionUID".equals(field.getName())) return true;
-			if (field.isSynthetic()) return true;
-			if (field.isAnnotationPresent(JoinTable.class)) return true;
-		}
-		return false;
+//		if (field != null) {
+//			if ("serialVersionUID".equals(field.getName())) return true;
+//			if (field.isSynthetic()) return true;
+//			if (field.isAnnotationPresent(JoinTable.class)) return true;
+//		}
+//		return false;
+		return HoneyUtil.isSkipField(field);
 	}
 	
 	private static boolean isPrimaryKey(Field field) {
