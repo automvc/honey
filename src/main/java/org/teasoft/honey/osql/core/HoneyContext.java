@@ -41,7 +41,11 @@ public final class HoneyContext {
 	private static ThreadLocal<String> sameConnctionDoing; //当前多个ORM操作使用同一个connection.
 	
 	private static ThreadLocal<String> appointDS; 
-	private static ThreadLocal<String> tempDS;  //for Suid.setDataSourceName(String dsName)
+	private static ThreadLocal<String> tempDS;  //for Suid.setDataSourceName(String dsName) and so on
+	
+	private static ThreadLocal<String> tempLang; 
+	
+	private static String lang; 
 
 	//	private static ThreadLocal<Transaction> transactionLocal;  
 
@@ -96,6 +100,7 @@ public final class HoneyContext {
 		sameConnctionDoing = new ThreadLocal<>();
 		appointDS = new ThreadLocal<>();
 		tempDS = new ThreadLocal<>();
+		tempLang = new ThreadLocal<>();
 
 		currentRoute = new ThreadLocal<>();
 
@@ -349,6 +354,29 @@ public final class HoneyContext {
 		return HoneyConfig.getHoneyConfig().multiDS_enable;
 	}
 	
+	public static String getTempLang() {
+		return tempLang.get();
+	}
+
+	public static void setTempLang(String dsName) {
+		if (isMultiDs()) tempLang.set(dsName);
+	}
+
+	public static void removeTempLang() {
+		if (isMultiDs()) tempLang.remove();
+	}
+
+	public static String getLang() {
+
+		String lang0 = getTempLang();
+		if (lang0 != null) return lang0;
+
+		return lang;
+	}
+
+	public static void setLang(String lang) {
+		HoneyContext.lang = lang;
+	}
 
 	static void endSameConnection() {
 		
