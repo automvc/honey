@@ -15,6 +15,7 @@ import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.exception.NoConfigException;
 import org.teasoft.honey.osql.core.HoneyConfig;
 import org.teasoft.honey.osql.core.HoneyContext;
+import org.teasoft.honey.osql.core.StringConst;
 
 /**
  * 一个写数据库,多个读数据库.One Write DB,more read DB.
@@ -48,7 +49,7 @@ public class RwDs implements Route{
 		wDB=wDB.trim();//v1.11
 		setWriteDs(wDB);  
 		setReadDsList(parseRDb(rDB));
-		getReadDsList().remove(wDB); //写库不能放在只读库列表
+		getReadDsList().remove(wDB); //写库不能放在只读库列表   若需要在主库中读取数据,可特指
 		r_routeWay=HoneyConfig.getHoneyConfig().multiDS_rDbRouteWay; 
 	}
 	
@@ -64,6 +65,11 @@ public class RwDs implements Route{
 	@Override
 	public String getDsName() {
 		RouteStruct routeStruct = HoneyContext.getCurrentRoute();
+		
+		//V1.11 同一连接,默认走写库.  (前面有指定会用指定的)
+		if (StringConst.tRue.equals(HoneyContext.getSameConnctionDoing())) {
+			return getWriteDs();
+		}
 		
 		if (routeStruct!=null && SuidType.SELECT == routeStruct.getSuidType()) {
 			return getReadDs(r_routeWay);

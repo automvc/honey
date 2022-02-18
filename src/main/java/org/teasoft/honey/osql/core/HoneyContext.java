@@ -313,7 +313,7 @@ public final class HoneyContext {
 		currentConnection.remove();
 	}
 
-	private static String getSameConnctionDoing() {
+	public static String getSameConnctionDoing() {
 		return sameConnctionDoing.get();
 	}
 
@@ -459,13 +459,18 @@ public final class HoneyContext {
 		Connection conn = null;
 
 		conn = getCurrentConnection(); //获取已开启事务或同一Connection的连接
+		
 		if (conn == null) {
-			conn = SessionFactory.getConnection(); //不开启事务时
+			boolean isSameConn=OneTimeParameter.isTrue("_SYS_Bee_SAME_CONN_BEGIN");
+			if (isSameConn) {
+				setSameConnctionDoing(); //提前设置,因RW时,同一连接要改为默认走写库
+			}
+			
+			conn = SessionFactory.getConnection(); 
 
 			//如果设置了同一Connection
-			if (OneTimeParameter.isTrue("_SYS_Bee_SAME_CONN_BEGIN")) {
+			if (isSameConn) {
 				setCurrentConnection(conn); //存入上下文
-				setSameConnctionDoing();
 			}
 		}
 
