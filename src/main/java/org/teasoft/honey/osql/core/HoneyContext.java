@@ -39,6 +39,7 @@ public final class HoneyContext {
 	private static ThreadLocal<Connection> currentConnection; //当前事务的Conn
 
 	private static ThreadLocal<String> sameConnctionDoing; //当前多个ORM操作使用同一个connection.
+	private static ThreadLocal<String> jdbcTranWriterDs; 
 	
 	private static ThreadLocal<String> appointDS; 
 	private static ThreadLocal<String> tempDS;  //for Suid.setDataSourceName(String dsName) and so on
@@ -98,6 +99,7 @@ public final class HoneyContext {
 		currentConnection = new ThreadLocal<>();
 		//		transactionLocal = new ThreadLocal<>();
 		sameConnctionDoing = new ThreadLocal<>();
+		jdbcTranWriterDs = new ThreadLocal<>();
 		appointDS = new ThreadLocal<>();
 		tempDS = new ThreadLocal<>();
 		tempLang = new ThreadLocal<>();
@@ -325,6 +327,15 @@ public final class HoneyContext {
 		sameConnctionDoing.remove();
 	}
 	
+	public static String getJdbcTranWriterDs() {
+		String s= jdbcTranWriterDs.get();
+		jdbcTranWriterDs.remove();
+		return s;
+	}
+
+	public static void setJdbcTranWriterDs() {
+		jdbcTranWriterDs.set(StringConst.tRue);
+	}
 	
 	public static String getAppointDS() {
 		return appointDS.get();

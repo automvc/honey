@@ -47,7 +47,7 @@ public class Router {
 		String dsName =HoneyContext.getAppointDS();
 		if (dsName != null) return dsName;
 		
-		dsName =HoneyContext.getTempDS();
+		dsName =HoneyContext.getTempDS(); //for Suid.setDataSourceName(String dsName) and so on
 		if (dsName != null) return dsName;
 		
 		if (route == null) return defaultDs;

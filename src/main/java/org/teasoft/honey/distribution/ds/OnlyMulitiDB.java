@@ -22,8 +22,6 @@ import org.teasoft.honey.osql.core.HoneyContext;
  */
 public class OnlyMulitiDB implements Route {
 
-	//	private static List dsList=new ArrayList();
-	//	private static Map<String,String> map;
 	private String defaultDs;
 
 	private Map<String, String> entityClassPathToDs = new ConcurrentHashMap<>();

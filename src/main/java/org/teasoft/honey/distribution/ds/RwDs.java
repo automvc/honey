@@ -67,7 +67,8 @@ public class RwDs implements Route{
 		RouteStruct routeStruct = HoneyContext.getCurrentRoute();
 		
 		//V1.11 同一连接,默认走写库.  (前面有指定会用指定的)
-		if (StringConst.tRue.equals(HoneyContext.getSameConnctionDoing())) {
+		if (StringConst.tRue.equals(HoneyContext.getSameConnctionDoing())
+		 || StringConst.tRue.equals(HoneyContext.getJdbcTranWriterDs())) {
 			return getWriteDs();
 		}
 		

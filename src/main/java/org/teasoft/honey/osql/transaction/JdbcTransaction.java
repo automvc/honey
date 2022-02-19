@@ -7,6 +7,7 @@ import org.teasoft.bee.osql.BeeSQLException;
 import org.teasoft.bee.osql.transaction.Transaction;
 import org.teasoft.bee.osql.transaction.TransactionIsolationLevel;
 import org.teasoft.honey.osql.core.ExceptionHelper;
+import org.teasoft.honey.osql.core.HoneyConfig;
 import org.teasoft.honey.osql.core.HoneyContext;
 import org.teasoft.honey.osql.core.Logger;
 import org.teasoft.honey.osql.core.SessionFactory;
@@ -29,7 +30,14 @@ public class JdbcTransaction implements Transaction {
 	public void begin() {
 		Logger.info("[Bee] JdbcTransaction begin. ");
 		try {
+			//传递一次性参数给RW, 若不是RW则不会销毁.
+			HoneyContext.setJdbcTranWriterDs();
 			this.conn = initOneConn();
+			
+			boolean enableMultiDs = HoneyConfig.getHoneyConfig().multiDS_enable;
+			int multiDsType = HoneyConfig.getHoneyConfig().multiDS_type;
+			if(enableMultiDs && multiDsType!=1)
+				HoneyContext.getJdbcTranWriterDs(); // 不是RW,要主动清除
 
 			setOldAutoCommit(conn.getAutoCommit());
 			conn.setAutoCommit(false);
