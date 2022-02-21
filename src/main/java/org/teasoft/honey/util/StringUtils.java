@@ -40,8 +40,19 @@ public class StringUtils {
 	public static boolean isContainUpperCase(String str) {
 		if(isBlank(str)) return false;
 		StringBuffer buf = new StringBuffer(str);
-		for (int i = 1; i < buf.length(); i++) {
+		for (int i = 0; i < buf.length(); i++) {
 			if (Character.isUpperCase(buf.charAt(i))) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public static boolean isContainLetter(String str) {
+		if(isBlank(str)) return false;
+		StringBuffer buf = new StringBuffer(str);
+		for (int i = 0; i < buf.length(); i++) {
+			if (Character.isLetter(buf.charAt(i))) {
 				return true;
 			}
 		}
