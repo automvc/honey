@@ -44,6 +44,9 @@ public final class HoneyContext {
 	private static ThreadLocal<String> appointDS; 
 	private static ThreadLocal<String> tempDS;  //for Suid.setDataSourceName(String dsName) and so on
 	
+	private static ThreadLocal<String> appointTab; 
+	private static ThreadLocal<String> tabSuffix; 
+	
 	private static ThreadLocal<String> tempLang; 
 	
 	private static String lang; 
@@ -102,6 +105,9 @@ public final class HoneyContext {
 		jdbcTranWriterDs = new ThreadLocal<>();
 		appointDS = new ThreadLocal<>();
 		tempDS = new ThreadLocal<>();
+		appointTab = new ThreadLocal<>();
+		tabSuffix = new ThreadLocal<>();
+		
 		tempLang = new ThreadLocal<>();
 
 		currentRoute = new ThreadLocal<>();
@@ -363,6 +369,33 @@ public final class HoneyContext {
 	
 	private static boolean isMultiDs() {
 		return HoneyConfig.getHoneyConfig().multiDS_enable;
+	}
+	
+	
+	public static String getAppointTab() {
+		return appointTab.get();
+	}
+
+	public static void setAppointTab(String tabName) {
+		System.err.println(tabName);
+		appointTab.set(tabName);
+	}
+
+	public static void removeAppointTab() {
+		appointTab.remove();
+	}
+
+	public static String getTabSuffix() {
+		return tabSuffix.get();
+	}
+
+	public static void setTabSuffix(String suffix) {
+		System.err.println(suffix);
+		tabSuffix.set(suffix);
+	}
+
+	public static void removeTabSuffix() {
+		tabSuffix.remove();
 	}
 	
 	public static String getTempLang() {
