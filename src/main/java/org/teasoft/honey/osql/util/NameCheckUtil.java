@@ -20,7 +20,11 @@ import org.teasoft.honey.osql.core.Logger;
  * @since  1.9
  */
 public class NameCheckUtil {
+	
 	private static Set<String> keywordSet;
+	
+	private NameCheckUtil() {}
+	
 	static {
 		keywordSet = _keywordSet();
 	}
@@ -44,6 +48,7 @@ public class NameCheckUtil {
 				set.add(fields[i].get(entity).toString());
 			}
 		} catch (Exception e) {
+		    //ignore
 		}
 
 		return set;

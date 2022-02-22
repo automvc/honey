@@ -52,12 +52,12 @@ public class EmptyInterceptor implements Interceptor {
 	@Override
 	@SuppressWarnings("rawtypes")
 	public void beforeReturn(List list) {
-
+	   //empty
 	}
 
 	@Override
 	public void beforeReturn() {
-
+       //empty
 	}
 
 	@Override

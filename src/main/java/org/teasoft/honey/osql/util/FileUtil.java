@@ -21,6 +21,8 @@ public class FileUtil {
 		 fileCreator=new FileHandle();
 		 fileCreator.setCharsetName("UTF-8");
 	}
+	
+	private FileUtil() {}
 
 	public static void genFile(String fullPathAndName, String content) {
 		fileCreator.genFile(fullPathAndName, content);

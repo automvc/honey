@@ -15,14 +15,9 @@ import org.teasoft.honey.osql.core.TokenUtil;
  * @since  1.7.2
  */
 public class StringUtil {
-
-//	public static String replaceWithMap0(String text, Map<String,String> map) {
-//		for (String key : map.keySet()) {
-//			text=text.replace("#{"+key+"}", map.get(key));
-//		}
-//		return text;
-//	}
 	
+	private StringUtil() {}
+
 	public static String replaceWithMap(String text, Map<String,String> map) {
 		return TokenUtil.processWithMap(text, "#{", "}", map);
 	}

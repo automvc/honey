@@ -22,6 +22,8 @@ import org.teasoft.honey.util.StringUtils;
  * @since  1.11
  */
 public class DatetimeHandler {
+	
+	private DatetimeHandler() {}
 
 	public static void process(Field field, Object entity, SuidType suidType) {
 		Datetime datetime = field.getAnnotation(Datetime.class);

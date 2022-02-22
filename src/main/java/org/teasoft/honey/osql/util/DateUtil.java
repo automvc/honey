@@ -20,9 +20,7 @@ import org.teasoft.honey.osql.core.Logger;
  */
 public class DateUtil {
 	
-	
-//	private static SimpleDateFormat defaultFormat =null;  // new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-//	private static SimpleDateFormat format =null;
+	private DateUtil() {}
 	
 	private static SimpleDateFormat getSimpleDateFormat() {
 		SimpleDateFormat defaultFormat =null;  

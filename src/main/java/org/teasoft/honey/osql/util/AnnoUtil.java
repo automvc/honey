@@ -23,6 +23,8 @@ import org.teasoft.bee.osql.annotation.customizable.MultiTenancy;
  * @since  1.11
  */
 public class AnnoUtil {
+	
+	private AnnoUtil() {}
 
 	public static boolean isDatetime(Field field) {
 

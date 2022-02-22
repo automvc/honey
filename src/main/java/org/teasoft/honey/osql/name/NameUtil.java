@@ -12,6 +12,8 @@ package org.teasoft.honey.osql.name;
  */
 public class NameUtil {
 	
+	private NameUtil() {}
+	
 	public static String getClassFullName(Object obj) {
 		return obj.getClass().getName();  //include package name
 	}

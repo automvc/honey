@@ -16,6 +16,8 @@ import org.teasoft.honey.osql.core.Logger;
  * @since  1.8.99
  */
 public class MD5 {
+	
+	private MD5() {}
 
 	public static String getMd5(String text) {
 		byte[] secretBytes = null;
