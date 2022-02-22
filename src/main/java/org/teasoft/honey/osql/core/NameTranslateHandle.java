@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentMap;
 import org.teasoft.bee.osql.NameTranslate;
 import org.teasoft.bee.osql.annotation.Entity;
 import org.teasoft.bee.osql.annotation.Table;
+import org.teasoft.honey.util.StringUtils;
 
 /**
  * @author Kingstar
@@ -43,6 +44,19 @@ public class NameTranslateHandle {
 	@SuppressWarnings({"rawtypes","unchecked"}) 
 	public static String toTableName(String entityName) {
 		try {
+			
+			//V1.11 via ThreadLocal
+			String appointTab = HoneyContext.getAppointTab();
+			if (StringUtils.isNotBlank(appointTab)) return appointTab;
+			String tabSuffix = HoneyContext.getTabSuffix();
+			if (StringUtils.isNotBlank(tabSuffix)) {
+				int index = entityName.lastIndexOf(".");
+				if (index > 0) {
+					entityName = entityName.substring(index + 1);
+					return nameTranslat.toTableName(entityName) + tabSuffix;
+				}
+			}
+			
 			if(OneTimeParameter.isTrue(StringConst.DoNotCheckAnnotation)) {	
 				//nothing
 			} else {
