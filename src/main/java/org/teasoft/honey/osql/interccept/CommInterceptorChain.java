@@ -63,19 +63,43 @@ public class CommInterceptorChain implements InterceptorChain {
 	private void doResetDataSourceOneTime() {
 
 		int count = 0;
-		String ds;
+		int countTab = 0;
+		int countTabSuffix = 0;
+		String ds,tabName,tabSuffix;
 		for (int i = 0; i < chain.size(); i++) {
 
 			ds = chain.get(i).getOneTimeDataSource();
+			tabName=chain.get(i).getOneTimeTabName();
+			tabSuffix=chain.get(i).getOneTimeTabSuffix();
 
 			if (StringUtils.isNotBlank(ds)) {
 				count++;
 				HoneyContext.setAppointDS(ds);
 				Logger.info("[Bee] Reset the DataSource OneTime, ds name:" + ds);
 			}
+			
+			if (StringUtils.isNotBlank(tabName)) {
+				countTab++;
+				HoneyContext.setAppointTab(tabName);
+				Logger.info("[Bee] Reset the tabName OneTime, tabName:" + tabName);
+			}
+			
+			if(StringUtils.isNotBlank(tabSuffix)) {
+				countTabSuffix++;
+				HoneyContext.setTabSuffix(tabSuffix); 
+				Logger.info("[Bee] Reset the tabName OneTime, tabSuffix:" + tabSuffix);
+			}
+			
 		}
 		if (count > 1) Logger.warn(
 				"[Bee] Just the last DataSource is effective,if set the OneTime DataSource more than one!");
+	
+		if (countTab > 1) Logger.warn(
+				"[Bee] Just the last tabName is effective,if set the OneTime tabName more than one!");
+	
+		if (countTabSuffix > 1) Logger.warn(
+				"[Bee] Just the last TabSuffix is effective,if set the OneTime TabSuffix more than one!");
+	
 	}
 
 	@Override
@@ -107,6 +131,25 @@ public class CommInterceptorChain implements InterceptorChain {
 		}
 		HoneyContext.removeAppointDS();
 		HoneyContext.removeCurrentRoute();
+	}
+
+	@Override
+	public void setTabNameOneTime(String tabName) {
+		//do nothing
+	}
+	@Override
+	public void setTabSuffixOneTime(String tabSuffix) {
+		//do nothing
+	}
+	@Override
+	public String getOneTimeTabName() {
+		//do nothing
+		return null;
+	}
+	@Override
+	public String getOneTimeTabSuffix() {
+		//do nothing
+		return null;
 	}
 
 }
