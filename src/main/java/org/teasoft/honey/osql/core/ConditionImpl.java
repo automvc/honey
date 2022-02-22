@@ -74,29 +74,29 @@ public class ConditionImpl implements Condition {
 	}
 
 	@Override
-	public Condition op(String field, Op Op, Object value) {
+	public Condition op(String field, Op op, Object value) {
 		
 		checkField(field);
-		list.add(new Expression(field, Op, value));
+		list.add(new Expression(field, op, value));
 		this.whereField.add(field);
 		return this;
 	}
 	
 	//v1.9.8
 	@Override
-	public Condition opOn(String field, Op Op, Object value) {
+	public Condition opOn(String field, Op op, Object value) {
 		
 		checkField(field);
-		onExpList.add(new Expression(field, Op, value));
+		onExpList.add(new Expression(field, op, value));
 		return this;
 	}
 	
 	@Override
-	public Condition opWithField(String field1, Op Op, String field2) {
+	public Condition opWithField(String field1, Op op, String field2) {
 		checkField(field1);
 		checkField(field2);
 		
-		Expression exp = new Expression(field1, Op, field2);
+		Expression exp = new Expression(field1, op, field2);
 		exp.setOpNum(-3); // eg:field1=field2
 		
 		list.add(exp);
@@ -196,7 +196,7 @@ public class ConditionImpl implements Condition {
 //	 .having(FunctionType.COUNT, "distinct(userid)", Op.ge, 1)
 
 	@Override
-	public Condition having(FunctionType functionType, String field, Op Op, Number value) {
+	public Condition having(FunctionType functionType, String field, Op op, Number value) {
 		checkField(field);
 		Expression exp = new Expression();
 		exp.opType = "having";
@@ -205,7 +205,7 @@ public class ConditionImpl implements Condition {
 		exp.value2=value;
 		exp.value3=functionType.getName();
 		exp.opNum = 5;
-		exp.value4=Op.getOperator();
+		exp.value4=op.getOperator();
 		
 		if (isStartHaving) {
 			if(isStartGroupBy) throw new BeeErrorGrammarException("The 'having' must be after 'group by' !");

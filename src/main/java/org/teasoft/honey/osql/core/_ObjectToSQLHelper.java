@@ -329,14 +329,20 @@ final class _ObjectToSQLHelper {
 
 			}
 		}
-		field.setAccessible(true);
+		
 		try {
-			//是联合主键时不检测值是否为null
-			if (field != null && field.get(entity) == null) {
-				throw new ObjSQLException(
+			if (field != null) {
+			  field.setAccessible(true);
+			  //是联合主键时不检测值是否为null
+			  if(field.get(entity) == null) {
+				 throw new ObjSQLException(
 						"ObjSQLException: in the update(T entity) or update(T entity,IncludeType includeType), "
 								+ "the id field" + alias + " of entity must not be null !");
-			}
+			   }
+		   }
+//		} catch (NullPointerException e) {
+//			throw ExceptionHelper.convert(e);
+			
 		} catch (IllegalAccessException e) {
 			throw ExceptionHelper.convert(e);
 		}

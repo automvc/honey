@@ -276,7 +276,8 @@ public final class HoneyUtil {
 			
 			if (subOneIsList && list_T_classOne == null) {
 				Class c=joinTable[0].subClazz();
-				if(! "java.lang.Object".equals(c.getName())) {//V1.11
+//				if(! "java.lang.Object".equals(c.getName())) {//V1.11
+				if(! c.equals(Object.class)) {//V1.11
 					list_T_classOne=c;
 				}else {
 					String subClassStr = joinTable[0].subClass();
@@ -390,7 +391,8 @@ public final class HoneyUtil {
 					
 					if (subTwoIsList && list_T_classTwo == null) {
 						Class c=joinTable[1].subClazz();
-						if(! "java.lang.Object".equals(c.getName())) {//V1.11
+//						if(! "java.lang.Object".equals(c.getName())) {//V1.11
+						if(! c.equals(Object.class)) {//V1.11
 							list_T_classTwo=c;
 						}else {
 							String subClassStr = joinTable[1].subClass();
@@ -939,6 +941,7 @@ public final class HoneyUtil {
 		javaTypeMap.put("short", 6);
 		javaTypeMap.put("byte", 7);
 		javaTypeMap.put("boolean", 9);
+//		char  TODO
 
 		javaTypeMap.put("java.math.BigDecimal", 10);
 
@@ -1515,7 +1518,7 @@ public final class HoneyUtil {
 			boolean hasException = false;
 			if ("".equals(pkName)) {
 				hasException = true;
-			} else if (!pkName.contains(",")){
+			} else if (pkName!=null && !pkName.contains(",")){
 				try {
 					field = entity.getClass().getDeclaredField(pkName);
 				} catch (NoSuchFieldException e2) {
@@ -1529,8 +1532,12 @@ public final class HoneyUtil {
 		}
 
 		try {
-			field.setAccessible(true);
-			obj = field.get(entity);
+			if (field != null) {
+				field.setAccessible(true);
+				obj = field.get(entity);
+			}
+//		} catch (NullPointerException e) {
+//			throw ExceptionHelper.convert(e);
 		} catch (IllegalAccessException e) {
 			throw ExceptionHelper.convert(e);
 		}

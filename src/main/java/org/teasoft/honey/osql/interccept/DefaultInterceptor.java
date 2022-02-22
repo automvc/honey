@@ -37,7 +37,8 @@ public class DefaultInterceptor implements Interceptor{
 		}
 		
 		Boolean f=HoneyContext.getEntityInterceptorFlag(entity.getClass().getName());
-		if(f==Boolean.FALSE) return entity;
+//		if(f==Boolean.FALSE) return entity;
+		if(Boolean.FALSE.equals(f)) return entity;
 		
 		Field fields[] = entity.getClass().getDeclaredFields(); 
 		int len = fields.length;

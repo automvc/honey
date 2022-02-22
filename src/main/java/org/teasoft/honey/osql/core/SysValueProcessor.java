@@ -45,7 +45,9 @@ public class SysValueProcessor {
 						proValue = prop.getProp(key);
 						if (proValue == null) {
 							continue;
-						}else if(StringUtils.isBlank(proValue) && !"java.lang.String".equals(f[i].getType().getName())) {
+//						}else if(StringUtils.isBlank(proValue) && !"java.lang.String".equals(f[i].getType().getName())) {
+						//配置值是空,但字段值不是String,则路过
+						}else if(StringUtils.isBlank(proValue) && !String.class.equals(f[i].getType())) {
 							continue;
 						}else {
 							value = proValue;
