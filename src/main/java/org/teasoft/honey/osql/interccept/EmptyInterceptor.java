@@ -16,7 +16,7 @@ import org.teasoft.bee.osql.interccept.Interceptor;
  * @since  1.11
  */
 public class EmptyInterceptor implements Interceptor {
-	
+
 	protected boolean isSkip(Object entity) {
 		if (entity == null) return true; //自定义sql会用到
 
@@ -24,8 +24,8 @@ public class EmptyInterceptor implements Interceptor {
 			return true;
 		}
 
-//		Boolean f = HoneyContext.getEntityInterceptorFlag(entity.getClass().getName());
-//		if (f == Boolean.FALSE) return true;   与默认检测的注解不一样
+		//		Boolean f = HoneyContext.getEntityInterceptorFlag(entity.getClass().getName());
+		//		if (f == Boolean.FALSE) return true;   与默认检测的注解不一样
 
 		return false;
 	}
@@ -59,5 +59,21 @@ public class EmptyInterceptor implements Interceptor {
 
 	@Override
 	public void beforeReturn() {}
+
+	@Override
+	public void setTabNameOneTime(String tabName) {}
+
+	@Override
+	public void setTabSuffixOneTime(String tabSuffix) {}
+
+	@Override
+	public String getOneTimeTabName() {
+		return null;
+	}
+
+	@Override
+	public String getOneTimeTabSuffix() {
+		return null;
+	}
 
 }
