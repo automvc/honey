@@ -9,6 +9,9 @@ import org.teasoft.honey.util.StringUtils;
  * @since  1.2
  */
 public class TokenUtil {
+	
+	private TokenUtil() {}
+	
 	static SqlValueWrap process(String text, String startToken, String endToken, String replaceStr) {
 
 		if (StringUtils.isEmpty(text)) {

@@ -20,6 +20,8 @@ import java.util.Map;
  * @since  1.1
  */
 public class TransformResultSet {
+	
+	private TransformResultSet() {}
 
 	public static StringBuffer toJson(ResultSet rs) throws SQLException {
 		StringBuffer json = new StringBuffer("");
@@ -128,7 +130,7 @@ public class TransformResultSet {
 	}
 
 	public static List<String[]> toStringsList(ResultSet rs) throws SQLException {
-		List<String[]> list = new ArrayList<String[]>();
+		List<String[]> list = new ArrayList<>();
 		ResultSetMetaData rmeta = rs.getMetaData();
 		int columnCount = rmeta.getColumnCount();
 		boolean nullToEmptyString = HoneyConfig.getHoneyConfig().returnStringList_nullToEmptyString;

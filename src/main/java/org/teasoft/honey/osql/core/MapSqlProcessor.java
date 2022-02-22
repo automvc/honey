@@ -29,6 +29,11 @@ import org.teasoft.honey.util.StringUtils;
  */
 public class MapSqlProcessor {
 	
+	private static final String TABLE = "Table";
+	private static final String KEY_NAME_IS = "The Key name is ";
+	
+	private MapSqlProcessor() {}
+
 	private static DbFeature getDbFeature() {
 		return BeeFactory.getHoneyFactory().getDbFeature();
 	}
@@ -322,17 +327,17 @@ public class MapSqlProcessor {
 				if(isPrimaryKey) insertKvMap.put(customPkName, newId);
 				else if(isUpper) insertKvMap.put("ID", newId);
 				else insertKvMap.put("id", newId);
-				OneTimeParameter.setAttribute("_SYS_Bee_MapSuid_Insert_Has_ID", newId);
+				OneTimeParameter.setAttribute(StringConst.MapSuid_Insert_Has_ID, newId);
 //				replaceId=newId;
 			}else {
-				OneTimeParameter.setAttribute("_SYS_Bee_MapSuid_Insert_Has_ID", id);
+				OneTimeParameter.setAttribute(StringConst.MapSuid_Insert_Has_ID, id);
 			}
 		}else {
 			if(genAll) {
 				long newId = GenIdFactory.get(tableName);
 				if(isPrimaryKey) insertKvMap.put(customPkName, newId);
 				else insertKvMap.put("id", newId);
-				OneTimeParameter.setAttribute("_SYS_Bee_MapSuid_Insert_Has_ID", newId);
+				OneTimeParameter.setAttribute(StringConst.MapSuid_Insert_Has_ID, newId);
 //				replaceId=newId;
 			}
 		}
@@ -378,8 +383,8 @@ public class MapSqlProcessor {
 		PreparedValue preparedValue = null;
 		for (Map.Entry<String, Object> entry : whereConditonMap.entrySet()) {
 			
-			if("Table".equalsIgnoreCase(entry.getKey())) {
-				Logger.warn("The Key name is "+entry.getKey()+ " , will be ignored in 'where' part!");
+			if(TABLE.equalsIgnoreCase(entry.getKey())) {
+				Logger.warn(KEY_NAME_IS+entry.getKey()+ " , will be ignored in 'where' part!");
 				continue;
 			}
 			
@@ -424,8 +429,8 @@ public class MapSqlProcessor {
 		PreparedValue preparedValue = null;
 		for (Map.Entry<String, Object> entry : setConditonMap.entrySet()) {
 			
-			if("Table".equalsIgnoreCase(entry.getKey())) {
-				Logger.warn("The Key name is "+entry.getKey()+ " , will be ignored!");
+			if(TABLE.equalsIgnoreCase(entry.getKey())) {
+				Logger.warn(KEY_NAME_IS+entry.getKey()+ " , will be ignored!");
 				continue;
 			}
 			
@@ -472,8 +477,8 @@ public class MapSqlProcessor {
 		PreparedValue preparedValue = null;
 		for (Map.Entry<String, Object> entry : insertKvMap.entrySet()) {
 			
-			if("Table".equalsIgnoreCase(entry.getKey())) {
-				Logger.warn("The Key name is "+entry.getKey()+ " , will be ignored!");
+			if(TABLE.equalsIgnoreCase(entry.getKey())) {
+				Logger.warn(KEY_NAME_IS+entry.getKey()+ " , will be ignored!");
 				continue;
 			}
 

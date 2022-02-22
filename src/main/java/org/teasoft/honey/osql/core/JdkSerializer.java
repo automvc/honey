@@ -28,6 +28,7 @@ public class JdkSerializer implements Serializer {
 			objOut.writeObject(obj);
 			b = out.toByteArray();
 		} catch (Exception e) {
+			//ignore
 		}
 		return b;
 	}
@@ -43,6 +44,7 @@ public class JdkSerializer implements Serializer {
 			ObjectInputStream objInput = new ObjectInputStream(input);
 			obj = objInput.readObject();
 		} catch (Exception e) {
+			//ignore
 		}
 		return obj;
 	}

@@ -34,5 +34,7 @@ public final class StringConst {
 	public static final String InterceptorChainForMoreTable="_SYS_Bee_InterceptorChainForMoreTable";
 	
 	public static final String JdbcTranWriterDS="_SYS_Bee_JdbcTran_WriterDS";
-
+	
+	public static final String MapSuid_Insert_Has_ID="_SYS_Bee_MapSuid_Insert_Has_ID";
+	
 }

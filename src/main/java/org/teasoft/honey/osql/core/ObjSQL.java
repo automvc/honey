@@ -30,8 +30,6 @@ public class ObjSQL implements Suid {
 	private InterceptorChain interceptorChain;
 	private String dsName;
 
-	public ObjSQL() {}
-
 	public BeeSql getBeeSql() {
 		if (beeSql == null) beeSql = BeeFactory.getHoneyFactory().getBeeSql();
 		return beeSql;

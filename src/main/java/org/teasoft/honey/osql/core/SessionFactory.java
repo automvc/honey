@@ -38,7 +38,9 @@ public final class SessionFactory {
 		SessionFactory.beeFactory = beeFactory;
 	}
 
-	public SessionFactory() {}
+	public SessionFactory() {
+		//empty
+	}
 
 	public static Connection getConnection() {
 		Connection conn = null;
@@ -99,8 +101,9 @@ public final class SessionFactory {
 		String password = HoneyConfig.getHoneyConfig().getPassword();
 
 		String nullInfo = "";
-		if (driverName == null) nullInfo += DbConfigConst.DB_DRIVERNAME + " do not config; ";
-		if (url == null) nullInfo += DbConfigConst.DB_URL + " do not config; ";
+		final String DO_NOT_CONFIG = " do not config; ";
+		if (driverName == null) nullInfo += DbConfigConst.DB_DRIVERNAME + DO_NOT_CONFIG;
+		if (url == null) nullInfo += DbConfigConst.DB_URL + DO_NOT_CONFIG;
 		
 		if (url == null) {
 //			Logger.error("The url can not be null when get the Connection directly from DriverManager!  "+nullInfo);
@@ -109,8 +112,8 @@ public final class SessionFactory {
 			throw new Exception("The url can not be null when get the Connection directly from DriverManager!  ("+nullInfo+")");
 		}
 		
-		if (username == null) nullInfo += DbConfigConst.DB_USERNAM + " do not config; ";
-		if (password == null) nullInfo += DbConfigConst.DB_PWORD + " do not config; ";
+		if (username == null) nullInfo += DbConfigConst.DB_USERNAM + DO_NOT_CONFIG;
+		if (password == null) nullInfo += DbConfigConst.DB_PWORD + DO_NOT_CONFIG;
 
 		if (!"".equals(nullInfo)) {
 //			throw new NoConfigException("NoConfigException,Do not set the database info: " + nullInfo);

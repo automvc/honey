@@ -22,6 +22,8 @@ import org.teasoft.honey.util.StringUtils;
  */
 public class SearchProcessor {
 	
+	private SearchProcessor() {}
+	
 	public static Condition parseSearch(Search search[]) {
 		
 		Condition condition=BeeFactoryHelper.getCondition();

@@ -23,7 +23,7 @@ public final class SqlStrFilter {
 		int b = sql.indexOf(funType, a);
 
 		if ("".equals(sql.substring(a + 6, b).trim())) {
-			int c = sql.indexOf("(", b);
+			int c = sql.indexOf('(', b);
 			if ("".equals(sql.substring(b + funType.length(), c).trim())) {
 				return false;
 			}

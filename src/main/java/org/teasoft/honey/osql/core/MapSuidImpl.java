@@ -142,7 +142,7 @@ public class MapSuidImpl implements MapSuid {
 		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("In MapSuid, insertAndReturnId SQL: ", sql);
 
-		Object obj = OneTimeParameter.getAttribute("_SYS_Bee_MapSuid_Insert_Has_ID");
+		Object obj = OneTimeParameter.getAttribute(StringConst.MapSuid_Insert_Has_ID);
 		long newId;
 		if (obj != null) {
 			newId = Long.parseLong(obj.toString());

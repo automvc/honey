@@ -352,14 +352,9 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		return toInsertSQL(entity, "");
 	}
 	
-//	@Override
-//	public <T> String[] toInsertSQL(T entity[], int batchSize) {
-//		return toInsertSQL(entity, batchSize, "");
-//	}
-
-	private static final String index1 = "_SYS[index";
-	private static final String index2 = "]_End ";
-	private static final String index3 = "]";
+	private static final String INDEX1 = "_SYS[index";
+	private static final String INDEX2 = "]_End ";
+	private static final String INDEX3 = "]";
 	
 	@Override
 	public <T> String[] toInsertSQL(T entity[], String excludeFieldList) {
@@ -385,7 +380,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 //			t_sql = t_sql + "[index0]";  //index0 不带,与单条共用.
 
 			for (int i = 0; i < len; i++) { // i=1
-				String sql_i=index1 + i + index2+sql[0];
+				String sql_i=INDEX1 + i + INDEX2+sql[0];
 				if (i == 0) {
 					HoneyContext.setPreparedValue(sql_i, HoneyContext.getAndClearPreparedValue(sql[0]));   //i=0
 					HoneyContext.deleteCacheInfo(sql[0]);
@@ -434,7 +429,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 //			}
 			List<PreparedValue> oneRecoreList;
 			for (int i = 0; i < len; i++) { // i=1
-				String sql_i=index1 + i + index2+sql[0]; //mysql批操作时,仅用于打印日志
+				String sql_i=INDEX1 + i + INDEX2+sql[0]; //mysql批操作时,仅用于打印日志
 				
 				if (i == 0) {
 					oneRecoreList = HoneyContext.getAndClearPreparedValue(sql[0]);
@@ -449,10 +444,10 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 				preparedValueList.addAll(oneRecoreList); //用于批量插入时设置值
 				if((i+1)%batchSize==0){ //i+1
 //					t_sql +"  [Batch:"+ (i/batchSize) + index3  // 用于批量插入时设置值
-					HoneyContext.setPreparedValue(t_sql +"  [Batch:"+ (i/batchSize) + index3, preparedValueList); //i
+					HoneyContext.setPreparedValue(t_sql +"  [Batch:"+ (i/batchSize) + INDEX3, preparedValueList); //i
 					preparedValueList = new ArrayList<>();
 				}else if(i==(len-1)){
-					HoneyContext.setPreparedValue(t_sql +"  [Batch:"+ (i/batchSize) + index3, preparedValueList); //i
+					HoneyContext.setPreparedValue(t_sql +"  [Batch:"+ (i/batchSize) + INDEX3, preparedValueList); //i
 				}
 			}
 		} catch (IllegalAccessException e) {
@@ -567,7 +562,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		return type;
 	}
 	
-	private <T> String getIdTypeByClass(Class c,String pkName) {
+	private String getIdTypeByClass(Class c,String pkName) {
 		Field field = null;
 		String type=null;
 		try {
@@ -639,7 +634,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		}
 	}
 
-	private <T> String _toSelectAndDeleteByIdSQL(SqlValueWrap wrap, Number id,String numType,String pkName) {
+	private String _toSelectAndDeleteByIdSQL(SqlValueWrap wrap, Number id,String numType,String pkName) {
 		if(id==null) return null;
 		
 		StringBuffer sqlBuffer=wrap.getValueBuffer();  //sqlBuffer
@@ -660,7 +655,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 //		return _toSelectAndDeleteByIdSQL(wrap, ids,null);
 //	}
 	
-	private <T> String _toSelectAndDeleteByIdSQL(SqlValueWrap wrap, String ids, String idType,String pkName) {
+	private String _toSelectAndDeleteByIdSQL(SqlValueWrap wrap, String ids, String idType,String pkName) {
 
 		StringBuffer sqlBuffer=wrap.getValueBuffer(); //sqlBuffer
 		List<PreparedValue> list=new ArrayList<>();

@@ -32,10 +32,17 @@ import org.teasoft.honey.util.SuidHelper;
  */
 public class ObjSQLRich extends ObjSQL implements SuidRich {
 
-    private ObjToSQLRich objToSQLRich; 
+	private ObjToSQLRich objToSQLRich; 
 	
-    public ObjSQLRich() {
-    }
+	private static final String SELECT_SQL = "select SQL: ";
+	private static final String SELECT_JSON_SQL = "selectJson SQL: ";
+	private static final String DELETE_BY_ID_SQL = "deleteById SQL: ";
+	private static final String SELECT_BY_ID_SQL = "selectById SQL: ";
+	private static final String UPDATE_SQL_WHERE_FIELDS = "update SQL(whereFields) :";
+	private static final String UPDATE_SQL_UPDATE_FIELDS = "update SQL(updateFields) :";
+	private static final String ID_IS_NULL = "in method selectById,id is null! ";
+    private static final String START_GREAT_EQ_0 = "Parameter 'start' need great equal 0!";
+	private static final String SIZE_GREAT_0 = "Parameter 'size' need great than 0!";
     
 	public ObjToSQLRich getObjToSQLRich() {
 		if(objToSQLRich==null) objToSQLRich=BeeFactory.getHoneyFactory().getObjToSQLRich();
@@ -49,7 +56,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Override
 	public <T> List<T> select(T entity, int size) {
 		if (entity == null) return null;
-		if (size <= 0) throw new BeeIllegalParameterException("Parameter 'size' need great than 0!");
+		if (size <= 0) throw new BeeIllegalParameterException(SIZE_GREAT_0);
 
 		doBeforePasreEntity(entity,SuidType.SELECT);
 		String sql = getObjToSQLRich().toSelectSQL(entity, size);
@@ -64,8 +71,8 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Override
 	public <T> List<T> select(T entity, int start, int size) {
 		if (entity == null) return null;
-		if(size<=0) throw new BeeIllegalParameterException("Parameter 'size' need great than 0!");
-		if(start<0) throw new BeeIllegalParameterException("Parameter 'start' need great equal 0!");
+		if(size<=0) throw new BeeIllegalParameterException(SIZE_GREAT_0);
+		if(start<0) throw new BeeIllegalParameterException(START_GREAT_EQ_0);
 		doBeforePasreEntity(entity,SuidType.SELECT);
 		String sql = getObjToSQLRich().toSelectSQL(entity, start, size);
 		sql = doAfterCompleteSql(sql);
@@ -95,8 +102,8 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Override
 	public <T> List<T> select(T entity, String selectFields, int start, int size) {
 		if (entity == null) return null;
-		if(size<=0) throw new BeeIllegalParameterException("Parameter 'size' need great than 0!");
-		if(start<0) throw new BeeIllegalParameterException("Parameter 'start' need great equal 0!");
+		if(size<=0) throw new BeeIllegalParameterException(SIZE_GREAT_0);
+		if(start<0) throw new BeeIllegalParameterException(START_GREAT_EQ_0);
 		doBeforePasreEntity(entity,SuidType.SELECT);
 		List<T> list = null;
 		String sql = getObjToSQLRich().toSelectSQL(entity, selectFields,start,size);
@@ -210,7 +217,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		int r = 0;
 		String sql = getObjToSQLRich().toUpdateSQL(entity, updateFields);
 		sql = doAfterCompleteSql(sql);
-		Logger.logSQL("update SQL(updateFields) :", sql);
+		Logger.logSQL(UPDATE_SQL_UPDATE_FIELDS, sql);
 		_regEntityClass1(entity);
 		r = getBeeSql().modify(sql);
 		doBeforeReturn();
@@ -261,7 +268,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		int r = 0;
 		String sql = getObjToSQLRich().toUpdateSQL(entity, updateFields, includeType);
 		sql = doAfterCompleteSql(sql);
-		Logger.logSQL("update SQL(updateFields) :", sql);
+		Logger.logSQL(UPDATE_SQL_UPDATE_FIELDS, sql);
 		_regEntityClass1(entity);
 		r = getBeeSql().modify(sql);
 		doBeforeReturn();
@@ -274,7 +281,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		doBeforePasreEntity(entity,SuidType.SELECT);
 		String sql = getObjToSQLRich().toSelectSQL(entity, includeType);
 		sql = doAfterCompleteSql(sql);
-		Logger.logSQL("select SQL: ", sql);
+		Logger.logSQL(SELECT_SQL, sql);
 		List<T> list = getBeeSql().select(sql, entity);
 		doBeforeReturn(list);
 		return list;
@@ -377,7 +384,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		List<String[]> list = null;
 		String sql = getObjToSQLRich().toSelectSQL(entity, condition.getIncludeType(), condition);
 		sql = doAfterCompleteSql(sql);
-		Logger.logSQL("select SQL: ", sql);
+		Logger.logSQL(SELECT_SQL, sql);
 		_regEntityClass1(entity);
 		list= getBeeSql().select(sql);
 		doBeforeReturn();
@@ -392,7 +399,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		
 		String sql = getObjToSQLRich().toSelectSQL(entity);
 		sql = doAfterCompleteSql(sql);
-		Logger.logSQL("selectJson SQL: ", sql);
+		Logger.logSQL(SELECT_JSON_SQL, sql);
 		_regEntityClass1(entity);
 		String json = getBeeSql().selectJson(sql);
 		doBeforeReturn();
@@ -406,7 +413,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		
 		String sql = getObjToSQLRich().toSelectSQL(entity, includeType);
 		sql = doAfterCompleteSql(sql);
-		Logger.logSQL("selectJson SQL: ", sql);
+		Logger.logSQL(SELECT_JSON_SQL, sql);
 		_regEntityClass1(entity);
 		String json= getBeeSql().selectJson(sql);
 		doBeforeReturn();
@@ -430,8 +437,8 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Override
 	public <T> String selectJson(T entity, String selectFields, int start, int size) {
 		if (entity == null) return null;
-		if(size<=0) throw new BeeIllegalParameterException("Parameter 'size' need great than 0!");
-		if(start<0) throw new BeeIllegalParameterException("Parameter 'start' need great equal 0!");
+		if(size<=0) throw new BeeIllegalParameterException(SIZE_GREAT_0);
+		if(start<0) throw new BeeIllegalParameterException(START_GREAT_EQ_0);
 		
 		doBeforePasreEntity(entity,SuidType.SELECT);
 		String sql = getObjToSQLRich().toSelectSQL(entity, selectFields,start,size);
@@ -448,13 +455,13 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		if (entity == null) return null;
 
 		if (id==null) {
-			Logger.warn("in method selectById,id is null! ");
+			Logger.warn(ID_IS_NULL);
 			return null;
 		}
 		doBeforePasreEntity(entity,SuidType.SELECT);
 		String sql = getObjToSQLRich().toSelectByIdSQL(entity, id);
 		sql = doAfterCompleteSql(sql);
-		Logger.logSQL("selectById SQL: ", sql);
+		Logger.logSQL(SELECT_BY_ID_SQL, sql);
 		List<T> list = getBeeSql().select(sql, entity);
 		
 		return getIdEntity(list);
@@ -465,13 +472,13 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		if (entity == null) return null;
 
 		if (id==null) {
-			Logger.warn("in method selectById,id is null! ");
+			Logger.warn(ID_IS_NULL);
 			return null;
 		}
 		doBeforePasreEntity(entity,SuidType.SELECT);
 		String sql = getObjToSQLRich().toSelectByIdSQL(entity, id);
 		sql = doAfterCompleteSql(sql);
-		Logger.logSQL("selectById SQL: ", sql);
+		Logger.logSQL(SELECT_BY_ID_SQL, sql);
 		List<T> list = getBeeSql().select(sql, entity);
 		
 		return getIdEntity(list);
@@ -482,7 +489,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		if (entity == null) return null;
 
 		if (id==null) {
-			Logger.warn("in method selectById,id is null! ");
+			Logger.warn(ID_IS_NULL);
 			return null;
 		}
 		if(id.contains(",")) {
@@ -491,7 +498,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		doBeforePasreEntity(entity,SuidType.SELECT);
 		String sql = getObjToSQLRich().toSelectByIdSQL(entity, id);
 		sql = doAfterCompleteSql(sql);
-		Logger.logSQL("selectById SQL: ", sql);
+		Logger.logSQL(SELECT_BY_ID_SQL, sql);
 		
 		List<T> list = getBeeSql().select(sql, entity);
 		
@@ -533,7 +540,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		doBeforePasreEntity(c,SuidType.DELETE);
 		String sql = getObjToSQLRich().toDeleteByIdSQL(c, id);
 		sql = doAfterCompleteSql(sql);
-		Logger.logSQL("deleteById SQL: ", sql);
+		Logger.logSQL(DELETE_BY_ID_SQL, sql);
 		_regEntityClass2(c);
 		int a=getBeeSql().modify(sql);
 		doBeforeReturn();
@@ -548,7 +555,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		doBeforePasreEntity(c,SuidType.DELETE);
 		String sql = getObjToSQLRich().toDeleteByIdSQL(c, id);
 		sql = doAfterCompleteSql(sql);
-		Logger.logSQL("deleteById SQL: ", sql);
+		Logger.logSQL(DELETE_BY_ID_SQL, sql);
 		_regEntityClass2(c);
 		int a=getBeeSql().modify(sql);
 		doBeforeReturn();
@@ -563,7 +570,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		doBeforePasreEntity(c,SuidType.DELETE);
 		String sql = getObjToSQLRich().toDeleteByIdSQL(c, ids);
 		sql = doAfterCompleteSql(sql);
-		Logger.logSQL("deleteById SQL: ", sql);
+		Logger.logSQL(DELETE_BY_ID_SQL, sql);
 		_regEntityClass2(c);
 		int a=getBeeSql().modify(sql);
 		doBeforeReturn();
@@ -577,7 +584,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		doBeforePasreEntity(entity,SuidType.SELECT);
 		String sql = getObjToSQLRich().toSelectSQL(entity, includeType, condition);
 		sql = doAfterCompleteSql(sql);
-		Logger.logSQL("select SQL: ", sql);
+		Logger.logSQL(SELECT_SQL, sql);
 		List<T> list= getBeeSql().select(sql, entity);
 		doBeforeReturn(list);
 		return list;
@@ -589,7 +596,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		doBeforePasreEntity(entity,SuidType.SELECT);
 		String sql = getObjToSQLRich().toSelectSQL(entity, includeType,condition);
 		sql = doAfterCompleteSql(sql);
-		Logger.logSQL("selectJson SQL: ", sql);
+		Logger.logSQL(SELECT_JSON_SQL, sql);
 		_regEntityClass1(entity);
 		String json= getBeeSql().selectJson(sql);
 		doBeforeReturn();
@@ -602,7 +609,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		doBeforePasreEntity(entity,SuidType.SELECT);
 		String sql = getObjToSQLRich().toSelectSQL(entity, condition.getIncludeType(),condition);
 		sql = doAfterCompleteSql(sql);
-		Logger.logSQL("selectJson SQL: ", sql);
+		Logger.logSQL(SELECT_JSON_SQL, sql);
 		_regEntityClass1(entity);
 		
 		String json= getBeeSql().selectJson(sql);
@@ -618,7 +625,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		int r = 0;
 		String sql = getObjToSQLRich().toUpdateBySQL(entity, whereFields); //updateBy
 		sql = doAfterCompleteSql(sql);
-		Logger.logSQL("update SQL(whereFields) :", sql);
+		Logger.logSQL(UPDATE_SQL_WHERE_FIELDS, sql);
 		_regEntityClass1(entity);
 		r = getBeeSql().modify(sql);
 		doBeforeReturn();
@@ -632,7 +639,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		int r = 0;
 		String sql = getObjToSQLRich().toUpdateBySQL(entity, whereFields, includeType);//updateBy
 		sql = doAfterCompleteSql(sql);
-		Logger.logSQL("update SQL(whereFields) :", sql);
+		Logger.logSQL(UPDATE_SQL_WHERE_FIELDS, sql);
 		_regEntityClass1(entity);
 		r = getBeeSql().modify(sql);
 		doBeforeReturn();
@@ -647,7 +654,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		int r = 0;
 		String sql = getObjToSQLRich().toUpdateBySQL(entity, whereFields, condition);//updateBy
 		sql = doAfterCompleteSql(sql);
-		Logger.logSQL("update SQL(whereFields) :", sql);
+		Logger.logSQL(UPDATE_SQL_WHERE_FIELDS, sql);
 		_regEntityClass1(entity);
 		r = getBeeSql().modify(sql);
 		doBeforeReturn();
@@ -677,7 +684,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		int r = 0;
 		String sql = getObjToSQLRich().toUpdateSQL(entity, updateFields, condition);
 		sql = doAfterCompleteSql(sql);
-		Logger.logSQL("update SQL(updateFields) :", sql);
+		Logger.logSQL(UPDATE_SQL_UPDATE_FIELDS, sql);
 		_regEntityClass1(entity);
 		r = getBeeSql().modify(sql);
 		doBeforeReturn();

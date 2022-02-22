@@ -247,8 +247,7 @@ public final class HoneyContext {
 		Map<String, List<PreparedValue>> map = sqlPreValueLocal.get();
 		if (null == map || sqlStr==null) return null;
 
-		List<PreparedValue> list = map.get(sqlStr);
-		return list;
+		return map.get(sqlStr);
 	}
 
 	static void clearPreparedValue(String sqlStr) {
@@ -295,8 +294,7 @@ public final class HoneyContext {
 	public static CacheSuidStruct getCacheInfo(String sqlStr) {
 		Map<String, CacheSuidStruct> map = cacheLocal.get();
 		if (null == map || sqlStr==null) return null;
-		CacheSuidStruct struct = map.get(sqlStr);
-		return struct;
+		return map.get(sqlStr);
 	}
 
 	static void deleteCacheInfo(String sqlStr) {
@@ -438,8 +436,6 @@ public final class HoneyContext {
 		}else if (StringConst.tRue.equals(getSameConnctionDoing())) { // 正常流程
 			OneTimeParameter.setTrueForKey("_SYS_Bee_SAME_CONN_END");
 			checkClose(null, getCurrentConnection());
-		}else {
-			
 		}
 		removeCurrentConnection();
 	}
@@ -469,9 +465,7 @@ public final class HoneyContext {
 	//	}
 
 	public static RouteStruct getCurrentRoute() {
-		RouteStruct routeStruct = currentRoute.get();
-		//		 currentRoute.remove();  //需要多次,不能拿了就删
-		return routeStruct;
+		return currentRoute.get();
 	}
 
 	public static void setCurrentRoute(RouteStruct routeStruct) {

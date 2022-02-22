@@ -20,13 +20,17 @@ import org.teasoft.honey.util.StringUtils;
  * @since  1.5
  */
 public class NameTranslateHandle {
+	
 	private static NameTranslate nameTranslat = BeeFactory.getHoneyFactory().getInitNameTranslate();
 	private static ConcurrentMap<String,String> entity2tableMap;
 	private static ConcurrentMap<String,String> table2entityMap=null;
+	
 	static{
 		entity2tableMap=HoneyContext.getEntity2tableMap();
 //		table2entityMap=HoneyContext.getTable2entityMap();
 	}
+	
+	private NameTranslateHandle() {}
 	
 	/**
 	 * 指定命名转换实现类
@@ -50,7 +54,7 @@ public class NameTranslateHandle {
 			if (StringUtils.isNotBlank(appointTab)) return appointTab;
 			String tabSuffix = HoneyContext.getTabSuffix();
 			if (StringUtils.isNotBlank(tabSuffix)) {
-				int index = entityName.lastIndexOf(".");
+				int index = entityName.lastIndexOf('.');
 				if (index > 0) {
 					entityName = entityName.substring(index + 1);
 					return nameTranslat.toTableName(entityName) + tabSuffix;
@@ -84,7 +88,7 @@ public class NameTranslateHandle {
 		if (tableName != null && !"".equals(tableName.trim())) {
 			return tableName;//fix bug 2020-08-22
 		}else {//若找不到,检测是否包含包名,若有,则去除包名后再用类名看下是否能找到
-			int index = entityName.lastIndexOf(".");
+			int index = entityName.lastIndexOf('.');
 			if(index>0){
 				entityName=entityName.substring(index + 1);  //此时entityName只包含类名
 				tableName=entity2tableMap.get(entityName);
@@ -117,7 +121,7 @@ public class NameTranslateHandle {
 	
 	private static String processAutoPara(String autoPara) {
 		int start = autoPara.indexOf("${");
-		int end = autoPara.indexOf("}");
+		int end = autoPara.indexOf('}');
 		if (start > 0 && end > 0 && start + 2 < end) {
 			String key = autoPara.substring(start + 2, end);
 			Map<String,String> map=new HashMap<>();

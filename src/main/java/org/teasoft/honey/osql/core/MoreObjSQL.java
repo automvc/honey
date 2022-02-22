@@ -24,12 +24,11 @@ public class MoreObjSQL implements MoreTable{
 
 	private BeeSql beeSql;
 	private MoreObjToSQL moreObjToSQL;
-	
 	//V1.11
 	private InterceptorChain interceptorChain;
 	private String dsName;
-
-	public MoreObjSQL() {}
+	
+	private static final String SELECT_SQL = "select SQL: ";
 
 	public BeeSql getBeeSql() {
 		if(this.beeSql==null) beeSql = BeeFactory.getHoneyFactory().getBeeSql();
@@ -74,7 +73,7 @@ public class MoreObjSQL implements MoreTable{
 		doBeforePasreEntity(entity);  //因要解析子表,子表下放再执行
 		String sql = getMoreObjToSQL().toSelectSQL(entity);
 		sql=doAfterCompleteSql(sql);
-		Logger.logSQL("select SQL: ", sql);
+		Logger.logSQL(SELECT_SQL, sql);
 		List<T> list = getBeeSql().moreTableSelect(sql, entity); 
 		doBeforeReturn(list);
 		return list;
@@ -88,7 +87,7 @@ public class MoreObjSQL implements MoreTable{
 		doBeforePasreEntity(entity);  //因要解析子表,子表下放再执行
 		String sql = getMoreObjToSQL().toSelectSQL(entity,start,size);
 		sql=doAfterCompleteSql(sql);
-		Logger.logSQL("select SQL: ", sql);
+		Logger.logSQL(SELECT_SQL, sql);
 		List<T> list = getBeeSql().moreTableSelect(sql, entity); 
 		doBeforeReturn(list);
 		return list;
@@ -100,7 +99,7 @@ public class MoreObjSQL implements MoreTable{
 		doBeforePasreEntity(entity);  //因要解析子表,子表下放再执行
 		String sql = getMoreObjToSQL().toSelectSQL(entity,condition);
 		sql=doAfterCompleteSql(sql);
-		Logger.logSQL("select SQL: ", sql);
+		Logger.logSQL(SELECT_SQL, sql);
 		List<T> list = getBeeSql().moreTableSelect(sql, entity); 
 		doBeforeReturn(list);
 		return list;

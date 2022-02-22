@@ -46,8 +46,9 @@ import org.teasoft.honey.util.StringUtils;
  */
 public final class HoneyUtil {
 
-	private static Map<String, String> jdbcTypeMap = new HashMap<String, String>(); 
-	private static Map<String, Integer> javaTypeMap = new HashMap<String, Integer>();
+	private static final String STRING = "String";
+	private static Map<String, String> jdbcTypeMap = new HashMap<>(); 
+	private static Map<String, Integer> javaTypeMap = new HashMap<>();
 
 	private static PropertiesReader jdbcTypeCustomProp = new PropertiesReader("/jdbcTypeToFieldType.properties");
 	private static PropertiesReader jdbcTypeCustomProp_specificalDB = null;
@@ -77,18 +78,18 @@ public final class HoneyUtil {
 		initJavaTypeMap();
 	}
 
-	public static int[] mergeArray(int total[], int part[], int start, int end) {
-
-		try {
-			for (int i = 0; i < part.length; i++) {
-				total[start + i] = part[i];
-			}
-		} catch (Exception e) {
-			Logger.error(" HoneyUtil.mergeArray() " + e.getMessage());
-		}
-
-		return total;
-	}
+//	public static int[] mergeArray(int total[], int part[], int start, int end) {
+//
+//		try {
+//			for (int i = 0; i < part.length; i++) {
+//				total[start + i] = part[i];
+//			}
+//		} catch (Exception e) {
+//			Logger.error(" HoneyUtil.mergeArray() " + e.getMessage());
+//		}
+//
+//		return total;
+//	}
 
 	static String getBeanField(Field field[]) {
 		if (field == null) return "";
@@ -518,8 +519,8 @@ public final class HoneyUtil {
 				isOk = true;
 			} catch (ClassNotFoundException e) {
 				try {
-					int index1 = subClassStr.indexOf(".");
-					int index2 = packageAndClassName.lastIndexOf(".");
+					int index1 = subClassStr.indexOf('.');
+					int index2 = packageAndClassName.lastIndexOf('.');
 
 					if (index1 == -1 && index2 > 0) {
 						String newStr = packageAndClassName.substring(0, index2+1) + subClassStr;
@@ -686,12 +687,12 @@ public final class HoneyUtil {
 		//url: https://docs.oracle.com/javase/1.5.0/docs/guide/jdbc/getstart/mapping.html
 		//		https://docs.oracle.com/javadb/10.8.3.0/ref/rrefjdbc20377.html
 		//		https://docs.oracle.com/javase/8/docs/api/java/sql/package-summary.html
-		jdbcTypeMap.put("CHAR", "String");
-		jdbcTypeMap.put("VARCHAR", "String");
-		jdbcTypeMap.put("LONGVARCHAR", "String");
+		jdbcTypeMap.put("CHAR", STRING);
+		jdbcTypeMap.put("VARCHAR", STRING);
+		jdbcTypeMap.put("LONGVARCHAR", STRING);
 
-		jdbcTypeMap.put("NVARCHAR", "String");
-		jdbcTypeMap.put("NCHAR", "String");
+		jdbcTypeMap.put("NVARCHAR", STRING);
+		jdbcTypeMap.put("NCHAR", STRING);
 
 		jdbcTypeMap.put("NUMERIC", "BigDecimal");
 		jdbcTypeMap.put("DECIMAL", "BigDecimal");
@@ -755,16 +756,16 @@ public final class HoneyUtil {
 		} else if (DatabaseConst.ORACLE.equalsIgnoreCase(dbName)) {
 //			https://docs.oracle.com/cd/B12037_01/java.101/b10983/datamap.htm
 //			https://docs.oracle.com/cd/B19306_01/java.102/b14188/datamap.htm
-			jdbcTypeMap.put("LONG", "String");
-			jdbcTypeMap.put("VARCHAR2", "String");
-			jdbcTypeMap.put("NVARCHAR2", "String");
+			jdbcTypeMap.put("LONG", STRING);
+			jdbcTypeMap.put("VARCHAR2", STRING);
+			jdbcTypeMap.put("NVARCHAR2", STRING);
 			jdbcTypeMap.put("NUMBER", "BigDecimal"); //oracle todo
 			jdbcTypeMap.put("RAW", "byte[]");
 
-			jdbcTypeMap.put("INTERVALYM", "String"); //11g 
-			jdbcTypeMap.put("INTERVALDS", "String"); //11g
-			jdbcTypeMap.put("INTERVAL YEAR TO MONTH", "String"); //just Prevention
-			jdbcTypeMap.put("INTERVAL DAY TO SECOND", "String");//just Prevention
+			jdbcTypeMap.put("INTERVALYM", STRING); //11g 
+			jdbcTypeMap.put("INTERVALDS", STRING); //11g
+			jdbcTypeMap.put("INTERVAL YEAR TO MONTH", STRING); //just Prevention
+			jdbcTypeMap.put("INTERVAL DAY TO SECOND", STRING);//just Prevention
 //			jdbcTypeMap.put("TIMESTAMP", "Timestamp");   exist in comm
 
 		} else if (DatabaseConst.SQLSERVER.equalsIgnoreCase(dbName)) {
@@ -779,12 +780,12 @@ public final class HoneyUtil {
 			jdbcTypeMap.put("money","BigDecimal");
 			jdbcTypeMap.put("smallmoney","BigDecimal");
 			
-			jdbcTypeMap.put("ntext","String");
-			jdbcTypeMap.put("text","String");
-			jdbcTypeMap.put("xml","String");
+			jdbcTypeMap.put("ntext",STRING);
+			jdbcTypeMap.put("text",STRING);
+			jdbcTypeMap.put("xml",STRING);
 			
 			jdbcTypeMap.put("smalldatetime","Timestamp");
-			jdbcTypeMap.put("uniqueidentifier","String");
+			jdbcTypeMap.put("uniqueidentifier",STRING);
 			
 			jdbcTypeMap.put("hierarchyid","byte[]");
 			jdbcTypeMap.put("image","byte[]");
@@ -812,15 +813,15 @@ public final class HoneyUtil {
 			jdbcTypeMap.put("numeric", "BigDecimal");
 			jdbcTypeMap.put("decimal", "BigDecimal");
 			
-			jdbcTypeMap.put("bit","String");
-			jdbcTypeMap.put("bit varying","String");
-			jdbcTypeMap.put("varbit","String");
-			jdbcTypeMap.put("character","String");
-			jdbcTypeMap.put("char","String");
-			jdbcTypeMap.put("character varying","String");
-			jdbcTypeMap.put("varchar","String");
-			jdbcTypeMap.put("text","String");
-			jdbcTypeMap.put("bpchar","String");//get from JDBC
+			jdbcTypeMap.put("bit",STRING);
+			jdbcTypeMap.put("bit varying",STRING);
+			jdbcTypeMap.put("varbit",STRING);
+			jdbcTypeMap.put("character",STRING);
+			jdbcTypeMap.put("char",STRING);
+			jdbcTypeMap.put("character varying",STRING);
+			jdbcTypeMap.put("varchar",STRING);
+			jdbcTypeMap.put("text",STRING);
+			jdbcTypeMap.put("bpchar",STRING);//get from JDBC
 
 			jdbcTypeMap.put("boolean","Boolean");
 			jdbcTypeMap.put("bool","Boolean");
@@ -836,7 +837,7 @@ public final class HoneyUtil {
 //			jdbcTypeMap.put("macaddr","
 //			jdbcTypeMap.put("macaddr8","
 
-			jdbcTypeMap.put("json","String");  //
+			jdbcTypeMap.put("json",STRING);  //
 //			jdbcTypeMap.put("jsonb","
 
 			jdbcTypeMap.put("bytea","byte[]");  //
@@ -868,10 +869,10 @@ public final class HoneyUtil {
 			jdbcTypeMap.put("FLOAT8", "Double");
 			jdbcTypeMap.put("FLOAT4 ", "Float");
 
-			jdbcTypeMap.put("CHARACTER", "String");
-			jdbcTypeMap.put("VARCHAR2", "String");
-			jdbcTypeMap.put("NVARCHAR2", "String");
-			jdbcTypeMap.put("VARCHAR_IGNORECASE", "String");
+			jdbcTypeMap.put("CHARACTER", STRING);
+			jdbcTypeMap.put("VARCHAR2", STRING);
+			jdbcTypeMap.put("NVARCHAR2", STRING);
+			jdbcTypeMap.put("VARCHAR_IGNORECASE", STRING);
 		} 
 		
 //		else if (DatabaseConst.H2.equalsIgnoreCase(dbName)) {  // can not use elseif again.
@@ -887,23 +888,23 @@ public final class HoneyUtil {
 			jdbcTypeMap.put("BINARY LARGE OBJECT","Blob");     //java.sql.Blob
 			jdbcTypeMap.put("CHARACTER LARGE OBJECT","Clob");  //java.sql.Clob
 			
-			jdbcTypeMap.put("CHARACTER VARYING","String"); 
-			jdbcTypeMap.put("VARCHAR_CASESENSITIVE","String"); 
-			jdbcTypeMap.put("VARCHAR_IGNORECASE","String"); 
+			jdbcTypeMap.put("CHARACTER VARYING",STRING); 
+			jdbcTypeMap.put("VARCHAR_CASESENSITIVE",STRING); 
+			jdbcTypeMap.put("VARCHAR_IGNORECASE",STRING); 
 			
 		}else if (DatabaseConst.SQLite.equalsIgnoreCase(dbName)) {
 			
-			jdbcTypeMap.put("VARYING CHARACTER", "String");
-			jdbcTypeMap.put("NATIVE CHARACTER", "String");
-			jdbcTypeMap.put("TEXT", "String");
+			jdbcTypeMap.put("VARYING CHARACTER", STRING);
+			jdbcTypeMap.put("NATIVE CHARACTER", STRING);
+			jdbcTypeMap.put("TEXT", STRING);
 			jdbcTypeMap.put("DOUBLE PRECISION", "Double");
 			
-			jdbcTypeMap.put("DATETIME", "String");
+			jdbcTypeMap.put("DATETIME", STRING);
 			jdbcTypeMap.put("INTEGER", "Long");  // INTEGER  PRIMARY key
 			
 			jdbcTypeMap.put("UNSIGNED BIG INT", "Long");
 			
-			jdbcTypeMap.put("VARYING", "String");
+			jdbcTypeMap.put("VARYING", STRING);
 		}
 
 	}
@@ -964,41 +965,24 @@ public final class HoneyUtil {
 		return javaTypeMap.get(javaType) == null ? -1 : javaTypeMap.get(javaType);
 	}
 
-	/*
+	/**
 	 * 首字母转换成大写
 	 */
 	public static String firstLetterToUpperCase(String str) {
 		return NameUtil.firstLetterToUpperCase(str);
 	}
 
-//	static boolean isContinueForMoreTable(int includeType, Object object, String fieldName) {
-//		return (((includeType == NullEmpty.EXCLUDE || includeType == NullEmpty.EMPTY_STRING) && object == null)
-//				|| ((includeType == NullEmpty.EXCLUDE || includeType == NullEmpty.NULL) && "".equals(object)) // "  "也要排除
-//		|| "serialVersionUID".equals(fieldName));
-//	}
-
 	static boolean isContinue(int includeType, Object object, Field field) {
-		//		v1.7.0 第三个参数由String fieldName改为Field field.
 		//		object字段上对应的值
 		if (field != null) {
-//			if (field.isAnnotationPresent(JoinTable.class)) return true; //v1.7.0  
-//			if (field.isSynthetic()) return true;
 			if(isSkipField(field)) return true;
-			
 			if(isSkipFieldJustFetch(field)) return true;  //V1.11  JustFetch不用于where
 		}
 
-//		String fieldName ="";
-//		if(field!=null) fieldName= field.getName();   //serialVersionUID放在isSkipField判断.
-		
 		//exclude:  NULL and "" and "  "
-		if(-3==includeType) { //v1.9
-			if(StringUtils.isBlank((String)object)) return true;
+		if(-3==includeType && StringUtils.isBlank((String)object)) { 
+			 return true;
 		}
-		
-//		return (((includeType == NullEmpty.EXCLUDE || includeType == NullEmpty.EMPTY_STRING) && object == null)
-//				|| ((includeType == NullEmpty.EXCLUDE || includeType == NullEmpty.NULL) && "".equals(object)) 
-//		|| "serialVersionUID".equals(fieldName));
 		
 //		includeType == NullEmpty.EMPTY_STRING && object == null  要包括空字符,但对象不是空字符,而是null,则跳过.
 		return (((includeType == NullEmpty.EXCLUDE || includeType == NullEmpty.EMPTY_STRING) && object == null)
@@ -1259,11 +1243,6 @@ public final class HoneyUtil {
 
 		return map;
 	}
-	
-//	public static String list2Value(List<PreparedValue> list){
-//		
-//		return list2Value(list,false);
-//	}
 	
 	//List<PreparedValue>  to valueBuffer
 	public static String list2Value(List<PreparedValue> list,boolean needType){
@@ -1588,7 +1567,7 @@ public final class HoneyUtil {
 	}
 	
 	@SuppressWarnings("rawtypes")
-	static <T> String getPkFieldNameByClass(Class c) {
+	static String getPkFieldNameByClass(Class c) {
 
 		if (c == null) return null;
 		String classFullName = c.getName();

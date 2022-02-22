@@ -19,6 +19,8 @@ import org.teasoft.honey.util.StringUtils;
  */
 public class SysValueProcessor {
 	
+	private SysValueProcessor() {}
+	
 	public static <T> void process(T obj) {
 		process(obj,BeeProp.getBeeProp());
 	}
@@ -35,9 +37,9 @@ public class SysValueProcessor {
 
 				value = sysValue.value();
 				if (value == null) {
-					
+					//do nothing
 				} else if ("".equals(value.trim())) {
-					
+					//do nothing
 				} else {
 					value = value.trim();
 					if (value.startsWith("${") && value.endsWith("}")) { //  ${bee.properties.key}
