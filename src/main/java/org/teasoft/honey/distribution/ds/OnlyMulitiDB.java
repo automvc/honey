@@ -64,7 +64,7 @@ public class OnlyMulitiDB implements Route {
 			for (int k = 0; k < str3.length; k++) {
 				if (isAdd2List && str3[k].trim().endsWith(".**")) 
 					entityClassPathToDsWithStar.add(str3[k].trim()); // .** 结尾同时存一份到list
-				if(str3[k].trim().indexOf(".")>0){
+				if(str3[k].trim().indexOf('.')>0){
 					map.put(str3[k].trim(), str2[0].trim());
 				}else{
 					map.put(str3[k].trim().toLowerCase(), str2[0].trim());  //表名不区分大小写

@@ -98,7 +98,7 @@ public class GenBean {
 		boolean clobFlag = true;
 		boolean arrayFlag = true;
 
-		StringBuffer tostr = new StringBuffer();
+		StringBuilder tostr = new StringBuilder();
 
 		if (config.isGenSerializable()) {
 			importStr += "import java.io.Serializable;" + LINE_SEPARATOR;
@@ -273,6 +273,7 @@ public class GenBean {
 			try {
 				if (con != null) con.close();
 			} catch (Exception e2) {
+				//ignore
 			}
 		}
 		Logger.info("Generate Success!");
@@ -281,7 +282,7 @@ public class GenBean {
 
 	// 获取所有表信息
 	private List<Table> getAllTables() {
-		List<Table> tables = new ArrayList<Table>();
+		List<Table> tables = new ArrayList<>();
 		//		Connection con = null;
 		//		PreparedStatement ps = null;
 		//		ResultSet rs = null;
@@ -368,7 +369,7 @@ public class GenBean {
 		DatabaseMetaData dbmd = con.getMetaData();
 
 		ResultSet rs = null;
-		Map<String, String> primaryKeyNames = new HashMap<String, String>();
+		Map<String, String> primaryKeyNames = new HashMap<>();
 
 		try {
 			rs = dbmd.getPrimaryKeys(null, null, table.getTableName());
@@ -485,6 +486,7 @@ public class GenBean {
 			try {
 				if (con != null) con.close();
 			} catch (Exception e2) {
+				//ignore
 			}
 		}
 		return table;

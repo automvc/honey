@@ -122,9 +122,10 @@ public class SystemLogger implements Log{
 	@Override
 	public void error(String msg, Throwable t) {
 		error(msg);
-        if (t != null) {
-            t.printStackTrace();  //SystemLogger print the error message to console.
-        }
+		//开发时可打开调试
+//        if (t != null) {
+//            t.printStackTrace();  //SystemLogger print the error message to console.
+//        }
 	}
 	
 	private void print(String level,String msg){

@@ -14,7 +14,7 @@ import org.teasoft.honey.osql.core.HoneyContext;
  * @author Kingstar
  * @since  1.8
  */
-public class Router {
+public final class Router {
 
 	private static Route route = null;
 
@@ -24,6 +24,8 @@ public class Router {
 	static {
 		init();
 	}
+	
+	private Router() {}
 	
 	private static void init(){
 		multiDsType = HoneyConfig.getHoneyConfig().multiDS_type;

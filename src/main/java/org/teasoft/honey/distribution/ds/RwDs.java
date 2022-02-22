@@ -119,9 +119,7 @@ public class RwDs implements Route{
 
 	private int rand() {
 		int size = readDsList.size();
-		int index = r.nextInt(size);
-
-		return index;
+		return r.nextInt(size);
 	}
 
 	public List<String> getReadDsList() {

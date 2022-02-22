@@ -17,6 +17,8 @@ import org.teasoft.honey.osql.util.NameCheckUtil;
 public class Aggregate {
 	private static String L_PARENTHESES = "(";
 	private static String R_PARENTHESES = ")";
+	
+	private Aggregate(){}
 
 	public static String selectWithFun( FunctionType functionType,String fieldForFun) {
 		checkField(fieldForFun);

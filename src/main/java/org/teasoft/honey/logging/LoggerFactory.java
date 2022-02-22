@@ -32,6 +32,8 @@ public class LoggerFactory {
 	
 	private static boolean isNoArgInConstructor;
 	
+	private LoggerFactory(){}
+	
 	static {
 		init();
 	}
@@ -212,8 +214,7 @@ public class LoggerFactory {
 	private static Log getCacheInfo(String key) {
 		Map<String, Log> map = logLocal.get();
 		if (null == map) return null;
-		Log temp=map.get(key);
-		return  temp;
+		return map.get(key);
 	}
 
 }

@@ -29,6 +29,8 @@ public class Java2DbType {
 		java2DbTypeMap.put(DatabaseConst.SQLSERVER.toLowerCase(), forSQLSERVER());
 		//...
 	}
+	
+	private Java2DbType(){}
 
 	public static Map<String, String> getJava2DbType(String databaseName) {
 		return java2DbTypeMap.get(databaseName.toLowerCase());

@@ -33,6 +33,8 @@ public class Ddl {
 	private static String LINE_SEPARATOR = System.getProperty("line.separator"); // 换行符
 	private static PreparedSql preparedSql = BeeFactoryHelper.getPreparedSql();
 
+	private Ddl(){}
+	
 	private static Map<String, String> getJava2DbType() {
 		return Java2DbType.getJava2DbType(HoneyContext.getDbDialect());
 	}
@@ -132,7 +134,7 @@ public class Ddl {
 	private static <T> String _toCreateTableSQL(T entity, String tableName) {
 
 		if (tableName == null) tableName = _toTableName(entity);
-		StringBuffer sqlBuffer = new StringBuffer();
+		StringBuilder sqlBuffer = new StringBuilder();
 		sqlBuffer.append(CREATE_TABLE + tableName + " (").append(LINE_SEPARATOR);
 		Field fields[] = entity.getClass().getDeclaredFields();
 		for (int i = 0; i < fields.length; i++) {
@@ -158,7 +160,7 @@ public class Ddl {
 	//SQLite
 	private static <T> String toCreateTableSQLForSQLite(T entity, String tableName) {
 		if (tableName == null) tableName = _toTableName(entity);
-		StringBuffer sqlBuffer = new StringBuffer();
+		StringBuilder sqlBuffer = new StringBuilder();
 		sqlBuffer.append(CREATE_TABLE + tableName + " (").append(LINE_SEPARATOR);
 		Field fields[] = entity.getClass().getDeclaredFields();
 		for (int i = 0; i < fields.length; i++) {
@@ -195,7 +197,7 @@ public class Ddl {
 	//MySQL
 	private static <T> String toCreateTableSQLForMySQL(T entity, String tableName) {
 		if (tableName == null) tableName = _toTableName(entity);
-		StringBuffer sqlBuffer = new StringBuffer();
+		StringBuilder sqlBuffer = new StringBuilder();
 		sqlBuffer.append(CREATE_TABLE + tableName + " (").append(LINE_SEPARATOR);
 		Field fields[] = entity.getClass().getDeclaredFields();
 		for (int i = 0; i < fields.length; i++) {
@@ -232,7 +234,7 @@ public class Ddl {
 	//H2
 	private static <T> String toCreateTableSQLForH2(T entity, String tableName) {
 		if (tableName == null) tableName = _toTableName(entity);
-		StringBuffer sqlBuffer = new StringBuffer();
+		StringBuilder sqlBuffer = new StringBuilder();
 		sqlBuffer.append(CREATE_TABLE + tableName + " (").append(LINE_SEPARATOR);
 		Field fields[] = entity.getClass().getDeclaredFields();
 		for (int i = 0; i < fields.length; i++) {
@@ -270,7 +272,7 @@ public class Ddl {
 	//PostgreSQL
 	private static <T> String toCreateTableSQLForPostgreSQL(T entity, String tableName) {
 		if (tableName == null) tableName = _toTableName(entity);
-		StringBuffer sqlBuffer = new StringBuffer();
+		StringBuilder sqlBuffer = new StringBuilder();
 		sqlBuffer.append(CREATE_TABLE + tableName + " (").append(LINE_SEPARATOR);
 		Field fields[] = entity.getClass().getDeclaredFields();
 		for (int i = 0; i < fields.length; i++) {
@@ -308,7 +310,7 @@ public class Ddl {
 	//SQLSERVER
 	private static <T> String toCreateTableSQLForSQLSERVER(T entity, String tableName) {
 		if (tableName == null) tableName = _toTableName(entity);
-		StringBuffer sqlBuffer = new StringBuffer();
+		StringBuilder sqlBuffer = new StringBuilder();
 		sqlBuffer.append(CREATE_TABLE + tableName + " (").append(LINE_SEPARATOR);
 		Field fields[] = entity.getClass().getDeclaredFields();
 		boolean hasCurrentTime = false;

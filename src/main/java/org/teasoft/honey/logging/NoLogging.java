@@ -44,10 +44,12 @@ public class NoLogging implements Log {
 
     @Override
     public void debug(String msg) {
+    	//no need
     }
 
     @Override
     public void debug(String msg, Throwable e) {
+    	//no need
     }
 
     @Override
@@ -72,6 +74,7 @@ public class NoLogging implements Log {
 
 	@Override
 	public void trace(String msg) {
+    	//no need
 	}
 
 	@Override
@@ -81,6 +84,7 @@ public class NoLogging implements Log {
 
 	@Override
 	public void info(String msg) {
+    	//no need
 	}
 
 	@Override

@@ -18,6 +18,8 @@ import org.teasoft.honey.osql.core.HoneyUtil;
  * @since  1.9.8
  */
 public class ColumnUtil {
+	
+	private ColumnUtil() {}
 
 	public static List<ColumnBean> getColumnList(String tableName) {
 		GenBean bean = new GenBean(null);
@@ -40,7 +42,6 @@ public class ColumnUtil {
 			String columnType = columnTypes.get(i);
 			boolean ynNull = ynNulls.get(i) == null ? true : ynNulls.get(i);
 			String comment = commentMap.get(columnName);
-//			if (StringUtils.isBlank(comment)) comment = columnName;
 
 			columnBean = new ColumnBean();
 			columnBean.setName(columnName);

@@ -21,8 +21,6 @@ public class UnionSelectImpl implements UnionSelect {
 	
 	private StringBuffer sql = new StringBuffer();
 
-	public UnionSelectImpl(){
-	}
 	private UnionSelect useUnionSelect(String keyword, String subSelect1, String subSelect2) {
 
 		sql.append(L_PARENTHESES);
