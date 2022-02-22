@@ -61,4 +61,8 @@ public class ObjectUtils {
 		return f==true;
 	}
 
+	public static String string(Object obj) {
+		return obj==null? null:obj.toString();
+	}
+	
 }
