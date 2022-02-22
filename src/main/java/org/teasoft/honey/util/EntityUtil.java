@@ -16,7 +16,9 @@ import org.teasoft.honey.osql.core.NameTranslateHandle;
  * @author Kingstar
  * @since  1.11
  */
-public class EntityUtil {
+public final class EntityUtil {
+	
+	private EntityUtil() {}
 
 	/**
 	 * 获取实体的字段名称,不作命名转换

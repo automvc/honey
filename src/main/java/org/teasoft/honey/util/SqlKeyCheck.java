@@ -18,7 +18,6 @@ import org.teasoft.bee.osql.LowerKey;
 public class SqlKeyCheck {
 
 	private static final String VALUE = "1";
-	//	private static Map<String,String> keyMap=new HashMap<>();
 	private static Map<String, String> keyMap = new TreeMap<>();
 	private static final String keyStr = "table,column,key," 
 	        + "Explain,comment,"
@@ -30,6 +29,8 @@ public class SqlKeyCheck {
 		String fs = EntityUtil.getFieldNames(new LowerKey());
 		initKeyMap2(fs);
 	}
+	
+	private SqlKeyCheck() {}
 
 	private static void initKeyMap(String keyStr) {
 		String keys[] = keyStr.split(",");

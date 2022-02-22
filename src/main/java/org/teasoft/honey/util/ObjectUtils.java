@@ -16,6 +16,8 @@ import java.util.Set;
  */
 public class ObjectUtils {
 	
+	private ObjectUtils() {}
+	
 	public static boolean isEmpty(final List list) {
 		return list == null || list.size() == 0;
 	}

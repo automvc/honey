@@ -12,6 +12,7 @@ import java.io.InputStreamReader;
 import java.util.Map;
 
 import org.teasoft.honey.osql.core.ExceptionHelper;
+import org.teasoft.honey.osql.core.Logger;
 
 /**
  * InputStream流转字符串的工具
@@ -20,6 +21,10 @@ import org.teasoft.honey.osql.core.ExceptionHelper;
  */
 public class StreamUtil {
 
+	private static final String UTF_8 = "UTF-8";
+	
+	private StreamUtil() {}
+
 	/**
 	 * InputStream转字符串. InputStream to String.
 	 * @param in  InputStream对象.instance of InputStream.
@@ -27,7 +32,7 @@ public class StreamUtil {
 	 * @return 字符串.string
 	 */
 	public static String stream2String(InputStream in) {
-		return stream2String(in, "UTF-8");
+		return stream2String(in, UTF_8);
 	}
 
 	/**
@@ -37,11 +42,11 @@ public class StreamUtil {
 	 * @return 字符串.string
 	 */
 	public static String stream2String(InputStream in, String charsetName) {
-		return stream2String(in, null, "UTF-8");
+		return stream2String(in, null, UTF_8);
 	}
 	
 	public static String stream2String(InputStream in, Map<String, String> map) {
-		return stream2String(in, map, "UTF-8");
+		return stream2String(in, map, UTF_8);
 	}
 	
 	/**
@@ -54,11 +59,10 @@ public class StreamUtil {
 	public static String stream2String(InputStream in, Map<String, String> map, String charsetName) {
 
 		if (in == null) return null;
-		BufferedReader bfReader = null;
 		StringBuffer sb = new StringBuffer();
-		try {
-			bfReader = new BufferedReader(new InputStreamReader(in, charsetName));
-
+		try (
+			BufferedReader bfReader = new BufferedReader(new InputStreamReader(in, charsetName));
+		  ){
 			String line = bfReader.readLine();
 			while (line != null) {
 				if (map != null) line = replace(line, map);
@@ -70,13 +74,8 @@ public class StreamUtil {
 			}
 		} catch (Exception e) {
 			throw ExceptionHelper.convert(e);
-		} finally {
-			try {
-				if (bfReader != null) bfReader.close();
-			} catch (Exception e2) {
-
-			}
 		}
+
 		return sb.toString();
 	}
 	

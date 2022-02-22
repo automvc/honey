@@ -10,7 +10,9 @@ package org.teasoft.honey.util;
  * @author Kingstar
  * @since  1.9
  */
-public class StringUtils {
+public final class StringUtils {
+	
+	private StringUtils() {}
 
 	public static boolean isBlank(final String str) {
 		return str == null || "".equals(str.trim());

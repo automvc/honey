@@ -21,7 +21,9 @@ import org.teasoft.honey.osql.core.Logger;
  * @author Kingstar
  * @since  1.9
  */
-public class SuidHelper {
+public final class SuidHelper {
+	
+	private SuidHelper() {}
 
 	/**
 	 * 将List<String[]>里第一列字符串转成逗号分隔的字符串.
@@ -101,7 +103,7 @@ public class SuidHelper {
 
 		if (ObjectUtils.isEmpty(list)) return Collections.emptyList();
 
-		rsList = new ArrayList<T>();
+		rsList = new ArrayList<>();
 		if (startRow < 0) startRow = 0;
 
 		if (endRow > list.size()-1) endRow = list.size() - 1;
@@ -155,7 +157,6 @@ public class SuidHelper {
 		int len = fields.length;
 
 		for (int i = 0; i < len; i++) {
-			
 //			println(fields[i].getModifiers());
 //			println(fields[i].toGenericString());
 			int modifiers=fields[i].getModifiers();

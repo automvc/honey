@@ -11,6 +11,8 @@ package org.teasoft.honey.util;
  * @since  1.9
  */
 public class ObjectCreator {
+	
+	private ObjectCreator() {}
 
 	public static Long createLong(String s) {
 		if (StringUtils.isBlank(s)) return null;

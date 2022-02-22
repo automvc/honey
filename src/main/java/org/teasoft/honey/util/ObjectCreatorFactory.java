@@ -12,6 +12,8 @@ package org.teasoft.honey.util;
  */
 public class ObjectCreatorFactory {
 	
+	private ObjectCreatorFactory() {}
+	
 	@SuppressWarnings("rawtypes")
 	public static Object create(String s, Class c) {
 
@@ -36,7 +38,6 @@ public class ObjectCreatorFactory {
 			return ObjectCreator.createBoolean(s);
 		} else {
 			return null;
-//			throw new Exception("Not support the type: " + c.getName());
 		}
 	}
 }
