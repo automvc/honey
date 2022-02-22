@@ -17,6 +17,10 @@ import org.teasoft.bee.osql.interccept.Interceptor;
  */
 public class EmptyInterceptor implements Interceptor {
 
+	protected String ds;
+	protected String tabName;
+	protected String tabSuffix;
+
 	protected boolean isSkip(Object entity) {
 		if (entity == null) return true; //自定义sql会用到
 
@@ -41,39 +45,49 @@ public class EmptyInterceptor implements Interceptor {
 	}
 
 	@Override
-	public void setDataSourceOneTime(String ds) {}
-
-	@Override
-	public String getOneTimeDataSource() {
-		return null;
-	}
-
-	@Override
 	public String afterCompleteSql(String sql) {
 		return sql;
 	}
 
 	@Override
 	@SuppressWarnings("rawtypes")
-	public void beforeReturn(List list) {}
+	public void beforeReturn(List list) {
+
+	}
 
 	@Override
-	public void beforeReturn() {}
+	public void beforeReturn() {
+
+	}
 
 	@Override
-	public void setTabNameOneTime(String tabName) {}
+	public void setDataSourceOneTime(String ds) {
+		this.ds = ds;
+	}
 
 	@Override
-	public void setTabSuffixOneTime(String tabSuffix) {}
+	public String getOneTimeDataSource() {
+		return ds;
+	}
+
+	@Override
+	public void setTabNameOneTime(String tabName) {
+		this.tabName = tabName;
+	}
+
+	@Override
+	public void setTabSuffixOneTime(String tabSuffix) {
+		this.tabSuffix = tabSuffix;
+	}
 
 	@Override
 	public String getOneTimeTabName() {
-		return null;
+		return tabName;
 	}
 
 	@Override
 	public String getOneTimeTabSuffix() {
-		return null;
+		return tabSuffix;
 	}
 
 }
