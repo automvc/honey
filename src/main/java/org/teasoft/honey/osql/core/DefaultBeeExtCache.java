@@ -125,7 +125,7 @@ public class DefaultBeeExtCache implements BeeExtCache {
 		if (set != null) {
 			set.add(sqlKey);
 		} else {
-			set = new LinkedHashSet<String>();
+			set = new LinkedHashSet<>();
 			set.add(sqlKey);
 			map_tableSqlKey.put(tableName, set);
 		}
@@ -190,8 +190,12 @@ public class DefaultBeeExtCache implements BeeExtCache {
 	}
 
 	@Override
-	public void addInExtCache(String key, Object result) {}
+	public void addInExtCache(String key, Object result) {
+		//do nothing
+	}
 
 	@Override
-	public void clearInExtCache(String key) {}
+	public void clearInExtCache(String key) {
+		//do nothing
+	}
 }

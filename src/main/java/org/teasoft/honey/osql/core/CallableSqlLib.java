@@ -19,6 +19,8 @@ import org.teasoft.bee.osql.CallableSql;
  */
 public class CallableSqlLib implements CallableSql {
 
+	private static final String VALUES = "  values: ";
+	private static final String CALLABLE_SQL = "Callable SQL: ";
 	private static final ThreadLocal<Map<String, Connection>> connLocal = new ThreadLocal<>();
 
 	@Override
@@ -32,14 +34,15 @@ public class CallableSqlLib implements CallableSql {
 		try {
 			conn = getConn();
 //          callSql = "{call batchOrder(?,?,?)}"; 
-			callSql = "{call " + callSql + "}"; // callSql like : batchOrder(?,?,?)
+//			callSql = "{call " + callSql + "}"; // callSql like : batchOrder(?,?,?)
+			callSql=getCallSql(callSql);
 			cstmt = conn.prepareCall(callSql);
 
 			StringBuffer values = initPreparedValues(cstmt, preValues);
-			Logger.logSQL("Callable SQL: ", callSql + "  values: " + values);
+			Logger.logSQL(CALLABLE_SQL, callSql + VALUES + values);
 			rs = cstmt.executeQuery();
 
-			rsList = new ArrayList<T>();
+			rsList = new ArrayList<>();
 
 			Field field[] = entity.getClass().getDeclaredFields();
 			int columnCount = field.length;
@@ -86,12 +89,11 @@ public class CallableSqlLib implements CallableSql {
 		CallableStatement cstmt =null;
 		try {
 			conn = getConn();
-//          callSql = "{call batchOrder(?,?,?)}"; 
-			callSql = "{call " + callSql + "}"; // callSql like : batchOrder(?,?,?)
+			callSql=getCallSql(callSql);
 			cstmt = conn.prepareCall(callSql);
 
 			StringBuffer values = initPreparedValues(cstmt, preValues);
-			Logger.logSQL("Callable SQL: ", callSql + "  values: " + values);
+			Logger.logSQL(CALLABLE_SQL, callSql + VALUES + values);
 			result = cstmt.executeUpdate();
 			
 		} catch (SQLException e) {
@@ -110,8 +112,7 @@ public class CallableSqlLib implements CallableSql {
 		CallableStatement cstmt = null;
 		try {
 			conn = getConn();
-			//      callSql = "{call batchOrder(?,?,?)}"; 
-			callSql = "{call " + callSql + "}"; // callSql like : batchOrder(?,?,?)
+			callSql=getCallSql(callSql);
 			cstmt = conn.prepareCall(callSql);
 			Logger.logSQL("Callable SQL,getCallableStatement: ",callSql);
 			String key=getIdString(cstmt);
@@ -151,12 +152,11 @@ public class CallableSqlLib implements CallableSql {
 
 		try {
 			conn = getConn();
-//          callSql = "{call batchOrder(?,?,?)}"; 
-			callSql = "{call " + callSql + "}"; // callSql like : batchOrder(?,?,?)
+			callSql=getCallSql(callSql);
 			cstmt = conn.prepareCall(callSql);
 
 			StringBuffer values = initPreparedValues(cstmt, preValues);
-			Logger.logSQL("Callable SQL: ", callSql + "  values: " + values);
+			Logger.logSQL(CALLABLE_SQL, callSql + VALUES + values);
 			rs = cstmt.executeQuery();
 
 			list=TransformResultSet.toStringsList(rs);
@@ -181,12 +181,11 @@ public class CallableSqlLib implements CallableSql {
 
 		try {
 			conn = getConn();
-//          callSql = "{call batchOrder(?,?,?)}"; 
-			callSql = "{call " + callSql + "}"; // callSql like : batchOrder(?,?,?)
+			callSql=getCallSql(callSql);
 			cstmt = conn.prepareCall(callSql);
 
 			StringBuffer values = initPreparedValues(cstmt, preValues);
-			Logger.logSQL("Callable SQL: ", callSql + "  values: " + values);
+			Logger.logSQL(CALLABLE_SQL, callSql + VALUES + values);
 			rs = cstmt.executeQuery();
 
 			json = TransformResultSet.toJson(rs);
@@ -198,6 +197,10 @@ public class CallableSqlLib implements CallableSql {
 		}
 
 		return json.toString();
+	}
+	
+	private String getCallSql(String callSql) {
+		return "{call " + callSql + "}";
 	}
 
 	private void setConnLocal(String key, Connection conn) {

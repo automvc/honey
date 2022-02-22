@@ -20,8 +20,6 @@ public class CacheSuidStruct {
 	
 //	private Class entityClass; //for route
 	
-	public CacheSuidStruct(){}
-	
 	public String getSql() {
 		return sql;
 	}

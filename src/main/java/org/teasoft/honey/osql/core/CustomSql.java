@@ -16,6 +16,8 @@ public class CustomSql {
 	static {
 		customSqlProp = new PropertiesReader("/bee.sql.properties");
 	}
+	
+	private CustomSql() {}
 
 	public static String getCustomSql(String sqlId) {
 

@@ -32,8 +32,6 @@ public class CacheArrayIndex {
 		fullClearCacheSize=(int) (HoneyConfig.getHoneyConfig().cache_fullClearRate *size);
 	}
 	
-	public CacheArrayIndex(){}
-	
 	public synchronized int getLow() {
 		return low;
 	}

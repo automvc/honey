@@ -21,6 +21,8 @@ public final class CacheKey {
 	private static final String SEPARATOR=" (@separator#) ";
 	private static boolean cacheKeyUseMD5=HoneyConfig.getHoneyConfig().cache_keyUseMD5;
 	
+	private CacheKey(){}
+	
 	public static String genKey(String key) {
 		String str = fullSql(key);
 		if (cacheKeyUseMD5) {//v1.8.99

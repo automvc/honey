@@ -35,6 +35,11 @@ public class ConditionHelper {
 	
 	private static final String setWithField="setWithField";
 	
+	private static final String GROUP_BY = "groupBy";
+	private static final String HAVING = "having";
+	
+	private ConditionHelper(){}
+	
 	private static DbFeature getDbFeature() {
 		return BeeFactory.getHoneyFactory().getDbFeature();
 	}
@@ -173,7 +178,7 @@ public class ConditionHelper {
 			expression = expList.get(j);
 			String opType = expression.getOpType();
 			
-			if ( "groupBy".equalsIgnoreCase(opType) || "having".equalsIgnoreCase(opType) ) {
+			if ( GROUP_BY.equalsIgnoreCase(opType) || HAVING.equalsIgnoreCase(opType) ) {
 				if (SuidType.SELECT != conditionImpl.getSuidType()) {
 					throw new BeeErrorGrammarException(conditionImpl.getSuidType() + " do not support the opType: "+opType+"!");
 				} 
@@ -181,7 +186,7 @@ public class ConditionHelper {
 			//mysql's delete,update can use order by.
 
 			if (firstWhere) {
-				if ( "groupBy".equalsIgnoreCase(opType) || "having".equalsIgnoreCase(opType) || "orderBy".equalsIgnoreCase(opType)) {
+				if ( GROUP_BY.equalsIgnoreCase(opType) || HAVING.equalsIgnoreCase(opType) || "orderBy".equalsIgnoreCase(opType)) {
 					firstWhere = false;
 				} else {
 //					sqlBuffer.append(" where ");
@@ -277,7 +282,7 @@ public class ConditionHelper {
 				isNeedAnd = true;
 				continue;
 
-			} else if ("groupBy".equalsIgnoreCase(opType)) {
+			} else if (GROUP_BY.equalsIgnoreCase(opType)) {
 				if (SuidType.SELECT != conditionImpl.getSuidType()) {
 					throw new BeeErrorGrammarException("BeeErrorGrammarException: "+conditionImpl.getSuidType() + " do not support 'group by' !");
 				}
@@ -286,7 +291,7 @@ public class ConditionHelper {
 				sqlBuffer.append(_toColumnName(expression.getFieldName(),useSubTableNames));
 
 				continue;
-			} else if ("having".equalsIgnoreCase(opType)) {
+			} else if (HAVING.equalsIgnoreCase(opType)) {
 				if (SuidType.SELECT != conditionImpl.getSuidType()) {
 					throw new BeeErrorGrammarException(conditionImpl.getSuidType() + " do not support 'having' !");
 				}
@@ -452,11 +457,11 @@ public class ConditionHelper {
 		return isFirstWhere;
 	}
 	
-	static <T> String processSelectField(String columnNames, Condition condition) {
+	static String processSelectField(String columnNames, Condition condition) {
 		return processSelectField(columnNames, condition, null);
 	}
 	
-	static <T> String processSelectField(String columnNames, Condition condition,Map<String,String> subDulFieldMap) {
+	static String processSelectField(String columnNames, Condition condition,Map<String,String> subDulFieldMap) {
 		
 		if(condition==null) return null;
 
@@ -592,7 +597,7 @@ public class ConditionHelper {
 		String t_tableName="";
 		String t_tableName_dot;
 		String find_tableName="";
-		int index=fieldName.indexOf(".");
+		int index=fieldName.indexOf('.');
 		if(index>-1){
 			t_fieldName=fieldName.substring(index+1);
 			t_tableName=fieldName.substring(0,index);

@@ -11,6 +11,8 @@ package org.teasoft.honey.osql.core;
  * @since  1.9
  */
 public class Check {
+	
+	private Check(){}
 
 	public static boolean isNotValidExpression(String expression) {
 		if (expression == null || expression.contains("--") || expression.contains("#")

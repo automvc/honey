@@ -28,6 +28,8 @@ public class FunAndOrderTypeMap {
 	
 	private static Map<String,String> typeMap=new HashMap<>();
 	
+	private FunAndOrderTypeMap() {}
+	
 	static {
 		if (HoneyUtil.isSqlKeyWordUpper()) {
 			max = "MAX";

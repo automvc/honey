@@ -326,7 +326,7 @@ final class _ObjectToSQLHelper {
 			try {
 				field = entity.getClass().getDeclaredField(pkName);
 			} catch (NoSuchFieldException e) {
-
+                  //ignore
 			}
 		}
 		

@@ -18,6 +18,8 @@ import org.teasoft.bee.osql.exception.BeeInstantiationException;
  * @since  1.4
  */
 public class ExceptionHelper {
+	
+	private ExceptionHelper() {}
 
 	public static BeeSQLException convert(SQLException e) {
 		return new BeeSQLException(e.getMessage(),e.getSQLState(), e.getErrorCode(), e);

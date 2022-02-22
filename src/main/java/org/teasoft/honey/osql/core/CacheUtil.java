@@ -326,7 +326,7 @@ public final class CacheUtil {
 		if(set!=null){
 			set.add(index);
 		}else{
-			set=new LinkedHashSet<Integer>();
+			set=new LinkedHashSet<>();
 			set.add(index);
 			map_tableIndexSet.put(tableName, set); 
 		}
@@ -337,7 +337,7 @@ public final class CacheUtil {
 		if(set!=null){
 			set.add(sqlKey);
 		}else{
-			set=new HashSet<String>();
+			set=new HashSet<>();
 			set.add(sqlKey);
 			map_foreverSynTableIndexSet.put(adjust(tableName), set);  //forever table对应查询的Set,Set放的是sqlKey  
 		}

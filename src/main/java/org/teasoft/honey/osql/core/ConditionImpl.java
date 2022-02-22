@@ -45,7 +45,8 @@ public class ConditionImpl implements Condition {
 	private boolean isStartHaving = true;
 	private boolean isStartOrderBy = true;
 
-	private static String COMMA = ",";
+	private static final String COMMA = ",";
+	private static final String ORDER_BY = "orderBy";
 
 	private Integer start;
 	private Integer size;
@@ -225,7 +226,7 @@ public class ConditionImpl implements Condition {
 	public Condition orderBy(String field) {
 		checkField(field);
 		Expression exp = new Expression();
-		exp.opType = "orderBy";
+		exp.opType = ORDER_BY;
 		//		exp.value
 		exp.fieldName = field;
 		exp.opNum = 2;
@@ -245,7 +246,7 @@ public class ConditionImpl implements Condition {
 	public Condition orderBy(String field, OrderType orderType) {
 		checkField(field);
 		Expression exp = new Expression();
-		exp.opType = "orderBy";
+		exp.opType = ORDER_BY;
 		//		exp.value
 		exp.fieldName = field;
 		exp.value2 = orderType.getName();
@@ -266,7 +267,7 @@ public class ConditionImpl implements Condition {
 	public Condition orderBy(FunctionType functionType, String field, OrderType orderType) {
 		checkField(field);
 		Expression exp = new Expression();
-		exp.opType = "orderBy";
+		exp.opType = ORDER_BY;
 		//		exp.value
 		exp.fieldName = field;
 		exp.value2 = orderType.getName();

@@ -30,6 +30,8 @@ public class _MoreObjectToSQLHelper {
 	private static final String ONE_SPACE = " ";
 	private static final String DOT=".";
 	
+	private _MoreObjectToSQLHelper(){}
+	
 	private static DbFeature getDbFeature() {
 		return BeeFactory.getHoneyFactory().getDbFeature();
 	}
@@ -103,9 +105,9 @@ public class _MoreObjectToSQLHelper {
 					
 //				从表有一条记录 已包含在condition!=null里,也是不会转换的
 				if(start==-1 && size==-1 && condition==null) {
-					
+					//do nothing
 				}else if(start==-1 && size==-1 && pageSize==null) {
-					
+					//do nothing
 //				}else if(start!=-1 && size!=-1 && condition==null){ 从表有值, 有可能不正确,所以不改写.	
 				}else if(start!=-1 && size!=-1 && condition==null && moreTableStruct[1].subObject==null){ 
 					

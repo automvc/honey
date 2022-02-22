@@ -21,7 +21,6 @@ import org.teasoft.bee.osql.SuidRich;
  */
 public class BeeFactoryHelper {
 	
-	
 	public static Suid getSuid() {
 		return BeeFactory.getHoneyFactory().getSuid();
 	}
