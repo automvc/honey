@@ -22,10 +22,14 @@ import org.teasoft.honey.osql.util.AnnoUtil;
 public class DefaultInterceptor implements Interceptor{
 
 	private String ds;
+	private String tabName;
+	private String tabSuffix;
 	
 	@Override
 	public Object beforePasreEntity(Object entity,SuidType suidType) {
 //		System.out.println("---1:--beforePasreEntity---------------------------");
+		
+//		if(entity==null) return entity;  //自定义sql,MapSuid会用到.  放在chain
 		
 		if(entity.getClass().equals(Class.class)) {
 //			System.out.println("是Class类型,默认不处理."); //deleteById
@@ -39,7 +43,6 @@ public class DefaultInterceptor implements Interceptor{
 		int len = fields.length;
 		boolean isHas=false;
 		for (int i = 0; i < len; i++) {
-			fields[i].setAccessible(true);
 			if (AnnoUtil.isDatetime(fields[i])) {
 				if(f==null && !isHas) isHas=true;
 				DatetimeHandler.process(fields[i], entity,suidType);
@@ -78,6 +81,26 @@ public class DefaultInterceptor implements Interceptor{
 	@Override
 	public String getOneTimeDataSource() {
 		return ds;
+	}
+
+	@Override
+	public void setTabNameOneTime(String tabName) {
+		this.tabName=tabName;
+	}
+
+	@Override
+	public void setTabSuffixOneTime(String tabSuffix) {
+		this.tabSuffix=tabSuffix;
+	}
+
+	@Override
+	public String getOneTimeTabName() {
+		return tabName;
+	}
+
+	@Override
+	public String getOneTimeTabSuffix() {
+		return tabSuffix;
 	}
 
 	@Override
