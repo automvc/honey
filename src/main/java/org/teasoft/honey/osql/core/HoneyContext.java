@@ -225,7 +225,7 @@ public final class HoneyContext {
 		return beanCustomPKey.get(key);
 	}
 
-	static void addCustomMap(String key, Map<String, String> mapValue) {
+	public static void addCustomMap(String key, Map<String, String> mapValue) {
 		customMap.put(key, mapValue);
 	}
 
