@@ -382,7 +382,7 @@ public class Ddl {
 	
 	private static boolean isPrimaryKey(Field field) {
 		if ("id".equalsIgnoreCase(field.getName())) return true;
-		if (field.isAnnotationPresent(PrimaryKey.class)) return true;
+		if (field.isAnnotationPresent(PrimaryKey.class)) return true;//V1.11
 		return false;
 	}
 
