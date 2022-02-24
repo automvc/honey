@@ -142,7 +142,7 @@ public class Ddl {
 				if (i == fields.length - 1) sqlBuffer.delete(sqlBuffer.length() - 5, sqlBuffer.length() - 2);
 				continue;
 			}
-			sqlBuffer.append(_toColumnName(fields[i].getName())).append("  ");
+			sqlBuffer.append(_toColumnName(fields[i].getName(),entity.getClass())).append("  ");
 			sqlBuffer.append(getJava2DbType().get(fields[i].getType().getName()));
 			if (isPrimaryKey(fields[i])) sqlBuffer.append(" PRIMARY KEY");
 			if (i != fields.length - 1)
@@ -168,7 +168,7 @@ public class Ddl {
 				if (i == fields.length - 1) sqlBuffer.delete(sqlBuffer.length() - 5, sqlBuffer.length() - 2);
 				continue;
 			}
-			sqlBuffer.append(_toColumnName(fields[i].getName())).append("  ");
+			sqlBuffer.append(_toColumnName(fields[i].getName(),entity.getClass())).append("  ");
 
 			if (isPrimaryKey(fields[i]))
 				sqlBuffer.append(" INTEGER PRIMARY KEY NOT NULL");
@@ -205,7 +205,7 @@ public class Ddl {
 				if (i == fields.length - 1) sqlBuffer.delete(sqlBuffer.length() - 5, sqlBuffer.length() - 2);
 				continue;
 			}
-			sqlBuffer.append(_toColumnName(fields[i].getName())).append("  ");
+			sqlBuffer.append(_toColumnName(fields[i].getName(),entity.getClass())).append("  ");
 
 			if (isPrimaryKey(fields[i]))
 				sqlBuffer.append("bigint(20) PRIMARY KEY NOT NULL AUTO_INCREMENT");
@@ -242,7 +242,7 @@ public class Ddl {
 				if (i == fields.length - 1) sqlBuffer.delete(sqlBuffer.length() - 5, sqlBuffer.length() - 2);
 				continue;
 			}
-			sqlBuffer.append(_toColumnName(fields[i].getName())).append("  ");
+			sqlBuffer.append(_toColumnName(fields[i].getName(),entity.getClass())).append("  ");
 
 			if (isPrimaryKey(fields[i]))
 				sqlBuffer.append("bigint PRIMARY KEY NOT NULL");
@@ -280,7 +280,7 @@ public class Ddl {
 				if (i == fields.length - 1) sqlBuffer.delete(sqlBuffer.length() - 5, sqlBuffer.length() - 2);
 				continue;
 			}
-			sqlBuffer.append(_toColumnName(fields[i].getName())).append("  ");
+			sqlBuffer.append(_toColumnName(fields[i].getName(),entity.getClass())).append("  ");
 
 			if (isPrimaryKey(fields[i]))
 				sqlBuffer.append("bigserial NOT NULL");
@@ -319,7 +319,7 @@ public class Ddl {
 				if (i == fields.length - 1) sqlBuffer.delete(sqlBuffer.length() - 5, sqlBuffer.length() - 2);
 				continue;
 			}
-			sqlBuffer.append(_toColumnName(fields[i].getName())).append("  ");
+			sqlBuffer.append(_toColumnName(fields[i].getName(),entity.getClass())).append("  ");
 
 			if (isPrimaryKey(fields[i]))
 				sqlBuffer.append("bigint PRIMARY KEY NOT NULL");
@@ -362,8 +362,9 @@ public class Ddl {
 		return NameTranslateHandle.toTableName(NameUtil.getClassFullName(entity));
 	}
 
-	private static String _toColumnName(String fieldName) {
-		String name= NameTranslateHandle.toColumnName(fieldName);
+	@SuppressWarnings("rawtypes")
+	private static String _toColumnName(String fieldName,Class entityClass) {
+		String name= NameTranslateHandle.toColumnName(fieldName,entityClass);
 		if(SqlKeyCheck.isKeyWord(name)) {
 			Logger.warn("The '"+name+"' is Sql Keyword. Do not recommend!");
 		}

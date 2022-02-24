@@ -23,7 +23,8 @@ public class TransformResultSet {
 	
 	private TransformResultSet() {}
 
-	public static StringBuffer toJson(ResultSet rs) throws SQLException {
+	@SuppressWarnings("rawtypes")
+	public static StringBuffer toJson(ResultSet rs,Class entityClass) throws SQLException {
 		StringBuffer json = new StringBuffer("");
 		ResultSetMetaData rmeta = rs.getMetaData();
 		int columnCount = rmeta.getColumnCount();
@@ -43,7 +44,7 @@ public class TransformResultSet {
 				}
 				json.append("\"");
 //				json.append(rmeta.getColumnName(i));
-				json.append(_toFieldName(rmeta.getColumnName(i)));
+				json.append(_toFieldName(rmeta.getColumnName(i),entityClass));
 				json.append("\":");
 
 				if (rs.getString(i) != null) {
@@ -125,8 +126,9 @@ public class TransformResultSet {
 		return json;
 	}
 	
-	private static String _toFieldName(String columnName) {
-		return NameTranslateHandle.toFieldName(columnName);
+	@SuppressWarnings("rawtypes")
+	private static String _toFieldName(String columnName,Class entityClass) {
+		return NameTranslateHandle.toFieldName(columnName,entityClass);
 	}
 
 	public static List<String[]> toStringsList(ResultSet rs) throws SQLException {
@@ -159,7 +161,7 @@ public class TransformResultSet {
 //			rowMap=new HashMap<>();
 			rowMap=new LinkedHashMap<>(); //2021-06-13
 			for (int i = 1; i <= columnCount; i++) {
-				rowMap.put(_toFieldName(rmeta.getColumnName(i)), rs.getObject(i));
+				rowMap.put(_toFieldName(rmeta.getColumnName(i),null), rs.getObject(i)); //ignore Column
 			}
 			list.add(rowMap);
 		}

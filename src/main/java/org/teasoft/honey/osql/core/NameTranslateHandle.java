@@ -13,6 +13,9 @@ import java.util.concurrent.ConcurrentMap;
 import org.teasoft.bee.osql.NameTranslate;
 import org.teasoft.bee.osql.annotation.Entity;
 import org.teasoft.bee.osql.annotation.Table;
+import org.teasoft.bee.osql.annotation.customizable.ColumnHandler;
+import org.teasoft.bee.osql.exception.BeeIllegalParameterException;
+import org.teasoft.honey.osql.util.NameCheckUtil;
 import org.teasoft.honey.util.StringUtils;
 
 /**
@@ -20,16 +23,18 @@ import org.teasoft.honey.util.StringUtils;
  * @since  1.5
  */
 public class NameTranslateHandle {
-	
+
 	private static NameTranslate nameTranslat = BeeFactory.getHoneyFactory().getInitNameTranslate();
-	private static ConcurrentMap<String,String> entity2tableMap;
-	private static ConcurrentMap<String,String> table2entityMap=null;
+	private static ConcurrentMap<String, String> entity2tableMap;
+	private static ConcurrentMap<String, String> table2entityMap = null;
 	
-	static{
-		entity2tableMap=HoneyContext.getEntity2tableMap();
+	private static ColumnHandler columnHandler;
+	
+	static {
+		entity2tableMap = HoneyContext.getEntity2tableMap();
 //		table2entityMap=HoneyContext.getTable2entityMap();
 	}
-	
+
 	private NameTranslateHandle() {}
 	
 	/**
@@ -40,15 +45,23 @@ public class NameTranslateHandle {
 		NameTranslateHandle.nameTranslat = nameTranslat;
 		HoneyContext.clearFieldNameCache();
 	}
-	
+
 	public static NameTranslate getNameTranslate() {
 		return NameTranslateHandle.nameTranslat;
 	}
+	
+	public static ColumnHandler getColumnHandler() {
+		return columnHandler;
+	}
 
-	@SuppressWarnings({"rawtypes","unchecked"}) 
+	public static void setColumnHandler(ColumnHandler columnHandler) {
+		NameTranslateHandle.columnHandler = columnHandler;
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static String toTableName(String entityName) {
 		try {
-			
+
 			//V1.11 via ThreadLocal
 			String appointTab = HoneyContext.getAppointTab();
 			if (StringUtils.isNotBlank(appointTab)) return appointTab;
@@ -60,39 +73,48 @@ public class NameTranslateHandle {
 					return nameTranslat.toTableName(entityName) + tabSuffix;
 				}
 			}
-			
-			if(OneTimeParameter.isTrue(StringConst.DoNotCheckAnnotation)) {	
+
+			if (OneTimeParameter.isTrue(StringConst.DoNotCheckAnnotation)) {
 				//nothing
 			} else {
 				//Table注解不再需要命名转换,Entity注解解析动态命名参数后还需要命名转换
 				Class obj = Class.forName(entityName);
 				if (obj.isAnnotationPresent(Table.class)) {
 					Table tab = (Table) obj.getAnnotation(Table.class);
-					return processAutoPara(tab.value());
+					String tabName = processAutoPara(tab.value());
+					if (NameCheckUtil.isIllegal(tabName)) {
+						throw new BeeIllegalParameterException(
+								"Annotation Table set wrong value:" + tabName);
+					}
+					return tabName;
 				} else if (obj.isAnnotationPresent(Entity.class)) {
 					Entity entity = (Entity) obj.getAnnotation(Entity.class);
 					entityName = processAutoPara(entity.value());
+					if (NameCheckUtil.isIllegal(entityName)) {
+						throw new BeeIllegalParameterException(
+								"Annotation Entity set wrong value:" + entityName);
+					}
 				}
 			}
 		} catch (ClassNotFoundException e) {
-			if(entityName!=null && !entityName.contains("."))
-			   Logger.info("In NameTranslateHandle,ClassNotFoundException : "+e.getMessage());
+			if (entityName != null && !entityName.contains("."))
+				Logger.info("In NameTranslateHandle,ClassNotFoundException : " + e.getMessage());
 			else
-			   Logger.warn("In NameTranslateHandle,ClassNotFoundException : "+e.getMessage());
+				Logger.warn("In NameTranslateHandle,ClassNotFoundException : " + e.getMessage());
 		}
-		
+
 		//entityName maybe include package name
 		//special one, config in :bee.osql.name.mapping.entity2table
-		if(entityName==null) entityName="";
-		String tableName=entity2tableMap.get(entityName);
+		if (entityName == null) entityName = "";
+		String tableName = entity2tableMap.get(entityName);
 		if (tableName != null && !"".equals(tableName.trim())) {
 			return tableName;//fix bug 2020-08-22
-		}else {//若找不到,检测是否包含包名,若有,则去除包名后再用类名看下是否能找到
+		} else {//若找不到,检测是否包含包名,若有,则去除包名后再用类名看下是否能找到
 			int index = entityName.lastIndexOf('.');
-			if(index>0){
-				entityName=entityName.substring(index + 1);  //此时entityName只包含类名
-				tableName=entity2tableMap.get(entityName);
-				if(tableName!=null && !"".equals(tableName.trim())) return tableName;//fix bug 2020-08-22
+			if (index > 0) {
+				entityName = entityName.substring(index + 1); //此时entityName只包含类名
+				tableName = entity2tableMap.get(entityName);
+				if (tableName != null && !"".equals(tableName.trim())) return tableName;//fix bug 2020-08-22
 			}
 		}
 		
@@ -102,7 +124,19 @@ public class NameTranslateHandle {
 	public static String toColumnName(String fieldName) {
 		return nameTranslat.toColumnName(fieldName);
 	}
-
+	
+	public static String toColumnName(String fieldName, Class entityClass) {
+		boolean openDefineColumn=HoneyConfig.getHoneyConfig().openDefineColumn;
+		if (openDefineColumn && entityClass != null) {
+			if (getColumnHandler() != null) {
+				String defineColumn = getColumnHandler().toColumnName(fieldName, entityClass);
+				if(defineColumn!=null) return defineColumn;
+			}
+		}
+		   
+		return nameTranslat.toColumnName(fieldName);
+	}
+	
 	public synchronized static String toEntityName(String tableName) {//生成javabean时会用到. SqlLib不会用到.因会传入T entity
 		if (table2entityMap == null) {
 			table2entityMap = HoneyContext.getTable2entityMap();
@@ -119,17 +153,29 @@ public class NameTranslateHandle {
 		return nameTranslat.toFieldName(columnName);
 	}
 	
+	public static String toFieldName(String columnName, Class entityClass) {
+		boolean openDefineColumn=HoneyConfig.getHoneyConfig().openDefineColumn;
+		if (openDefineColumn && entityClass != null) {
+			if (getColumnHandler() != null) {
+				String fieldName = getColumnHandler().toFieldName(columnName, entityClass);
+				if(fieldName!=null) return fieldName;
+			}
+		}
+		return nameTranslat.toFieldName(columnName);
+	}
+	
 	private static String processAutoPara(String autoPara) {
 		int start = autoPara.indexOf("${");
 		int end = autoPara.indexOf('}');
 		if (start > 0 && end > 0 && start + 2 < end) {
 			String key = autoPara.substring(start + 2, end);
-			Map<String,String> map=new HashMap<>();
-			String value=(String)OneTimeParameter.getAttribute(key);
-			if(value==null){
-				Logger.warn("Auto table: parameter  ${"+key+"} in "+autoPara+" still has not value, will be ignore it!");
+			Map<String, String> map = new HashMap<>();
+			String value = (String) OneTimeParameter.getAttribute(key);
+			if (value == null) {
+				Logger.warn("Auto table: parameter  ${" + key + "} in " + autoPara
+						+ " still has not value, will be ignore it!");
 //				return autoPara;
-				value=""; //V1.9 没设置时,直接去掉变量表达式
+				value = ""; //V1.9 没设置时,直接去掉变量表达式
 			}
 			map.put(key, value);
 			return TokenUtil.processWithMap(autoPara, "${", "}", map);

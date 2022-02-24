@@ -92,7 +92,7 @@ public final class HoneyUtil {
 //		return total;
 //	}
 
-	static String getBeanField(Field field[]) {
+	static String getBeanField(Field field[],Class entityClass) {
 		if (field == null) return "";
 		StringBuffer s = new StringBuffer();
 		int len = field.length;
@@ -109,7 +109,7 @@ public final class HoneyUtil {
 			if(field[i].isAnnotationPresent(JustFetch.class)) {
 				s.append(getJustFetchColumn(field[i]));
 			}else {
-			   s.append(NameTranslateHandle.toColumnName(field[i].getName()));
+			   s.append(NameTranslateHandle.toColumnName(field[i].getName(),entityClass));
 			}
 			
 		}
@@ -251,7 +251,7 @@ public final class HoneyUtil {
 			columns.append(tableName);
 			columns.append(".");
 			
-			mailField=NameTranslateHandle.toColumnName(field[i].getName());
+			mailField=NameTranslateHandle.toColumnName(field[i].getName(),entity.getClass());
 			columns.append(mailField);  
 //			moreTableStruct[0].mainColumnsForListType=columns.toString(); //v1.9.8
 			mainFieldSet.add(mailField);  //v1.8
@@ -307,7 +307,7 @@ public final class HoneyUtil {
 				useSubTableName = subTableName[0];
 			}
 			
-			subColumnStringBuffer[0] = _getBeanFullField_0(subField[0], useSubTableName,entityFullName,mainFieldSet,dulMap,true);
+			subColumnStringBuffer[0] = _getBeanFullField_0(subField[0].getType(), useSubTableName,entityFullName,mainFieldSet,dulMap,true);
 			
 		}else if(subEntityFieldNum==1 && subOneIsList) { //从表1是List类型
 			
@@ -319,8 +319,8 @@ public final class HoneyUtil {
 				subTableName[0]=_toTableNameByEntityName(list_T_classOne.getName()); 
 				useSubTableName = subTableName[0];
 			}
-			Field ff[]=list_T_classOne.getDeclaredFields();
-			subColumnStringBuffer[0] = _getBeanFullField_0(ff, useSubTableName,entityFullName,mainFieldSet,dulMap,true,list_T_classOne.getName());
+//			Field ff[]=list_T_classOne.getDeclaredFields();
+			subColumnStringBuffer[0] = _getBeanFullField_0(list_T_classOne, useSubTableName,entityFullName,mainFieldSet,dulMap,true);
 		}
 		
 		//处理从表1返回的从表字段
@@ -480,14 +480,14 @@ public final class HoneyUtil {
 				if(subEntityFieldNum==1){ //subEntityFieldNum==1 只有一个从表,从表1上面都有扫描, 表示上面都有扫描过
 					                       //subEntityFieldNum==1  j也不可以等于1(不可能进行两次循环)
 			    }else if(j==0 && subOneIsList && !oneHasOne) { //从主表来的 从表1 List (主表有两个从表时)         
-					Field ff[]=list_T_classOne.getDeclaredFields();
-					subColumnStringBuffer[0] = _getBeanFullField_0(ff, useSubTableName,entityFullName,mainFieldSet,dulMap,true,list_T_classOne.getName());
+//					Field ff[]=list_T_classOne.getDeclaredFields();
+					subColumnStringBuffer[0] = _getBeanFullField_0(list_T_classOne, useSubTableName,entityFullName,mainFieldSet,dulMap,true);
 				}else if(j==1 && subTwoIsList) { //j==1,表示有第二个存在
 				   Field ff[]=list_T_classTwo.getDeclaredFields();
-				   subColumnStringBuffer[1] = _getBeanFullField_0(ff, useSubTableName,entityFullName,mainFieldSet,dulMap,true,list_T_classTwo.getName());
+				   subColumnStringBuffer[1] = _getBeanFullField_0(list_T_classTwo, useSubTableName,entityFullName,mainFieldSet,dulMap,true);
 			    }else if(!oneHasOne || j==1) { //上面没查， 这里要实现
 //				}else {//有些不需要处理, 如oneHasOne,i==0
-			    	subColumnStringBuffer[j] = _getBeanFullField_0(subField[j], useSubTableName,entityFullName,mainFieldSet,dulMap);
+			    	subColumnStringBuffer[j] = _getBeanFullField_0(subField[j].getType(), useSubTableName,entityFullName,mainFieldSet,dulMap);
 			    }
 //			    subColumnStringBuffer[j]=listcolumns;
 				moreTableStruct[1 + j].columnsFull = subColumnStringBuffer[j].toString(); 
@@ -544,22 +544,26 @@ public final class HoneyUtil {
 	}
 	
 	//for moreTable
-	static StringBuffer _getBeanFullField_0(Field entityField, String tableName,String entityFullName,
+	static StringBuffer _getBeanFullField_0(Class entityClass, String tableName,String entityFullName,
 			Set<String> mainFieldSet,Map<String,String> dulMap) {
-		return _getBeanFullField_0(entityField, tableName, entityFullName, mainFieldSet, dulMap,false);
+		return _getBeanFullField_0(entityClass, tableName, entityFullName, mainFieldSet, dulMap,false);
 	}
 
 	
-	static StringBuffer _getBeanFullField_0(Field entityField, String tableName,String entityFullName,
+	static StringBuffer _getBeanFullField_0(Class entityClass, String tableName,String entityFullName,
 			Set<String> mainFieldSet,Map<String,String> dulMap,boolean checkOneHasOne) {
 		
-		Field field[] = entityField.getType().getDeclaredFields();
+//		Field field[] = entityField.getType().getDeclaredFields();
+		Field field[] = entityClass.getDeclaredFields();
 		
-	 return	_getBeanFullField_0(field, tableName, entityFullName, mainFieldSet, dulMap, checkOneHasOne, entityField.getName());
-	}
-	//for moreTable
-	static StringBuffer _getBeanFullField_0(Field field[], String tableName,String entityFullName,
-			Set<String> mainFieldSet,Map<String,String> dulMap,boolean checkOneHasOne,String entityFieldFullName) {
+//	 return	_getBeanFullField_0(field, tableName, entityFullName, mainFieldSet, dulMap, checkOneHasOne, entityField.getName());
+//	}
+//	//for moreTable
+//	static StringBuffer _getBeanFullField_0(Field field[], String tableName,String entityFullName,
+//			Set<String> mainFieldSet,Map<String,String> dulMap,boolean checkOneHasOne,String entityFieldFullName) {
+		
+		String entityFieldFullName=entityClass.getName();
+		
 
 //		tableName传入的也是:useSubTableName
 		
@@ -597,7 +601,7 @@ public final class HoneyUtil {
 			} else {
 				columns.append(",");
 			}
-			subColumnName=NameTranslateHandle.toColumnName(field[i].getName());
+			subColumnName=NameTranslateHandle.toColumnName(field[i].getName(),entityClass); //todo
 			
 			if (field[i].isAnnotationPresent(JustFetch.class)) {
 				columns.append(getJustFetchDefineName(field[i]));
@@ -1237,7 +1241,8 @@ public final class HoneyUtil {
 				if (fields[i].get(entity) == null || isSkipField(fields[i])) {
 					continue;
 				} else {
-					map.put(_toColumnName(fields[i].getName()), fields[i].get(entity));
+//					map.put(_toColumnName(fields[i].getName()), fields[i].get(entity));
+					map.put(NameTranslateHandle.toColumnName(fields[i].getName(),entity.getClass()), fields[i].get(entity));
 				}
 			}
 		} catch (IllegalAccessException e) {
@@ -1308,7 +1313,7 @@ public final class HoneyUtil {
 		String columnsdNames=HoneyContext.getBeanField(packageAndClassName);
 		if (columnsdNames == null) {
 			Field fields[]=entity.getClass().getDeclaredFields();
-			columnsdNames=HoneyUtil.getBeanField(fields);//获取属性名对应的DB字段名
+			columnsdNames=HoneyUtil.getBeanField(fields,entity.getClass());//获取属性名对应的DB字段名
 			HoneyContext.addBeanField(packageAndClassName, columnsdNames);
 		}
 

@@ -113,7 +113,7 @@ public class SqlLib implements BeeSql {
 				targetObj = (T) entity.getClass().newInstance();
 				for (int i = 0; i < columnCount; i++) {
 					try {
-						name=_toFieldName(rmeta.getColumnName(i + 1));
+						name=_toFieldName(rmeta.getColumnName(i + 1),entity.getClass());
 						if(isFirst){
 						field = entity.getClass().getDeclaredField(name);//可能会找不到Javabean的字段
 						map.put(name, field);
@@ -430,13 +430,15 @@ public class SqlLib implements BeeSql {
 	 * @since  1.1
 	 */
 	@Override
+	@SuppressWarnings("rawtypes")
 	public String selectJson(String sql) {
 		
 		if(sql==null || "".equals(sql.trim())) return null;
 		
 		boolean isReg = updateInfoInCache(sql, "StringJson", SuidType.SELECT);
+		Class entityClass = (Class) OneTimeParameter.getAttribute(StringConst.Route_EC);
 		if (isReg) {
-			initRoute(SuidType.SELECT, null, sql);
+			initRoute(SuidType.SELECT, entityClass, sql);
 			Object cacheObj = getCache().get(sql); //这里的sql还没带有值
 			if (cacheObj != null) {
 				clearContext(sql);
@@ -457,7 +459,7 @@ public class SqlLib implements BeeSql {
 			setPreparedValues(pst, sql);
 
 			rs = pst.executeQuery();
-			json = TransformResultSet.toJson(rs);
+			json = TransformResultSet.toJson(rs,entityClass);
 			
 			addInCache(sql, json.toString(),"StringJson",SuidType.SELECT,-1);  //没有作最大结果集判断
 
@@ -652,7 +654,7 @@ public class SqlLib implements BeeSql {
 					temp = _batchForMysql(sql[0], i * batchSize, (i + 1) * batchSize, conn, pst, batchSize, batchExeSql[1]);
 					total += temp;
 //					pst.clearBatch();  //clear Batch
-//					pst.clearParameters();     //TODO
+//					pst.clearParameters();     //todo
 				}
 
 				if (len % batchSize != 0) { //尾数不成批
@@ -709,8 +711,8 @@ public class SqlLib implements BeeSql {
 		clearContext(sql_0, batchSize, len);
 
 		int num = (len - 1) / batchSize;
-		for (int k = 0; k <= num; k++) {
-			String sqlForGetValue = sql_0 + "  [Batch:" + k + INDEX3;
+		for (int i = 0; i <= num; i++) {
+			String sqlForGetValue = sql_0 + "  [Batch:" + i + INDEX3;
 			clearContext(sqlForGetValue);
 		}
 	}
@@ -924,7 +926,7 @@ public class SqlLib implements BeeSql {
 				boolean isDul=false;
 				String dulField="";
 				
-				//从表2设置(如果有)  先设置,因oneHasOne
+				//从表2设置(如果有)  先设置,因oneHasOne时,设置从表1已经要用从表2了.
 				sub2_first=true;
 				Object subObj2=null;
 				if(subField[1]!=null){
@@ -938,7 +940,7 @@ public class SqlLib implements BeeSql {
 						isDul=false;
 						dulField="";
 						try {
-							columnName=_toColumnName(fields2[i].getName());
+							columnName=_toColumnName(fields2[i].getName(),subEntityFieldClass[1]);
 							if(isConfuseDuplicateFieldDB()){
 								dulField=dulSubFieldMap.get(subUseTable[1]+"."+columnName);
 								if(dulField!=null){
@@ -973,7 +975,7 @@ public class SqlLib implements BeeSql {
 							}
 						} catch (IllegalArgumentException e) {
 							if(isConfuseDuplicateFieldDB()){
-								v2=_getObjectForMoreTable_ConfuseField(rs,fields2[i],isDul,dulField);  //todo
+								v2=_getObjectForMoreTable_ConfuseField(rs,fields2[i],isDul,dulField,subEntityFieldClass[1]);  //todo
 								if (v2 != null) {
 									if (sub2_first) {
 										subObj2 = createObject(subEntityFieldClass[1]);
@@ -982,7 +984,7 @@ public class SqlLib implements BeeSql {
 									fields2[i].set(subObj2, v2);
 								}
 							}else{
-								v2=_getObjectForMoreTable(rs,subUseTable[1],fields2[i]);
+								v2=_getObjectForMoreTable_NoConfuse(rs,subUseTable[1],fields2[i],subEntityFieldClass[1]);
 								if (v2 != null) {
 									if (sub2_first) {
 										subObj2 = createObject(subEntityFieldClass[1]);
@@ -1033,7 +1035,7 @@ public class SqlLib implements BeeSql {
 							continue;  // go back
 						}
 						
-						String columnName=_toColumnName(fields1[i].getName());
+						String columnName=_toColumnName(fields1[i].getName(),subEntityFieldClass[0]);
 						if(isConfuseDuplicateFieldDB()){
 							dulField=dulSubFieldMap.get(subUseTable[0]+"."+columnName);
 							if(dulField!=null){
@@ -1065,7 +1067,7 @@ public class SqlLib implements BeeSql {
 						}
 					} catch (IllegalArgumentException e) {
 						if(isConfuseDuplicateFieldDB()){
-							v1=_getObjectForMoreTable_ConfuseField(rs,fields1[i],isDul,dulField);
+							v1=_getObjectForMoreTable_ConfuseField(rs,fields1[i],isDul,dulField,subEntityFieldClass[0]);
 							if(v1!=null) {
 								if (sub1_first) {
 									sub1_first = false;
@@ -1073,7 +1075,7 @@ public class SqlLib implements BeeSql {
 							   fields1[i].set(subObj1,v1);
 							}
 						}else{
-							v1=_getObjectForMoreTable(rs,subUseTable[0],fields1[i]);
+							v1=_getObjectForMoreTable_NoConfuse(rs,subUseTable[0],fields1[i],subEntityFieldClass[0]);
 							if(v1!=null) {
 								if (sub1_first) {
 									sub1_first = false;
@@ -1119,15 +1121,15 @@ public class SqlLib implements BeeSql {
 					try {
 						Object v=null;
 						if (isConfuseDuplicateFieldDB()) {
-							v=rs.getObject(_toColumnName(field[i].getName()));
+							v=rs.getObject(_toColumnName(field[i].getName(),entity.getClass()));
 							field[i].set(targetObj, v);
 						} else {
-							v=rs.getObject(tableName + "." + _toColumnName(field[i].getName()));
+							v=rs.getObject(tableName + "." + _toColumnName(field[i].getName(),entity.getClass()));
 							field[i].set(targetObj, v);
 						}
 						checkKey.append(v);
 					} catch (IllegalArgumentException e) {
-						field[i].set(targetObj,_getObjectForMoreTable(rs,tableName,field[i]));
+						field[i].set(targetObj,_getObjectForMoreTable(rs,tableName,field[i],entity.getClass()));
 				    } catch (SQLException e) { // for after use condition selectField method
 					  field[i].set(targetObj,null);
 				    }
@@ -1240,40 +1242,42 @@ public class SqlLib implements BeeSql {
 		}
 	}
 	
-//	private Object _getObject(ResultSet rs, Field field) throws SQLException{
-//		return HoneyUtil.getResultObject(rs, field.getType().getName(), _toColumnName(field.getName()));
-//	}
-	
-	private Object _getObjectForMoreTable(ResultSet rs, String tableName, Field field) throws SQLException {
-		if (isConfuseDuplicateFieldDB()) {
-			return HoneyUtil.getResultObject(rs, field.getType().getName(), _toColumnName(field.getName()));
+	@SuppressWarnings("rawtypes")
+	private Object _getObjectForMoreTable(ResultSet rs, String tableName, Field field,Class entityClass) throws SQLException {
+		if (isConfuseDuplicateFieldDB()) {//主表时会用到
+			return HoneyUtil.getResultObject(rs, field.getType().getName(), _toColumnName(field.getName(),entityClass));
 		} else {
-			return HoneyUtil.getResultObject(rs, field.getType().getName(), tableName + "." + _toColumnName(field.getName()));
+			return HoneyUtil.getResultObject(rs, field.getType().getName(), tableName + "." + _toColumnName(field.getName(),entityClass));
 		}
 	}
 	
+	// not  oracle,SQLite
+	@SuppressWarnings("rawtypes")
+	private Object _getObjectForMoreTable_NoConfuse(ResultSet rs, String tableName, Field field,Class entityClass) throws SQLException {
+		return HoneyUtil.getResultObject(rs, field.getType().getName(), tableName + "." + _toColumnName(field.getName(),entityClass));
+	}
+	
 	//oracle,SQLite
-	private Object _getObjectForMoreTable_ConfuseField(ResultSet rs, Field field, boolean isDul, String otherName) throws SQLException {
+	@SuppressWarnings("rawtypes")
+	private Object _getObjectForMoreTable_ConfuseField(ResultSet rs, Field field, boolean isDul, String otherName,Class entityClass) throws SQLException {
 
 		if (isDul) return HoneyUtil.getResultObject(rs, field.getType().getName(), otherName);
 
-		return HoneyUtil.getResultObject(rs, field.getType().getName(), _toColumnName(field.getName()));
+		return HoneyUtil.getResultObject(rs, field.getType().getName(), _toColumnName(field.getName(),entityClass));
 	}
 	
 	private Object _getObjectByindex(ResultSet rs,Field field, int index) throws SQLException{
 		return HoneyUtil.getResultObjectByIndex(rs, field.getType().getName(),index);
 	}
 	
-//	private static String _toTableName(Object entity){
-//		return NameTranslateHandle.toTableName(NameUtil.getClassFullName(entity));
-//	}
-	
-	private static String _toColumnName(String fieldName) {
-		return NameTranslateHandle.toColumnName(fieldName);
+	@SuppressWarnings("rawtypes")
+	private static String _toColumnName(String fieldName, Class entityClass) {
+		return NameTranslateHandle.toColumnName(fieldName, entityClass);
 	}
 
-	private static String _toFieldName(String columnName) {
-		return NameTranslateHandle.toFieldName(columnName);
+	@SuppressWarnings("rawtypes")
+	private static String _toFieldName(String columnName,Class entityClass) {
+		return NameTranslateHandle.toFieldName(columnName,entityClass);
 	}
 	
 	//add on 2019-10-01

@@ -24,7 +24,7 @@ public class CallableSqlLib implements CallableSql {
 	private static final ThreadLocal<Map<String, Connection>> connLocal = new ThreadLocal<>();
 
 	@Override
-	public <T> List<T> select(String callSql, T entity, Object[] preValues) {
+	public <T> List<T> select(String callSql, T returnType, Object[] preValues) {
 
 		Connection conn = null;
 		ResultSet rs = null;
@@ -44,11 +44,11 @@ public class CallableSqlLib implements CallableSql {
 
 			rsList = new ArrayList<>();
 
-			Field field[] = entity.getClass().getDeclaredFields();
+			Field field[] = returnType.getClass().getDeclaredFields();
 			int columnCount = field.length;
 
 			while (rs.next()) {
-				targetObj = (T) entity.getClass().newInstance();
+				targetObj = (T) returnType.getClass().newInstance();
 				for (int i = 0; i < columnCount; i++) {
 					if(HoneyUtil.isSkipField(field[i])) continue;
 					field[i].setAccessible(true);
@@ -76,7 +76,7 @@ public class CallableSqlLib implements CallableSql {
 			checkClose(cstmt, conn);
 		}
 
-		entity = null;
+		returnType = null;
 		targetObj = null;
 
 		return rsList;
@@ -188,7 +188,7 @@ public class CallableSqlLib implements CallableSql {
 			Logger.logSQL(CALLABLE_SQL, callSql + VALUES + values);
 			rs = cstmt.executeQuery();
 
-			json = TransformResultSet.toJson(rs);
+			json = TransformResultSet.toJson(rs,null);
 
 		} catch (SQLException e) {
 			throw ExceptionHelper.convert(e);

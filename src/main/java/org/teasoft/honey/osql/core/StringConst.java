@@ -39,4 +39,6 @@ public final class StringConst {
 	public static final String MapSuid_Insert_Has_ID="_SYS_Bee_MapSuid_Insert_Has_ID";
 	public static final String Column2Field="_SYS_Bee_Column2Field:";
 	
+	public static final String Route_EC="_SYS_Bee_ROUTE_EC"; ////EC:Entity Class
+	public static final String Column_EC="_SYS_Bee_COLUMN_EC";
 }

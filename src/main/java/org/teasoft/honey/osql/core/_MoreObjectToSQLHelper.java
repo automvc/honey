@@ -207,6 +207,7 @@ public class _MoreObjectToSQLHelper {
 //			}
 			
 			if (condition != null) {
+				OneTimeParameter.setAttribute(StringConst.Column_EC, entity.getClass());
 				ConditionHelper.processOnExpression(condition,moreTableStruct,list);  // on expression
 			}
 			
@@ -286,6 +287,7 @@ public class _MoreObjectToSQLHelper {
 				 condition.setSuidType(SuidType.SELECT);
 				 useSubTableNames[2]=tableName;   //v1.9.8 useSubTableNames[2] add main tableName 放主表实际表名
 				 
+				 OneTimeParameter.setAttribute(StringConst.Column_EC, entity.getClass());
 //			     ConditionHelper.processCondition(sqlBuffer, valueBuffer, list, condition, firstWhere,useSubTableNames);
 			     ConditionHelper.processCondition(sqlBuffer, list, condition, firstWhere,useSubTableNames);
 			}
@@ -362,7 +364,7 @@ public class _MoreObjectToSQLHelper {
 				}
 				sqlBuffer2.append(useSubTableName);
 				sqlBuffer2.append(DOT);
-				sqlBuffer2.append(_toColumnName(fields[i].getName()));
+				sqlBuffer2.append(_toColumnName(fields[i].getName(),entity.getClass()));
 				
 				if (fields[i].get(entity) == null) {
 //					sqlBuffer2.append(" is null");
@@ -405,8 +407,9 @@ public class _MoreObjectToSQLHelper {
 		return NameTranslateHandle.toTableName(NameUtil.getClassFullName(entity));
 	}
 	
-	private static String _toColumnName(String fieldName){
-		return NameTranslateHandle.toColumnName(fieldName);
+	@SuppressWarnings("rawtypes")
+	private static String _toColumnName(String fieldName, Class entityClass) {
+		return NameTranslateHandle.toColumnName(fieldName, entityClass);
 	}
 
 //	private static String _toTableNameByEntityName(String entityName){
@@ -497,7 +500,7 @@ public class _MoreObjectToSQLHelper {
 				}
 				sqlBuffer0.append(tableName);
 				sqlBuffer0.append(DOT);
-				sqlBuffer0.append(_toColumnName(fields[i].getName()));
+				sqlBuffer0.append(_toColumnName(fields[i].getName(),entity.getClass()));
 				
 				if (fields[i].get(entity) == null) {
 					sqlBuffer0.append(" ").append(K.isNull);

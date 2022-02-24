@@ -147,7 +147,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 
 		String orderBy = "";
 		for (int i = 0; i < lenA; i++) {
-			orderBy += _toColumnName(orderFields[i]) + " " + ASC;
+			orderBy += _toColumnName(orderFields[i],entity.getClass()) + " " + ASC;
 			if (i < lenA - 1) orderBy += ",";
 		}
 		
@@ -169,7 +169,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 
 		String orderBy = "";
 		for (int i = 0; i < lenA; i++) {
-			orderBy += _toColumnName(orderFields[i]) + " " + orderTypes[i].getName();
+			orderBy += _toColumnName(orderFields[i],entity.getClass()) + " " + orderTypes[i].getName();
 			if (i < lenA - 1) orderBy += ",";
 		}
 
@@ -230,7 +230,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 				selectAndFun = K.select+" "+K.count+"(*) "+K.from+" ";
 			}else {
 //				selectAndFun = "select " + funType + "(" + _toColumnName(fieldForFun) + ") from ";
-				selectAndFun = K.select+" " + funType + "(" + _toColumnName(fieldForFun) + ") "+K.from+" ";   // funType要能转大小写风格
+				selectAndFun = K.select+" " + funType + "(" + _toColumnName(fieldForFun,entity.getClass()) + ") "+K.from+" ";   // funType要能转大小写风格
 			}
 			sqlBuffer.append(selectAndFun);
 			sqlBuffer.append(tableName);
@@ -239,7 +239,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			int len = fields.length;
 			List<PreparedValue> list = new ArrayList<>();
 			PreparedValue preparedValue = null;
-			for (int i = 0, k = 0; i < len; i++) {
+			for (int i = 0; i < len; i++) {
 			  fields[i].setAccessible(true);
 //			  if (fields[i]!= null && fields[i].isAnnotationPresent(JoinTable.class)){//v1.7.0 排除多表的实体字段
 //				continue;
@@ -273,7 +273,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 //						sqlBuffer.append(" and ");
 						sqlBuffer.append(" ").append(K.and).append(" ");
 					}
-					sqlBuffer.append(_toColumnName(fields[i].getName()));
+					sqlBuffer.append(_toColumnName(fields[i].getName(),entity.getClass()));
 
 					sqlBuffer.append("=");
 					sqlBuffer.append("?");
@@ -288,6 +288,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			if (condition != null) {
 				condition.setSuidType(SuidType.SELECT);
 				OneTimeParameter.setTrueForKey(StringConst.Select_Fun);
+				OneTimeParameter.setAttribute(StringConst.Column_EC, entity.getClass());
 				ConditionHelper.processCondition(sqlBuffer, list, condition, firstWhere);
 			}
 			
@@ -464,7 +465,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		checkPackageByClass(c);
 		SqlValueWrap sqlBuffer=toDeleteByIdSQL0(c);
 		String pkName=getPkName(c);
-		return _toSelectAndDeleteByIdSQL(sqlBuffer, id, "java.lang.Integer",pkName);
+		return _toSelectAndDeleteByIdSQL(sqlBuffer, id, "java.lang.Integer", pkName, c);
 	}
 	
 	@Override
@@ -474,7 +475,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		checkPackageByClass(c);
 		SqlValueWrap sqlBuffer=toDeleteByIdSQL0(c);
 		String pkName=getPkName(c);
-		return _toSelectAndDeleteByIdSQL(sqlBuffer, id, "java.lang.Long",pkName);
+		return _toSelectAndDeleteByIdSQL(sqlBuffer, id, "java.lang.Long", pkName, c);
 	}
 
 	@Override
@@ -484,7 +485,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		checkPackageByClass(c);
 		SqlValueWrap sqlBuffer=toDeleteByIdSQL0(c);
 		String pkName=getPkName(c);
-		return _toSelectAndDeleteByIdSQL(sqlBuffer,ids,getIdTypeByClass(c,pkName),pkName);
+		return _toSelectAndDeleteByIdSQL(sqlBuffer, ids, getIdTypeByClass(c, pkName), pkName, c);
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -511,6 +512,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		return getPkName(entity.getClass());
 	}
 	
+	@SuppressWarnings("rawtypes")
 	private String getPkName(Class c) {
 		try {
 			c.getDeclaredField("id");  //V1.11 因主键可以不是默认id,多了此步检测
@@ -531,14 +533,14 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		
 		SqlValueWrap sqlBuffer = toSelectByIdSQL0(entity);
 		String pkName=getPkName(entity);
-		return _toSelectAndDeleteByIdSQL(sqlBuffer, id, "java.lang.Integer",pkName);
+		return _toSelectAndDeleteByIdSQL(sqlBuffer, id, "java.lang.Integer",pkName,entity.getClass());
 	}
 
 	@Override
 	public <T> String toSelectByIdSQL(T entity, Long id) {
 		SqlValueWrap sqlBuffer = toSelectByIdSQL0(entity);
 		String pkName=getPkName(entity);
-		return _toSelectAndDeleteByIdSQL(sqlBuffer, id, "java.lang.Long",pkName);
+		return _toSelectAndDeleteByIdSQL(sqlBuffer, id, "java.lang.Long",pkName,entity.getClass());
 	}
 
 	@Override
@@ -546,7 +548,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		if(ids==null || "".equals(ids.trim())) return null;
 		SqlValueWrap sqlBuffer=toSelectByIdSQL0(entity);
 		String pkName=getPkName(entity);
-		return _toSelectAndDeleteByIdSQL(sqlBuffer,ids,getIdType(entity,pkName),pkName);
+		return _toSelectAndDeleteByIdSQL(sqlBuffer,ids,getIdType(entity,pkName),pkName,entity.getClass());
 	}
 	
 	private <T> String getIdType(T entity,String pkName) {
@@ -562,6 +564,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		return type;
 	}
 	
+	@SuppressWarnings("rawtypes")
 	private String getIdTypeByClass(Class c,String pkName) {
 		Field field = null;
 		String type=null;
@@ -634,11 +637,11 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		}
 	}
 
-	private String _toSelectAndDeleteByIdSQL(SqlValueWrap wrap, Number id,String numType,String pkName) {
+	private String _toSelectAndDeleteByIdSQL(SqlValueWrap wrap, Number id,String numType,String pkName,Class entityClass) {
 		if(id==null) return null;
 		
 		StringBuffer sqlBuffer=wrap.getValueBuffer();  //sqlBuffer
-		sqlBuffer.append(_id(pkName)+"=").append("?");
+		sqlBuffer.append(_id(pkName, entityClass) + "=").append("?");
 
 		List<PreparedValue> list = new ArrayList<>();
 		PreparedValue preparedValue = new PreparedValue();
@@ -655,7 +658,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 //		return _toSelectAndDeleteByIdSQL(wrap, ids,null);
 //	}
 	
-	private String _toSelectAndDeleteByIdSQL(SqlValueWrap wrap, String ids, String idType,String pkName) {
+	private String _toSelectAndDeleteByIdSQL(SqlValueWrap wrap, String ids, String idType,String pkName,Class entityClass) {
 
 		StringBuffer sqlBuffer=wrap.getValueBuffer(); //sqlBuffer
 		List<PreparedValue> list=new ArrayList<>();
@@ -663,7 +666,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 
 		String idArray[]=ids.split(",");
 		//		String t_ids="id=?";
-		String t_ids=_id(pkName) + "=?";
+		String t_ids=_id(pkName,entityClass) + "=?";
 
 		preparedValue=new PreparedValue();
 		//		preparedValue.setType(numType);//id的类型Object
@@ -687,7 +690,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		for (int i=1; i < idArray.length; i++) { //i from 1
 			preparedValue=new PreparedValue();
 			//			t_ids+=" or id=?";
-			t_ids+=" " + K.or + " " + _id(pkName) + "=?";
+			t_ids+=" " + K.or + " " + _id(pkName,entityClass) + "=?";
 			//			preparedValue.setType(numType);//id的类型Object
 			if (idType != null) {
 				preparedValue.setType(idType);
@@ -724,7 +727,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		String columnNames = HoneyContext.getBeanField(packageAndClassName);
 		if (columnNames == null) {
 			Field fields[] = entity.getClass().getDeclaredFields();
-			columnNames = HoneyUtil.getBeanField(fields);
+			columnNames = HoneyUtil.getBeanField(fields,entity.getClass());
 			HoneyContext.addBeanField(packageAndClassName, columnNames);
 		}
 
@@ -766,7 +769,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 				String packageAndClassName = entity.getClass().getName();
 				fieldNames = HoneyContext.getBeanField(packageAndClassName);
 				if (fieldNames == null) {
-					fieldNames = HoneyUtil.getBeanField(fields);
+					fieldNames = HoneyUtil.getBeanField(fields,entity.getClass());
 					HoneyContext.addBeanField(packageAndClassName, fieldNames);
 				}
 			}
@@ -790,7 +793,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 //						sqlBuffer.append(" and ");
 						sqlBuffer.append(" ").append(K.and).append(" ");
 					}
-					sqlBuffer.append(_toColumnName(fields[i].getName()));
+					sqlBuffer.append(_toColumnName(fields[i].getName(),entity.getClass()));
 					
 					sqlBuffer.append("=");
 					sqlBuffer.append("?");
@@ -841,13 +844,14 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		return NameTranslateHandle.toTableName(c.getName());
 	}
 	
-	private static String _toColumnName(String fieldName){
-		return NameTranslateHandle.toColumnName(fieldName);
+	@SuppressWarnings("rawtypes")
+	private static String _toColumnName(String fieldName, Class entityClass) {
+		return NameTranslateHandle.toColumnName(fieldName, entityClass);
 	}
 	
-	private static String _id(String pkName){
+	private static String _id(String pkName,Class entityClass){ 
 //		return NameTranslateHandle.toColumnName("id");
-		return NameTranslateHandle.toColumnName(pkName);
+		return NameTranslateHandle.toColumnName(pkName,entityClass);
 	}
 	
 	private <T> void setInitArrayIdByAuto(T entity[]) {

@@ -63,7 +63,7 @@ final class _ObjectToSQLHelper {
 						sqlBuffer.append(" ").append(K.and).append(" ");
 					}
 
-					sqlBuffer.append(_toColumnName(fields[i].getName()));
+					sqlBuffer.append(_toColumnName(fields[i].getName(),entity.getClass()));
 					sqlBuffer.append("=");
 					sqlBuffer.append("?");
 
@@ -105,7 +105,7 @@ final class _ObjectToSQLHelper {
 			String packageAndClassName = entity.getClass().getName();
 			columnNames = HoneyContext.getBeanField(packageAndClassName);
 			if (columnNames == null) {
-				columnNames = HoneyUtil.getBeanField(fields);
+				columnNames = HoneyUtil.getBeanField(fields,entity.getClass());
 				HoneyContext.addBeanField(packageAndClassName, columnNames);
 			}
 			if (condition != null) {
@@ -165,7 +165,7 @@ final class _ObjectToSQLHelper {
 //						sqlBuffer.append(" and ");
 						sqlBuffer.append(" ").append(K.and).append(" ");
 					}
-					sqlBuffer.append(_toColumnName(fields[i].getName()));
+					sqlBuffer.append(_toColumnName(fields[i].getName(),entity.getClass()));
 					
 					if (fields[i].get(entity) == null) {
 //						sqlBuffer.append(" is null");
@@ -196,6 +196,8 @@ final class _ObjectToSQLHelper {
 					OneTimeParameter.setTrueForKey(StringConst.ALREADY_SET_ROUTE);
 				}
 			}
+			
+			OneTimeParameter.setAttribute(StringConst.Column_EC, entity.getClass());
 			ConditionHelper.processCondition(sqlBuffer, list, condition, firstWhere);
 		}
 
@@ -395,6 +397,7 @@ final class _ObjectToSQLHelper {
 			//v1.7.2  处理通过condition设置的部分
 			if (condition != null) {
 				condition.setSuidType(SuidType.UPDATE); //UPDATE
+				OneTimeParameter.setAttribute(StringConst.Column_EC, entity.getClass());
 				firstSet = ConditionHelper.processConditionForUpdateSet(sqlBuffer, list, condition);
 			}
 
@@ -428,7 +431,7 @@ final class _ObjectToSQLHelper {
 						sqlBuffer.append(", ");//update 的set部分不是用and  ，而是用逗号的
 					}
 					
-					sqlBuffer.append(_toColumnName(fields[i].getName()));
+					sqlBuffer.append(_toColumnName(fields[i].getName(),entity.getClass()));
 
 					if (fields[i].get(entity) == null) {
 						sqlBuffer.append("=").append(K.Null); //  =
@@ -463,7 +466,7 @@ final class _ObjectToSQLHelper {
 //							whereStament.append(" and ");
 							whereStament.append(" ").append(K.and).append(" ");
 						}
-						whereStament.append(_toColumnName(fields[i].getName()));
+						whereStament.append(_toColumnName(fields[i].getName(),entity.getClass()));
 
 						if (fields[i].get(entity) == null) {
 //							whereStament.append(" is null");
@@ -500,6 +503,7 @@ final class _ObjectToSQLHelper {
 			condition.setSuidType(SuidType.UPDATE); //UPDATE
 			//即使condition包含的字段是setColmns里的字段也会转化到sql语句.
 //			firstWhere = ConditionHelper.processCondition(sqlBuffer, valueBuffer, list, condition, firstWhere);
+			OneTimeParameter.setAttribute(StringConst.Column_EC, entity.getClass());
 			firstWhere = ConditionHelper.processCondition(sqlBuffer, list, condition, firstWhere);
 		}
 
@@ -556,6 +560,7 @@ final class _ObjectToSQLHelper {
 		//v1.7.2
 		if (condition != null) {
 			condition.setSuidType(SuidType.UPDATE); //UPDATE
+			 OneTimeParameter.setAttribute(StringConst.Column_EC, entity.getClass());
 			firstSet = ConditionHelper.processConditionForUpdateSet(sqlBuffer, list, condition);
 		}
 
@@ -589,7 +594,7 @@ final class _ObjectToSQLHelper {
 				} else {
 					sqlBuffer.append(" , ");//update 的set部分不是用and  ，而是用逗号的
 				}
-				sqlBuffer.append(_toColumnName(fields[i].getName()));
+				sqlBuffer.append(_toColumnName(fields[i].getName(),entity.getClass()));
 
 				if (fields[i].get(entity) == null) {
 //					sqlBuffer.append(" =null"); //  =
@@ -632,7 +637,7 @@ final class _ObjectToSQLHelper {
 //						whereStament.append(" and ");
 						whereStament.append(" ").append(K.and).append(" ");
 					}
-					whereStament.append(_toColumnName(fields[i].getName()));
+					whereStament.append(_toColumnName(fields[i].getName(),entity.getClass()));
 
 					if (fields[i].get(entity) == null) {
 //						whereStament.append(" is null");
@@ -666,6 +671,7 @@ final class _ObjectToSQLHelper {
 		
 		if(condition!=null){
 			 condition.setSuidType(SuidType.UPDATE); //UPDATE
+			 OneTimeParameter.setAttribute(StringConst.Column_EC, entity.getClass());
 			 //即使condition包含的字段是whereColumn里的字段也会转化到sql语句.
 			 firstWhere= ConditionHelper.processCondition(sqlBuffer, list, condition, firstWhere);
 		}
@@ -796,7 +802,7 @@ final class _ObjectToSQLHelper {
 					sqlBuffer.append(",");
 					sqlValue.append(",");
 				}
-				sqlBuffer.append(_toColumnName(fields[i].getName()));
+				sqlBuffer.append(_toColumnName(fields[i].getName(),entity.getClass()));
 				sqlValue.append("?");
 
 				preparedValue = new PreparedValue();
@@ -879,7 +885,7 @@ final class _ObjectToSQLHelper {
 			int len = fields.length;
 			List<PreparedValue> list = new ArrayList<>();
 			PreparedValue preparedValue = null;
-			for (int i = 0, k = 0; i < len; i++) {
+			for (int i = 0; i < len; i++) {
 				fields[i].setAccessible(true);
 
 				if (HoneyUtil.isContinue(includeType, fields[i].get(entity),fields[i])) {
@@ -901,7 +907,7 @@ final class _ObjectToSQLHelper {
 //						sqlBuffer.append(" and ");
 						sqlBuffer.append(" ").append(K.and).append(" ");
 					}
-					sqlBuffer.append(_toColumnName(fields[i].getName()));
+					sqlBuffer.append(_toColumnName(fields[i].getName(),entity.getClass()));
 					
 					if (fields[i].get(entity) == null) {
 //						sqlBuffer.append(" is null");
@@ -921,6 +927,7 @@ final class _ObjectToSQLHelper {
 			
 			if(condition!=null){
 				 condition.setSuidType(SuidType.DELETE); //delete
+				 OneTimeParameter.setAttribute(StringConst.Column_EC, entity.getClass());
 				 firstWhere= ConditionHelper.processCondition(sqlBuffer, list, condition, firstWhere);
 			}
 			
@@ -984,8 +991,13 @@ final class _ObjectToSQLHelper {
 		return NameTranslateHandle.toTableName(NameUtil.getClassFullName(entity));
 	}
 	
-	private static String _toColumnName(String fieldName){
-		return NameTranslateHandle.toColumnName(fieldName);
+//	private static String _toColumnName(String fieldName){
+//		return NameTranslateHandle.toColumnName(fieldName);
+//	}
+	
+	@SuppressWarnings("rawtypes")
+	private static String _toColumnName(String fieldName, Class entityClass) {
+		return NameTranslateHandle.toColumnName(fieldName, entityClass);
 	}
 	
 	static <T> void setInitIdByAuto(T entity) {

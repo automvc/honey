@@ -530,7 +530,7 @@ public final class HoneyContext {
 
 	@SuppressWarnings("rawtypes")
 	static void regEntityClass(Class clazz) {
-		OneTimeParameter.setAttribute("_SYS_Bee_ROUTE_EC", clazz); //EC:Entity Class
+		OneTimeParameter.setAttribute(StringConst.Route_EC, clazz); //EC:Entity Class
 	}
 
 	static Connection getConn() throws SQLException {
@@ -652,7 +652,7 @@ public final class HoneyContext {
 	static void initRoute(SuidType suidType, Class clazz, String sql) {
 
 		if (clazz == null) {
-			clazz = (Class) OneTimeParameter.getAttribute("_SYS_Bee_ROUTE_EC");
+			clazz = (Class) OneTimeParameter.getAttribute(StringConst.Route_EC);
 		}
 
 		RouteStruct routeStruct = new RouteStruct();
@@ -672,7 +672,7 @@ public final class HoneyContext {
 	static void initRouteWhenParseSql(SuidType suidType, Class clazz, String tableNames) {
 
 		if (clazz == null) {
-			clazz = (Class) OneTimeParameter.getAttribute("_SYS_Bee_ROUTE_EC");
+			clazz = (Class) OneTimeParameter.getAttribute(StringConst.Route_EC);
 		}
 
 		RouteStruct routeStruct = new RouteStruct();
