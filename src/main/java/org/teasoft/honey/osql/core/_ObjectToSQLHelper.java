@@ -8,6 +8,7 @@ import java.util.Set;
 import org.teasoft.bee.osql.Condition;
 import org.teasoft.bee.osql.ObjSQLException;
 import org.teasoft.bee.osql.SuidType;
+import org.teasoft.bee.osql.annotation.PrimaryKey;
 import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
 import org.teasoft.bee.osql.exception.BeeIllegalBusinessException;
 import org.teasoft.honey.distribution.GenIdFactory;
@@ -149,8 +150,9 @@ final class _ObjectToSQLHelper {
 					continue;
 				} else {
 					
-					if (fields[i].get(entity) == null && "id".equalsIgnoreCase(fields[i].getName())) 
-						continue; //id=null不作为过滤条件
+//					if (fields[i].get(entity) == null && "id".equalsIgnoreCase(fields[i].getName())) 
+//						continue; //id=null不作为过滤条件
+					if(isNullPkOrId(fields[i], entity)) continue; //主键=null不作为过滤条件
 					
 //					if(conditionFieldSet!=null && conditionFieldSet.contains(fields[i].getName()))  //closed in V1.9
 //						continue; //Condition已包含的,不再遍历
@@ -445,8 +447,9 @@ final class _ObjectToSQLHelper {
 					if (HoneyUtil.isContinue(includeType, fields[i].get(entity), fields[i])) {
 						continue;
 					} else {
-						if (fields[i].get(entity) == null && "id".equalsIgnoreCase(fields[i].getName())) 
-							continue; //id=null不作为过滤条件
+//						if (fields[i].get(entity) == null && "id".equalsIgnoreCase(fields[i].getName())) 
+//							continue; //id=null不作为过滤条件
+						if(isNullPkOrId(fields[i], entity)) continue; //主键=null不作为过滤条件
 						
 						//v1.7.2
 //						if (conditionFieldSet != null && conditionFieldSet.contains(fields[i].getName()))  //closed in V1.9
@@ -570,8 +573,9 @@ final class _ObjectToSQLHelper {
 				if (HoneyUtil.isContinue(includeType, fields[i].get(entity),fields[i])) {
 					continue;
 				}
-				if (fields[i].get(entity) == null && "id".equalsIgnoreCase(fields[i].getName()))
-					continue; //id=null跳过,id不更改.
+//				if (fields[i].get(entity) == null && "id".equalsIgnoreCase(fields[i].getName()))
+//					continue; //id=null跳过,id不更改.
+				if(isNullPkOrId(fields[i], entity)) continue; //主键=null不作为过滤条件
 				
 				//v1.7.2
 				if (updatefieldSet != null && updatefieldSet.contains(fields[i].getName())) { 
@@ -616,8 +620,9 @@ final class _ObjectToSQLHelper {
 				}
 				
 				//指定作为条件的,都转换
-					if (fields[i].get(entity) == null && "id".equalsIgnoreCase(fields[i].getName()))
-						continue; //id=null不作为过滤条件
+//					if (fields[i].get(entity) == null && "id".equalsIgnoreCase(fields[i].getName()))
+//						continue; //id=null不作为过滤条件
+				    if(isNullPkOrId(fields[i], entity)) continue; //主键=null不作为过滤条件
 					
 					if (firstWhere) {
 //						whereStament.append(" where ");
@@ -881,8 +886,9 @@ final class _ObjectToSQLHelper {
 					continue;
 				} else {
 
-					if (fields[i].get(entity) == null && "id".equalsIgnoreCase(fields[i].getName())) 
-						continue; //id=null不作为过滤条件
+//					if (fields[i].get(entity) == null && "id".equalsIgnoreCase(fields[i].getName())) 
+//						continue; //id=null不作为过滤条件
+					if(isNullPkOrId(fields[i], entity)) continue; //主键=null不作为过滤条件
 					
 //					if(conditionFieldSet!=null && conditionFieldSet.contains(fields[i].getName()))  //closed in V1.9
 //						continue; //Condition已包含的,不再遍历
@@ -1047,5 +1053,24 @@ final class _ObjectToSQLHelper {
 		} catch (IllegalAccessException e) {
 			throw ExceptionHelper.convert(e);
 		}
+	}
+	
+	//V1.11
+	private static boolean isNullPkOrId(Field field, Object entity) {
+		try {
+//			if (field.get(entity) == null && "id".equalsIgnoreCase(field.getName())) return true;
+//			if (field.get(entity) == null && field.isAnnotationPresent(PrimaryKey.class)) return true;
+			if (field.get(entity) == null && isPrimaryKey(field)) return true;
+		} catch (Exception e) {
+			//ignroe
+		}
+		return false;
+	}
+	
+	//V1.11
+	private static boolean isPrimaryKey(Field field) {
+		if ("id".equalsIgnoreCase(field.getName())) return true;
+		if (field.isAnnotationPresent(PrimaryKey.class)) return true;
+		return false;
 	}
 }

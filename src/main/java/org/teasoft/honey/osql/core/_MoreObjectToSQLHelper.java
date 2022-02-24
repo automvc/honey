@@ -14,6 +14,7 @@ import java.util.Set;
 import org.teasoft.bee.osql.Condition;
 import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.annotation.JoinType;
+import org.teasoft.bee.osql.annotation.PrimaryKey;
 import org.teasoft.bee.osql.dialect.DbFeature;
 import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
 import org.teasoft.bee.osql.interccept.InterceptorChain;
@@ -120,24 +121,24 @@ public class _MoreObjectToSQLHelper {
 					
 					if(! idHasValue) {  //right join也不管用.     List类型,不允许用right join
 					
-					needAdjustPageForList=true;
-					StringBuffer sqlForList = new StringBuffer();
-					
-//					String mainColumnsForListType=moreTableStruct[0].mainColumnsForListType;
-					sqlForList.append(K.select).append(" ")
-//					.append(mainColumnsForListType)
-					.append("*")
-					.append(" ").append(K.from).append(" ");
-					sqlForList.append(tableName);
-					sqlForList.append(sqlBuffer0); //添加解析主表实体的where条件
-					
-//					HoneyUtil.regPagePlaceholder();
-					sqlStrForList=getDbFeature().toPageSql(sqlForList.toString(), start, size);
-//					HoneyUtil.setPageNum(list);
-					
-				    //后面不用再分页.
-				    start = -1;
-				    size = -1;
+						needAdjustPageForList=true; //List类型子表,调整sql的情型
+						StringBuffer sqlForList = new StringBuffer();
+						
+//						String mainColumnsForListType=moreTableStruct[0].mainColumnsForListType;
+						sqlForList.append(K.select).append(" ")
+//						.append(mainColumnsForListType)
+						.append("*") //用于调整(改写)sql的
+						.append(" ").append(K.from).append(" ");
+						sqlForList.append(tableName);
+						sqlForList.append(sqlBuffer0); //添加解析主表实体的where条件
+						
+//						HoneyUtil.regPagePlaceholder();
+						sqlStrForList=getDbFeature().toPageSql(sqlForList.toString(), start, size);
+//						HoneyUtil.setPageNum(list);
+						
+					    //后面不用再分页.
+					    start = -1;
+					    size = -1;
 				
 					}
 				}else if( (start!=-1 && size!=-1) || pageSize!=null) {
@@ -309,7 +310,6 @@ public class _MoreObjectToSQLHelper {
 		if(entity!=null && chain!=null) chain.beforePasreEntity(entity, SuidType.SELECT);
 	}
 	
-	
 	private static boolean parseSubObject(StringBuffer sqlBuffer2, 
 			List<PreparedValue> list,  Set<String> conditionFieldSet, boolean firstWhere,
 			 int includeType,MoreTableStruct moreTableStruct[],int index) throws IllegalAccessException{
@@ -345,8 +345,9 @@ public class _MoreObjectToSQLHelper {
 				continue;
 			} else {
 				
-				if (fields[i].get(entity) == null && "id".equalsIgnoreCase(fields[i].getName())) 
-					continue; //id=null不作为过滤条件
+//				if (fields[i].get(entity) == null && "id".equalsIgnoreCase(fields[i].getName())) 
+//					continue; //id=null不作为过滤条件
+				if(isNullPkOrId(fields[i], entity)) continue; //主键=null不作为过滤条件
 				
 //				if(conditionFieldSet!=null && conditionFieldSet.contains(fields[i].getName()))   //closed in V1.9
 //					continue; //Condition已包含的,不再遍历
@@ -477,11 +478,11 @@ public class _MoreObjectToSQLHelper {
 				continue;
 			} else {
 				
-				if (fields[i].get(entity) == null && "id".equalsIgnoreCase(fields[i].getName())) 
-					continue; //id=null不作为过滤条件
+//				if (fields[i].get(entity) == null && "id".equalsIgnoreCase(fields[i].getName())) 
+//					continue; //id=null不作为过滤条件
+				if(isNullPkOrId(fields[i], entity)) continue; //主键=null不作为过滤条件
 				
-				if (fields[i].get(entity) != null && "id".equalsIgnoreCase(fields[i].getName())) {
-//					idHasValue=true;
+				if (fields[i].get(entity) != null && isPrimaryKey(fields[i])) {
 					OneTimeParameter.setTrueForKey("idHasValue");
 				}
 					
@@ -514,5 +515,24 @@ public class _MoreObjectToSQLHelper {
 		
 		return firstWhere;
 	}
-
+	
+	//V1.11
+	private static boolean isNullPkOrId(Field field, Object entity) {
+		try {
+//			if (field.get(entity) == null && "id".equalsIgnoreCase(field.getName())) return true;
+//			if (field.get(entity) == null && field.isAnnotationPresent(PrimaryKey.class)) return true;
+			if (field.get(entity) == null && isPrimaryKey(field)) return true;
+		} catch (Exception e) {
+			//ignroe
+		}
+		return false;
+	}
+	
+	//V1.11
+	private static boolean isPrimaryKey(Field field) {
+		if ("id".equalsIgnoreCase(field.getName())) return true;
+		if (field.isAnnotationPresent(PrimaryKey.class)) return true;
+		return false;
+	}
+	
 }
