@@ -226,7 +226,13 @@ public class HoneyFactory {
 	}
 
 	public void setCache(Cache cache) {
-		this.cache = cache;
+//		this.cache = cache;
+//		HoneyFactory.cache = cache; //not ok
+		_setCache(cache);
+	}
+	
+	private static void _setCache(Cache cache) {
+		HoneyFactory.cache = cache;
 	}
 	
 	public DbFeature getDbFeature() {

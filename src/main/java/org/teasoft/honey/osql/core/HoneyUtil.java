@@ -36,6 +36,7 @@ import org.teasoft.bee.osql.exception.JoinTableException;
 import org.teasoft.bee.osql.exception.JoinTableParameterException;
 import org.teasoft.honey.osql.constant.NullEmpty;
 import org.teasoft.honey.osql.name.NameUtil;
+import org.teasoft.honey.osql.util.NameCheckUtil;
 import org.teasoft.honey.osql.util.PropertiesReader;
 import org.teasoft.honey.util.ObjectUtils;
 import org.teasoft.honey.util.StringUtils;
@@ -345,7 +346,7 @@ public final class HoneyUtil {
 
 			String errorMsg = checkJoinTable(joinTable[1]);
 			if (!"".equals(errorMsg)) {
-				throw new JoinTableParameterException("Error: mainField and subField can not just use only one." + errorMsg);
+				throw new JoinTableParameterException("Annotation JoinTable, error: mainField and subField can not just use only one." + errorMsg);
 			}
 			
 			if(subTwoIsList && joinTable[1].joinType()==JoinType.RIGHT_JOIN){  
@@ -559,6 +560,8 @@ public final class HoneyUtil {
 	//for moreTable
 	static StringBuffer _getBeanFullField_0(Field field[], String tableName,String entityFullName,
 			Set<String> mainFieldSet,Map<String,String> dulMap,boolean checkOneHasOne,String entityFieldFullName) {
+
+//		tableName传入的也是:useSubTableName
 		
 //		entityFieldFullName just for tip
 
@@ -568,7 +571,7 @@ public final class HoneyUtil {
 		StringBuffer columns = new StringBuffer();
 		int len = field.length;
 		boolean isFirst = true;
-		String subFieldName="";
+		String subColumnName="";
 		int currentSubNum=0;
 		Field subEntityFirstAnnotationField=null;
 		List<String> WarnMsglist=new ArrayList<>();
@@ -594,26 +597,26 @@ public final class HoneyUtil {
 			} else {
 				columns.append(",");
 			}
-			subFieldName=NameTranslateHandle.toColumnName(field[i].getName());
+			subColumnName=NameTranslateHandle.toColumnName(field[i].getName());
 			
 			if (field[i].isAnnotationPresent(JustFetch.class)) {
 				columns.append(getJustFetchDefineName(field[i]));
 			} else {
 				columns.append(tableName);
 				columns.append(".");
-				columns.append(subFieldName);
+				columns.append(subColumnName);
 			}
 			
-			if(!mainFieldSet.add(subFieldName) && isConfuseDuplicateFieldDB()){
+			if(!mainFieldSet.add(subColumnName) && isConfuseDuplicateFieldDB()){
 				if (isSQLite()) {
-					dulMap.put(tableName + "." + subFieldName, tableName + "." + subFieldName); 
+					dulMap.put(tableName + "." + subColumnName, tableName + "." + subColumnName); 
 				} else {
-					dulMap.put(tableName + "." + subFieldName, tableName + "_" + subFieldName + "_$"); 
+					dulMap.put(tableName + "." + subColumnName, tableName + "_" + subColumnName + "_$"); 
 				}
 				if (isSQLite()) {
-					columns.append(" "+K.as+" '" + tableName + "." + subFieldName+"'");
+					columns.append(" "+K.as+" '" + tableName + "." + subColumnName+"'");
 				} else {
-					columns.append(" " + tableName + "_" + subFieldName + "_$");
+					columns.append(" " + tableName + "_" + subColumnName + "_$");
 				}
 			}
 		}
@@ -1398,11 +1401,26 @@ public final class HoneyUtil {
 	}
 
 	private static String checkJoinTable(JoinTable joinTable) {
-		String mainField;
-		String subField;
+		String mainField= joinTable.mainField();
+		String subField=joinTable.subField();
+		
+		String subAlias=joinTable.subAlias();
+		String subClass=joinTable.subClass();
+		
+		if (NameCheckUtil.isIllegal(mainField)) {
+			throw new JoinTableParameterException("Annotation JoinTable set wrong value in mainField:" + mainField);
+		}
+		if (NameCheckUtil.isIllegal(subField)) {
+			throw new JoinTableParameterException("Annotation JoinTable set wrong value in subField:" + subField);
+		}
+		if (NameCheckUtil.isIllegal(subAlias)) {
+			throw new JoinTableParameterException("Annotation JoinTable set wrong value in subAlias:" + subAlias);
+		}
+		if (NameCheckUtil.isIllegal(subClass)) {
+			throw new JoinTableParameterException("Annotation JoinTable set wrong value in subClass:" + subClass);
+		}
+		
 		String errorMsg = "";
-		mainField = joinTable.mainField();
-		subField = joinTable.subField();
 		int errorCount=0;
 		
 		if (mainField == null) {
@@ -1449,10 +1467,6 @@ public final class HoneyUtil {
 	public static boolean isOracle(){
 		return DatabaseConst.ORACLE.equalsIgnoreCase(HoneyConfig.getHoneyConfig().getDbName());
 	}
-	
-//	static boolean needCountAffectRows(){
-//		return isSQLite() || DatabaseConst.H2.equalsIgnoreCase(HoneyConfig.getHoneyConfig().getDbName());
-//	}
 	
 	public static void setPageNum(List<PreparedValue> list) {
 		int array[] = (int[]) OneTimeParameter.getAttribute("_SYS_Bee_Paing_NumArray");
@@ -1515,8 +1529,6 @@ public final class HoneyUtil {
 				field.setAccessible(true);
 				obj = field.get(entity);
 			}
-//		} catch (NullPointerException e) {
-//			throw ExceptionHelper.convert(e);
 		} catch (IllegalAccessException e) {
 			throw ExceptionHelper.convert(e);
 		}
@@ -1580,7 +1592,8 @@ public final class HoneyUtil {
 
 		pkey = "";
 		for (int i = 0; i < len; i++) {
-			if (isSkipFieldForMoreTable(field[i])) continue; //JoinTable可以与PrimaryKey合用
+//			if (isSkipFieldForMoreTable(field[i])) continue; //JoinTable可以与PrimaryKey合用? 实际不会同时用
+			if(isSkipField(field[i])) continue;
 			if (field[i].isAnnotationPresent(PrimaryKey.class)) {
 				if (isFirst)
 					isFirst = false;
