@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.teasoft.bee.osql.LowerKey;
+import org.teasoft.honey.osql.core.HoneyUtil;
 
 /**
  * @author Kingstar
@@ -26,6 +27,12 @@ public class SqlKeyCheck {
 
 	static {
 		initKeyMap(keyStr);
+		
+		if (HoneyUtil.isOracle()) {
+			String oracleKey = "user,level,role";
+			initKeyMap(oracleKey);
+		}
+
 		String fs = EntityUtil.getFieldNames(new LowerKey());
 		initKeyMap2(fs);
 	}
