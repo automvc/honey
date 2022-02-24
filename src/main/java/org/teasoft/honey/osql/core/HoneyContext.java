@@ -25,6 +25,8 @@ public final class HoneyContext {
 	
 	//since 1.11
 	private static ConcurrentMap<String, String> beanCustomPKey; //Custom Primary Key
+	private static ConcurrentMap<String, Map<String, String>> customMap;
+	
 	
 	//	since v1.7.0
 	//	private static ConcurrentMap<String, MoreTableStruct[]> moreTableStructMap;
@@ -33,6 +35,8 @@ public final class HoneyContext {
 	//	private static ThreadLocal<Map<String, String>> sqlValueLocal;
 
 	private static ThreadLocal<Map<String, CacheSuidStruct>> cacheLocal;
+	
+	private static ThreadLocal<Map<String, Map<String, String>>> customMapLocal;
 
 	private static ThreadLocal<RouteStruct> currentRoute;
 
@@ -73,6 +77,8 @@ public final class HoneyContext {
 	private static ConcurrentMap<String, Boolean> modifiedFlagMapForCache2;
 	
 	private static ConcurrentMap<String, Boolean> entityInterceptorFlag;
+	
+	private static ConcurrentMap<String, Boolean> customFlagMap;
 
 	/*	private static void _checkSize(ThreadLocal local,String name){
 			if(local==null)
@@ -93,11 +99,13 @@ public final class HoneyContext {
 	static {
 		beanMap = new ConcurrentHashMap<>();
 		beanCustomPKey = new ConcurrentHashMap<>();
+		customMap = new ConcurrentHashMap<>();
 		//		moreTableStructMap= new ConcurrentHashMap<>();
 
 		sqlPreValueLocal = new ThreadLocal<>();
 		//		sqlValueLocal = new ThreadLocal<>();
 		cacheLocal = new ThreadLocal<>();
+		customMapLocal = new ThreadLocal<>();
 
 		currentConnection = new ThreadLocal<>();
 		//		transactionLocal = new ThreadLocal<>();
@@ -120,6 +128,7 @@ public final class HoneyContext {
 		
 		modifiedFlagMapForCache2 = new ConcurrentHashMap<>();
 		entityInterceptorFlag = new ConcurrentHashMap<>();
+		customFlagMap = new ConcurrentHashMap<>();
 	}
 
 	private HoneyContext() {}
@@ -194,28 +203,59 @@ public final class HoneyContext {
 		}
 	}
 	
-	static String addBeanField(String key, String value) {
-		return beanMap.put(key, value);
+	static void addBeanField(String key, String value) {
+		beanMap.put(key, value);
 	}
 
 	public static String getBeanField(String key) {
-		if(key==null) key="";
+		if (key == null) key = "";
 		return beanMap.get(key);
 	}
 
 	static void clearFieldNameCache() {
 		beanMap.clear();
 	}
-	
-	static String addBeanCustomPKey(String key, String value) {
-		return beanCustomPKey.put(key, value);
+
+	static void addBeanCustomPKey(String key, String value) {
+		beanCustomPKey.put(key, value);
 	}
-	
+
 	public static String getBeanCustomPKey(String key) {
-		if(key==null) key=null;
+		if (key == null) return null;
 		return beanCustomPKey.get(key);
 	}
 
+	static void addCustomMap(String key, Map<String, String> mapValue) {
+		customMap.put(key, mapValue);
+	}
+
+	public static Map<String, String> getCustomMap(String key) {
+		if (key == null) return null;
+		return customMap.get(key);
+	}
+	
+	public static String getCustomMapValue(String key1,String key2) {
+		if (key1 == null || key2==null) return null;
+		Map<String, String> map= customMap.get(key1);
+		if(map!=null) return map.get(key2);
+		
+		return null;
+	}
+	
+	public static void setCustomMapLocal(String key, Map<String, String> mapValue) {
+		if (mapValue == null) return;
+		if (key == null || "".equals(key.trim())) return;
+		Map<String, Map<String, String>> map = customMapLocal.get();
+		if (null == map) map = new ConcurrentHashMap<>();
+		map.put(key, mapValue);
+		customMapLocal.set(map);
+	}
+
+	public static Map<String,String> getCustomMapLocal(String key) {
+		Map<String, Map<String, String>> map = customMapLocal.get();
+		if (null == map || key==null) return null;
+		return map.get(key);
+	}
 
 	//	static MoreTableStruct[] addMoreTableStructs(String key, MoreTableStruct[] value) {
 	//		return moreTableStructMap.put(key, value);
@@ -761,8 +801,6 @@ public final class HoneyContext {
 			return true;
 		else
 			return false;
-		
-		
 	}
 
 	//同时使用多种类型数据库时,才会触发.   没有分页时,走原来的流程,到SqlLib,才获取数据源处理Suid操作.
@@ -846,4 +884,13 @@ public final class HoneyContext {
 		entityInterceptorFlag.put(fullClassName, isHas);
 	}
 
+	
+	public static Boolean getCustomFlagMap(String key) {
+		return customFlagMap.get(key);
+	}
+	
+	public static void addCustomFlagMap(String key,boolean flag) {
+		customFlagMap.put(key, flag);
+	}
+	
 }
