@@ -8,6 +8,7 @@ package org.teasoft.honey.osql.util;
 
 import java.lang.reflect.Field;
 
+import org.teasoft.bee.osql.annotation.Column;
 import org.teasoft.bee.osql.annotation.Createtime;
 import org.teasoft.bee.osql.annotation.Datetime;
 import org.teasoft.bee.osql.annotation.Dict;
@@ -61,6 +62,10 @@ public class AnnoUtil {
 
 	public static boolean isReplaceInto(Object entity) {
 		return entity.getClass().isAnnotationPresent(ReplaceInto.class);
+	}
+	
+	public static boolean isColumn(Field field) {
+		return field.isAnnotationPresent(Column.class);
 	}
 
 }
