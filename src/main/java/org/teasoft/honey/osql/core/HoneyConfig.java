@@ -80,6 +80,9 @@ public final class HoneyConfig {
 	@SysValue("${bee.osql.lang}")
 	public String lang;
 	
+	@SysValue("${bee.osql.openDefineColumn}")
+	public boolean openDefineColumn;
+	
 	
 	@SysValue("${bee.osql.showSQL}")   //属于 bee.osql
 	public boolean showSQL = false;
@@ -383,6 +386,7 @@ public final class HoneyConfig {
 		return password;
 	}
 	
+	//动态刷新ds
 //	public void setDataSourceMap(Map<String, DataSource> dataSourceMap) {
 //		BeeFactory.getInstance().setDataSourceMap(dataSourceMap);
 //	}
