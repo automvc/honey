@@ -14,6 +14,7 @@ import java.util.Set;
  * @author Kingstar
  * @since  1.9
  */
+@SuppressWarnings("rawtypes")
 public class ObjectUtils {
 	
 	private ObjectUtils() {}
@@ -59,8 +60,7 @@ public class ObjectUtils {
 	}
 	
 	public static boolean isTrue(Boolean b) {
-		boolean f=(b==null?false:b);
-		return f==true;
+		return b==null?false:b;
 	}
 
 	public static String string(Object obj) {
