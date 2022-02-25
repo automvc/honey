@@ -307,7 +307,14 @@ public final class HoneyUtil {
 				useSubTableName = subTableName[0];
 			}
 			
-			subColumnStringBuffer[0] = _getBeanFullField_0(subField[0].getType(), useSubTableName,entityFullName,mainFieldSet,dulMap,true);
+			//V1.11 fixed bug
+			boolean checkOneHasOne;
+			if(entity.getClass().equals(subField[0].getType())) { //同一个表自我关联
+				checkOneHasOne=false;
+			}else {
+				checkOneHasOne=true;
+			}
+			subColumnStringBuffer[0] = _getBeanFullField_0(subField[0].getType(), useSubTableName,entityFullName,mainFieldSet,dulMap,checkOneHasOne);
 			
 		}else if(subEntityFieldNum==1 && subOneIsList) { //从表1是List类型
 			
@@ -590,8 +597,11 @@ public final class HoneyUtil {
 //				String entityFieldName=entityField.getType().getName();
 //				
 //				if(!entityFieldName.equals(field[i].getType().getName())){ //??
-				   if(checkOneHasOne) WarnMsglist.add("Annotation JoinTable field: " +entityFieldFullName+"(in "+ entityFullName + ") still include JoinTable field:" + field[i].getName() + "(will be ignored)!");
-				   else Logger.warn("Annotation JoinTable field: " +entityFieldFullName+"(in "+ entityFullName + ") still include JoinTable field:" + field[i].getName() + "(will be ignored)!");
+				   if(checkOneHasOne) {
+					   WarnMsglist.add("Annotation JoinTable field: " +entityFieldFullName+"(in "+ entityFullName + ") still include JoinTable field:" + field[i].getName() + "(will be ignored)!");
+				   }else if(!entityClass.equals(field[i].getType())) {//不是同一个实体自我关联   V1.11 fixed bug
+					   Logger.warn("Annotation JoinTable field: " +entityFieldFullName+"(in "+ entityFullName + ") still include JoinTable field:" + field[i].getName() + "(will be ignored)!");
+				   }
 //				}
 				continue;
 			}
