@@ -83,6 +83,9 @@ public final class HoneyConfig {
 	@SysValue("${bee.osql.openDefineColumn}")
 	public boolean openDefineColumn;
 	
+	@SysValue("${bee.osql.openFieldTypeHandler}")
+	public boolean openFieldTypeHandler;
+	
 	
 	@SysValue("${bee.osql.showSQL}")   //属于 bee.osql
 	public boolean showSQL = false;

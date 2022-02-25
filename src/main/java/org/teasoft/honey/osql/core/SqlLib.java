@@ -26,6 +26,7 @@ import org.teasoft.bee.osql.BeeSql;
 import org.teasoft.bee.osql.Cache;
 import org.teasoft.bee.osql.ObjSQLException;
 import org.teasoft.bee.osql.SuidType;
+import org.teasoft.bee.osql.TypeHandler;
 import org.teasoft.bee.osql.annotation.JoinTable;
 import org.teasoft.honey.util.StringUtils;
 
@@ -43,6 +44,7 @@ public class SqlLib implements BeeSql {
 	
 	private int cacheWorkResultSetSize=HoneyConfig.getHoneyConfig().cache_workResultSetSize;
 	private static boolean  showSQL=HoneyConfig.getHoneyConfig().showSQL;
+	private static boolean openFieldTypeHandler = HoneyConfig.getHoneyConfig().openFieldTypeHandler;
 
 	private Connection getConn() throws SQLException {
 		return HoneyContext.getConn();
@@ -67,32 +69,32 @@ public class SqlLib implements BeeSql {
 	@Override
 	@SuppressWarnings("unchecked")
 	public <T> List<T> selectSomeField(String sql, T entity) {
-		
-//		if(sql==null || "".equals(sql.trim())) return null;
-		if(sql==null || "".equals(sql.trim())) return Collections.emptyList();
 
-		boolean isReg=updateInfoInCache(sql,"List<T>",SuidType.SELECT);
+		if (sql == null || "".equals(sql.trim())) return Collections.emptyList();
+
+		boolean isReg = updateInfoInCache(sql, "List<T>", SuidType.SELECT);
 		if (isReg) {
 			initRoute(SuidType.SELECT, entity.getClass(), sql);
 			Object cacheObj = getCache().get(sql); //这里的sql还没带有值
 			if (cacheObj != null) {
 				clearContext(sql);
-				List<T> list=(List<T>) cacheObj;
+				List<T> list = (List<T>) cacheObj;
 				logSelectRows(list.size());
 				return list;
 			}
 		}
-		
+
 		Connection conn = null;
 		PreparedStatement pst = null;
-		ResultSet rs =null;
+		ResultSet rs = null;
 		T targetObj = null;
 		List<T> rsList = null;
-		Map<String,Field> map=null;
-		boolean hasException=false;
+		Map<String, Field> map = null;
+		boolean hasException = false;
+		
 		try {
 			conn = getConn();
-			String exe_sql=HoneyUtil.deleteLastSemicolon(sql);
+			String exe_sql = HoneyUtil.deleteLastSemicolon(sql);
 			pst = conn.prepareStatement(exe_sql);
 
 			setPreparedValues(pst, sql);
@@ -101,51 +103,76 @@ public class SqlLib implements BeeSql {
 			ResultSetMetaData rmeta = rs.getMetaData();
 			int columnCount = rmeta.getColumnCount();
 			rsList = new ArrayList<>();
-
-//			Field field[] = entity.getClass().getDeclaredFields();
-			map=new Hashtable<>();
+			map = new Hashtable<>();
+			Field field = null;
+			String name = null;
+			boolean isFirst = true;
 			
-			Field field=null;
-			String name=null;
-			boolean isFirst=true;
 			while (rs.next()) {
 
 				targetObj = (T) entity.getClass().newInstance();
 				for (int i = 0; i < columnCount; i++) {
 					try {
-						name=_toFieldName(rmeta.getColumnName(i + 1),entity.getClass());
-						if(isFirst){
-						field = entity.getClass().getDeclaredField(name);//可能会找不到Javabean的字段
-						map.put(name, field);
-						}else{
-							field=map.get(name);
-							if(field==null) continue;
+						name = _toFieldName(rmeta.getColumnName(i + 1), entity.getClass());
+						if (isFirst) {
+							field = entity.getClass().getDeclaredField(name);//可能会找不到Javabean的字段
+							map.put(name, field);
+						} else {
+							field = map.get(name);
+							if (field == null) continue;
 						}
 					} catch (NoSuchFieldException e) {
 						continue;
 					}
 					field.setAccessible(true);
-					try {
-						field.set(targetObj, rs.getObject(i + 1)); //对相应Field设置
-					} catch (IllegalArgumentException e) {
-						field.set(targetObj, _getObjectByindex(rs,field,i+1));
+					boolean isRegHandlerPriority = false;
+
+					if (openFieldTypeHandler) {
+						isRegHandlerPriority = TypeHandlerRegistry.isPriorityType(field.getType());
 					}
-					
+					try {
+						if (isRegHandlerPriority) {
+							Object obj = rs.getObject(i + 1);
+							Object processedObj=TypeHandlerRegistry.handlerProcess(field.getType(), obj);
+							field.set(targetObj, processedObj); //对相应Field设置
+						} else {
+							field.set(targetObj, rs.getObject(i + 1)); //对相应Field设置
+						}
+					} catch (IllegalArgumentException e) {
+						boolean alreadyProcess = false;
+						if (openFieldTypeHandler) {
+							Class type = field.getType();
+							TypeHandler handler = TypeHandlerRegistry.getHandler(type);
+							if (handler != null) {
+								try {
+									Object obj2 = _getObjectByindex(rs, field, i + 1);
+									field.set(targetObj, handler.process(type, obj2));
+									alreadyProcess = true;
+								} catch (Exception e2) {
+									alreadyProcess = false;
+								}
+							}
+						}
+						if (!alreadyProcess) {
+							field.set(targetObj, _getObjectByindex(rs, field, i + 1));
+						}
+					}
+
 				}
 				rsList.add(targetObj);
-				isFirst=false;
+				isFirst = false;
 			}
 
-			addInCache(sql, rsList,"List<T>",SuidType.SELECT,rsList.size());
-			
+			addInCache(sql, rsList, "List<T>", SuidType.SELECT, rsList.size());
+
 		} catch (SQLException e) {
-			hasException=true;
+			hasException = true;
 			throw ExceptionHelper.convert(e);
 		} catch (IllegalAccessException e) {
-			hasException=true;
+			hasException = true;
 			throw ExceptionHelper.convert(e);
 		} catch (InstantiationException e) {
-			hasException=true;
+			hasException = true;
 			throw ExceptionHelper.convert(e);
 		} finally {
 			closeRs(rs);
@@ -158,7 +185,7 @@ public class SqlLib implements BeeSql {
 			}
 			entity = null;
 			targetObj = null;
-			map=null;
+			map = null;
 		}
 		logSelectRows(rsList.size());
 
