@@ -127,7 +127,6 @@ public class SqlLib implements BeeSql {
 					}
 					field.setAccessible(true);
 					boolean isRegHandlerPriority = false;
-
 					if (openFieldTypeHandler) {
 						isRegHandlerPriority = TypeHandlerRegistry.isPriorityType(field.getType());
 					}
@@ -859,6 +858,12 @@ public class SqlLib implements BeeSql {
 		
 		MoreTableStruct moreTableStruct[]=HoneyUtil.getMoreTableStructAndCheckBefore(entity);
 		
+//		不经过MoreTable,直接传入sql,需要重新生成结构  V1.11
+		if(moreTableStruct==null) {
+			OneTimeParameter.setTrueForKey(StringConst.MoreStruct_to_SqlLib);
+			moreTableStruct=HoneyUtil.getMoreTableStructAndCheckBefore(entity);
+		}
+		
 		boolean subOneIsList1=moreTableStruct[0].subOneIsList;
 		boolean subTwoIsList2=moreTableStruct[0].subTwoIsList;
 		String listFieldType=""+subOneIsList1+subTwoIsList2+moreTableStruct[0].oneHasOne;
@@ -964,6 +969,11 @@ public class SqlLib implements BeeSql {
 						
 						if(HoneyUtil.isSkipField(fields2[i])) continue;
 						
+						boolean isRegHandlerPriority2 = false;
+						if (openFieldTypeHandler) {
+							isRegHandlerPriority2 = TypeHandlerRegistry.isPriorityType(fields2[i].getType());
+						}
+						
 						v2=null;
 						fields2[i].setAccessible(true);
 						isDul=false;
@@ -983,6 +993,10 @@ public class SqlLib implements BeeSql {
 								v2= rs.getObject(subUseTable[1] + "." + columnName);
 							}
 							
+							if (isRegHandlerPriority2) { //process v2 by handler
+								v2=TypeHandlerRegistry.handlerProcess(fields2[i].getType(), v2);
+							}
+							
 							if (v2 != null) {
 								if (sub2_first) {
 									subObj2 = createObject(subEntityFieldClass[1]);
@@ -999,7 +1013,28 @@ public class SqlLib implements BeeSql {
 								v2=_getObjectForMoreTable_NoConfuse(rs,subUseTable[1],fields2[i],subEntityFieldClass[1]);
 							}
 							
-							if (v2 != null) {
+							boolean alreadyProcess = false;
+							try {
+								if (openFieldTypeHandler) {//process v2 by handler
+									Class type = fields2[i].getType();
+									TypeHandler handler = TypeHandlerRegistry.getHandler(type);
+									if (handler != null) {
+										Object newV2 = handler.process(type, v2);//process v2 by handler
+										if (newV2 != null) {
+											if (sub2_first) {
+												subObj2 = createObject(subEntityFieldClass[1]);
+												sub2_first = false;
+											}
+											fields2[i].set(subObj2, newV2);
+											alreadyProcess = true;
+										}
+									}
+								}
+							} catch (Exception e2) {
+								alreadyProcess = false;
+							}
+							
+							if (!alreadyProcess && v2 != null) {
 								if (sub2_first) {
 									subObj2 = createObject(subEntityFieldClass[1]);
 									sub2_first = false;
@@ -1020,17 +1055,21 @@ public class SqlLib implements BeeSql {
 //				Object subObj1 =null; //不行.   当它的从表在第1位时,就报null
 				
 				for (int i = 0; i < fields1.length; i++) {
-					
+
 					if (oneHasOne) {
-						if (HoneyUtil.isSkipFieldForMoreTable(fields1[i])) continue;  //从表1也有1个从表
+						if (HoneyUtil.isSkipFieldForMoreTable(fields1[i])) continue; //从表1也有1个从表
 					} else {
 						if (HoneyUtil.isSkipField(fields1[i])) continue;
 					}
-					
-					v1=null;
+
+					boolean isRegHandlerPriority1 = false;
+					if (openFieldTypeHandler) {
+						isRegHandlerPriority1 = TypeHandlerRegistry.isPriorityType(fields1[i].getType());
+					}
+					v1 = null;
 					fields1[i].setAccessible(true);
-					isDul=false;
-					dulField="";
+					isDul = false;
+					dulField = "";
 					try {
 
 						if (oneHasOne && fields1[i] != null && fields1[i].isAnnotationPresent(JoinTable.class)) {
@@ -1048,21 +1087,25 @@ public class SqlLib implements BeeSql {
 							}
 							continue; // go back
 						}
-						
-						String columnName=_toColumnName(fields1[i].getName(),subEntityFieldClass[0]);
+
+						String columnName = _toColumnName(fields1[i].getName(), subEntityFieldClass[0]);
 						//get v1
-						if(isConfuseDuplicateFieldDB()){
-							dulField=dulSubFieldMap.get(subUseTable[0]+"."+columnName);
-							if(dulField!=null){
-								isDul=true;  //fixed bug.  need set true before fields1[i].set(  )
-								v1=rs.getObject(dulField);
-							}else{
-							   v1=rs.getObject(columnName);
+						if (isConfuseDuplicateFieldDB()) {
+							dulField = dulSubFieldMap.get(subUseTable[0] + "." + columnName);
+							if (dulField != null) {
+								isDul = true; //fixed bug.  need set true before fields1[i].set(  )
+								v1 = rs.getObject(dulField);
+							} else {
+								v1 = rs.getObject(columnName);
 							}
-						}else{
-							v1=rs.getObject(subUseTable[0]+"."+columnName);
+						} else {
+							v1 = rs.getObject(subUseTable[0] + "." + columnName);
 						}
-						
+
+						if (isRegHandlerPriority1) { //process v1 by handler
+							v1 = TypeHandlerRegistry.handlerProcess(fields1[i].getType(), v1);
+						}
+
 						if (v1 != null) {
 							if (sub1_first) {
 								sub1_first = false;
@@ -1075,7 +1118,29 @@ public class SqlLib implements BeeSql {
 						}else{
 							v1=_getObjectForMoreTable_NoConfuse(rs,subUseTable[0],fields1[i],subEntityFieldClass[0]);
 						}
-						if (v1 != null) {
+						
+						
+						boolean alreadyProcess = false;
+						try {
+							if (openFieldTypeHandler) {//process v1 by handler
+								Class type = fields1[i].getType();
+								TypeHandler handler = TypeHandlerRegistry.getHandler(type);
+								if (handler != null) {
+									Object newV1 = handler.process(type, v1);//process v1 by handler
+									if (newV1 != null) {
+										if (sub1_first) {
+											sub1_first = false;
+										}
+										fields1[i].set(subObj1, newV1);
+										alreadyProcess=true;
+									}
+								}
+							}
+						} catch (Exception e2) {
+							alreadyProcess = false;
+						}
+						
+						if (!alreadyProcess && v1 != null) {
 							if (sub1_first) {
 								sub1_first = false;
 							}
@@ -1115,8 +1180,15 @@ public class SqlLib implements BeeSql {
 						}
 						continue;  // go back
 					}
+					
+					boolean isRegHandlerPriority = false;
+					if (openFieldTypeHandler) {
+						isRegHandlerPriority = TypeHandlerRegistry.isPriorityType(field[i].getType());
+					}
+
 					field[i].setAccessible(true);
-					Object v=null;
+					Object v = null;
+
 					try {
 						//get v
 						if (isConfuseDuplicateFieldDB()) {
@@ -1124,11 +1196,31 @@ public class SqlLib implements BeeSql {
 						} else {
 							v = rs.getObject(tableName + "."+ _toColumnName(field[i].getName(), entity.getClass()));
 						}
+
+						if (isRegHandlerPriority) {
+							v = TypeHandlerRegistry.handlerProcess(field[i].getType(), v);
+						}
+
 						field[i].set(targetObj, v);
 						checkKey.append(v);
 					} catch (IllegalArgumentException e) {
 						v = _getObjectForMoreTable(rs, tableName, field[i], entity.getClass());
-						field[i].set(targetObj, v);
+
+						boolean alreadyProcess = false;
+						try {
+							if (openFieldTypeHandler) {//process v by handler
+								Class type = field[i].getType();
+								TypeHandler handler = TypeHandlerRegistry.getHandler(type);
+								if (handler != null) {
+									Object newV = handler.process(type, v);//process v by handler
+									field[i].set(targetObj, newV);
+									alreadyProcess = true;
+								}
+							}
+						} catch (Exception e2) {
+							alreadyProcess = false;
+						}
+						if (!alreadyProcess) field[i].set(targetObj, v);
 					} catch (SQLException e) { // for after use condition selectField method
 						field[i].set(targetObj, null);
 					}

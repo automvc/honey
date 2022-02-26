@@ -79,10 +79,10 @@ public class _MoreObjectToSQLHelper {
 			
 			MoreTableStruct moreTableStruct[]=HoneyUtil.getMoreTableStructAndCheckBefore(entity);
 			
-			if (moreTableStruct[1] == null) { //v1.9
-				throw new BeeErrorGrammarException(
-						"MoreTable select on " + entity.getClass().getName() + " must own at least one JoinTable annotation!");
-			}
+//			if (moreTableStruct[1] == null) { //v1.9
+//				throw new BeeErrorGrammarException(
+//						"MoreTable select on " + entity.getClass().getName() + " must own at least one JoinTable annotation!");
+//			}//V1.11 closed.  move to inner of getMoreTableStructAndCheckBefore
 			
 			boolean twoTablesWithJoinOnStyle=HoneyConfig.getHoneyConfig().moreTable_twoTablesWithJoinOnStyle;
 			

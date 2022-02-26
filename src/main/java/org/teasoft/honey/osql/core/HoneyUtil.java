@@ -30,6 +30,7 @@ import org.teasoft.bee.osql.annotation.JoinType;
 import org.teasoft.bee.osql.annotation.JustFetch;
 import org.teasoft.bee.osql.annotation.PrimaryKey;
 import org.teasoft.bee.osql.exception.BeeErrorFieldException;
+import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
 import org.teasoft.bee.osql.exception.BeeIllegalEntityException;
 import org.teasoft.bee.osql.exception.BeeIllegalSQLException;
 import org.teasoft.bee.osql.exception.JoinTableException;
@@ -161,6 +162,11 @@ public final class HoneyUtil {
 		if(OneTimeParameter.isTrue(StringConst.MoreStruct_to_SqlLib)) {
 			moreTableStruct = _getMoreTableStructAndCheckBefore(entity);
 			OneTimeParameter.setAttribute(key, moreTableStruct);
+			
+			if (moreTableStruct[1] == null) { //v1.9
+				throw new BeeErrorGrammarException(
+						"MoreTable select on " + entity.getClass().getName() + " must own at least one JoinTable annotation!");
+			}
 		}else {//供SqlLib,多表查询使用
 			moreTableStruct=(MoreTableStruct[])OneTimeParameter.getAttribute(key);
 		}
@@ -1109,7 +1115,7 @@ public final class HoneyUtil {
 				pst.setString(i + 1, value.toString());
 				break;	
 			case 19:
-				//	        	pst.setBigInteger(i+1, (BigInteger)value);break;
+//	        	pst.setBigInteger(i+1, (BigInteger)value);break;
 			default:
 				pst.setObject(i + 1, value);
 		} //end switch
