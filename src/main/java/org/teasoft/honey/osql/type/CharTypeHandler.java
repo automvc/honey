@@ -6,7 +6,7 @@
 
 package org.teasoft.honey.osql.type;
 
-import org.teasoft.bee.osql.TypeHandler;
+import org.teasoft.bee.osql.type.TypeHandler;
 
 /**
  * raw char type handler.
@@ -18,7 +18,7 @@ public class CharTypeHandler<T> implements TypeHandler<Character> {
 
 	@Override
 	public Character process(Class<Character> fieldType, Object obj) {
-		if (obj == null) return ' ';
+		if (obj == null || obj.toString().length()==0) return ' ';
 		return obj.toString().charAt(0);
 	}
 
