@@ -26,8 +26,9 @@ import org.teasoft.bee.osql.BeeSql;
 import org.teasoft.bee.osql.Cache;
 import org.teasoft.bee.osql.ObjSQLException;
 import org.teasoft.bee.osql.SuidType;
-import org.teasoft.bee.osql.TypeHandler;
 import org.teasoft.bee.osql.annotation.JoinTable;
+import org.teasoft.bee.osql.type.TypeHandler;
+import org.teasoft.bee.osql.type.TypeHandlerRegistry;
 import org.teasoft.honey.util.StringUtils;
 
 /**
@@ -963,62 +964,47 @@ public class SqlLib implements BeeSql {
 						
 						if(HoneyUtil.isSkipField(fields2[i])) continue;
 						
+						v2=null;
 						fields2[i].setAccessible(true);
 						isDul=false;
 						dulField="";
 						try {
 							columnName=_toColumnName(fields2[i].getName(),subEntityFieldClass[1]);
+							//get v2
 							if(isConfuseDuplicateFieldDB()){
 								dulField=dulSubFieldMap.get(subUseTable[1]+"."+columnName);
 								if(dulField!=null){
 									isDul=true;  //set true first
 									v2 = rs.getObject(dulField);
-									if (v2 != null) {
-										if (sub2_first) {
-											subObj2 = createObject(subEntityFieldClass[1]);
-											sub2_first = false;
-										}
-										fields2[i].set(subObj2, v2);
-									}
 								}else{
 									v2= rs.getObject(columnName);
-									if (v2 != null) {
-										if (sub2_first) {
-											subObj2 = createObject(subEntityFieldClass[1]);
-											sub2_first = false;
-										}
-										fields2[i].set(subObj2, v2);
-									}
 								}
 							} else {
 								v2= rs.getObject(subUseTable[1] + "." + columnName);
-								if (v2 != null) {
-									if (sub2_first) {
-										subObj2 = createObject(subEntityFieldClass[1]);
-										sub2_first = false;
-									}
-									fields2[i].set(subObj2, v2);
-								}
 							}
+							
+							if (v2 != null) {
+								if (sub2_first) {
+									subObj2 = createObject(subEntityFieldClass[1]);
+									sub2_first = false;
+								}
+								fields2[i].set(subObj2, v2);
+							}
+							
 						} catch (IllegalArgumentException e) {
+							//get v2
 							if(isConfuseDuplicateFieldDB()){
 								v2=_getObjectForMoreTable_ConfuseField(rs,fields2[i],isDul,dulField,subEntityFieldClass[1]);  //todo
-								if (v2 != null) {
-									if (sub2_first) {
-										subObj2 = createObject(subEntityFieldClass[1]);
-										sub2_first = false;
-									}
-									fields2[i].set(subObj2, v2);
-								}
 							}else{
 								v2=_getObjectForMoreTable_NoConfuse(rs,subUseTable[1],fields2[i],subEntityFieldClass[1]);
-								if (v2 != null) {
-									if (sub2_first) {
-										subObj2 = createObject(subEntityFieldClass[1]);
-										sub2_first = false;
-									}
-									fields2[i].set(subObj2, v2);
+							}
+							
+							if (v2 != null) {
+								if (sub2_first) {
+									subObj2 = createObject(subEntityFieldClass[1]);
+									sub2_first = false;
 								}
+								fields2[i].set(subObj2, v2);
 							}
 						}catch (SQLException e) {// for after use condition selectField method
 //							fields2[i].set(subObj2,null);
@@ -1041,74 +1027,59 @@ public class SqlLib implements BeeSql {
 						if (HoneyUtil.isSkipField(fields1[i])) continue;
 					}
 					
+					v1=null;
 					fields1[i].setAccessible(true);
 					isDul=false;
 					dulField="";
 					try {
-						
-						if (oneHasOne && fields1[i]!= null && fields1[i].isAnnotationPresent(JoinTable.class)) {
-							if(subField[1]!=null && fields1[i].getName().equals(variableName[1]) && subObj2!=null){
+
+						if (oneHasOne && fields1[i] != null && fields1[i].isAnnotationPresent(JoinTable.class)) {
+							if (subField[1] != null && fields1[i].getName().equals(variableName[1]) && subObj2 != null) {
 								fields1[i].setAccessible(true);
-								if(subTwoIsList2) {
-									subField2InOneHasOne=fields1[i];	
-								}else {
-								    fields1[i].set(subObj1,subObj2); //设置子表2的对象     要考虑List. 
+								if (subTwoIsList2) {
+									subField2InOneHasOne = fields1[i];
+								} else {
+									fields1[i].set(subObj1, subObj2); //设置子表2的对象     要考虑List. 
 								}
-								
-								  if(sub1_first) {
-									  sub1_first=false;
-								  }
+
+								if (sub1_first) {
+									sub1_first = false;
+								}
 							}
-							continue;  // go back
+							continue; // go back
 						}
 						
 						String columnName=_toColumnName(fields1[i].getName(),subEntityFieldClass[0]);
+						//get v1
 						if(isConfuseDuplicateFieldDB()){
 							dulField=dulSubFieldMap.get(subUseTable[0]+"."+columnName);
 							if(dulField!=null){
 								isDul=true;  //fixed bug.  need set true before fields1[i].set(  )
 								v1=rs.getObject(dulField);
-								if(v1!=null) {
-								  if(sub1_first) {
-									  sub1_first=false;
-								  }
-								  fields1[i].set(subObj1, v1);
-								}
 							}else{
 							   v1=rs.getObject(columnName);
-							   if(v1!=null) {
-									if (sub1_first) {
-										sub1_first = false;
-									}
-							     fields1[i].set(subObj1, v1);
-							   }
 							}
 						}else{
 							v1=rs.getObject(subUseTable[0]+"."+columnName);
-							if(v1!=null) {
-								if (sub1_first) {
-									sub1_first = false;
-								}
-						      fields1[i].set(subObj1, v1);
+						}
+						
+						if (v1 != null) {
+							if (sub1_first) {
+								sub1_first = false;
 							}
+							fields1[i].set(subObj1, v1);
 						}
 					} catch (IllegalArgumentException e) {
 						if(isConfuseDuplicateFieldDB()){
 							v1=_getObjectForMoreTable_ConfuseField(rs,fields1[i],isDul,dulField,subEntityFieldClass[0]);
-							if(v1!=null) {
-								if (sub1_first) {
-									sub1_first = false;
-								}
-							   fields1[i].set(subObj1,v1);
-							}
 						}else{
 							v1=_getObjectForMoreTable_NoConfuse(rs,subUseTable[0],fields1[i],subEntityFieldClass[0]);
-							if(v1!=null) {
-								if (sub1_first) {
-									sub1_first = false;
-								}
-						       fields1[i].set(subObj1,v1);
+						}
+						if (v1 != null) {
+							if (sub1_first) {
+								sub1_first = false;
 							}
+							fields1[i].set(subObj1, v1);
 						}
 					}catch (SQLException e) {// for after use condition selectField method
 //						fields1[i].set(subObj1,null);
@@ -1145,21 +1116,22 @@ public class SqlLib implements BeeSql {
 						continue;  // go back
 					}
 					field[i].setAccessible(true);
+					Object v=null;
 					try {
-						Object v=null;
+						//get v
 						if (isConfuseDuplicateFieldDB()) {
-							v=rs.getObject(_toColumnName(field[i].getName(),entity.getClass()));
-							field[i].set(targetObj, v);
+							v = rs.getObject(_toColumnName(field[i].getName(), entity.getClass()));
 						} else {
-							v=rs.getObject(tableName + "." + _toColumnName(field[i].getName(),entity.getClass()));
-							field[i].set(targetObj, v);
+							v = rs.getObject(tableName + "."+ _toColumnName(field[i].getName(), entity.getClass()));
 						}
+						field[i].set(targetObj, v);
 						checkKey.append(v);
 					} catch (IllegalArgumentException e) {
-						field[i].set(targetObj,_getObjectForMoreTable(rs,tableName,field[i],entity.getClass()));
-				    } catch (SQLException e) { // for after use condition selectField method
-					  field[i].set(targetObj,null);
-				    }
+						v = _getObjectForMoreTable(rs, tableName, field[i], entity.getClass());
+						field[i].set(targetObj, v);
+					} catch (SQLException e) { // for after use condition selectField method
+						field[i].set(targetObj, null);
+					}
 					
 				} //end for
 				
