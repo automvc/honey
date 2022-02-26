@@ -30,6 +30,7 @@ public class PreparedSqlLib implements PreparedSql {
 	private String dsName;
 	
 	private static final String SELECT_SQL = "PreparedSql select SQL: ";
+	private static final String SELECT_MoreTable_SQL = "PreparedSql select MoreTable SQL: ";
 	private static final String SELECT_SOME_FIELD_SQL = "PreparedSql selectSomeField SQL: ";
 	private static final String SELECT_JSON_SQL = "PreparedSql selectJson SQL: ";
 	private static final String STRING_IS_NULL = "sql statement string is Null !";
@@ -503,7 +504,7 @@ public class PreparedSqlLib implements PreparedSql {
 
 	private <T> Map<String, Object> mergeMap(Map<String, Object> prameterMap, T entity) {
 		Map<String, Object> columnMap = HoneyUtil.getColumnMapByEntity(entity);
-		columnMap.putAll(prameterMap); //merge, prameterMap will override columnMap,if have same key.
+		if(prameterMap!=null) columnMap.putAll(prameterMap); //merge, prameterMap will override columnMap,if have same key.
 		return columnMap;
 	}
 
@@ -636,6 +637,58 @@ public class PreparedSqlLib implements PreparedSql {
 		Logger.logSQL("PreparedSql selectMapList SQL: ", sql);
 
 		return getBeeSql().selectMapList(sql);
+	}
+
+	@Override
+	public <T> List<T> moreTableSelect(String sqlStr, T returnType) {
+		return moreTableSelect(sqlStr, returnType, null);
+	}
+
+	@Override
+	public <T> List<T> moreTableSelect(String sqlStr, T entity, Map<String, Object> map) {
+		doBeforePasreEntity(entity, SuidType.SELECT);
+		String sql = initPrepareValuesViaMap(sqlStr, map, entity);
+		sql = doAfterCompleteSql(sql);
+		Logger.logSQL(SELECT_MoreTable_SQL, sql);
+		List<T> list = getBeeSql().select(sql, entity);
+
+		doBeforeReturn(list);
+		return list;
+	}
+	
+	private <T> String _moreTableSelect(String sqlStr, T entity, Map<String, Object> map,
+			int start, int size) {
+		if (size <= 0) throw new BeeIllegalParameterException(SIZE_GREAT_0);
+		if (start < 0) throw new BeeIllegalParameterException(START_GREAT_EQ_0);
+
+		doBeforePasreEntity(entity, SuidType.SELECT);
+
+		regPagePlaceholder();
+
+		String tableName = "";
+		if (isNeedRealTimeDb()) {
+			tableName = _toTableName(entity); //这里,取过了参数, 到解析sql的,就不能再取
+			OneTimeParameter.setAttribute(StringConst.TABLE_NAME, tableName);
+			HoneyContext.initRouteWhenParseSql(SuidType.SELECT, entity.getClass(), tableName);
+			OneTimeParameter.setTrueForKey(StringConst.ALREADY_SET_ROUTE);
+		}
+
+		String pageSql = getDbFeature().toPageSql(sqlStr, start, size);
+		String sql = initPrepareValuesViaMap(pageSql, map, entity);
+		sql = doAfterCompleteSql(sql);
+		
+		return sql;
+	}
+
+	@Override
+	public <T> List<T> moreTableSelect(String sqlStr, T entity, Map<String, Object> map, int start,
+			int size) {
+		String sql = _moreTableSelect(sqlStr, entity, map, start, size);
+		Logger.logSQL(SELECT_MoreTable_SQL, sql);
+		List<T> list = getBeeSql().moreTableSelect(sql, entity);
+
+		doBeforeReturn(list);
+		return list;
 	}
 
 	private void doBeforePasreEntity() {

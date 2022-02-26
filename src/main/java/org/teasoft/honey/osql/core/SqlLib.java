@@ -130,23 +130,25 @@ public class SqlLib implements BeeSql {
 					if (openFieldTypeHandler) {
 						isRegHandlerPriority = TypeHandlerRegistry.isPriorityType(field.getType());
 					}
+					Object obj =null;
 					try {
+						obj = rs.getObject(i + 1);
 						if (isRegHandlerPriority) {
-							Object obj = rs.getObject(i + 1);
-							Object processedObj=TypeHandlerRegistry.handlerProcess(field.getType(), obj);
-							field.set(targetObj, processedObj); //对相应Field设置
+							obj=TypeHandlerRegistry.handlerProcess(field.getType(), obj);
+							field.set(targetObj, obj); //对相应Field设置
 						} else {
-							field.set(targetObj, rs.getObject(i + 1)); //对相应Field设置
+							field.set(targetObj, obj); //对相应Field设置
 						}
 					} catch (IllegalArgumentException e) {
 						boolean alreadyProcess = false;
+						obj=_getObjectByindex(rs, field, i + 1);
 						if (openFieldTypeHandler) {
 							Class type = field.getType();
 							TypeHandler handler = TypeHandlerRegistry.getHandler(type);
 							if (handler != null) {
 								try {
-									Object obj2 = _getObjectByindex(rs, field, i + 1);
-									field.set(targetObj, handler.process(type, obj2));
+									Object newObj = handler.process(type, obj);
+									field.set(targetObj, newObj);
 									alreadyProcess = true;
 								} catch (Exception e2) {
 									alreadyProcess = false;
@@ -154,7 +156,7 @@ public class SqlLib implements BeeSql {
 							}
 						}
 						if (!alreadyProcess) {
-							field.set(targetObj, _getObjectByindex(rs, field, i + 1));
+							field.set(targetObj, obj);
 						}
 					}
 
