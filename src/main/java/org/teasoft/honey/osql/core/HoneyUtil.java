@@ -959,7 +959,6 @@ public final class HoneyUtil {
 		javaTypeMap.put("short", 6);
 		javaTypeMap.put("byte", 7);
 		javaTypeMap.put("boolean", 9);
-//		char  TODO
 
 		javaTypeMap.put("java.math.BigDecimal", 10);
 
@@ -974,6 +973,8 @@ public final class HoneyUtil {
 		javaTypeMap.put("java.sql.SQLXML", 18);
 
 		javaTypeMap.put("java.math.BigInteger", 19);
+		
+		javaTypeMap.put("char", 20);
 
 	}
 
@@ -1104,6 +1105,9 @@ public final class HoneyUtil {
 			case 18:
 				pst.setSQLXML(i + 1, (SQLXML) value);
 				break;
+			case 20:
+				pst.setString(i + 1, value.toString());
+				break;	
 			case 19:
 				//	        	pst.setBigInteger(i+1, (BigInteger)value);break;
 			default:
