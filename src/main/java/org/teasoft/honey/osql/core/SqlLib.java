@@ -22,13 +22,14 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
+import org.teasoft.bee.osql.BeeSQLException;
 import org.teasoft.bee.osql.BeeSql;
 import org.teasoft.bee.osql.Cache;
 import org.teasoft.bee.osql.ObjSQLException;
 import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.annotation.JoinTable;
 import org.teasoft.bee.osql.type.TypeHandler;
-import org.teasoft.bee.osql.type.TypeHandlerRegistry;
+import org.teasoft.honey.osql.type.TypeHandlerRegistry;
 import org.teasoft.honey.util.StringUtils;
 
 /**
