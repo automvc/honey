@@ -57,6 +57,18 @@ public class DateUtil {
 		return new java.sql.Date(System.currentTimeMillis());
 	}
 	
+	public static Timestamp toTimestamp(String dateString) {
+		try {
+			Date date = getSimpleDateFormat().parse(dateString);
+			return new Timestamp(date.getTime());
+		} catch (Exception e) {
+			e.printStackTrace();
+			Logger.error(e.getMessage(), e);
+		}
+
+		return null;
+	}
+	
 	/**
 	 * 往前或往后指定天数
 	 * @param days
