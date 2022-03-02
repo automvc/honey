@@ -197,9 +197,9 @@ public final class HoneyConfig {
 	
 	//V1.11
 	@SysValue("${bee.osql.cache.useLevelTwo}")
-	boolean cache_useLevelTwo; 
+	public boolean cache_useLevelTwo; 
 	@SysValue("${bee.osql.cache.levelOneTolevelTwo}")
-	boolean cache_levelOneTolevelTwo; 
+	public boolean cache_levelOneTolevelTwo; 
 	@SysValue("${bee.osql.cache.levelTwoTimeout}")
 	public int cache_levelTwoTimeout=180; //二级缓存保存时间(秒 second)
 	

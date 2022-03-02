@@ -21,7 +21,8 @@ import org.teasoft.honey.distribution.ds.RouteStruct;
  */
 public class DefaultBeeExtCache implements BeeExtCache {
 
-	private static boolean useLevelTwo = HoneyConfig.getHoneyConfig().cache_useLevelTwo;
+//	private static boolean useLevelTwo = HoneyConfig.getHoneyConfig().cache_useLevelTwo;
+	
 	private static boolean levelOneTolevelTwo = HoneyConfig.getHoneyConfig().cache_levelOneTolevelTwo;
 
 	private static String logCache2Msg = "==========get from Level 2 Cache.";
@@ -33,12 +34,16 @@ public class DefaultBeeExtCache implements BeeExtCache {
 		isShowSql = HoneyConfig.getHoneyConfig().showSQL;
 		map_tableSqlKey = new ConcurrentHashMap<>();
 	}
+	
+	private static boolean getUseLevelTwo() {
+		return HoneyConfig.getHoneyConfig().cache_useLevelTwo;
+	}
 
 	@Override
 	public Object get(String sql) {
 
 		Object obj = CacheUtil.get(sql);
-		if (useLevelTwo && obj == null) {
+		if (getUseLevelTwo() && obj == null) {
 
 			//一级缓存获取不到,还有可能是因为有修改原因清了缓存.
 			//要检测,不是因为修改的原因,才给查二级的  (这样的话,就要维护修改的语句关联了哪个表, 查询的语句关联了哪个表)
@@ -87,7 +92,7 @@ public class DefaultBeeExtCache implements BeeExtCache {
 	public void add(String sql, Object result) {
 
 		boolean f = CacheUtil.add(sql, result); //需要知道,哪些不放缓存.  是否放缓存与一级缓存一致.若有例外,还需要另外检测
-		if (useLevelTwo) {
+		if (getUseLevelTwo()) {
 			boolean isModified = getModified(sql);
 			if (!isModified) {//没被修改过才放缓存
 				boolean canAddInLevelTow = false;
@@ -154,7 +159,7 @@ public class DefaultBeeExtCache implements BeeExtCache {
 		//		sql要知道关联了哪个表
 		//		表对应所有缓存      CacheUtil是记录表缓存的下标到一个set. 下标是一级缓存的,只有一级缓存才有用.   所以二级缓存要另外定义
 
-		if (useLevelTwo) {
+		if (getUseLevelTwo()) {
 			//标记对应表已修改过(缓存是脏的).  以便不再给获取缓存
 			//todo 这里是用表名,  但二级列表,则是用带包名实体       将所有数据源的同表名的缓存都清除,脏数据风险更小.
 			List<String> tableNameList = CacheKey.genTableNameList(sql);

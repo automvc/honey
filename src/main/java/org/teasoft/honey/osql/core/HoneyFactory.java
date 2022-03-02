@@ -65,11 +65,15 @@ public class HoneyFactory {
        cache=initCache();
 	}
 	
+	private static boolean getUseLevelTwo() {
+		return HoneyConfig.getHoneyConfig().cache_useLevelTwo;
+	}
+	
 	//NoCache>Custom Cache>BeeExtRedisCache>DefaultBeeExtCache>DefaultCache
 	private static Cache initCache() {
 		Cache cache;
 		boolean nocache = HoneyConfig.getHoneyConfig().cache_nocache;
-		boolean useLevelTwo=HoneyConfig.getHoneyConfig().cache_useLevelTwo;
+		boolean useLevelTwo=getUseLevelTwo();
 		if (nocache) {
 			cache= new NoCache(); //v1.7.2
 		}else if(useLevelTwo) {//V1.11
