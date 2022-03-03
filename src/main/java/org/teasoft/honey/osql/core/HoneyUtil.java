@@ -37,6 +37,11 @@ import org.teasoft.bee.osql.exception.JoinTableException;
 import org.teasoft.bee.osql.exception.JoinTableParameterException;
 import org.teasoft.honey.osql.constant.NullEmpty;
 import org.teasoft.honey.osql.name.NameUtil;
+import org.teasoft.honey.osql.type.SetParaTypeConverterRegistry;
+import org.teasoft.honey.osql.type.TimestampTypeHandler;
+import org.teasoft.honey.osql.type.TypeHandlerRegistry;
+import org.teasoft.honey.osql.type.UtilDotDateTypeConvert;
+import org.teasoft.honey.osql.type.UtilDotDateTypeToTimestampConvert;
 import org.teasoft.honey.osql.util.NameCheckUtil;
 import org.teasoft.honey.osql.util.PropertiesReader;
 import org.teasoft.honey.util.ObjectUtils;
@@ -78,6 +83,9 @@ public final class HoneyUtil {
 		}
 
 		initJavaTypeMap();
+		
+		SetParaTypeConverterRegistry.register(java.util.Date.class, new UtilDotDateTypeToTimestampConvert<java.util.Date>(), DatabaseConst.ORACLE);
+		SetParaTypeConverterRegistry.register(java.util.Date.class, new UtilDotDateTypeConvert<java.util.Date>());
 	}
 
 //	public static int[] mergeArray(int total[], int part[], int start, int end) {
@@ -970,7 +978,15 @@ public final class HoneyUtil {
 
 		javaTypeMap.put("java.sql.Date", 11);
 		javaTypeMap.put("java.sql.Time", 12);
+		
 		javaTypeMap.put("java.sql.Timestamp", 13);
+		if(isSQLite()) {
+//		  javaTypeMap.put("java.sql.Timestamp", 3); //V1.11 fixed SQLite bug.  SQLite 需要用Long获取Timestamp    Long只获取到年份.
+//		 javaTypeMap.put("java.sql.Timestamp", 11); // not ok
+//		  javaTypeMap.put("java.sql.Timestamp", 1); //设置参数时,是可以不用转的
+		  TypeHandlerRegistry.register(Timestamp.class, new TimestampTypeHandler<Timestamp>(),DatabaseConst.SQLite);
+		}
+		
 		javaTypeMap.put("java.sql.Blob", 14);
 		javaTypeMap.put("java.sql.Clob", 15);
 
@@ -981,11 +997,16 @@ public final class HoneyUtil {
 		javaTypeMap.put("java.math.BigInteger", 19);
 		
 		javaTypeMap.put("char", 20);
-
+		javaTypeMap.put("java.util.Date", 21);  //动态改值???
+		
+		javaTypeMap.put("java.sql.Array", 22);
+		javaTypeMap.put("java.io.InputStream", 23);
+		javaTypeMap.put("java.io.Reader", 24);
+		javaTypeMap.put("java.sql.Ref", 25);
+			
 	}
 
 	public static int getJavaTypeIndex(String javaType) {
-		//    	return javaTypeMap.get(javaTypeMap)==null?-1:javaTypeMap.get(javaTypeMap);
 		return javaTypeMap.get(javaType) == null ? -1 : javaTypeMap.get(javaType);
 	}
 
@@ -1113,12 +1134,26 @@ public final class HoneyUtil {
 				break;
 			case 20:
 				pst.setString(i + 1, value.toString());
-				break;	
+				break;
+//			case 21:
+//				Date d= new Date(((java.util.Date)value).getTime());
+////				pst.setDate(i + 1, d); //ok
+//				pst.setObject(i + 1, d); //ok
+//				//测试数据库是date,datetime,timestamp是否都可以??? TODO
+//				break;
 			case 19:
 //	        	pst.setBigInteger(i+1, (BigInteger)value);break;
 			default:
+			{
+				value=tryConvert(value);
 				pst.setObject(i + 1, value);
+			}
 		} //end switch
+	}
+	
+	private static Object tryConvert(Object value) {
+		if (value == null) return value;
+		return SetParaTypeConverterRegistry.converterProcess(value.getClass(), value);
 	}
 
 	static Object getResultObject(ResultSet rs, String typeName, String columnName) throws SQLException {
@@ -1173,6 +1208,9 @@ public final class HoneyUtil {
 	static Object getResultObjectByIndex(ResultSet rs, String typeName, int index) throws SQLException {
 
 		int k = HoneyUtil.getJavaTypeIndex(typeName);
+		if (isSQLite() && "java.sql.Timestamp".equals(typeName)) {
+			k = 1;
+		}
 
 		switch (k) {
 			case 1:
@@ -1201,6 +1239,7 @@ public final class HoneyUtil {
 				return rs.getTime(index);
 			case 13:
 				return rs.getTimestamp(index);
+//				return rs.getLong(index);
 			case 14:
 				return rs.getBlob(index);
 			case 15:
@@ -1211,8 +1250,31 @@ public final class HoneyUtil {
 				return rs.getRowId(index);
 			case 18:
 				return rs.getSQLXML(index);
+				
+			case 21:	
+				return rs.getTimestamp(index);//改动态???
+//				return rs.getDate(index);  //Oracle 使用该方法获取会丢失:时分秒
+				
+			case 22:
+				return rs.getArray(index);  //java.sql.Array
+			case 23:
+				return rs.getBinaryStream(index); //java.io.InputStream
+			case 24:
+				return rs.getCharacterStream(index); //java.io.Reader
+			case 25:
+				return rs.getRef(index);  //java.sql.Ref
+			
+				
+//			case 26:
+//				return rs.getAsciiStream(index); //java.io.InputStream	
+//			case 27:
+//				return rs.getNCharacterStream(index); //java.io.Reader	
+//			case 28:
+//				return rs.getNString(index);  //java.lang.String
+				
+				
 			case 19:
-				//	        	no  getBigInteger
+				//no  getBigInteger	
 			default:
 				return rs.getObject(index);
 		} //end switch

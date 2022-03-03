@@ -14,6 +14,7 @@ import org.teasoft.honey.osql.core.HoneyConfig;
 
 /**
  * Field Type Handler Registry.
+ * This Registry work for handle ResultSet by select.
  * @author Kingstar
  * @since  1.11
  */
@@ -64,17 +65,22 @@ public final class TypeHandlerRegistry {
 
 	/**
 	 * return the register Handler of fieldType.
+	 * Use the special DB first.
 	 * @param fieldType Javabean field type.
 	 * @return the register Handler of fieldType.
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> TypeHandler<T> getHandler(Class<T> fieldType) {
 //		return (TypeHandler<T>) handlersMap.get(fieldType);
-		TypeHandler<?> handler = handlersMap.get(fieldType);
+		
+		TypeHandler<?> handler = null;
+		Map<Class<?>, TypeHandler<?>> map = handlersMapForSpecialDB
+				.get(HoneyConfig.getHoneyConfig().getDbName());
+		if (map != null) handler = map.get(fieldType);
 		if (handler == null) {
-			Map<Class<?>, TypeHandler<?>> map = handlersMapForSpecialDB.get(HoneyConfig.getHoneyConfig().getDbName());
-			if (map != null) handler = map.get(fieldType);
+			handler = handlersMap.get(fieldType);
 		}
+		
 		return (TypeHandler<T>) handler;
 	}
 
@@ -85,6 +91,9 @@ public final class TypeHandlerRegistry {
 	 * @return the result processed by TypeHandler.
 	 */
 	public static <T> T handlerProcess(Class<T> fieldType, Object result) {
-		return getHandler(fieldType).process(fieldType, result);
+//		return getHandler(fieldType).process(fieldType, result);
+		TypeHandler<T> handler=getHandler(fieldType);
+		if(handler!=null) handler.process(fieldType, result);
+		return (T)result;
 	}
 }
