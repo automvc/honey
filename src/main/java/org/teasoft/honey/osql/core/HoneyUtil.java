@@ -1159,6 +1159,9 @@ public final class HoneyUtil {
 	static Object getResultObject(ResultSet rs, String typeName, String columnName) throws SQLException {
 
 		int k = HoneyUtil.getJavaTypeIndex(typeName);
+		if (isSQLite() && "java.sql.Timestamp".equals(typeName)) {
+			k = 1;
+		}
 
 		switch (k) {
 			case 1:
@@ -1197,6 +1200,20 @@ public final class HoneyUtil {
 				return rs.getRowId(columnName);
 			case 18:
 				return rs.getSQLXML(columnName);
+				
+			case 21:	
+				return rs.getTimestamp(columnName);//改动态???
+				
+			case 22:
+				return rs.getArray(columnName);  //java.sql.Array
+			case 23:
+				return rs.getBinaryStream(columnName); //java.io.InputStream
+			case 24:
+				return rs.getCharacterStream(columnName); //java.io.Reader
+			case 25:
+				return rs.getRef(columnName);  //java.sql.Ref		
+				
+				
 			case 19:
 				//	        	no  getBigInteger
 			default:

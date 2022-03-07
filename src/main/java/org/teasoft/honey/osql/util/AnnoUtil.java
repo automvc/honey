@@ -17,6 +17,7 @@ import org.teasoft.bee.osql.annotation.Updatetime;
 import org.teasoft.bee.osql.annotation.customizable.AutoSetString;
 import org.teasoft.bee.osql.annotation.customizable.Desensitize;
 import org.teasoft.bee.osql.annotation.customizable.DictI18n;
+import org.teasoft.bee.osql.annotation.customizable.Json;
 import org.teasoft.bee.osql.annotation.customizable.MultiTenancy;
 
 /**
@@ -66,6 +67,10 @@ public class AnnoUtil {
 	
 	public static boolean isColumn(Field field) {
 		return field.isAnnotationPresent(Column.class);
+	}
+	
+	public static boolean isJson(Field field) {
+		return field.isAnnotationPresent(Json.class);
 	}
 
 }

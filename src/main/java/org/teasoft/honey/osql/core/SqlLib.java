@@ -22,14 +22,15 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
-import org.teasoft.bee.osql.BeeSQLException;
 import org.teasoft.bee.osql.BeeSql;
 import org.teasoft.bee.osql.Cache;
 import org.teasoft.bee.osql.ObjSQLException;
 import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.annotation.JoinTable;
+import org.teasoft.bee.osql.annotation.customizable.Json;
 import org.teasoft.bee.osql.type.TypeHandler;
 import org.teasoft.honey.osql.type.TypeHandlerRegistry;
+import org.teasoft.honey.osql.util.AnnoUtil;
 import org.teasoft.honey.util.StringUtils;
 
 /**
@@ -127,13 +128,26 @@ public class SqlLib implements BeeSql {
 						continue;
 					}
 					field.setAccessible(true);
-					boolean isRegHandlerPriority = false;
-					if (openFieldTypeHandler) {
-						isRegHandlerPriority = TypeHandlerRegistry.isPriorityType(field.getType());
-					}
 					Object obj =null;
+					boolean isRegHandlerPriority = false;
+					
 					try {
-						obj = rs.getObject(i + 1);
+						boolean processAsJson=false;
+						if (isJoson(field)) {
+							obj = rs.getString(i + 1);
+							TypeHandler jsonHandler =TypeHandlerRegistry.getHandler(Json.class);
+							if(jsonHandler!=null) {
+								obj=jsonHandler.process(field.getType(), obj);
+								processAsJson=true;
+							}
+						}else {
+							if (openFieldTypeHandler) {
+								isRegHandlerPriority = TypeHandlerRegistry.isPriorityType(field.getType());
+							}
+						}
+						
+						if (! processAsJson) obj = rs.getObject(i + 1);
+						
 						if (isRegHandlerPriority) {
 							obj=TypeHandlerRegistry.handlerProcess(field.getType(), obj);
 							field.set(targetObj, obj); //对相应Field设置
@@ -143,6 +157,7 @@ public class SqlLib implements BeeSql {
 					} catch (IllegalArgumentException e) {
 						boolean alreadyProcess = false;
 						obj=_getObjectByindex(rs, field, i + 1);
+//						obj = rs.getObject(i + 1,field.getType()); //oracle do not support
 						if (openFieldTypeHandler) {
 							Class type = field.getType();
 							TypeHandler handler = TypeHandlerRegistry.getHandler(type);
@@ -193,6 +208,11 @@ public class SqlLib implements BeeSql {
 		logSelectRows(rsList.size());
 
 		return rsList;
+	}
+	
+	//检测是否有Json注解
+	private boolean isJoson(Field field) {
+		return AnnoUtil.isJson(field);
 	}
 
 	/**
