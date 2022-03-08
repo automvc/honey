@@ -155,6 +155,7 @@ public class SqlLib implements BeeSql {
 							field.set(targetObj, obj); //对相应Field设置
 						}
 					} catch (IllegalArgumentException e) {
+//						e.printStackTrace();
 						boolean alreadyProcess = false;
 						obj=_getObjectByindex(rs, field, i + 1);
 //						obj = rs.getObject(i + 1,field.getType()); //oracle do not support
@@ -1016,8 +1017,17 @@ public class SqlLib implements BeeSql {
 								v2= rs.getObject(subUseTable[1] + "." + columnName);
 							}
 							
-							if (isRegHandlerPriority2) { //process v2 by handler
-								v2=TypeHandlerRegistry.handlerProcess(fields2[i].getType(), v2);
+							boolean processAsJson = false;
+							if (isJoson(fields2[i])) {
+								TypeHandler jsonHandler = TypeHandlerRegistry.getHandler(Json.class);
+								if (jsonHandler != null) {
+									v2 = jsonHandler.process(fields2[i].getType(), v2);
+									processAsJson = true;
+								}
+							}
+
+							if (!processAsJson && isRegHandlerPriority2) { //process v2 by handler
+								v2 = TypeHandlerRegistry.handlerProcess(fields2[i].getType(), v2);
 							}
 							
 							if (v2 != null) {
@@ -1124,8 +1134,17 @@ public class SqlLib implements BeeSql {
 						} else {
 							v1 = rs.getObject(subUseTable[0] + "." + columnName);
 						}
+						
+						boolean processAsJson = false;
+						if (isJoson(fields1[i])) {
+							TypeHandler jsonHandler = TypeHandlerRegistry.getHandler(Json.class);
+							if (jsonHandler != null) {
+								v1 = jsonHandler.process(fields1[i].getType(), v1);
+								processAsJson = true;
+							}
+						}
 
-						if (isRegHandlerPriority1) { //process v1 by handler
+						if (!processAsJson && isRegHandlerPriority1) { //process v1 by handler
 							v1 = TypeHandlerRegistry.handlerProcess(fields1[i].getType(), v1);
 						}
 
@@ -1219,8 +1238,17 @@ public class SqlLib implements BeeSql {
 						} else {
 							v = rs.getObject(tableName + "."+ _toColumnName(field[i].getName(), entity.getClass()));
 						}
+						
+						boolean processAsJson = false;
+						if (isJoson(field[i])) {
+							TypeHandler jsonHandler = TypeHandlerRegistry.getHandler(Json.class);
+							if (jsonHandler != null) {
+								v = jsonHandler.process(field[i].getType(), v);
+								processAsJson = true;
+							}
+						}
 
-						if (isRegHandlerPriority) {
+						if (!processAsJson && isRegHandlerPriority) { //process v by handler
 							v = TypeHandlerRegistry.handlerProcess(field[i].getType(), v);
 						}
 
@@ -1351,8 +1379,14 @@ public class SqlLib implements BeeSql {
 	private void _setPreparedValues(PreparedStatement pst, List<PreparedValue> list) throws SQLException {
 		int size = list.size();
 		for (int i = 0; i < size; i++) {
-			int k = HoneyUtil.getJavaTypeIndex(list.get(i).getType());
-			HoneyUtil.setPreparedValues(pst, k, i, list.get(i).getValue()); //i from 0
+			Field f=list.get(i).getField();
+			if(f!=null && f.isAnnotationPresent(Json.class)) {
+					//Json annotation key is : 26
+					HoneyUtil.setPreparedValues(pst, 26, i, list.get(i).getValue()); //i from 0	
+			}else {
+				int k = HoneyUtil.getJavaTypeIndex(list.get(i).getType());
+				HoneyUtil.setPreparedValues(pst, k, i, list.get(i).getValue()); //i from 0	
+			}
 		}
 	}
 	

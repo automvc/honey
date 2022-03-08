@@ -29,12 +29,14 @@ import org.teasoft.bee.osql.annotation.JoinTable;
 import org.teasoft.bee.osql.annotation.JoinType;
 import org.teasoft.bee.osql.annotation.JustFetch;
 import org.teasoft.bee.osql.annotation.PrimaryKey;
+import org.teasoft.bee.osql.annotation.customizable.Json;
 import org.teasoft.bee.osql.exception.BeeErrorFieldException;
 import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
 import org.teasoft.bee.osql.exception.BeeIllegalEntityException;
 import org.teasoft.bee.osql.exception.BeeIllegalSQLException;
 import org.teasoft.bee.osql.exception.JoinTableException;
 import org.teasoft.bee.osql.exception.JoinTableParameterException;
+import org.teasoft.bee.osql.type.SetParaTypeConvert;
 import org.teasoft.honey.osql.constant.NullEmpty;
 import org.teasoft.honey.osql.name.NameUtil;
 import org.teasoft.honey.osql.type.SetParaTypeConverterRegistry;
@@ -1003,6 +1005,8 @@ public final class HoneyUtil {
 		javaTypeMap.put("java.io.InputStream", 23);
 		javaTypeMap.put("java.io.Reader", 24);
 		javaTypeMap.put("java.sql.Ref", 25);
+		
+//	    javaTypeMap.put("org.teasoft.bee.osql.annotation.customizable.Json", 26);
 			
 	}
 
@@ -1141,6 +1145,16 @@ public final class HoneyUtil {
 //				pst.setObject(i + 1, d); //ok
 //				//测试数据库是date,datetime,timestamp是否都可以??? TODO
 //				break;
+				
+			case 26:  //Json Annotation
+			{
+				SetParaTypeConvert converter = SetParaTypeConverterRegistry.getConverter(Json.class);
+				if (converter != null) {
+					pst.setString(i + 1, (String) converter.convert(value));
+					break;
+				}
+			}
+			
 			case 19:
 //	        	pst.setBigInteger(i+1, (BigInteger)value);break;
 			default:
@@ -1256,7 +1270,6 @@ public final class HoneyUtil {
 				return rs.getTime(index);
 			case 13:
 				return rs.getTimestamp(index);
-//				return rs.getLong(index);
 			case 14:
 				return rs.getBlob(index);
 			case 15:
@@ -1360,8 +1373,21 @@ public final class HoneyUtil {
 		String type="";
 		
 		int size=list.size();
+		Object value=null;
 		for (int j = 0; j < size; j++) {
-			b.append(list.get(j).getValue());
+			
+			value=list.get(j).getValue();
+			
+			//V1.11
+			Field f = list.get(j).getField();
+			if (f != null) {
+				SetParaTypeConvert converter = SetParaTypeConverterRegistry.getConverter(Json.class);
+				if (converter != null) {
+					value = converter.convert(value);
+				}
+			}
+			
+			b.append(value);
 			type=list.get(j).getType();
 			if(needType && type !=null) {
 				b.append("(");
@@ -1393,6 +1419,15 @@ public final class HoneyUtil {
 		Object value=null;
 		for (int j = 0; j < size; j++) {
 			value=list.get(j).getValue();
+			//V1.11
+			Field f = list.get(j).getField();
+			if (f != null) {
+				SetParaTypeConvert converter = SetParaTypeConverterRegistry.getConverter(Json.class);
+				if (converter != null) {
+					value = converter.convert(value);
+				}
+			}
+			
 			if(value==null || value instanceof Number){  //v1.8.15    Null no need ' and '
 				sql=sql.replaceFirst("\\?", String.valueOf(value));
 			}else{

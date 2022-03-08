@@ -1,13 +1,16 @@
 package org.teasoft.honey.osql.core;
 
+import java.lang.reflect.Field;
+
 /**
  * @author Kingstar
  * @since  1.0
  */
 class PreparedValue {
-
+	
 	private String type;
 	private Object value;
+	private Field field;//V1.11
 
 	public String getType() {
 		return type;
@@ -24,4 +27,23 @@ class PreparedValue {
 	public void setValue(Object value) {
 		this.value = value;
 	}
+
+	/**
+	 * get field
+	 * @return
+	 * @since 1.11
+	 */
+	public Field getField() {
+		return field;
+	}
+
+	/**
+	 * set field
+	 * @param field
+	 * @since 1.11
+	 */
+	public void setField(Field field) {
+		this.field = field;
+	}
+	
 }

@@ -70,6 +70,7 @@ final class _ObjectToSQLHelper {
 					preparedValue = new PreparedValue();
 					preparedValue.setType(fields[i].getType().getName());
 					preparedValue.setValue(fields[i].get(entity));
+					if (AnnoUtil.isJson(fields[i])) preparedValue.setField(fields[i]);
 					list.add(preparedValue);
 				}
 			}
@@ -177,6 +178,7 @@ final class _ObjectToSQLHelper {
 						preparedValue = new PreparedValue();
 						preparedValue.setType(fields[i].getType().getName());
 						preparedValue.setValue(fields[i].get(entity));
+						if (AnnoUtil.isJson(fields[i])) preparedValue.setField(fields[i]);
 						list.add(preparedValue);
 					}
 				}
@@ -443,6 +445,7 @@ final class _ObjectToSQLHelper {
 						preparedValue = new PreparedValue();
 						preparedValue.setType(fields[i].getType().getName());
 						preparedValue.setValue(fields[i].get(entity));
+						if (AnnoUtil.isJson(fields[i])) preparedValue.setField(fields[i]);
 						list.add(preparedValue);
 					}
 				} else {//where
@@ -479,6 +482,7 @@ final class _ObjectToSQLHelper {
 							preparedValue = new PreparedValue();
 							preparedValue.setType(fields[i].getType().getName());
 							preparedValue.setValue(fields[i].get(entity));
+							if (AnnoUtil.isJson(fields[i])) preparedValue.setField(fields[i]);
 							whereList.add(preparedValue);
 						}
 						isExistWhere = true;
@@ -607,6 +611,7 @@ final class _ObjectToSQLHelper {
 					preparedValue = new PreparedValue();
 					preparedValue.setType(fields[i].getType().getName());
 					preparedValue.setValue(fields[i].get(entity));
+					if (AnnoUtil.isJson(fields[i])) preparedValue.setField(fields[i]);
 					list.add(preparedValue);
 				}
 			} else {// where .   此部分只会有显式指定的whereColumn的字段
@@ -650,6 +655,7 @@ final class _ObjectToSQLHelper {
 						preparedValue = new PreparedValue();
 						preparedValue.setType(fields[i].getType().getName());
 						preparedValue.setValue(fields[i].get(entity));
+						if (AnnoUtil.isJson(fields[i])) preparedValue.setField(fields[i]);
 						whereList.add(preparedValue);
 					}
 					isExistWhere = true;
@@ -808,6 +814,7 @@ final class _ObjectToSQLHelper {
 				preparedValue = new PreparedValue();
 				preparedValue.setType(fields[i].getType().getName());
 				preparedValue.setValue(fields[i].get(entity));
+				if (AnnoUtil.isJson(fields[i])) preparedValue.setField(fields[i]);
 				list.add(preparedValue);
 			}
 		}
@@ -848,6 +855,7 @@ final class _ObjectToSQLHelper {
 			preparedValue = new PreparedValue();
 			preparedValue.setType(fields[i].getType().getName());
 			preparedValue.setValue(fields[i].get(entity));
+			if (AnnoUtil.isJson(fields[i])) preparedValue.setField(fields[i]);
 			list.add(preparedValue);
 		}
 
@@ -920,6 +928,7 @@ final class _ObjectToSQLHelper {
 						preparedValue = new PreparedValue();
 						preparedValue.setType(fields[i].getType().getName());
 						preparedValue.setValue(fields[i].get(entity));
+						if (AnnoUtil.isJson(fields[i])) preparedValue.setField(fields[i]);
 						list.add(preparedValue);
 					}
 				}

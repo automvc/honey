@@ -415,7 +415,6 @@ public final class HoneyContext {
 	}
 
 	public static void setAppointTab(String tabName) {
-		System.err.println(tabName);
 		appointTab.set(tabName);
 	}
 
@@ -428,7 +427,6 @@ public final class HoneyContext {
 	}
 
 	public static void setTabSuffix(String suffix) {
-		System.err.println(suffix);
 		tabSuffix.set(suffix);
 	}
 

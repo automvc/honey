@@ -22,6 +22,7 @@ import org.teasoft.bee.osql.dialect.DbFeature;
 import org.teasoft.bee.osql.exception.BeeIllegalEntityException;
 import org.teasoft.honey.distribution.GenIdFactory;
 import org.teasoft.honey.osql.name.NameUtil;
+import org.teasoft.honey.osql.util.AnnoUtil;
 
 /**
  * @author Kingstar
@@ -281,6 +282,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 					preparedValue = new PreparedValue();
 					preparedValue.setType(fields[i].getType().getName());
 					preparedValue.setValue(fields[i].get(entity));
+					if (AnnoUtil.isJson(fields[i])) preparedValue.setField(fields[i]);
 					list.add(preparedValue);
 				}
 			}
@@ -801,6 +803,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 					preparedValue = new PreparedValue();
 					preparedValue.setType(fields[i].getType().getName());
 					preparedValue.setValue(fields[i].get(entity));
+					if (AnnoUtil.isJson(fields[i])) preparedValue.setField(fields[i]);
 					list.add(preparedValue);
 				}
 			}

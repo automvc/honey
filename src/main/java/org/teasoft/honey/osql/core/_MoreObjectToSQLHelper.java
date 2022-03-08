@@ -16,9 +16,9 @@ import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.annotation.JoinType;
 import org.teasoft.bee.osql.annotation.PrimaryKey;
 import org.teasoft.bee.osql.dialect.DbFeature;
-import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
 import org.teasoft.bee.osql.interccept.InterceptorChain;
 import org.teasoft.honey.osql.name.NameUtil;
+import org.teasoft.honey.osql.util.AnnoUtil;
 import org.teasoft.honey.util.StringUtils;
 
 /**
@@ -380,6 +380,7 @@ public class _MoreObjectToSQLHelper {
 					preparedValue = new PreparedValue();
 					preparedValue.setType(fields[i].getType().getName());
 					preparedValue.setValue(fields[i].get(entity));
+					if (AnnoUtil.isJson(fields[i])) preparedValue.setField(fields[i]);
 //					list.add(k++, preparedValue);  //bug
 					list.add(preparedValue);
 				}
@@ -511,6 +512,7 @@ public class _MoreObjectToSQLHelper {
 					preparedValue = new PreparedValue();
 					preparedValue.setType(fields[i].getType().getName());
 					preparedValue.setValue(fields[i].get(entity));
+					if (AnnoUtil.isJson(fields[i])) preparedValue.setField(fields[i]);
 					list.add(preparedValue);
 				}
 			}
