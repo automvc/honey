@@ -7,6 +7,7 @@
 package org.teasoft.honey.osql.autogen;
 
 import java.lang.reflect.Field;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.teasoft.bee.osql.DatabaseConst;
@@ -32,8 +33,13 @@ public class Ddl {
 	//	private static Map<String, String> java2DbType = Java2DbType.getJava2DbType(HoneyContext.getDbDialect());
 	private static String LINE_SEPARATOR = System.getProperty("line.separator"); // 换行符
 	private static PreparedSql preparedSql = BeeFactoryHelper.getPreparedSql();
+	private static Map<String,String> pkStatement=new HashMap<>();
+	
+	static {
+		initPkStatement();
+	}
 
-	private Ddl(){}
+	private Ddl() {}
 	
 	private static Map<String, String> getJava2DbType() {
 		return Java2DbType.getJava2DbType(HoneyContext.getDbDialect());
@@ -159,6 +165,11 @@ public class Ddl {
 	
 	//SQLite
 	private static <T> String toCreateTableSQLForSQLite(T entity, String tableName) {
+		return toCreateTableSQLComm(entity, tableName, DatabaseConst.SQLite);
+	}
+	
+/*	//SQLite
+	private static <T> String toCreateTableSQLForSQLite(T entity, String tableName) {
 		if (tableName == null) tableName = _toTableName(entity);
 		StringBuilder sqlBuffer = new StringBuilder();
 		sqlBuffer.append(CREATE_TABLE + tableName + " (").append(LINE_SEPARATOR);
@@ -193,6 +204,7 @@ public class Ddl {
 		return sqlBuffer.toString();
 
 	}
+	*/
 
 	//MySQL
 	private static <T> String toCreateTableSQLForMySQL(T entity, String tableName) {
@@ -230,8 +242,14 @@ public class Ddl {
 		return sqlBuffer.toString();
 
 	}
+	
+//	H2
+	private static <T> String toCreateTableSQLForH2(T entity, String tableName) {
+		return toCreateTableSQLComm(entity, tableName, DatabaseConst.H2);
+	}
+	
 
-	//H2
+/*	//H2
 	private static <T> String toCreateTableSQLForH2(T entity, String tableName) {
 		if (tableName == null) tableName = _toTableName(entity);
 		StringBuilder sqlBuffer = new StringBuilder();
@@ -266,10 +284,69 @@ public class Ddl {
 		sqlBuffer.append(" )");
 
 		return sqlBuffer.toString();
-
 	}
+*/
+	
+	private static void initPkStatement() {
+		pkStatement.put(DatabaseConst.H2.toLowerCase(), "bigint PRIMARY KEY NOT NULL");
+		pkStatement.put(DatabaseConst.SQLite.toLowerCase(), " INTEGER PRIMARY KEY NOT NULL");
+		pkStatement.put(DatabaseConst.PostgreSQL.toLowerCase(), "bigserial NOT NULL");
+	}
+	
+	private static String getPrimaryKeyStatement(String databaseName){
+		return pkStatement.get(databaseName.toLowerCase());
+	}
+	
+	//Comm: H2,SQLite,PostgreSQL
+	private static <T> String toCreateTableSQLComm(T entity, String tableName, String databaseName) {
+		if (tableName == null) tableName = _toTableName(entity);
+		StringBuilder sqlBuffer = new StringBuilder();
+		sqlBuffer.append(CREATE_TABLE + tableName + " (").append(LINE_SEPARATOR);
+		Field fields[] = entity.getClass().getDeclaredFields();
+		for (int i = 0; i < fields.length; i++) {
+			if (isSkipField(fields[i])) {
+				if (i == fields.length - 1)
+					sqlBuffer.delete(sqlBuffer.length() - 5, sqlBuffer.length() - 2);
+				continue;
+			}
+			sqlBuffer.append(_toColumnName(fields[i].getName(), entity.getClass())).append("  ");
 
-	//PostgreSQL
+			if (isPrimaryKey(fields[i]))
+				sqlBuffer.append(getPrimaryKeyStatement(databaseName));//different
+			else {
+				
+				String type = getJava2DbType().get(fields[i].getType().getName());
+				if(type==null) {
+					Logger.warn("The java type:"+type+" can not the relative database column type!");
+					type=getJava2DbType().get("java.lang.String");
+					Logger.warn("It will be replace with type: "+type);
+				}
+				sqlBuffer.append(type);
+				if ("timestamp".equalsIgnoreCase(type) || "datetime".equalsIgnoreCase(type)) {
+					sqlBuffer.append(" DEFAULT CURRENT_TIMESTAMP");
+				} else {
+					sqlBuffer.append(" DEFAULT NULL");
+				}
+			}
+
+			if (i != fields.length - 1)
+				sqlBuffer.append(",  ");
+			else
+				sqlBuffer.append("  ");
+			sqlBuffer.append(LINE_SEPARATOR);
+		}
+		sqlBuffer.append(" )");
+
+		return sqlBuffer.toString();
+	}
+	
+	
+//	PostgreSQL
+	private static <T> String toCreateTableSQLForPostgreSQL(T entity, String tableName) {
+		return toCreateTableSQLComm(entity, tableName, DatabaseConst.PostgreSQL);
+	}
+	
+/*	//PostgreSQL
 	private static <T> String toCreateTableSQLForPostgreSQL(T entity, String tableName) {
 		if (tableName == null) tableName = _toTableName(entity);
 		StringBuilder sqlBuffer = new StringBuilder();
@@ -306,6 +383,7 @@ public class Ddl {
 		return sqlBuffer.toString();
 
 	}
+	*/
 
 	//SQLSERVER
 	private static <T> String toCreateTableSQLForSQLSERVER(T entity, String tableName) {
