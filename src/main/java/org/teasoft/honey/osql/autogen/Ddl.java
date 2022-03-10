@@ -34,6 +34,7 @@ public class Ddl {
 	private static String LINE_SEPARATOR = System.getProperty("line.separator"); // 换行符
 	private static PreparedSql preparedSql = BeeFactoryHelper.getPreparedSql();
 	private static Map<String,String> pkStatement=new HashMap<>();
+	private static String java_lang_String="java.lang.String";
 	
 	static {
 		initPkStatement();
@@ -149,7 +150,15 @@ public class Ddl {
 				continue;
 			}
 			sqlBuffer.append(_toColumnName(fields[i].getName(),entity.getClass())).append("  ");
-			sqlBuffer.append(getJava2DbType().get(fields[i].getType().getName()));
+			
+			String type = getJava2DbType().get(fields[i].getType().getName());
+			if(type==null) {
+				Logger.warn("The java type:"+type+" can not the relative database column type!");
+				type=getJava2DbType().get(java_lang_String);
+				Logger.warn("It will be replace with type: "+type);
+			}
+			sqlBuffer.append(type);
+			
 			if (isPrimaryKey(fields[i])) sqlBuffer.append(" PRIMARY KEY");
 			if (i != fields.length - 1)
 				sqlBuffer.append(",  ");
@@ -223,7 +232,13 @@ public class Ddl {
 				sqlBuffer.append("bigint(20) PRIMARY KEY NOT NULL AUTO_INCREMENT");
 			else {
 				String type = getJava2DbType().get(fields[i].getType().getName());
+				if(type==null) {
+					Logger.warn("The java type:"+type+" can not the relative database column type!");
+					type=getJava2DbType().get(java_lang_String);
+					Logger.warn("It will be replace with type: "+type);
+				}
 				sqlBuffer.append(type);
+				
 				if ("timestamp".equalsIgnoreCase(type) || "datetime".equalsIgnoreCase(type)) {
 					sqlBuffer.append(" DEFAULT CURRENT_TIMESTAMP");
 				} else {
@@ -318,7 +333,7 @@ public class Ddl {
 				String type = getJava2DbType().get(fields[i].getType().getName());
 				if(type==null) {
 					Logger.warn("The java type:"+type+" can not the relative database column type!");
-					type=getJava2DbType().get("java.lang.String");
+					type=getJava2DbType().get(java_lang_String);
 					Logger.warn("It will be replace with type: "+type);
 				}
 				sqlBuffer.append(type);
@@ -402,9 +417,14 @@ public class Ddl {
 			if (isPrimaryKey(fields[i]))
 				sqlBuffer.append("bigint PRIMARY KEY NOT NULL");
 			else {
-				//				sqlBuffer.append(getJava2DbType().get(fields[i].getType().getName()));
-
 				String type = getJava2DbType().get(fields[i].getType().getName());
+				if(type==null) {
+					Logger.warn("The java type:"+type+" can not the relative database column type!");
+					type=getJava2DbType().get(java_lang_String);
+					Logger.warn("It will be replace with type: "+type);
+				}
+//				sqlBuffer.append(type);
+				
 				if (("timestamp".equalsIgnoreCase(type))) {
 					if (!hasCurrentTime) {
 						sqlBuffer.append(type);
@@ -412,7 +432,6 @@ public class Ddl {
 						hasCurrentTime = true;
 					} else {
 						sqlBuffer.append("datetime DEFAULT NULL");
-						//						sqlBuffer.append(" DEFAULT CURRENT_TIMESTAMP");
 					}
 				} else {
 					sqlBuffer.append(type);

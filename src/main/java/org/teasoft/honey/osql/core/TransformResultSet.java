@@ -161,7 +161,7 @@ public class TransformResultSet {
 //			rowMap=new HashMap<>();
 			rowMap=new LinkedHashMap<>(); //2021-06-13
 			for (int i = 1; i <= columnCount; i++) {
-				rowMap.put(_toFieldName(rmeta.getColumnName(i),null), rs.getObject(i)); //ignore Column
+				rowMap.put(_toFieldName(rmeta.getColumnName(i),null), rs.getObject(i)); //ignore Column annotation
 			}
 			list.add(rowMap);
 		}

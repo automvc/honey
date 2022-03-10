@@ -346,9 +346,9 @@ public class GenBean {
 			for (int i = 1; i <= columCount; i++) {
 				table.getColumnNames().add(rmeta.getColumnName(i).trim());
 				table.getColumnTypes().add(rmeta.getColumnTypeName(i).trim());
-				
-//				.println(rmeta.getColumnName(i).trim()+ "     :    " +rmeta.getColumnTypeName(i).trim());
-				
+//				.println("--------------------------------");
+////				.println(rmeta.getColumnName(i).trim()+ "     :    " +rmeta.getColumnTypeName(i).trim());
+//				.println(rmeta.getColumnName(i).trim()+ "     :    " +rmeta.getColumnClassName(i).trim());
 				if (rmeta.isNullable(i) == 1) table.getYnNulls().add(true);
 				else table.getYnNulls().add(false);
 			}
