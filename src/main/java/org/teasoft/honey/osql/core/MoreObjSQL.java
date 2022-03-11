@@ -12,6 +12,7 @@ import org.teasoft.bee.osql.BeeSql;
 import org.teasoft.bee.osql.Condition;
 import org.teasoft.bee.osql.MoreObjToSQL;
 import org.teasoft.bee.osql.MoreTable;
+import org.teasoft.bee.osql.NameTranslate;
 import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.exception.BeeIllegalParameterException;
 import org.teasoft.bee.osql.interccept.InterceptorChain;
@@ -27,6 +28,7 @@ public class MoreObjSQL implements MoreTable{
 	//V1.11
 	private InterceptorChain interceptorChain;
 	private String dsName;
+	private NameTranslate nameTranslate; //用于设置当前对象使用的命名转换器.使用默认的不需要设置
 	
 	private static final String SELECT_SQL = "select SQL: ";
 
@@ -48,6 +50,12 @@ public class MoreObjSQL implements MoreTable{
 		this.moreObjToSQL = moreObjToSQL;
 	}
 	
+	@Override
+	public void setNameTranslate(NameTranslate nameTranslate) {
+		this.nameTranslate=nameTranslate;
+	}
+	
+	@Override
 	public InterceptorChain getInterceptorChain() {
 		if (interceptorChain == null) interceptorChain = BeeFactory.getHoneyFactory().getInterceptorChain();
 		return interceptorChain;
@@ -113,6 +121,7 @@ public class MoreObjSQL implements MoreTable{
 
 	private void doBeforePasreEntity(Object entity) {
 		if (this.dsName != null) HoneyContext.setTempDS(dsName);
+		if(this.nameTranslate!=null) HoneyContext.setCurrentNameTranslate(nameTranslate);
 		getInterceptorChain().beforePasreEntity(entity, SuidType.SELECT);
 		OneTimeParameter.setAttribute(StringConst.InterceptorChainForMoreTable, getInterceptorChain());//用于子表
 	}
@@ -125,6 +134,7 @@ public class MoreObjSQL implements MoreTable{
 	@SuppressWarnings("rawtypes")
 	private void doBeforeReturn(List list) {
 		if (this.dsName != null) HoneyContext.removeTempDS();
+		if(this.nameTranslate!=null) HoneyContext.removeCurrentNameTranslate();
 		getInterceptorChain().beforeReturn(list);
 	}
 

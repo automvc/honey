@@ -24,7 +24,7 @@ import org.teasoft.honey.util.StringUtils;
  */
 public class NameTranslateHandle {
 
-	private static NameTranslate nameTranslat = BeeFactory.getHoneyFactory().getInitNameTranslate();
+	private static NameTranslate nameTranslate = BeeFactory.getHoneyFactory().getInitNameTranslate();
 	private static ConcurrentMap<String, String> entity2tableMap;
 	private static ConcurrentMap<String, String> table2entityMap = null;
 	
@@ -41,13 +41,15 @@ public class NameTranslateHandle {
 	 * 指定命名转换实现类
 	 * @param nameTranslat
 	 */
-	public static void setNameTranslat(NameTranslate nameTranslat) { // for set customer naming.
-		NameTranslateHandle.nameTranslat = nameTranslat;
+	public static void setNameTranslate(NameTranslate nameTranslate) { // for set customer naming.
+		NameTranslateHandle.nameTranslate = nameTranslate;
 		HoneyContext.clearFieldNameCache();
 	}
 
 	public static NameTranslate getNameTranslate() {
-		return NameTranslateHandle.nameTranslat;
+		NameTranslate nameTranslate1=HoneyContext.getCurrentNameTranslate();
+		if(nameTranslate1!=null) return nameTranslate1; //当前对象设置有,则优先使用.
+		return NameTranslateHandle.nameTranslate;
 	}
 	
 	public static ColumnHandler getColumnHandler() {
@@ -70,7 +72,7 @@ public class NameTranslateHandle {
 				int index = entityName.lastIndexOf('.');
 				if (index > 0) {
 					entityName = entityName.substring(index + 1);
-					return nameTranslat.toTableName(entityName) + tabSuffix;
+					return getNameTranslate().toTableName(entityName) + tabSuffix;
 				}
 			}
 
@@ -118,11 +120,11 @@ public class NameTranslateHandle {
 			}
 		}
 		
-		return nameTranslat.toTableName(entityName); //到此的entityName只包含类名
+		return getNameTranslate().toTableName(entityName); //到此的entityName只包含类名
 	}
 
 	public static String toColumnName(String fieldName) {
-		return nameTranslat.toColumnName(fieldName);
+		return getNameTranslate().toColumnName(fieldName);
 	}
 	
 	public static String toColumnName(String fieldName, Class entityClass) {
@@ -134,7 +136,7 @@ public class NameTranslateHandle {
 			}
 		}
 		   
-		return nameTranslat.toColumnName(fieldName);
+		return getNameTranslate().toColumnName(fieldName);
 	}
 	
 	public synchronized static String toEntityName(String tableName) {//生成javabean时会用到. SqlLib不会用到.因会传入T entity
@@ -146,11 +148,11 @@ public class NameTranslateHandle {
 		String entityName = table2entityMap.get(tableName);
 		if (entityName != null && !"".equals(entityName.trim())) return entityName; //fix bug 2020-08-22
 
-		return nameTranslat.toEntityName(tableName);
+		return getNameTranslate().toEntityName(tableName);
 	}
 
 	public static String toFieldName(String columnName) {
-		return nameTranslat.toFieldName(columnName);
+		return getNameTranslate().toFieldName(columnName);
 	}
 	
 	public static String toFieldName(String columnName, Class entityClass) {
@@ -161,7 +163,7 @@ public class NameTranslateHandle {
 				if(fieldName!=null) return fieldName;
 			}
 		}
-		return nameTranslat.toFieldName(columnName);
+		return getNameTranslate().toFieldName(columnName);
 	}
 	
 	private static String processAutoPara(String autoPara) {

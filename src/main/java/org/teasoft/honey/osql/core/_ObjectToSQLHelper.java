@@ -863,6 +863,7 @@ final class _ObjectToSQLHelper {
 		if (HoneyUtil.isMysql() && !showSQL) {  //if it is mysql batch insert, just use for print log.
              //no need set context
 			//mysql 批操作时,仅用于打印日志. 所以当DB为mysql,且不用打印日志时,不用记录
+			//mysql在其它分支处理
 		} else {
 			HoneyContext.setPreparedValue(sql_i, list);  
 		}

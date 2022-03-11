@@ -10,6 +10,7 @@ import java.util.List;
 
 import org.teasoft.bee.osql.BeeSql;
 import org.teasoft.bee.osql.Condition;
+import org.teasoft.bee.osql.NameTranslate;
 import org.teasoft.bee.osql.ObjToSQL;
 import org.teasoft.bee.osql.Suid;
 import org.teasoft.bee.osql.SuidType;
@@ -29,6 +30,7 @@ public class ObjSQL implements Suid {
 	//V1.11
 	private InterceptorChain interceptorChain;
 	private String dsName;
+	private NameTranslate nameTranslate; //用于设置当前对象使用的命名转换器.使用默认的不需要设置
 
 	public BeeSql getBeeSql() {
 		if (beeSql == null) beeSql = BeeFactory.getHoneyFactory().getBeeSql();
@@ -47,7 +49,8 @@ public class ObjSQL implements Suid {
 	public void setObjToSQL(ObjToSQL objToSQL) {
 		this.objToSQL = objToSQL;
 	}
-
+	
+	@Override
 	public InterceptorChain getInterceptorChain() {
 		if (interceptorChain == null)
 			interceptorChain = BeeFactory.getHoneyFactory().getInterceptorChain();
@@ -56,6 +59,11 @@ public class ObjSQL implements Suid {
 
 	public void setInterceptorChain(InterceptorChain interceptorChain) {
 		this.interceptorChain = interceptorChain;
+	}
+	
+	@Override
+	public void setNameTranslate(NameTranslate nameTranslate) {
+		this.nameTranslate=nameTranslate;
 	}
 
 	@Override
@@ -252,6 +260,7 @@ public class ObjSQL implements Suid {
 
 	void doBeforePasreEntity(Object entity, SuidType SuidType) {
 		if (this.dsName != null) HoneyContext.setTempDS(dsName);
+		if(this.nameTranslate!=null) HoneyContext.setCurrentNameTranslate(nameTranslate);
 		getInterceptorChain().beforePasreEntity(entity, SuidType);
 	}
 
@@ -264,11 +273,13 @@ public class ObjSQL implements Suid {
 	@SuppressWarnings("rawtypes")
 	void doBeforeReturn(List list) {
 		if (this.dsName != null) HoneyContext.removeTempDS();
+		if(this.nameTranslate!=null) HoneyContext.removeCurrentNameTranslate();
 		getInterceptorChain().beforeReturn(list);
 	}
 
 	void doBeforeReturn() {
 		if (this.dsName != null) HoneyContext.removeTempDS();
+		if(this.nameTranslate!=null) HoneyContext.removeCurrentNameTranslate();
 		getInterceptorChain().beforeReturn();
 	}
 }

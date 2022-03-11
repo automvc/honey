@@ -11,6 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.teasoft.bee.osql.NameTranslate;
 import org.teasoft.bee.osql.SuidType;
 import org.teasoft.honey.distribution.ds.RouteStruct;
 import org.teasoft.honey.util.ObjectUtils;
@@ -37,10 +38,14 @@ public final class HoneyContext {
 	private static ThreadLocal<Map<String, CacheSuidStruct>> cacheLocal;
 	
 	private static ThreadLocal<Map<String, Map<String, String>>> customMapLocal;
+	
+	private static ThreadLocal<Map<String,String>> sysCommStrLocal;
 
 	private static ThreadLocal<RouteStruct> currentRoute;
 
 	private static ThreadLocal<Connection> currentConnection; //当前事务的Conn
+	
+	private static ThreadLocal<NameTranslate> currentNameTranslate;
 
 	private static ThreadLocal<String> sameConnctionDoing; //当前多个ORM操作使用同一个connection.
 	private static ThreadLocal<String> jdbcTranWriterDs; 
@@ -106,9 +111,12 @@ public final class HoneyContext {
 		//		sqlValueLocal = new ThreadLocal<>();
 		cacheLocal = new ThreadLocal<>();
 		customMapLocal = new ThreadLocal<>();
+		sysCommStrLocal = new ThreadLocal<>();
 
 		currentConnection = new ThreadLocal<>();
+		currentNameTranslate = new ThreadLocal<>();
 		//		transactionLocal = new ThreadLocal<>();
+		
 		sameConnctionDoing = new ThreadLocal<>();
 		jdbcTranWriterDs = new ThreadLocal<>();
 		appointDS = new ThreadLocal<>();
@@ -289,6 +297,10 @@ public final class HoneyContext {
 
 		return map.get(sqlStr);
 	}
+//	public static void test() {
+//		Map<String, List<PreparedValue>> map = sqlPreValueLocal.get();
+//		System.err.println(map);
+//	}
 
 	static void clearPreparedValue(String sqlStr) {
 		Map<String, List<PreparedValue>> map = sqlPreValueLocal.get();
@@ -357,6 +369,18 @@ public final class HoneyContext {
 
 	public static void removeCurrentConnection() {
 		currentConnection.remove();
+	}
+	
+	public static NameTranslate getCurrentNameTranslate() {
+		return currentNameTranslate.get();
+	}
+
+	public static void setCurrentNameTranslate(NameTranslate nameTranslate) {
+		currentNameTranslate.set(nameTranslate);
+	}
+
+	public static void removeCurrentNameTranslate() {
+		currentNameTranslate.remove();
 	}
 
 	public static String getSameConnctionDoing() {
