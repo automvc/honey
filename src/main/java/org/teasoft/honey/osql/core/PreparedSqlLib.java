@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.teasoft.bee.osql.BeeSql;
+import org.teasoft.bee.osql.NameTranslate;
 import org.teasoft.bee.osql.PreparedSql;
 import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.dialect.DbFeature;
@@ -12,6 +13,7 @@ import org.teasoft.bee.osql.exception.BeeIllegalParameterException;
 import org.teasoft.bee.osql.exception.SqlNullException;
 import org.teasoft.bee.osql.interccept.InterceptorChain;
 import org.teasoft.honey.osql.name.NameUtil;
+import org.teasoft.honey.util.ObjectUtils;
 
 /**
  * 支持带占位符(?)的sql操作.sql语句是DB能识别的SQL,非面向对象的sql.
@@ -27,7 +29,9 @@ public class PreparedSqlLib implements PreparedSql {
 
 	//V1.11
 	private InterceptorChain interceptorChain;
-	private String dsName;
+	
+	private String dsName;//用于设置当前对象使用的数据源名称
+	private NameTranslate nameTranslate; //用于设置当前对象使用的命名转换器.使用默认的不需要设置
 	
 	private static final String SELECT_SQL = "PreparedSql select SQL: ";
 	private static final String SELECT_MoreTable_SQL = "PreparedSql select MoreTable SQL: ";
@@ -50,6 +54,7 @@ public class PreparedSqlLib implements PreparedSql {
 		return BeeFactory.getHoneyFactory().getDbFeature();
 	}
 
+	@Override
 	public InterceptorChain getInterceptorChain() {
 		if (interceptorChain == null)
 			interceptorChain = BeeFactory.getHoneyFactory().getInterceptorChain();
@@ -69,6 +74,12 @@ public class PreparedSqlLib implements PreparedSql {
 	public String getDataSourceName() {
 		return dsName;
 	}
+	
+	@Override
+	public void setNameTranslate(NameTranslate nameTranslate) {
+		this.nameTranslate=nameTranslate;
+	}
+	
 
 	@Override
 	public <T> List<T> select(String sql, T returnType, Object[] preValues) {
@@ -555,7 +566,7 @@ public class PreparedSqlLib implements PreparedSql {
 		}
 
 		SqlValueWrap wrap = processSql(sqlStr); //bug.  wrap maybe null
-		if (wrap == null) return sqlStr; //fix null bug
+		if (wrap == null || ObjectUtils.isEmpty(map)) return sqlStr; //fix null bug
 		String sql = wrap.getSql();
 		String mapKeys = wrap.getValueBuffer().toString(); //wrap.getValueBuffer() is :map's key , get from like: #{name}
 		List list = _initPreparedValues(mapKeys, map);
@@ -564,15 +575,17 @@ public class PreparedSqlLib implements PreparedSql {
 		HoneyContext.setPreparedValue(sql, list);
 		return sql;
 	}
-
-//	private List _initPreparedValues(String sql, String mapKeys,Map<String,Object> map) {
+	
 	private List _initPreparedValues(String mapKeys, Map<String, Object> map) {
+		String keys[] = mapKeys.split(","); //map's key
+		return _initPreparedValues(keys, map);
+	}
+
+	private List _initPreparedValues(String keys[], Map<String, Object> map) {
 
 		PreparedValue preparedValue = null;
 		List<PreparedValue> list = new ArrayList<>();
 		Object value;
-
-		String keys[] = mapKeys.split(","); //map's key
 
 		for (int i = 0; i < keys.length; i++) {
 			preparedValue = new PreparedValue();
@@ -623,20 +636,42 @@ public class PreparedSqlLib implements PreparedSql {
 
 	@Override
 	public List<Map<String, Object>> selectMapList(String sql) {
-		Logger.logSQL("PreparedSql selectMapList SQL: ", sql);
-		return getBeeSql().selectMapList(sql);
+		return selectMapList(sql,null);
 	}
+	
+	@Override
+	public List<Map<String, Object>> selectMapList(String sqlStr, Map<String, Object> map) {
+		doBeforePasreEntity();
+		String sql = initPrepareValuesViaMap(sqlStr, map);
+		sql = doAfterCompleteSql(sql);
+		Logger.logSQL("PreparedSql selectMapList SQL: ", sql);
+
+		List<Map<String, Object>> list = getBeeSql().selectMapList(sql);
+		doBeforeReturn();
+		
+		return list;
+	}
+	
 
 	@Override
-	public List<Map<String, Object>> selectMapList(String sql, int start, int size) {
-
+	public List<Map<String, Object>> selectMapList(String sqlStr, Map<String, Object> parameterMap,
+			int start, int size) {
+		
 		if (size <= 0) throw new BeeIllegalParameterException(SIZE_GREAT_0);
 		if (start < 0) throw new BeeIllegalParameterException(START_GREAT_EQ_0);
 
-		sql = getDbFeature().toPageSql(sql, start, size);
-		Logger.logSQL("PreparedSql selectMapList SQL: ", sql);
+		doBeforePasreEntity();
 
-		return getBeeSql().selectMapList(sql);
+		regPagePlaceholder();
+		String pageSql = getDbFeature().toPageSql(sqlStr, start, size);
+		String sql = initPrepareValuesViaMap(pageSql, parameterMap);
+
+		sql = doAfterCompleteSql(sql);
+		Logger.logSQL("PreparedSql selectMapList SQL: ", sql);
+		List<Map<String, Object>> list = getBeeSql().selectMapList(sql);
+
+		doBeforeReturn();
+		return list;
 	}
 
 	@Override
@@ -690,14 +725,102 @@ public class PreparedSqlLib implements PreparedSql {
 		doBeforeReturn(list);
 		return list;
 	}
+	
+	private static boolean  showSQL=HoneyConfig.getHoneyConfig().showSQL;
+	private static final String INDEX1 = "_SYS[index";
+	private static final String INDEX2 = "]_End ";
+	private static final String INDEX3 = "]";
+	
+	@Override
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public int insert(String sqlStr, List<Map<String, Object>> parameterMapList, int batchSize) {
 
+		if (sqlStr == null || "".equals(sqlStr.trim())) {
+			throw new SqlNullException(STRING_IS_NULL);
+		}
+
+		if (ObjectUtils.isEmpty(parameterMapList)) {
+			Logger.warn("parameterMapList is empty!");
+			return 0;
+		}
+		
+		sqlStr = HoneyUtil.deleteLastSemicolon(sqlStr);
+
+		doBeforePasreEntity();
+
+		int size = parameterMapList.size();
+
+		SqlValueWrap wrap = processSql(sqlStr);
+		if (wrap == null || ObjectUtils.isEmpty(parameterMapList.get(0))) return 0;
+		String insertSql[] = new String[size];
+		insertSql[0] = wrap.getSql();
+
+		String mapKeys = wrap.getValueBuffer().toString(); //wrap.getValueBuffer() is :map's key , get from like: #{name}
+		String keys[] = mapKeys.split(","); //map's key
+
+		insertSql[0] = doAfterCompleteSql(insertSql[0]); //提前转换sql,可以少更新上下文
+
+		String sql_i = null;
+		List<PreparedValue> preparedValueList = new ArrayList<>();
+		
+		for (int i = 0; i < size; i++) {
+			List oneRecoreList = _initPreparedValues(keys, parameterMapList.get(i));
+			sql_i = INDEX1 + i + INDEX2 + insertSql[0];
+			if (HoneyUtil.isMysql()) {
+				if (i == 0) {
+					OneTimeParameter.setAttribute("_SYS_Bee_PlaceholderValue", getPlaceholderValue(size));
+					HoneyContext.setPreparedValue(sql_i, oneRecoreList);
+				}
+				preparedValueList.addAll(oneRecoreList); //用于mysql批量插入时设置值
+				if((i+1)%batchSize==0){ //i+1    i+1不可能为0
+					HoneyContext.setPreparedValue(insertSql[0] +"  [Batch:"+ (i/batchSize) + INDEX3, preparedValueList); //i
+					preparedValueList = new ArrayList<>();
+				}else if(i==(size-1)){
+					HoneyContext.setPreparedValue(insertSql[0] +"  [Batch:"+ (i/batchSize) + INDEX3, preparedValueList); //i
+				}
+			}
+			if (HoneyUtil.isMysql() && !showSQL) {
+				//none
+			} else {
+				HoneyContext.setPreparedValue(sql_i, oneRecoreList);
+			}
+		}
+//		HoneyContext.test();
+		int a = getBeeSql().batch(insertSql,batchSize);
+		doBeforeReturn();
+		
+
+		return a;
+
+	}
+	
+	private String getPlaceholderValue(int size) {
+		StringBuffer placeholderValue = new StringBuffer(" (");
+		for (int i = 0; i < size; i++) {
+			if(i!=0) placeholderValue.append(",");
+			placeholderValue.append("?");
+		}
+		placeholderValue.append(")");
+		
+		return placeholderValue.toString();
+	}
+
+	@Override
+	public int insert(String sqlStr, List<Map<String, Object>> parameterMapList) {
+		int batchSize = HoneyConfig.getHoneyConfig().insertBatchSize;
+		return insert(sqlStr, parameterMapList, batchSize);
+	}
+	
+	
 	private void doBeforePasreEntity() {
 		if (this.dsName != null) HoneyContext.setTempDS(dsName);
+		if(this.nameTranslate!=null) HoneyContext.setCurrentNameTranslate(nameTranslate);
 		getInterceptorChain().beforePasreEntity(null, SuidType.SELECT);
 	}
 
 	private void doBeforePasreEntity(Object entity, SuidType suidType) {
 		if (this.dsName != null) HoneyContext.setTempDS(dsName);
+		if(this.nameTranslate!=null) HoneyContext.setCurrentNameTranslate(nameTranslate);
 		getInterceptorChain().beforePasreEntity(entity, suidType);
 	}
 
@@ -710,11 +833,13 @@ public class PreparedSqlLib implements PreparedSql {
 	@SuppressWarnings("rawtypes")
 	private void doBeforeReturn(List list) {
 		if (this.dsName != null) HoneyContext.removeTempDS();
+		if(this.nameTranslate!=null) HoneyContext.removeCurrentNameTranslate();
 		getInterceptorChain().beforeReturn(list);
 	}
 
 	private void doBeforeReturn() {
 		if (this.dsName != null) HoneyContext.removeTempDS();
+		if(this.nameTranslate!=null) HoneyContext.removeCurrentNameTranslate();
 		getInterceptorChain().beforeReturn();
 	}
 
