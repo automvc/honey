@@ -234,7 +234,8 @@ public final class HoneyUtil {
 				if (subEntityFieldNum == 2) subField[1] = field[i];
 				
 //				if("java.util.List".equals(field[i].getType().getName())) {
-				if(field[i].getType().isAssignableFrom(List.class)) {
+//				if(field[i].getType().isAssignableFrom(List.class)) {
+				if(List.class.isAssignableFrom(field[i].getType())) {
 					try {
 					field[i].setAccessible(true);
 						if (subEntityFieldNum == 1) {
@@ -366,7 +367,8 @@ public final class HoneyUtil {
 			
 			//之前的subTwoIsList为主表下的从表的  oneHasOne时,在此处再作判断
 //			if (oneHasOne && "java.util.List".equals(subField[1].getType().getName())) {
-			if (oneHasOne && subField[1].getType().isAssignableFrom(List.class)) {
+//			if (oneHasOne && subField[1].getType().isAssignableFrom(List.class)) {
+			if (oneHasOne && List.class.isAssignableFrom(subField[1].getType())) {
 				subTwoIsList = true; 
 			}
 
@@ -380,14 +382,12 @@ public final class HoneyUtil {
 			}
 		}
 		
-		
 		//if no exception , set for main table
 		moreTableStruct[0].tableName = tableName;
 //		moreTableStruct[0].entityFullName = entityFullName;
 //		moreTableStruct[0].entityName = entity.getClass().getSimpleName();
 		moreTableStruct[0].joinTableNum=subEntityFieldNum;  //一个实体包含关联的从表数
 		//moreTableStruct[0].columnsFull = columns.toString();  //还要从表列
-		
 
 		//set for subTable1 and subTable2
 		//开始全面检测,处理两个从表

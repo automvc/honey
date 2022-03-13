@@ -55,8 +55,8 @@ public class NameCheckUtil {
 	}
 
 	public static boolean isValidName(String name) {
-//		String p = "^[a-zA-Z]{1}[0-9a-zA-Z_]{0,}$";
-		String p = "^[0-9a-zA-Z_.]{1,}$";    //mysql可以用数字为字段名
+		String p = "^[a-zA-Z]{1}[0-9a-zA-Z_.]{0,}$";
+//		String p = "^[0-9a-zA-Z_.]{1,}$";    //mysql可以用数字为字段名,但java不允许数字开头，转换时会报错
 		Pattern pattern = Pattern.compile(p);
 		return pattern.matcher(name).find();
 	}
@@ -104,6 +104,7 @@ public class NameCheckUtil {
 				|| fieldName.contains("#") || fieldName.contains("|") || fieldName.contains("+")
 				|| fieldName.contains("/*")
 				|| fieldName.contains(";")
+				|| fieldName.contains("//")
 				) {
 			return true;
 		}
