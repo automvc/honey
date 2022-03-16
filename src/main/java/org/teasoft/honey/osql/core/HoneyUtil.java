@@ -7,6 +7,7 @@ import java.sql.Clob;
 import java.sql.Date;
 import java.sql.NClob;
 import java.sql.PreparedStatement;
+import java.sql.Ref;
 import java.sql.ResultSet;
 import java.sql.RowId;
 import java.sql.SQLException;
@@ -106,6 +107,7 @@ public final class HoneyUtil {
 //		return total;
 //	}
 
+	@SuppressWarnings("rawtypes")
 	static String getBeanField(Field field[],Class entityClass) {
 		if (field == null) return "";
 		StringBuffer s = new StringBuffer();
@@ -187,6 +189,7 @@ public final class HoneyUtil {
 		return moreTableStruct;
 	}
 	
+	@SuppressWarnings("rawtypes")
 	private static <T> MoreTableStruct[] _getMoreTableStructAndCheckBefore(T entity) {
 
 		if (entity == null) return null;
@@ -509,7 +512,7 @@ public final class HoneyUtil {
 //					Field ff[]=list_T_classOne.getDeclaredFields();
 					subColumnStringBuffer[0] = _getBeanFullField_0(list_T_classOne, useSubTableName,entityFullName,mainFieldSet,dulMap,true);
 				}else if(j==1 && subTwoIsList) { //j==1,表示有第二个存在
-				   Field ff[]=list_T_classTwo.getDeclaredFields();
+//				   Field ff[]=list_T_classTwo.getDeclaredFields();
 				   subColumnStringBuffer[1] = _getBeanFullField_0(list_T_classTwo, useSubTableName,entityFullName,mainFieldSet,dulMap,true);
 			    }else if(!oneHasOne || j==1) { //上面没查， 这里要实现
 //				}else {//有些不需要处理, 如oneHasOne,i==0
@@ -536,6 +539,7 @@ public final class HoneyUtil {
 		return moreTableStruct;
 	}
 	
+	@SuppressWarnings("rawtypes")
 	private static Class createClass(String subClassStr, String packageAndClassName) {
 		//		String subClassStr = joinTable[0].subClass();
 		Class newClazz = null;
@@ -570,12 +574,13 @@ public final class HoneyUtil {
 	}
 	
 	//for moreTable
+	@SuppressWarnings("rawtypes")
 	static StringBuffer _getBeanFullField_0(Class entityClass, String tableName,String entityFullName,
 			Set<String> mainFieldSet,Map<String,String> dulMap) {
 		return _getBeanFullField_0(entityClass, tableName, entityFullName, mainFieldSet, dulMap,false);
 	}
 
-	
+	@SuppressWarnings("rawtypes")
 	static StringBuffer _getBeanFullField_0(Class entityClass, String tableName,String entityFullName,
 			Set<String> mainFieldSet,Map<String,String> dulMap,boolean checkOneHasOne) {
 		
@@ -942,6 +947,25 @@ public final class HoneyUtil {
 			
 			jdbcTypeMap.put("VARYING", STRING);
 		}
+		
+		//V1.11
+		if (DatabaseConst.Cassandra.equalsIgnoreCase(dbName)) {
+			jdbcTypeMap.put("ascii", STRING);
+			jdbcTypeMap.put("inet", STRING);
+			jdbcTypeMap.put("timeuuid", "java.util.UUID");
+			jdbcTypeMap.put("uuid", "java.util.UUID");
+			
+			jdbcTypeMap.put("boolean", "Boolean");
+			jdbcTypeMap.put("varint", "Integer");
+			
+//			jdbcTypeMap.put("list", "java.util.List");
+//			jdbcTypeMap.put("set", "java.util.Set");
+//			jdbcTypeMap.put("map", "java.util.Map");
+			
+			jdbcTypeMap.put("list", "List");
+			jdbcTypeMap.put("set", "Set");
+			jdbcTypeMap.put("map", "Map");
+		}
 
 	}
 
@@ -1002,7 +1026,7 @@ public final class HoneyUtil {
 		javaTypeMap.put("java.math.BigInteger", 19);
 		
 		javaTypeMap.put("char", 20);
-		javaTypeMap.put("java.util.Date", 21);  //动态改值???
+		javaTypeMap.put("java.util.Date", 21);  
 		
 		javaTypeMap.put("java.sql.Array", 22);
 		javaTypeMap.put("java.io.InputStream", 23);
@@ -1010,6 +1034,10 @@ public final class HoneyUtil {
 		javaTypeMap.put("java.sql.Ref", 25);
 		
 //	    javaTypeMap.put("org.teasoft.bee.osql.annotation.customizable.Json", 26);
+		
+		javaTypeMap.put("java.net.URL", 27);
+		
+//		javaTypeMap.put("java.util.UUID", 28);  //1 todo
 			
 	}
 
@@ -1077,6 +1105,7 @@ public final class HoneyUtil {
 	 * @param value
 	 * @throws SQLException
 	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	static void setPreparedValues(PreparedStatement pst, int objTypeIndex, int i, Object value) throws SQLException {
 
 		if (null == value) {
@@ -1115,24 +1144,27 @@ public final class HoneyUtil {
 			case 10:
 				pst.setBigDecimal(i + 1, (BigDecimal) value);
 				break;
-			case 11:
-				pst.setDate(i + 1, (Date) value);
-				break;
+//			case 11: //you can define your SetParaTypeConvert for one of both
+//				pst.setDate(i + 1, (Date) value);//process in default
+//				void setDate(int parameterIndex, java.sql.Date x, Calendar cal)
+//				break;
 			case 12:
 				pst.setTime(i + 1, (Time) value);
 				break;
 			case 13:
 				pst.setTimestamp(i + 1, (Timestamp) value);
 				break;
-			case 14:
-				pst.setBlob(i + 1, (Blob) value);
-				break;
-			case 15:
-				pst.setClob(i + 1, (Clob) value);
-				break;
-			case 16:
-				pst.setNClob(i + 1, (NClob) value);
-				break;
+//			case 14://you can define your SetParaTypeConvert for one of both
+//				pst.setBlob(i + 1, (Blob) value);//process in default
+//				pst.setBlob(parameterIndex, inputStream);
+//				break;
+//			case 15:  //you can define your SetParaTypeConvert for one of both
+//				pst.setClob(i + 1, (Clob) value); //process in default
+////			pst.setClob(i + 1, reader);
+//				break;
+//			case 16: // like 15
+//				pst.setNClob(i + 1, (NClob) value);
+//				break;
 			case 17:
 				pst.setRowId(i + 1, (RowId) value);
 				break;
@@ -1142,12 +1174,30 @@ public final class HoneyUtil {
 			case 20:
 				pst.setString(i + 1, value.toString());
 				break;
+				
+//	             process in define SetParaTypeConvert
 //			case 21:
 //				Date d= new Date(((java.util.Date)value).getTime());
 ////				pst.setDate(i + 1, d); //ok
 //				pst.setObject(i + 1, d); //ok
-//				//测试数据库是date,datetime,timestamp是否都可以??? TODO
+//				//测试数据库是date,datetime,timestamp是否都可以??? todo
 //				break;
+				
+			case 22:	
+				pst.setArray(i + 1, (java.sql.Array)value);
+				break;
+				
+//			case 23,24
+				//InputStream,Reader can define the SetParaTypeConvert for them.
+//				pst.setAsciiStream(parameterIndex, java.io.InputStream x);
+//				pst.setBinaryStream(parameterIndex, java.io.InputStream x);
+//				pst.setCharacterStream(parameterIndex, reader);
+//				pst.setNCharacterStream(parameterIndex, reader);
+//				pst.setUnicodeStream(parameterIndex, x, length);
+				
+			case 25:
+				pst.setRef(i + 1, (Ref)value);
+				break;
 				
 			case 26:  //Json Annotation
 			{
@@ -1158,20 +1208,57 @@ public final class HoneyUtil {
 				}
 			}
 			
+			case 27:
+				pst.setURL(i + 1, (java.net.URL)value);
+				break;
+				
+//				pst.setUnicodeStream(parameterIndex, x, length);
+			
+//			case 28:   //2 todo
+//				UUID u=(UUID)value;
+//				pst.setObject(i + 1, u.toString());
+//				pst.setString(i + 1, u.toString());
+//				pst.setObject(i + 1, u);  
+//				pst.setObject(i + 1, u, targetSqlType);
+//				break;
+			
 			case 19:
 //	        	pst.setBigInteger(i+1, (BigInteger)value);break;
 			default:
 			{
-				value=tryConvert(value);
-				pst.setObject(i + 1, value);
+//				value=tryConvert(value);
+//				pst.setObject(i + 1, value);
+				
+				SetParaTypeConvert converter = SetParaTypeConverterRegistry.getConverter(Json.class);
+				if (converter != null) {
+					value = converter.convert(value);
+					pst.setObject(i + 1, value);
+					
+				//if did not define SetParaTypeConvert,will process by default	
+				}else if(objTypeIndex==11) {
+					pst.setDate(i + 1, (Date) value);
+				}else if(objTypeIndex==14) {	
+					pst.setBlob(i + 1, (Blob) value);
+				}else if(objTypeIndex==15) {
+					pst.setClob(i + 1, (Clob) value);
+			    }else if(objTypeIndex==16) {
+			    	pst.setNClob(i + 1, (NClob) value);
+			    }else if(objTypeIndex==23) {
+			    	pst.setBinaryStream(i + 1, (java.io.InputStream)value);
+			    }else if(objTypeIndex==24) {
+			    	pst.setCharacterStream(i + 1, (java.io.Reader)value);
+			    }else {
+			    	pst.setObject(i + 1, value);
+			    }
+				
 			}
 		} //end switch
 	}
 	
-	private static Object tryConvert(Object value) {
-		if (value == null) return value;
-		return SetParaTypeConverterRegistry.converterProcess(value.getClass(), value);
-	}
+//	private static Object tryConvert(Object value) {
+//		if (value == null) return value;
+//		return SetParaTypeConverterRegistry.converterProcess(value.getClass(), value);
+//	}
 
 	static Object getResultObject(ResultSet rs, String typeName, String columnName) throws SQLException {
 
@@ -1218,9 +1305,12 @@ public final class HoneyUtil {
 			case 18:
 				return rs.getSQLXML(columnName);
 				
+//				19: BigInteger
+//				20:char
+				
+//				 21:java.util.Date 
 			case 21:	
 				return rs.getTimestamp(columnName);//改动态???
-				
 			case 22:
 				return rs.getArray(columnName);  //java.sql.Array
 			case 23:
@@ -1228,11 +1318,15 @@ public final class HoneyUtil {
 			case 24:
 				return rs.getCharacterStream(columnName); //java.io.Reader
 			case 25:
-				return rs.getRef(columnName);  //java.sql.Ref		
+				return rs.getRef(columnName);  //java.sql.Ref	
 				
+//			26:	annotation.customizable.Json
+				
+			case 27:
+				return rs.getURL(columnName);
 				
 			case 19:
-				//	        	no  getBigInteger
+//	        	no  getBigInteger
 			default:
 				return rs.getObject(columnName);
 		} //end switch
@@ -1284,6 +1378,10 @@ public final class HoneyUtil {
 			case 18:
 				return rs.getSQLXML(index);
 				
+//				19:BigInteger
+//				20:char
+				
+//				 21:java.util.Date 
 			case 21:	
 				return rs.getTimestamp(index);//改动态???
 //				return rs.getDate(index);  //Oracle 使用该方法获取会丢失:时分秒
@@ -1294,17 +1392,16 @@ public final class HoneyUtil {
 				return rs.getBinaryStream(index); //java.io.InputStream
 			case 24:
 				return rs.getCharacterStream(index); //java.io.Reader
+//				return rs.getAsciiStream(index); //java.io.InputStream	
+//				return rs.getNCharacterStream(index); //java.io.Reader	
+//				return rs.getNString(index);  //java.lang.String
 			case 25:
 				return rs.getRef(index);  //java.sql.Ref
-			
 				
-//			case 26:
-//				return rs.getAsciiStream(index); //java.io.InputStream	
-//			case 27:
-//				return rs.getNCharacterStream(index); //java.io.Reader	
-//			case 28:
-//				return rs.getNString(index);  //java.lang.String
-				
+//				26:	annotation.customizable.Json
+
+			case 27:
+				return rs.getURL(index);
 				
 			case 19:
 				//no  getBigInteger	
@@ -1368,6 +1465,7 @@ public final class HoneyUtil {
 	}
 	
 	//List<PreparedValue>  to valueBuffer
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static String list2Value(List<PreparedValue> list,boolean needType){
 		StringBuffer b=new StringBuffer();
 		if(list==null ) return null;
@@ -1415,6 +1513,7 @@ public final class HoneyUtil {
 	 * @param list
 	 * @return
 	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static String getExecutableSql(String sql, List<PreparedValue> list){
 		if(list==null || list.size()==0) return sql;
 		
@@ -1609,6 +1708,19 @@ public final class HoneyUtil {
 	public static boolean isOracle(){
 		return DatabaseConst.ORACLE.equalsIgnoreCase(HoneyConfig.getHoneyConfig().getDbName());
 	}
+	
+	public static boolean isCassandra(){
+		return DatabaseConst.Cassandra.equalsIgnoreCase(HoneyConfig.getHoneyConfig().getDbName());
+	}
+	
+	public static boolean isHbase(){
+		return DatabaseConst.Hbase.equalsIgnoreCase(HoneyConfig.getHoneyConfig().getDbName());
+	}
+	
+	public static boolean isMongoDB(){
+		return DatabaseConst.MongoDB.equalsIgnoreCase(HoneyConfig.getHoneyConfig().getDbName());
+	}
+	
 	
 	public static void setPageNum(List<PreparedValue> list) {
 		int array[] = (int[]) OneTimeParameter.getAttribute("_SYS_Bee_Paing_NumArray");

@@ -41,4 +41,6 @@ public final class StringConst {
 	
 	public static final String Route_EC="_SYS_Bee_ROUTE_EC"; ////EC:Entity Class
 	public static final String Column_EC="_SYS_Bee_COLUMN_EC";
+	
+	public static final String SchemaName="_SYS_Bee_SchemaName";
 }

@@ -28,6 +28,8 @@ public final class HoneyContext {
 	private static ConcurrentMap<String, String> beanCustomPKey; //Custom Primary Key
 	private static ConcurrentMap<String, Map<String, String>> customMap;
 	
+	private static ConcurrentMap<String, String> sysCommStr;
+	
 	
 	//	since v1.7.0
 	//	private static ConcurrentMap<String, MoreTableStruct[]> moreTableStructMap;
@@ -104,6 +106,7 @@ public final class HoneyContext {
 	static {
 		beanMap = new ConcurrentHashMap<>();
 		beanCustomPKey = new ConcurrentHashMap<>();
+		sysCommStr = new ConcurrentHashMap<>();
 		customMap = new ConcurrentHashMap<>();
 		//		moreTableStructMap= new ConcurrentHashMap<>();
 
@@ -232,6 +235,15 @@ public final class HoneyContext {
 		if (key == null) return null;
 		return beanCustomPKey.get(key);
 	}
+	
+	static void addSysCommStr(String key, String value) {
+		sysCommStr.put(key, value);
+	}
+
+	public static String getSysCommStr(String key) {
+		if (key == null) return null;
+		return sysCommStr.get(key);
+	}
 
 	public static void addCustomMap(String key, Map<String, String> mapValue) {
 		customMap.put(key, mapValue);
@@ -263,6 +275,26 @@ public final class HoneyContext {
 		Map<String, Map<String, String>> map = customMapLocal.get();
 		if (null == map || key==null) return null;
 		return map.get(key);
+	}
+	
+	static void setSysCommStrLocal(String key, String sysCommStr) {
+		if (sysCommStr == null) return;
+		if (key == null || "".equals(key.trim())) return;
+		Map<String, String> map = sysCommStrLocal.get();
+		if (null == map) map = new ConcurrentHashMap<>();
+		map.put(key, sysCommStr);
+		sysCommStrLocal.set(map);
+	}
+
+	public static String getSysCommStrLocal(String key) {
+		Map<String, String> map = sysCommStrLocal.get();
+		if (map == null || key == null) return null;
+		return map.get(key);
+	}
+
+	public static void removeSysCommStrLocal(String key) {
+		Map<String, String> map = sysCommStrLocal.get();
+		if (map != null) map.remove(key);
 	}
 
 	//	static MoreTableStruct[] addMoreTableStructs(String key, MoreTableStruct[] value) {

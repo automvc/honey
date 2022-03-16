@@ -20,6 +20,7 @@ import org.teasoft.honey.osql.core.HoneyUtil;
 import org.teasoft.honey.osql.core.Logger;
 import org.teasoft.honey.osql.core.NameTranslateHandle;
 import org.teasoft.honey.osql.name.NameUtil;
+import org.teasoft.honey.util.EntityUtil;
 import org.teasoft.honey.util.SqlKeyCheck;
 
 /**
@@ -99,7 +100,7 @@ public class Ddl {
 			if(old) HoneyConfig.getHoneyConfig().showSql_showExecutableSql=old;
 			result = true;
 		} catch (Exception e) {
-			Logger.error(e.getMessage());
+			Logger.error(e.getMessage(),e);
 			result = false;
 		}
 
@@ -130,14 +131,13 @@ public class Ddl {
 			return toCreateTableSQLForPostgreSQL(entity, tableName);
 		} else if (HoneyUtil.isSqlServer()) {
 			return toCreateTableSQLForSQLSERVER(entity, tableName);
-		} else {
-			//ORACLE ...
+		} else{
+			//ORACLE,Cassandra ...
 			return _toCreateTableSQL(entity, tableName);
 		}
-
 	}
 
-	//ORACLE
+	//ORACLE, Cassandra
 	private static <T> String _toCreateTableSQL(T entity, String tableName) {
 
 		if (tableName == null) tableName = _toTableName(entity);
@@ -151,12 +151,22 @@ public class Ddl {
 			}
 			sqlBuffer.append(_toColumnName(fields[i].getName(),entity.getClass())).append("  ");
 			
-			String type = getJava2DbType().get(fields[i].getType().getName());
-			if(type==null) {
-				Logger.warn("The java type:"+type+" can not the relative database column type!");
-				type=getJava2DbType().get(java_lang_String);
-				Logger.warn("It will be replace with type: "+type);
+			String type =getType(fields[i]);
+			
+			if(HoneyUtil.isCassandra()) {
+				if(EntityUtil.isList(fields[i]) || EntityUtil.isSet(fields[i])) {
+					Class<?> clazz=EntityUtil.getGenericType(fields[i]);
+					String type0=getType(clazz);
+					type=type+"<"+type0+">";
+				}else if(EntityUtil.isMap(fields[i])) {
+					Class<?>[] classes=EntityUtil.getGenericTypeArray(fields[i]);
+					String type1=getType(classes[0]);
+					String type2=getType(classes[1]);
+					type=type+"<"+type1+","+type2+">";
+				}
+				
 			}
+			
 			sqlBuffer.append(type);
 			
 			if (isPrimaryKey(fields[i])) sqlBuffer.append(" PRIMARY KEY");
@@ -170,6 +180,40 @@ public class Ddl {
 
 		return sqlBuffer.toString();
 
+	}
+	
+	private static String getType(Field field) {
+		String type = getJava2DbType().get(field.getType().getName());
+		if(type==null) {
+			Logger.warn("The java type:"+type+" can not the relative database column type!");
+			type=getJava2DbType().get(java_lang_String);
+			Logger.warn("It will be replace with type: "+type);
+		}
+		
+		return type;
+	}
+	
+	private static String getType(Class<?> c) {
+		String name="";
+		if(c==null) {
+			Logger.warn("The Class is null,it will be replace with "+java_lang_String);
+			name=java_lang_String;
+		}else {
+			name=c.getName();
+		}
+		String type = getJava2DbType().get(name);
+		if (type == null) {
+			if (EntityUtil.isCustomBean(name)) {
+//				type=c.getSimpleName();
+				type=NameUtil.firstLetterToLowerCase(c.getSimpleName());
+			} else {
+				Logger.warn("The java type:" + name + " can not the relative database column type!");
+				type = getJava2DbType().get(java_lang_String);
+				Logger.warn("It will be replace with type: " + type);
+			}
+		}
+		
+		return type;
 	}
 	
 	//SQLite
@@ -306,6 +350,8 @@ public class Ddl {
 		pkStatement.put(DatabaseConst.H2.toLowerCase(), "bigint PRIMARY KEY NOT NULL");
 		pkStatement.put(DatabaseConst.SQLite.toLowerCase(), " INTEGER PRIMARY KEY NOT NULL");
 		pkStatement.put(DatabaseConst.PostgreSQL.toLowerCase(), "bigserial NOT NULL");
+		pkStatement.put("", "");
+		pkStatement.put(null, "");
 	}
 	
 	private static String getPrimaryKeyStatement(String databaseName){

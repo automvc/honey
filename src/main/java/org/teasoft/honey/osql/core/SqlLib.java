@@ -70,7 +70,7 @@ public class SqlLib implements BeeSql {
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public <T> List<T> selectSomeField(String sql, T entity) {
 
 		if (sql == null || "".equals(sql.trim())) return Collections.emptyList();

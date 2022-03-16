@@ -27,6 +27,7 @@ public class Java2DbType {
 		java2DbTypeMap.put(DatabaseConst.H2.toLowerCase(), forH2());
 		java2DbTypeMap.put(DatabaseConst.PostgreSQL.toLowerCase(), forPostgreSQL());
 		java2DbTypeMap.put(DatabaseConst.SQLSERVER.toLowerCase(), forSQLSERVER());
+		java2DbTypeMap.put(DatabaseConst.Cassandra.toLowerCase(), forCassandra()); //V1.11
 		//...
 	}
 	
@@ -61,18 +62,6 @@ public class Java2DbType {
 		}
 	}
 	
-	
-//	public static void main(String[] args) {
-//		Map<String, String> map= new HashMap<>();
-//		map.put("javaType", "Db_type");
-//		appendJava2DbType(DatabaseConst.MYSQL, map);
-//		System.out.println(getJava2DbType(DatabaseConst.MYSQL));
-//		
-//		appendJava2DbType(DatabaseConst.DB2, map);
-//		System.out.println(getJava2DbType(DatabaseConst.DB2));
-//	}
-	
-
 	/**
 	 * 此方法只是考虑一般情况而采用默认值,需根据具体情况修改
 	 * <br>This method only considers the general situation 
@@ -313,6 +302,57 @@ public class Java2DbType {
 		java2DbType.put("java.sql.Clob", "Clob");
 
 		java2DbType.put("java.math.BigInteger", "decimal(19)");
+		return java2DbType;
+	}
+	
+	private static Map<String, String> forCassandra() {
+		Map<String, String> java2DbType = new HashMap<>();
+
+		java2DbType.put("java.lang.String", "text");
+		java2DbType.put("java.lang.Integer", "int");
+		java2DbType.put("java.lang.Long", "bigint");
+		java2DbType.put("java.lang.Double", "double");
+		java2DbType.put("java.lang.Float", "float");
+		java2DbType.put("java.lang.Short", "smallint");
+		java2DbType.put("java.lang.Byte", "tinyint");
+		java2DbType.put("java.lang.Boolean", "boolean");
+
+		//支持原生类型
+		java2DbType.put("int", "int");
+		java2DbType.put("long", "bigint");
+		java2DbType.put("double", "double");
+		java2DbType.put("float", "Float");
+		java2DbType.put("short", "smallint");
+		java2DbType.put("byte", "tinyint");
+		java2DbType.put("boolean", "boolean");
+		java2DbType.put("Boolean", "boolean");
+		java2DbType.put("char", "varchar");
+		
+		java2DbType.put("integer", "int"); //for finding easily
+		java2DbType.put("Integer", "int"); //方便匹配
+		java2DbType.put("string", "text");
+		java2DbType.put("String", "text");
+		java2DbType.put("Timestamp", "timestamp");
+		java2DbType.put("Date", "date");
+		java2DbType.put("timestamp", "timestamp");
+		java2DbType.put("date", "date");
+		java2DbType.put("time", "time");
+
+		java2DbType.put("java.math.BigDecimal", "decimal");
+
+		java2DbType.put("java.sql.Date", "date");
+		java2DbType.put("java.util.Date", "date");//V1.11
+		java2DbType.put("java.sql.Time", "time");
+		java2DbType.put("java.sql.Timestamp", "timestamp");
+		java2DbType.put("java.sql.Blob", "Blob");
+
+		java2DbType.put("java.math.BigInteger", "decimal");
+		java2DbType.put("java.util.UUID", "uuid");
+		
+		java2DbType.put("java.util.List","list");
+		java2DbType.put("java.util.Set","set");
+		java2DbType.put("java.util.Map","map");
+		
 		return java2DbType;
 	}
 }

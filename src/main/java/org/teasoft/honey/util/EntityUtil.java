@@ -7,8 +7,14 @@
 package org.teasoft.honey.util;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.teasoft.honey.osql.core.HoneyUtil;
+import org.teasoft.honey.osql.core.Logger;
 import org.teasoft.honey.osql.core.NameTranslateHandle;
 
 /**
@@ -63,6 +69,98 @@ public final class EntityUtil {
 
 		}
 		return s.toString();
-
 	}
+	
+	public static boolean isList(Field field) {
+		return List.class.isAssignableFrom(field.getType());
+	}
+	
+	public static boolean isSet(Field field) {
+		return Set.class.isAssignableFrom(field.getType());
+	}
+	
+	public static boolean isMap(Field field) {
+		return Map.class.isAssignableFrom(field.getType());
+	}
+	
+	public static Class<?> getGenericType(Field field) {
+		Type gType = field.getGenericType();
+		if (gType instanceof ParameterizedType) {
+			ParameterizedType paraType = (ParameterizedType) gType;
+			Class<?> elementType = (Class<?>) paraType.getActualTypeArguments()[0];
+			return elementType;
+		} else {
+			return null;
+		}
+	}
+	public static Class<?>[] getGenericTypeArray(Field field) {
+		Type gType = field.getGenericType();
+		return getGenericTypeArray(gType);
+		
+	}
+	public static Class<?>[] getGenericTypeArray(Type gType) {
+		
+		if (gType instanceof ParameterizedType) {
+			ParameterizedType paraType = (ParameterizedType) gType;
+			Type[] types=paraType.getActualTypeArguments();
+			Class<?> elementTypes[]=new Class<?>[types.length];
+            for (int i = 0; i < types.length; i++) {
+//            	System.err.println(":::::::::::::");
+//            	System.err.println(types[i].getClass().getName()); //
+            	
+            	if (types[i] instanceof ParameterizedType) {
+            		System.err.println("-------------:"+types[i].toString()); //java.util.Map<java.lang.Integer, java.lang.String>
+            		
+            		Logger.warn("Do not support the Map element is Map,"+types[i].toString());
+            		
+//            		try {
+//            			System.err.println(types[i].getClass().getName());
+//            			
+//            			elementTypes[i]=Class.forName(types[i].toString());
+//					} catch (Exception e) {
+//						e.printStackTrace();
+//					}
+            		
+            	}else {
+            		elementTypes[i]=(Class<?>)types[i];
+            	}
+			}
+			return elementTypes;
+		} else {
+			return null;
+		}
+	}
+	
+	public static boolean isCustomBean(Field field) {
+		
+		String typeName = field.getType().getName();
+		
+		return !(field.getType().isPrimitive() || typeName.startsWith("java.")
+				|| typeName.startsWith("javax.")
+				|| typeName.startsWith("org.teasoft.bee.")
+				|| typeName.startsWith("org.teasoft.hoeny.")
+				|| typeName.startsWith("org.teasoft.beex.")
+				|| typeName.startsWith("org.teasoft.spring.")
+				|| typeName.startsWith("org.w3c.") || typeName.startsWith("org.xml.")
+				|| typeName.startsWith("android.") || typeName.startsWith("org.omg.")
+				|| typeName.startsWith("sun.")
+		);
+	}
+	
+	public static boolean isCustomBean(String typeName) {
+//		String typeName = field.getType().getName();
+//		field.getType().isPrimitive() //需要另外判断原生类型
+		
+		return !(typeName.startsWith("java.")
+				|| typeName.startsWith("javax.")
+				|| typeName.startsWith("org.teasoft.bee.")
+				|| typeName.startsWith("org.teasoft.hoeny.")
+				|| typeName.startsWith("org.teasoft.beex.")
+				|| typeName.startsWith("org.teasoft.spring.")
+				|| typeName.startsWith("org.w3c.") || typeName.startsWith("org.xml.")
+				|| typeName.startsWith("android.") || typeName.startsWith("org.omg.")
+				|| typeName.startsWith("sun.")
+		);
+	}
+	
 }

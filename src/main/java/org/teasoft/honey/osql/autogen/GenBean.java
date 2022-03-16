@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
 
 import org.teasoft.bee.osql.BeeException;
 import org.teasoft.bee.osql.DatabaseConst;
@@ -97,11 +98,17 @@ public class GenBean {
 		boolean blobFlag = true;
 		boolean clobFlag = true;
 		boolean arrayFlag = true;
+		
+		boolean listFlag = true;
+		boolean setFlag = true;
+		boolean mapFlag = true;
+		
+		TreeSet<String> importSet=new TreeSet<>();
 
 		StringBuilder tostr = new StringBuilder();
 
 		if (config.isGenSerializable()) {
-			importStr += "import java.io.Serializable;" + LINE_SEPARATOR;
+			importSet.add("import java.io.Serializable;");
 		}
 
 		for (int i = 0; i < columnNames.size(); i++) {
@@ -117,35 +124,40 @@ public class GenBean {
 
 			//import
 			if ("BigDecimal".equals(javaType) && bigDecimalFlag) {
-				importStr += "import java.math.BigDecimal;" + LINE_SEPARATOR;
+				importSet.add("import java.math.BigDecimal;");
 				bigDecimalFlag = false;
 			} else if ("BigInteger".equals(javaType) && bigIntegerFlag) {
-				importStr += "import java.math.BigInteger;" + LINE_SEPARATOR;
+				importSet.add("import java.math.BigInteger;");
 				bigIntegerFlag = false;
 			} else if ("Date".equals(javaType) && dateFlag) {
-				importStr += "import java.sql.Date;" + LINE_SEPARATOR;
+				importSet.add("import java.sql.Date;");
 				dateFlag = false;
 			} else if ("Time".equals(javaType) && timeFlag) {
-				importStr += "import java.sql.Time;" + LINE_SEPARATOR;
+				importSet.add("import java.sql.Time;");
 				timeFlag = false;
 			} else if ("Timestamp".equals(javaType) && timestampFlag) {
-				importStr += "import java.sql.Timestamp;" + LINE_SEPARATOR;
+				importSet.add("import java.sql.Timestamp;");
 				timestampFlag = false;
 			} else if ("Blob".equals(javaType) && blobFlag) {
-				importStr += "import java.sql.Blob;" + LINE_SEPARATOR;
+				importSet.add("import java.sql.Blob;");
 				blobFlag = false;
 			} else if ("Clob".equals(javaType) && clobFlag) {
-				importStr += "import java.sql.Clob;" + LINE_SEPARATOR;
+				importSet.add("import java.sql.Clob;");
 				clobFlag = false;
 			} else if ("Array".equals(javaType) && arrayFlag) {
-				importStr += "import java.sql.Array;" + LINE_SEPARATOR;
+				importSet.add("import java.sql.Array;");
 				arrayFlag = false;
+			} else if ("List".equals(javaType) && listFlag) {
+				importSet.add("import java.util.List;");
+				listFlag = false;
+			} else if ("Set".equals(javaType) && setFlag) {
+				importSet.add("import java.util.Set;");
+				setFlag = false;
+			} else if ("Map".equals(javaType) && mapFlag) {
+				importSet.add("import java.util.Map;");
+				mapFlag = false;
 			}
-			//			else if(javaType.contains(".")){
-			//				importStr += "import "+javaType+";" + LINE_SEPARATOR;
-			//				arrayFlag = false;
-			//			}//防止类名与上面的重复,还是直接用
-
+			
 			if ("boolean".equals(javaType)) getOrIs = "is";
 
 			if (config.isGenComment() && commentMap != null) {
@@ -173,7 +185,13 @@ public class GenBean {
 				tostr.append("\t\t str.append(\",").append(propertyName).append("=\").append(").append(propertyName).append(");");
 				tostr.append("\t\t " + LINE_SEPARATOR);
 			}
+		} //end for
+		
+		for (String s: importSet) {
+			importStr += s + LINE_SEPARATOR;
 		}
+		
+		if(HoneyUtil.isCassandra()) importStr += LINE_SEPARATOR+"//import org.teasoft.bee.osql.annotation.Table;" + LINE_SEPARATOR;
 
 		// 生成实体类文件
 		String basePath = config.getBaseDir();
@@ -190,6 +208,7 @@ public class GenBean {
 			bw.write(packageStr + LINE_SEPARATOR);
 			if (!"".equals(importStr)) bw.write(importStr + LINE_SEPARATOR);
 			bw.write(authorComment + LINE_SEPARATOR);
+			if(HoneyUtil.isCassandra()) bw.write("//@Table(\""+table.getSchema()+"."+tableName+"\")" + LINE_SEPARATOR);
 			bw.write("public class " + entityName);
 			if (config.isGenSerializable()) {
 				bw.write(" implements Serializable");
@@ -263,7 +282,7 @@ public class GenBean {
 				genBeanFile(table);
 			}
 		} catch (Exception e) {
-			Logger.info(e.getMessage());
+			Logger.warn(e.getMessage(),e);
 			if (e.getMessage().contains("You have an error in your SQL syntax;") && e.getMessage().contains("where 1<>1")) {
 				Logger.info("Maybe the table name is the database key work. Please rename the tableName and test again."
 						+ e.getMessage());
@@ -333,21 +352,34 @@ public class GenBean {
 		Table table = new Table();
 		try {
 			StringBuilder sql=new StringBuilder();
-			sql.append("select * from ").append(tableName).append(" where 1<>1");
+			if (HoneyUtil.isCassandra())
+				sql.append("select * from ").append(tableName).append(" limit 1");
+			else
+				sql.append("select * from ").append(tableName).append(" where 1<>1");
+			Logger.info(sql.toString()); 
 			ps = con.prepareStatement(sql.toString()); 
 			rs = ps.executeQuery();
 			ResultSetMetaData rmeta = rs.getMetaData();
 			//		int index=tableName.indexOf(".");
 			//		if(index>-1) tableName=tableName.substring(index+1); //处理用数据库名.表名查的情况
 			//该方法不可取.因为要是用关键字作表名,别的suid操作都是要带数据库名.
-			table.setTableName(tableName);
+			if (HoneyUtil.isCassandra()) {
+				int index=tableName.indexOf(".");
+				if(index>-1) table.setTableName(tableName.substring(index+1));
+				else table.setTableName(tableName);
+			} else {
+				table.setTableName(tableName);
+			}
 			table.setSchema(rmeta.getCatalogName(1));
+//			.println("------------------getCatalogName:");
+//			.println(rmeta.getCatalogName(1));
+//			.println(rmeta.getSchemaName(1));
 			int columCount = rmeta.getColumnCount();
 			for (int i = 1; i <= columCount; i++) {
 				table.getColumnNames().add(rmeta.getColumnName(i).trim());
 				table.getColumnTypes().add(rmeta.getColumnTypeName(i).trim());
 //				.println("--------------------------------");
-////				.println(rmeta.getColumnName(i).trim()+ "     :    " +rmeta.getColumnTypeName(i).trim());
+//				.println(rmeta.getColumnName(i).trim()+ "     :    " +rmeta.getColumnTypeName(i).trim());
 //				.println(rmeta.getColumnName(i).trim()+ "     :    " +rmeta.getColumnClassName(i).trim());
 				if (rmeta.isNullable(i) == 1) table.getYnNulls().add(true);
 				else table.getYnNulls().add(false);

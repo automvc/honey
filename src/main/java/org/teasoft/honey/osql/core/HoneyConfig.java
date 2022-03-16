@@ -154,6 +154,9 @@ public final class HoneyConfig {
 	@SysValue("${" + DbConfigConst.DB_PWORD + "}")
 	String password;
 	
+    @SysValue("${bee.db.schemaName}")
+	String schemaName;
+	
     @SysValue("${bee.db.jndiType}")
 	boolean jndiType;
     @SysValue("${bee.db.jndiName}")
@@ -387,6 +390,14 @@ public final class HoneyConfig {
 
 	public String getPassword() {
 		return password;
+	}
+
+	public String getSchemaName() {
+		return schemaName;
+	}
+
+	public void setSchemaName(String schemaName) {
+		this.schemaName = schemaName;
 	}
 	
 	//动态刷新ds

@@ -14,6 +14,7 @@ import org.teasoft.bee.osql.NameTranslate;
 import org.teasoft.bee.osql.annotation.Entity;
 import org.teasoft.bee.osql.annotation.Table;
 import org.teasoft.bee.osql.annotation.customizable.ColumnHandler;
+import org.teasoft.bee.osql.exception.BeeErrorNameException;
 import org.teasoft.bee.osql.exception.BeeIllegalParameterException;
 import org.teasoft.honey.osql.util.NameCheckUtil;
 import org.teasoft.honey.util.StringUtils;
@@ -28,11 +29,16 @@ public class NameTranslateHandle {
 	private static ConcurrentMap<String, String> entity2tableMap;
 	private static ConcurrentMap<String, String> table2entityMap = null;
 	
-	private static ColumnHandler columnHandler;
+	private static ColumnHandler columnHandler; //V1.11
+	
+	private static String schemaName; //V1.11
 	
 	static {
 		entity2tableMap = HoneyContext.getEntity2tableMap();
 //		table2entityMap=HoneyContext.getTable2entityMap();
+		
+		String sName=HoneyConfig.getHoneyConfig().getSchemaName();
+		if(StringUtils.isNotBlank(sName)) NameTranslateHandle.schemaName=sName;
 	}
 
 	private NameTranslateHandle() {}
@@ -59,11 +65,57 @@ public class NameTranslateHandle {
 	public static void setColumnHandler(ColumnHandler columnHandler) {
 		NameTranslateHandle.columnHandler = columnHandler;
 	}
+	
+	/**
+	 * get schema name
+	 * In some database has other name, eg:Cassandra is Keyspace
+	 * @return schema name
+	 */
+	public static String getSchemaName() {
+		return schemaName;
+	}
+
+	/**
+	 * set schema name
+	 * In some database has other name, eg:Cassandra is Keyspace
+	 * @param schemaName  schema name
+	 */
+	public static void setSchemaName(String schemaName) {
+		
+		checkName(schemaName);
+		NameTranslateHandle.schemaName = schemaName;
+	}
+	
+	private static void checkName(String schemaName) {
+		if(NameCheckUtil.isIllegal(schemaName)) {
+			throw new BeeErrorNameException("The schemaName: '" + schemaName + "' is illegal!");
+		}
+	}
+
+	public static String getSchemaNameLocal() {
+		return HoneyContext.getSysCommStrLocal(StringConst.SchemaName);
+	}
+
+	public static void setSchemaNameLocal(String schemaNameLocal) {
+		checkName(schemaNameLocal);
+		HoneyContext.setSysCommStrLocal(StringConst.SchemaName, schemaNameLocal);
+	}
+	
+	
+	public static String toTableName(String entityName) {
+		String tableName = _toTableName(entityName);
+		if (tableName.indexOf('.') == -1) {
+			if (StringUtils.isNotBlank(getSchemaNameLocal()))
+				tableName = getSchemaNameLocal() + "." + tableName; //V1.11
+			else if (StringUtils.isNotBlank(getSchemaName())) 
+				tableName = getSchemaName() + "." + tableName; //V1.11
+		}
+		return tableName;
+	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static String toTableName(String entityName) {
+	private static String _toTableName(String entityName) {
 		try {
-
 			//V1.11 via ThreadLocal
 			String appointTab = HoneyContext.getAppointTab();
 			if (StringUtils.isNotBlank(appointTab)) return appointTab;
