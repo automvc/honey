@@ -6,7 +6,6 @@
 
 package org.teasoft.honey.osql.type;
 
-import java.sql.Timestamp;
 import java.util.Date;
 
 import org.teasoft.bee.osql.type.SetParaTypeConvert;
