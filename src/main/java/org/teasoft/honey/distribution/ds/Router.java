@@ -37,7 +37,7 @@ public final class Router {
 			route = new OnlyMulitiDB();
 		}
 		
-//		TODO 要定义一个通用多数据源路由
+//		todo 要定义一个通用多数据源路由
 	}
 
 	//order:1.appointDS -> 2.tempDS(suid.getDataSourceName()) -> 3.route.getDsName()

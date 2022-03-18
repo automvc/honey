@@ -278,7 +278,7 @@ public class Java2DbType {
 		java2DbType.put("java.lang.Float", "real");
 		java2DbType.put("java.lang.Short", "smallint");
 		java2DbType.put("java.lang.Boolean", "char(1)");
-		java2DbType.put("java.math.BigDecimal", "smallmoney");
+//		java2DbType.put("java.math.BigDecimal", "smallmoney");
 
 		//支持原生类型
 		java2DbType.put("int", "int");

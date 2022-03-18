@@ -62,7 +62,6 @@ public class DateUtil {
 			Date date = getSimpleDateFormat().parse(dateString);
 			return new Timestamp(date.getTime());
 		} catch (Exception e) {
-			e.printStackTrace();
 			Logger.error(e.getMessage(), e);
 		}
 

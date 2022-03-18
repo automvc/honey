@@ -16,6 +16,7 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -40,6 +41,7 @@ import org.teasoft.bee.osql.exception.JoinTableParameterException;
 import org.teasoft.bee.osql.type.SetParaTypeConvert;
 import org.teasoft.honey.osql.constant.NullEmpty;
 import org.teasoft.honey.osql.name.NameUtil;
+import org.teasoft.honey.osql.type.CharTypeHandler;
 import org.teasoft.honey.osql.type.SetParaTypeConverterRegistry;
 import org.teasoft.honey.osql.type.TimestampTypeHandler;
 import org.teasoft.honey.osql.type.TypeHandlerRegistry;
@@ -92,6 +94,8 @@ public final class HoneyUtil {
 		SetParaTypeConverterRegistry.register(java.util.Date.class, new UtilDotDateTypeToTimestampConvert<java.util.Date>(), DatabaseConst.H2);
 		SetParaTypeConverterRegistry.register(java.util.Date.class, new UtilDotDateTypeToTimestampConvert<java.util.Date>(), DatabaseConst.MYSQL);
 		SetParaTypeConverterRegistry.register(java.util.Date.class, new UtilDotDateTypeConvert<java.util.Date>());
+		
+		TypeHandlerRegistry.register(char.class, new CharTypeHandler<Character>(),true);
 	}
 
 //	public static int[] mergeArray(int total[], int part[], int start, int end) {
@@ -1530,7 +1534,11 @@ public final class HoneyUtil {
 				}
 			}
 			
-			if(value==null || value instanceof Number){  //v1.8.15    Null no need ' and '
+			if (value == null || value instanceof Number
+					|| Collection.class.isAssignableFrom(value.getClass())
+					|| Map.class.isAssignableFrom(value.getClass())
+					|| value instanceof java.util.UUID
+				){ //v1.8.15    Null no need ' and '
 				sql=sql.replaceFirst("\\?", String.valueOf(value));
 			}else{
 //				sql=sql.replaceFirst("\\?", "'"+String.valueOf(value)+"'");
@@ -1860,6 +1868,18 @@ public final class HoneyUtil {
 		HoneyContext.addBeanCustomPKey(classFullName,pkey);
 
 		return pkey;
+	}
+	
+	public static String getPlaceholderValue(int size) {
+		StringBuffer placeholderValue = new StringBuffer(" (");
+		for (int i = 0; i < size; i++) {
+			if(i!=0) placeholderValue.append(",");
+			placeholderValue.append("?");
+		}
+		if(size<=0) placeholderValue.append("''");
+		placeholderValue.append(")");
+		
+		return placeholderValue.toString();
 	}
 
 }

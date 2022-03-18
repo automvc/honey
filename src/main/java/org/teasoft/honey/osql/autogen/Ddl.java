@@ -30,6 +30,9 @@ import org.teasoft.honey.util.SqlKeyCheck;
  */
 public class Ddl {
 
+	private static final String BE_REPLACE_WITH_TYPE = "It will be replace with type: ";
+	private static final String NOT_RELATIVE_COLUMN = " has not the relative database column type!";
+	private static final String THE_JAVA_TYPE = "The java type:";
 	private static final String CREATE_TABLE = "CREATE TABLE ";
 	//	private static Map<String, String> java2DbType = Java2DbType.getJava2DbType(HoneyContext.getDbDialect());
 	private static String LINE_SEPARATOR = System.getProperty("line.separator"); // 换行符
@@ -185,9 +188,9 @@ public class Ddl {
 	private static String getType(Field field) {
 		String type = getJava2DbType().get(field.getType().getName());
 		if(type==null) {
-			Logger.warn("The java type:"+type+" can not the relative database column type!");
+			Logger.warn(THE_JAVA_TYPE+type+NOT_RELATIVE_COLUMN);
 			type=getJava2DbType().get(java_lang_String);
-			Logger.warn("It will be replace with type: "+type);
+			Logger.warn(BE_REPLACE_WITH_TYPE+type);
 		}
 		
 		return type;
@@ -203,13 +206,13 @@ public class Ddl {
 		}
 		String type = getJava2DbType().get(name);
 		if (type == null) {
-			if (EntityUtil.isCustomBean(name)) {
+			if (EntityUtil.isCustomBean(name) && c!=null) {
 //				type=c.getSimpleName();
 				type=NameUtil.firstLetterToLowerCase(c.getSimpleName());
 			} else {
-				Logger.warn("The java type:" + name + " can not the relative database column type!");
+				Logger.warn(THE_JAVA_TYPE + name + NOT_RELATIVE_COLUMN);
 				type = getJava2DbType().get(java_lang_String);
-				Logger.warn("It will be replace with type: " + type);
+				Logger.warn(BE_REPLACE_WITH_TYPE + type);
 			}
 		}
 		
@@ -277,9 +280,9 @@ public class Ddl {
 			else {
 				String type = getJava2DbType().get(fields[i].getType().getName());
 				if(type==null) {
-					Logger.warn("The java type:"+type+" can not the relative database column type!");
+					Logger.warn(THE_JAVA_TYPE+type+NOT_RELATIVE_COLUMN);
 					type=getJava2DbType().get(java_lang_String);
-					Logger.warn("It will be replace with type: "+type);
+					Logger.warn(BE_REPLACE_WITH_TYPE+type);
 				}
 				sqlBuffer.append(type);
 				
@@ -378,9 +381,9 @@ public class Ddl {
 				
 				String type = getJava2DbType().get(fields[i].getType().getName());
 				if(type==null) {
-					Logger.warn("The java type:"+type+" can not the relative database column type!");
+					Logger.warn(THE_JAVA_TYPE+type+NOT_RELATIVE_COLUMN);
 					type=getJava2DbType().get(java_lang_String);
-					Logger.warn("It will be replace with type: "+type);
+					Logger.warn(BE_REPLACE_WITH_TYPE+type);
 				}
 				sqlBuffer.append(type);
 				if ("timestamp".equalsIgnoreCase(type) || "datetime".equalsIgnoreCase(type)) {
@@ -465,9 +468,9 @@ public class Ddl {
 			else {
 				String type = getJava2DbType().get(fields[i].getType().getName());
 				if(type==null) {
-					Logger.warn("The java type:"+type+" can not the relative database column type!");
+					Logger.warn(THE_JAVA_TYPE+type+NOT_RELATIVE_COLUMN);
 					type=getJava2DbType().get(java_lang_String);
-					Logger.warn("It will be replace with type: "+type);
+					Logger.warn(BE_REPLACE_WITH_TYPE+type);
 				}
 //				sqlBuffer.append(type);
 				

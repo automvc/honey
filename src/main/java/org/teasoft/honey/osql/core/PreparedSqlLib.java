@@ -527,7 +527,7 @@ public class PreparedSqlLib implements PreparedSql {
 		}
 		parameterMap = mergeMap(parameterMap, entity);
 
-		SqlValueWrap wrap = processSql(sqlStr); //will return null when sql no placeholder like: select * from tableName
+		SqlValueWrap wrap = processSql2(sqlStr,parameterMap); //will return null when sql no placeholder like: select * from tableName
 		String reSql;
 		List list = null;
 
@@ -547,8 +547,9 @@ public class PreparedSqlLib implements PreparedSql {
 			list = new ArrayList();
 		} else {
 			String sql = wrap.getSql();
-			String mapKeys = wrap.getValueBuffer().toString(); //wrap.getValueBuffer() is :map's key , get from like: #{name}
-			list = _initPreparedValues(mapKeys, parameterMap);
+//			String mapKeys = wrap.getValueBuffer().toString(); //wrap.getValueBuffer() is :map's key , get from like: #{name}
+//			list = _initPreparedValues(mapKeys, parameterMap);
+			list=wrap.getList();
 			reSql = sql;
 		}
 
@@ -565,61 +566,45 @@ public class PreparedSqlLib implements PreparedSql {
 			throw new SqlNullException(STRING_IS_NULL);
 		}
 
-		SqlValueWrap wrap = processSql(sqlStr); //bug.  wrap maybe null
+		SqlValueWrap wrap = processSql2(sqlStr,map); //bug.  wrap maybe null
 		if (wrap == null || ObjectUtils.isEmpty(map)) return sqlStr; //fix null bug
 		String sql = wrap.getSql();
-		String mapKeys = wrap.getValueBuffer().toString(); //wrap.getValueBuffer() is :map's key , get from like: #{name}
-		List list = _initPreparedValues(mapKeys, map);
+//		String mapKeys = wrap.getValueBuffer().toString(); //wrap.getValueBuffer() is :map's key , get from like: #{name}
+//		List list = _initPreparedValues(mapKeys, map);
+		List list =wrap.getList();
 		//6,8  map,page 不放缓存
 		HoneyUtil.setPageNum(list);
 		HoneyContext.setPreparedValue(sql, list);
 		return sql;
 	}
 	
-	private List _initPreparedValues(String mapKeys, Map<String, Object> map) {
-		String keys[] = mapKeys.split(","); //map's key
-		return _initPreparedValues(keys, map);
-	}
-
+//	private List _initPreparedValues(String mapKeys, Map<String, Object> map) {
+//		String keys[] = mapKeys.split(","); //map's key
+//		return _initPreparedValues(keys, map,false);
+//	}
+	
+//	private List _initPreparedValues(String keys[], Map<String, Object> map,boolean noWhere) {
 	private List _initPreparedValues(String keys[], Map<String, Object> map) {
-
+		Object value;
 		PreparedValue preparedValue = null;
 		List<PreparedValue> list = new ArrayList<>();
-		Object value;
 
 		for (int i = 0; i < keys.length; i++) {
 			preparedValue = new PreparedValue();
-			value = null;
-
-			int len = keys[i].length();
-			if (keys[i].startsWith("%")) {
-				if (keys[i].endsWith("%")) { //    %para%
-					keys[i] = keys[i].substring(1, len - 1);
-					value = "%" + map.get(keys[i]) + "%";
-					preparedValue.setValue(value);
-				} else { //   %para
-					keys[i] = keys[i].substring(1, len);
-					value = "%" + map.get(keys[i]);
-					preparedValue.setValue(value);
-				}
-			} else if (keys[i].endsWith("%")) { //  para%
-				keys[i] = keys[i].substring(0, len - 1);
-				value = map.get(keys[i]) + "%";
-				preparedValue.setValue(value);
-			} else {
-				value = map.get(keys[i]);
-				preparedValue.setValue(value);
-			}
-
+			value = map.get(keys[i]);
+			preparedValue.setValue(value);
 			preparedValue.setType(map.get(keys[i]).getClass().getName());
-
 			list.add(preparedValue);
 		}
 		return list;
 	}
-
+	
 	private SqlValueWrap processSql(String sql) {
 		return TokenUtil.process(sql, "#{", "}", "?");
+	}
+	
+	private SqlValueWrap processSql2(String sql,Map map) {
+		return TokenUtil.process2(sql, "#{", "}", "?",map);
 	}
 
 	private static String _toTableName(Object entity) {
@@ -733,7 +718,7 @@ public class PreparedSqlLib implements PreparedSql {
 	
 	@Override
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public int insert(String sqlStr, List<Map<String, Object>> parameterMapList, int batchSize) {
+	public int insertBatch(String sqlStr, List<Map<String, Object>> parameterMapList, int batchSize) {
 
 		if (sqlStr == null || "".equals(sqlStr.trim())) {
 			throw new SqlNullException(STRING_IS_NULL);
@@ -795,20 +780,13 @@ public class PreparedSqlLib implements PreparedSql {
 	}
 	
 	private String getPlaceholderValue(int size) {
-		StringBuffer placeholderValue = new StringBuffer(" (");
-		for (int i = 0; i < size; i++) {
-			if(i!=0) placeholderValue.append(",");
-			placeholderValue.append("?");
-		}
-		placeholderValue.append(")");
-		
-		return placeholderValue.toString();
+		return HoneyUtil.getPlaceholderValue(size);
 	}
 
 	@Override
-	public int insert(String sqlStr, List<Map<String, Object>> parameterMapList) {
+	public int insertBatch(String sqlStr, List<Map<String, Object>> parameterMapList) {
 		int batchSize = HoneyConfig.getHoneyConfig().insertBatchSize;
-		return insert(sqlStr, parameterMapList, batchSize);
+		return insertBatch(sqlStr, parameterMapList, batchSize);
 	}
 	
 	
