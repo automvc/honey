@@ -40,7 +40,7 @@ public class EmptyInterceptor implements Interceptor {
 	}
 
 	@Override
-	public Object beforePasreEntity(Object[] entityArray, SuidType suidType) {
+	public Object[] beforePasreEntity(Object[] entityArray, SuidType suidType) {
 		return entityArray;
 	}
 

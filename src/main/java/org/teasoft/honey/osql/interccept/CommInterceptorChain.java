@@ -40,7 +40,7 @@ public class CommInterceptorChain implements InterceptorChain {
 	}
 
 	@Override
-	public Object beforePasreEntity(Object[] entityArray, SuidType suidType) {
+	public Object[] beforePasreEntity(Object[] entityArray, SuidType suidType) {
 		for (int i = 0; entityArray != null && i < chain.size(); i++) {
 			chain.get(i).beforePasreEntity(entityArray, suidType);
 		}

@@ -64,7 +64,7 @@ public class DefaultInterceptor implements Interceptor{
 	
 	
 	@Override
-	public Object beforePasreEntity(Object[] entityArray, SuidType suidType) {
+	public Object[] beforePasreEntity(Object[] entityArray, SuidType suidType) {
 		
 		for (int i = 0; i < entityArray.length; i++) {
 			beforePasreEntity(entityArray[i], suidType);
