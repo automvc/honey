@@ -16,7 +16,6 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -1534,15 +1533,21 @@ public final class HoneyUtil {
 				}
 			}
 			
-			if (value == null || value instanceof Number
-					|| Collection.class.isAssignableFrom(value.getClass())
-					|| Map.class.isAssignableFrom(value.getClass())
-					|| value instanceof java.util.UUID
-				){ //v1.8.15    Null no need ' and '
-				sql=sql.replaceFirst("\\?", String.valueOf(value));
-			}else{
-//				sql=sql.replaceFirst("\\?", "'"+String.valueOf(value)+"'");
+//			if (value == null || value instanceof Number
+//					|| Collection.class.isAssignableFrom(value.getClass())
+//					|| Map.class.isAssignableFrom(value.getClass())
+//					|| value instanceof java.util.UUID
+//				){ //v1.8.15    Null no need ' and '
+//				sql=sql.replaceFirst("\\?", String.valueOf(value));
+//			}else{
+////				sql=sql.replaceFirst("\\?", "'"+String.valueOf(value)+"'");
+//				sql=sql.replaceFirst("\\?", "'"+String.valueOf(value).replace("$", "\\$")+"'"); //bug 2021-05-25
+//			}
+			
+			if(value!=null && value instanceof CharSequence) { //V1.11
 				sql=sql.replaceFirst("\\?", "'"+String.valueOf(value).replace("$", "\\$")+"'"); //bug 2021-05-25
+			}else {
+				sql=sql.replaceFirst("\\?", String.valueOf(value));
 			}
 		}
 		

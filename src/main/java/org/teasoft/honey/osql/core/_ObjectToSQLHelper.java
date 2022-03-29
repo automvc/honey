@@ -23,7 +23,6 @@ import org.teasoft.honey.util.StringUtils;
  */
 final class _ObjectToSQLHelper {
 
-//	private final static String INSERT_INTO = "insert into ";
 	private static final String INSERT_INTO = K.insert+K.space+K.into+K.space;
 	private static final String REPLACE_INTO = K.replace+K.space+K.into+K.space;
 	
