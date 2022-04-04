@@ -62,6 +62,10 @@ public class NameTranslateHandle {
 		return columnHandler;
 	}
 
+	/**
+	 * 指定列名命名转换处理器.Specifies the column naming conversion handler
+	 * @param columnHandler 列名命名转换处理器.column naming conversion handler
+	 */
 	public static void setColumnHandler(ColumnHandler columnHandler) {
 		NameTranslateHandle.columnHandler = columnHandler;
 	}
