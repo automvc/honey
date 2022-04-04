@@ -116,6 +116,7 @@ public class GenBean {
 			String columnType = columnTypes.get(i);
 			String comment = "";
 			String getOrIs = "get";
+			String unknownTypeTip="";
 
 			propertyName = NameTranslateHandle.toFieldName(columnName);
 
@@ -156,22 +157,26 @@ public class GenBean {
 			} else if ("Map".equals(javaType) && mapFlag) {
 				importSet.add("import java.util.Map;");
 				mapFlag = false;
+				
+			}else if(javaType.startsWith("[UNKNOWN TYPE]")) {
+				unknownTypeTip=" //set the type mapping in the jdbcTypeToFieldType.properties";
+			}else if ("boolean".equals(javaType)) {
+				getOrIs = "is";
 			}
 			
-			if ("boolean".equals(javaType)) getOrIs = "is";
 
 			if (config.isGenComment() && commentMap != null) {
 				comment = commentMap.get(columnName);
 				if (config.getCommentPlace() == 2) {
 					if (!"".equals(comment)) propertiesStr += "\t" + "// " + comment + LINE_SEPARATOR;
-					propertiesStr += "\t" + "private " + javaType + " " + propertyName + ";" + LINE_SEPARATOR;
+					propertiesStr += "\t" + "private " + javaType + " " + propertyName + ";" + unknownTypeTip + LINE_SEPARATOR;
 				} else {
-					propertiesStr += "\t" + "private " + javaType + " " + propertyName + ";";
+					propertiesStr += "\t" + "private " + javaType + " " + propertyName + ";" + unknownTypeTip ;
 					if (!"".equals(comment)) propertiesStr += "//" + comment;
 					propertiesStr += LINE_SEPARATOR;
 				}
 			} else {
-				propertiesStr += "\t" + "private " + javaType + " " + propertyName + ";" + LINE_SEPARATOR;
+				propertiesStr += "\t" + "private " + javaType + " " + propertyName + ";" + unknownTypeTip + LINE_SEPARATOR;
 			}
 
 			getsetStr += "\t" + "public " + javaType + " " + getOrIs + getsetProNameStr + "() {" + LINE_SEPARATOR + "\t\t"
@@ -302,10 +307,6 @@ public class GenBean {
 	// 获取所有表信息
 	private List<Table> getAllTables() {
 		List<Table> tables = new ArrayList<>();
-		//		Connection con = null;
-		//		PreparedStatement ps = null;
-		//		ResultSet rs = null;
-		//		try {
 		// 获取所有表名
 		String showTablesSql = "";
 		if (!"".equals(config.getQueryTableSql().trim())) {
@@ -329,9 +330,6 @@ public class GenBean {
 				if (rs.getString(1) == null) continue;
 				tables.add(getTable(rs.getString(1).trim(), con));
 			}
-			//			rs.close();
-			//			ps.close();
-			//			con.close();
 		} catch (SQLException e) {
 			Logger.error(e.getMessage());
 			throw ExceptionHelper.convert(e);
@@ -340,10 +338,6 @@ public class GenBean {
 	}
 
 	private Table getTable(String tableName, Connection con) throws SQLException {
-		
-//		if(CheckField.isIllegal(tableName)) {
-//			throw new BeeIllegalParameterException("The tableName: '"+tableName+ "' is illegal!");
-//		}
 		
 		NameCheckUtil.checkName(tableName);
 		
@@ -604,6 +598,5 @@ class Table {
 	public void setPrimaryKeyNames(Map<String, String> primaryKeyNames) {
 		this.primaryKeyNames = primaryKeyNames;
 	}
-	
 
 }
