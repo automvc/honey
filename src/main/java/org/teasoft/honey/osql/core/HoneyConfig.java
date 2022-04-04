@@ -59,6 +59,9 @@ public final class HoneyConfig {
 	@SysValue("${bee.osql.sqlLoggerLevel}")
 	public String sqlLoggerLevel; //v1.9.8
 	
+	@SysValue("${bee.osql.systemLoggerLevel}")
+	public String systemLoggerLevel="info"; //v1.11
+	
 	@SysValue("${bee.osql.logDonotPrintLevel}")
 	public boolean logDonotPrintLevel = true; //v1.7.2
 
@@ -199,6 +202,9 @@ public final class HoneyConfig {
 	String cache_modifySyn;
 	
 	//V1.11
+	@SysValue("${bee.osql.cache.prototype}")
+	public int cache_prototype=1;
+	
 	@SysValue("${bee.osql.cache.useLevelTwo}")
 	public boolean cache_useLevelTwo; 
 	@SysValue("${bee.osql.cache.levelOneTolevelTwo}")
