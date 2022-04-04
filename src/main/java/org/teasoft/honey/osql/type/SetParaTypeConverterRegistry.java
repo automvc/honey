@@ -9,6 +9,7 @@ package org.teasoft.honey.osql.type;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.teasoft.bee.osql.Registry;
 import org.teasoft.bee.osql.type.SetParaTypeConvert;
 import org.teasoft.honey.osql.core.HoneyConfig;
 
@@ -18,7 +19,7 @@ import org.teasoft.honey.osql.core.HoneyConfig;
  * @author Kingstar
  * @since  1.11
  */
-public final class SetParaTypeConverterRegistry {
+public final class SetParaTypeConverterRegistry implements Registry{
 
 //	private static final String PRIORITY = "1";
 	private static final Map<Class<?>, SetParaTypeConvert<?>> convertersMap = new HashMap<>();
