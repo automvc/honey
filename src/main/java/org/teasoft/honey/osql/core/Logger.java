@@ -107,7 +107,8 @@ public class Logger {
 			}
 		}
 	}
-
+	 
+	//专门用于Bee框架输出SQL日志.
 	private static void print(String s) {
 		//在此判断输出日志的级别. 
 		//用户可以自己定义输出sql的日志级别. 比如定义warn才输出sql.
@@ -125,6 +126,7 @@ public class Logger {
 			log.info(s);
 	}
 
+	//专门用于Bee框架输出SQL日志.
 	private static void _print(String s1, String s2) {
 		//		log.info(s1+"\n"  +s2);
 		//v1.9.8
@@ -138,6 +140,7 @@ public class Logger {
 			log.info(s1 + s2);
 	}
 
+	//专门用于Bee框架输出SQL日志.
 	private static void _println(String s1, String s2) {
 		//v1.9.8
 		if (getSqlLoggerLevel() == null)
@@ -176,6 +179,34 @@ public class Logger {
 		//=================================end
 
 		log.debug(msg);
+	}
+	
+	public static void debug(String msg,Throwable t) {
+
+		//=================================start
+		if (LoggerFactory.isNoArgInConstructor()) {
+			resetLog();
+		} else {
+			//不能移走,它表示的是调用所在的位置.
+			String callerClass = "";
+			try {
+				callerClass = sun.reflect.Reflection.getCallerClass().getName();
+			} catch (Error e) {
+				try {
+					callerClass = sun.reflect.Reflection.getCallerClass(2).getName();
+				} catch (Throwable t2) {
+					try {
+						callerClass = new Throwable().getStackTrace()[1].getClassName();
+					} catch (Exception e2) {
+						callerClass = Logger.class.getName();
+					}
+				}
+			}
+			resetLog(callerClass);
+		}
+		//=================================end
+
+		log.debug(msg,t);
 	}
 
 	public static void info(String msg) {
