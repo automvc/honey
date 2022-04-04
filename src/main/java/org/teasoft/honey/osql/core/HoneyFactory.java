@@ -76,6 +76,7 @@ public class HoneyFactory {
 		boolean nocache = HoneyConfig.getHoneyConfig().cache_nocache;
 		boolean useLevelTwo=getUseLevelTwo();
 		if (nocache) {
+			Logger.warn("[Bee]==========Now the Cache type is: nocache.");
 			cache= new NoCache(); //v1.7.2
 		}else if(useLevelTwo) {//V1.11
 			ServiceLoader<Cache> caches = ServiceLoader.load(Cache.class);
