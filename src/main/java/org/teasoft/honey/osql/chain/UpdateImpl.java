@@ -111,7 +111,6 @@ public class UpdateImpl extends AbstractToSql implements Update {
 		public Update where(String expression) {
 			checkExpression(expression);
 			if (isStartWhere) {
-//				sql.append(" where ");
 				sql.append(SPACE).append(K.where).append(SPACE);
 				sql.append(expression);
 				isStartWhere = false;
@@ -170,7 +169,6 @@ public class UpdateImpl extends AbstractToSql implements Update {
 
 		/**
 		 * 默认自动加and.default will automatically add and.
-		 * 
 		 * @return a reference to this object.
 		 */
 		@Override
@@ -182,7 +180,6 @@ public class UpdateImpl extends AbstractToSql implements Update {
 
 		@Override
 		public Update or() {
-//			sql.append(" or ");
 			sql.append(SPACE).append(K.or).append(SPACE);
 			isAddAnd = false;
 			return this;
@@ -236,7 +233,6 @@ public class UpdateImpl extends AbstractToSql implements Update {
 			checkField(field);
 			if (isAddAnd) sql.append(AND);
 			sql.append(field);
-//			sql.append(" between ");
 			sql.append(SPACE).append(K.between).append(SPACE);
 			sql.append(low);
 			sql.append(AND);
@@ -251,7 +247,6 @@ public class UpdateImpl extends AbstractToSql implements Update {
 			checkField(field);
 			if (isAddAnd) sql.append(AND);
 			sql.append(field);
-//			sql.append(" not between ");
 			sql.append(SPACE).append(K.notBetween).append(SPACE);
 			sql.append(low);
 			sql.append(AND);
@@ -282,9 +277,6 @@ public class UpdateImpl extends AbstractToSql implements Update {
 		}
 		
 		private void checkField(String field){
-//			if(CheckField.isIllegal(field)) {
-//				throw new BeeErrorFieldException("The field: '"+field+ "' is illegal!");
-//			}
 			NameCheckUtil.checkName(field);
 		}
 		
@@ -295,5 +287,4 @@ public class UpdateImpl extends AbstractToSql implements Update {
 		}
 		
 		 //=============>>
-		
 }

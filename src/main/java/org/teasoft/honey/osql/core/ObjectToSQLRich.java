@@ -30,10 +30,8 @@ import org.teasoft.honey.osql.util.AnnoUtil;
  */
 public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 
-//	private DbFeature dbFeature = BeeFactory.getHoneyFactory().getDbFeature();
 	private static final String ASC = K.asc;
 	
-//	private static boolean  showSQL=HoneyConfig.getHoneyConfig().isShowSQL();
 	private int batchSize = HoneyConfig.getHoneyConfig().insertBatchSize;
 
 	private DbFeature getDbFeature() {
@@ -497,10 +495,8 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		
 		String tableName =_toTableNameByClass(c);
 		
-//		sqlBuffer.append("delete from ")
 		sqlBuffer.append(K.delete).append(" ").append(K.from).append(" ")
 		.append(tableName)
-//		.append(" where ")
 		.append(" ").append(K.where).append(" ");
 		;
 		
@@ -532,7 +528,6 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	
 	@Override
 	public <T> String toSelectByIdSQL(T entity, Integer id) {
-		
 		SqlValueWrap sqlBuffer = toSelectByIdSQL0(entity);
 		String pkName=getPkName(entity);
 		return _toSelectAndDeleteByIdSQL(sqlBuffer, id, "java.lang.Integer",pkName,entity.getClass());
@@ -655,10 +650,6 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		
 		return sqlBuffer.toString();
 	}
-	
-//	private <T> String _toSelectAndDeleteByIdSQL(SqlValueWrap wrap, String ids) {
-//		return _toSelectAndDeleteByIdSQL(wrap, ids,null);
-//	}
 	
 	private String _toSelectAndDeleteByIdSQL(SqlValueWrap wrap, String ids, String idType,String pkName,Class entityClass) {
 
@@ -788,11 +779,9 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 					continue;	
 				}else {
 					if (firstWhere) {
-//						sqlBuffer.append(" where ");
 						sqlBuffer.append(" ").append(K.where).append(" ");
 						firstWhere = false;
 					} else {
-//						sqlBuffer.append(" and ");
 						sqlBuffer.append(" ").append(K.and).append(" ");
 					}
 					sqlBuffer.append(_toColumnName(fields[i].getName(),entity.getClass()));
@@ -939,7 +928,6 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			Logger.error(e.getMessage());
 			return;
 		}
-
 	}
 	
 	private boolean isNeedRealTimeDb() {

@@ -22,7 +22,6 @@ import org.teasoft.honey.osql.util.NameCheckUtil;
 public class SelectImpl extends AbstractSelectToSql implements Select {
 
 	private static final String STAR = "*";
-//	private static final String DISTINCT = "distinct";
 	private static final String DISTINCT = K.distinct;
 	
 	//for where condition
@@ -50,7 +49,6 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 	@Override
 	public Select select() {
 		if (isStartField) {
-//			sql.append("select ");
 			sql.append(K.select).append(SPACE);
 			sql.append(STAR); //*
 			isStartField = false;
@@ -88,7 +86,6 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 	@Override
 	public Select from(String table) {
 		checkExpression(table);
-//		sql.append(" from ");
 		sql.append(SPACE).append(K.from).append(SPACE);
 		sql.append(table);
 		return this;
@@ -97,7 +94,6 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 	@Override
 	public Select join(String anotherTable) {
 		checkExpression(anotherTable);
-//		sql.append(" join ");
 		sql.append(SPACE).append(K.join).append(SPACE);
 		sql.append(anotherTable);
 		return this;
@@ -132,7 +128,6 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 
 	@Override
 	public Select on() {
-//		sql.append(" on ");
 		sql.append(SPACE).append(K.on).append(SPACE);
 		isStartOn = false;
 
@@ -143,7 +138,6 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 	public Select on(String expression) {
 		checkExpression(expression);
 		if (isStartOn) {
-//			sql.append(" on ");
 			sql.append(SPACE).append(K.on).append(SPACE);
 			sql.append(expression);
 			isStartOn = false;
@@ -162,11 +156,9 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 	public Select groupBy(String field) {
 		checkField(field);
 		if (isStartGroupBy) {
-//			sql.append(" group by ");
 			sql.append(SPACE).append(K.groupBy).append(SPACE);
 			sql.append(field);
 			isStartGroupBy = false;
-
 		} else {
 			sql.append(COMMA);
 			sql.append(field);
@@ -178,7 +170,6 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 	public Select having(String expression) {
 		checkExpression(expression);
 		if (isStartHaving) {
-//			sql.append(" having ");
 			sql.append(SPACE).append(K.having).append(SPACE);
 			sql.append(expression);
 			isStartHaving = false;
@@ -194,7 +185,6 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 	public Select orderBy(String field) {
 		checkField(field);
 		if (isStartOrderBy) {
-//			sql.append(" order by ");
 			sql.append(SPACE).append(K.orderBy).append(SPACE);
 			sql.append(field);
 			isStartOrderBy = false;
@@ -210,7 +200,6 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 	public Select orderBy(String field, OrderType orderType) {
 		checkField(field);
 		if (isStartOrderBy) {
-//			sql.append(" order by ");
 			sql.append(SPACE).append(K.orderBy).append(SPACE);
 			sql.append(field);
 			sql.append(SPACE);
@@ -308,7 +297,6 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 	
 	@Override
 	public Select where() {
-//		sql.append(" where ");
 		sql.append(SPACE).append(K.where).append(SPACE);
 		isStartWhere = false;
 
@@ -319,7 +307,6 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 	public Select where(String expression) {
 		checkExpression(expression);
 		if (isStartWhere) {
-//			sql.append(" where ");
 			sql.append(SPACE).append(K.where).append(SPACE);
 			sql.append(expression);
 			isStartWhere = false;
@@ -378,7 +365,6 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 
 	/**
 	 * 默认自动加and.default will automatically add and.
-	 * 
 	 * @return a reference to this object.
 	 */
 	@Override
@@ -390,7 +376,6 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 
 	@Override
 	public Select or() {
-//		sql.append(" or ");
 		sql.append(SPACE).append(K.or).append(SPACE);
 		isAddAnd = false;
 		return this;
@@ -444,7 +429,6 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 		checkField(field);
 		if (isAddAnd) sql.append(AND);
 		sql.append(field);
-//		sql.append(" between ");
 		sql.append(SPACE).append(K.between).append(SPACE);
 		sql.append(low);
 		sql.append(AND);
@@ -459,7 +443,6 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 		checkField(field);
 		if (isAddAnd) sql.append(AND);
 		sql.append(field);
-//		sql.append(" not between ");
 		sql.append(SPACE).append(K.notBetween).append(SPACE);
 		sql.append(low);
 		sql.append(AND);
@@ -490,9 +473,6 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 	}
 	
 	private void checkField(String field){
-//		if(CheckField.isIllegal(field)) {
-//			throw new BeeErrorFieldException("The field: '"+field+ "' is illegal!");
-//		}
 		NameCheckUtil.checkName(field);
 	}
 	
@@ -503,5 +483,4 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 	}
 	
 	 //=============>>
-
 }

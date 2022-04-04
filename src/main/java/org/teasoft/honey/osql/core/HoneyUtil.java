@@ -2,19 +2,7 @@ package org.teasoft.honey.osql.core;
 
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
-import java.sql.Blob;
-import java.sql.Clob;
-import java.sql.Date;
-import java.sql.NClob;
-import java.sql.PreparedStatement;
-import java.sql.Ref;
-import java.sql.ResultSet;
-import java.sql.RowId;
-import java.sql.SQLException;
-import java.sql.SQLXML;
-import java.sql.Time;
-import java.sql.Timestamp;
-import java.sql.Types;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -40,12 +28,7 @@ import org.teasoft.bee.osql.exception.JoinTableParameterException;
 import org.teasoft.bee.osql.type.SetParaTypeConvert;
 import org.teasoft.honey.osql.constant.NullEmpty;
 import org.teasoft.honey.osql.name.NameUtil;
-import org.teasoft.honey.osql.type.CharTypeHandler;
-import org.teasoft.honey.osql.type.SetParaTypeConverterRegistry;
-import org.teasoft.honey.osql.type.TimestampTypeHandler;
-import org.teasoft.honey.osql.type.TypeHandlerRegistry;
-import org.teasoft.honey.osql.type.UtilDotDateTypeConvert;
-import org.teasoft.honey.osql.type.UtilDotDateTypeToTimestampConvert;
+import org.teasoft.honey.osql.type.*;
 import org.teasoft.honey.osql.util.NameCheckUtil;
 import org.teasoft.honey.osql.util.PropertiesReader;
 import org.teasoft.honey.util.ObjectUtils;
@@ -63,6 +46,8 @@ public final class HoneyUtil {
 
 	private static PropertiesReader jdbcTypeCustomProp = new PropertiesReader("/jdbcTypeToFieldType.properties");
 	private static PropertiesReader jdbcTypeCustomProp_specificalDB = null;
+	
+	private static String SET_WRONG_VALUE_IN="Annotation JoinTable set wrong value in ";
 
 	static {
 		initTypeMapConfig();
@@ -96,19 +81,6 @@ public final class HoneyUtil {
 		
 		TypeHandlerRegistry.register(char.class, new CharTypeHandler<Character>(),true);
 	}
-
-//	public static int[] mergeArray(int total[], int part[], int start, int end) {
-//
-//		try {
-//			for (int i = 0; i < part.length; i++) {
-//				total[start + i] = part[i];
-//			}
-//		} catch (Exception e) {
-//			Logger.error(" HoneyUtil.mergeArray() " + e.getMessage());
-//		}
-//
-//		return total;
-//	}
 
 	@SuppressWarnings("rawtypes")
 	static String getBeanField(Field field[],Class entityClass) {
@@ -319,7 +291,6 @@ public final class HoneyUtil {
 //		if(subEntityFieldNum==2)
 //		       throw new JoinTableException("Just support JoinType.JOIN in this version when a entity has two JoinTable annotation fields!");
 		
-		
 		//v1.9.8 主表只有一个从表时,检测从表1是否还有从表.
 		boolean oneHasOne=false;
 		StringBuffer subColumnStringBuffer[]=new StringBuffer[2];
@@ -366,7 +337,6 @@ public final class HoneyUtil {
 				moreTableStruct[0].oneHasOne = true;
 			}
 		}
-		
 		
 		if (subField[1] != null) {
 			joinTable[1] = subField[1].getAnnotation(JoinTable.class);
@@ -564,7 +534,6 @@ public final class HoneyUtil {
 				} catch (ClassNotFoundException e2) {
 					// ignore
 				}
-				
 			}
 		}
 
@@ -597,15 +566,12 @@ public final class HoneyUtil {
 //			Set<String> mainFieldSet,Map<String,String> dulMap,boolean checkOneHasOne,String entityFieldFullName) {
 		
 		String entityFieldFullName=entityClass.getName();
-		
 
 //		tableName传入的也是:useSubTableName
-		
 //		entityFieldFullName just for tip
-
 //		Field field[] = entityField.getType().getDeclaredFields();
 
-		//		String tableName = _toTableNameByEntityName(entityField.getType().getSimpleName());//有可能用别名
+//		String tableName = _toTableNameByEntityName(entityField.getType().getSimpleName());//有可能用别名
 		StringBuffer columns = new StringBuffer();
 		int len = field.length;
 		boolean isFirst = true;
@@ -678,16 +644,6 @@ public final class HoneyUtil {
 		return columns;
 	}
 	
-	/*	static boolean isNumberType(Field field){
-			if (
-				(field.getType() == Integer.class)|| (field.getType() == Long.class)
-			  ||(field.getType() == Short.class) || (field.getType() == Byte.class)
-			  ||(field.getType() == Double.class)|| (field.getType() == Float.class)
-			  ||(field.getType() == BigInteger.class)||(field.getType() == BigDecimal.class)
-			  )  return true;
-			else return false;
-		}*/
-
 	/**
 	 * jdbc type->java type
 	 * 将jdbc的数据类型转换为java的类型 
@@ -778,6 +734,10 @@ public final class HoneyUtil {
 		jdbcTypeMap.put("TIMESTAMP_WITH_TIMEZONE", "Timestamp");
 		jdbcTypeMap.put("TIMESTAMP WITH TIME ZONE", "Timestamp"); //test in oralce 11g
 		jdbcTypeMap.put("TIMESTAMP WITH LOCAL TIME ZONE", "Timestamp");//test in oralce 11g
+		
+		jdbcTypeMap.put("JSON", STRING);
+		jdbcTypeMap.put("TEXT", STRING);
+		jdbcTypeMap.put("LONGTEXT", STRING);
 
 		String dbName = HoneyConfig.getHoneyConfig().getDbName();
 
@@ -969,7 +929,6 @@ public final class HoneyUtil {
 			jdbcTypeMap.put("set", "Set");
 			jdbcTypeMap.put("map", "Map");
 		}
-
 	}
 
 	private static void appendJdbcTypeCustomProp() {
@@ -1533,17 +1492,6 @@ public final class HoneyUtil {
 				}
 			}
 			
-//			if (value == null || value instanceof Number
-//					|| Collection.class.isAssignableFrom(value.getClass())
-//					|| Map.class.isAssignableFrom(value.getClass())
-//					|| value instanceof java.util.UUID
-//				){ //v1.8.15    Null no need ' and '
-//				sql=sql.replaceFirst("\\?", String.valueOf(value));
-//			}else{
-////				sql=sql.replaceFirst("\\?", "'"+String.valueOf(value)+"'");
-//				sql=sql.replaceFirst("\\?", "'"+String.valueOf(value).replace("$", "\\$")+"'"); //bug 2021-05-25
-//			}
-			
 			if(value!=null && value instanceof CharSequence) { //V1.11
 				sql=sql.replaceFirst("\\?", "'"+String.valueOf(value).replace("$", "\\$")+"'"); //bug 2021-05-25
 			}else {
@@ -1662,16 +1610,16 @@ public final class HoneyUtil {
 		String subClass=joinTable.subClass();
 		
 		if (NameCheckUtil.isIllegal(mainField)) {
-			throw new JoinTableParameterException("Annotation JoinTable set wrong value in mainField:" + mainField);
+			throw new JoinTableParameterException(SET_WRONG_VALUE_IN+"mainField:" + mainField);
 		}
 		if (NameCheckUtil.isIllegal(subField)) {
-			throw new JoinTableParameterException("Annotation JoinTable set wrong value in subField:" + subField);
+			throw new JoinTableParameterException(SET_WRONG_VALUE_IN+"subField:" + subField);
 		}
 		if (NameCheckUtil.isIllegal(subAlias)) {
-			throw new JoinTableParameterException("Annotation JoinTable set wrong value in subAlias:" + subAlias);
+			throw new JoinTableParameterException(SET_WRONG_VALUE_IN+"subAlias:" + subAlias);
 		}
 		if (NameCheckUtil.isIllegal(subClass)) {
-			throw new JoinTableParameterException("Annotation JoinTable set wrong value in subClass:" + subClass);
+			throw new JoinTableParameterException(SET_WRONG_VALUE_IN+"subClass:" + subClass);
 		}
 		
 		String errorMsg = "";
