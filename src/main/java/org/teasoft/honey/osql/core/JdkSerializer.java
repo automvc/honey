@@ -8,6 +8,7 @@ package org.teasoft.honey.osql.core;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
@@ -20,21 +21,17 @@ import org.teasoft.bee.osql.Serializer;
 public class JdkSerializer implements Serializer {
 
 	@Override
-	public byte[] serialize(Object obj) {
+	public byte[] serialize(Object obj) throws IOException {
 		byte b[] = null;
-		try {
-			ByteArrayOutputStream out = new ByteArrayOutputStream();
-			ObjectOutputStream objOut = new ObjectOutputStream(out);
-			objOut.writeObject(obj);
-			b = out.toByteArray();
-		} catch (Exception e) {
-			//ignore
-		}
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		ObjectOutputStream objOut = new ObjectOutputStream(out);
+		objOut.writeObject(obj);
+		b = out.toByteArray();
 		return b;
 	}
 
 	@Override
-	public Object unserialize(byte[] bytes) {
+	public Object unserialize(byte[] bytes) throws IOException{
 		if (bytes == null) {
 			return null;
 		}
@@ -43,8 +40,8 @@ public class JdkSerializer implements Serializer {
 			ByteArrayInputStream input = new ByteArrayInputStream(bytes);
 			ObjectInputStream objInput = new ObjectInputStream(input);
 			obj = objInput.readObject();
-		} catch (Exception e) {
-			//ignore
+		} catch (ClassNotFoundException e) {
+			Logger.warn(e.getMessage(), e);
 		}
 		return obj;
 	}
