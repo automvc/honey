@@ -6,6 +6,9 @@
 
 package org.teasoft.honey.logging;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.teasoft.bee.logging.Log;
 import org.teasoft.honey.osql.core.HoneyConfig;
 import org.teasoft.honey.osql.util.DateUtil;
@@ -29,6 +32,24 @@ public class SystemLogger implements Log{
 	private static boolean donotPrintLevel=HoneyConfig.getHoneyConfig().logDonotPrintLevel;
 	
 	private String className=null;
+	private static Map<String,Integer> levelMap;
+	
+	private static String systemLoggerLevel=HoneyConfig.getHoneyConfig().systemLoggerLevel;
+	private static int level;
+	private static final int DEBUG_NUM=1;
+	private static final int INFO_NUM=2;
+	private static final int WARN_NUM=3;
+//	private static final int ERROR_NUM=4;
+	
+	static {
+		levelMap = new HashMap<>();
+		levelMap.put(DEBUG, 1);
+		levelMap.put(INFO, 2);
+		levelMap.put(WARN, 3);
+		levelMap.put(ERROR, 4);
+		
+		level=levelMap.get(systemLoggerLevel.toUpperCase());
+	}
 	
 	public SystemLogger(){
 	}
@@ -57,6 +78,7 @@ public class SystemLogger implements Log{
 
 	@Override
 	public void debug(String msg) {
+		if (level > DEBUG_NUM) return;
 		if(this.className!=null) 
 			print(DEBUG,msg,className);
 		else
@@ -65,6 +87,7 @@ public class SystemLogger implements Log{
 	
 	@Override
 	public void debug(String msg, Throwable t) {
+		if (level > DEBUG_NUM) return;
 		debug(msg);
 //        if (t != null) {
 //            t.printStackTrace();
@@ -78,6 +101,7 @@ public class SystemLogger implements Log{
 
 	@Override
 	public void info(String msg) {
+		if (level > INFO_NUM) return;
 		if(this.className!=null) 
 			print(INFO,msg,className);
 		else
@@ -92,6 +116,7 @@ public class SystemLogger implements Log{
 
 	@Override
 	public void warn(String msg) {
+		if (level > WARN_NUM) return;
 		if(this.className!=null) 
 			print(WARN,msg,className);
 		else
@@ -100,10 +125,11 @@ public class SystemLogger implements Log{
 	
 	@Override
 	public void warn(String msg, Throwable t) {
+		if (level > WARN_NUM) return;
 		warn(msg);
-//        if (t != null) {
-//            t.printStackTrace();
-//        }
+        if (t != null) {
+            t.printStackTrace();
+        }
 	}
 
 	@Override
@@ -123,9 +149,9 @@ public class SystemLogger implements Log{
 	public void error(String msg, Throwable t) {
 		error(msg);
 		//开发时可打开调试
-//        if (t != null) {
-//            t.printStackTrace();  //SystemLogger print the error message to console.
-//        }
+        if (t != null) {
+            t.printStackTrace();  //SystemLogger print the error message to console.
+        }
 	}
 	
 	private void print(String level,String msg){
