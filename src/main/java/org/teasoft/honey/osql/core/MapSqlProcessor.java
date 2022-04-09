@@ -66,6 +66,8 @@ public class MapSqlProcessor {
 		List<PreparedValue> list = new ArrayList<>();
 
 		if (ObjectUtils.isNotEmpty(whereConditonMap)) {
+			Boolean isBooleanTransfer = sqlSettingMap.get(MapSqlSetting.IsTransferTrueFalseStringToBooleanType);
+			parseBoolean(whereConditonMap,isBooleanTransfer); //V1.11
 			where(whereConditonMap, list, sqlBuffer, isTransfer, getIncludeType(sqlSettingMap));
 		}
 
@@ -148,8 +150,9 @@ public class MapSqlProcessor {
 		List<PreparedValue> list = new ArrayList<>();
 		boolean firstWhere = false;
 		if (ObjectUtils.isNotEmpty(whereConditonMap)) {
-			firstWhere = where(whereConditonMap, list, sqlBuffer, isTransfer,
-					getIncludeType(sqlSettingMap));
+			Boolean isBooleanTransfer = sqlSettingMap.get(MapSqlSetting.IsTransferTrueFalseStringToBooleanType);
+			parseBoolean(whereConditonMap,isBooleanTransfer); //V1.11
+			firstWhere = where(whereConditonMap, list, sqlBuffer, isTransfer,getIncludeType(sqlSettingMap));
 		}
 
 		String sql = sqlBuffer.toString();
@@ -199,13 +202,16 @@ public class MapSqlProcessor {
 		
 		Map<String, Object> newValueMap = suidMapImpl.getNewKvMap();
 		if (ObjectUtils.isNotEmpty(newValueMap)) {
+			Boolean isBooleanTransfer = sqlSettingMap.get(MapSqlSetting.IsTransferTrueFalseStringToBooleanType);
+			parseBoolean(newValueMap,isBooleanTransfer); //V1.11
 			firstSet = updateSet(newValueMap, list, sqlBuffer, isTransfer, getIncludeType(sqlSettingMap));
 		}
 
 		boolean firstWhere = true;
 		if (ObjectUtils.isNotEmpty(whereConditonMap)) {
-			firstWhere = where(whereConditonMap, list, sqlBuffer, isTransfer,
-					getIncludeType(sqlSettingMap));
+			Boolean isBooleanTransfer = sqlSettingMap.get(MapSqlSetting.IsTransferTrueFalseStringToBooleanType);
+			parseBoolean(whereConditonMap,isBooleanTransfer); //V1.11
+			firstWhere = where(whereConditonMap, list, sqlBuffer, isTransfer,getIncludeType(sqlSettingMap));
 		}
 
 		String sql = sqlBuffer.toString();
@@ -262,7 +268,9 @@ public class MapSqlProcessor {
 		Object oldId=null;
 		List<PreparedValue> list = new ArrayList<>();
 		if (ObjectUtils.isNotEmpty(insertKvMap)) {
-			if(isNeedProcessId) oldId=processId(insertKvMap,orgi_tableName,pkName); //bug,用于获取分布式id的表名要一致
+			if(isNeedProcessId) oldId=processId(insertKvMap,orgi_tableName,pkName); //fixed bug,用于获取分布式id的表名要一致
+			Boolean isBooleanTransfer = sqlSettingMap.get(MapSqlSetting.IsTransferTrueFalseStringToBooleanType);
+			parseBoolean(insertKvMap,isBooleanTransfer); //V1.11
 			toInsertSql(insertKvMap, list, sqlBuffer, isTransfer, getIncludeType(sqlSettingMap));
 		}else {
 			throw new BeeException("Must set the insert vlaue with MapSql.put(String fieldName, Object value) !");
@@ -542,6 +550,24 @@ public class MapSqlProcessor {
 	private static void checkExpression(String expression){
 		if(Check.isNotValidExpressionForJustFetch(expression)) {
 			throw new BeeIllegalSQLException(" '"+expression+ "' is invalid in MapSql!");
+		}
+	}
+	
+	private static void parseBoolean(Map<String,Object> map,Boolean isBooleanTransfer) {
+		if (map == null) return;
+		if (Boolean.FALSE.equals(isBooleanTransfer)) return;
+//		isBooleanTransfer is null or true will be Transfer
+		
+		for (Map.Entry<String, Object> entry : map.entrySet()) {
+//			System.out.println(entry.getKey());
+//			System.out.println(entry.getValue().getClass().getName());
+			Object obj=entry.getValue();
+			if(!(obj instanceof String))continue;
+			String v=(String)obj;
+			if("true".equalsIgnoreCase(v) 
+			|| "false".equalsIgnoreCase(v) ) {
+				map.put(entry.getKey(), Boolean.parseBoolean(v));
+			}
 		}
 	}
 
