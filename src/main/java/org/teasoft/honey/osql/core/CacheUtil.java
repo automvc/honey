@@ -17,6 +17,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import org.teasoft.bee.osql.Serializer;
 import org.teasoft.honey.distribution.ds.Router;
 
 /**
@@ -86,7 +87,12 @@ public final class CacheUtil {
 		return HoneyConfig.getHoneyConfig().cache_useLevelTwo;
 	}
 
-	public  static Object get(String sql) {
+	/**
+	 * 从缓存获取结果.get the result from cache.
+	 * @param sql sql语句或相关key. sql string or other key.
+	 * @return 从缓存获取的结果.the result get from cache.
+	 */
+	public static Object get(String sql) {
 		
 		String key = CacheKey.genKey(sql);
 		if (key == null) return null;
@@ -106,7 +112,8 @@ public final class CacheUtil {
 
 			// 要是能返回缓存的结果集,说明不用上下文的缓存结构信息了. 可以删
 			HoneyContext.deleteCacheInfo(sql);
-			return obj[index];
+//			return obj[index];
+			return copyObjectForGet(obj[index]);
 		} else { //还没有放一般缓存的  , 则判断是否有在永久或长久缓存
 
 			List<String> tableNameList = CacheKey.genTableNameList(sql); //支持多表的情况  
@@ -123,7 +130,8 @@ public final class CacheUtil {
 							if(isShowSql) Logger.logSQL(logCacheMsg,"");
 						}
 						
-						return obj0;
+//						return obj0;
+						return copyObjectForGet(obj0);
 					}
 				}
 				
@@ -138,7 +146,7 @@ public final class CacheUtil {
 						if(isShowSql) Logger.logSQL(logCacheMsg,"");
 					}
 					
-					return obj1;
+					return copyObjectForGet(obj1);
 				}
 			}
 			
@@ -225,10 +233,11 @@ public final class CacheUtil {
 	}
 	
 	/**
-	 * false未放缓存,true已放缓存
-	 * @param sql
-	 * @param rs
-	 * @return 返回是否已放缓存
+	 * false未放缓存,true已放缓存.
+	 * False not cached, true cached
+	 * @param sql sql语句或相关key. sql string or other key
+	 * @param rs 结果集.result
+	 * @return 返回是否已放缓存.whether it has been put in cache.
 	 */
 	public static boolean add(String sql,Object rs){
 		return addInCache(sql,rs);
@@ -236,7 +245,26 @@ public final class CacheUtil {
 	
 	// 添加缓存是否可以另起一个线程执行,不用影响到原来的.   但一次只能添加一个元素,作用不是很大.要考虑起线程的开销
 	static boolean addInCache(String sql,Object rs){
-		 
+		
+		if(getCachePrototype()==1 || getCachePrototype()==2) {
+			try {
+				Serializer jdks = new JdkSerializer();
+				Object rsNew = jdks.unserialize(jdks.serialize(rs));
+				if (rs instanceof String)
+					rs = (String) rsNew;
+				else if (rs instanceof List)
+					rs = (List) rsNew;
+				else
+					rs = rsNew;
+
+//				System.err.println(rs.getClass().getName());
+			} catch (Exception e) { //NotSerializableException
+				Logger.debug(e.getMessage(), e);
+				if(getCachePrototype()==1) return false; //严格  异常则不放入缓存
+				//	不严格: 有异常则使用原对象        serialize发生异常,则会往后执行(使用原来的)
+			}
+		}
+	
 		 String key=CacheKey.genKey(sql);
 		 List<String> tableNameList=CacheKey.genTableNameList(sql);  //支持多表的情况
 		 
@@ -545,5 +573,24 @@ public final class CacheUtil {
 				foreverCacheModifySynTableMap.put(fs_syn[i].trim().toLowerCase(), FOREVER);
 			}
 		}
+	}
+	
+	private static int getCachePrototype() {
+		return HoneyConfig.getHoneyConfig().cache_prototype;
+	}
+	
+	//1,2 deepCopy,  0: original
+	private static Object copyObjectForGet(Object object) {
+		
+		if(getCachePrototype()==0) return object;
+		
+		try {
+			Serializer jdks = new JdkSerializer();
+			return jdks.unserialize(jdks.serialize(object));
+		} catch (Exception e) { //NotSerializableException
+			Logger.debug(e.getMessage(), e);
+			if(getCachePrototype()==1) return null; //严格
+		}
+		return object; //不严格  有异常则返回原对象
 	}
 }
