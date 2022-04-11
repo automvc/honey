@@ -28,7 +28,7 @@ import org.teasoft.honey.osql.dialect.NoPagingSupported;
 import org.teasoft.honey.osql.dialect.mysql.MySqlFeature;
 import org.teasoft.honey.osql.dialect.oracle.OracleFeature;
 import org.teasoft.honey.osql.dialect.sqlserver.SqlServerFeature;
-import org.teasoft.honey.osql.interccept.DefaultInterceptorChain;
+import org.teasoft.honey.osql.interccept.InterceptorChainRegistry;
 import org.teasoft.honey.osql.name.OriginalName;
 import org.teasoft.honey.osql.name.UnderScoreAndCamelName;
 import org.teasoft.honey.osql.name.UpperCaseUnderScoreAndCamelName;
@@ -310,13 +310,19 @@ public class HoneyFactory {
 	}
 	
 	private boolean _isLimitOffsetDB() {
-		return  DatabaseConst.H2.equalsIgnoreCase((HoneyContext.getDbDialect())) 
+		boolean comm = DatabaseConst.H2.equalsIgnoreCase((HoneyContext.getDbDialect()))
 				|| DatabaseConst.SQLite.equalsIgnoreCase((HoneyContext.getDbDialect()))
 				|| DatabaseConst.PostgreSQL.equalsIgnoreCase((HoneyContext.getDbDialect()));
+		
+		if(comm) return comm;
+		
+		boolean other = HoneyConfig.getHoneyConfig().pagingWithLimitOffset;
+		return comm || other;
 	}
 
 	public InterceptorChain getInterceptorChain() {
-		if (interceptorChain == null) return new DefaultInterceptorChain();
+		//当前对象没有设置拦截器链,则使用全局的
+		if (interceptorChain == null) return InterceptorChainRegistry.getInterceptorChain();
 		return interceptorChain;
 	}
 

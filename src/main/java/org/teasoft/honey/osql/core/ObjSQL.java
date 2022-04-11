@@ -28,6 +28,7 @@ public class ObjSQL implements Suid {
 	private BeeSql beeSql;
 	private ObjToSQL objToSQL;
 	//V1.11
+	//全局的可以使用InterceptorChainRegistry配置;只是某个对象要使用,再使用对象配置
 	private InterceptorChain interceptorChain;
 	private String dsName;
 	private NameTranslate nameTranslate; //用于设置当前对象使用的命名转换器.使用默认的不需要设置
@@ -52,11 +53,16 @@ public class ObjSQL implements Suid {
 	
 	@Override
 	public InterceptorChain getInterceptorChain() {
-		if (interceptorChain == null)
+		if (interceptorChain == null) {
 			interceptorChain = BeeFactory.getHoneyFactory().getInterceptorChain();
+		}
 		return interceptorChain;
 	}
 
+	/**
+	 * 全局的可以使用InterceptorChainRegistry配置;只是某个对象要使用,再使用对象配置
+	 * @param interceptorChain
+	 */
 	public void setInterceptorChain(InterceptorChain interceptorChain) {
 		this.interceptorChain = interceptorChain;
 	}

@@ -22,7 +22,7 @@ public class NameRegistry implements Registry {
      * 设置自定义命名转化类.for set customer naming.
      * @param nameTranslate name translate
      */
-	public static void registryNameTranslate(NameTranslate nameTranslate) {
+	public static void registerNameTranslate(NameTranslate nameTranslate) {
 		NameTranslateHandle.setNameTranslate(nameTranslate);
 	}
 	
@@ -30,7 +30,7 @@ public class NameRegistry implements Registry {
 	 * 指定列名命名转换处理器(默认转换无需设置).Specifies the column naming conversion handler(no setting required for default conversion)
 	 * @param columnHandler 列名命名转换处理器.column naming conversion handler
 	 */
-	public static void registryColumnHandler(ColumnHandler columnHandler) {
+	public static void registerColumnHandler(ColumnHandler columnHandler) {
 		NameTranslateHandle.setColumnHandler(columnHandler);
 	}
 

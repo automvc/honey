@@ -18,6 +18,10 @@ public class BeeFactory extends BeeAbstractFactory {
 	private static BeeFactory instance=new BeeFactory();
 	private static HoneyFactory honeyFactory = null;
 
+	static{
+		HoneyContext.initLoad();
+	}
+	
 //	HoneyFactory 用于非spring,方法获取对象. 用spring时,由spring管理,不再需要HoneyFactory.
 //	public void setHoneyFactory(HoneyFactory honeyFactory) {
 //		BeeFactory.honeyFactory = honeyFactory;

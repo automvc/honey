@@ -27,6 +27,7 @@ public final class HoneyConfig {
 
 	private void init() {
 		SysValueProcessor.process(honeyConfig);
+		HoneyContext.initLoad();
 	}
 	
 	/**
@@ -76,6 +77,9 @@ public final class HoneyConfig {
 
 	@SysValue("${bee.osql.notUpdateWholeRecords}")
 	boolean notUpdateWholeRecords = true; //v1.7.2
+	
+	@SysValue("${bee.osql.notShowModifyDuplicateException}")
+	boolean notShowModifyDuplicateException;
 	
 	@SysValue("${bee.osql.insertBatchSize}")
 	int insertBatchSize = 10000; //不设置,默认10000
@@ -164,6 +168,9 @@ public final class HoneyConfig {
 	boolean jndiType;
     @SysValue("${bee.db.jndiName}")
 	String jndiName;
+    
+    @SysValue("${bee.db.pagingWithLimitOffset}")
+	boolean pagingWithLimitOffset;
 
 	//----------------------------- cache start
 	@SysValue("${bee.osql.cache.timeout}")

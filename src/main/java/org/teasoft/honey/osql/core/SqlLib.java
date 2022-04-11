@@ -412,7 +412,8 @@ public class SqlLib implements BeeSql {
 		} catch (SQLException e) {
 			
 			if (isConstraint(e)) {
-				Logger.warn(e.getMessage());
+				boolean notShow=HoneyConfig.getHoneyConfig().notShowModifyDuplicateException;
+				if(! notShow) Logger.warn(e.getMessage());
 				return num;
 			}
 			
@@ -585,7 +586,7 @@ public class SqlLib implements BeeSql {
 			clearContext(sql[0],batchSize,len);
 			if (isConstraint(e)) {
 				Logger.warn(e.getMessage());
-				Logger.error(e.getMessage());
+//				Logger.error(e.getMessage());
 				return total;
 			}
 			Logger.warn(e.getMessage());

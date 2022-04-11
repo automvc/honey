@@ -5,12 +5,16 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.ServiceConfigurationError;
+import java.util.ServiceLoader;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.teasoft.bee.osql.PreLoad;
 import org.teasoft.bee.osql.NameTranslate;
 import org.teasoft.bee.osql.SuidType;
 import org.teasoft.honey.distribution.ds.RouteStruct;
@@ -140,9 +144,23 @@ public final class HoneyContext {
 		modifiedFlagMapForCache2 = new ConcurrentHashMap<>();
 		entityInterceptorFlag = new ConcurrentHashMap<>();
 		customFlagMap = new ConcurrentHashMap<>();
+	
+		initLoad();
 	}
 
 	private HoneyContext() {}
+	
+	static void initLoad() {
+		ServiceLoader<PreLoad> loads = ServiceLoader.load(PreLoad.class);
+        Iterator<PreLoad> loadIterator = loads.iterator();
+		while (loadIterator.hasNext()) {
+			try {
+				loadIterator.next();
+			} catch (ServiceConfigurationError e) {
+				Logger.error(e.getMessage(), e);
+			}
+		}
+	}
 
 	static ConcurrentMap<String, String> getEntity2tableMap() {
 		return entity2table;
