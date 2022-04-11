@@ -1191,7 +1191,8 @@ public final class HoneyUtil {
 //				value=tryConvert(value);
 //				pst.setObject(i + 1, value);
 				
-				SetParaTypeConvert converter = SetParaTypeConverterRegistry.getConverter(Json.class);
+//				先查找是否有对应类型的转换器;  到这里value不会是null;前面已处理
+				SetParaTypeConvert converter = SetParaTypeConverterRegistry.getConverter(value.getClass()); //fixed bug
 				if (converter != null) {
 					value = converter.convert(value);
 					pst.setObject(i + 1, value);
@@ -1687,7 +1688,8 @@ public final class HoneyUtil {
 		int array[] = (int[]) OneTimeParameter.getAttribute("_SYS_Bee_Paing_NumArray");
 		for (int i = 0; array != null && i < array.length; i++) {
 			PreparedValue p = new PreparedValue();
-			p.setType("Integer");
+//			p.setType("Integer"); //bug
+			p.setType("java.lang.Integer"); //fixed bug
 			p.setValue(array[i]);
 			if (HoneyUtil.isSqlServer()) { //top n
 				list.add(0, p);

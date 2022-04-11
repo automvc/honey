@@ -85,7 +85,7 @@ public final class HoneyConfig {
 	int insertBatchSize = 10000; //不设置,默认10000
 	
 	@SysValue("${bee.osql.lang}")
-	public String lang;
+	public String lang="CN";
 	
 	@SysValue("${bee.osql.openDefineColumn}")
 	public boolean openDefineColumn;
