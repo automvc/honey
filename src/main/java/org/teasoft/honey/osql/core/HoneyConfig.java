@@ -78,8 +78,11 @@ public final class HoneyConfig {
 	@SysValue("${bee.osql.notUpdateWholeRecords}")
 	boolean notUpdateWholeRecords = true; //v1.7.2
 	
+	@SysValue("${bee.osql.notCatchModifyDuplicateException}")
+	public boolean notCatchModifyDuplicateException;
+	
 	@SysValue("${bee.osql.notShowModifyDuplicateException}")
-	boolean notShowModifyDuplicateException;
+	public boolean notShowModifyDuplicateException;
 	
 	@SysValue("${bee.osql.insertBatchSize}")
 	int insertBatchSize = 10000; //不设置,默认10000

@@ -14,9 +14,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.teasoft.bee.osql.PreLoad;
 import org.teasoft.bee.osql.NameTranslate;
 import org.teasoft.bee.osql.SuidType;
+import org.teasoft.bee.spi.PreLoad;
 import org.teasoft.honey.distribution.ds.RouteStruct;
 import org.teasoft.honey.util.ObjectUtils;
 
