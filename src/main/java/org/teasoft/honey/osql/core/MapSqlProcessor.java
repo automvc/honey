@@ -559,8 +559,6 @@ public class MapSqlProcessor {
 //		isBooleanTransfer is null or true will be Transfer
 		
 		for (Map.Entry<String, Object> entry : map.entrySet()) {
-//			System.out.println(entry.getKey());
-//			System.out.println(entry.getValue().getClass().getName());
 			Object obj=entry.getValue();
 			if(!(obj instanceof String))continue;
 			String v=(String)obj;

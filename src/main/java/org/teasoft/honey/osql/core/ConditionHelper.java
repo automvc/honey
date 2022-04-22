@@ -473,11 +473,11 @@ public class ConditionHelper {
 		if (SuidType.SELECT != conditionImpl.getSuidType()) {
 			throw new BeeErrorGrammarException(conditionImpl.getSuidType() + " do not support specifying partial fields by method selectField(String) !");
 		}
-		String selectField = conditionImpl.getSelectField();
+		String selectField[] = conditionImpl.getSelectField();
 
 		if (selectField == null) return null;
 
-		return HoneyUtil.checkAndProcessSelectFieldViaString(columnNames, selectField,subDulFieldMap);
+		return HoneyUtil.checkAndProcessSelectFieldViaString(columnNames, subDulFieldMap, selectField);
 	}
 	
 	public static String processFunction(String columnNames,Condition condition) {
@@ -493,7 +493,7 @@ public class ConditionHelper {
 			if("*".equals(funExpList.get(i).getField())) {
 				columnName="*";
 			}else {
-			columnName=HoneyUtil.checkAndProcessSelectFieldViaString(columnNames, funExpList.get(i).getField(),null);
+				columnName = HoneyUtil.checkAndProcessSelectFieldViaString(columnNames, null, funExpList.get(i).getField());
 			}
 			if(isFirst) {
 				isFirst=false;

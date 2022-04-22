@@ -31,8 +31,8 @@ import org.teasoft.honey.osql.core.SessionFactory;
 import org.teasoft.honey.osql.name.NameUtil;
 import org.teasoft.honey.osql.util.DateUtil;
 import org.teasoft.honey.osql.util.NameCheckUtil;
+import org.teasoft.honey.util.StringUtils;
 
-//是否覆盖文件,       支持写生成其中一个文件或几个文件(已实现)
 /**
  * 生成Javabean.Generate Javabean.
  * @author Kingstar
@@ -45,13 +45,15 @@ public class GenBean {
 	//	SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	
 	private boolean isNeedKeyColumn=false;
+	
+	private static boolean printOverrideSetTip=true;
 
 	public GenBean(GenConfig config) {
 		this.config = config;
 	}
 
 	//	生成指定表对象对应的类文件
-	private void genBeanFile(Table table) {
+	private boolean genBeanFile(Table table) {
 		String tableName = table.getTableName();
 		List<String> columnNames = table.getColumnNames();
 		List<String> columnTypes = table.getColumnTypes(); //jdbcType
@@ -64,18 +66,16 @@ public class GenBean {
 
 		if (config.getEntityNamePre() != null) entityName = config.getEntityNamePre() + entityName;
 
-		Logger.info("The Honey gen the JavaBean: " + config.getPackagePath() + "." + entityName);
-
 		String tableComment = "";
 		if (config.isGenComment()) tableComment = commentMap.get(table.getTableName());
 
 		String authorComment = "/**" + LINE_SEPARATOR;
-		if (config.isGenComment() && !"".equals(tableComment)) authorComment += "*" + tableComment + LINE_SEPARATOR;
+		if (config.isGenComment() && !"".equals(tableComment)) authorComment += " * " + tableComment + LINE_SEPARATOR;
 		//		 authorComment+="*@author Bee"+ LINE_SEPARATOR;
-		authorComment += "*@author Honey" + LINE_SEPARATOR;
+		authorComment += " * @author Honey" + LINE_SEPARATOR;
 		//		 authorComment+="*Create on "+format.format(new Date())+ LINE_SEPARATOR;
-		authorComment += "*Create on " + DateUtil.currentDate() + LINE_SEPARATOR; //v1.7.2
-		authorComment += "*/";
+		authorComment += " * Create on " + DateUtil.currentDate() + LINE_SEPARATOR; //v1.7.2
+		authorComment += " */";
 
 		String packageStr = "package " + config.getPackagePath() + ";" + LINE_SEPARATOR;
 
@@ -208,6 +208,15 @@ public class GenBean {
 		}
 
 		File entityFile = new File(entitySaveDir + entityName + ".java");
+		
+		if (entityFile.isFile()) {
+			if (config.isOverride()) {
+				Logger.debug("Override file:  " + entityFile.getAbsolutePath());
+			} else {
+				printOvrrideTip(entityFile.getAbsolutePath());
+				return false; 
+			}
+		}
 
 		try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(entityFile)));) {
 			bw.write(packageStr + LINE_SEPARATOR);
@@ -256,6 +265,116 @@ public class GenBean {
 			bw.write("}");
 			bw.flush();
 			//			bw.close();
+			
+			Logger.info("The Honey gen the JavaBean: " + config.getPackagePath() + "." + entityName);
+			
+		} catch (Exception e) {
+			Logger.error(e.getMessage());
+			throw ExceptionHelper.convert(e);
+		}
+		
+		return true;
+	}
+	
+	private void printOvrrideTip(String path) {
+		Logger.warn("The file is exist!   " + path);
+		if(printOverrideSetTip) {
+			Logger.warn("You can config the override type as : config.setOverride(true);");
+			printOverrideSetTip=false;
+		}
+	}
+	
+	private void genOneFieldFile(Table table) {
+
+		String tableName = table.getTableName();
+		List<String> columnNames = table.getColumnNames();
+		Map<String, String> commentMap = table.getCommentMap();
+
+		// 表名对应的实体类名
+		String entityName = "";
+		entityName = NameTranslateHandle.toEntityName(tableName);
+
+		entityName = NameUtil.firstLetterToUpperCase(entityName);// 确保类名首字母大写.
+
+		if (config.getEntityNamePre() != null) entityName = config.getEntityNamePre() + entityName;
+
+		String fieldFileName = config.getFieldFilePrefix() + entityName + config.getFieldFileSuffix();
+		String fieldFilePackagePath = config.getPackagePath();
+		if (StringUtils.isNotBlank(config.getFieldFileRelativeFolder())) {
+			fieldFilePackagePath += "." + config.getFieldFileRelativeFolder();
+		}
+
+		String tableComment = "";
+		if (config.isGenComment()) tableComment = commentMap.get(table.getTableName());
+
+		String authorComment = "/**" + LINE_SEPARATOR;
+		if (config.isGenComment() && !"".equals(tableComment))
+			authorComment += " * " + tableComment + " (relative field name for Javabean "+entityName+")"+ LINE_SEPARATOR;
+		else
+			authorComment += " * Relative field name for Javabean " + entityName + LINE_SEPARATOR;
+		authorComment += " * @author Honey" + LINE_SEPARATOR;
+		authorComment += " * Create on " + DateUtil.currentDate() + LINE_SEPARATOR; //v1.7.2
+		authorComment += " */";
+
+		String packageStr = "package " + fieldFilePackagePath + ";" + LINE_SEPARATOR;
+
+		// 生成实体类文件
+		String basePath = config.getBaseDir();
+		if (!basePath.endsWith(File.separator)) basePath += File.separator;
+		String fieldFileSaveDir = basePath + config.getPackagePath().replace(".", File.separator) + File.separator;
+		if (StringUtils.isNotBlank(config.getFieldFileRelativeFolder())) {
+			fieldFileSaveDir += config.getFieldFileRelativeFolder() + File.separator;
+		}
+		File folder = new File(fieldFileSaveDir);
+		if (!folder.exists()) {
+			folder.mkdirs();
+		}
+
+		File fieldFile = new File(fieldFileSaveDir + fieldFileName + ".java");
+		
+		if (fieldFile.isFile()) {
+			if (config.isOverride()) {
+				
+				Logger.debug("Override file:  " + fieldFile.getAbsolutePath());
+			} else {
+				printOvrrideTip(fieldFile.getAbsolutePath());
+				return; 
+			}
+		}
+
+		try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fieldFile)));) {
+			bw.write(packageStr + LINE_SEPARATOR);
+			bw.write(authorComment + LINE_SEPARATOR);
+			bw.write("public class " + fieldFileName);
+			bw.write(" {" + LINE_SEPARATOR + LINE_SEPARATOR);
+            String st="";
+            String comment="";
+            String fieldName="";
+			for (int i = 0; i < columnNames.size(); i++) {
+				fieldName = NameTranslateHandle.toFieldName(columnNames.get(i));
+				st="	public static final String {fieldName} = \"{fieldName}\";"
+				   .replace("{fieldName}",fieldName);
+				
+				
+				if (config.isGenComment() && commentMap != null) {
+					comment = commentMap.get(fieldName);
+					if (config.getCommentPlace() == 2) {
+						if (!"".equals(comment)) st = "\t"+"// " + comment + LINE_SEPARATOR + st;
+					} else {
+						if (!"".equals(comment)) st += "//" + comment;
+						st += LINE_SEPARATOR;
+					}
+				}
+				bw.write(st);
+				
+				bw.write(LINE_SEPARATOR);
+			}
+			bw.write("}");
+			bw.flush();
+			
+			Logger.info("The Honey gen the FieldFile for JavaBean: " + fieldFilePackagePath + "."
+					+ fieldFileName);
+			
 		} catch (Exception e) {
 			Logger.error(e.getMessage());
 			throw ExceptionHelper.convert(e);
@@ -266,25 +385,49 @@ public class GenBean {
 		Logger.info("Generating...");
 		List<Table> tables = getAllTables();
 		Table table = null;
+		boolean some=false;
+		boolean all=true;
+		boolean f1;
+		
 		for (int i = 0; i < tables.size(); i++) {
 			table = tables.get(i);
 			// 生成实体类
-			genBeanFile(table);
+			f1=genBeanFile(table);
+			if(config.isGenFieldFile()) genOneFieldFile(table);
+			
+			some=some || f1;
+			all=all && f1;
 		}
-		Logger.info("Generate Success!");
-		Logger.info("Please check: " + config.getBaseDir() + config.getPackagePath().replace(".", "\\"));
+		if (all) Logger.info("Generate Success!");
+		else if (some) Logger.info("Generate some file Success!");
+		
+		printCheck(all || some);
+		
 	}
-
+	
+	private void printCheck(boolean isNeed) {
+		if(isNeed) Logger.info("Please check folder: " + config.getBaseDir() + config.getPackagePath().replace(".", "\\"));
+	}
+	
 	public void genSomeBeanFile(String tableList) {// throws IOException {
 		String[] tables = tableList.split(",");
 		Connection con = null;
+		boolean some=false;
+		boolean all=true;
+		boolean f1;
+		
 		try {
 			con = SessionFactory.getConnection();
 			Table table = null;
 			for (int i = 0; i < tables.length; i++) {
 				table = getTable(tables[i], con);
 				// 生成实体类
-				genBeanFile(table);
+				f1=genBeanFile(table);
+				if(config.isGenFieldFile()) genOneFieldFile(table);
+				
+				some=some || f1;
+				all=all && f1;
+				
 			}
 		} catch (Exception e) {
 			Logger.warn(e.getMessage(),e);
@@ -300,8 +443,10 @@ public class GenBean {
 				//ignore
 			}
 		}
-		Logger.info("Generate Success!");
-		Logger.info("Please check folder: " + config.getBaseDir() + config.getPackagePath().replace(".", "\\"));
+		if (all) Logger.info("Generate Success!");
+		else if (some) Logger.info("Generate some file Success!");
+		
+		printCheck(all || some);
 	}
 
 	// 获取所有表信息
@@ -350,7 +495,7 @@ public class GenBean {
 				sql.append("select * from ").append(tableName).append(" limit 1");
 			else
 				sql.append("select * from ").append(tableName).append(" where 1<>1");
-			Logger.info(sql.toString()); 
+//			Logger.info(sql.toString()); 
 			ps = con.prepareStatement(sql.toString()); 
 			rs = ps.executeQuery();
 			ResultSetMetaData rmeta = rs.getMetaData();

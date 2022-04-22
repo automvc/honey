@@ -7,7 +7,9 @@
 package org.teasoft.honey.osql.interccept;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.interccept.Interceptor;
@@ -23,8 +25,11 @@ import org.teasoft.honey.util.StringUtils;
 public class CommInterceptorChain implements InterceptorChain {
 
 	private final List<Interceptor> chain = new ArrayList<>();
+	private final Set<Class<?>> set=new HashSet<>();
 
 	public void addInterceptor(Interceptor interceptor) {
+		if (!set.add(interceptor.getClass())) 
+			Logger.warn("The InterceptorChain already contain the Interceptor, type: " + interceptor.getClass().getName());
 		chain.add(interceptor);
 	}
 

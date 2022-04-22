@@ -1503,7 +1503,7 @@ public final class HoneyUtil {
 		return sql;
 	}
 	
-	static <T> String checkAndProcessSelectField(T entity, String fieldList) {
+	static <T> String checkAndProcessSelectField(T entity, String ...fieldList) {
 
 		if (fieldList == null) return null;
 		
@@ -1515,12 +1515,12 @@ public final class HoneyUtil {
 			HoneyContext.addBeanField(packageAndClassName, columnsdNames);
 		}
 
-		return checkAndProcessSelectFieldViaString(columnsdNames, fieldList, null);
+		return checkAndProcessSelectFieldViaString(columnsdNames, null, fieldList);
 	}
 	 
-	 static String checkAndProcessSelectFieldViaString(String columnsdNames,String fieldList,Map<String,String> subDulFieldMap){
+	 static String checkAndProcessSelectFieldViaString(String columnsdNames,Map<String,String> subDulFieldMap,String ...fields){
 			
-		if(fieldList==null) return null;
+		if (fields == null) return null;
 		 
 //		Field fields[] = entity.getClass().getDeclaredFields();
 //		String packageAndClassName = entity.getClass().getName();
@@ -1534,7 +1534,13 @@ public final class HoneyUtil {
 
 		String errorField = "";
 		boolean isFirstError = true;
-		String selectFields[] = fieldList.split(",");
+		String selectFields[];
+		
+		if (fields.length == 1) { //变长参数,只有一个时,才允许用逗号隔开
+			selectFields = fields[0].split(",");
+		} else {
+			selectFields = fields;
+		}
 		String newSelectFields = "";
 		boolean isFisrt = true;
 		String colName;

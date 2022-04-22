@@ -33,11 +33,10 @@ public class JdbcTransaction implements Transaction {
 			//传递一次性参数给RW, 若不是RW则不会销毁.
 			HoneyContext.setJdbcTranWriterDs();
 			this.conn = initOneConn();
-			
+
 			boolean enableMultiDs = HoneyConfig.getHoneyConfig().multiDS_enable;
 			int multiDsType = HoneyConfig.getHoneyConfig().multiDS_type;
-			if(enableMultiDs && multiDsType!=1)
-				HoneyContext.getJdbcTranWriterDs(); // 不是RW,要主动清除
+			if (enableMultiDs && multiDsType != 1) HoneyContext.getJdbcTranWriterDs(); // 不是RW,要主动清除
 
 			setOldAutoCommit(conn.getAutoCommit());
 			conn.setAutoCommit(false);

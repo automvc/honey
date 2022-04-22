@@ -31,7 +31,7 @@ public class ConditionImpl implements Condition {
 	private Set<String> whereField = new HashSet<>(); //条件表达式用到的字段
 	private IncludeType includeType;
 	
-	private String selectField;
+	private String[] selectField;
 	private Boolean isForUpdate;
 	
 	private List<Expression> updateSetList = new ArrayList<>();
@@ -400,8 +400,9 @@ public class ConditionImpl implements Condition {
 	}
 	
 	@Override
-	public Condition selectField(String fieldList) {
-		checkField(fieldList);
+	public Condition selectField(String... fieldList) {
+		if (fieldList.length == 1) checkField(fieldList[0]);
+		//TODO
 		this.selectField=fieldList;
 		
 		return this;
@@ -421,7 +422,7 @@ public class ConditionImpl implements Condition {
 	}
 
 	@Override
-	public String getSelectField(){
+	public String[] getSelectField(){
 		return this.selectField;
 	}
 

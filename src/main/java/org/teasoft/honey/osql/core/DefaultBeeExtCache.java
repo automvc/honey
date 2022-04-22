@@ -62,8 +62,6 @@ public class DefaultBeeExtCache implements BeeExtCache {
 				if (canGetInLevelTow) {
 					//才到二级缓存查.
 					String key = CacheKey.genKey(sql);
-					//					   System.out.println("get, key is: "+key);
-
 					try {
 						obj = getInExtCache(key); //通过sql生成key,要执行两次,效率???
 					} catch (Exception e) {

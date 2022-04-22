@@ -124,7 +124,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	}
 	
 	@Override
-	public <T> String toSelectSQL(T entity, String fields) {
+	public <T> String toSelectSQL(T entity, String... fields) {
 		
 		String newSelectFields=HoneyUtil.checkAndProcessSelectField(entity,fields);
 		

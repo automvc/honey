@@ -19,6 +19,15 @@ public class GenConfig {
 	private boolean genComment;
 	private int commentPlace; //1:after field name at the same line; 2:last line
 	private String entityNamePre;
+	
+	//V1.11
+	private boolean override;
+	
+	//V1.11
+	private boolean genFieldFile;
+	private String fieldFileRelativeFolder="field";
+	private String fieldFilePrefix="";
+	private String fieldFileSuffix="_F";
 
 	public String getEncode() {
 		return encode;
@@ -134,6 +143,46 @@ public class GenConfig {
 	 */
 	public void setQueryTableCommnetSql(String queryTableCommnetSql) {
 		this.queryTableCommnetSql = queryTableCommnetSql;
+	}
+	
+	public boolean isOverride() {
+		return override;
+	}
+
+	public void setOverride(boolean override) {
+		this.override = override;
+	}
+
+	public boolean isGenFieldFile() {
+		return genFieldFile;
+	}
+
+	public void setGenFieldFile(boolean genFieldFile) {
+		this.genFieldFile = genFieldFile;
+	}
+
+	public String getFieldFileRelativeFolder() {
+		return fieldFileRelativeFolder;
+	}
+
+	public void setFieldFileRelativeFolder(String fieldFileRelativeFolder) {
+		this.fieldFileRelativeFolder = fieldFileRelativeFolder;
+	}
+
+	public String getFieldFileSuffix() {
+		return fieldFileSuffix;
+	}
+
+	public void setFieldFileSuffix(String fieldFileSuffix) {
+		this.fieldFileSuffix = fieldFileSuffix;
+	}
+
+	public String getFieldFilePrefix() {
+		return fieldFilePrefix;
+	}
+
+	public void setFieldFilePrefix(String fieldFilePrefix) {
+		this.fieldFilePrefix = fieldFilePrefix;
 	}
 	
 }

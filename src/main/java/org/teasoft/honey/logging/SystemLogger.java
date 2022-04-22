@@ -89,9 +89,9 @@ public class SystemLogger implements Log{
 	public void debug(String msg, Throwable t) {
 		if (level > DEBUG_NUM) return;
 		debug(msg);
-//        if (t != null) {
-//            t.printStackTrace();
-//        }
+        if (t != null) {
+            t.printStackTrace();
+        }
 	}
 
 	@Override
@@ -128,7 +128,7 @@ public class SystemLogger implements Log{
 		if (level > WARN_NUM) return;
 		warn(msg);
         if (t != null) {
-            t.printStackTrace();
+            t.printStackTrace(); //SystemLogger print the error message to console.
         }
 	}
 

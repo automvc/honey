@@ -105,22 +105,8 @@ public final class EntityUtil {
 			Type[] types=paraType.getActualTypeArguments();
 			Class<?> elementTypes[]=new Class<?>[types.length];
             for (int i = 0; i < types.length; i++) {
-//            	System.err.println(":::::::::::::");
-//            	System.err.println(types[i].getClass().getName()); //
-            	
             	if (types[i] instanceof ParameterizedType) {
-            		System.err.println("-------------:"+types[i].toString()); //java.util.Map<java.lang.Integer, java.lang.String>
-            		
             		Logger.warn("Do not support the Map element is Map,"+types[i].toString());
-            		
-//            		try {
-//            			System.err.println(types[i].getClass().getName());
-//            			
-//            			elementTypes[i]=Class.forName(types[i].toString());
-//					} catch (Exception e) {
-//						e.printStackTrace();
-//					}
-            		
             	}else {
             		elementTypes[i]=(Class<?>)types[i];
             	}
@@ -144,7 +130,7 @@ public final class EntityUtil {
 				|| typeName.startsWith("org.w3c.") || typeName.startsWith("org.xml.")
 				|| typeName.startsWith("android.") || typeName.startsWith("org.omg.")
 				|| typeName.startsWith("sun.")
-		);
+		       );
 	}
 	
 	public static boolean isCustomBean(String typeName) {

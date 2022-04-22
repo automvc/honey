@@ -358,7 +358,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	}
 
 	@Override
-	public <T> List<String[]> selectString(T entity, String selectFields) {
+	public <T> List<String[]> selectString(T entity, String ...selectFields) {
 
 		if (entity == null) return null;
 		doBeforePasreEntity(entity,SuidType.SELECT);
