@@ -353,7 +353,10 @@ final class _ObjectToSQLHelper {
 		}
 		//		UpdateBy id
 //		return _toUpdateBySQL(entity, new String[] { "id" }, includeType); // update by whereColumn(now is id)
-		return _toUpdateBySQL(entity, new String[] { pkName }, includeType); // update by whereColumn(now is primary key)
+//		return _toUpdateBySQL(entity, new String[] { pkName }, includeType); // update by whereColumn(now is primary key)
+	
+	   String pks[]=pkName.split(",");
+	   return _toUpdateBySQL(entity, pks, includeType);
 	}
 	
 	static <T> String _toUpdateSQL(T entity, String setColmn[], int includeType) {

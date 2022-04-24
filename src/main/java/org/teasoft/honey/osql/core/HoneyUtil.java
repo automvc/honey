@@ -735,9 +735,13 @@ public final class HoneyUtil {
 		jdbcTypeMap.put("TIMESTAMP WITH TIME ZONE", "Timestamp"); //test in oralce 11g
 		jdbcTypeMap.put("TIMESTAMP WITH LOCAL TIME ZONE", "Timestamp");//test in oralce 11g
 		
+		//V1.11
 		jdbcTypeMap.put("JSON", STRING);
+		//mysql 8.0
 		jdbcTypeMap.put("TEXT", STRING);
 		jdbcTypeMap.put("LONGTEXT", STRING);
+		jdbcTypeMap.put("TINYTEXT", STRING);
+		jdbcTypeMap.put("MEDIUMTEXT", STRING);
 
 		String dbName = HoneyConfig.getHoneyConfig().getDbName();
 

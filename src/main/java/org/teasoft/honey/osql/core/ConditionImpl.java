@@ -19,6 +19,7 @@ import org.teasoft.bee.osql.OrderType;
 import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
 import org.teasoft.honey.osql.util.NameCheckUtil;
+import org.teasoft.honey.util.EntityUtil;
 
 /**
  * @author Kingstar
@@ -401,10 +402,12 @@ public class ConditionImpl implements Condition {
 	
 	@Override
 	public Condition selectField(String... fieldList) {
-		if (fieldList.length == 1) checkField(fieldList[0]);
-		//TODO
-		this.selectField=fieldList;
-		
+		if (fieldList != null && fieldList.length == 1)
+			checkField(fieldList[0]);
+		else
+			checkField(EntityUtil.arrayToString(fieldList));
+
+		this.selectField = fieldList;
 		return this;
 	}
 	

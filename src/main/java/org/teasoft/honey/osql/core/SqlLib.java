@@ -452,7 +452,7 @@ public class SqlLib implements BeeSql {
 			String exe_sql = HoneyUtil.deleteLastSemicolon(sql);
 			String pkName = (String) OneTimeParameter.getAttribute(StringConst.PK_Name_For_ReturnId);
 			if (StringUtils.isBlank(pkName)) pkName = "id";
-			pst = conn.prepareStatement(exe_sql, new String[] { pkName });
+			pst = conn.prepareStatement(exe_sql, pkName.split(","));
 			setPreparedValues(pst, sql);
 			num = pst.executeUpdate();
 
