@@ -10,6 +10,7 @@ import org.teasoft.bee.osql.Condition;
 import org.teasoft.bee.osql.MoreObjToSQL;
 
 /**
+ * 将多表查询的实体转成SQL语句.Select of More Objects to SQL.
  * @author Kingstar
  * @since  1.7
  */

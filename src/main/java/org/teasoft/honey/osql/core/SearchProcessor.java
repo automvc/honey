@@ -17,6 +17,7 @@ import org.teasoft.honey.util.StringUtils;
 
 
 /**
+ * 复杂查询的Search结构处理器.Search Processor.
  * @author Kingstar
  * @since  1.9.8
  */

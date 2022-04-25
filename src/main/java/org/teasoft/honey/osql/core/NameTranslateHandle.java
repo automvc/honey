@@ -20,6 +20,7 @@ import org.teasoft.honey.osql.util.NameCheckUtil;
 import org.teasoft.honey.util.StringUtils;
 
 /**
+ * 命名转换.Name Translate.
  * @author Kingstar
  * @since  1.5
  */

@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
+ * 内部使用的一次性参数设置类.OneTime Parameter class.
  * @author Kingstar
  * @since  1.8
  */

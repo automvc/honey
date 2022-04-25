@@ -14,6 +14,7 @@ import java.util.Map;
 import org.teasoft.bee.osql.CallableSql;
 
 /**
+ * 存储过程方式Sql操作DB的接口CallableSql的实现类.Procedure sql operate the DB.
  * @author Kingstar
  * @since  1.0
  */

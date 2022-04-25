@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Transform ResultSet
+ * Transform ResultSet.
  * @author Kingstar
  * @since  1.1
  */

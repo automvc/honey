@@ -19,6 +19,7 @@ import org.teasoft.bee.osql.interccept.InterceptorChain;
 import org.teasoft.honey.util.ObjectUtils;
 
 /**
+ * 操作数据库不依赖javabean结构的类.The class that operation database does not depend on Javabean.
  * @author Kingstar
  * @since  1.9
  */

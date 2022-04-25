@@ -3,6 +3,7 @@ package org.teasoft.honey.osql.core;
 import java.util.List;
 
 /**
+ * SqlValueWrap.
  * @author Kingstar
  * @since 1.0
  */

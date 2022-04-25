@@ -15,6 +15,7 @@ import java.io.ObjectOutputStream;
 import org.teasoft.bee.osql.Serializer;
 
 /**
+ * Jdk序列化工具.JdkSerializer.
  * @author Kingstar
  * @since  1.11
  */

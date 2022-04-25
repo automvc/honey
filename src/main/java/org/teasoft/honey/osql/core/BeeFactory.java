@@ -10,6 +10,8 @@ import org.teasoft.bee.osql.BeeAbstractFactory;
 import org.teasoft.honey.distribution.ds.Router;
 
 /**
+ * 
+ * Bee工厂类.Bee Factory.
  * @author Kingstar
  * @since  1.0
  */

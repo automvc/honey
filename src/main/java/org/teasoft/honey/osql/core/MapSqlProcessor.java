@@ -24,6 +24,7 @@ import org.teasoft.honey.util.ObjectUtils;
 import org.teasoft.honey.util.StringUtils;
 
 /**
+ * MapSql处理器.MapSql Processor.
  * @author Kingstar
  * @since  1.9
  */

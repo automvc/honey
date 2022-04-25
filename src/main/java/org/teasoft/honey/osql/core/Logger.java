@@ -6,6 +6,7 @@ import org.teasoft.bee.logging.Log;
 import org.teasoft.honey.logging.LoggerFactory;
 
 /**
+ * 提供静态方法的日志类.Logger (use the method by static way).
  * @author Kingstar
  * @since  1.0
  */

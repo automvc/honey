@@ -16,6 +16,7 @@ import org.teasoft.bee.osql.BeeExtCache;
 import org.teasoft.honey.distribution.ds.RouteStruct;
 
 /**
+ * 默认的扩展缓存实现.Default Bee Ext Cache.
  * @author Kingstar
  * @since  1.11
  */

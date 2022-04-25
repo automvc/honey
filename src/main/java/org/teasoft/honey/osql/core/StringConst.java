@@ -7,6 +7,7 @@
 package org.teasoft.honey.osql.core;
 
 /**
+ * String Const.
  * @author Kingstar
  * @since  1.9
  */

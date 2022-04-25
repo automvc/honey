@@ -14,6 +14,7 @@ import org.teasoft.honey.util.ObjectCreatorFactory;
 import org.teasoft.honey.util.StringUtils;
 
 /**
+ * SysValue注解处理器.SysValue annotation Processor.
  * @author Kingstar
  * @since  1.4
  */

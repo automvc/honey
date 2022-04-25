@@ -15,6 +15,7 @@ import org.teasoft.bee.osql.MapSqlKey;
 import org.teasoft.bee.osql.MapSqlSetting;
 
 /**
+ * 用Map承载SQL信息.Record SQL information with map.
  * @author Kingstar
  * @since  1.9
  */

@@ -63,8 +63,10 @@ public class NameUtil {
 		return buf.toString();
 	}
 	
-	/*
+	/**
 	 * 首字母转换成大写
+	 * @param str
+	 * @return
 	 */
 	public static  String firstLetterToUpperCase(String str) {
 		String result = "";
@@ -77,8 +79,10 @@ public class NameUtil {
 		return result;
 	}
 	
-	/*
+	/**
 	 * 首字母转换成小写
+	 * @param str
+	 * @return
 	 */
 	public static  String firstLetterToLowerCase(String str) {
 		String result = "";

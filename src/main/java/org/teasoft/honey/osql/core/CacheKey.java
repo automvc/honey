@@ -13,6 +13,7 @@ import org.teasoft.honey.distribution.ds.Router;
 import org.teasoft.honey.osql.util.MD5;
 
 /**
+ * Cache Key.
  * @author Kingstar
  * @since  1.4
  */

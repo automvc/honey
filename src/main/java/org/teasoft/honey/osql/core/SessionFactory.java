@@ -13,6 +13,7 @@ import org.teasoft.honey.osql.transaction.JdbcTransaction;
 import org.teasoft.honey.util.StringUtils;
 
 /**
+ * 会话工厂类.Session Factory.
  * @author Kingstar
  * @since  1.0
  */

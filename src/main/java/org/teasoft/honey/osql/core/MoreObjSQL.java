@@ -18,6 +18,7 @@ import org.teasoft.bee.osql.exception.BeeIllegalParameterException;
 import org.teasoft.bee.osql.interccept.InterceptorChain;
 
 /**
+ * 多表查询,MoreTable实现类.Multi table query, moretable implementation class.
  * @author Kingstar
  * @since  1.7
  */

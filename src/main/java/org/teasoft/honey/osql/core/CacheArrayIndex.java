@@ -8,6 +8,7 @@ package org.teasoft.honey.osql.core;
 
 
 /**
+ * Cache Array Index.
  * @author Kingstar
  * @since  1.4
  */

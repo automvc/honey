@@ -21,6 +21,7 @@ import org.teasoft.bee.osql.Serializer;
 import org.teasoft.honey.distribution.ds.Router;
 
 /**
+ * 缓存工具.Cache Util.
  * @author Kingstar
  * @since  1.4
  */

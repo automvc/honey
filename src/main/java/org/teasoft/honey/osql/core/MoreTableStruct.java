@@ -12,6 +12,7 @@ import java.util.Map;
 import org.teasoft.bee.osql.annotation.JoinType;
 
 /**
+ * 多表查询结构体.MoreTable Struct.
  * @author Kingstar
  * @since  1.7
  */

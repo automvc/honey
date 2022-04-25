@@ -22,6 +22,7 @@ import org.teasoft.honey.osql.util.AnnoUtil;
 import org.teasoft.honey.util.StringUtils;
 
 /**
+ * MoreObjectToSQL帮助类.MoreObjectToSQL Helper
  * @author Kingstar
  * @since  1.7
  */

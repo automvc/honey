@@ -6,6 +6,7 @@ import org.teasoft.bee.osql.Properties;
 import org.teasoft.honey.osql.util.PropertiesReader;
 
 /**
+ * Bee Properties
  * @author Kingstar
  * @since  1.0
  */

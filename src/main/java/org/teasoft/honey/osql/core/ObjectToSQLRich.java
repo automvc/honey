@@ -25,6 +25,7 @@ import org.teasoft.honey.osql.name.NameUtil;
 import org.teasoft.honey.osql.util.AnnoUtil;
 
 /**
+ * 对象到SQL的转换(对应SuidRich).Object to SQL string for SuidRich. 
  * @author Kingstar
  * @since  1.0
  */

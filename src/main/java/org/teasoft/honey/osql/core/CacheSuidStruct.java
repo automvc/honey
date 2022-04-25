@@ -7,6 +7,7 @@
 package org.teasoft.honey.osql.core;
 
 /**
+ * Cache Suid Struct.
  * @author Kingstar
  * @since  1.4
  */

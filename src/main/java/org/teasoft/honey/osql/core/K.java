@@ -11,6 +11,7 @@ import org.teasoft.bee.osql.SqlKeyWord;
 import org.teasoft.bee.osql.UpperKey;
 
 /**
+ * SQL关键字.SQL key word.
  * @author Kingstar
  * @since  1.8.99
  */

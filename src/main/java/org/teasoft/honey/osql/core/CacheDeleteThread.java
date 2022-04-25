@@ -7,6 +7,7 @@
 package org.teasoft.honey.osql.core;
 
 /**
+ * Cache Delete Thread.
  * @author Kingstar
  * @since  1.4
  */

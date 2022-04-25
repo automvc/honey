@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * FunAndOrderTypeMap
  * @author Kingstar
  * @since  1.9
  */

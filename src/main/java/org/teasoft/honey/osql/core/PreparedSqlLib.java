@@ -18,6 +18,7 @@ import org.teasoft.honey.util.ObjectUtils;
 /**
  * 支持带占位符(?)的sql操作.sql语句是DB能识别的SQL,非面向对象的sql.
  * 若是简单的操作,建议用面向对象的操作方式,ObjSQL和ObjSQLRich.
+ *  <br>Support sql string with placeholder.The sql statement is really DB's grammar,not object oriented type.
  * @author Kingstar
  * @since  1.0
  * 支持如name=#{name},name like #{name%}的map参数形式

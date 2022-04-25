@@ -22,6 +22,7 @@ import org.teasoft.honey.osql.util.NameCheckUtil;
 import org.teasoft.honey.util.EntityUtil;
 
 /**
+ * 为面向对象方式操作数据库提供封装的条件.Condition for operate DB with Object Oriented Programming way.
  * @author Kingstar
  * @since  1.6
  */

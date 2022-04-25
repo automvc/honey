@@ -11,6 +11,7 @@ import javax.naming.InitialContext;
 import javax.sql.DataSource;
 
 /**
+ * Jndi DataSource.
  * @author Kingstar
  * @since  1.11
  */

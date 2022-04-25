@@ -35,6 +35,7 @@ import org.teasoft.honey.util.ObjectUtils;
 import org.teasoft.honey.util.StringUtils;
 
 /**
+ * Bee的实现Honey的工具类.Honey Util.
  * @author Kingstar
  * @since  1.0
  */

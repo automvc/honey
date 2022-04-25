@@ -10,6 +10,7 @@ import org.teasoft.bee.osql.token.CustomAutoSqlToken;
 import org.teasoft.honey.util.StringUtils;
 
 /**
+ * Token工具类.Token Util.
  * @author Kingstar
  * @since  1.2
  */

@@ -9,6 +9,7 @@ package org.teasoft.honey.osql.core;
 import org.teasoft.bee.osql.Op;
 
 /**
+ * Expression
  * @author Kingstar
  * @since  1.6
  */

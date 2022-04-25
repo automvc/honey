@@ -3,6 +3,7 @@ package org.teasoft.honey.osql.core;
 import java.lang.reflect.Field;
 
 /**
+ * 用于预编译设置参数的结构.struct for set PreparedStatement parameter.
  * @author Kingstar
  * @since  1.0
  */

@@ -14,6 +14,7 @@ import org.teasoft.bee.osql.exception.BeeIllegalAccessException;
 import org.teasoft.bee.osql.exception.BeeInstantiationException;
 
 /**
+ * Exception Helper.
  * @author Kingstar
  * @since  1.4
  */

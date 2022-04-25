@@ -20,6 +20,7 @@ import org.teasoft.honey.osql.core.ConditionImpl.FunExpress;
 import org.teasoft.honey.util.StringUtils;
 
 /**
+ * Condition的帮助类.Condition Helper class.
  * @author Kingstar
  * @since  1.6
  */

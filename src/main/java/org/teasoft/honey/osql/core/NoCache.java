@@ -9,6 +9,7 @@ package org.teasoft.honey.osql.core;
 import org.teasoft.bee.osql.Cache;
 
 /**
+ * 不使用缓存.No Cache.
  * @author Kingstar
  * @since  1.4
  */

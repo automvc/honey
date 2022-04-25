@@ -18,6 +18,7 @@ import org.teasoft.honey.util.ObjectUtils;
 import org.teasoft.honey.util.StringUtils;
 
 /**
+ * ObjectToSQL帮助类.ObjectToSQL Helper.
  * @author Kingstar
  * @since  1.0
  */

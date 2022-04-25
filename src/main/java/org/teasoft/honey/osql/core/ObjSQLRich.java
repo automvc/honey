@@ -27,6 +27,7 @@ import org.teasoft.honey.osql.name.NameUtil;
 import org.teasoft.honey.util.SuidHelper;
 
 /**
+ * SuidRich实现类.Suidrich implementation class.
  * @author Kingstar
  * @since  1.0
  */

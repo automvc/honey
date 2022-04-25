@@ -21,6 +21,7 @@ import org.teasoft.honey.distribution.ds.RouteStruct;
 import org.teasoft.honey.util.ObjectUtils;
 
 /**
+ * Bee框架上下文.Context for Bee.
  * @author Kingstar
  * @since  1.0
  */

@@ -7,6 +7,7 @@
 package org.teasoft.honey.osql.core;
 
 /**
+ * 表达式语法检测.expression Check.
  * @author Kingstar
  * @since  1.9
  */

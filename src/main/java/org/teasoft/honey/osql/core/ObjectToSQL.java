@@ -10,7 +10,11 @@ import org.teasoft.bee.osql.Condition;
 import org.teasoft.bee.osql.ObjToSQL;
 
 /**
- * 对象到SQL语句的转化 (标准sql)
+ * 对象到SQL的转换(对应Suid).Object to SQL string for Suid. <br>
+ * 根据entity对象转换成DB能识别的sql语句(包括:select,update,insert,delete),
+ * entity 参数不能为null.<br>
+ * Object to SQL string for Suid (select,update,insert,delete),
+ * entity must not be null.
  * @author Kingstar
  * @since  1.0
  */

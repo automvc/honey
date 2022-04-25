@@ -34,6 +34,7 @@ import org.teasoft.honey.osql.name.UnderScoreAndCamelName;
 import org.teasoft.honey.osql.name.UpperCaseUnderScoreAndCamelName;
 
 /**
+ * Honey工厂类.Honey Factory class.
  * @author Kingstar
  * @since  1.0
  */

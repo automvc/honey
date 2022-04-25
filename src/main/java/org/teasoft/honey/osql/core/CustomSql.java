@@ -4,8 +4,7 @@ import org.teasoft.bee.osql.exception.SqlNullException;
 import org.teasoft.honey.osql.util.PropertiesReader;
 
 /**
- * Custom SQL manage class
- * 用户自定义SQL 管理类
+ * 用户自定义SQL 管理类.Custom SQL manage class.
  * @author Kingstar
  * @since  1.0
  */

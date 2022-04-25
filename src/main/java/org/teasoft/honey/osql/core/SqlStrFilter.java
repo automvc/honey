@@ -1,6 +1,7 @@
 package org.teasoft.honey.osql.core;
 
 /**
+ * Sql String Filter.
  * @author Kingstar
  * @since  1.0
  */

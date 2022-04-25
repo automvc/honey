@@ -7,6 +7,7 @@ import org.teasoft.honey.distribution.ds.Router;
 import org.teasoft.honey.osql.constant.DbConfigConst;
 
 /**
+ * 配置类.Config for Bee.
  * @author Kingstar
  * @since  1.0
  */

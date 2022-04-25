@@ -9,6 +9,7 @@ package org.teasoft.honey.osql.core;
 import org.teasoft.bee.osql.Cache;
 
 /**
+ * 默认的缓存实现.Default Bee Cache.
  * @author Kingstar
  * @since  1.4
  */
