@@ -115,10 +115,15 @@ public class FileHandle implements FileCreator{
 		}
 		
 	}
-
+	
 	@Override
 	public BufferedReader readFile(String fullPathAndName) {
 		File file = new File(fullPathAndName);
+		return readFile(file);
+	}
+
+	@Override
+	public BufferedReader readFile(File file) {
 		BufferedReader reader = null;
 		try {
 			reader = new BufferedReader(new FileReader(file));
