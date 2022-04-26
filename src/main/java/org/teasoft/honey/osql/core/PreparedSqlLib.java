@@ -266,11 +266,11 @@ public class PreparedSqlLib implements PreparedSql {
 	}
 
 	@Override
-	public String selectFun(String sqlStr, Map<String, Object> map) {
+	public String selectFun(String sqlStr, Map<String, Object> parameterMap) {
 
 		doBeforePasreEntity();
 
-		String sql = initPrepareValuesViaMap(sqlStr, map);
+		String sql = initPrepareValuesViaMap(sqlStr, parameterMap);
 		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("PreparedSql selectFun SQL: ", sql);
 		String s = getBeeSql().selectFun(sql);
@@ -626,9 +626,9 @@ public class PreparedSqlLib implements PreparedSql {
 	}
 	
 	@Override
-	public List<Map<String, Object>> selectMapList(String sqlStr, Map<String, Object> map) {
+	public List<Map<String, Object>> selectMapList(String sqlStr, Map<String, Object> parameterMap) {
 		doBeforePasreEntity();
-		String sql = initPrepareValuesViaMap(sqlStr, map);
+		String sql = initPrepareValuesViaMap(sqlStr, parameterMap);
 		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("PreparedSql selectMapList SQL: ", sql);
 

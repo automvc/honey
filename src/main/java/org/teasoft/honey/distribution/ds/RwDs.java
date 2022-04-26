@@ -83,7 +83,7 @@ public class RwDs implements Route{
 		return writeDd;
 	}
 
-	public void setWriteDs(String writeDs) {  //todo if master change, need update
+	public void setWriteDs(String writeDs) {  //todo if main change, need update
 		this.writeDd = writeDs;
 	}
 	
