@@ -9,8 +9,6 @@ Bee
 **Good Feature:**  AI, Timesaving/Tasteful, Easy, Automatic (**AiTeaSoft Style**)   
 **Bee** see:  
 https://github.com/automvc/bee  
-or:  
-https://gitee.com/automvc/bee  
 
 ## [中文介绍](../../../bee/blob/master/README_CN.md)  
 [点击链接可查看中文介绍](../../../bee/blob/master/README_CN.md)  
@@ -20,29 +18,40 @@ jdk1.7+
 
 ## Feature & Function: 
 
-**Support many Database**(MySQL,MariaDB,Oracle,H2,SQLite,PostgreSQL,SQL Server and so on) and easily extend。 
-**Good performance, close to the speed of JDBC; Small files：Bee V1.8 jar 217k**, **V1.9.5 jar,315k, V1.9.8 jar 310k**。  
+**Support many Database**(MySQL,MariaDB,Oracle,H2,SQLite,PostgreSQL,SQL Server,Cassandra and so on) and easily extend.  
+**Good performance, close to the speed of JDBC; Small files：Bee V1.8 jar 217k**, **V1.9.5 jar,315k, V1.9.8 jar 310k**.  
 
-**V1.0**  
-Single entity(table) Suid (select,update,insert,delete) object-oriented operation.  
-Automatically generate the Javabean via DB table or view.  
-Convention-over-configuration:Javabean no annotation,no xml.  
-Automatically mapping the table column and the Javabean field.  
-Javabean support the raw type:int,double,and so on.  
-PreparedStatement support.  
-Procedure support.  
-Native SQL support.  
-Batch operate support.  
-Transaction support.  
-Automatic filter the null and empty field for default.  
-MAX,MIN,SUM,AVG,COUNT support.  
-Order by,Paging.  
-Select some field.  
-Dynamic & random combination of query conditions,no need to prepare the interface in advance; new query requirements, no need to change the query interface.  
-All Suid(select,update,insert,delete) operation use the same Bee interface,no longer need any new dao interface.  
-Users/Developer only need to pay attention to the Bee interface.  
+* 1.The interface is simple and easy to use, **Suid (select,update,insert,delete)** object-oriented operation.
+* 2.All Suid(select,update,insert,delete) operation use the same Bee interface,no longer need  new dao interface.  
+* 3.Convention-over-configuration:Javabean can no annotation,no xml.  
+* 4.Automatic filter the null and empty field for default.  
+* 5.Select some fields easily.  
+* 6.Dynamic & random combination of query conditions,no need to prepare the interface in advance; new query requirements, no need to change the query interface.  
+* 7.Native SQL sort support,native paging support(do not need select all records before).  
+* 8.Support return the JSON format query results directly; Chain programming.  
+* 9.Support:transaction ,same connection,for update，batch insert,procedure.  
+* 10.more tables select oriented object support(has not the n+1 problem,one to one,one to many,many to one,many to many).sub-field type support Javabean or List.  
+* 11.L1 cache, simple in concept and powerful in function; L1 cache can also be fine tuned like the JVM; Support updatable long-term cache list and update configuration table without restart. Inherently resistant to cache penetration. L2 cache extension support; Redis L2 cache support.  
+* 12.Support java_db naming translation and support customize,default implement.  
+* 13.Many DB supports easy extension(MySQL,MariaDB,Oracle,H2,SQLite,PostgreSQL,SQL Server,Cassandra,etc. are directly available),In theory, can support all DB which support JDBC.  
+* 14.Add multi-DataSource support(Write/Read, only Split Database);support Jndi DataSource.  
+* 15.Support use many type database at the same time(eg: use Mysql,Oracle,SQL Server at the same).  
+* 16.Support distributed primary key(global unique id,Serial distributed unique id in one workid).  
+* 17.The same database sub table support, dynamic table name mapping support.  
+* 18.Support interceptor、multi-tenant,convert PreparedStatement parameter,custom TypeHandler and process the ResultSet.  
+* 19.Suid,SuidRich,PreparedSql,MapSuid,MoreTable support set the dataSource name.  
+* 20.MapSuid:opertate(suid) the database no need Javabean.  
+* 21.No third-party plug-in dependency; It can be used in zero configuration.  
+* 22.**Good performance, close to the speed of JDBC**; Small files：Bee V1.8 jar 217k, **V1.9.5 jar,315k, V1.9.8 jar 310k**.  
+**Assist function**:  
+* 23.Automatically generate the Javabean via DB table or view.Automatically create table via the Javabean,JavaWeb back-end code;Can print non placeholder executable SQL statements to facilitate debugging; support generate JSON format SQL scripts.  
+* 24.Support reading excel and importing data from Excel to DB easily.  
+* 25.Stream tool class streamutil.  
+* 26.The front and back ends of complex queries can be automatically parsed.  
+* 27.Annotation support:PrimaryKey,Datetime,Createtime,Updatetime;JustFetch,ReplaceInto(MySQL).  
+* 28.Extensible annotation: multi tenant, fuzzy processing of sensitive information, automatic setting of field values, dictionary conversion, dicti18n multilingual International Dictionary conversion, column  name and field name mapping.  
 
-......
+## Newest Function
 
 **V1.11**  
 V1.11.0.1.1(**2022 New Year**)  
@@ -108,6 +117,38 @@ PreparedSql support batch insert.
 Support Suid instance set NameTranslate.  
 Add DbFeature Registry,it is easy for setting custom database dialect.  
 Support Cassandra.  
+
+V1.11.0.3.20  (**Spring Equinox**)  
+add Custom dynamic SQL token,@in,@toIsNULL1,@toIsNULL2,&lt;if isNotNull>,&lt;if isNotBlank>.  
+dynamic SQL list transfer list to SQL in eg:in (1,2,3),no need foreach;batch insert also no need foreach.  
+Separate CN and EN API.  
+
+V1.11.0.4.22 (**The World Earth Day**)  
+Add registry interface; Add nameregistry.  
+Change serializer throws exceptions type.  
+Mapsuid and mapsql support parsing string to boolean type.  
+Genbean, which does not support JDBC type, reminds you which file to set;  
+Genbean support config where override the old file;  
+Genbean support gen javabean's field file;  
+SuidRich's method selectString support variable-length arguments:  
+ public <T> List<String[]> selectString(T entity,String... selectFields);  
+CommInterceptorChain check whether add same class.
+SystemLogger supports setting log level to facilitate development and debugging.  
+The logger add method: public static void debug (string MSG, throwable T) (convenient for development and debugging).  
+Nocache add log prompt.  
+Improve cache security.  
+Add preload SPI interface Preload.  
+Add InterceptorChainRegistry, an interceptor registrar for global use.  
+Add configuration item:  
+pagingWithLimitOffset    
+notCatchModifyDuplicateException    
+notShowModifyDuplicateException    
+fixed bug for type converter.  
+fixed bug about @PrimaryKey in Suid update(entity).  
+
+V1.11.0.4.29
+The configuration file supports multi-environment differentiated configuration.  
+SuidRich,public <T> int update(T oldEntity, T newEntity) Interceptors only handle newEntity.  
 
 ## [Function Detail](../../../bee/blob/master/Changed_Log.md)  
 [click for:  Function Detail](../../../bee/blob/master/Changed_Log.md)  
@@ -251,18 +292,18 @@ Quick Start:
 		<dependency>
 			<groupId>org.teasoft</groupId>
 			<artifactId>bee</artifactId>
-			<version>1.9.8</version>
+			<version>1.11</version>
 		</dependency>
 		<dependency>
 			<groupId>org.teasoft</groupId>
 			<artifactId>honey</artifactId>
-			<version>1.9.8</version>
+			<version>1.11</version>
 		</dependency>
 		<!--for log framework,Excel(poi) -->
 		<dependency>
 			<groupId>org.teasoft</groupId>
 			<artifactId>bee-ext</artifactId>
-			<version>1.9.8</version>
+			<version>1.11</version>
 		</dependency>
 ```
 
@@ -277,10 +318,11 @@ Create the tables and init the data by run the [init-data(user-orders)-mysql.sql
 ## 3. Update the database configuration in bee.properties if need  
 If no the bee.properties file, you can create it by yourself.
 
-//#bee.databaseName=MySQL  
+\#bee.databaseName=MySQL  
 bee.db.dbName=MySQL  
 bee.db.driverName = com.mysql.jdbc.Driver  
-bee.db.url =jdbc:mysql://localhost:3306/bee?characterEncoding=UTF-8  
+\#bee.db.url =jdbc:mysql://localhost:3306/bee?characterEncoding=UTF-8  
+bee.db.url =jdbc:mysql://127.0.0.1:3306/bee?characterEncoding=UTF-8&useSSL=false  
 bee.db.username = root  
 bee.db.password =  
 
@@ -352,6 +394,9 @@ public class SuidExamEN {
 #### [More example/test case](../../../bee-exam/)	
 
 #### [Bee+Spring-boot Demo](../../../bee-starter-demo/)	
+
+### Bee Architecture  
+<img src="Bee-architecture-EN-V1.11.png"  width="520" height="500">  
 
 ### Bee Common Interface  
 <img src="common-interface_en.jpg">  
