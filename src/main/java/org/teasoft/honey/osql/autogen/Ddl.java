@@ -87,7 +87,7 @@ public class Ddl {
 	 * <br>too much field information. This method only considers the general situation, and is not 
 	 * <br>recommended if there are detailed requirements.
 	 * @param entity Javabean entity.
-	 * @return
+	 * @return flag whether create successfully.
 	 */
 	public static <T> boolean createTable(T entity) {
 		return createTable(entity, null);

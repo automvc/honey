@@ -66,7 +66,7 @@ public class NameUtil {
 	/**
 	 * 首字母转换成大写
 	 * @param str
-	 * @return
+	 * @return 处理后的字符串
 	 */
 	public static  String firstLetterToUpperCase(String str) {
 		String result = "";
@@ -81,8 +81,8 @@ public class NameUtil {
 	
 	/**
 	 * 首字母转换成小写
-	 * @param str
-	 * @return
+	 * @param str 
+	 * @return 处理后的字符串
 	 */
 	public static  String firstLetterToLowerCase(String str) {
 		String result = "";

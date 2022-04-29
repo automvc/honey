@@ -46,7 +46,7 @@ public class NameTranslateHandle {
 	
 	/**
 	 * 指定命名转换实现类
-	 * @param nameTranslat
+	 * @param nameTranslate
 	 */
 	public static void setNameTranslate(NameTranslate nameTranslate) { // for set customer naming.
 		NameTranslateHandle.nameTranslate = nameTranslate;

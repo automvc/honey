@@ -104,7 +104,7 @@ public class DateUtil {
 	/**
 	 * 往前或往后指定天数,指定天最后秒设置为23:59:59
 	 * @param days
-	 * @return
+	 * @return Timestamp对象.instance of Timestamp.
 	 */
 	public static Timestamp jumpDays(int days) {
 		Calendar cal = Calendar.getInstance();//使用默认时区和语言环境获得一个日历。    

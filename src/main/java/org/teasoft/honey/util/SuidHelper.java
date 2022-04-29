@@ -146,7 +146,7 @@ public final class SuidHelper {
 	 * @param <T>
 	 * @param from
 	 * @param to
-	 * @return
+	 * @return 处理后的to对象
 	 */
 	public static <T> T copyEntity(Object from, T to) {
 

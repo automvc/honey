@@ -28,7 +28,6 @@ public class StreamUtil {
 	/**
 	 * InputStream转字符串. InputStream to String.
 	 * @param in  InputStream对象.instance of InputStream.
-	 * @param charsetName 字符集名称.charset name
 	 * @return 字符串.string
 	 */
 	public static String stream2String(InputStream in) {

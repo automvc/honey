@@ -1479,7 +1479,7 @@ public final class HoneyUtil {
 	 *  ! just use in debug env.  please set off in prod env.
 	 * @param sql
 	 * @param list
-	 * @return
+	 * @return executable sql string
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static String getExecutableSql(String sql, List<PreparedValue> list){
