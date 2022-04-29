@@ -152,7 +152,7 @@ public final class HoneyContext {
 	private HoneyContext() {}
 
 	static void initLoad() {
-		BeeInit.initLoad();
+		BeeInitPreLoadService.initLoad();
 	}
 
 	static ConcurrentMap<String, String> getEntity2tableMap() {

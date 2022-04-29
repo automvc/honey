@@ -16,7 +16,7 @@ import org.teasoft.bee.spi.PreLoad;
  * @author Kingstar
  * @since  1.11
  */
-public class BeeInit {
+public class BeeInitPreLoadService {
 
 	static boolean notStart = true;
 
@@ -26,12 +26,13 @@ public class BeeInit {
 
 	static void initLoad() {
 		if (notStart) {
-			_initLoad();
 			notStart = false;
+			_initLoad();
 		}
 	}
 
 	private static void _initLoad() {
+		Logger.info("[Bee] ========= BeeInitPreLoadService initLoad...");
 		ServiceLoader<PreLoad> loads = ServiceLoader.load(PreLoad.class);
 		Iterator<PreLoad> loadIterator = loads.iterator();
 		while (loadIterator.hasNext()) {
@@ -48,7 +49,7 @@ public class BeeInit {
 	 * for other application init Bee first.
 	 */
 	public static void init() {
-
+		Logger.info("[Bee] ========= BeeInitPreLoadService init...");
 	}
 
 	static boolean isNotStart() {
@@ -56,7 +57,7 @@ public class BeeInit {
 	}
 
 	static void setNotStart(boolean notStart) {
-		BeeInit.notStart = notStart;
+		BeeInitPreLoadService.notStart = notStart;
 	}
 
 }
