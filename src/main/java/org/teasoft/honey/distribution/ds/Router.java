@@ -37,7 +37,7 @@ public final class Router {
 			route = new OnlyMulitiDB();
 		}
 		
-//		todo 要定义一个通用多数据源路由
+//	要定义一个通用多数据源路由?? 不需要.  不使用特殊的1和2类型,即为一般类型. 比如可以在Suid的当前对象设置数据源.
 	}
 
 	//order:1.appointDS -> 2.tempDS(suid.getDataSourceName()) -> 3.route.getDsName()

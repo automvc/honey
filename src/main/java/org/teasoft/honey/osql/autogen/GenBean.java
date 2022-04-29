@@ -256,7 +256,7 @@ public class GenBean {
 				//				tostring.insert(0,"\t"+LINE_SEPARATOR ); 
 				tostr.insert(0, "\t\t str.append(\"" + entityName + "[\");\t");
 				tostr.insert(0, "\t" + LINE_SEPARATOR);
-				tostr.insert(0, "\t\t StringBuffer str=new StringBuffer();");
+				tostr.insert(0, "\t\t StringBuilder str=new StringBuilder();");
 				tostr.insert(0, "\t" + LINE_SEPARATOR);
 				tostr.insert(0, "\t public String toString(){");
 
@@ -284,7 +284,7 @@ public class GenBean {
 		}
 	}
 	
-	private void genOneFieldFile(Table table) {
+	private void genFieldFile(Table table) {
 
 		String tableName = table.getTableName();
 		List<String> columnNames = table.getColumnNames();
@@ -347,6 +347,10 @@ public class GenBean {
 			bw.write(authorComment + LINE_SEPARATOR);
 			bw.write("public class " + fieldFileName);
 			bw.write(" {" + LINE_SEPARATOR + LINE_SEPARATOR);
+			
+			bw.write("	private FieldFileName() {}".replace("FieldFileName", fieldFileName));
+			bw.write(LINE_SEPARATOR + LINE_SEPARATOR);
+			
             String st="";
             String comment="";
             String fieldName="";
@@ -393,7 +397,7 @@ public class GenBean {
 			table = tables.get(i);
 			// 生成实体类
 			f1=genBeanFile(table);
-			if(config.isGenFieldFile()) genOneFieldFile(table);
+			if(config.isGenFieldFile()) genFieldFile(table);
 			
 			some=some || f1;
 			all=all && f1;
@@ -423,7 +427,7 @@ public class GenBean {
 				table = getTable(tables[i], con);
 				// 生成实体类
 				f1=genBeanFile(table);
-				if(config.isGenFieldFile()) genOneFieldFile(table);
+				if(config.isGenFieldFile()) genFieldFile(table);
 				
 				some=some || f1;
 				all=all && f1;

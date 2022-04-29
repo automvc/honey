@@ -776,7 +776,6 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		return r > 0 ? true : false;
 	}
 
-	//TODO是否支持拦截器??
 	@Override
 	public <T> int update(T oldEntity, T newEntity) {
 
@@ -787,6 +786,8 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 			throw new BeeErrorGrammarException(
 					"BeeErrorGrammarException: the oldEntity and newEntity must be same type!");
 		}
+		
+		doBeforePasreEntity(newEntity,SuidType.UPDATE); //拦截器只处理新实体；  旧实体oldEntity作为条件不在拦截器处理。
 
 		Map<String, Object> oldMap = SuidHelper.entityToMap(oldEntity);
 		Map<String, Object> newMap = SuidHelper.entityToMap(newEntity);
@@ -799,7 +800,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 
 		Logger.logSQL("update(T oldEntity, T newEntity) with MapSuid, ", "");
 		MapSuid mapSuid = BeeFactoryHelper.getMapSuid();
-		return mapSuid.update(updateMapSql);
+		return mapSuid.update(updateMapSql);  //it will use Interceptor
 	}
 	
 	private static String _toTableName(Object entity) {

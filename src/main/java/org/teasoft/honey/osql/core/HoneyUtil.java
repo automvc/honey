@@ -1147,7 +1147,7 @@ public final class HoneyUtil {
 //				Date d= new Date(((java.util.Date)value).getTime());
 ////				pst.setDate(i + 1, d); //ok
 //				pst.setObject(i + 1, d); //ok
-//				//测试数据库是date,datetime,timestamp是否都可以??? todo
+//				//测试数据库是date,datetime,timestamp是否都可以
 //				break;
 				
 			case 22:	

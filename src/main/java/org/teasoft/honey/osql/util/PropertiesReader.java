@@ -38,7 +38,7 @@ public class PropertiesReader {
 	 * @param custom
 	 * @since 1.9.8
 	 */
-	public PropertiesReader(String filePathAndName,boolean custom) {  //custom todo
+	public PropertiesReader(String filePathAndName,boolean custom) {  //custom just a flag
 		try {
 			prop = new Properties();
 			InputStream in = new FileInputStream(new File(filePathAndName));
