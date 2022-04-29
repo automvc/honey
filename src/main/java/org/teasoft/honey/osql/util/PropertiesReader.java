@@ -27,7 +27,7 @@ public class PropertiesReader {
 			InputStream in = PropertiesReader.class.getResourceAsStream(fileName);
 			prop.load(in);
 		} catch (IOException | NullPointerException e) {
-			Logger.warn("  In PropertiesReader not found the file :"+fileName+"  .  " + e.getMessage());
+			Logger.warn("  In PropertiesReader not found the file :"+fileName+" .  exception message:" + e.getMessage());
 		    //不需要抛出异常,适合有则执行,没有则忽略的情况.
 		}
 	}

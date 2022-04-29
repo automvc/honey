@@ -2,9 +2,12 @@ package org.teasoft.honey.osql.core;
 
 import java.sql.Connection;
 
+import org.teasoft.bee.osql.Properties;
 import org.teasoft.bee.osql.annotation.SysValue;
+import org.teasoft.bee.osql.exception.ConfigWrongException;
 import org.teasoft.honey.distribution.ds.Router;
 import org.teasoft.honey.osql.constant.DbConfigConst;
+import org.teasoft.honey.util.StringUtils;
 
 /**
  * 配置类.Config for Bee.
@@ -28,22 +31,41 @@ public final class HoneyConfig {
 
 	private void init() {
 		SysValueProcessor.process(honeyConfig);
+		
+//		#1.base main and Override with active, 2.rebase to active(other file)
+//		#1 : main file + other file; 2 : just active file(other file);    if do not set , will use mail file.
+		Properties beeActiveProp=null;
+		if (type == 1 || type == 2) {
+			if (StringUtils.isBlank(active)) {
+				String msg="The value of bee.profiles.active is empty!";
+				Logger.error(msg,new ConfigWrongException(msg));
+			} else {
+				String fileName = "/bee-{active}.properties".replace("{active}", active);
+				beeActiveProp = new BeeActiveProp(fileName);
+				if(type==1) {//use the key in active override the main file.
+					SysValueProcessor.process(honeyConfig,beeActiveProp);
+				}else if(type==2) {
+					_setHoneyConfig();//rebase
+					SysValueProcessor.process(honeyConfig,beeActiveProp);
+				}
+			}
+		}
+		
 		HoneyContext.initLoad();
 	}
 	
 	/**
-	 * 使用指定路径的bee.properties进行配置.
+	 * 使用指定路径的bee.properties进行配置.set the folder path of bee.properties
 	 * 若使用第三方框架管理配置,不建议在此处重置配置.
-	 * @param filePath bee.properties所在的路径
+	 * @param folderPath bee.properties所在的路径. the folder path of bee.properties
 	 * @since 1.9.8
 	 */
-	public void resetBeeProperties(String filePath) {
+	public void resetBeeProperties(String folderPath) {
 		try {
-			BeeProp.resetBeeProperties(filePath);
-//			HoneyConfig.honeyConfig = new HoneyConfig();
+			BeeProp.resetBeeProperties(folderPath);
 			_setHoneyConfig();
 			honeyConfig.init();
-			Logger.warn("[Bee] ========= reset the bee.properties with filePath:" + filePath);
+			Logger.warn("[Bee] ========= reset the bee.properties with folderPath:" + folderPath);
 		} catch (Exception e) {
 			Logger.warn(e.getMessage());
 		}
@@ -52,6 +74,13 @@ public final class HoneyConfig {
 	private static void _setHoneyConfig() {
 		HoneyConfig.honeyConfig = new HoneyConfig();
 	}
+	
+	//----------------------------- bee.profiles
+	@SysValue("${bee.profiles.type}")
+	public int type;
+	
+	@SysValue("${bee.profiles.active}")
+	public String active;
 
 	//----------------------------- bee.osql
 	// 启动时动态获取

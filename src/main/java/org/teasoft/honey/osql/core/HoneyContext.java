@@ -150,17 +150,9 @@ public final class HoneyContext {
 	}
 
 	private HoneyContext() {}
-	
+
 	static void initLoad() {
-		ServiceLoader<PreLoad> loads = ServiceLoader.load(PreLoad.class);
-        Iterator<PreLoad> loadIterator = loads.iterator();
-		while (loadIterator.hasNext()) {
-			try {
-				loadIterator.next();
-			} catch (ServiceConfigurationError e) {
-				Logger.error(e.getMessage(), e);
-			}
-		}
+		BeeInit.initLoad();
 	}
 
 	static ConcurrentMap<String, String> getEntity2tableMap() {
