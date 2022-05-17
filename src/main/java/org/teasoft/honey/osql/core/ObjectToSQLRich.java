@@ -165,7 +165,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		String orderFields[] = orderFieldList.split(",");
 		int lenA = orderFields.length;
 
-		if (lenA != orderTypes.length) throw new ObjSQLException("ObjSQLException :The lenth of orderField is not equal orderTypes'.");
+		if (lenA != orderTypes.length) throw new ObjSQLException("ObjSQLException :The length of orderField is not equal orderTypes'.");
 
 		String orderBy = "";
 		for (int i = 0; i < lenA; i++) {

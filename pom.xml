@@ -4,7 +4,7 @@
 	<groupId>org.teasoft</groupId>
 	<artifactId>honey</artifactId>
 	<name>honey</name>
-	<version>1.11</version>
+	<version>1.17-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<properties>
@@ -26,16 +26,19 @@
 	<build>
 		<resources>
 			<resource>
+				<directory></directory>
+				<includes>
+					<include>COPYING</include>
+					<include>LICENSE</include>
+				</includes>
+				<targetPath>META-INF/</targetPath>
+			</resource>
+
+			<resource>
 				<directory>src/main/resources</directory>
 				<includes>
 					<include>**/*</include>
 				</includes>
- 			<!--if you define a new one,don't pack the bee.properties to jar file-->
-				<!-- <excludes>
-					<exclude>bee.properties</exclude>
-					<exclude>bee.sql.properties</exclude>
-					<exclude>jdbcTypeToFieldType.properties</exclude>
-				</excludes> -->
 			</resource>
 		</resources>
 

@@ -1,4 +1,7 @@
 package org.teasoft.honey.osql.autogen;
+
+import org.teasoft.honey.osql.core.HoneyConfig;
+
 /**
  * 生成Javabean的相关配置信息.Gen Javabean config.
  * @author Kingstar
@@ -12,7 +15,7 @@ public class GenConfig {
 	private String dbName = ""; // 数据库类型 MySQL, Oracle等
 	private String queryTableSql = ""; // 查询所有表名的SQL语句，MySQL,Oracle和SQL Server不用设置
 	private boolean genToString;
-	private boolean genSerializable;
+	private boolean genSerializable=true; //V1.17默认值改为true
 	
 	private String queryColumnCommnetSql;
 	private String queryTableCommnetSql;
@@ -54,6 +57,7 @@ public class GenConfig {
 	}
 
 	public String getDbName() {
+		if(dbName==null) return HoneyConfig.getHoneyConfig().getDbName();//V1.17
 		return dbName;
 	}
 

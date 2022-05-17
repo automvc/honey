@@ -103,6 +103,10 @@ public class GenBean {
 		boolean setFlag = true;
 		boolean mapFlag = true;
 		
+		boolean nClobFlag = true;
+		boolean rowIdFlag = true;
+		boolean sqlxmlFlag = true;
+		
 		TreeSet<String> importSet=new TreeSet<>();
 
 		StringBuilder tostr = new StringBuilder();
@@ -157,6 +161,15 @@ public class GenBean {
 			} else if ("Map".equals(javaType) && mapFlag) {
 				importSet.add("import java.util.Map;");
 				mapFlag = false;
+			} else if ("NCLOB".equals(javaType) && nClobFlag) {
+				importSet.add("java.sql.NClob");
+				nClobFlag = false;
+			} else if ("ROWID".equals(javaType) && rowIdFlag) {
+				importSet.add("java.sql.RowId");
+				rowIdFlag = false;
+			} else if ("SQLXML".equals(javaType) && sqlxmlFlag) {
+				importSet.add("java.sql.SQLXML");
+				sqlxmlFlag = false;
 				
 			}else if(javaType.startsWith("[UNKNOWN TYPE]")) {
 				unknownTypeTip=" //set the type mapping in the jdbcTypeToFieldType.properties";
@@ -233,18 +246,18 @@ public class GenBean {
 				bw.write(LINE_SEPARATOR);
 			}
 			bw.write(propertiesStr);
-			//			bw.write(LINE_SEPARATOR);
-			//			bw.write(constructorStr);
+//			bw.write(LINE_SEPARATOR);
+//			bw.write(constructorStr);
 			bw.write(LINE_SEPARATOR);
-			// bw.write(toStringStr);
-			// bw.write(LINE_SEPARATOR);
+//			bw.write(toStringStr);
+//			bw.write(LINE_SEPARATOR);
 			bw.write(getsetStr);
-			// bw.write(LINE_SEPARATOR);
+//			bw.write(LINE_SEPARATOR);
 
 			if (config.isGenToString()) { //toString()
 				tostr.deleteCharAt(tostr.indexOf(","));
 				tostr.insert(0, "\t\t" + LINE_SEPARATOR);
-				//				tostring.insert(0,"\t");
+//				tostring.insert(0,"\t");
 
 				tostr.append("\t\t str.append(\"]\");\t");
 				tostr.append("\t\t " + LINE_SEPARATOR);
@@ -253,7 +266,7 @@ public class GenBean {
 				tostr.append("\t }");
 				tostr.append("\t\t " + LINE_SEPARATOR);
 
-				//				tostring.insert(0,"\t"+LINE_SEPARATOR ); 
+//				tostring.insert(0,"\t"+LINE_SEPARATOR ); 
 				tostr.insert(0, "\t\t str.append(\"" + entityName + "[\");\t");
 				tostr.insert(0, "\t" + LINE_SEPARATOR);
 				tostr.insert(0, "\t\t StringBuilder str=new StringBuilder();");
@@ -264,7 +277,7 @@ public class GenBean {
 			}
 			bw.write("}");
 			bw.flush();
-			//			bw.close();
+//			bw.close();
 			
 			Logger.info("The Honey gen the JavaBean: " + config.getPackagePath() + "." + entityName);
 			
@@ -354,14 +367,14 @@ public class GenBean {
             String st="";
             String comment="";
             String fieldName="";
+            String columnName="";
 			for (int i = 0; i < columnNames.size(); i++) {
-				fieldName = NameTranslateHandle.toFieldName(columnNames.get(i));
-				st="	public static final String {fieldName} = \"{fieldName}\";"
-				   .replace("{fieldName}",fieldName);
-				
+				columnName=columnNames.get(i);
+				fieldName = NameTranslateHandle.toFieldName(columnName);
+				st="	public static final String {fieldName} = \"{fieldName}\";".replace("{fieldName}",fieldName);
 				
 				if (config.isGenComment() && commentMap != null) {
-					comment = commentMap.get(fieldName);
+					comment = commentMap.get(columnName); //1.17 fixed bug
 					if (config.getCommentPlace() == 2) {
 						if (!"".equals(comment)) st = "\t"+"// " + comment + LINE_SEPARATOR + st;
 					} else {

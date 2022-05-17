@@ -32,7 +32,7 @@ public class BeeInitPreLoadService {
 	}
 
 	private static void _initLoad() {
-		Logger.info("[Bee] ========= BeeInitPreLoadService initLoad...");
+//		Logger.info("[Bee] ========= BeeInitPreLoadService initLoad..."); //closed  V1.17
 		ServiceLoader<PreLoad> loads = ServiceLoader.load(PreLoad.class);
 		Iterator<PreLoad> loadIterator = loads.iterator();
 		while (loadIterator.hasNext()) {

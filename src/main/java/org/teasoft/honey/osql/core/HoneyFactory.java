@@ -290,7 +290,7 @@ public class HoneyFactory {
 	private DbFeature _getDbDialectFeature(String dbName) {
 		
 		//V1.11
-		//自定义的DbFeature,加添加到DbFeature注册器.
+		//自定义的DbFeature,添加到DbFeature注册器.
 		DbFeature dbFeature=DbFeatureRegistry.getDbFeature(dbName);
 		if(dbFeature!=null) return dbFeature;
 		
