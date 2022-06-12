@@ -4,7 +4,7 @@
 	<groupId>org.teasoft</groupId>
 	<artifactId>honey</artifactId>
 	<name>honey</name>
-	<version>1.17-SNAPSHOT</version>
+	<version>1.17.0.6-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<properties>
@@ -18,7 +18,7 @@
 		<dependency>
 			<groupId>org.teasoft</groupId>
 			<artifactId>bee</artifactId>
-			<version>1.11</version>
+			<version>1.17.0.6-SNAPSHOT</version>
 		</dependency>
 
 	</dependencies>
@@ -47,6 +47,15 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
 				<version>3.0.0</version>
+				
+<!-- 				若有在jar包里,android不允许定义新的 -->
+				<configuration>
+					<excludes>
+						<exclude>/bee.properties</exclude>
+					</excludes>
+				</configuration>
+				
+				
 			</plugin>
 
 			<!--配置生成源码包 -->
