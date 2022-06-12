@@ -2,11 +2,15 @@ package org.teasoft.honey.osql.core;
 
 import java.sql.Connection;
 
+import org.teasoft.bee.osql.DatabaseConst;
 import org.teasoft.bee.osql.Properties;
 import org.teasoft.bee.osql.annotation.SysValue;
+import org.teasoft.bee.osql.dialect.DbFeatureRegistry;
 import org.teasoft.bee.osql.exception.ConfigWrongException;
 import org.teasoft.honey.distribution.ds.Router;
 import org.teasoft.honey.osql.constant.DbConfigConst;
+import org.teasoft.honey.osql.dialect.LimitOffsetPaging;
+import org.teasoft.honey.osql.dialect.sqlserver.SqlServerFeature2012;
 import org.teasoft.honey.util.StringUtils;
 
 /**
@@ -49,6 +53,12 @@ public final class HoneyConfig {
 					SysValueProcessor.process(honeyConfig,beeActiveProp);
 				}
 			}
+		}
+		
+		if(isAndroid) {//V1.17
+//			dbName=DatabaseConst.AndroidSQLite;
+			dbName=DatabaseConst.SQLite;
+			DbFeatureRegistry.register(DatabaseConst.SQLite, new LimitOffsetPaging());
 		}
 		
 		HoneyContext.initLoad();
@@ -161,7 +171,7 @@ public final class HoneyConfig {
 
 	//----------------------------- selectJson start
 	@SysValue("${bee.osql.selectJson.ignoreNull}")
-	boolean selectJson_ignoreNull = true;
+	public boolean selectJson_ignoreNull = true;
 	@SysValue("${bee.osql.selectJson.timestampWithMillisecond}")
 	boolean selectJson_timestampWithMillisecond;
 
@@ -176,8 +186,16 @@ public final class HoneyConfig {
 	//----------------------------- selectJson end
 
 	@SysValue("${bee.osql.returnStringList.nullToEmptyString}")
-	boolean returnStringList_nullToEmptyString;
+	public boolean returnStringList_nullToEmptyString;
 	
+	private int databaseMajorVersion; //use in this class
+	
+	@SysValue("${bee.db.isAndroid}")
+	boolean isAndroid;
+	@SysValue("${bee.db.androidDbName}")
+	public String androidDbName;
+	@SysValue("${bee.db.androidDbVersion}")
+	public int androidDbVersion = 1; 
 	
 	@SysValue("${bee.db.dbName}")
 	String dbName;
@@ -356,6 +374,14 @@ public final class HoneyConfig {
 		BeeFactory.getHoneyFactory().setDbFeature(null);
 	}
 	
+	public int getDatabaseMajorVersion() {
+		return databaseMajorVersion;
+	}
+
+	public void setDatabaseMajorVersion(int databaseMajorVersion) {
+		this.databaseMajorVersion = databaseMajorVersion;
+	}
+
 	private static boolean alreadyPrintDbName = false;
 	private static boolean changeDataSource = false;
 
@@ -367,6 +393,16 @@ public final class HoneyConfig {
 				conn = SessionFactory.getConnection();
 				if (conn != null) {
 					String newDbName=conn.getMetaData().getDatabaseProductName();
+			
+					HoneyConfig.getHoneyConfig().setDatabaseMajorVersion(0); //clear
+					if(DatabaseConst.SQLSERVER.equalsIgnoreCase(newDbName)) { //V1.17 for SQL SERVER
+						int majorVersion=conn.getMetaData().getDatabaseMajorVersion();
+						HoneyConfig.getHoneyConfig().setDatabaseMajorVersion(majorVersion);
+						if(majorVersion>=11) {
+							DbFeatureRegistry.register(DatabaseConst.SQLSERVER, new SqlServerFeature2012());
+						}
+					}
+
 					if (changeDataSource) {
 						HoneyConfig.getHoneyConfig().setDbName(newDbName);
 					} else {
