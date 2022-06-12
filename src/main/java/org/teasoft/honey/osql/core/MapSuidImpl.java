@@ -202,6 +202,7 @@ public class MapSuidImpl implements MapSuid {
 	}
 
 	private void doBeforePasreEntity(SuidType suidType) {
+		regSuidType(suidType);
 		if (this.dsName != null) HoneyContext.setTempDS(dsName);
 		if(this.nameTranslate!=null) HoneyContext.setCurrentNameTranslate(nameTranslate);
 		getInterceptorChain().beforePasreEntity(null, suidType);
@@ -217,6 +218,10 @@ public class MapSuidImpl implements MapSuid {
 		if (this.dsName != null) HoneyContext.removeTempDS();
 		if(this.nameTranslate!=null) HoneyContext.removeCurrentNameTranslate();
 		getInterceptorChain().beforeReturn();
+	}
+	
+	protected void regSuidType(SuidType SuidType) {
+		if (HoneyConfig.getHoneyConfig().isAndroid) HoneyContext.regSuidType(SuidType);
 	}
 
 }

@@ -233,7 +233,8 @@ public class CallableSqlLib implements CallableSql {
 		StringBuffer valueBuffer = new StringBuffer();
 		int len=preValues.length;
 		for (int i = 0; i < len; i++) {
-			int k = HoneyUtil.getJavaTypeIndex(preValues[i].getClass().getName());
+			int k=-1; //V1.17
+			if(preValues[i]!=null) k = HoneyUtil.getJavaTypeIndex(preValues[i].getClass().getName());
 			HoneyUtil.setPreparedValues(cstmt, k, i, preValues[i]); //i from 0
 			valueBuffer.append(",");
 			valueBuffer.append(preValues[i]);

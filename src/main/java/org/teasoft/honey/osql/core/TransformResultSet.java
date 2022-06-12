@@ -49,7 +49,7 @@ public class TransformResultSet {
 
 				if (rs.getString(i) != null) {
 
-					if ("String".equals(HoneyUtil.getFieldType(rmeta.getColumnTypeName(i)))) {
+					if ("String".equals(HoneyUtil.getFieldType(rmeta.getColumnTypeName(i)))) { // equals改为不区分大小写  其它几个也是.  不需要,Map中值是这种命名风格的
 						json.append("\"");
 						//json.append(rs.getString(i));
 						temp=rs.getString(i);

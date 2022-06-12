@@ -6,6 +6,7 @@
 
 package org.teasoft.honey.osql.core;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -244,19 +245,35 @@ public final class CacheUtil {
 		return addInCache(sql,rs);
 	}
 	
+	private static boolean isSerial(Object rs) {
+//		else if (rs instanceof List)
+//			rs = (List) rsNew; //TODO 拿出一个元素来判断
+		
+//		if(rs instanceof Collection) {
+//			rs = (List) rsNew; //TODO 拿出一个元素来判断
+//			//....
+//		}else
+		
+		return Serializable.class.isAssignableFrom(rs.getClass());
+	}
 	// 添加缓存是否可以另起一个线程执行,不用影响到原来的.   但一次只能添加一个元素,作用不是很大.要考虑起线程的开销
 	static boolean addInCache(String sql,Object rs){
 		
 		if(getCachePrototype()==1 || getCachePrototype()==2) {
 			try {
-				Serializer jdks = new JdkSerializer();
-				Object rsNew = jdks.unserialize(jdks.serialize(rs));
-				if (rs instanceof String)
-					rs = (String) rsNew;
-				else if (rs instanceof List)
-					rs = (List) rsNew;
-				else
-					rs = rsNew;
+				
+				boolean isSerial=isSerial(rs); //rs用ArrayList包装后是序列化,但实体仍然不是,也会序列化不了.
+				if(!isSerial && getCachePrototype()==1) return false; //do not put in cache
+				if (isSerial) { //实体有实现Serializable接口
+					Serializer jdks = new JdkSerializer();
+					Object rsNew = jdks.unserialize(jdks.serialize(rs));
+					if (rs instanceof String)
+						rs = (String) rsNew;
+					else if (rs instanceof List)
+						rs = (List) rsNew; //TODO 拿出一个元素来判断
+					else
+						rs = rsNew;
+				}
 
 //				System.err.println(rs.getClass().getName());
 			} catch (Exception e) { //NotSerializableException
@@ -582,16 +599,21 @@ public final class CacheUtil {
 	
 	//1,2 deepCopy,  0: original
 	private static Object copyObjectForGet(Object object) {
-		
-		if(getCachePrototype()==0) return object;
-		
+
+		if (getCachePrototype() == 0) return object;
+
 		try {
-			Serializer jdks = new JdkSerializer();
-			return jdks.unserialize(jdks.serialize(object));
-		} catch (Exception e) { //NotSerializableException
+			if (isSerial(object)) { // 1,2
+				Serializer jdks = new JdkSerializer();
+				return jdks.unserialize(jdks.serialize(object));
+			} else {
+				if (getCachePrototype() == 1) return null; // 严格
+				if (getCachePrototype() == 2) return object;
+			}
+		} catch (Exception e) { // NotSerializableException
 			Logger.debug(e.getMessage(), e);
-			if(getCachePrototype()==1) return null; //严格
+			if (getCachePrototype() == 1) return null; // 严格
 		}
-		return object; //不严格  有异常则返回原对象
+		return object; // 不严格 有异常则返回原对象
 	}
 }

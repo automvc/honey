@@ -1499,12 +1499,13 @@ public final class HoneyUtil {
 			}
 			
 			if(value!=null && value instanceof CharSequence) { //V1.11
-				sql=sql.replaceFirst("\\?", "'"+String.valueOf(value).replace("$", "\\$")+"'"); //bug 2021-05-25
+//				V1.17 添加单引号转义;双引号不需要转;
+				sql=sql.replaceFirst("\\?", "'"+String.valueOf(value).replace("'","\\\\'").replace("$", "\\$")+"'"); //bug 2021-05-25
 			}else {
 				sql=sql.replaceFirst("\\?", String.valueOf(value));
 			}
 		}
-		
+		sql+=" ;"; //V1.17 添加分号
 		return sql;
 	}
 	
@@ -1663,10 +1664,13 @@ public final class HoneyUtil {
 			   || DatabaseConst.MariaDB.equalsIgnoreCase(HoneyConfig.getHoneyConfig().getDbName());
 	}
 	
-	//oracle,SQLite
+	//Oracle,SQLite,Sql Server
 	public static boolean isConfuseDuplicateFieldDB(){
 		return DatabaseConst.ORACLE.equalsIgnoreCase(HoneyConfig.getHoneyConfig().getDbName())
 			|| DatabaseConst.SQLite.equalsIgnoreCase(HoneyConfig.getHoneyConfig().getDbName())
+			|| (DatabaseConst.SQLSERVER.equalsIgnoreCase(HoneyConfig.getHoneyConfig().getDbName()) 
+//				&& HoneyConfig.getHoneyConfig().getDatabaseMajorVersion()>=11
+			)	
 				;
 	}
 	
@@ -1806,6 +1810,11 @@ public final class HoneyUtil {
 		return getPkFieldNameByClass(entity.getClass());
 	}
 	
+	/**
+	 * 查找有PrimaryKey的字段
+	 * @param c
+	 * @return
+	 */
 	@SuppressWarnings("rawtypes")
 	static String getPkFieldNameByClass(Class c) {
 

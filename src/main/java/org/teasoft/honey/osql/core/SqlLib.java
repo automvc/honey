@@ -47,7 +47,7 @@ public class SqlLib implements BeeSql {
 	
 	private int cacheWorkResultSetSize=HoneyConfig.getHoneyConfig().cache_workResultSetSize;
 	private static boolean  showSQL=HoneyConfig.getHoneyConfig().showSQL;
-	private static boolean openFieldTypeHandler = HoneyConfig.getHoneyConfig().openFieldTypeHandler;
+	protected static boolean openFieldTypeHandler = HoneyConfig.getHoneyConfig().openFieldTypeHandler;
 
 	private Connection getConn() throws SQLException {
 		return HoneyContext.getConn();
@@ -133,12 +133,12 @@ public class SqlLib implements BeeSql {
 					
 					try {
 						boolean processAsJson=false;
-						if (isJoson(field)) {
+						if (isJoson(field)) {							
 							obj = rs.getString(i + 1);
 							TypeHandler jsonHandler =TypeHandlerRegistry.getHandler(Json.class);
-							if(jsonHandler!=null) {
-								obj=jsonHandler.process(field.getType(), obj);
-								processAsJson=true;
+							if (jsonHandler != null) {
+								obj = jsonHandlerProcess(field, obj, jsonHandler);
+								processAsJson = true;
 							}
 						}else {
 							if (openFieldTypeHandler) {
@@ -202,7 +202,7 @@ public class SqlLib implements BeeSql {
 			} else {
 				checkClose(pst, conn);
 			}
-			entity = null;
+			entity = null;  //???   改了的,没有传回去.
 			targetObj = null;
 			map = null;
 		}
@@ -212,8 +212,21 @@ public class SqlLib implements BeeSql {
 	}
 	
 	//检测是否有Json注解
-	private boolean isJoson(Field field) {
+	protected boolean isJoson(Field field) {
 		return AnnoUtil.isJson(field);
+	}
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	protected Object jsonHandlerProcess(Field field, Object obj, TypeHandler jsonHandler) {
+		if (List.class.isAssignableFrom(field.getType())) {
+			Object newOjb[] = new Object[2];
+			newOjb[0] = obj;
+			newOjb[1] = field;
+			obj = jsonHandler.process(field.getType(), newOjb);
+		} else {
+			obj = jsonHandler.process(field.getType(), obj);
+		}
+		return obj;
 	}
 
 	/**
@@ -752,7 +765,7 @@ public class SqlLib implements BeeSql {
 		return total;
 	}
 	
-	private void clearContext(String sql_0, int batchSize, int len) {
+	protected void clearContext(String sql_0, int batchSize, int len) {
 		for (int i = 0; i < len; i++) {
 			String sql_i = INDEX1 + i + INDEX2 + sql_0;
 			clearContext(sql_i);
@@ -870,7 +883,7 @@ public class SqlLib implements BeeSql {
 	}
 	
 	@SuppressWarnings("rawtypes")
-	private Object createObject(Class c) throws IllegalAccessException,InstantiationException{
+	protected Object createObject(Class c) throws IllegalAccessException,InstantiationException{
 		return c.newInstance();
 	}
 	
@@ -1022,7 +1035,8 @@ public class SqlLib implements BeeSql {
 							if (isJoson(fields2[i])) {
 								TypeHandler jsonHandler = TypeHandlerRegistry.getHandler(Json.class);
 								if (jsonHandler != null) {
-									v2 = jsonHandler.process(fields2[i].getType(), v2);
+//									v2 = jsonHandler.process(fields2[i].getType(), v2);
+									v2 = jsonHandlerProcess(fields2[i], v2, jsonHandler);
 									processAsJson = true;
 								}
 							}
@@ -1140,7 +1154,8 @@ public class SqlLib implements BeeSql {
 						if (isJoson(fields1[i])) {
 							TypeHandler jsonHandler = TypeHandlerRegistry.getHandler(Json.class);
 							if (jsonHandler != null) {
-								v1 = jsonHandler.process(fields1[i].getType(), v1);
+//								v1 = jsonHandler.process(fields1[i].getType(), v1);
+								v1 = jsonHandlerProcess(fields1[i], v1, jsonHandler);
 								processAsJson = true;
 							}
 						}
@@ -1244,7 +1259,8 @@ public class SqlLib implements BeeSql {
 						if (isJoson(field[i])) {
 							TypeHandler jsonHandler = TypeHandlerRegistry.getHandler(Json.class);
 							if (jsonHandler != null) {
-								v = jsonHandler.process(field[i].getType(), v);
+//								v = jsonHandler.process(field[i].getType(), v);
+								v = jsonHandlerProcess(field[i], v, jsonHandler);
 								processAsJson = true;
 							}
 						}
@@ -1420,7 +1436,7 @@ public class SqlLib implements BeeSql {
 	}
 	
 	@SuppressWarnings("rawtypes")
-	private static String _toColumnName(String fieldName, Class entityClass) {
+	protected static String _toColumnName(String fieldName, Class entityClass) {
 		return NameTranslateHandle.toColumnName(fieldName, entityClass);
 	}
 
@@ -1430,7 +1446,7 @@ public class SqlLib implements BeeSql {
 	}
 	
 	//add on 2019-10-01
-	private void addInCache(String sql, Object rs, String returnType, SuidType suidType,int resultSetSize) {
+	protected void addInCache(String sql, Object rs, String returnType, SuidType suidType,int resultSetSize) {
 		
 //		如果结果集超过一定的值则不放缓存
 		if(resultSetSize>cacheWorkResultSetSize){
@@ -1448,11 +1464,11 @@ public class SqlLib implements BeeSql {
 	}
 	
 //	查缓存前需要先更新缓存信息,才能去查看是否在缓存
-	private boolean updateInfoInCache(String sql, String returnType, SuidType suidType) {
+	protected boolean updateInfoInCache(String sql, String returnType, SuidType suidType) {
 		return HoneyContext.updateInfoInCache(sql, returnType, suidType);
 	}
 	
-	private void clearInCache(String sql, String returnType, SuidType suidType, int affectRow) {
+	protected void clearInCache(String sql, String returnType, SuidType suidType, int affectRow) {
 		CacheSuidStruct struct = HoneyContext.getCacheInfo(sql);
 		if (struct != null) {
 			struct.setReturnType(returnType);
@@ -1465,7 +1481,7 @@ public class SqlLib implements BeeSql {
 		}
 	}
 	
-	private void clearContext(String sql) {
+	protected void clearContext(String sql) {
 		HoneyContext.clearPreparedValue(sql);
 //		if(HoneyContext.isNeedRealTimeDb() && HoneyContext.isAlreadySetRoute()) { //当可以从缓存拿时，需要清除为分页已设置的路由
 //			HoneyContext.removeCurrentRoute(); //放到拦截器中
@@ -1474,7 +1490,7 @@ public class SqlLib implements BeeSql {
 	}
 	
 	@SuppressWarnings("rawtypes")
-	private void initRoute(SuidType suidType, Class clazz, String sql) {
+	protected void initRoute(SuidType suidType, Class clazz, String sql) {
 		boolean enableMultiDs=HoneyConfig.getHoneyConfig().multiDS_enable;
 		if (!enableMultiDs) return;
 		if(HoneyContext.isNeedRealTimeDb() && HoneyContext.isAlreadySetRoute()) return; // already set in parse entity to sql.
@@ -1482,12 +1498,11 @@ public class SqlLib implements BeeSql {
 		HoneyContext.initRoute(suidType, clazz, sql);
 	}
 	
-	//Oracle,SQLite
-	private boolean isConfuseDuplicateFieldDB(){
+	protected boolean isConfuseDuplicateFieldDB(){
 		return HoneyUtil.isConfuseDuplicateFieldDB();
 	}
 	
-	private void logSelectRows(int size) {
+	protected void logSelectRows(int size) {
 		Logger.logSQL(" | <--  select rows: ", size + "");
 	}
 	

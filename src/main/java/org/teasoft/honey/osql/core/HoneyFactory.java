@@ -147,7 +147,11 @@ public class HoneyFactory {
 	}
 
 	public BeeSql getBeeSql() {
-		if(this.beeSql==null) return new SqlLib();
+		if(this.beeSql==null) {
+			boolean isAndroid=HoneyConfig.getHoneyConfig().isAndroid;
+			if(isAndroid) return new SqlLibForAndroid();
+			else return new SqlLib();
+		}
 		return beeSql;
 	}
 
@@ -246,8 +250,8 @@ public class HoneyFactory {
 
 		String dbName = HoneyContext.getRealTimeDbName();
 		if (dbName != null) {
-			String logMsg="[Bee] ========= get the dbName in real time is :" + dbName;
-			Logger.info(logMsg);
+			String logMsg="========= get the dbName in real time is :" + dbName;
+			Logger.logSQL(logMsg,"");
 			return _getDbDialectFeature(dbName);
 		}
 //		dbName == null则表示不同时使用多种数据库
@@ -311,9 +315,10 @@ public class HoneyFactory {
 	}
 	
 	private boolean _isLimitOffsetDB() {
-		boolean comm = DatabaseConst.H2.equalsIgnoreCase((HoneyContext.getDbDialect()))
-				|| DatabaseConst.SQLite.equalsIgnoreCase((HoneyContext.getDbDialect()))
-				|| DatabaseConst.PostgreSQL.equalsIgnoreCase((HoneyContext.getDbDialect()));
+		String dbName=HoneyContext.getDbDialect();
+		boolean comm = DatabaseConst.H2.equalsIgnoreCase(dbName)
+				|| DatabaseConst.SQLite.equalsIgnoreCase(dbName)
+				|| DatabaseConst.PostgreSQL.equalsIgnoreCase(dbName);
 		
 		if(comm) return comm;
 		

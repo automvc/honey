@@ -151,8 +151,9 @@ public class ObjSQL implements Suid {
 		if (entity == null) return -1L;
 
 		if (!HoneyContext.isNeedGenId(entity.getClass())
-				&& !(HoneyUtil.isMysql() || HoneyUtil.isOracle() || HoneyUtil.isSQLite())) {
-			throw new NotSupportedException("The current database don't support return the id after insert."
+				&& !(HoneyUtil.isMysql() || HoneyUtil.isOracle() || HoneyUtil.isSQLite())
+				) {
+			throw new NotSupportedException("The current database don't support insert NULL to 'id' column or return the id after insert."
 					+ "\nYou can use the distribute id via set config information,eg: bee.distribution.genid.forAllTableLongId=true");
 		}
 		doBeforePasreEntity(entity,SuidType.INSERT);
@@ -267,6 +268,7 @@ public class ObjSQL implements Suid {
 	}
 
 	void doBeforePasreEntity(Object entity, SuidType SuidType) {
+		regSuidType(SuidType);
 		if (this.dsName != null) HoneyContext.setTempDS(dsName);
 		if(this.nameTranslate!=null) HoneyContext.setCurrentNameTranslate(nameTranslate);
 		getInterceptorChain().beforePasreEntity(entity, SuidType);
@@ -289,5 +291,9 @@ public class ObjSQL implements Suid {
 		if (this.dsName != null) HoneyContext.removeTempDS();
 		if(this.nameTranslate!=null) HoneyContext.removeCurrentNameTranslate();
 		getInterceptorChain().beforeReturn();
+	}
+	
+	protected void regSuidType(SuidType SuidType) {
+		if (HoneyConfig.getHoneyConfig().isAndroid) HoneyContext.regSuidType(SuidType);
 	}
 }

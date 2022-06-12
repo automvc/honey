@@ -5,19 +5,16 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.ServiceConfigurationError;
-import java.util.ServiceLoader;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.teasoft.bee.osql.NameTranslate;
 import org.teasoft.bee.osql.SuidType;
-import org.teasoft.bee.spi.PreLoad;
 import org.teasoft.honey.distribution.ds.RouteStruct;
+import org.teasoft.honey.osql.dialect.sqlserver.SqlServerPagingStruct;
 import org.teasoft.honey.util.ObjectUtils;
 
 /**
@@ -43,6 +40,7 @@ public final class HoneyContext {
 	//	private static ThreadLocal<Map<String, String>> sqlValueLocal;
 
 	private static ThreadLocal<Map<String, CacheSuidStruct>> cacheLocal;
+	private static ThreadLocal<Map<String, SqlServerPagingStruct>> sqlServerPaging;
 	
 	private static ThreadLocal<Map<String, Map<String, String>>> customMapLocal;
 	
@@ -51,6 +49,8 @@ public final class HoneyContext {
 	private static ThreadLocal<RouteStruct> currentRoute;
 
 	private static ThreadLocal<Connection> currentConnection; //当前事务的Conn
+	
+	private static ThreadLocal<Object> currentAndroidDB; //V1.17
 	
 	private static ThreadLocal<NameTranslate> currentNameTranslate;
 
@@ -118,12 +118,14 @@ public final class HoneyContext {
 		sqlPreValueLocal = new ThreadLocal<>();
 		//		sqlValueLocal = new ThreadLocal<>();
 		cacheLocal = new ThreadLocal<>();
+		sqlServerPaging = new ThreadLocal<>();
 		customMapLocal = new ThreadLocal<>();
 		sysCommStrLocal = new ThreadLocal<>();
 
 		currentConnection = new ThreadLocal<>();
+		currentAndroidDB = new ThreadLocal<>();
 		currentNameTranslate = new ThreadLocal<>();
-		//		transactionLocal = new ThreadLocal<>();
+//		transactionLocal = new ThreadLocal<>();
 		
 		sameConnctionDoing = new ThreadLocal<>();
 		jdbcTranWriterDs = new ThreadLocal<>();
@@ -397,6 +399,24 @@ public final class HoneyContext {
 		//		map.remove(sqlStr); //bug
 		if (map != null) map.remove(sqlStr);
 	}
+	
+	public static void setSqlServerPagingStruct(String sqlStr, SqlServerPagingStruct sqlServerPagingStruct) {
+		if (sqlServerPagingStruct == null) return;
+		if (sqlStr == null || "".equals(sqlStr.trim())) return;
+		Map<String, SqlServerPagingStruct> map = sqlServerPaging.get();
+		if (null == map) map = new ConcurrentHashMap<>();
+		map.put(sqlStr, sqlServerPagingStruct);
+		sqlServerPaging.set(map);
+	}
+
+	public static SqlServerPagingStruct getAndRemoveSqlServerPagingStruct(String sqlStr) {
+		Map<String, SqlServerPagingStruct> map = sqlServerPaging.get();
+		if (null == map || sqlStr==null) return null;
+		SqlServerPagingStruct struct= map.get(sqlStr);
+		if (struct != null) map.remove(sqlStr);
+		return struct;
+	}
+	
 
 	public static String getDbDialect() {
 		return HoneyConfig.getHoneyConfig().getDbName();
@@ -412,6 +432,25 @@ public final class HoneyContext {
 
 	public static void removeCurrentConnection() {
 		currentConnection.remove();
+	}
+	
+	//V1.17
+	public static Object getCurrentAndroidDB() {
+		return currentAndroidDB.get();
+	}
+	public static void setCurrentAndroidDB(Object androidDB) {
+		if (!"android.database.sqlite.SQLiteDatabase".equals(androidDB.getClass().getName())) return;
+		currentAndroidDB.set(androidDB);
+	}
+	public static void setCurrentAndroidDBIfNeed(Object androidDB) {
+		if (!"android.database.sqlite.SQLiteDatabase".equals(androidDB.getClass().getName())) return;
+		
+		if (OneTimeParameter.isTrue("_SYS_Bee_SAME_CONN_BEGIN")) {
+			currentAndroidDB.set(androidDB);
+		}
+	}
+	public static void removeCurrentAndroidDB() {
+		currentAndroidDB.remove();
 	}
 	
 	public static NameTranslate getCurrentNameTranslate() {
@@ -526,6 +565,15 @@ public final class HoneyContext {
 	}
 
 	static void endSameConnection() {
+		//V1..17 for Android
+		if(HoneyConfig.getHoneyConfig().isAndroid) {
+			if (OneTimeParameter.isTrue("_SYS_Bee_SAME_CONN_BEGIN")) { //all get from cache.  设置标志后,都是从缓存获取. 所以没有消费这个标识
+				Logger.warn("Do not get the new Connection in the SameConnection.Maybe all the results get from cache! ");
+			}
+			HoneyContext.removeCurrentAndroidDB(); //同一连接结束时要删除上下文
+			
+			return ;
+		}
 		
 		if (OneTimeParameter.isTrue("_SYS_Bee_SAME_CONN_BEGIN")) { //all get from cache.
 			Logger.warn("Do not get the new Connection in the SameConnection.Maybe all the results get from cache! ");
@@ -597,7 +645,16 @@ public final class HoneyContext {
 	static void regEntityClass(Class clazz) {
 		OneTimeParameter.setAttribute(StringConst.Route_EC, clazz); //EC:Entity Class
 	}
-
+	
+	static void regSuidType(SuidType suidType) {
+		//为了在Android中分辨出insert,update,delete
+		OneTimeParameter.setAttribute(StringConst.SuidType, suidType); 
+	}
+	
+	public static SuidType getSuidType() {
+		return (SuidType)OneTimeParameter.getAttribute(StringConst.SuidType);
+	}
+	
 	static Connection getConn() throws SQLException {
 		Connection conn = null;
 

@@ -797,7 +797,7 @@ public class PreparedSqlLib implements PreparedSql {
 		getInterceptorChain().beforePasreEntity(null, SuidType.SELECT);
 	}
 
-	private void doBeforePasreEntity(Object entity, SuidType suidType) {
+	private void doBeforePasreEntity(Object entity, SuidType suidType) {//都是select在用
 		if (this.dsName != null) HoneyContext.setTempDS(dsName);
 		if(this.nameTranslate!=null) HoneyContext.setCurrentNameTranslate(nameTranslate);
 		getInterceptorChain().beforePasreEntity(entity, suidType);

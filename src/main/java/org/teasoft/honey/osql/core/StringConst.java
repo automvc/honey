@@ -44,4 +44,5 @@ public final class StringConst {
 	public static final String Column_EC="_SYS_Bee_COLUMN_EC";
 	
 	public static final String SchemaName="_SYS_Bee_SchemaName";
+	public static final String SuidType="_SYS_Bee_SuidType"; //V1.17
 }
