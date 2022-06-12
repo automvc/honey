@@ -21,6 +21,7 @@ import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.dialect.DbFeature;
 import org.teasoft.bee.osql.exception.BeeIllegalEntityException;
 import org.teasoft.honey.distribution.GenIdFactory;
+import org.teasoft.honey.osql.dialect.sqlserver.SqlServerPagingStruct;
 import org.teasoft.honey.osql.name.NameUtil;
 import org.teasoft.honey.osql.util.AnnoUtil;
 
@@ -53,6 +54,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		SqlValueWrap wrap = toSelectSQL_0(entity);
 		String sql = wrap.getSql();
 		regPagePlaceholder();
+		adjustSqlServerPagingPkIfNeed(sql, entity.getClass());
 		sql = getDbFeature().toPageSql(sql, size);
 		HoneyUtil.setPageNum(wrap.getList());
 		
@@ -84,6 +86,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		SqlValueWrap wrap = toSelectSQL_0(entity);
 		String sql = wrap.getSql();
 		regPagePlaceholder();
+		adjustSqlServerPagingPkIfNeed(sql, entity.getClass());
 		sql = getDbFeature().toPageSql(sql, start, size);
 		HoneyUtil.setPageNum(wrap.getList());
 		
@@ -95,6 +98,23 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 
 		Logger.logSQL("select(entity,start,size) SQL: ", sql);
 		return sql;
+	}
+	
+	private void adjustSqlServerPagingPkIfNeed(String sql, Class entityClass) {
+		
+		if (!HoneyUtil.isSqlServer()) return ;
+		
+		String pkName = HoneyUtil.getPkFieldNameByClass(entityClass);
+		
+		if ("".equals(pkName)) return; //自定义主键为空,则不需要替换
+		
+		pkName = pkName.split(",")[0]; // 有多个,只取第一个
+		pkName=_toColumnName(pkName, entityClass);
+		
+		SqlServerPagingStruct struct=new SqlServerPagingStruct();
+		struct.setJustChangeOrderColumn(true);
+		struct.setOrderColumn(pkName);
+		HoneyContext.setSqlServerPagingStruct(sql, struct);
 	}
 
 	@Override
@@ -111,6 +131,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		SqlValueWrap wrap = toSelectSQL_0(entity, selectFields);
 		String sql = wrap.getSql();
 		regPagePlaceholder();
+		adjustSqlServerPagingPkIfNeed(sql, entity.getClass());
 		sql = getDbFeature().toPageSql(sql, start, size);
 		HoneyUtil.setPageNum(wrap.getList());
 		
@@ -659,11 +680,12 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		PreparedValue preparedValue=null;
 
 		String idArray[]=ids.split(",");
-		//		String t_ids="id=?";
-		String t_ids=_id(pkName,entityClass) + "=?";
+//		String t_ids="id=?";
+		String id0=_id(pkName,entityClass) + "=?";
+		String t_ids=id0;
 
 		preparedValue=new PreparedValue();
-		//		preparedValue.setType(numType);//id的类型Object
+//		preparedValue.setType(numType);//id的类型Object
 		if (idType != null) {
 			preparedValue.setType(idType);
 			if ("Long".equals(idType) || "long".equals(idType)) {
@@ -683,9 +705,9 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 
 		for (int i=1; i < idArray.length; i++) { //i from 1
 			preparedValue=new PreparedValue();
-			//			t_ids+=" or id=?";
-			t_ids+=" " + K.or + " " + _id(pkName,entityClass) + "=?";
-			//			preparedValue.setType(numType);//id的类型Object
+//			t_ids+=" or id=?";
+			t_ids+=" " + K.or + " " + id0;
+//			preparedValue.setType(numType);//id的类型Object
 			if (idType != null) {
 				preparedValue.setType(idType);
 
