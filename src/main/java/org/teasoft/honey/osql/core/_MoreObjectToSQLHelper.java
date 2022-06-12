@@ -17,6 +17,7 @@ import org.teasoft.bee.osql.annotation.JoinType;
 import org.teasoft.bee.osql.annotation.PrimaryKey;
 import org.teasoft.bee.osql.dialect.DbFeature;
 import org.teasoft.bee.osql.interccept.InterceptorChain;
+import org.teasoft.honey.osql.dialect.sqlserver.SqlServerPagingStruct;
 import org.teasoft.honey.osql.name.NameUtil;
 import org.teasoft.honey.osql.util.AnnoUtil;
 import org.teasoft.honey.util.StringUtils;
@@ -132,6 +133,8 @@ public class _MoreObjectToSQLHelper {
 						.append(" ").append(K.from).append(" ");
 						sqlForList.append(tableName);
 						sqlForList.append(sqlBuffer0); //添加解析主表实体的where条件
+						
+						adjustSqlServerPagingPkIfNeed(sqlStrForList, entity.getClass(),tableName);
 						
 //						HoneyUtil.regPagePlaceholder();
 						sqlStrForList=getDbFeature().toPageSql(sqlForList.toString(), start, size);
@@ -295,6 +298,7 @@ public class _MoreObjectToSQLHelper {
 			
 			if(start!=-1 && size!=-1){ //若传参及Condition都有分页,转出来的sql可能语法不对.
 				HoneyUtil.regPagePlaceholder();
+				adjustSqlServerPagingPkIfNeed(sqlBuffer.toString(), entity.getClass(),tableName);
 				sql=getDbFeature().toPageSql(sqlBuffer.toString(), start, size);
 				HoneyUtil.setPageNum(list);
 			}else{
@@ -311,6 +315,27 @@ public class _MoreObjectToSQLHelper {
 	}
 	private static void doBeforePasreSubEntity(Object entity,InterceptorChain chain) {
 		if(entity!=null && chain!=null) chain.beforePasreEntity(entity, SuidType.SELECT);
+	}
+	
+	private static void adjustSqlServerPagingPkIfNeed(String sql, Class entityClass,String tableName) {
+		
+		if (!HoneyUtil.isSqlServer()) return ;
+		String pkName="id";
+		String pkName0 = HoneyUtil.getPkFieldNameByClass(entityClass);
+		
+//		if ("".equals(pkName)) return; //自定义主键为空,则不需要替换
+		
+		//多表查询,要改为带表名
+		if (!"".equals(pkName0))
+		pkName = pkName0.split(",")[0]; // 有多个,只取第一个
+		
+		
+		pkName=_toColumnName(pkName, entityClass);
+		
+		SqlServerPagingStruct struct=new SqlServerPagingStruct();
+		struct.setJustChangeOrderColumn(true);
+		struct.setOrderColumn(tableName+"."+pkName);
+		HoneyContext.setSqlServerPagingStruct(sql, struct);
 	}
 	
 	private static boolean parseSubObject(StringBuffer sqlBuffer2, 

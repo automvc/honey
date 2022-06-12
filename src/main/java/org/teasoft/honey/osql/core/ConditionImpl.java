@@ -8,7 +8,9 @@ package org.teasoft.honey.osql.core;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.teasoft.bee.osql.Condition;
@@ -42,6 +44,8 @@ public class ConditionImpl implements Condition {
 	private List<FunExpress> funExpList=new ArrayList<>();
 	
 	private List<Expression> onExpList = new ArrayList<>();
+	
+	private Map<String,String> orderByMap=new LinkedHashMap<>();//V1.17 用于sql server分页
 	
 	private boolean isStartGroupBy = true;
 	private boolean isStartHaving = true;
@@ -227,6 +231,7 @@ public class ConditionImpl implements Condition {
 	@Override
 	public Condition orderBy(String field) {
 		checkField(field);
+		orderByMap.put(field, "asc");// V1.17
 		Expression exp = new Expression();
 		exp.opType = ORDER_BY;
 		//		exp.value
@@ -247,6 +252,7 @@ public class ConditionImpl implements Condition {
 	@Override
 	public Condition orderBy(String field, OrderType orderType) {
 		checkField(field);
+		orderByMap.put(field, orderType.getName());// V1.17
 		Expression exp = new Expression();
 		exp.opType = ORDER_BY;
 		//		exp.value
@@ -268,6 +274,7 @@ public class ConditionImpl implements Condition {
 	@Override
 	public Condition orderBy(FunctionType functionType, String field, OrderType orderType) {
 		checkField(field);
+		orderByMap.put(functionType.getName()+"("+field+")", orderType.getName());// V1.17
 		Expression exp = new Expression();
 		exp.opType = ORDER_BY;
 		//		exp.value
@@ -512,6 +519,11 @@ public class ConditionImpl implements Condition {
 //			throw new BeeErrorFieldException("The field: '"+field+ "' is illegal!");
 //		}
 		NameCheckUtil.checkName(field);
+	}
+	
+	//1.17
+	public Map<String, String> getOrderByMap() {
+		return orderByMap;
 	}
 
 	final class FunExpress{

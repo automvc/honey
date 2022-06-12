@@ -19,6 +19,7 @@ import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
 import org.teasoft.bee.osql.exception.BeeIllegalBusinessException;
 import org.teasoft.bee.osql.exception.BeeIllegalSQLException;
 import org.teasoft.honey.distribution.GenIdFactory;
+import org.teasoft.honey.osql.dialect.sqlserver.SqlServerPagingStruct;
 import org.teasoft.honey.osql.util.NameCheckUtil;
 import org.teasoft.honey.util.ObjectUtils;
 import org.teasoft.honey.util.StringUtils;
@@ -84,17 +85,28 @@ public class MapSqlProcessor {
 			checkExpression(havingStr); 
 			sqlBuffer.append(K.space).append(K.having).append(K.space).append(havingStr);
 		}
+		
+		SqlServerPagingStruct struct=new SqlServerPagingStruct();
+		
 		//order by
 		String orderByStr = sqlkeyMap.get(MapSqlKey.OrderBy);
 		if (StringUtils.isNotBlank(orderByStr)) {
 			checkExpression(orderByStr);
 			sqlBuffer.append(K.space).append(K.orderBy).append(K.space).append(orderByStr);
+			struct.setHasOrderBy(true);
 		}
 		
 		Integer start = mapSqlImpl.getStart();
 		Integer size = mapSqlImpl.getSize();
 		
 		String sql = sqlBuffer.toString();
+		
+		String pkName=sqlkeyMap.get(MapSqlKey.PrimaryKey);
+		if(StringUtils.isNotBlank(pkName)) {
+			struct.setOrderColumn(pkName);
+		}
+		HoneyContext.setSqlServerPagingStruct(sql, struct);
+		
 		if (start!=null && size!=null) {
 			sql=getDbFeature().toPageSql(sql, start, size);
 		}else if (size!=null) {

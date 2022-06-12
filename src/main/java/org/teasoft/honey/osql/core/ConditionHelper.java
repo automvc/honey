@@ -13,10 +13,12 @@ import java.util.Map;
 import org.teasoft.bee.osql.Condition;
 import org.teasoft.bee.osql.FunctionType;
 import org.teasoft.bee.osql.Op;
+import org.teasoft.bee.osql.OrderType;
 import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.dialect.DbFeature;
 import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
 import org.teasoft.honey.osql.core.ConditionImpl.FunExpress;
+import org.teasoft.honey.osql.dialect.sqlserver.SqlServerPagingStruct;
 import org.teasoft.honey.util.StringUtils;
 
 /**
@@ -178,10 +180,12 @@ public class ConditionHelper {
 		if (start!=null && SuidType.SELECT != conditionImpl.getSuidType()) {
 			throw new BeeErrorGrammarException(conditionImpl.getSuidType() + " do not support paging with start !");
 		} 
-		
+		String columnName="";
 		for (int j = 0; j < expList.size(); j++) {
 			expression = expList.get(j);
 			String opType = expression.getOpType();
+			
+			columnName=_toColumnName(expression.getFieldName(),useSubTableNames,entityClass);
 			
 			if ( GROUP_BY.equalsIgnoreCase(opType) || HAVING.equalsIgnoreCase(opType) ) {
 				if (SuidType.SELECT != conditionImpl.getSuidType()) {
@@ -209,7 +213,7 @@ public class ConditionHelper {
 //				if(StringUtils.isBlank(v)) continue; //v1.9.8    in的值不允许为空             这样会有安全隐患, 少了一个条件,会更改很多数据.
 				
 				isNeedAnd=adjustAnd(sqlBuffer,isNeedAnd);
-				sqlBuffer.append(_toColumnName(expression.getFieldName(),useSubTableNames,entityClass));
+				sqlBuffer.append(columnName);
 //				sqlBuffer.append(" ");
 //				sqlBuffer.append(expression.getOpType());
 				if(HoneyUtil.isSqlKeyWordUpper()) sqlBuffer.append(expression.getOpType().toUpperCase());
@@ -242,7 +246,7 @@ public class ConditionHelper {
 //				adjustAnd(sqlBuffer);
 				isNeedAnd=adjustAnd(sqlBuffer,isNeedAnd);
 
-				sqlBuffer.append(_toColumnName(expression.getFieldName(),useSubTableNames,entityClass));
+				sqlBuffer.append(columnName);
 //				sqlBuffer.append(expression.getOpType());
 				if(HoneyUtil.isSqlKeyWordUpper()) sqlBuffer.append(expression.getOpType().toUpperCase());
 				else sqlBuffer.append(expression.getOpType());
@@ -263,7 +267,7 @@ public class ConditionHelper {
 //				adjustAnd(sqlBuffer);
 				isNeedAnd=adjustAnd(sqlBuffer,isNeedAnd);
 
-				sqlBuffer.append(_toColumnName(expression.getFieldName(),useSubTableNames,entityClass));
+				sqlBuffer.append(columnName);
 				sqlBuffer.append(opType);
 				sqlBuffer.append("?");
 				sqlBuffer.append(" "+K.and+" ");
@@ -293,7 +297,7 @@ public class ConditionHelper {
 				}
 
 				sqlBuffer.append(expression.getValue());//group by或者,
-				sqlBuffer.append(_toColumnName(expression.getFieldName(),useSubTableNames,entityClass));
+				sqlBuffer.append(columnName);
 
 				continue;
 			} else if (HAVING.equalsIgnoreCase(opType)) {
@@ -313,7 +317,7 @@ public class ConditionHelper {
 					if (FunctionType.COUNT.getName().equals(expression.getValue3()) && "*".equals(expression.getFieldName().trim())) {
 						sqlBuffer.append("*");
 					} else {
-						sqlBuffer.append(_toColumnName(expression.getFieldName(),useSubTableNames,entityClass));
+						sqlBuffer.append(columnName);
 					}
 
 					sqlBuffer.append(")");
@@ -342,16 +346,38 @@ public class ConditionHelper {
 //					sqlBuffer.append(expression.getValue3());
 					sqlBuffer.append(FunAndOrderTypeMap.transfer(expression.getValue3().toString()));
 					sqlBuffer.append("(");
-					sqlBuffer.append(_toColumnName(expression.getFieldName(),useSubTableNames,entityClass));
+					sqlBuffer.append(columnName);
 					sqlBuffer.append(")");
 				} else {
-					sqlBuffer.append(_toColumnName(expression.getFieldName(),useSubTableNames,entityClass));
+					sqlBuffer.append(columnName);
 				}
 
 				if (3 == expression.getOpNum() || 4 == expression.getOpNum()) { //指定 desc,asc
 					sqlBuffer.append(ONE_SPACE);
 //					sqlBuffer.append(expression.getValue2());
 					sqlBuffer.append(FunAndOrderTypeMap.transfer(expression.getValue2().toString()));
+					
+//					//V1.17
+//					//SqlServer 2012版之前的复杂分页语法需要判断
+//					if(!orderByIdDescInSqlServer && start>1 && HoneyUtil.isSqlServer()) {
+//						pkName="";
+//						try {
+//							entityClass.getDeclaredField("id");
+//							pkName="id";
+//						} catch (NoSuchFieldException e) {
+//							pkName = HoneyUtil.getPkFieldNameByClass(entityClass).split(",")[0]; //有多个,只取第一个
+//						}
+//						
+//						String pkColumnName=_toColumnName(pkName,useSubTableNames,entityClass);
+//						// 1判断是否是主键  // 2判断是否是DESC
+//						if(pkColumnName.equalsIgnoreCase(columnName)) {
+//							if("desc".equalsIgnoreCase(expression.getValue2().toString())) {
+//								//需要调整内部分页排序
+//								orderByIdDescInSqlServer=true;
+//							}
+//						}
+//					}
+					
 				}
 				continue;
 			}//end orderBy
@@ -379,7 +405,7 @@ public class ConditionHelper {
 
 			//}
 
-			sqlBuffer.append(_toColumnName(expression.getFieldName(),useSubTableNames,entityClass));  
+			sqlBuffer.append(columnName);  
 
 			if (expression.getValue() == null) {
 				if("=".equals(expression.getOpType())){
@@ -388,7 +414,7 @@ public class ConditionHelper {
 				}else{
 					sqlBuffer.append(" "+K.isNotNull);
 					if(! "!=".equals(expression.getOpType())) {
-						String fieldName=_toColumnName(expression.getFieldName(),useSubTableNames,entityClass);
+						String fieldName=columnName;
 						Logger.warn(fieldName+expression.getOpType()+"null transfer to : " +fieldName+" "+K.isNotNull);
 					}
 				}
@@ -413,22 +439,32 @@ public class ConditionHelper {
 		} //end expList for 
 
 		//>>>>>>>>>>>>>>>>>>>paging start
-		
 		if (SuidType.SELECT == conditionImpl.getSuidType()) {
 			if (! OneTimeParameter.isTrue(StringConst.Select_Fun)) {
 				Integer size = conditionImpl.getSize();
 				String sql = "";
 				if (start != null && size != null) {
 					HoneyUtil.regPagePlaceholder();
+					
+					// V1.17 sql server paging
+					Map<String, String> orderByMap = conditionImpl.getOrderByMap();
+					adjustSqlServerPagingIfNeed(sqlBuffer, orderByMap, start, entityClass, useSubTableNames);
+					
 					sql = getDbFeature().toPageSql(sqlBuffer.toString(), start, size);
-					//			sqlBuffer=new StringBuffer(sql); //new 之后不是原来的sqlBuffer,不能带回去.
+//			        sqlBuffer=new StringBuffer(sql); //new 之后不是原来的sqlBuffer,不能带回去.
 					sqlBuffer.delete(0, sqlBuffer.length());
 					sqlBuffer.append(sql);
 					HoneyUtil.setPageNum(list);
+					
 				} else if (size != null) {
 					HoneyUtil.regPagePlaceholder();
+					
+					// V1.17 sql server paging
+					Map<String, String> orderByMap = conditionImpl.getOrderByMap();
+					adjustSqlServerPagingIfNeed(sqlBuffer, orderByMap, 0, entityClass, useSubTableNames); //start=0,只用于2012的offset语法
+
 					sql = getDbFeature().toPageSql(sqlBuffer.toString(), size);
-					//			sqlBuffer=new StringBuffer(sql);
+//			        sqlBuffer=new StringBuffer(sql);
 					sqlBuffer.delete(0, sqlBuffer.length());
 					sqlBuffer.append(sql);
 					HoneyUtil.setPageNum(list);
@@ -460,6 +496,74 @@ public class ConditionHelper {
 		}
 		
 		return isFirstWhere;
+	}
+	
+	
+	// V1.17 for Sql Server,分页需要
+	private static void adjustSqlServerPagingIfNeed(StringBuffer sqlBuffer,
+			Map<String, String> orderByMap, Integer start, Class entityClass, String useSubTableNames[]) {
+		
+		if (!HoneyUtil.isSqlServer()) return ;
+		
+		SqlServerPagingStruct struct=new SqlServerPagingStruct();
+		
+		boolean needAdjust = false;
+		boolean justChangePk=false;
+		String pkName = "id";
+		int majorVersion=HoneyConfig.getHoneyConfig().getDatabaseMajorVersion();
+		// 要是参数没有condition,或condition为null,则使用默认排序.
+		if (HoneyUtil.isSqlServer()) {
+			if (orderByMap.size() > 0) { // 2012版之前的复杂分页语法需要判断. 之后的语法有order by即可.
+				struct.setHasOrderBy(true);
+//				orderByMap有值时,offset语法,只需要将默认order by id删除.
+				if (majorVersion >= 11) {
+					needAdjust = true;
+				}else if(start > 1) {//// 2012版之前的复杂分页语法,两个参数,要是有主键倒序,则要调整
+					String order = orderByMap.get("id");
+					if (order != null) {
+						pkName = "id";
+						if ("desc".equals(order)) {
+							needAdjust = true;
+							struct.setOrderType(OrderType.DESC);
+						}
+					}
+
+					if (!needAdjust) {// 测试名称不叫id的主键
+						String pkName0 = HoneyUtil.getPkFieldNameByClass(entityClass);
+						if (!"".equals(pkName0)) {
+							pkName = pkName0.split(",")[0]; // 有多个,只取第一个
+							order = orderByMap.get(pkName);
+							if (order != null) {
+								if ("desc".equals(order)) {
+									needAdjust = true;
+									struct.setOrderType(OrderType.DESC);
+								}else {
+									justChangePk=true;    //只要更改主键名
+									struct.setJustChangeOrderColumn(true);
+								}
+							}
+						}
+					}
+				}
+			}else {//检测是否要更改主键名
+				String pkName0 = HoneyUtil.getPkFieldNameByClass(entityClass);
+				if (!"".equals(pkName0)) {
+					pkName = pkName0.split(",")[0]; // 有多个,只取第一个
+					justChangePk=true;
+					struct.setJustChangeOrderColumn(true);
+				}
+			}
+		}
+		
+		pkName=_toColumnName(pkName,useSubTableNames,entityClass);
+		if(pkName.contains(".")) {
+			justChangePk=true;
+			struct.setJustChangeOrderColumn(true);
+		}
+		
+		struct.setOrderColumn(pkName);
+		//保存struct
+		HoneyContext.setSqlServerPagingStruct(sqlBuffer.toString(), struct); //作为key的sql不是最终sql;因此处理后,一般就要先分页
 	}
 	
 	static String processSelectField(String columnNames, Condition condition) {
