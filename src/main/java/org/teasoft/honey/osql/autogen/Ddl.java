@@ -12,6 +12,7 @@ import java.util.Map;
 
 import org.teasoft.bee.osql.DatabaseConst;
 import org.teasoft.bee.osql.PreparedSql;
+import org.teasoft.bee.osql.SuidRich;
 import org.teasoft.bee.osql.annotation.PrimaryKey;
 import org.teasoft.honey.osql.core.BeeFactoryHelper;
 import org.teasoft.honey.osql.core.HoneyConfig;
@@ -20,6 +21,7 @@ import org.teasoft.honey.osql.core.HoneyUtil;
 import org.teasoft.honey.osql.core.Logger;
 import org.teasoft.honey.osql.core.NameTranslateHandle;
 import org.teasoft.honey.osql.name.NameUtil;
+import org.teasoft.honey.osql.shortcut.BF;
 import org.teasoft.honey.util.EntityUtil;
 import org.teasoft.honey.util.SqlKeyCheck;
 
@@ -39,6 +41,8 @@ public class Ddl {
 	private static PreparedSql preparedSql = BeeFactoryHelper.getPreparedSql();
 	private static Map<String,String> pkStatement=new HashMap<>();
 	private static String java_lang_String="java.lang.String";
+	
+	private static SuidRich suidRich= BF.getSuidRich();
 	
 	static {
 		initPkStatement();
@@ -75,11 +79,33 @@ public class Ddl {
 			}
 			return createTable(entity, tableName);
 
-		} else {
+		} else {//donot Drop ExistTable
+			if(isExistTable(entity)) return true; //V1.17 已存在,则不创建
 			return createTable(entity);
 		}
 
 	}
+	
+	/**
+	 * check whether the table exist or not.
+	 * @param entity
+	 * @return if exist true, otherwise false.
+	 * @since 1.17
+	 */
+	public static <T> boolean isExistTable(T entity) {
+		boolean flag = false;
+		try {
+//			List<T> list=suidRich.select(entity, 0, 1);
+			suidRich.select(entity, 0, 1);
+			flag = true;
+			String tableName = _toTableName(entity);
+			Logger.warn("The database exist the table : " + tableName);
+		} catch (Exception e) {
+
+		}
+		return flag;
+	}
+	
 
 	/**
 	 * 根据Javabean生成数据库表,Javabean无需配置过多的字段信息.此方法只考虑通用情况,若有详细需求,不建议采用
