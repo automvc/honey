@@ -60,4 +60,46 @@ public final class StringUtils {
 		}
 		return false;
 	}
+	
+	/**
+	 * 字符串数组转用用逗号分隔的字符串.string array to Strings separated by commas.
+	 * @param stringArray string array.
+	 * @return
+	 */
+	public static String toCommasString (String[] stringArray) {
+		
+		if (stringArray == null) return null;
+		if (stringArray.length == 0) return "";
+		if (stringArray.length == 1) return stringArray[1];
+		String idsStr = "";
+		for (int i = 0; i < stringArray.length; i++) {
+			idsStr += stringArray[i];
+			if (i != stringArray.length - 1) idsStr += ",";
+		}
+
+		return idsStr;
+	}
+	
+	/**
+	 * 数字数组转用用逗号分隔的字符串.number array to Strings separated by commas.
+	 * @param numArray number array.
+	 * @return
+	 */
+	public static String toCommasString (Number[] numArray) {
+		
+		if (numArray == null) return null;
+		if (numArray.length == 0) return "";
+		if (numArray.length == 1) {
+			if (numArray[1] == null) return null;
+			else return numArray[1]+"";
+		}
+		String idsStr = "";
+		for (int i = 0; i < numArray.length; i++) {
+			idsStr += numArray[i];
+			if (i != numArray.length - 1) idsStr += ",";
+		}
+
+		return idsStr;
+	}
+	
 }

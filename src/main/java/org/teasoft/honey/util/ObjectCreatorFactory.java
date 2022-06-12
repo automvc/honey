@@ -6,6 +6,11 @@
 
 package org.teasoft.honey.util;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.teasoft.honey.osql.core.Logger;
+
 /**
  * @author Kingstar
  * @since  1.9
@@ -36,8 +41,38 @@ public class ObjectCreatorFactory {
 			return ObjectCreator.createLong(s);
 		} else if (c.equals(boolean.class) || c.equals(Boolean.class)) {
 			return ObjectCreator.createBoolean(s);
+		} else if (c.equals(float.class) || c.equals(Float.class)) {
+			return ObjectCreator.createFloat(s);
 		} else {
+			Logger.warn("when create Object, do not support this type :"+c.getName());
 			return null;
 		}
+	}
+	
+	@SuppressWarnings("rawtypes")
+	private static Map<String,Class> classMap=null;
+	static {
+		classMap=new HashMap<>();
+		classMap.put("int", int.class);
+		classMap.put("short", short.class);
+		classMap.put("byte", byte.class);
+		classMap.put("double", double.class);
+		classMap.put("float", float.class);
+		classMap.put("long", long.class);
+		classMap.put("boolean", boolean.class);
+		
+		classMap.put("java.lang.Integer", Integer.class);
+		classMap.put("java.lang.Short", Short.class);
+		classMap.put("java.lang.Byte", Byte.class);
+		classMap.put("java.lang.Double", Double.class);
+		classMap.put("java.lang.Float", Float.class);
+		classMap.put("java.lang.Long", Long.class);
+		classMap.put("java.lang.Boolean", Boolean.class);
+		
+		classMap.put("java.lang.String", String.class);
+	}
+	
+	public static Object createByString(String s, String className) {
+		return create(className, classMap.get(className));
 	}
 }

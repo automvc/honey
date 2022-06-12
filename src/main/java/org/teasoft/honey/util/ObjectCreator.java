@@ -47,5 +47,10 @@ public class ObjectCreator {
 		if (StringUtils.isBlank(s)) return null;
 		return Double.parseDouble(s);
 	}
+	
+	public static Float createFloat(String s) {
+		if (StringUtils.isBlank(s)) return null;
+		return Float.parseFloat(s);
+	}
 
 }
