@@ -55,6 +55,8 @@ public class BeeFactory extends BeeAbstractFactory {
 	
 	private DataSource _getDsFromDsMap() {
 		String dsName = Router.getDsName();
+		Logger.info("[Bee] ========= the current DataSource name is :"+dsName); //V1.17
+//		Logger.logSQL("使用logSQL, 会引发异常", "");
 		return getDataSourceMap().get(dsName);
 	}
 	
