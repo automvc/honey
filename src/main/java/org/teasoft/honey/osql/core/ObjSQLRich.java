@@ -6,6 +6,7 @@
 
 package org.teasoft.honey.osql.core;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -44,6 +45,8 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	private static final String ID_IS_NULL = "in method selectById,id is null! ";
     private static final String START_GREAT_EQ_0 = "Parameter 'start' need great equal 0!";
 	private static final String SIZE_GREAT_0 = "Parameter 'size' need great than 0!";
+	private static final String TIP_SIZE_0 = "The size is 0, but it should be greater than 0 (>0)";
+	
     
 	public ObjToSQLRich getObjToSQLRich() {
 		if(objToSQLRich==null) objToSQLRich=BeeFactory.getHoneyFactory().getObjToSQLRich();
@@ -57,7 +60,11 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Override
 	public <T> List<T> select(T entity, int size) {
 		if (entity == null) return null;
-		if (size <= 0) throw new BeeIllegalParameterException(SIZE_GREAT_0);
+		if (size == 0) {
+			Logger.warn(TIP_SIZE_0);
+			return Collections.emptyList();
+		}
+		if (size < 0) throw new BeeIllegalParameterException(SIZE_GREAT_0);
 
 		doBeforePasreEntity(entity,SuidType.SELECT);
 		String sql = getObjToSQLRich().toSelectSQL(entity, size);
@@ -72,7 +79,11 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Override
 	public <T> List<T> select(T entity, int start, int size) {
 		if (entity == null) return null;
-		if(size<=0) throw new BeeIllegalParameterException(SIZE_GREAT_0);
+		if (size == 0) {
+			Logger.warn(TIP_SIZE_0);
+			return Collections.emptyList();
+		}
+		if(size<0) throw new BeeIllegalParameterException(SIZE_GREAT_0);
 		if(start<0) throw new BeeIllegalParameterException(START_GREAT_EQ_0);
 		doBeforePasreEntity(entity,SuidType.SELECT);
 		String sql = getObjToSQLRich().toSelectSQL(entity, start, size);
@@ -103,7 +114,11 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Override
 	public <T> List<T> select(T entity, String selectFields, int start, int size) {
 		if (entity == null) return null;
-		if(size<=0) throw new BeeIllegalParameterException(SIZE_GREAT_0);
+		if (size == 0) {
+			Logger.warn(TIP_SIZE_0);
+			return Collections.emptyList();
+		}
+		if(size<0) throw new BeeIllegalParameterException(SIZE_GREAT_0);
 		if(start<0) throw new BeeIllegalParameterException(START_GREAT_EQ_0);
 		doBeforePasreEntity(entity,SuidType.SELECT);
 		List<T> list = null;
@@ -438,7 +453,11 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Override
 	public <T> String selectJson(T entity, String selectFields, int start, int size) {
 		if (entity == null) return null;
-		if(size<=0) throw new BeeIllegalParameterException(SIZE_GREAT_0);
+		if (size == 0) {
+			Logger.warn(TIP_SIZE_0);
+			return null;
+		}
+		if(size<0) throw new BeeIllegalParameterException(SIZE_GREAT_0);
 		if(start<0) throw new BeeIllegalParameterException(START_GREAT_EQ_0);
 		
 		doBeforePasreEntity(entity,SuidType.SELECT);
