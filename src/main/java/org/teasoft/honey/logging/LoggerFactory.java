@@ -45,43 +45,52 @@ public class LoggerFactory {
 			loggerType=loggerType.trim();
 			
 			String LOGGER_UNSUCCESSFULLY="[Bee] [WARN] the loggerType: "            +loggerType +" , set unsuccessfully!";
-			String LOGGER_UNSUCCESSFULLY_MAYBE_DONOT_SET_JAR="[Bee] [WARN] the loggerType: "            +loggerType +" , set unsuccessfully! Maybe do not set the jar!";
+			String LOGGER_UNSUCCESSFULLY_MAYBE_DONOT_SET_JAR = "[Bee] [WARN] the loggerType: "
+					+ loggerType + " , set unsuccessfully! Maybe do not set the jar!";
 			
 			if (loggerType.equalsIgnoreCase("log4j")) {
 				boolean f=tryImplementation("org.apache.log4j.Logger",          "org.teasoft.beex.logging.Log4jImpl"); //优先选择log4j
-			    if(!f) System.err.println(LOGGER_UNSUCCESSFULLY_MAYBE_DONOT_SET_JAR);
+			    if(!f) printerr(LOGGER_UNSUCCESSFULLY_MAYBE_DONOT_SET_JAR);
 			} else if (loggerType.equalsIgnoreCase("slf4j")) {
 				boolean f=tryImplementation("org.slf4j.Logger",                 "org.teasoft.beex.logging.Slf4jImpl"); //ok,只是要显示多层
-				if(!f) System.err.println(LOGGER_UNSUCCESSFULLY_MAYBE_DONOT_SET_JAR);
+				if(!f) printerr(LOGGER_UNSUCCESSFULLY_MAYBE_DONOT_SET_JAR);
 			} else if (loggerType.equalsIgnoreCase("log4j2")) {
 				boolean f=tryImplementation("org.apache.logging.log4j.Logger",  "org.teasoft.beex.logging.Log4j2Impl"); //Log4j2
-				if(!f) System.err.println(LOGGER_UNSUCCESSFULLY_MAYBE_DONOT_SET_JAR);
+				if(!f) printerr(LOGGER_UNSUCCESSFULLY_MAYBE_DONOT_SET_JAR);
+			}else if (loggerType.equalsIgnoreCase("androidLog")) { //V1.17
+				boolean f=tryImplementation("android.util.Log",                  "org.teasoft.beex.logging.AndroidLog");
+				if(!f) printerr(LOGGER_UNSUCCESSFULLY_MAYBE_DONOT_SET_JAR);
 			} else if (loggerType.equalsIgnoreCase("systemLogger")) {//std
 				boolean f=tryImplementation("",                                  "org.teasoft.honey.logging.SystemLogger");
-				if(!f) System.err.println(LOGGER_UNSUCCESSFULLY);
+				if(!f) printerr(LOGGER_UNSUCCESSFULLY);
 			} else if (loggerType.equalsIgnoreCase("fileLogger")) {
 				boolean f=tryImplementation("",                                  "org.teasoft.honey.logging.FileLogger");
-				if(!f) System.err.println(LOGGER_UNSUCCESSFULLY);
+				if(!f) printerr(LOGGER_UNSUCCESSFULLY);
 			} else if (loggerType.equalsIgnoreCase("noLogging")) {
 				boolean f=tryImplementation("",                                  "org.teasoft.honey.logging.NoLogging");
-				if(!f) System.err.println(LOGGER_UNSUCCESSFULLY);
+				if(!f) printerr(LOGGER_UNSUCCESSFULLY);
 			} else if (loggerType.equalsIgnoreCase("jdkLog")) {
 				boolean f=tryImplementation("java.util.logging.Logger",          "org.teasoft.honey.logging.Jdk14LoggingImpl");//会随着传入的class变化.无行数输出
-				if(!f) System.err.println(LOGGER_UNSUCCESSFULLY);
+				if(!f) printerr(LOGGER_UNSUCCESSFULLY);
 			} else if (loggerType.equalsIgnoreCase("commonsLog")) {
 				boolean f=tryImplementation("org.apache.commons.logging.LogFactory", "org.teasoft.beex.logging.JakartaCommonsLoggingImpl");//无法显示调用类的信息
-				if(!f) System.err.println(LOGGER_UNSUCCESSFULLY_MAYBE_DONOT_SET_JAR);
+				if(!f) printerr(LOGGER_UNSUCCESSFULLY_MAYBE_DONOT_SET_JAR);
 			}
 		}
 		
 		tryImplementation("org.apache.log4j.Logger",                "org.teasoft.beex.logging.Log4jImpl"); //优先选择log4j
 		tryImplementation("org.slf4j.Logger",                       "org.teasoft.beex.logging.Slf4jImpl"); //ok,只是要显示多层
 		tryImplementation("org.apache.logging.log4j.Logger",        "org.teasoft.beex.logging.Log4j2Impl"); //Log4j2
+		tryImplementation("android.util.Log",                       "org.teasoft.beex.logging.AndroidLog"); //V1.17 Android
 		tryImplementation("",                                       "org.teasoft.honey.logging.SystemLogger");
 		tryImplementation("",                                       "org.teasoft.honey.logging.FileLogger");
 		tryImplementation("",                                       "org.teasoft.honey.logging.NoLogging");
 		tryImplementation("java.util.logging.Logger",               "org.teasoft.honey.logging.Jdk14LoggingImpl");//会随着传入的class变化.无行数输出
 		tryImplementation("org.apache.commons.logging.LogFactory",  "org.teasoft.beex.logging.JakartaCommonsLoggingImpl");//无法显示调用类的信息,设置了caller也没用
+	}
+	
+	private static void printerr(String str) {
+		System.err.println(str);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -93,6 +102,7 @@ public class LoggerFactory {
 		try {
 			if (implClassName != null) {
 				if (implClassName.endsWith(".Log4jImpl") || implClassName.endsWith(".Slf4jImpl") 
+				 || implClassName.endsWith(".AndroidLog")		
 				 || implClassName.endsWith(".SystemLogger") || implClassName.endsWith(".NoLogging")
 				 || implClassName.endsWith(".FileLogger")            //这几种类型的构造函数,可以不需要参数
 				 
@@ -133,6 +143,8 @@ public class LoggerFactory {
 			// ignore
 			return false;
 		} catch (Throwable t) {
+//			printerr(t.getMessage());
+//			t.printStackTrace();
 			return false;
 		}
 		
