@@ -245,17 +245,6 @@ public final class CacheUtil {
 		return addInCache(sql,rs);
 	}
 	
-	private static boolean isSerial(Object rs) {
-//		else if (rs instanceof List)
-//			rs = (List) rsNew; //TODO 拿出一个元素来判断
-		
-//		if(rs instanceof Collection) {
-//			rs = (List) rsNew; //TODO 拿出一个元素来判断
-//			//....
-//		}else
-		
-		return Serializable.class.isAssignableFrom(rs.getClass());
-	}
 	// 添加缓存是否可以另起一个线程执行,不用影响到原来的.   但一次只能添加一个元素,作用不是很大.要考虑起线程的开销
 	static boolean addInCache(String sql,Object rs){
 		
@@ -615,5 +604,21 @@ public final class CacheUtil {
 			if (getCachePrototype() == 1) return null; // 严格
 		}
 		return object; // 不严格 有异常则返回原对象
+	}
+	
+	@SuppressWarnings("rawtypes")
+	private static boolean isSerial(Object rs) {
+		if (rs instanceof List) {
+			try {
+				List list = (List) rs;
+				if (list != null && list.size() > 0) {
+					return Serializable.class.isAssignableFrom(list.get(0).getClass());
+				}
+			} catch (Exception e) {
+				Logger.debug(e.getMessage(), e);
+			}
+		}
+
+		return Serializable.class.isAssignableFrom(rs.getClass());
 	}
 }
