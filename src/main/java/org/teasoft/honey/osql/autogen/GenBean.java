@@ -47,6 +47,10 @@ public class GenBean {
 	private boolean isNeedKeyColumn=false;
 	
 	private static boolean printOverrideSetTip=true;
+	
+	public GenBean() {
+		this.config =new GenConfig();
+	}
 
 	public GenBean(GenConfig config) {
 		this.config = config;

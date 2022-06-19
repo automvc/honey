@@ -41,6 +41,9 @@ public class GenConfig {
 	}
 
 	public String getBaseDir() {
+		if("".equals(baseDir)) {
+			baseDir=System.getProperty("user.dir")+"\\src\\main\\java";
+		}
 		return baseDir;
 	}
 
@@ -66,6 +69,7 @@ public class GenConfig {
 	}
 
 	public String getPackagePath() {
+		if("".equals(packagePath))  return "entity";
 		return packagePath;
 	}
 
