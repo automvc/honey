@@ -38,9 +38,18 @@ public class LoggerFactory {
 		init();
 	}
 	
+	private static boolean configRefresh = false;
+
+	public static boolean isConfigRefresh() {
+		return configRefresh;
+	}
+
+	public static void setConfigRefresh(boolean configRefresh) {
+		LoggerFactory.configRefresh = configRefresh;
+	}
+	
 	private static void init() {
-        
-		String loggerType = HoneyConfig.getHoneyConfig().loggerType;
+		String loggerType = HoneyConfig.getHoneyConfig().getLoggerType();
 		if (loggerType != null && !"".equals(loggerType.trim())) {
 			loggerType=loggerType.trim();
 			
@@ -59,6 +68,9 @@ public class LoggerFactory {
 				if(!f) printerr(LOGGER_UNSUCCESSFULLY_MAYBE_DONOT_SET_JAR);
 			}else if (loggerType.equalsIgnoreCase("androidLog")) { //V1.17
 				boolean f=tryImplementation("android.util.Log",                  "org.teasoft.beex.logging.AndroidLog");
+				if(!f) printerr(LOGGER_UNSUCCESSFULLY_MAYBE_DONOT_SET_JAR);
+			}else if (loggerType.equalsIgnoreCase("harmonyLog")) { //V1.17
+				boolean f=tryImplementation("ohos.hiviewdfx.HiLog",              "org.teasoft.beex.logging.HarmonyLog");
 				if(!f) printerr(LOGGER_UNSUCCESSFULLY_MAYBE_DONOT_SET_JAR);
 			} else if (loggerType.equalsIgnoreCase("systemLogger")) {//std
 				boolean f=tryImplementation("",                                  "org.teasoft.honey.logging.SystemLogger");
@@ -82,6 +94,7 @@ public class LoggerFactory {
 		tryImplementation("org.slf4j.Logger",                       "org.teasoft.beex.logging.Slf4jImpl"); //ok,只是要显示多层
 		tryImplementation("org.apache.logging.log4j.Logger",        "org.teasoft.beex.logging.Log4j2Impl"); //Log4j2
 		tryImplementation("android.util.Log",                       "org.teasoft.beex.logging.AndroidLog"); //V1.17 Android
+		tryImplementation("ohos.hiviewdfx.HiLog",                   "org.teasoft.beex.logging.HarmonyLog"); //V1.17 
 		tryImplementation("",                                       "org.teasoft.honey.logging.SystemLogger");
 		tryImplementation("",                                       "org.teasoft.honey.logging.FileLogger");
 		tryImplementation("",                                       "org.teasoft.honey.logging.NoLogging");
@@ -103,6 +116,7 @@ public class LoggerFactory {
 			if (implClassName != null) {
 				if (implClassName.endsWith(".Log4jImpl") || implClassName.endsWith(".Slf4jImpl") 
 				 || implClassName.endsWith(".AndroidLog")		
+				 || implClassName.endsWith(".HarmonyLog")		
 				 || implClassName.endsWith(".SystemLogger") || implClassName.endsWith(".NoLogging")
 				 || implClassName.endsWith(".FileLogger")            //这几种类型的构造函数,可以不需要参数
 				 
@@ -149,9 +163,22 @@ public class LoggerFactory {
 		}
 		
 	}
+	
+	private static void checkReset() {
+		if(isConfigRefresh()) {
+			logLocal.set(null);
+			logConstructor=null;
+			logNoArgConstructor=null;
+			isNoArgInConstructor=false;
+			init();
+			setConfigRefresh(false);
+		}
+	}
 
 	public static Log getLog() {
-		  
+		
+		checkReset();
+		
 		Log cacheLog=getCacheInfo("NoArg");
 		if(cacheLog!=null) return cacheLog;
 		
@@ -178,6 +205,8 @@ public class LoggerFactory {
 	}
 
 	public static Log getLog(String loggerName) {
+		checkReset();
+		
 		if (loggerName == null || "".equals(loggerName.trim())) loggerName = LoggerFactory.class.getName();
 		
 		Log cacheLog=getCacheInfo(loggerName);
