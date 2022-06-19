@@ -78,6 +78,7 @@ public class JdbcTransaction implements Transaction {
 			throw ExceptionHelper.convert(e);
 		} finally {
 			_close();
+			isBegin = false;
 		}
 	}
 
