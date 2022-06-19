@@ -9,15 +9,16 @@ package org.teasoft.honey.osql.core;
 import java.util.List;
 import java.util.Map;
 
-import org.teasoft.bee.android.BeeSqlForAndroid;
+import org.teasoft.bee.app.BeeSqlForApp;
 
 /**
+ * 用于Android或Harmony
  * @author Kingstar
  * @since  1.17
  */
-class SqlLibEmptyForAndroid implements BeeSqlForAndroid{
+class SqlLibEmptyForApp implements BeeSqlForApp{
 	
-	private static final String MSG="You are using empty SqlLibEmptyForAndroid in Android environment!";
+	private static final String MSG="You are using SqlLibEmptyForApp. It is empty!";
 
 	@Override
 	public <T> List<T> select(String sql, T entity, String[] selectionArgs) {

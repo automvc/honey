@@ -50,7 +50,7 @@ public final class HoneyContext {
 
 	private static ThreadLocal<Connection> currentConnection; //当前事务的Conn
 	
-	private static ThreadLocal<Object> currentAndroidDB; //V1.17
+	private static ThreadLocal<Object> currentAppDB; //V1.17
 	
 	private static ThreadLocal<NameTranslate> currentNameTranslate;
 
@@ -123,7 +123,7 @@ public final class HoneyContext {
 		sysCommStrLocal = new ThreadLocal<>();
 
 		currentConnection = new ThreadLocal<>();
-		currentAndroidDB = new ThreadLocal<>();
+		currentAppDB = new ThreadLocal<>();
 		currentNameTranslate = new ThreadLocal<>();
 //		transactionLocal = new ThreadLocal<>();
 		
@@ -435,24 +435,29 @@ public final class HoneyContext {
 	}
 	
 	//V1.17
-	public static Object getCurrentAndroidDB() {
-		return currentAndroidDB.get();
+	public static Object getCurrentAppDB() {
+		return currentAppDB.get();
 	}
-	public static void setCurrentAndroidDB(Object androidDB) {
-		if (!"android.database.sqlite.SQLiteDatabase".equals(androidDB.getClass().getName())) return;
-		currentAndroidDB.set(androidDB);
-	}
-	public static void setCurrentAndroidDBIfNeed(Object androidDB) {
-		if (!"android.database.sqlite.SQLiteDatabase".equals(androidDB.getClass().getName())) return;
-		
-		if (OneTimeParameter.isTrue("_SYS_Bee_SAME_CONN_BEGIN")) {
-			currentAndroidDB.set(androidDB);
+	public static void setCurrentAppDB(Object appDB) {
+		if(isAppDBObject(appDB.getClass().getName())) {
+			currentAppDB.set(appDB);
 		}
 	}
-	public static void removeCurrentAndroidDB() {
-		currentAndroidDB.remove();
+	public static void setCurrentAppDBIfNeed(Object appDB) {
+		if(isAppDBObject(appDB.getClass().getName())) {
+			if (OneTimeParameter.isTrue("_SYS_Bee_SAME_CONN_BEGIN")) {
+				currentAppDB.set(appDB);
+			}
+		}
 	}
-	
+	public static void removeCurrentAppDB() {
+		currentAppDB.remove();
+	}
+	private static boolean isAppDBObject(String className) {
+		return "android.database.sqlite.SQLiteDatabase".equals(className)
+				|| "ohos.data.rdb.RdbStore".equals(className);
+	}
+
 	public static NameTranslate getCurrentNameTranslate() {
 		return currentNameTranslate.get();
 	}
@@ -566,11 +571,11 @@ public final class HoneyContext {
 
 	static void endSameConnection() {
 		//V1..17 for Android
-		if(HoneyConfig.getHoneyConfig().isAndroid) {
+		if(HoneyConfig.getHoneyConfig().isAndroid || HoneyConfig.getHoneyConfig().isHarmony) {  //Harmony只是删除上下文保存的,但是否关闭不在这负责
 			if (OneTimeParameter.isTrue("_SYS_Bee_SAME_CONN_BEGIN")) { //all get from cache.  设置标志后,都是从缓存获取. 所以没有消费这个标识
 				Logger.warn("Do not get the new Connection in the SameConnection.Maybe all the results get from cache! ");
 			}
-			HoneyContext.removeCurrentAndroidDB(); //同一连接结束时要删除上下文
+			HoneyContext.removeCurrentAppDB(); //同一连接结束时要删除上下文
 			
 			return ;
 		}

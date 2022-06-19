@@ -1,5 +1,6 @@
 package org.teasoft.honey.osql.core;
 
+import java.io.InputStream;
 import java.sql.Connection;
 
 import org.teasoft.bee.osql.DatabaseConst;
@@ -8,6 +9,7 @@ import org.teasoft.bee.osql.annotation.SysValue;
 import org.teasoft.bee.osql.dialect.DbFeatureRegistry;
 import org.teasoft.bee.osql.exception.ConfigWrongException;
 import org.teasoft.honey.distribution.ds.Router;
+import org.teasoft.honey.logging.LoggerFactory;
 import org.teasoft.honey.osql.constant.DbConfigConst;
 import org.teasoft.honey.osql.dialect.LimitOffsetPaging;
 import org.teasoft.honey.osql.dialect.sqlserver.SqlServerFeature2012;
@@ -23,11 +25,17 @@ public final class HoneyConfig {
 	private static HoneyConfig honeyConfig = null;
 	static {
 		honeyConfig = new HoneyConfig();
+		
 		honeyConfig.init(); // just run one time
 	}
 
 	private HoneyConfig() {
 	}
+	
+//	{   //放在这,会报异常.
+//		System.err.println("--------in HoneyConfig block");
+//		honeyConfig.init(); // just run one time
+//	}
 
 	public static HoneyConfig getHoneyConfig() {
 		return honeyConfig;
@@ -55,8 +63,7 @@ public final class HoneyConfig {
 			}
 		}
 		
-		if(isAndroid) {//V1.17
-//			dbName=DatabaseConst.AndroidSQLite;
+		if(isAndroid || isHarmony) {//V1.17
 			dbName=DatabaseConst.SQLite;
 			DbFeatureRegistry.register(DatabaseConst.SQLite, new LimitOffsetPaging());
 		}
@@ -75,7 +82,23 @@ public final class HoneyConfig {
 			BeeProp.resetBeeProperties(folderPath);
 			_setHoneyConfig();
 			honeyConfig.init();
+			LoggerFactory.setConfigRefresh(true);
 			Logger.warn("[Bee] ========= reset the bee.properties with folderPath:" + folderPath);
+		} catch (Exception e) {
+			Logger.warn(e.getMessage());
+		}
+	}
+	
+	/**
+	 * @since 1.17
+	 */
+	public void resetBeeProperties(InputStream inputStream) {
+		try {
+			BeeProp.resetBeeProperties(inputStream);
+			_setHoneyConfig();
+			honeyConfig.init();
+			LoggerFactory.setConfigRefresh(true);
+			Logger.warn("[Bee] ========= reset the bee.properties by inputStream");
 		} catch (Exception e) {
 			Logger.warn(e.getMessage());
 		}
@@ -95,7 +118,7 @@ public final class HoneyConfig {
 	//----------------------------- bee.osql
 	// 启动时动态获取
 	@SysValue("${bee.osql.loggerType}")
-	public String loggerType; //v1.8
+	private String loggerType; //v1.8
 	
 	@SysValue("${bee.osql.sqlLoggerLevel}")
 	public String sqlLoggerLevel; //v1.9.8
@@ -191,11 +214,18 @@ public final class HoneyConfig {
 	private int databaseMajorVersion; //use in this class
 	
 	@SysValue("${bee.db.isAndroid}")
-	boolean isAndroid;
+	public boolean isAndroid;
 	@SysValue("${bee.db.androidDbName}")
 	public String androidDbName;
 	@SysValue("${bee.db.androidDbVersion}")
 	public int androidDbVersion = 1; 
+	
+	@SysValue("${bee.db.isHarmony}")
+	public boolean isHarmony;
+	@SysValue("${bee.db.harmonyDbName}")
+	public String harmonyDbName;
+	@SysValue("${bee.db.harmonyDbVersion}")
+	public int harmonyDbVersion=1;
 	
 	@SysValue("${bee.db.dbName}")
 	String dbName;
@@ -480,6 +510,15 @@ public final class HoneyConfig {
 
 	public void setSchemaName(String schemaName) {
 		this.schemaName = schemaName;
+	}
+
+	public String getLoggerType() {
+		return loggerType;
+	}
+
+	public void setLoggerType(String loggerType) {
+		this.loggerType = loggerType;
+		LoggerFactory.setConfigRefresh(true);
 	}
 	
 	//动态刷新ds

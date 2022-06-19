@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.teasoft.bee.android.BeeSqlForAndroid;
+import org.teasoft.bee.app.BeeSqlForApp;
 import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.annotation.JoinTable;
 import org.teasoft.bee.osql.annotation.customizable.Json;
@@ -27,39 +27,42 @@ import org.teasoft.honey.util.ObjectCreatorFactory;
  * @author Kingstar
  * @since  1.17
  */
-public class SqlLibForAndroid extends SqlLib {
+public class SqlLibForApp extends SqlLib {
 	
 	private static boolean  showSQL=HoneyConfig.getHoneyConfig().showSQL;
 	
-	private BeeSqlForAndroid beeSqlForAndroid;
+	private BeeSqlForApp beeSqlForApp;
 	
 	private static boolean isFirst = true;
-	private static String SUCCESS_MSG = "[Bee] ==========Load BeeSqlForAndroid implement class successfully!";
+	private static String SUCCESS_MSG = "[Bee] ==========Load BeeSqlForApp implement class successfully!";
 
-	public BeeSqlForAndroid getBeeSqlForAndroid() {
+	public BeeSqlForApp getBeeSqlForApp() {
+		if(beeSqlForApp!=null) return beeSqlForApp; 
 		try {
-			beeSqlForAndroid = (BeeSqlForAndroid) Class.forName("org.teasoft.beex.android.SqlLibExtForAndroid").newInstance();
+			if(HoneyConfig.getHoneyConfig().isAndroid)
+			  beeSqlForApp = (BeeSqlForApp) Class.forName("org.teasoft.beex.android.SqlLibExtForAndroid").newInstance();
+			else if(HoneyConfig.getHoneyConfig().isHarmony)
+			  beeSqlForApp = (BeeSqlForApp) Class.forName("org.teasoft.beex.harmony.SqlLibExtForHarmony").newInstance();
 			if(isFirst) {
 				Logger.info(SUCCESS_MSG);
 				isFirst=false;
+			}else {
+				Logger.debug(SUCCESS_MSG);
 			}
-//			else {
-//				Logger.debug(SUCCESS_MSG);
-//			}
 		} catch (Exception e) {
 			Logger.warn(e.getMessage(), e);
 		}
 
-		if (beeSqlForAndroid == null) {
-			Logger.warn("[Bee] ==========Load BeeSqlForAndroid implement class fail!");
-			beeSqlForAndroid = new SqlLibEmptyForAndroid();
+		if (beeSqlForApp == null) {
+			Logger.warn("[Bee] ==========Load BeeSqlForApp implement class fail!");
+			beeSqlForApp = new SqlLibEmptyForApp();
 		}
 
-		return beeSqlForAndroid;
+		return beeSqlForApp;
 	}
 
-	public void setBeeSqlForAndroid(BeeSqlForAndroid beeSqlForAndroid) {
-		this.beeSqlForAndroid = beeSqlForAndroid;
+	public void setBeeSqlForApp(BeeSqlForApp beeSqlForApp) {
+		this.beeSqlForApp = beeSqlForApp;
 	}
 
 	@Override
@@ -87,12 +90,12 @@ public class SqlLibForAndroid extends SqlLib {
 		List<T> rsList = null;
 //		boolean hasException = false;
 		try {
-			rsList=getBeeSqlForAndroid().select(sql, entity, toStringArray(sql));
+			rsList=getBeeSqlForApp().select(sql, entity, toStringArray(sql));
 			addInCache(sql, rsList, "List<T>", SuidType.SELECT, rsList.size());
 
-//		} catch (SQLException e) {
+		} catch (Exception e) {
 //			hasException = true;
-//			throw ExceptionHelper.convert(e);
+			throw ExceptionHelper.convert(e);
 //		} catch (IllegalAccessException e) {
 //			hasException = true;
 //			throw ExceptionHelper.convert(e);
@@ -135,15 +138,15 @@ public class SqlLibForAndroid extends SqlLib {
 //		Connection conn = null;
 //		PreparedStatement pst = null;
 //		ResultSet rs = null;
-		boolean hasException = false;
+//		boolean hasException = false;
 		try {
-			result=getBeeSqlForAndroid().selectFun(sql, toStringArray(sql));
+			result=getBeeSqlForApp().selectFun(sql, toStringArray(sql));
 			
 			addInCache(sql, result,"String",SuidType.SELECT,1);
 
-//		} catch (SQLException e) {
+		} catch (Exception e) {
 //			hasException=true;
-//			throw ExceptionHelper.convert(e);
+			throw ExceptionHelper.convert(e);
 		} finally {
 //			closeRs(rs);
 			clearContext(sql);
@@ -189,14 +192,14 @@ public class SqlLibForAndroid extends SqlLib {
 //			rs = pst.executeQuery();
 //			list=TransformResultSet.toStringsList(rs);
 			
-			list=getBeeSqlForAndroid().select(sql, toStringArray(sql));
+			list=getBeeSqlForApp().select(sql, toStringArray(sql));
 			
 			logSelectRows(list.size());
 			addInCache(sql, list,"List<String[]>",SuidType.SELECT,list.size());
 			
-//		} catch (SQLException e) {
+		} catch (Exception e) {
 //			hasException=true;
-//			throw ExceptionHelper.convert(e);
+			throw ExceptionHelper.convert(e);
 		} finally {
 //			closeRs(rs);
 			clearContext(sql);
@@ -243,15 +246,15 @@ public class SqlLibForAndroid extends SqlLib {
 
 //			list=TransformResultSet.toMapList(rs);
 			
-			list = getBeeSqlForAndroid().selectMapList(exe_sql, toStringArray(sql));
+			list = getBeeSqlForApp().selectMapList(exe_sql, toStringArray(sql));
 			
 			logSelectRows(list.size());
 			
 			addInCache(sql, list,"List<Map<String,Object>>",SuidType.SELECT,list.size());
 			
-//		} catch (SQLException e) {
+		} catch (Exception e) {
 //			hasException=true;
-//			throw ExceptionHelper.convert(e);
+			throw ExceptionHelper.convert(e);
 		} finally {
 //			closeRs(rs);
 			clearContext(sql);
@@ -299,13 +302,13 @@ public class SqlLibForAndroid extends SqlLib {
 //			rs = pst.executeQuery();
 //			json = TransformResultSet.toJson(rs,entityClass);
 			
-			json = getBeeSqlForAndroid().selectJson(exe_sql, toStringArray(sql), entityClass);
+			json = getBeeSqlForApp().selectJson(exe_sql, toStringArray(sql), entityClass);
 			
 			addInCache(sql, json,"StringJson",SuidType.SELECT,-1);  //没有作最大结果集判断
 
-//		} catch (SQLException e) {
+		} catch (Exception e) {
 //			hasException = true;  //fixbug  2021-05-01
-//			throw ExceptionHelper.convert(e);
+			throw ExceptionHelper.convert(e);
 		} finally {
 //			closeRs(rs);
 			clearContext(sql);
@@ -330,7 +333,7 @@ public class SqlLibForAndroid extends SqlLib {
 //		boolean hasException = false;
 		try {
 			String exe_sql=HoneyUtil.deleteLastSemicolon(sql);
-			num = getBeeSqlForAndroid().modify(exe_sql, toObjArray(sql));
+			num = getBeeSqlForApp().modify(exe_sql, toObjArray(sql));
 			
 //		} catch (SQLException e) {
 //			boolean notCatch=HoneyConfig.getHoneyConfig().notCatchModifyDuplicateException;
@@ -367,7 +370,7 @@ public class SqlLibForAndroid extends SqlLib {
 		int num = 1;
 		try {
 			String exe_sql = HoneyUtil.deleteLastSemicolon(sql);
-			returnId = getBeeSqlForAndroid().insertAndReturnId(exe_sql, toObjArray(sql));
+			returnId = getBeeSqlForApp().insertAndReturnId(exe_sql, toObjArray(sql));
 			if (returnId == -1) num = 0;
 		} finally {
 			clearInCache(sql, "int", SuidType.INSERT, num); 
@@ -442,7 +445,7 @@ public class SqlLibForAndroid extends SqlLib {
 		}
 
 		sql=HoneyUtil.deleteLastSemicolon(sql);//上面的sql还不能执行去分号,要先拿了缓存.
-		a = getBeeSqlForAndroid().batchInsert(sql, listBindArgs);
+		a = getBeeSqlForApp().batchInsert(sql, listBindArgs);
 
 		Logger.logSQL(" | <-- index[" + (start) + "~" + (end - 1) + INDEX3 + " Affected rows: ",
 				a + "");
@@ -488,7 +491,7 @@ public class SqlLibForAndroid extends SqlLib {
 		try {
 			String exe_sql=HoneyUtil.deleteLastSemicolon(sql);
 			
-			List<Map<String, String>> rsMapList=getBeeSqlForAndroid().selectMapListWithColumnName(exe_sql, toStringArray(sql));
+			List<Map<String, String>> rsMapList=getBeeSqlForApp().selectMapListWithColumnName(exe_sql, toStringArray(sql));
 			
 			rsList = new ArrayList<>();
 
@@ -1022,88 +1025,10 @@ public class SqlLibForAndroid extends SqlLib {
 						obj[i] = converter.convert(obj[i]);
 					}
 				}
-				
-//				if(obj[i]!=null) System.out.println("------------:::"+obj[i].toString());
 			}
 			
 			return obj;
 		}
 	}
-	
-	
-/*	
-	//test
-	
-	private List<PreparedValue> initList() {
-		List<PreparedValue> list = new ArrayList<>();
-		
-		PreparedValue a=new PreparedValue();
-		Integer a1=1;
-		a.setValue(a1);
-		
-		PreparedValue b=new PreparedValue();
-		Double d=123D;
-		b.setValue(d);
-		
-		PreparedValue c=new PreparedValue();
-		c.setValue("abc");
-		
-		list.add(a);
-		list.add(b);
-		list.add(c);
-		
-		return list;
-	}
-	
-	private Object[] toObjArray2() {
-		List<PreparedValue> list=initList();
-		
-		Object obj[] = new Object[list.size()];
-		for (int i = 0; i < list.size(); i++) {
-			obj[i] = list.get(i).getValue();
-			if (obj[i] != null) System.out.println("------------:::" + obj[i].toString());
-		}
-
-		return obj;
-	}
-	
-	private Object[] toObjArray3() {
-		List<PreparedValue> list=initList();
-		
-		if (list == null) {
-			return EMPTY_ARRAY;
-		} else {
-			List<Object> list0=new ArrayList();
-			for (int i = 0; i < list.size(); i++) {
-				list0.add(list.get(i).getValue());
-			}
-			
-//			return list0.toArray(new Object[list0.size()]);
-			return list0.toArray();
-		}
-	}
-	
-	public static void main(String[] args) {
-		SqlLibForAndroid a=new SqlLibForAndroid();
-		
-		
-		Object bindArgs[]= a.toObjArray2();
-		for (int i = 0; i < bindArgs.length; i++) {
-			if(bindArgs[i]!=null) {
-				System.out.println("-------------000::"+bindArgs[i].getClass().getName());
-				System.out.println("-------------000::"+bindArgs[i].toString());
-			}
-		}
-		
-		
-		Object bindArgs3[]= a.toObjArray3();
-		for (int i = 0; i < bindArgs3.length; i++) {
-			if(bindArgs3[i]!=null) {
-				System.out.println("-------------333::"+bindArgs3[i].getClass().getName());
-				System.out.println("-------------333::"+bindArgs3[i].toString());
-			}
-		}
-	}*/
-	
 	
 }

@@ -129,6 +129,7 @@ public final class EntityUtil {
 				|| typeName.startsWith("org.teasoft.spring.")
 				|| typeName.startsWith("org.w3c.") || typeName.startsWith("org.xml.")
 				|| typeName.startsWith("android.") || typeName.startsWith("org.omg.")
+				|| typeName.startsWith("ohos.")
 				|| typeName.startsWith("sun.")
 		       );
 	}
@@ -145,6 +146,7 @@ public final class EntityUtil {
 				|| typeName.startsWith("org.teasoft.spring.")
 				|| typeName.startsWith("org.w3c.") || typeName.startsWith("org.xml.")
 				|| typeName.startsWith("android.") || typeName.startsWith("org.omg.")
+				|| typeName.startsWith("ohos.")
 				|| typeName.startsWith("sun.")
 		);
 	}

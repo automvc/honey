@@ -49,6 +49,19 @@ public class PropertiesReader {
 		}
 	}
 	
+	/**
+	 * @since 1.17
+	 */
+	public PropertiesReader(InputStream inputStream) { 
+		try {
+			prop = new Properties();
+			InputStream in = inputStream;
+			prop.load(in);
+		} catch (IOException | NullPointerException e) {
+			Logger.warn("  In PropertiesReader PropertiesReader(InputStream inputStream) : " + e.getMessage());
+		}
+	}
+	
 
 	/**
 	 * @param key

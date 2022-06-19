@@ -52,6 +52,7 @@
 				<configuration>
 					<excludes>
 						<exclude>/bee.properties</exclude>
+						<exclude>/*.properties</exclude>
 					</excludes>
 				</configuration>
 				

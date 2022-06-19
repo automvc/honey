@@ -147,10 +147,15 @@ public class HoneyFactory {
 	}
 
 	public BeeSql getBeeSql() {
-		if(this.beeSql==null) {
-			boolean isAndroid=HoneyConfig.getHoneyConfig().isAndroid;
-			if(isAndroid) return new SqlLibForAndroid();
-			else return new SqlLib();
+		if (this.beeSql == null) {
+			boolean isAndroid = HoneyConfig.getHoneyConfig().isAndroid;
+			boolean isHarmony = HoneyConfig.getHoneyConfig().isHarmony;
+			if (isAndroid || isHarmony) {
+				beeSql = new SqlLibForApp(); // app环境,可以只用一个实例
+				return beeSql;
+			} else {
+				return new SqlLib();
+			}
 		}
 		return beeSql;
 	}

@@ -776,6 +776,10 @@ public final class HoneyUtil {
 			jdbcTypeMap.put("INTERVAL YEAR TO MONTH", STRING); //just Prevention
 			jdbcTypeMap.put("INTERVAL DAY TO SECOND", STRING);//just Prevention
 //			jdbcTypeMap.put("TIMESTAMP", "Timestamp");   exist in comm
+			
+			jdbcTypeMap.put("DATE", "Timestamp");
+			jdbcTypeMap.put("BINARY_DOUBLE", "oracle.sql.BINARY_DOUBLE");
+			jdbcTypeMap.put("BINARY_FLOAT", "oracle.sql.BINARY_FLOAT");
 
 		} else if (DatabaseConst.SQLSERVER.equalsIgnoreCase(dbName)) {
 //			jdbcTypeMap.put("SMALLINT", "Short");  //comm
@@ -860,6 +864,15 @@ public final class HoneyUtil {
 			jdbcTypeMap.put("timetz","Time");
 			jdbcTypeMap.put("timestamp without time zone","Timestamp");
 			jdbcTypeMap.put("timestamptz","Timestamp");
+			
+			//if want to change, can set in jdbcTypeToFieldType-PostgreSQL.properties
+			jdbcTypeMap.put("uuid","java.util.UUID");
+			jdbcTypeMap.put("UUID","java.util.UUID");
+			jdbcTypeMap.put("xml",STRING);
+			jdbcTypeMap.put("cidr",STRING);
+			jdbcTypeMap.put("inet",STRING);
+			jdbcTypeMap.put("macaddr",STRING);
+			jdbcTypeMap.put("macaddr8",STRING);
 
 		} else if (DatabaseConst.H2.equalsIgnoreCase(dbName) 
 			    || DatabaseConst.SQLite.equalsIgnoreCase(dbName)) {
@@ -901,6 +914,38 @@ public final class HoneyUtil {
 			jdbcTypeMap.put("VARCHAR_CASESENSITIVE",STRING); 
 			jdbcTypeMap.put("VARCHAR_IGNORECASE",STRING); 
 			
+			//if you want to change, can set in jdbcTypeToFieldType-H2.properties
+			jdbcTypeMap.put("IDENTITY", "Long");
+			jdbcTypeMap.put("UUID", "java.util.UUID");
+			jdbcTypeMap.put("YEAR", "Time");
+			jdbcTypeMap.put("TIME", "Object");
+			jdbcTypeMap.put("OTHER", "bbb");
+			jdbcTypeMap.put("ENUM", "Integer");
+			jdbcTypeMap.put("ARRAY", "Object[]");
+			jdbcTypeMap.put("GEOMETRY", STRING);
+			jdbcTypeMap.put("POINT", STRING);
+			jdbcTypeMap.put("LINESTRING", STRING);
+			jdbcTypeMap.put("POLYGON", STRING);
+			jdbcTypeMap.put("MULTIPOINT", STRING);
+			jdbcTypeMap.put("MULTILINESTRING", STRING);
+			jdbcTypeMap.put("MULTIPOLYGON", STRING);
+			jdbcTypeMap.put("GEOMETRYCOLLECTION", STRING);
+			jdbcTypeMap.put("aaa", "bbb");
+			jdbcTypeMap.put("aaa", "bbb");
+//					INTERVAL\ YEAR=org.h2.api.Interval
+//					INTERVAL\ MONTH=org.h2.api.Interval
+//					INTERVAL\ DAY=org.h2.api.Interval
+//					INTERVAL\ HOUR=org.h2.api.Interval
+//					INTERVAL\ MINUTE=org.h2.api.Interval
+//					INTERVAL\ SECOND=org.h2.api.Interval
+//					INTERVAL\ YEAR\ TO\ MONTH=org.h2.api.Interval
+//					INTERVAL\ DAY\ TO\ HOUR=org.h2.api.Interval
+//					INTERVAL\ DAY\ TO\ MINUTE=org.h2.api.Interval
+//					INTERVAL\ DAY\ TO\ SECOND=org.h2.api.Interval
+//					INTERVAL\ HOUR\ TO\ MINUTE=org.h2.api.Interval
+//					INTERVAL\ HOUR\ TO\ SECOND=org.h2.api.Interval
+//					INTERVAL\ MINUTE\ TO\ SECOND=org.h2.api.Interval
+			
 		}else if (DatabaseConst.SQLite.equalsIgnoreCase(dbName)) {
 			
 			jdbcTypeMap.put("VARYING CHARACTER", STRING);
@@ -914,17 +959,24 @@ public final class HoneyUtil {
 			jdbcTypeMap.put("UNSIGNED BIG INT", "Long");
 			
 			jdbcTypeMap.put("VARYING", STRING);
+			
+			jdbcTypeMap.put("DATE", STRING);
+			jdbcTypeMap.put("TIMESTAMP", STRING);
 		}
 		
 		//V1.11
 		if (DatabaseConst.Cassandra.equalsIgnoreCase(dbName)) {
 			jdbcTypeMap.put("ascii", STRING);
 			jdbcTypeMap.put("inet", STRING);
+			
 			jdbcTypeMap.put("timeuuid", "java.util.UUID");
 			jdbcTypeMap.put("uuid", "java.util.UUID");
 			
 			jdbcTypeMap.put("boolean", "Boolean");
 			jdbcTypeMap.put("varint", "Integer");
+			
+			jdbcTypeMap.put("duration", STRING);
+			jdbcTypeMap.put("counter", "Long");
 			
 //			jdbcTypeMap.put("list", "java.util.List");
 //			jdbcTypeMap.put("set", "java.util.Set");

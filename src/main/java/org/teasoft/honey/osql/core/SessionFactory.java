@@ -80,12 +80,14 @@ public final class SessionFactory {
 	public static Transaction getTransaction() {
 		Transaction tran = null;
 		if (getBeeFactory().getTransaction() == null) { // do not set the dataSource
-			
-			if (HoneyConfig.getHoneyConfig().isAndroid) {
-//				return new SQLiteTransaction(); 
+			boolean isAndroid = HoneyConfig.getHoneyConfig().isAndroid;
+			boolean isHarmony = HoneyConfig.getHoneyConfig().isHarmony;
+			if (isAndroid || isHarmony) {
+				String c = "";
+				if (isAndroid)      c = "org.teasoft.beex.android.SQLiteTransaction";
+				else if (isHarmony) c = "org.teasoft.beex.harmony.SQLiteTransaction";
 				try {
-					String c="org.teasoft.beex.android.SQLiteTransaction";
-					return (Transaction)Class.forName(c).newInstance();
+					return (Transaction) Class.forName(c).newInstance();
 				} catch (Exception e) {
 					Logger.error(e.getMessage(), e);
 				}

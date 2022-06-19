@@ -1,6 +1,7 @@
 package org.teasoft.honey.osql.core;
 
 import java.io.File;
+import java.io.InputStream;
 
 import org.teasoft.bee.osql.Properties;
 import org.teasoft.honey.osql.util.PropertiesReader;
@@ -43,5 +44,13 @@ public class BeeProp implements Properties{
 		if (!folderPath.trim().endsWith(File.separator)) folderPath = folderPath.trim()+File.separator;
 		folderPath+="bee.properties";
 		beePropReader = new PropertiesReader(folderPath, true);
+	}
+	
+	/**
+	 * 以InputStream的形式指定配置文件
+	 * @since 1.17
+	 */
+	static void resetBeeProperties(InputStream inputStream) {
+		beePropReader = new PropertiesReader(inputStream);
 	}
 }
