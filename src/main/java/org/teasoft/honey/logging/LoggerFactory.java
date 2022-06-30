@@ -28,15 +28,12 @@ public class LoggerFactory {
 	
 	static {
 		logLocal=new ThreadLocal<>();
+		init();
 	}
 	
 	private static boolean isNoArgInConstructor;
 	
 	private LoggerFactory(){}
-	
-	static {
-		init();
-	}
 	
 	private static boolean configRefresh = false;
 
@@ -49,7 +46,7 @@ public class LoggerFactory {
 	}
 	
 	private static void init() {
-		String loggerType = HoneyConfig.getHoneyConfig().getLoggerType();
+		String loggerType = HoneyConfig.getHoneyConfig().getLoggerType(); //正在初始化日志,但这条语句又使用日志,则会有问题
 		if (loggerType != null && !"".equals(loggerType.trim())) {
 			loggerType=loggerType.trim();
 			
@@ -211,6 +208,8 @@ public class LoggerFactory {
 		
 		Log cacheLog=getCacheInfo(loggerName);
 		if(cacheLog!=null) return cacheLog;
+		
+		if(logConstructor==null) return new SystemLogger(); //V1.17  for use before Log start to create.
 		
 		try {
 			Log log=logConstructor.newInstance(loggerName);

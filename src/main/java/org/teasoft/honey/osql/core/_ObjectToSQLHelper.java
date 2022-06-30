@@ -1095,7 +1095,8 @@ final class _ObjectToSQLHelper {
 	//V1.11
 	private static boolean isPrimaryKey(Field field) {
 		if ("id".equalsIgnoreCase(field.getName())) return true;
-		if (field.isAnnotationPresent(PrimaryKey.class)) return true;
-		return false;
+//		if (field.isAnnotationPresent(PrimaryKey.class)) return true;
+//		return false;
+		return AnnoUtil.isPrimaryKey(field);
 	}
 }

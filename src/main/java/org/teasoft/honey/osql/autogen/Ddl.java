@@ -22,6 +22,7 @@ import org.teasoft.honey.osql.core.Logger;
 import org.teasoft.honey.osql.core.NameTranslateHandle;
 import org.teasoft.honey.osql.name.NameUtil;
 import org.teasoft.honey.osql.shortcut.BF;
+import org.teasoft.honey.osql.util.AnnoUtil;
 import org.teasoft.honey.util.EntityUtil;
 import org.teasoft.honey.util.SqlKeyCheck;
 
@@ -555,8 +556,9 @@ public class Ddl {
 	
 	private static boolean isPrimaryKey(Field field) {
 		if ("id".equalsIgnoreCase(field.getName())) return true;
-		if (field.isAnnotationPresent(PrimaryKey.class)) return true;//V1.11
-		return false;
+//		if (field.isAnnotationPresent(PrimaryKey.class)) return true;//V1.11
+//		return false;
+		return AnnoUtil.isPrimaryKey(field);
 	}
 
 }

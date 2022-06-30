@@ -29,6 +29,7 @@ import org.teasoft.bee.osql.type.SetParaTypeConvert;
 import org.teasoft.honey.osql.constant.NullEmpty;
 import org.teasoft.honey.osql.name.NameUtil;
 import org.teasoft.honey.osql.type.*;
+import org.teasoft.honey.osql.util.AnnoUtil;
 import org.teasoft.honey.osql.util.NameCheckUtil;
 import org.teasoft.honey.osql.util.PropertiesReader;
 import org.teasoft.honey.util.ObjectUtils;
@@ -1883,7 +1884,7 @@ public final class HoneyUtil {
 		for (int i = 0; i < len; i++) {
 //			if (isSkipFieldForMoreTable(field[i])) continue; //JoinTable可以与PrimaryKey合用? 实际不会同时用
 			if(isSkipField(field[i])) continue;
-			if (field[i].isAnnotationPresent(PrimaryKey.class)) {
+			if (AnnoUtil.isPrimaryKey(field[i])) {
 				if (isFirst)
 					isFirst = false;
 				else

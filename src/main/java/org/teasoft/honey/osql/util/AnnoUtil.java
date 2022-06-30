@@ -7,8 +7,10 @@
 package org.teasoft.honey.osql.util;
 
 import java.lang.reflect.Field;
+import java.util.Iterator;
+import java.util.ServiceConfigurationError;
+import java.util.ServiceLoader;
 
-import org.teasoft.bee.osql.annotation.Column;
 import org.teasoft.bee.osql.annotation.Createtime;
 import org.teasoft.bee.osql.annotation.Datetime;
 import org.teasoft.bee.osql.annotation.Dict;
@@ -19,13 +21,22 @@ import org.teasoft.bee.osql.annotation.customizable.Desensitize;
 import org.teasoft.bee.osql.annotation.customizable.DictI18n;
 import org.teasoft.bee.osql.annotation.customizable.Json;
 import org.teasoft.bee.osql.annotation.customizable.MultiTenancy;
+import org.teasoft.bee.spi.AnnoAdapter;
+import org.teasoft.bee.spi.AnnoAdapterBeeDefault;
+import org.teasoft.honey.osql.core.Logger;
 
 /**
  * @author Kingstar
  * @since  1.11
  */
 public class AnnoUtil {
-	
+
+	private static AnnoAdapter annoAdapter;
+
+	static {
+		initAnnoAdapterInstance();
+	}
+
 	private AnnoUtil() {}
 
 	public static boolean isDatetime(Field field) {
@@ -64,13 +75,58 @@ public class AnnoUtil {
 	public static boolean isReplaceInto(Object entity) {
 		return entity.getClass().isAnnotationPresent(ReplaceInto.class);
 	}
-	
-	public static boolean isColumn(Field field) {
-		return field.isAnnotationPresent(Column.class);
-	}
-	
+
 	public static boolean isJson(Field field) {
 		return field.isAnnotationPresent(Json.class);
+	}
+
+	public static boolean isColumn(Field field) {
+//		return field.isAnnotationPresent(Column.class);
+		return annoAdapter.isColumn(field);
+	}
+
+	public static boolean isTable(Class<?> clazz) {
+		return annoAdapter.isTable(clazz);
+	}
+
+	public static boolean isPrimaryKey(Field field) {
+		return annoAdapter.isPrimaryKey(field);
+	}
+
+	public static String getValue(Field field) {
+		return annoAdapter.getValue(field);
+	}
+
+	public static String getValue(Class<?> clazz) {
+		return annoAdapter.getValue(clazz);
+	}
+
+	private static void initAnnoAdapterInstance() {
+		ServiceLoader<AnnoAdapter> annoAdapterLoader = ServiceLoader.load(AnnoAdapter.class);
+		Iterator<AnnoAdapter> annoIterator = annoAdapterLoader.iterator();
+
+		if (annoIterator.hasNext()) {
+			try {
+				annoAdapter = annoIterator.next();
+			} catch (ServiceConfigurationError e) {
+				Logger.error(e.getMessage(), e);
+				initAnnoAdapterInstance2();
+			}
+		} else {
+			initAnnoAdapterInstance2();
+		}
+	}
+
+	private static void initAnnoAdapterInstance2() {
+		try {
+			
+			Class.forName("javax.persistence.Table"); //check
+			annoAdapter = (AnnoAdapter) Class.forName("org.teasoft.beex.spi.AnnoAdapterDefault").newInstance();
+		} catch (Exception e) {
+			Logger.debug(e.getMessage(), e);
+			// maybe donot add the bee-ext.
+			annoAdapter = new AnnoAdapterBeeDefault();
+		}
 	}
 
 }

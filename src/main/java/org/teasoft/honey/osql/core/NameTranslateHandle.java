@@ -16,6 +16,7 @@ import org.teasoft.bee.osql.annotation.Table;
 import org.teasoft.bee.osql.annotation.customizable.ColumnHandler;
 import org.teasoft.bee.osql.exception.BeeErrorNameException;
 import org.teasoft.bee.osql.exception.BeeIllegalParameterException;
+import org.teasoft.honey.osql.util.AnnoUtil;
 import org.teasoft.honey.osql.util.NameCheckUtil;
 import org.teasoft.honey.util.StringUtils;
 
@@ -138,9 +139,11 @@ public class NameTranslateHandle {
 			} else {
 				//Table注解不再需要命名转换,Entity注解解析动态命名参数后还需要命名转换
 				Class obj = Class.forName(entityName);
-				if (obj.isAnnotationPresent(Table.class)) {
-					Table tab = (Table) obj.getAnnotation(Table.class);
-					String tabName = processAutoPara(tab.value());
+//				if (obj.isAnnotationPresent(Table.class)) {
+//					Table tab = (Table) obj.getAnnotation(Table.class);
+//					String tabName = processAutoPara(tab.value());
+				if (AnnoUtil.isTable(obj)) {	
+					String tabName = processAutoPara(AnnoUtil.getValue(obj));
 					if (NameCheckUtil.isIllegal(tabName)) {
 						throw new BeeIllegalParameterException(
 								"Annotation Table set wrong value:" + tabName);
