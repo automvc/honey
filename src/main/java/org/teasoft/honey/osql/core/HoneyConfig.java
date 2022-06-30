@@ -226,6 +226,9 @@ public final class HoneyConfig {
 	public String harmonyDbName;
 	@SysValue("${bee.db.harmonyDbVersion}")
 	public int harmonyDbVersion=1;
+	@SysValue("${bee.db.harmonyDbReadonly}")
+	public boolean harmonyDbReadonly;
+	
 	
 	@SysValue("${bee.db.dbName}")
 	String dbName;
