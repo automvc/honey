@@ -25,7 +25,6 @@ public class ObjectToSQL implements ObjToSQL {
 		// return _toInsertSQL(entity,false);
 		String sql = null;
 		try {
-			_ObjectToSQLHelper.setInitIdByAuto(entity); // 更改了原来的对象
 			sql = _ObjectToSQLHelper._toInsertSQL0(entity, -1,"");
 		} catch (IllegalAccessException e) {
 			throw ExceptionHelper.convert(e);

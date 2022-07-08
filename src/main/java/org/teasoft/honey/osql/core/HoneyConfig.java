@@ -352,6 +352,9 @@ public final class HoneyConfig {
 	public String genid_includesEntityList;
 	@SysValue("${bee.distribution.genid.excludesEntityList}")
 	public String genid_excludesEntityList;
+	
+	@SysValue("${bee.distribution.genid.startYear}")
+	public int genid_startYear = 0; //V1.17
 	//----------------------------- genid  end
 	
 	//----------------------------- genid  pearFlowerId start	

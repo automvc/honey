@@ -18,9 +18,12 @@ import org.teasoft.bee.osql.ObjSQLIllegalSQLStringException;
 import org.teasoft.bee.osql.ObjToSQLRich;
 import org.teasoft.bee.osql.OrderType;
 import org.teasoft.bee.osql.SuidType;
+import org.teasoft.bee.osql.annotation.GenId;
+import org.teasoft.bee.osql.annotation.GenUUID;
 import org.teasoft.bee.osql.dialect.DbFeature;
 import org.teasoft.bee.osql.exception.BeeIllegalEntityException;
 import org.teasoft.honey.distribution.GenIdFactory;
+import org.teasoft.honey.distribution.UUID;
 import org.teasoft.honey.osql.dialect.sqlserver.SqlServerPagingStruct;
 import org.teasoft.honey.osql.name.NameUtil;
 import org.teasoft.honey.osql.util.AnnoUtil;
@@ -869,18 +872,22 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		return NameTranslateHandle.toColumnName(pkName,entityClass);
 	}
 	
-	private <T> void setInitArrayIdByAuto(T entity[]) {
+private <T> void setInitArrayIdByAuto(T entity[]) {
 		
 		if(entity==null || entity.length<1) return ;
-		boolean needGenId = HoneyContext.isNeedGenId(entity[0].getClass());
-		if (!needGenId) return;
+		
+//		boolean needGenId = HoneyContext.isNeedGenId(entity[0].getClass());
+//		if (!needGenId) return;
 		
 		boolean hasValue = false;
-		Long v = null;
+//		Long v = null;
 
 		Field field0 = null;
 		String pkName ="";	
 		String pkAlias="";
+		boolean isStringField=false;
+		boolean hasGenUUIDAnno=false;
+		boolean useSeparatorInUUID=false;
 		try {
 			//V1.11
 			boolean noId = false;
@@ -893,30 +900,63 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			if (noId) {
 				pkName = HoneyUtil.getPkFieldName(entity);
 				if("".equals(pkName) || pkName.contains(",")) return ; //just support single primary key.
-				field0 = entity[0].getClass().getDeclaredField("id");
+				field0 = entity[0].getClass().getDeclaredField(pkName); //fixed 1.17
 				pkAlias="("+pkName+")";
 			}	
 			
 			if (field0==null) return;
-			if (!field0.getType().equals(Long.class)) {//just set the null Long id field
-				Logger.warn("The id"+pkAlias+" field's "+field0.getType()+" is not Long, can not generate the Long id automatically!");
+			
+			boolean replaceOldValue = HoneyConfig.getHoneyConfig().genid_replaceOldId;
+			
+			if(field0.isAnnotationPresent(GenId.class)) {
+				GenId genId=field0.getAnnotation(GenId.class);
+				replaceOldValue=replaceOldValue || genId.override();
+			}else if(field0.isAnnotationPresent(GenUUID.class)) {
+				GenUUID gen=field0.getAnnotation(GenUUID.class);
+				replaceOldValue=replaceOldValue || gen.override();
+				hasGenUUIDAnno=true;
+				useSeparatorInUUID=gen.useSeparator();
+			}else {
+				boolean needGenId = HoneyContext.isNeedGenId(entity.getClass());
+				if (!needGenId) return ;
+			}
+			
+			
+			isStringField=field0.getType().equals(String.class);
+			if(hasGenUUIDAnno && !isStringField) {
+				Logger.warn("Gen UUID as id just support String type field!");
+				return ;
+			}
+			
+			
+//			if (!field0.getType().equals(Long.class)) {//just set the null Long id field
+			if (_ObjectToSQLHelper.errorType(field0)) {//set Long or Integer type id
+				Logger.warn("The id"+pkAlias+" field's "+field0.getType()+" is not Long/Integer, can not generate the Long/Integer id automatically!");
 				return; 
 			}
 			
 //			field.setAccessible(true);
-//			if (field.get(entity[0]) != null) return; //即使没值,运行一次后也会有值,下次再用就会重复.而用户又不知道.    //todo 要提醒是被覆盖了。
+//			if (field.get(entity[0]) != null) return; //即使没值,运行一次后也会有值,下次再用就会重复.而用户又不知道.    //要提醒是被覆盖了。
 		
-			boolean replaceOldValue = HoneyConfig.getHoneyConfig().genid_replaceOldId;
+//			boolean replaceOldValue = HoneyConfig.getHoneyConfig().genid_replaceOldId;
 			
 			int len = entity.length;
 			String tableKey = _toTableName(entity[0]);
-			long ids[] = GenIdFactory.getRangeId(tableKey, len);
-			long id = ids[0];
+			long ids[];
+			long id =0;
+			if (_ObjectToSQLHelper.isInt(field0)) {
+				ids = GenIdFactory.getRangeId(tableKey, GenIdFactory.GenType_IntSerialIdReturnLong, len);
+				id = ids[0];
+			} else if(! hasGenUUIDAnno) {
+				ids = GenIdFactory.getRangeId(tableKey, len);
+				id = ids[0];
+			}
+			
 			Field field = null;
 			for (int i = 0; i < len; id++, i++) {
 				if(entity[i]==null) continue;
 				hasValue = false;
-				v = null;
+//				v = null;
 				
 				field = entity[i].getClass().getDeclaredField(pkName);
 				field.setAccessible(true);
@@ -925,7 +965,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 				if (obj != null) {
 					if (!replaceOldValue) return ;
 					hasValue = true;
-					v = (Long) obj;
+//					v = (Long) obj;
 				}
 				
 				OneTimeParameter.setTrueForKey(StringConst.OLD_ID_EXIST+i);
@@ -933,9 +973,16 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 				
 				field.setAccessible(true);
 				try {
-					field.set(entity[i], id);
+					if (_ObjectToSQLHelper.isInt(field0))
+						field.set(entity[i], (int)id);
+					else if(!hasGenUUIDAnno && isStringField) //没有用GenUUID又是String
+						field.set(entity[i], id+"");
+					else if(hasGenUUIDAnno && isStringField) //用GenUUID
+						field.set(entity[i], UUID.getId(useSeparatorInUUID));
+					else
+						field.set(entity[i], id);
 					if (hasValue) {
-						Logger.warn(" [ID WOULD BE REPLACED] entity["+i+"] : " + entity.getClass() + " 's id field"+pkAlias+" value is " + v
+						Logger.warn(" [ID WOULD BE REPLACED] entity["+i+"] : " + entity.getClass() + " 's id field"+pkAlias+" value is " + obj.toString()
 								+ " would be replace by " + id);
 					}
 				} catch (IllegalAccessException e) {
@@ -951,7 +998,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			Logger.error(e.getMessage());
 			return;
 		}
-	}
+}
 	
 	private boolean isNeedRealTimeDb() {
 		return HoneyContext.isNeedRealTimeDb();

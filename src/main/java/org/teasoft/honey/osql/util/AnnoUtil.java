@@ -14,6 +14,8 @@ import java.util.ServiceLoader;
 import org.teasoft.bee.osql.annotation.Createtime;
 import org.teasoft.bee.osql.annotation.Datetime;
 import org.teasoft.bee.osql.annotation.Dict;
+import org.teasoft.bee.osql.annotation.GenId;
+import org.teasoft.bee.osql.annotation.GenUUID;
 import org.teasoft.bee.osql.annotation.ReplaceInto;
 import org.teasoft.bee.osql.annotation.Updatetime;
 import org.teasoft.bee.osql.annotation.customizable.AutoSetString;
@@ -23,7 +25,9 @@ import org.teasoft.bee.osql.annotation.customizable.Json;
 import org.teasoft.bee.osql.annotation.customizable.MultiTenancy;
 import org.teasoft.bee.spi.AnnoAdapter;
 import org.teasoft.bee.spi.AnnoAdapterBeeDefault;
+import org.teasoft.honey.osql.core.DefaultColumnHandler;
 import org.teasoft.honey.osql.core.Logger;
+import org.teasoft.honey.osql.name.NameRegistry;
 
 /**
  * @author Kingstar
@@ -35,6 +39,7 @@ public class AnnoUtil {
 
 	static {
 		initAnnoAdapterInstance();
+		NameRegistry.registerColumnHandler(new DefaultColumnHandler()); //字段自定义命名转换
 	}
 
 	private AnnoUtil() {}
@@ -80,6 +85,13 @@ public class AnnoUtil {
 		return field.isAnnotationPresent(Json.class);
 	}
 
+	public static boolean isGenPkAnno(Field field) {
+		return field.isAnnotationPresent(GenId.class)
+				|| field.isAnnotationPresent(GenUUID.class);
+	}
+	
+	
+	//----------support SPI-------start--<<<<<<<-
 	public static boolean isColumn(Field field) {
 //		return field.isAnnotationPresent(Column.class);
 		return annoAdapter.isColumn(field);
@@ -119,8 +131,15 @@ public class AnnoUtil {
 
 	private static void initAnnoAdapterInstance2() {
 		try {
-			
 			Class.forName("javax.persistence.Table"); //check
+		} catch (Exception e) {
+//			Logger.debug(e.getMessage(), e);
+			// maybe donot add the bee-ext.
+			annoAdapter = new AnnoAdapterBeeDefault();
+			return ;
+		}
+		
+	try {
 			annoAdapter = (AnnoAdapter) Class.forName("org.teasoft.beex.spi.AnnoAdapterDefault").newInstance();
 		} catch (Exception e) {
 			Logger.debug(e.getMessage(), e);
@@ -128,5 +147,7 @@ public class AnnoUtil {
 			annoAdapter = new AnnoAdapterBeeDefault();
 		}
 	}
+	
+	//----------support SPI-------end-->>>>>>>>-
 
 }

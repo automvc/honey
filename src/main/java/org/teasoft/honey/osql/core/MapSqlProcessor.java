@@ -255,7 +255,7 @@ public class MapSqlProcessor {
 		return toInsertSqlByMap(mapSql,false);
 	}
 
-	public static String toInsertSqlByMap(MapSql mapSql,boolean isNeedProcessId) {
+	public static String toInsertSqlByMap(MapSql mapSql,boolean returnId) {
 
 		MapSqlImpl suidMapImpl = (MapSqlImpl) mapSql;
 		Map<MapSqlKey, String> sqlkeyMap = suidMapImpl.getSqlkeyMap();
@@ -277,11 +277,12 @@ public class MapSqlProcessor {
 
 		StringBuffer sqlBuffer = new StringBuffer();
 		sqlBuffer.append(K.insert).append(K.space).append(K.into).append(K.space).append(tableName);
-
+		
 		Object oldId=null;
 		List<PreparedValue> list = new ArrayList<>();
 		if (ObjectUtils.isNotEmpty(insertKvMap)) {
-			if(isNeedProcessId) oldId=processId(insertKvMap,orgi_tableName,pkName); //fixed bug,用于获取分布式id的表名要一致
+//			if(isNeedProcessId) 
+				oldId=processId(insertKvMap,orgi_tableName,pkName,sqlSettingMap,returnId); //fixed bug,用于获取分布式id的表名要一致
 			Boolean isBooleanTransfer = sqlSettingMap.get(MapSqlSetting.IsTransferTrueFalseStringToBooleanType);
 			parseBoolean(insertKvMap,isBooleanTransfer); //V1.11
 			toInsertSql(insertKvMap, list, sqlBuffer, isTransfer, getIncludeType(sqlSettingMap));
@@ -292,7 +293,8 @@ public class MapSqlProcessor {
 		String sql = sqlBuffer.toString();
 		setContext(sql, list, tableName);
 		
-        if(isNeedProcessId) revertId(insertKvMap,oldId,pkName);
+//        if(isNeedProcessId) 
+        	revertId(insertKvMap,oldId,pkName);
 
 		return sql;
 	}
@@ -321,7 +323,14 @@ public class MapSqlProcessor {
 		return n;
 	}
 	
-	private static Object processId(Map<String, Object> insertKvMap,String tableName,String customPkName) {
+	private static Object processId(Map<String, Object> insertKvMap,String tableName,String customPkName,
+			Map<MapSqlSetting, Boolean> sqlSettingMap,boolean returnId) {
+		
+ 		Boolean isGenId =sqlSettingMap.get(MapSqlSetting.IsGenId);
+		isGenId=isGenId==null?false:isGenId;
+		
+		Boolean isUseIntegerId=sqlSettingMap.get(MapSqlSetting.IsUseIntegerId);
+		isUseIntegerId=isUseIntegerId==null?false:isUseIntegerId;
 		
 		boolean isUpper=false;
 		boolean isPrimaryKey=false;
@@ -333,37 +342,38 @@ public class MapSqlProcessor {
 			id=insertKvMap.get(customPkName);
 			pkName=customPkName;
 		}else if(id==null) {
-			id=insertKvMap.get("ID");
-			isUpper=true;
-			pkName="ID";
+			id = insertKvMap.get("ID");
+			if (id != null) { //fixed bug V1.17
+				isUpper = true;
+				pkName = "ID";
+			}
 		}
 		
 //		Long replaceId=null;
 		
 		boolean genAll = HoneyConfig.getHoneyConfig().genid_forAllTableLongId;
 		boolean replaceOldValue = HoneyConfig.getHoneyConfig().genid_replaceOldId;
-		if(id!=null) {
-			if(genAll && replaceOldValue) {
-				long newId = GenIdFactory.get(tableName);
-				if(isPrimaryKey) insertKvMap.put(customPkName, newId);
-				else if(isUpper) insertKvMap.put("ID", newId);
-				else insertKvMap.put("id", newId);
-				OneTimeParameter.setAttribute(StringConst.MapSuid_Insert_Has_ID, newId);
-//				replaceId=newId;
-			}else {
-				OneTimeParameter.setAttribute(StringConst.MapSuid_Insert_Has_ID, id);
+		
+		if(  isGenId ||(id!=null && genAll && replaceOldValue) || (id==null && genAll) ) { //不为null,需要允许覆盖; 为null也要是genAll
+			Object newId;
+			if (isUseIntegerId) {
+				newId = (int)GenIdFactory.get(tableName,GenIdFactory.GenType_IntSerialIdReturnLong);
+			} else {
+				newId = GenIdFactory.get(tableName);
 			}
-		}else {
-			if(genAll) {
-				long newId = GenIdFactory.get(tableName);
-				if(isPrimaryKey) insertKvMap.put(customPkName, newId);
-				else insertKvMap.put("id", newId);
-				OneTimeParameter.setAttribute(StringConst.MapSuid_Insert_Has_ID, newId);
-//				replaceId=newId;
-			}
+			
+			if(isPrimaryKey) insertKvMap.put(customPkName, newId);
+			else if(isUpper) insertKvMap.put("ID", newId);
+			else insertKvMap.put("id", newId);
+			if(returnId) OneTimeParameter.setAttribute(StringConst.MapSuid_Insert_Has_ID, newId);
 		}
 		
-		OneTimeParameter.setAttribute(StringConst.PK_Name_For_ReturnId, pkName);  //V1.11 for SqlLib
+		if (id != null) {
+			if (!(genAll && replaceOldValue))
+				if(returnId) OneTimeParameter.setAttribute(StringConst.MapSuid_Insert_Has_ID, id);
+		}
+		
+		if(returnId) OneTimeParameter.setAttribute(StringConst.PK_Name_For_ReturnId, pkName);  //V1.11 for SqlLib
 		
 		return id;
 	}

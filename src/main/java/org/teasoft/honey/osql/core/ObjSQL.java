@@ -132,7 +132,7 @@ public class ObjSQL implements Suid {
 
 		if (entity == null) return -1;
 		doBeforePasreEntity(entity,SuidType.INSERT);
-
+		_ObjectToSQLHelper.setInitIdByAuto(entity); // 更改了原来的对象
 		String sql = getObjToSQL().toInsertSQL(entity);
 		sql=doAfterCompleteSql(sql);
 		int insertNum = -1;
@@ -146,20 +146,39 @@ public class ObjSQL implements Suid {
 		return insertNum;
 	}
 	
+	private <T> void checkGenPk(T entity) {
+
+//		Object pk = HoneyUtil.getIdValue(entity); // 原始id
+//		boolean hasGenPkAnno = HoneyUtil.hasGenPkAnno(entity); // V1.17可以使用注解.
+
+		boolean isOk = (
+				(HoneyUtil.isMysql() || HoneyUtil.isOracle() || HoneyUtil.isSQLite())  //即可java端没生成,数据库也可以生成
+				|| HoneyContext.isNeedGenId(entity.getClass())
+				|| HoneyUtil.getIdValue(entity) != null || HoneyUtil.hasGenPkAnno(entity)
+				);
+		if (!isOk) {
+			throw new NotSupportedException(
+					"The current database don't support insert NULL to 'id' column or return the id after insert."
+							+ "\nYou can use the distribute id via set config information,eg: bee.distribution.genid.forAllTableLongId=true");
+		}
+	}
+	
+	private <T> String insertAndReturn(T entity) {
+		doBeforePasreEntity(entity,SuidType.INSERT);
+		_ObjectToSQLHelper.setInitIdByAuto(entity); // 更改了原来的对象  //这里会生成id,如果需要
+		String sql = getObjToSQL().toInsertSQL(entity); 
+		sql=doAfterCompleteSql(sql);
+		Logger.logSQL("insert SQL: ", sql);
+		
+		return sql;
+	}
+	
 	@Override
 	public <T> long insertAndReturnId(T entity) {
 		if (entity == null) return -1L;
-
-		if (!HoneyContext.isNeedGenId(entity.getClass())
-				&& !(HoneyUtil.isMysql() || HoneyUtil.isOracle() || HoneyUtil.isSQLite())
-				) {
-			throw new NotSupportedException("The current database don't support insert NULL to 'id' column or return the id after insert."
-					+ "\nYou can use the distribute id via set config information,eg: bee.distribution.genid.forAllTableLongId=true");
-		}
-		doBeforePasreEntity(entity,SuidType.INSERT);
-		String sql = getObjToSQL().toInsertSQL(entity);
-		sql=doAfterCompleteSql(sql);
-		Logger.logSQL("insert SQL: ", sql);
+		checkGenPk(entity);
+		
+		String sql=insertAndReturn(entity);
 
 		return _insertAndReturnId(entity, sql);
 	}
@@ -168,8 +187,8 @@ public class ObjSQL implements Suid {
 		
 		_regEntityClass(entity);
 
-		Object obj = HoneyUtil.getIdValue(entity);
-		HoneyUtil.revertId(entity);
+		Object obj = HoneyUtil.getIdValue(entity); //没有自动生成部分的?? 在上层调用方法.  到这里,上面setInitIdByAuto(entity),已有生成id的逻辑.
+		HoneyUtil.revertId(entity); //获取后就还原.
 		
 		long returnId = -1;
 		if (obj != null) {

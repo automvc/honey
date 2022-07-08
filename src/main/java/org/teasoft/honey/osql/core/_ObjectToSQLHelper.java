@@ -8,10 +8,12 @@ import java.util.Set;
 import org.teasoft.bee.osql.Condition;
 import org.teasoft.bee.osql.ObjSQLException;
 import org.teasoft.bee.osql.SuidType;
-import org.teasoft.bee.osql.annotation.PrimaryKey;
+import org.teasoft.bee.osql.annotation.GenId;
+import org.teasoft.bee.osql.annotation.GenUUID;
 import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
 import org.teasoft.bee.osql.exception.BeeIllegalBusinessException;
 import org.teasoft.honey.distribution.GenIdFactory;
+import org.teasoft.honey.distribution.UUID;
 import org.teasoft.honey.osql.name.NameUtil;
 import org.teasoft.honey.osql.util.AnnoUtil;
 import org.teasoft.honey.util.ObjectUtils;
@@ -1016,14 +1018,18 @@ final class _ObjectToSQLHelper {
 	static <T> void setInitIdByAuto(T entity) {
 
 		if (entity == null) return ;
-		boolean needGenId = HoneyContext.isNeedGenId(entity.getClass());
-		if (!needGenId) return ;
+//		boolean needGenId = HoneyContext.isNeedGenId(entity.getClass());
+//		if (!needGenId) return ;
 
 		Field field = null;
 		boolean hasValue = false;
-		Long v = null;
+//		Long v = null;
+		Object obj = null;
 		String pkName ="";
 		String pkAlias="";
+		boolean isStringField=false;
+		boolean hasGenUUIDAnno=false;
+		boolean useSeparatorInUUID=false;
 		try {
 			//V1.11
 			boolean noId = false;
@@ -1042,19 +1048,41 @@ final class _ObjectToSQLHelper {
 			
 			
 			if (field==null) return ;
-			if (!field.getType().equals(Long.class)) {
-				Logger.warn("The id"+pkAlias+" field's "+field.getType()+" is not Long, can not generate the Long id automatically!");
-				return ; //just set the Long id field
+			
+			boolean replaceOldValue = HoneyConfig.getHoneyConfig().genid_replaceOldId;
+			
+			if(field.isAnnotationPresent(GenId.class)) {
+				GenId genId=field.getAnnotation(GenId.class);
+				replaceOldValue=replaceOldValue || genId.override();
+			}else if(field.isAnnotationPresent(GenUUID.class)) {
+				GenUUID gen=field.getAnnotation(GenUUID.class);
+				replaceOldValue=replaceOldValue || gen.override();
+				hasGenUUIDAnno=true;
+				useSeparatorInUUID=gen.useSeparator();
+			}else {
+				boolean needGenId = HoneyContext.isNeedGenId(entity.getClass());
+				if (!needGenId) return ;
 			}
 			
 			
-			boolean replaceOldValue = HoneyConfig.getHoneyConfig().genid_replaceOldId;
+			isStringField=field.getType().equals(String.class);
+			if(hasGenUUIDAnno && !isStringField) {
+				Logger.warn("Gen UUID as id just support String type field!");
+				return ;
+			}
+			
+//			if (!field.getType().equals(Long.class)) {
+			if (errorType(field)) {//set Long or Integer type id
+				Logger.warn("The id"+pkAlias+" field's "+field.getType()+" is not Long/Integer, can not generate the Long/Integer id automatically!");
+				return ; //just set the Long/Integer id field
+			}
+		
 			field.setAccessible(true);
-			Object obj = field.get(entity);
+			obj = field.get(entity);
 			if (obj != null) {
 				if (!replaceOldValue) return ;
 				hasValue = true;
-				v = (Long) obj;
+//				v = (Long) obj; //只用于提示
 			}
 			OneTimeParameter.setTrueForKey(StringConst.OLD_ID_EXIST);
 			OneTimeParameter.setAttribute(StringConst.OLD_ID, obj);
@@ -1068,16 +1096,40 @@ final class _ObjectToSQLHelper {
 		}
 
 		String tableKey = _toTableName(entity);
-		long id = GenIdFactory.get(tableKey);
+		Object id;
+		if (isInt(field)) {
+			int intId = (int) GenIdFactory.get(tableKey,GenIdFactory.GenType_IntSerialIdReturnLong);
+			id = intId;
+		}else if(hasGenUUIDAnno && isStringField) {
+			id=UUID.getId(useSeparatorInUUID);
+		}else if(isStringField) {
+			id=GenIdFactory.get(tableKey)+"";
+		}else {
+			long longId = GenIdFactory.get(tableKey);
+			id = longId;
+		}
 		field.setAccessible(true);
 		try {
 			field.set(entity, id);
 			if (hasValue) {
-				Logger.warn(" [ID WOULD BE REPLACED] " + entity.getClass() + " 's id field"+pkAlias+" value is " + v + " would be replace by "+ id);
+				Logger.warn(" [ID WOULD BE REPLACED] " + entity.getClass() + " 's id field"+pkAlias+" value is " + obj.toString() + " would be replace by "+ id);
 			}
 		} catch (IllegalAccessException e) {
 			throw ExceptionHelper.convert(e);
 		}
+	}
+	
+	static boolean errorType(Field field) {
+		Class type=field.getType();
+		return !(type.equals(Long.class) || type.equals(Integer.class)
+			  || type.equals(long.class) || type.equals(int.class)
+			  || type.equals(String.class)
+				);
+	}
+	
+	static boolean isInt(Field field) {
+		Class type=field.getType();
+		return type.equals(Integer.class) || type.equals(int.class);
 	}
 	
 	//V1.11

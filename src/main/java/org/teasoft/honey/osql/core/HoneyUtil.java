@@ -17,7 +17,6 @@ import org.teasoft.bee.osql.annotation.Ignore;
 import org.teasoft.bee.osql.annotation.JoinTable;
 import org.teasoft.bee.osql.annotation.JoinType;
 import org.teasoft.bee.osql.annotation.JustFetch;
-import org.teasoft.bee.osql.annotation.PrimaryKey;
 import org.teasoft.bee.osql.annotation.customizable.Json;
 import org.teasoft.bee.osql.exception.BeeErrorFieldException;
 import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
@@ -1785,30 +1784,37 @@ public final class HoneyUtil {
 		return "upper".equalsIgnoreCase(kwCase) ? true : false;
 	}
 	
-	public static <T> Object getIdValue(T entity) {
+	public static <T> Field getPkField(T entity) {
 		Field field = null;
-		Object obj = null;
 		try {
 			field = entity.getClass().getDeclaredField("id");
 		} catch (NoSuchFieldException e) {
 			String pkName = getPkFieldName(entity);
-			
+
 			boolean hasException = false;
 			if ("".equals(pkName)) {
 				hasException = true;
-			} else if (pkName!=null && !pkName.contains(",")){
+			} else if (pkName != null && !pkName.contains(",")) {
 				try {
 					field = entity.getClass().getDeclaredField(pkName);
 				} catch (NoSuchFieldException e2) {
 					hasException = true;
 				}
-			}else {
-				//DB是否支持联合主键返回??    不支持
-				Logger.warn("Don't support return id value when the primary key more than one field!");
+			} else {
+				// DB是否支持联合主键返回?? 不支持
+				Logger.warn(
+						"Don't support return id value when the primary key more than one field!");
 			}
-			if (hasException) throw new ObjSQLException("Miss id field: the entity no id field!");
+			if (hasException)
+				throw new ObjSQLException("Miss id field: the entity no id field!");
 		}
 
+		return field;
+	}
+	
+	public static <T> Object getIdValue(T entity) {
+		Field field = getPkField(entity);
+		Object obj = null;
 		try {
 			if (field != null) {
 				field.setAccessible(true);
@@ -1819,6 +1825,14 @@ public final class HoneyUtil {
 		}
 
 		return obj;
+	}
+	
+	public static <T> boolean hasGenPkAnno(T entity) {
+		Field field = getPkField(entity);
+		if (field != null) {
+			return AnnoUtil.isGenPkAnno(field);
+		}
+		return false;
 	}
 	
 	public static <T> void revertId(T entity) {
