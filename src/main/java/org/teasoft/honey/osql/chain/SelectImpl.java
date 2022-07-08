@@ -9,6 +9,7 @@ package org.teasoft.honey.osql.chain;
 import org.teasoft.bee.osql.Op;
 import org.teasoft.bee.osql.OrderType;
 import org.teasoft.bee.osql.chain.Select;
+import org.teasoft.bee.osql.exception.BeeErrorNameException;
 import org.teasoft.bee.osql.exception.BeeIllegalSQLException;
 import org.teasoft.honey.osql.core.Check;
 import org.teasoft.honey.osql.core.FunAndOrderTypeMap;
@@ -58,7 +59,8 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 
 	@Override
 	public Select select(String column) {
-		checkField(column);
+//		checkField(column);
+		checkExpression(column);
 		if (isStartField) {
 			sql.append(K.select).append(SPACE);
 			sql.append(column);
@@ -73,7 +75,8 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 
 	@Override
 	public Select distinct(String field) {
-		checkField(field);
+//		checkField(field);
+		checkFieldOrExpression(field);
 		return select(DISTINCT + L_PARENTHESES + field + R_PARENTHESES); // DISTINCT(field)
 	}
 
@@ -154,7 +157,8 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 
 	@Override
 	public Select groupBy(String field) {
-		checkField(field);
+//		checkField(field);
+		checkFieldOrExpression(field);
 		if (isStartGroupBy) {
 			sql.append(SPACE).append(K.groupBy).append(SPACE);
 			sql.append(field);
@@ -183,7 +187,8 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 
 	@Override
 	public Select orderBy(String field) {
-		checkField(field);
+//		checkField(field);
+		checkFieldOrExpression(field);
 		if (isStartOrderBy) {
 			sql.append(SPACE).append(K.orderBy).append(SPACE);
 			sql.append(field);
@@ -198,7 +203,8 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 
 	@Override
 	public Select orderBy(String field, OrderType orderType) {
-		checkField(field);
+//		checkField(field);
+		checkFieldOrExpression(field);
 		if (isStartOrderBy) {
 			sql.append(SPACE).append(K.orderBy).append(SPACE);
 			sql.append(field);
@@ -225,7 +231,8 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 	}
 	
 	private Select useSubSelect(String field,String keyword, String subSelect) { // in, not in
-		checkField(field);
+//		checkField(field);
+		checkFieldOrExpression(field);
 		
 		sql.append(field);
 		sql.append(SPACE);
@@ -393,7 +400,7 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 	}
 
 	private Select inOrNotIn(String field, String op, Number... valueList) {
-		checkField(field);
+		checkFieldOrExpression(field);
 		if (isAddAnd) sql.append(AND);
 		String value = "";
 		for (int i = 0; i < valueList.length; i++) {
@@ -470,6 +477,13 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 		sql.append(field);
 		sql.append(SPACE).append(K.isNotNull).append(SPACE);
 		return this;
+	}
+	
+	private void checkFieldOrExpression(String field){
+//		NameCheckUtil.checkName(field);
+		if(NameCheckUtil.isIllegal(field)) {
+			throw new BeeErrorNameException("The field: '" + field + "' is illegal!");
+		}
 	}
 	
 	private void checkField(String field){

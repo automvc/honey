@@ -8,11 +8,11 @@ package org.teasoft.honey.osql.chain;
 
 import org.teasoft.bee.osql.Op;
 import org.teasoft.bee.osql.chain.Update;
+import org.teasoft.bee.osql.exception.BeeErrorNameException;
 import org.teasoft.bee.osql.exception.BeeIllegalSQLException;
 import org.teasoft.honey.osql.core.Check;
 import org.teasoft.honey.osql.core.K;
 import org.teasoft.honey.osql.util.NameCheckUtil;
-
 
 /**
  * @author Kingstar
@@ -187,17 +187,17 @@ public class UpdateImpl extends AbstractToSql implements Update {
 		
 		@Override
 		public Update in(String field, Number... valueList) {
-			checkField(field);
+//			checkField(field);
 			return inOrNotIn(field, K.in, valueList);
 		}
 
 		public Update notIn(String field, Number... valueList) {
-			checkField(field);
+//			checkFieldOrExpression(field);
 			return inOrNotIn(field, K.notIn, valueList);
 		}
 
 		private Update inOrNotIn(String field, String op, Number... valueList) {
-			checkField(field);
+			checkFieldOrExpression(field);
 			if (isAddAnd) sql.append(AND);
 			String value = "";
 			for (int i = 0; i < valueList.length; i++) {
@@ -221,7 +221,7 @@ public class UpdateImpl extends AbstractToSql implements Update {
 		}
 
 		private Update inOrNotIn(String field, String op, String valueList) {
-			checkField(field);
+			checkFieldOrExpression(field);
 			if (isAddAnd) sql.append(AND);
 			valueList = valueList.replace(",", "','");
 			sql.append(field + " " + op + " ('" + valueList + "')"); // in ('client01','bee')
@@ -274,6 +274,13 @@ public class UpdateImpl extends AbstractToSql implements Update {
 			sql.append(field);
 			sql.append(SPACE).append(K.isNotNull).append(SPACE);
 			return this;
+		}
+		
+		private void checkFieldOrExpression(String field){
+//			NameCheckUtil.checkName(field);
+			if(NameCheckUtil.isIllegal(field)) {
+				throw new BeeErrorNameException("The field: '" + field + "' is illegal!");
+			}
 		}
 		
 		private void checkField(String field){
