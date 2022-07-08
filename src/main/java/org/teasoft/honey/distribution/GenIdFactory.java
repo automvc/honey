@@ -24,6 +24,7 @@ public class GenIdFactory {
 	public static final String GenType_SerialUniqueId="SerialUniqueId";
 	public static final String GenType_OneTimeSnowflakeId="OneTimeSnowflakeId";
 	public static final String GenType_PearFlowerId="PearFlowerId";
+	public static final String GenType_IntSerialIdReturnLong="IntSerialIdReturnLong";
 	
 	static{
 		int idGenerator=HoneyConfig.getHoneyConfig().genid_generatorType;
@@ -31,6 +32,7 @@ public class GenIdFactory {
 		if(idGenerator==1) defaultGenType = GenType_SerialUniqueId;
 		else if(idGenerator==2) defaultGenType = GenType_OneTimeSnowflakeId;
 		else if(idGenerator==3) defaultGenType = GenType_PearFlowerId;
+		else if(idGenerator==4) defaultGenType = GenType_IntSerialIdReturnLong;
 		else defaultGenType = GenType_SerialUniqueId;
 	}
 	
@@ -108,6 +110,9 @@ public class GenIdFactory {
 					break;
 				case GenType_PearFlowerId:
 					genId = new PearFlowerId();
+					break;
+				case GenType_IntSerialIdReturnLong:
+					genId = new IntSerialIdReturnLong();
 					break;
 				default:
 					genId = new SerialUniqueId();

@@ -55,7 +55,8 @@ public class PearFlowerId implements GenId {
 	private static final long halfWorkid=1<<(workerIdBits-1);
 	private static final long fullWorkid=1<<workerIdBits;
 
-	private long twepoch = 1483200000; // 2017-01-01 (yyyy-MM-dd) ,   单位 unit (s)    
+//	private long startSecond = 1483200000; // 2017-01-01 (yyyy-MM-dd) ,   单位 unit (s)    
+	private long startSecond = Start.getStartSecond();
 	private long lastTimestamp = -1L;
 
 	private static boolean useHalfWorkId ;
@@ -201,7 +202,7 @@ public class PearFlowerId implements GenId {
 		}
 
 //		return ((timestamp - twepoch) << timestampShift) | (workerId << workerIdShift) | (segment << segmentShift) | (sequence);
-		return ((timestamp - twepoch) << timestampShift) | (segment << segmentShift) | (workerId << workerIdShift)  | (sequence);
+		return ((timestamp - startSecond) << timestampShift) | (segment << segmentShift) | (workerId << workerIdShift)  | (sequence);
 	}
 	
 	private void setStartSequence() {  //批获取时,是否为引起数量不够 ??????  不会

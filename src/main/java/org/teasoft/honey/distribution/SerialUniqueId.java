@@ -47,7 +47,7 @@ public class SerialUniqueId implements GenId{
 	private Worker worker;
 
 	private long workerId = getWorker().getWorkerId(); //10
-	private long startTime; // second 31
+	private long timestamp; // second 31
 	private static final long segment = 0L; // 3
 	private static final long sequence = 1L; // 19
 	
@@ -61,8 +61,8 @@ public class SerialUniqueId implements GenId{
 	private static final long segmentShift = sequenceBits;
 
 
-	private long twepoch = 1483200000; // 单位：s    2017-01-01 (yyyy-MM-dd)
-	
+//	private long startSecond = 1483200000; // 单位：s    2017-01-01 (yyyy-MM-dd)
+	private long startSecond = Start.getStartSecond();
 	private long initNum;
 	
 	/**
@@ -70,8 +70,8 @@ public class SerialUniqueId implements GenId{
 	 */
 	public SerialUniqueId() {
 
-		startTime = _curSecond();
-		initNum = (workerId << workerIdShift) | ((startTime - twepoch) << timestampLeftShift) | (segment << segmentShift) | (sequence);
+		timestamp = _curSecond();
+		initNum = (workerId << workerIdShift) | ((timestamp - startSecond) << timestampLeftShift) | (segment << segmentShift) | (sequence);
 		sequenceNumber = new AtomicLong(initNum);
 	}
 	
@@ -116,7 +116,7 @@ public class SerialUniqueId implements GenId{
 	
 	private synchronized void testSpeedLimit(long currentLong) {
 
-		long spentTime = _curSecond() - startTime + 1;
+		long spentTime = _curSecond() - timestamp + 1;
 
 		if (spentTime > 0) {
 			if ((spentTime << timestampLeftShift) > (currentLong - initNum)) return;

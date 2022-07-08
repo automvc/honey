@@ -36,7 +36,7 @@ import org.teasoft.honey.osql.core.Logger;
 public class OneTimeSnowflakeId implements GenId {
 
 	private Worker worker;
-	private long startTime;
+	private long timestamp;
 	
 	private long time; //second 31 bits   just start need the time.
 	private long segment = 0L;
@@ -56,12 +56,14 @@ public class OneTimeSnowflakeId implements GenId {
 	private static final long maxSegment = (1L << segmentBits) - 1L;
 	private static final long maxSequence = 1L<<sequenceBits;
 
-	private long twepoch = 1483200000; // 单位：s    2017-01-01 (yyyy-MM-dd)
+//	private long startSecond = 1483200000; // 单位：s    2017-01-01 (yyyy-MM-dd)
+	private long startSecond = Start.getStartSecond();
+	
 	private long _counter=0;
 
 	public OneTimeSnowflakeId() {
-		startTime=_curSecond();
-		time = startTime - twepoch;
+		timestamp=_curSecond();
+		time = timestamp - startSecond;
 	}
 
 	public Worker getWorker() {
@@ -135,7 +137,7 @@ public class OneTimeSnowflakeId implements GenId {
 	
 //	private void testSpeedLimit() {
 	private synchronized void testSpeedLimit() {
-		long spentTime=_curSecond() - startTime + 1;
+		long spentTime=_curSecond() - timestamp + 1;
 		if (spentTime > 0) {
 			if ((spentTime << (segmentBits + sequenceBits)) > _counter) return; //check some one workerid.
 		}
