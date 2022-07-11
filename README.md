@@ -7,19 +7,27 @@ Bee
 **Coding Complexity is O(1),it means that Bee will do the Dao for you**.  
 **You don't need to write the Dao by yourself anymore**.Help you to focus more on the development of business logic.  
 **Good Feature:**  AI, Timesaving/Tasteful, Easy, Automatic (**AiTeaSoft Style**)   
+
+## **Good News:**  
+1)**V1.17 add support Android and HarmonyOS ORM function**  
+2)In **Android and HarmonyOS** environment can use the **same ORM code with Bee**  
+
 **Bee** see:  
 https://github.com/automvc/bee  
+bee-ext:  
+https://github.com/automvc/bee-ext  
 
 ## [中文介绍](../../../bee/blob/master/README_CN.md)  
 [点击链接可查看中文介绍](../../../bee/blob/master/README_CN.md)  
 
 ## Requirement  
-jdk1.7+
+#### jdk1.7+
 
 ## Feature & Function: 
 
 **Support many Database**(MySQL,MariaDB,Oracle,H2,SQLite,PostgreSQL,SQL Server,Cassandra and so on) and easily extend.  
 **Good performance, close to the speed of JDBC; Small files：Bee V1.8 jar 217k**, **V1.9.5 jar,315k, V1.9.8 jar 310k**.  
+In addition to **JDBC, Android and HarmonyOS** are also supported.  
 
 * 1.The interface is simple and easy to use, **Suid (select,update,insert,delete)** object-oriented operation.
 * 2.All Suid(select,update,insert,delete) operation use the same Bee interface,no longer need  new dao interface.  
@@ -50,8 +58,35 @@ jdk1.7+
 * 26.The front and back ends of complex queries can be automatically parsed.  
 * 27.Annotation support:PrimaryKey,Datetime,Createtime,Updatetime;JustFetch,ReplaceInto(MySQL).  
 * 28.Extensible annotation: multi tenant, fuzzy processing of sensitive information, automatic setting of field values, dictionary conversion, dicti18n multilingual International Dictionary conversion, column  name and field name mapping.  
+* 29.can automatically generate entity_F for referenced to the entity field name.
 
 ## Newest Function
+
+### **V1.17**  
+
+**V1.17.0.8**  
+1)Primary key support the field is not "id",except the Long, the type can be Integer or String    
+2)Support the automatic generation of the primary key by annotation(GenId,GenUUID)  
+3)@Column support default implement(Strongly recommend: do not use this Annotation in new system)  
+4)@Table,@Column,@PrimaryKey(@Id) compatible with JPA(interface AnnoAdapter)  
+5)Distributed id generator supports setting the starting year:bee.distribution.genid.startYear  
+6)Chain programming SelectImpl,UpdateImpl adjust check rule for field  
+
+**V1.17.0.7**  
+1)**add support HarmonyOS ORM function**  
+2)In **HarmonyOS and Android** environment can use the same ORM code with Bee  
+3)support HarmonyOS Log:ohos.hiviewdfx.HiLog  
+
+**V1.17.0.6**  
+1)**add support Android ORM function,you can use Bee for SQLite DB in Android environment.**  
+2)support android.util.Log  
+3)Ddl: optimize process if the table is exist  
+4)add log tip the dsName(dataSource name) when multi-dataSource  
+5)when paging , the size is 0, return emptyList  
+
+V1.17.0.5  
+1)Sql Server support (start,size) paging  
+2)@Tran transaction annotation  
 
 **V1.11**(**International Labour Day**)  
 **Detail:**  
@@ -155,6 +190,7 @@ SuidRich,public <T> int update(T oldEntity, T newEntity) Interceptors only handl
 [click for:  Function Detail](../../../bee/blob/master/Changed_Log.md)  
 
 ## ORM Compare	
+### Compare in JDBC	
 
 [ORM-Compare (More Detail)](../../../orm-compare)  
 
@@ -284,6 +320,46 @@ common,Javabean and Service interface:
 Orders.java  
 OrdersService.java  
 
+### Bee application in App Compare  
+
+**Performance comparison data of Bee application in app development**  
+Operate 10000 records, and the use time comparison is as follows.  
+
+<table cellpadding="0" cellspacing="0">
+  <col width="50" />
+  <col width="90" />
+  <col width="74" />
+  <col width="76" />
+  <tr height="19">
+    <td height="19" colspan="4" ><div align="center">Operate 10000 records(unit: ms)</div></td>
+  </tr>
+  <tr height="19">
+    <td height="19" >　</td>
+    <td align="right">insert</td>
+    <td align="right">query</td>
+    <td align="right">delete</td>
+  </tr>
+  <tr height="19">
+    <td height="19">greenDao(Android)</td>
+    <td align="right">104666</td>
+    <td align="right">600 </td>
+    <td align="right">47 </td>
+  </tr>
+  <tr height="19">
+    <td height="19">Bee(Android 8.1)</td>
+    <td align="right">747</td>
+    <td align="right">184</td>
+    <td align="right">25 </td>
+  </tr>
+  <tr height="19">
+    <td height="19">Bee(HarmonyOS P40 Pro simulator)</td>
+    <td align="right">339</td>
+    <td align="right">143</td>
+    <td align="right">2 </td>
+  </tr>
+</table>
+
+
 Quick Start:
 =========	
 ## 1. Add Bee   
@@ -392,14 +468,130 @@ public class SuidExamEN {
 
 ```
 
-#### [More example/test case](../../../bee-exam/)	
 
-#### [Bee+Spring-boot Demo](../../../bee-starter-demo/)	
+## [Quick Start : Bee + Harmony](Quick-start-for-Harmony.md) 
 
-### Bee Architecture  
-<img src="Bee-architecture-EN-V1.11.png"  width="520" height="500">  
+## [Quick Start : Bee + Android](Quick-start-for-Android.md) 
 
-### Bee Common Interface  
+## Use Bee in Android Environment    
+### 1.bee.properties    
+
+```properties
+bee.db.isAndroid=true
+bee.db.androidDbName=account.db
+bee.db.androidDbVersion=1
+bee.osql.loggerType=androidLog
+#turn on query result field type conversion, and more types will be supported
+bee.osql.openFieldTypeHandler=true
+
+#If you are allowed to delete and update the whole table, you need to remove the comments
+#bee.osql.notDeleteWholeRecords=false
+#bee.osql.notUpdateWholeRecords=false
+```
+
+### 2.implement tables that need to be created and updated when app installation and upgrade	
+
+```java
+public class YourAppCreateAndUpgrade implements CreateAndUpgrade{
+	@Override
+	public void onCreate() {
+//		You can create tables in an object-oriented way
+		Ddl.createTable(new Orders(), false);
+		Ddl.createTable(new TestUser(), false);
+	}
+
+	@Override
+	public void onUpgrade(int oldVersion, int newVersion) {
+		if(newVersion==2) {
+			Ddl.createTable(new LeafAlloc(), true);
+			Log.i("onUpgrade", "你在没有卸载的情况下，在线更新到版本:"+newVersion);
+		}
+	}
+}
+
+
+```
+### 3.Register YourAppCreateAndUpgrade and Android context to Bee	
+Configure android:name to BeeApplication in AndroidManifest.xml file.	
+
+```java
+package com.aiteasoft.util;
+
+import org.teasoft.bee.android.CreateAndUpgradeRegistry;
+import org.teasoft.beex.android.ApplicationRegistry;
+
+public class BeeApplication extends Application {
+    private static Context context;
+    @Override
+    public void onCreate() {
+       ApplicationRegistry.register(this);//注册上下文
+       CreateAndUpgradeRegistry.register(YourAppCreateAndUpgrade.class);
+    }
+ }
+ 
+// 并在AndroidManifest.xml,配置android:name为BeeApplication 
+ <application
+        android:icon="@drawable/appicon"
+        android:label="@string/app_name"
+         android:name="com.aiteasoft.util.BeeApplication"
+       >
+```
+
+### 4.Java operation SQLite database is similar to JavaWeb	
+
+```java
+Suid suid=BF.getSuid();
+List<Orders> list = suid.select(new Orders()); 
+```
+
+### 5.Bee application in App Compare	
+**Performance comparison data of Bee application in app development**  
+Operate 10000 records, and the use time comparison is as follows.  
+
+<table cellpadding="0" cellspacing="0">
+  <col width="50" />
+  <col width="90" />
+  <col width="74" />
+  <col width="76" />
+  <tr height="19">
+    <td height="19" colspan="4" ><div align="center">Operate 10000 records(unit: ms)</div></td>
+  </tr>
+  <tr height="19">
+    <td height="19" >　</td>
+    <td align="right">insert</td>
+    <td align="right">query</td>
+    <td align="right">delete</td>
+  </tr>
+  <tr height="19">
+    <td height="19">greenDao(Android)</td>
+    <td align="right">104666</td>
+    <td align="right">600 </td>
+    <td align="right">47 </td>
+  </tr>
+  <tr height="19">
+    <td height="19">Bee(Android 8.1)</td>
+    <td align="right">747</td>
+    <td align="right">184</td>
+    <td align="right">25 </td>
+  </tr>
+  <tr height="19">
+    <td height="19">Bee(HarmonyOS P40 Pro simulator)</td>
+    <td align="right">339</td>
+    <td align="right">143</td>
+    <td align="right">2 </td>
+  </tr>
+</table>
+
+
+### [More example/test case](../../../bee-exam/)	
+
+### [Bee+Spring-boot Demo](../../../bee-starter-demo/)	
+
+## Bee Architecture  
+**V1.17**  
+<img src="Bee-architecture-EN-V1.17.png"  width="520" height="640">  
+
+## Bee Common Interface  
 <img src="common-interface_en.jpg">  
 
 Rapid application development:
@@ -412,10 +604,17 @@ Rapid application development:
 **Faster development of new combinations for Spring Cloud microservices：**  
 [Bee + Spring Boot](../../../bee-springboot)  
 
-### KmCoding
+## KmCoding
 [Rapid Application Code Generation Platform](http://www.kmcoding.com)--AiTea Soft made in China!  
 
 ...  
+
+App Demo:
+=========	
+### **HarmonyOS application Demo with ORM Bee：**  
+[Bee + HarmonyOS](../../../../aiteasoft/HarmonyOS-ORM-Bee-Demo)  
+
+[Bee + Android](Quick-start-for-Android.md)  
 
 Other Document:
 =========	
