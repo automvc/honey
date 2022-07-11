@@ -20,6 +20,7 @@ import org.teasoft.bee.osql.Op;
 import org.teasoft.bee.osql.OrderType;
 import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
+import org.teasoft.bee.osql.exception.BeeErrorNameException;
 import org.teasoft.honey.osql.util.NameCheckUtil;
 import org.teasoft.honey.util.EntityUtil;
 
@@ -204,7 +205,8 @@ public class ConditionImpl implements Condition {
 
 	@Override
 	public Condition having(FunctionType functionType, String field, Op op, Number value) {
-		checkField(field);
+//		checkField(field);
+		checkFieldOrExpression(field);
 		Expression exp = new Expression();
 		exp.opType = "having";
 		//exp.value
@@ -230,7 +232,8 @@ public class ConditionImpl implements Condition {
 
 	@Override
 	public Condition orderBy(String field) {
-		checkField(field);
+//		checkField(field);
+		checkFieldOrExpression(field);
 		orderByMap.put(field, "asc");// V1.17
 		Expression exp = new Expression();
 		exp.opType = ORDER_BY;
@@ -515,10 +518,13 @@ public class ConditionImpl implements Condition {
 	}
 
 	private void checkField(String field){
-//		if(CheckField.isIllegal(field)) {
-//			throw new BeeErrorFieldException("The field: '"+field+ "' is illegal!");
-//		}
 		NameCheckUtil.checkName(field);
+	}
+	
+	private void checkFieldOrExpression(String field){
+		if(NameCheckUtil.isIllegal(field)) {
+			throw new BeeErrorNameException("The field: '" + field + "' is illegal!");
+		}
 	}
 	
 	//1.17

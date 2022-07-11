@@ -6,6 +6,8 @@
 
 package org.teasoft.honey.util;
 
+import java.util.regex.Pattern;
+
 /**
  * @author Kingstar
  * @since  1.9
@@ -101,5 +103,53 @@ public final class StringUtils {
 
 		return idsStr;
 	}
+	
+	
+	public static boolean isInteger(String str) {
+		Pattern pattern = Pattern.compile("^[-\\+]?[\\d]+$");
+//		Pattern pattern = Pattern.compile("[-\\+]?[\\d]+");
+		
+//		"\d+"和"^\d+"
+////		Pattern pattern = Pattern.compile("\\d+");
+//		Pattern pattern = Pattern.compile("^\\d+");
+		return pattern.matcher(str).matches();
+	}
+
+	/**
+	 * 通过正则表达式判断字符串是否为数字
+	 * @param str
+	 * @return
+	 */
+	public static boolean isNumber(String str) {
+		Pattern pattern = Pattern.compile("^[-\\+]?[0-9]+(\\\\.[0-9]+)?$");
+		// 通过Matcher进行字符串匹配
+		// 如果正则匹配通过 m.matches() 方法返回 true ，反之 false
+		return pattern.matcher(str).matches();
+	}
+	
+/*	public static void main(String[] args) {
+		System.out.println(isInteger(""));
+		System.out.println(isNumber(""));
+		System.out.println(isInteger(" 0"));
+		System.out.println(isNumber(" 0"));
+		
+		System.out.println(isInteger("-"));
+		System.out.println(isNumber("-"));
+		
+		System.out.println(isInteger("+"));
+		System.out.println(isNumber("+"));
+		
+		System.out.println(isInteger("+0"));
+		System.out.println(isNumber("+0"));
+		
+		System.out.println(isInteger("-0"));
+		System.out.println(isNumber("-0"));
+		
+		
+		System.out.println(isInteger("a123456789"));
+		System.out.println(isNumber("a123456789"));
+		
+	}*/
+
 	
 }

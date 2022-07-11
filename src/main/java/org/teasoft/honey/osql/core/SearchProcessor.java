@@ -63,11 +63,12 @@ public class SearchProcessor {
 					
 				case between:
 					checkForBetween(value, value2);
-					condition.between(field, value, value2);
+					setBetweenValue(field, value, value2, condition);
 					break;
 				case notBetween:
 					checkForBetween(value, value2);
-					condition.notBetween(field, value, value2);
+//					condition.notBetween(field, value, value2);
+					setNotBetweenValue(field, value, value2, condition);
 					break;
 					
 				case in:
@@ -194,6 +195,34 @@ public class SearchProcessor {
 	private static String trim(String str) {
 		if(str!=null) str=str.trim();
 		return str;
+	}
+	
+	private static void setBetweenValue(String field,String value, String value2,Condition condition) {
+		try {
+			if (StringUtils.isInteger(value) && StringUtils.isInteger(value2)) {
+				condition.between(field, Long.parseLong(value),Long.parseLong(value2));
+			} else if (StringUtils.isNumber(value) && StringUtils.isNumber(value2)) {
+				condition.between(field, Double.parseDouble(value), Double.parseDouble(value2));
+			} else {
+				condition.between(field, value, value2);
+			}
+		} catch (Exception e) {
+			condition.between(field, value, value2);
+		}
+	}
+	
+	private static void setNotBetweenValue(String field,String value, String value2,Condition condition) {
+		try {
+			if (StringUtils.isInteger(value) && StringUtils.isInteger(value2)) {
+				condition.notBetween(field, Long.parseLong(value),Long.parseLong(value2));
+			} else if (StringUtils.isNumber(value) && StringUtils.isNumber(value2)) {
+				condition.notBetween(field, Double.parseDouble(value), Double.parseDouble(value2));
+			} else {
+				condition.notBetween(field, value, value2);
+			}
+		} catch (Exception e) {
+			condition.notBetween(field, value, value2);
+		}
 	}
 
 }

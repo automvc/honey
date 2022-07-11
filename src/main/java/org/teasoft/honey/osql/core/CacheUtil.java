@@ -259,12 +259,11 @@ public final class CacheUtil {
 					if (rs instanceof String)
 						rs = (String) rsNew;
 					else if (rs instanceof List)
-						rs = (List) rsNew; //TODO 拿出一个元素来判断
+						rs = (List) rsNew;
 					else
 						rs = rsNew;
 				}
 
-//				System.err.println(rs.getClass().getName());
 			} catch (Exception e) { //NotSerializableException
 				Logger.debug(e.getMessage(), e);
 				if(getCachePrototype()==1) return false; //严格  异常则不放入缓存

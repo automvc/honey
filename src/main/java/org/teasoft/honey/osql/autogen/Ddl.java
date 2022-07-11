@@ -41,12 +41,14 @@ public class Ddl {
 	private static String LINE_SEPARATOR = System.getProperty("line.separator"); // 换行符
 	private static PreparedSql preparedSql = BeeFactoryHelper.getPreparedSql();
 	private static Map<String,String> pkStatement=new HashMap<>();
+	private static Map<String,String> pkStringStatement=new HashMap<>();
 	private static String java_lang_String="java.lang.String";
 	
 	private static SuidRich suidRich= BF.getSuidRich();
 	
 	static {
 		initPkStatement();
+		initStringPkStatement();
 	}
 
 	private Ddl() {}
@@ -302,9 +304,16 @@ public class Ddl {
 			}
 			sqlBuffer.append(_toColumnName(fields[i].getName(),entity.getClass())).append("  ");
 
-			if (isPrimaryKey(fields[i]))
-				sqlBuffer.append("bigint(20) PRIMARY KEY NOT NULL AUTO_INCREMENT");
-			else {
+			if (isPrimaryKey(fields[i])) {
+				String pkSt="bigint(20) PRIMARY KEY NOT NULL AUTO_INCREMENT";
+				if(String.class.equals(fields[i].getType())) {
+					String type = getJava2DbType().get(fields[i].getType().getName());
+					if(type!=null) {
+						pkSt="varchar(255) PRIMARY KEY NOT NULL";
+					}
+				}
+				sqlBuffer.append(pkSt);
+			}else {
 				String type = getJava2DbType().get(fields[i].getType().getName());
 				if(type==null) {
 					Logger.warn(THE_JAVA_TYPE+type+NOT_RELATIVE_COLUMN);
@@ -384,8 +393,20 @@ public class Ddl {
 		pkStatement.put(null, "");
 	}
 	
+	private static void initStringPkStatement() {
+		pkStringStatement.put(DatabaseConst.H2.toLowerCase(), "varchar(255) PRIMARY KEY NOT NULL");
+		pkStringStatement.put(DatabaseConst.SQLite.toLowerCase(), " VARCHAR2(255) PRIMARY KEY NOT NULL");
+		pkStringStatement.put(DatabaseConst.PostgreSQL.toLowerCase(), "varchar(255) PRIMARY KEY NOT NULL");
+		pkStringStatement.put("", "");
+		pkStringStatement.put(null, "");
+	}
+	
 	private static String getPrimaryKeyStatement(String databaseName){
 		return pkStatement.get(databaseName.toLowerCase());
+	}
+	
+	private static String getStringPrimaryKeyStatement(String databaseName){
+		return pkStringStatement.get(databaseName.toLowerCase());
 	}
 	
 	//Comm: H2,SQLite,PostgreSQL
@@ -402,9 +423,12 @@ public class Ddl {
 			}
 			sqlBuffer.append(_toColumnName(fields[i].getName(), entity.getClass())).append("  ");
 
-			if (isPrimaryKey(fields[i]))
-				sqlBuffer.append(getPrimaryKeyStatement(databaseName));//different
-			else {
+			if (isPrimaryKey(fields[i])) {
+				if (!String.class.equals(fields[i].getType()))
+					sqlBuffer.append(getPrimaryKeyStatement(databaseName));// different
+				else
+					sqlBuffer.append(getStringPrimaryKeyStatement(databaseName));
+			} else {
 				
 				String type = getJava2DbType().get(fields[i].getType().getName());
 				if(type==null) {
@@ -490,9 +514,16 @@ public class Ddl {
 			}
 			sqlBuffer.append(_toColumnName(fields[i].getName(),entity.getClass())).append("  ");
 
-			if (isPrimaryKey(fields[i]))
-				sqlBuffer.append("bigint PRIMARY KEY NOT NULL");
-			else {
+			if (isPrimaryKey(fields[i])) {
+				String pkSt="bigint PRIMARY KEY NOT NULL";
+				if(String.class.equals(fields[i].getType())) {
+					String type = getJava2DbType().get(fields[i].getType().getName());
+					if(type!=null) {
+						pkSt=pkSt.replace("bigint", type);
+					}
+				}
+				sqlBuffer.append(pkSt);
+			}else {
 				String type = getJava2DbType().get(fields[i].getType().getName());
 				if(type==null) {
 					Logger.warn(THE_JAVA_TYPE+type+NOT_RELATIVE_COLUMN);
