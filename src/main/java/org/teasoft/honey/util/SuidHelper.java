@@ -143,7 +143,6 @@ public final class SuidHelper {
 	
 	/**
 	 * 将to在from有的属性,都复制到to中.
-	 * @param <T>
 	 * @param from
 	 * @param to
 	 * @return 处理后的to对象

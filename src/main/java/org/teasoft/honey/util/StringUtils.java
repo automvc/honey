@@ -64,7 +64,7 @@ public final class StringUtils {
 	}
 	
 	/**
-	 * 字符串数组转用用逗号分隔的字符串.string array to Strings separated by commas.
+	 * 字符串数组转为用逗号分隔的字符串.string array to Strings separated by commas.
 	 * @param stringArray string array.
 	 * @return
 	 */
@@ -75,15 +75,15 @@ public final class StringUtils {
 		if (stringArray.length == 1) return stringArray[1];
 		String idsStr = "";
 		for (int i = 0; i < stringArray.length; i++) {
+			if (i != 0) idsStr += ",";
 			idsStr += stringArray[i];
-			if (i != stringArray.length - 1) idsStr += ",";
 		}
 
 		return idsStr;
 	}
 	
 	/**
-	 * 数字数组转用用逗号分隔的字符串.number array to Strings separated by commas.
+	 * 数字数组转为用逗号分隔的字符串.number array to Strings separated by commas.
 	 * @param numArray number array.
 	 * @return
 	 */

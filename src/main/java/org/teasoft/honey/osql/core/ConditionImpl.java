@@ -22,7 +22,7 @@ import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
 import org.teasoft.bee.osql.exception.BeeErrorNameException;
 import org.teasoft.honey.osql.util.NameCheckUtil;
-import org.teasoft.honey.util.EntityUtil;
+import org.teasoft.honey.util.StringUtils;
 
 /**
  * 为面向对象方式操作数据库提供封装的条件.Condition for operate DB with Object Oriented Programming way.
@@ -416,7 +416,7 @@ public class ConditionImpl implements Condition {
 		if (fieldList != null && fieldList.length == 1)
 			checkField(fieldList[0]);
 		else
-			checkField(EntityUtil.arrayToString(fieldList));
+			checkField(StringUtils.toCommasString(fieldList));
 
 		this.selectField = fieldList;
 		return this;
