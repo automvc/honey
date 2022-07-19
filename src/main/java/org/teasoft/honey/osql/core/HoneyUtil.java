@@ -917,7 +917,7 @@ public final class HoneyUtil {
 			//if you want to change, can set in jdbcTypeToFieldType-H2.properties
 			jdbcTypeMap.put("IDENTITY", "Long");
 			jdbcTypeMap.put("UUID", "java.util.UUID");
-			jdbcTypeMap.put("YEAR", "Time");
+//			jdbcTypeMap.put("YEAR", "Time");
 			jdbcTypeMap.put("TIME", "Object");
 			jdbcTypeMap.put("OTHER", "bbb");
 			jdbcTypeMap.put("ENUM", "Integer");
@@ -930,8 +930,6 @@ public final class HoneyUtil {
 			jdbcTypeMap.put("MULTILINESTRING", STRING);
 			jdbcTypeMap.put("MULTIPOLYGON", STRING);
 			jdbcTypeMap.put("GEOMETRYCOLLECTION", STRING);
-			jdbcTypeMap.put("aaa", "bbb");
-			jdbcTypeMap.put("aaa", "bbb");
 //					INTERVAL\ YEAR=org.h2.api.Interval
 //					INTERVAL\ MONTH=org.h2.api.Interval
 //					INTERVAL\ DAY=org.h2.api.Interval

@@ -372,6 +372,8 @@ public class GenBean {
             String comment="";
             String fieldName="";
             String columnName="";
+            String allFieldName="";
+            boolean genFieldAll=config.isGenFieldAll();
 			for (int i = 0; i < columnNames.size(); i++) {
 				columnName=columnNames.get(i);
 				fieldName = NameTranslateHandle.toFieldName(columnName);
@@ -389,7 +391,18 @@ public class GenBean {
 				bw.write(st);
 				
 				bw.write(LINE_SEPARATOR);
+				
+				if (genFieldAll) {
+					if (i != 0) allFieldName += ",";
+					allFieldName += fieldName;
+				}
 			}
+
+			if (genFieldAll) {
+				bw.write("	public static final String ALL_NAMES = \"" + allFieldName + "\";");
+				bw.write(LINE_SEPARATOR);
+			}
+			
 			bw.write("}");
 			bw.flush();
 			

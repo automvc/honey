@@ -22,11 +22,15 @@ public class SqlServerFeature extends AbstractSqlServerFeature implements DbFeat
 	
 	{
 		if (HoneyUtil.isSqlKeyWordUpper()) {
-			part1 = part1.toUpperCase();
-			part2 = part2.toUpperCase();
-			part1_1=part1_1.toUpperCase();
-			part1_2=part1_2.toUpperCase();
+			setStr();
 		}
+	}
+	
+	private static void setStr() {
+		part1 = part1.toUpperCase();
+		part2 = part2.toUpperCase();
+		part1_1=part1_1.toUpperCase();
+		part1_2=part1_2.toUpperCase();
 	}
 
 	// 2012之前的语法,start是从1开始
@@ -34,7 +38,7 @@ public class SqlServerFeature extends AbstractSqlServerFeature implements DbFeat
 		// sql server 2012之前的语法 start是从1开始数. start 为0或1, 相当于只取size
 		if (start <= 1) return toPageSql(sql, size);
 
-		if (start == 0) start = 1;
+//		if (start == 0) start = 1;
 		sql = HoneyUtil.deleteLastSemicolon(sql);
 		sql = sql.trim();
 		String sql2 = "";

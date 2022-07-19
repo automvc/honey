@@ -31,6 +31,7 @@ public class GenConfig {
 	private String fieldFileRelativeFolder="field";
 	private String fieldFilePrefix="";
 	private String fieldFileSuffix="_F";
+	private boolean genFieldAll=true;
 
 	public String getEncode() {
 		return encode;
@@ -191,6 +192,14 @@ public class GenConfig {
 
 	public void setFieldFilePrefix(String fieldFilePrefix) {
 		this.fieldFilePrefix = fieldFilePrefix;
+	}
+
+	public boolean isGenFieldAll() {
+		return genFieldAll;
+	}
+
+	public void setGenFieldAll(boolean genFieldAll) {
+		this.genFieldAll = genFieldAll;
 	}
 	
 }
