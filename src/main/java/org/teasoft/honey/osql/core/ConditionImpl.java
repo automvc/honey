@@ -517,8 +517,8 @@ public class ConditionImpl implements Condition {
 		return this;
 	}
 
-	private void checkField(String field){
-		NameCheckUtil.checkName(field);
+	private void checkField(String fields){
+		NameCheckUtil.checkName(fields);
 	}
 	
 	private void checkFieldOrExpression(String field){

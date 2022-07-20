@@ -13,7 +13,7 @@ import java.util.Map;
 import org.teasoft.bee.osql.DatabaseConst;
 import org.teasoft.bee.osql.PreparedSql;
 import org.teasoft.bee.osql.SuidRich;
-import org.teasoft.bee.osql.annotation.PrimaryKey;
+import org.teasoft.bee.osql.exception.BeeErrorNameException;
 import org.teasoft.honey.osql.core.BeeFactoryHelper;
 import org.teasoft.honey.osql.core.HoneyConfig;
 import org.teasoft.honey.osql.core.HoneyContext;
@@ -23,8 +23,10 @@ import org.teasoft.honey.osql.core.NameTranslateHandle;
 import org.teasoft.honey.osql.name.NameUtil;
 import org.teasoft.honey.osql.shortcut.BF;
 import org.teasoft.honey.osql.util.AnnoUtil;
+import org.teasoft.honey.osql.util.NameCheckUtil;
 import org.teasoft.honey.util.EntityUtil;
 import org.teasoft.honey.util.SqlKeyCheck;
+import org.teasoft.honey.util.StringUtils;
 
 /**
  * 根据Javabean创建表.Create table according to Javabean
@@ -37,22 +39,22 @@ public class Ddl {
 	private static final String NOT_RELATIVE_COLUMN = " has not the relative database column type!";
 	private static final String THE_JAVA_TYPE = "The java type:";
 	private static final String CREATE_TABLE = "CREATE TABLE ";
-	//	private static Map<String, String> java2DbType = Java2DbType.getJava2DbType(HoneyContext.getDbDialect());
+	// private static Map<String, String> java2DbType = Java2DbType.getJava2DbType(HoneyContext.getDbDialect());
 	private static String LINE_SEPARATOR = System.getProperty("line.separator"); // 换行符
 	private static PreparedSql preparedSql = BeeFactoryHelper.getPreparedSql();
-	private static Map<String,String> pkStatement=new HashMap<>();
-	private static Map<String,String> pkStringStatement=new HashMap<>();
-	private static String java_lang_String="java.lang.String";
-	
-	private static SuidRich suidRich= BF.getSuidRich();
-	
+	private static Map<String, String> pkStatement = new HashMap<>();
+	private static Map<String, String> pkStringStatement = new HashMap<>();
+	private static String java_lang_String = "java.lang.String";
+
+	private static SuidRich suidRich = BF.getSuidRich();
+
 	static {
 		initPkStatement();
 		initStringPkStatement();
 	}
 
 	private Ddl() {}
-	
+
 	private static Map<String, String> getJava2DbType() {
 		return Java2DbType.getJava2DbType(HoneyContext.getDbDialect());
 	}
@@ -82,13 +84,13 @@ public class Ddl {
 			}
 			return createTable(entity, tableName);
 
-		} else {//donot Drop ExistTable
-			if(isExistTable(entity)) return true; //V1.17 已存在,则不创建
+		} else {// donot Drop ExistTable
+			if (isExistTable(entity)) return true; // V1.17 已存在,则不创建
 			return createTable(entity);
 		}
 
 	}
-	
+
 	/**
 	 * check whether the table exist or not.
 	 * @param entity
@@ -98,8 +100,7 @@ public class Ddl {
 	public static <T> boolean isExistTable(T entity) {
 		boolean flag = false;
 		try {
-//			List<T> list=suidRich.select(entity, 0, 1);
-			suidRich.select(entity, 0, 1);
+			suidRich.select(entity, 1);
 			flag = true;
 			String tableName = _toTableName(entity);
 			Logger.warn("The database exist the table : " + tableName);
@@ -108,7 +109,6 @@ public class Ddl {
 		}
 		return flag;
 	}
-	
 
 	/**
 	 * 根据Javabean生成数据库表,Javabean无需配置过多的字段信息.此方法只考虑通用情况,若有详细需求,不建议采用
@@ -125,18 +125,22 @@ public class Ddl {
 	private static <T> boolean createTable(T entity, String tableName) {
 		boolean result = false;
 		try {
-			//V1.11 创建语句的可执行语句与占位的是一样的,无需要重复输出.
-			boolean old=HoneyConfig.getHoneyConfig().showSql_showExecutableSql;
-			if(old) HoneyConfig.getHoneyConfig().showSql_showExecutableSql=false;
-			preparedSql.modify(toCreateTableSQL(entity, tableName));
-			if(old) HoneyConfig.getHoneyConfig().showSql_showExecutableSql=old;
+			ddlModify(toCreateTableSQL(entity, tableName));
 			result = true;
 		} catch (Exception e) {
-			Logger.error(e.getMessage(),e);
+			Logger.error(e.getMessage(), e);
 			result = false;
 		}
 
 		return result;
+	}
+
+	private static void ddlModify(String sql) {
+		// V1.11 创建语句的可执行语句与占位的是一样的,无需要重复输出.
+		boolean old = HoneyConfig.getHoneyConfig().showSql_showExecutableSql;
+		if (old) HoneyConfig.getHoneyConfig().showSql_showExecutableSql = false;
+		preparedSql.modify(sql);
+		if (old) HoneyConfig.getHoneyConfig().showSql_showExecutableSql = old;
 	}
 
 	/**
@@ -163,13 +167,13 @@ public class Ddl {
 			return toCreateTableSQLForPostgreSQL(entity, tableName);
 		} else if (HoneyUtil.isSqlServer()) {
 			return toCreateTableSQLForSQLSERVER(entity, tableName);
-		} else{
-			//ORACLE,Cassandra ...
+		} else {
+			// ORACLE,Cassandra ...
 			return _toCreateTableSQL(entity, tableName);
 		}
 	}
 
-	//ORACLE, Cassandra
+	// ORACLE, Cassandra
 	private static <T> String _toCreateTableSQL(T entity, String tableName) {
 
 		if (tableName == null) tableName = _toTableName(entity);
@@ -178,29 +182,31 @@ public class Ddl {
 		Field fields[] = entity.getClass().getDeclaredFields();
 		for (int i = 0; i < fields.length; i++) {
 			if (isSkipField(fields[i])) {
-				if (i == fields.length - 1) sqlBuffer.delete(sqlBuffer.length() - 5, sqlBuffer.length() - 2);
+				if (i == fields.length - 1)
+					sqlBuffer.delete(sqlBuffer.length() - 5, sqlBuffer.length() - 2);
 				continue;
 			}
-			sqlBuffer.append(_toColumnName(fields[i].getName(),entity.getClass())).append("  ");
-			
-			String type =getType(fields[i]);
-			
-			if(HoneyUtil.isCassandra()) {
-				if(EntityUtil.isList(fields[i]) || EntityUtil.isSet(fields[i])) {
-					Class<?> clazz=EntityUtil.getGenericType(fields[i]);
-					String type0=getType(clazz);
-					type=type+"<"+type0+">";
-				}else if(EntityUtil.isMap(fields[i])) {
-					Class<?>[] classes=EntityUtil.getGenericTypeArray(fields[i]);
-					String type1=getType(classes[0]);
-					String type2=getType(classes[1]);
-					type=type+"<"+type1+","+type2+">";
+			sqlBuffer.append(_toColumnName(fields[i].getName(), entity.getClass()))
+					.append("  ");
+
+			String type = getType(fields[i]);
+
+			if (HoneyUtil.isCassandra()) {
+				if (EntityUtil.isList(fields[i]) || EntityUtil.isSet(fields[i])) {
+					Class<?> clazz = EntityUtil.getGenericType(fields[i]);
+					String type0 = getType(clazz);
+					type = type + "<" + type0 + ">";
+				} else if (EntityUtil.isMap(fields[i])) {
+					Class<?>[] classes = EntityUtil.getGenericTypeArray(fields[i]);
+					String type1 = getType(classes[0]);
+					String type2 = getType(classes[1]);
+					type = type + "<" + type1 + "," + type2 + ">";
 				}
-				
+
 			}
-			
+
 			sqlBuffer.append(type);
-			
+
 			if (isPrimaryKey(fields[i])) sqlBuffer.append(" PRIMARY KEY");
 			if (i != fields.length - 1)
 				sqlBuffer.append(",  ");
@@ -213,46 +219,46 @@ public class Ddl {
 		return sqlBuffer.toString();
 
 	}
-	
+
 	private static String getType(Field field) {
 		String type = getJava2DbType().get(field.getType().getName());
-		if(type==null) {
-			Logger.warn(THE_JAVA_TYPE+type+NOT_RELATIVE_COLUMN);
-			type=getJava2DbType().get(java_lang_String);
-			Logger.warn(BE_REPLACE_WITH_TYPE+type);
+		if (type == null) {
+			Logger.warn(THE_JAVA_TYPE + type + NOT_RELATIVE_COLUMN);
+			type = getJava2DbType().get(java_lang_String);
+			Logger.warn(BE_REPLACE_WITH_TYPE + type);
 		}
-		
+
 		return type;
 	}
-	
+
 	private static String getType(Class<?> c) {
-		String name="";
-		if(c==null) {
-			Logger.warn("The Class is null,it will be replace with "+java_lang_String);
-			name=java_lang_String;
-		}else {
-			name=c.getName();
+		String name = "";
+		if (c == null) {
+			Logger.warn("The Class is null,it will be replace with " + java_lang_String);
+			name = java_lang_String;
+		} else {
+			name = c.getName();
 		}
 		String type = getJava2DbType().get(name);
 		if (type == null) {
-			if (EntityUtil.isCustomBean(name) && c!=null) {
+			if (EntityUtil.isCustomBean(name) && c != null) {
 //				type=c.getSimpleName();
-				type=NameUtil.firstLetterToLowerCase(c.getSimpleName());
+				type = NameUtil.firstLetterToLowerCase(c.getSimpleName());
 			} else {
 				Logger.warn(THE_JAVA_TYPE + name + NOT_RELATIVE_COLUMN);
 				type = getJava2DbType().get(java_lang_String);
 				Logger.warn(BE_REPLACE_WITH_TYPE + type);
 			}
 		}
-		
+
 		return type;
 	}
-	
-	//SQLite
+
+	// SQLite
 	private static <T> String toCreateTableSQLForSQLite(T entity, String tableName) {
 		return toCreateTableSQLComm(entity, tableName, DatabaseConst.SQLite);
 	}
-	
+
 /*	//SQLite
 	private static <T> String toCreateTableSQLForSQLite(T entity, String tableName) {
 		if (tableName == null) tableName = _toTableName(entity);
@@ -291,7 +297,7 @@ public class Ddl {
 	}
 	*/
 
-	//MySQL
+	// MySQL
 	private static <T> String toCreateTableSQLForMySQL(T entity, String tableName) {
 		if (tableName == null) tableName = _toTableName(entity);
 		StringBuilder sqlBuffer = new StringBuilder();
@@ -299,29 +305,31 @@ public class Ddl {
 		Field fields[] = entity.getClass().getDeclaredFields();
 		for (int i = 0; i < fields.length; i++) {
 			if (isSkipField(fields[i])) {
-				if (i == fields.length - 1) sqlBuffer.delete(sqlBuffer.length() - 5, sqlBuffer.length() - 2);
+				if (i == fields.length - 1)
+					sqlBuffer.delete(sqlBuffer.length() - 5, sqlBuffer.length() - 2);
 				continue;
 			}
-			sqlBuffer.append(_toColumnName(fields[i].getName(),entity.getClass())).append("  ");
+			sqlBuffer.append(_toColumnName(fields[i].getName(), entity.getClass()))
+					.append("  ");
 
 			if (isPrimaryKey(fields[i])) {
-				String pkSt="bigint(20) PRIMARY KEY NOT NULL AUTO_INCREMENT";
-				if(String.class.equals(fields[i].getType())) {
+				String pkSt = "bigint(20) PRIMARY KEY NOT NULL AUTO_INCREMENT";
+				if (String.class.equals(fields[i].getType())) {
 					String type = getJava2DbType().get(fields[i].getType().getName());
-					if(type!=null) {
-						pkSt="varchar(255) PRIMARY KEY NOT NULL";
+					if (type != null) {
+						pkSt = "varchar(255) PRIMARY KEY NOT NULL";
 					}
 				}
 				sqlBuffer.append(pkSt);
-			}else {
+			} else {
 				String type = getJava2DbType().get(fields[i].getType().getName());
-				if(type==null) {
-					Logger.warn(THE_JAVA_TYPE+type+NOT_RELATIVE_COLUMN);
-					type=getJava2DbType().get(java_lang_String);
-					Logger.warn(BE_REPLACE_WITH_TYPE+type);
+				if (type == null) {
+					Logger.warn(THE_JAVA_TYPE + type + NOT_RELATIVE_COLUMN);
+					type = getJava2DbType().get(java_lang_String);
+					Logger.warn(BE_REPLACE_WITH_TYPE + type);
 				}
 				sqlBuffer.append(type);
-				
+
 				if ("timestamp".equalsIgnoreCase(type) || "datetime".equalsIgnoreCase(type)) {
 					sqlBuffer.append(" DEFAULT CURRENT_TIMESTAMP");
 				} else {
@@ -340,12 +348,11 @@ public class Ddl {
 		return sqlBuffer.toString();
 
 	}
-	
+
 //	H2
 	private static <T> String toCreateTableSQLForH2(T entity, String tableName) {
 		return toCreateTableSQLComm(entity, tableName, DatabaseConst.H2);
 	}
-	
 
 /*	//H2
 	private static <T> String toCreateTableSQLForH2(T entity, String tableName) {
@@ -384,7 +391,7 @@ public class Ddl {
 		return sqlBuffer.toString();
 	}
 */
-	
+
 	private static void initPkStatement() {
 		pkStatement.put(DatabaseConst.H2.toLowerCase(), "bigint PRIMARY KEY NOT NULL");
 		pkStatement.put(DatabaseConst.SQLite.toLowerCase(), " INTEGER PRIMARY KEY NOT NULL");
@@ -392,25 +399,29 @@ public class Ddl {
 		pkStatement.put("", "");
 		pkStatement.put(null, "");
 	}
-	
+
 	private static void initStringPkStatement() {
-		pkStringStatement.put(DatabaseConst.H2.toLowerCase(), "varchar(255) PRIMARY KEY NOT NULL");
-		pkStringStatement.put(DatabaseConst.SQLite.toLowerCase(), " VARCHAR2(255) PRIMARY KEY NOT NULL");
-		pkStringStatement.put(DatabaseConst.PostgreSQL.toLowerCase(), "varchar(255) PRIMARY KEY NOT NULL");
+		pkStringStatement.put(DatabaseConst.H2.toLowerCase(),
+				"varchar(255) PRIMARY KEY NOT NULL");
+		pkStringStatement.put(DatabaseConst.SQLite.toLowerCase(),
+				" VARCHAR2(255) PRIMARY KEY NOT NULL");
+		pkStringStatement.put(DatabaseConst.PostgreSQL.toLowerCase(),
+				"varchar(255) PRIMARY KEY NOT NULL");
 		pkStringStatement.put("", "");
 		pkStringStatement.put(null, "");
 	}
-	
-	private static String getPrimaryKeyStatement(String databaseName){
+
+	private static String getPrimaryKeyStatement(String databaseName) {
 		return pkStatement.get(databaseName.toLowerCase());
 	}
-	
-	private static String getStringPrimaryKeyStatement(String databaseName){
+
+	private static String getStringPrimaryKeyStatement(String databaseName) {
 		return pkStringStatement.get(databaseName.toLowerCase());
 	}
-	
-	//Comm: H2,SQLite,PostgreSQL
-	private static <T> String toCreateTableSQLComm(T entity, String tableName, String databaseName) {
+
+	// Comm: H2,SQLite,PostgreSQL
+	private static <T> String toCreateTableSQLComm(T entity, String tableName,
+			String databaseName) {
 		if (tableName == null) tableName = _toTableName(entity);
 		StringBuilder sqlBuffer = new StringBuilder();
 		sqlBuffer.append(CREATE_TABLE + tableName + " (").append(LINE_SEPARATOR);
@@ -421,7 +432,8 @@ public class Ddl {
 					sqlBuffer.delete(sqlBuffer.length() - 5, sqlBuffer.length() - 2);
 				continue;
 			}
-			sqlBuffer.append(_toColumnName(fields[i].getName(), entity.getClass())).append("  ");
+			sqlBuffer.append(_toColumnName(fields[i].getName(), entity.getClass()))
+					.append("  ");
 
 			if (isPrimaryKey(fields[i])) {
 				if (!String.class.equals(fields[i].getType()))
@@ -429,12 +441,12 @@ public class Ddl {
 				else
 					sqlBuffer.append(getStringPrimaryKeyStatement(databaseName));
 			} else {
-				
+
 				String type = getJava2DbType().get(fields[i].getType().getName());
-				if(type==null) {
-					Logger.warn(THE_JAVA_TYPE+type+NOT_RELATIVE_COLUMN);
-					type=getJava2DbType().get(java_lang_String);
-					Logger.warn(BE_REPLACE_WITH_TYPE+type);
+				if (type == null) {
+					Logger.warn(THE_JAVA_TYPE + type + NOT_RELATIVE_COLUMN);
+					type = getJava2DbType().get(java_lang_String);
+					Logger.warn(BE_REPLACE_WITH_TYPE + type);
 				}
 				sqlBuffer.append(type);
 				if ("timestamp".equalsIgnoreCase(type) || "datetime".equalsIgnoreCase(type)) {
@@ -454,13 +466,12 @@ public class Ddl {
 
 		return sqlBuffer.toString();
 	}
-	
-	
+
 //	PostgreSQL
 	private static <T> String toCreateTableSQLForPostgreSQL(T entity, String tableName) {
 		return toCreateTableSQLComm(entity, tableName, DatabaseConst.PostgreSQL);
 	}
-	
+
 /*	//PostgreSQL
 	private static <T> String toCreateTableSQLForPostgreSQL(T entity, String tableName) {
 		if (tableName == null) tableName = _toTableName(entity);
@@ -500,7 +511,7 @@ public class Ddl {
 	}
 	*/
 
-	//SQLSERVER
+	// SQLSERVER
 	private static <T> String toCreateTableSQLForSQLSERVER(T entity, String tableName) {
 		if (tableName == null) tableName = _toTableName(entity);
 		StringBuilder sqlBuffer = new StringBuilder();
@@ -509,29 +520,31 @@ public class Ddl {
 		boolean hasCurrentTime = false;
 		for (int i = 0; i < fields.length; i++) {
 			if (isSkipField(fields[i])) {
-				if (i == fields.length - 1) sqlBuffer.delete(sqlBuffer.length() - 5, sqlBuffer.length() - 2);
+				if (i == fields.length - 1)
+					sqlBuffer.delete(sqlBuffer.length() - 5, sqlBuffer.length() - 2);
 				continue;
 			}
-			sqlBuffer.append(_toColumnName(fields[i].getName(),entity.getClass())).append("  ");
+			sqlBuffer.append(_toColumnName(fields[i].getName(), entity.getClass()))
+					.append("  ");
 
 			if (isPrimaryKey(fields[i])) {
-				String pkSt="bigint PRIMARY KEY NOT NULL";
-				if(String.class.equals(fields[i].getType())) {
+				String pkSt = "bigint PRIMARY KEY NOT NULL";
+				if (String.class.equals(fields[i].getType())) {
 					String type = getJava2DbType().get(fields[i].getType().getName());
-					if(type!=null) {
-						pkSt=pkSt.replace("bigint", type);
+					if (type != null) {
+						pkSt = pkSt.replace("bigint", type);
 					}
 				}
 				sqlBuffer.append(pkSt);
-			}else {
+			} else {
 				String type = getJava2DbType().get(fields[i].getType().getName());
-				if(type==null) {
-					Logger.warn(THE_JAVA_TYPE+type+NOT_RELATIVE_COLUMN);
-					type=getJava2DbType().get(java_lang_String);
-					Logger.warn(BE_REPLACE_WITH_TYPE+type);
+				if (type == null) {
+					Logger.warn(THE_JAVA_TYPE + type + NOT_RELATIVE_COLUMN);
+					type = getJava2DbType().get(java_lang_String);
+					Logger.warn(BE_REPLACE_WITH_TYPE + type);
 				}
 //				sqlBuffer.append(type);
-				
+
 				if (("timestamp".equalsIgnoreCase(type))) {
 					if (!hasCurrentTime) {
 						sqlBuffer.append(type);
@@ -567,10 +580,10 @@ public class Ddl {
 	}
 
 	@SuppressWarnings("rawtypes")
-	private static String _toColumnName(String fieldName,Class entityClass) {
-		String name= NameTranslateHandle.toColumnName(fieldName,entityClass);
-		if(SqlKeyCheck.isKeyWord(name)) {
-			Logger.warn("The '"+name+"' is Sql Keyword. Do not recommend!");
+	private static String _toColumnName(String fieldName, Class entityClass) {
+		String name = NameTranslateHandle.toColumnName(fieldName, entityClass);
+		if (SqlKeyCheck.isKeyWord(name)) {
+			Logger.warn("The '" + name + "' is Sql Keyword. Do not recommend!");
 		}
 		return name;
 	}
@@ -584,7 +597,7 @@ public class Ddl {
 //		return false;
 		return HoneyUtil.isSkipField(field);
 	}
-	
+
 	private static boolean isPrimaryKey(Field field) {
 		if ("id".equalsIgnoreCase(field.getName())) return true;
 //		if (field.isAnnotationPresent(PrimaryKey.class)) return true;//V1.11
@@ -592,4 +605,147 @@ public class Ddl {
 		return AnnoUtil.isPrimaryKey(field);
 	}
 
+	/**
+	 * 创建通用索引.create normal index
+	 * @param entity table's entity(do not allow null).
+	 * @param fields  field name,if more than one,separate with comma.
+	 */
+	public static <T> void indexNormal(T entity, String fields) {
+		indexNormal(entity, fields, null);
+	}
+
+	/**
+	 * 创建通用索引.create normal index
+	 * @param entity table's entity(do not allow null).
+	 * @param fields  field name,if more than one,separate with comma.
+	 * @param indexName  index name
+	 */
+	public static <T> void indexNormal(T entity, String fields, String indexName) {
+//		String PREFIX = "idx_";
+//		String IndexTypeTip = "normal";
+//		String IndexType = ""; //normal will empty
+//
+//		if (StringUtils.isBlank(fields)) {
+//			throw new BeeErrorNameException(
+//					"Create " + IndexTypeTip + " index, the fields can not be empty!");
+//		}
+//		checkField(fields);
+//		String tableName = _toTableName(entity);
+//
+//		String columns = transferField(fields, entity.getClass());
+//
+//		if (StringUtils.isBlank(indexName)) {
+//			indexName = PREFIX + tableName + "_" + columns.replace(",", "_");
+//		}
+//
+//		String indexSql = "CREATE "+IndexType+"INDEX " + indexName + " ON " + tableName + "(" + columns
+//				+ ")";
+//		ddlModify(indexSql);
+
+		String PREFIX = "idx_";
+		String IndexTypeTip = "normal";
+		String IndexType = ""; // normal will empty
+		_index(entity, fields, indexName, PREFIX, IndexTypeTip, IndexType);
+	}
+
+	private static String transferField(String fields, Class c) {
+		String str[] = fields.split(",");
+		String columns = "";
+		for (int i = 0; i < str.length; i++) {
+			if (i != 0) columns += ",";
+			columns += _toColumnName(str[i], c);
+		}
+
+		return columns;
+	}
+
+	private static void checkField(String fields) {
+		NameCheckUtil.checkName(fields);
+	}
+
+	/**
+	 * 创建唯一索引.create unique index
+	 * @param entity table's entity(do not allow null).
+	 * @param fields  field name,if more than one,separate with comma.
+	 */
+	public static <T> void unique(T entity, String fields) {
+		unique(entity, fields, null);
+	}
+
+	/**
+	 * 创建唯一索引.create unique index
+	 * @param entity table's entity(do not allow null).
+	 * @param fields  field name,if more than one,separate with comma.
+	 * @param indexName  index name
+	 */
+	public static <T> void unique(T entity, String fields, String indexName) {
+		String PREFIX = "uie_";
+		String IndexTypeTip = "unique";
+		String IndexType = "UNIQUE "; // 后面有一个空格
+		_index(entity, fields, indexName, PREFIX, IndexTypeTip, IndexType);
+	}
+
+	public static <T> void _index(T entity, String fields, String indexName, String PREFIX,
+			String IndexTypeTip, String IndexType) {
+//		String PREFIX = "idx_";
+//		String IndexTypeTip = "normal";
+//		String IndexType = ""; //normal will empty
+
+		if (StringUtils.isBlank(fields)) {
+			throw new BeeErrorNameException(
+					"Create " + IndexTypeTip + " index, the fields can not be empty!");
+		}
+		checkField(fields);
+		String tableName = _toTableName(entity);
+
+		String columns = transferField(fields, entity.getClass());
+
+		if (StringUtils.isBlank(indexName)) {
+			indexName = PREFIX + tableName + "_" + columns.replace(",", "_");
+		} else {
+			checkField(indexName);
+		}
+
+		String indexSql = "CREATE " + IndexType + "INDEX " + indexName + " ON " + tableName
+				+ "(" + columns + ")";
+		ddlModify(indexSql);
+	}
+
+//	
+
+	public static <T> void primaryKey(T entity, String fields) {
+		primaryKey(entity, fields, null);
+	}
+
+	/**
+	 * 创建主键,一般是多字段联合主键.create primary key
+	 * @param entity table's entity(do not allow null).
+	 * @param fields  field name,if more than one,separate with comma.
+	 * @param keyName  key name
+	 */
+	public static <T> void primaryKey(T entity, String fields, String keyName) {
+//		alter table tableName add constraint pk_name primary key (id,pid) --添加主键约束
+
+		String PREFIX = "pk_";
+		String typeTip = "normal";
+
+		if (StringUtils.isBlank(fields)) {
+			throw new BeeErrorNameException(
+					"Create " + typeTip + " index, the fields can not be empty!");
+		}
+		checkField(fields);
+		String tableName = _toTableName(entity);
+
+		String columns = transferField(fields, entity.getClass());
+
+		if (StringUtils.isBlank(keyName)) {
+			keyName = PREFIX + tableName + "_" + columns.replace(",", "_");
+		} else {
+			checkField(keyName);
+		}
+
+		String indexSql = "ALTER TABLE " + tableName + " ADD CONSTRAINT " + keyName
+				+ " PRIMARY KEY (" + columns + ")";
+		ddlModify(indexSql);
+	}
 }
