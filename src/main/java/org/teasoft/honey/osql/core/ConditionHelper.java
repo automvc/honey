@@ -7,8 +7,10 @@
 package org.teasoft.honey.osql.core;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.teasoft.bee.osql.Condition;
 import org.teasoft.bee.osql.FunctionType;
@@ -208,7 +210,8 @@ public class ConditionHelper {
 			//			} else {
 			if (Op.in.getOperator().equalsIgnoreCase(opType) || Op.notIn.getOperator().equalsIgnoreCase(opType)) {
 				
-				String v = expression.getValue().toString();
+//				String v = expression.getValue().toString(); //close in V1.17
+				Object v = expression.getValue();
 				
 //				if(StringUtils.isBlank(v)) continue; //v1.9.8    in的值不允许为空             这样会有安全隐患, 少了一个条件,会更改很多数据.
 				
@@ -220,9 +223,36 @@ public class ConditionHelper {
 				else sqlBuffer.append(expression.getOpType());
 				sqlBuffer.append(" (");
 				sqlBuffer.append("?");
-				String values[] = v.trim().split(",");
-
-				for (int i = 1; i < values.length; i++) { //start 1
+				int len=1;
+				if (v == null) {
+					PreparedValue p = new PreparedValue();
+					p.setValue(null);
+					p.setType(Object.class.getName());
+					list.add(p);
+				} else if (List.class.isAssignableFrom(v.getClass())
+						|| Set.class.isAssignableFrom(v.getClass())) { // List,Set
+					Collection<?> c = (Collection<?>) v;
+					len = c.size();
+					for (Object e : c) {
+						setPreValue(list, e);
+					}
+				} else if (HoneyUtil.isNumberArray(v.getClass())) { // Number Array
+					Number n[] = (Number[]) v;
+					len = n.length;
+					for (Number number : n) {
+						setPreValue(list, number);
+					}
+				} else if (String.class.equals(v.getClass())) { // String 逗号(,)为分隔符
+					Object values[] = v.toString().trim().split(",");
+					len = values.length;
+					for (Object e : values) {
+						setPreValue(list, e);
+					}
+				} else { // other one elements
+					setPreValue(list, v);
+				}
+				
+				for (int i = 1; i < len; i++) { //start 1
 					sqlBuffer.append(",?");
 				}
 
@@ -231,18 +261,10 @@ public class ConditionHelper {
 //				valueBuffer.append(","); //valueBuffer
 //				valueBuffer.append(expression.getValue());
 
-				for (int i = 0; i < values.length; i++) {
-
-					preparedValue = new PreparedValue();
-					preparedValue.setType(values[i].getClass().getName());
-					preparedValue.setValue(values[i]);
-					list.add(preparedValue);
-				}
-
 				isNeedAnd = true;
 				continue;
 			} else if (Op.like.getOperator().equalsIgnoreCase(opType) || Op.notLike.getOperator().equalsIgnoreCase(opType)) {
-				//				else if (opType == Op.like  || opType == Op.notLike) {
+//				else if (opType == Op.like  || opType == Op.notLike) {
 //				adjustAnd(sqlBuffer);
 				isNeedAnd=adjustAnd(sqlBuffer,isNeedAnd);
 
@@ -496,6 +518,13 @@ public class ConditionHelper {
 		}
 		
 		return isFirstWhere;
+	}
+	
+	private static void setPreValue(List<PreparedValue> list, Object value) {
+		PreparedValue preparedValue = new PreparedValue();
+		preparedValue.setValue(value);
+		preparedValue.setType(value.getClass().getName());
+		list.add(preparedValue);
 	}
 	
 	

@@ -92,7 +92,15 @@ public class ConditionImpl implements Condition {
 	
 	//v1.9.8
 	@Override
-	public Condition opOn(String field, Op op, Object value) {
+	public Condition opOn(String field, Op op, String value) {
+		
+		checkField(field);
+		onExpList.add(new Expression(field, op, value));
+		return this;
+	}
+	
+	@Override
+	public Condition opOn(String field, Op op, Number value) {
 		
 		checkField(field);
 		onExpList.add(new Expression(field, op, value));

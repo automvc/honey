@@ -186,7 +186,7 @@ public class TokenUtil {
 								|| Set.class.isAssignableFrom(objIn.getClass()))) {
 							Collection<?> c = (Collection<?>) objIn;
 							for (Object e : c) {
-								setPreValue(e, list);
+								setPreValue(list, e);
 							}
 							isInToken = true;
 							newReplaceStr = HoneyUtil.getPlaceholderValue(c.size());
@@ -204,7 +204,7 @@ public class TokenUtil {
 							isToIsNULL = true;
 							newReplaceStr = SPACE + K.isNull + SPACE;
 						} else {
-							setPreValue(v, list);
+							setPreValue(list, v);
 						}
 						if (key.endsWith(CustomAutoSqlToken.toIsNULL1))
 							goBack = -1;
@@ -212,7 +212,7 @@ public class TokenUtil {
 							goBack = -2;
 					} else {
 						Object value = map.get(key);
-						setPreValue(value, list);
+						setPreValue(list, value);
 					}
 					if (isInToken || isToIsNULL)
 						sbf.replace(start + goBack, end + len2, newReplaceStr);
@@ -235,7 +235,7 @@ public class TokenUtil {
 		return wrap;
 	}
 
-	private static void setPreValue(Object value, List<PreparedValue> list) {
+	private static void setPreValue(List<PreparedValue> list, Object value) {
 		PreparedValue preparedValue = new PreparedValue();
 		preparedValue.setValue(value);
 		preparedValue.setType(value.getClass().getName());

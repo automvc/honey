@@ -3,6 +3,7 @@ package org.teasoft.honey.osql.core;
 import java.io.InputStream;
 import java.sql.Connection;
 
+import org.teasoft.bee.osql.BeeVersion;
 import org.teasoft.bee.osql.DatabaseConst;
 import org.teasoft.bee.osql.Properties;
 import org.teasoft.bee.osql.annotation.SysValue;
@@ -13,6 +14,7 @@ import org.teasoft.honey.logging.LoggerFactory;
 import org.teasoft.honey.osql.constant.DbConfigConst;
 import org.teasoft.honey.osql.dialect.LimitOffsetPaging;
 import org.teasoft.honey.osql.dialect.sqlserver.SqlServerFeature2012;
+import org.teasoft.honey.util.HoneyVersion;
 import org.teasoft.honey.util.StringUtils;
 
 /**
@@ -27,6 +29,12 @@ public final class HoneyConfig {
 		honeyConfig = new HoneyConfig();
 		
 		honeyConfig.init(); // just run one time
+		
+		Logger.info("[Bee] ========= Bee Version is: "+BeeVersion.version);
+		Logger.info("[Bee] ========= Honey Version is: "+HoneyVersion.version);
+		
+		Logger.debug("[Bee] ========= Bee buildId is: "+BeeVersion.buildId);
+		Logger.debug("[Bee] ========= Honey buildId is: "+HoneyVersion.buildId);
 	}
 
 	private HoneyConfig() {

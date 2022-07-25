@@ -1921,5 +1921,18 @@ public final class HoneyUtil {
 		
 		return placeholderValue.toString();
 	}
+	
+	private final static String NumberArrayTypes[] = { "[Ljava.lang.Long;",
+			"[Ljava.lang.Integer;", "[Ljava.lang.Short;", "[Ljava.lang.Byte;",
+			"[Ljava.lang.Double;", "[Ljava.lang.Float;", "[Ljava.math.BigInteger;",
+			"[Ljava.math.BigDecimal;" };
+	
+	public static boolean isNumberArray(Class<?> c) {
+		if (c == null) return false;
+		for (String type : NumberArrayTypes) {
+			if (type.equals(c.getName())) return true;
+		}
+		return false;
+	}
 
 }

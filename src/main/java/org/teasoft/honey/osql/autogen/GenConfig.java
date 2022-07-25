@@ -31,7 +31,7 @@ public class GenConfig {
 	private String fieldFileRelativeFolder="field";
 	private String fieldFilePrefix="";
 	private String fieldFileSuffix="_F";
-	private boolean genFieldAll=true;
+	private boolean genFieldAll=true; //V1.17
 
 	public String getEncode() {
 		return encode;
