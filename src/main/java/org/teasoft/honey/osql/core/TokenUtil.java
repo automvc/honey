@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.teasoft.bee.osql.exception.BeeIllegalSQLException;
 import org.teasoft.bee.osql.token.CustomAutoSqlToken;
 import org.teasoft.honey.util.StringUtils;
 
@@ -172,14 +173,14 @@ public class TokenUtil {
 					goBack = 0;
 
 					preparedValue = new PreparedValue();
-					if (key.contains("%")) {
+					if (key.contains("%")) { //since 1.17 , add escape the like parameter value.
 						Object v = processPecent(key, map);
 						preparedValue.setValue(v);
 						preparedValue.setType(v.getClass().getName());
 						list.add(preparedValue);
 					} else if (key.endsWith(CustomAutoSqlToken.atIn)) {
-						//						System.err.println("process :  @in!");
-						//						Object objIn = map.get(key.substring(0, key.length() - 3));
+//						System.err.println("process :  @in!");
+//						Object objIn = map.get(key.substring(0, key.length() - 3));
 						String keyIn = key.replace(CustomAutoSqlToken.atIn, "").trim();
 						Object objIn = map.get(keyIn);
 						if (objIn != null && (List.class.isAssignableFrom(objIn.getClass())
@@ -195,8 +196,8 @@ public class TokenUtil {
 
 					} else if (key.endsWith(CustomAutoSqlToken.toIsNULL1)
 							|| key.endsWith(CustomAutoSqlToken.toIsNULL2)) {
-						//						int len=CustomAutoSqlToken.toIsNULL1.length();
-						//						Object v = map.get(key.substring(0, key.length() - len));
+//						int len=CustomAutoSqlToken.toIsNULL1.length();
+//						Object v = map.get(key.substring(0, key.length() - len));
 						String keyIsNull = key.replace(CustomAutoSqlToken.toIsNULL1, "")
 								.replace(CustomAutoSqlToken.toIsNULL2, "").trim();
 						Object v = map.get(keyIsNull);
@@ -242,24 +243,49 @@ public class TokenUtil {
 		list.add(preparedValue);
 	}
 
+	//处理包含%的
 	private static Object processPecent(String key, Map map) {
+		//since 1.17 , add escape the like parameter value.
 		int len = key.length();
 		Object value = "";
+		String v;
 		if (key.startsWith("%")) {
 			if (key.endsWith("%")) { //    %para%
 				key = key.substring(1, len - 1);
-				value = "%" + map.get(key) + "%";
+				v=(String)map.get(key);
+				logNullTip(v);
+				value = "%" + escapeLikeForCustomSql(v) + "%";
 			} else { //   %para
 				key = key.substring(1, len);
-				value = "%" + map.get(key);
+				v=(String)map.get(key);
+				logNullTip(v);
+				value = "%" + escapeLikeForCustomSql(v);
 			}
 		} else if (key.endsWith("%")) { //  para%
 			key = key.substring(0, len - 1);
-			value = map.get(key) + "%";
+			v=(String)map.get(key);
+			logNullTip(v);
+			value = escapeLikeForCustomSql(v) + "%";
 		} else {
 			value = map.get(key);
+			checkLike((String)value);
 		}
 		return value;
+	}
+	
+	private static void checkLike(String value) {
+		if ("".equals(value) || StringUtils.justLikeChar(value)) {
+			throw new BeeIllegalSQLException("Like has SQL injection risk! " + " like '" + value+"'");
+		}
+	}
+	
+	private static String escapeLikeForCustomSql(String value) {
+		checkLike(value);
+		return StringUtils.escapeLike(value);
+	}
+	
+	private static void logNullTip(String v) {
+		if (v == null) Logger.warn("the parameter value in like is null !",new BeeIllegalSQLException());
 	}
 
 	static String getKey(String text, String startToken, String endToken) {
@@ -345,8 +371,9 @@ public class TokenUtil {
 						.replace(CustomAutoSqlToken.toIsNULL2, "");
 
 				Object v = map.get(key3.trim());
+				
 				if ((v == null && CustomAutoSqlToken.isNotNull.equals(startToken))
-						|| ((v instanceof String) && (StringUtils.isBlank((String) v))
+						|| ( (v instanceof String) && (StringUtils.isBlank((String) v))
 								&& CustomAutoSqlToken.isNotBlank.equals(startToken))) {
 					sbf.replace(struct.start, struct.end + len2, "");
 				} else {
@@ -354,8 +381,6 @@ public class TokenUtil {
 					sbf.replace(struct.start + key1.length(), struct.start + key1.length() + len2, "");
 				}
 			}
-
-			//			System.err.println(sbf.toString());
 
 			return processJudgeToken(sbf, startToken, endToken, map); //loop
 		} else {

@@ -19,6 +19,7 @@ import org.teasoft.bee.osql.OrderType;
 import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.dialect.DbFeature;
 import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
+import org.teasoft.bee.osql.exception.BeeIllegalSQLException;
 import org.teasoft.honey.osql.core.ConditionImpl.FunExpress;
 import org.teasoft.honey.osql.dialect.sqlserver.SqlServerPagingStruct;
 import org.teasoft.honey.util.StringUtils;
@@ -277,9 +278,32 @@ public class ConditionHelper {
 //				valueBuffer.append(","); //valueBuffer
 //				valueBuffer.append(expression.getValue());
 
+				String v = (String) expression.getValue();
+				if (v != null) {
+					Op op = expression.getOp();
+					if (Op.likeLeft == op) {
+						checkLikeEmptyException(v);
+						v = "%" + StringUtils.escapeLike(v);
+					} else if (Op.likeRight == op) {
+						checkLikeEmptyException(v);
+						v = StringUtils.escapeLike(v) + "%";
+					} else if (Op.likeLeftRight == op) {
+						checkLikeEmptyException(v);
+						v = "%" + StringUtils.escapeLike(v) + "%";
+					} else { // Op.like
+						if (StringUtils.justLikeChar(v)) {
+							throw new BeeIllegalSQLException("Like has SQL injection risk! " + columnName + " like '" + v+"'");
+						}
+					}
+				} else {
+                  Logger.warn("the parameter value in like is null !",new BeeIllegalSQLException());
+				}
+				
 				preparedValue = new PreparedValue();
-				preparedValue.setType(expression.getValue().getClass().getName());
-				preparedValue.setValue(expression.getValue());
+				if(v==null) preparedValue.setType(Object.class.getName());
+				else preparedValue.setType(expression.getValue().getClass().getName());
+//				preparedValue.setValue(expression.getValue());
+				preparedValue.setValue(v);
 				list.add(preparedValue);
 
 				isNeedAnd = true;
@@ -518,6 +542,11 @@ public class ConditionHelper {
 		}
 		
 		return isFirstWhere;
+	}
+	
+	private static void checkLikeEmptyException(String value) {
+		if ("".equals(value))
+			throw new BeeIllegalSQLException("Like has SQL injection risk! the value can not be empty string!");
 	}
 	
 	private static void setPreValue(List<PreparedValue> list, Object value) {

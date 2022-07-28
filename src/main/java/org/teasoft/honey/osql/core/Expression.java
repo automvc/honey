@@ -17,6 +17,7 @@ public final class Expression {
 
 	String fieldName;
 	String opType;
+	Op op;  //V1.17
 	Object value;
 	int opNum;
 	Object value2;
@@ -28,6 +29,7 @@ public final class Expression {
 	public Expression(String field, Op opType, Object value) {
 		this.fieldName = field;
 		this.opType = opType.getOperator();
+		this.op=opType; //V1.17  for likeLeft,likeRight,likeLeftRight
 		this.value = value;
 		this.opNum = 2;
 	}
@@ -53,6 +55,24 @@ public final class Expression {
 
 	public void setOpType(String opType) {
 		this.opType = opType;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 * @since 1.17
+	 */
+	public Op getOp() {
+		return op;
+	}
+
+	/**
+	 * 
+	 * @param op
+	 * @since 1.17
+	 */
+	public void setOp(Op op) {
+		this.op = op;
 	}
 
 	public Object getValue() {
