@@ -1550,7 +1550,7 @@ public final class HoneyUtil {
 			
 			if(value!=null && value instanceof CharSequence) { //V1.11
 //				V1.17 添加单引号转义;双引号不需要转;
-				sql=sql.replaceFirst("\\?", "'"+String.valueOf(value).replace("'","\\\\'").replace("$", "\\$")+"'"); //bug 2021-05-25
+				sql=sql.replaceFirst("\\?", "'"+String.valueOf(value).replace("\\%", "\\\\%").replace("\\_", "\\\\_").replace("'","\\\\'").replace("$", "\\$")+"'"); //bug 2021-05-25
 			}else {
 				sql=sql.replaceFirst("\\?", String.valueOf(value));
 			}
