@@ -63,6 +63,13 @@ public final class CacheKey {
 			strBuf.append(SEPARATOR);
 		}
 		
+		
+		if(HoneyConfig.getHoneyConfig().naming_useMoreTranslateType) {
+			strBuf.append("TranslateType:");
+			strBuf.append(NameTranslateHandle.getNameTranslate().getClass().getName());
+			strBuf.append(SEPARATOR);
+		}
+		
 		strBuf.append(sql);
 		
 		if (value == null || "".equals(value.trim())){
