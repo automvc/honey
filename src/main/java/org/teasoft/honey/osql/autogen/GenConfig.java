@@ -43,7 +43,7 @@ public class GenConfig {
 
 	public String getBaseDir() {
 		if("".equals(baseDir)) {
-			baseDir=System.getProperty("user.dir")+"\\src\\main\\java";
+			baseDir=System.getProperty("user.dir")+"\\src\\main\\java\\";
 		}
 		return baseDir;
 	}
