@@ -71,10 +71,10 @@ public class GenBean {
 		if (config.getEntityNamePre() != null) entityName = config.getEntityNamePre() + entityName;
 
 		String tableComment = "";
-		if (config.isGenComment()) tableComment = commentMap.get(table.getTableName());
+		if (config.isGenComment() && commentMap!=null) tableComment = commentMap.get(table.getTableName());
 
 		String authorComment = "/**" + LINE_SEPARATOR;
-		if (config.isGenComment() && !"".equals(tableComment)) authorComment += " * " + tableComment + LINE_SEPARATOR;
+		if (config.isGenComment() && StringUtils.isNotBlank(tableComment)) authorComment += " * " + tableComment + LINE_SEPARATOR;
 		//		 authorComment+="*@author Bee"+ LINE_SEPARATOR;
 		authorComment += " * @author Honey" + LINE_SEPARATOR;
 		//		 authorComment+="*Create on "+format.format(new Date())+ LINE_SEPARATOR;
@@ -130,6 +130,11 @@ public class GenBean {
 
 			getsetProNameStr = HoneyUtil.firstLetterToUpperCase(propertyName);
 			javaType = HoneyUtil.getFieldType(columnType);
+			
+			//V1.17
+			if ("id".equalsIgnoreCase(propertyName) && "BigDecimal".equalsIgnoreCase(javaType)) {
+				javaType = "Long";
+			}
 
 			//import
 			if ("BigDecimal".equals(javaType) && bigDecimalFlag) {
@@ -185,11 +190,11 @@ public class GenBean {
 			if (config.isGenComment() && commentMap != null) {
 				comment = commentMap.get(columnName);
 				if (config.getCommentPlace() == 2) {
-					if (!"".equals(comment)) propertiesStr += "\t" + "// " + comment + LINE_SEPARATOR;
+					if (StringUtils.isNotBlank(comment)) propertiesStr += "\t" + "// " + comment + LINE_SEPARATOR;
 					propertiesStr += "\t" + "private " + javaType + " " + propertyName + ";" + unknownTypeTip + LINE_SEPARATOR;
 				} else {
 					propertiesStr += "\t" + "private " + javaType + " " + propertyName + ";" + unknownTypeTip ;
-					if (!"".equals(comment)) propertiesStr += "//" + comment;
+					if (StringUtils.isNotBlank(comment)) propertiesStr += "//" + comment;
 					propertiesStr += LINE_SEPARATOR;
 				}
 			} else {
@@ -322,7 +327,7 @@ public class GenBean {
 		}
 
 		String tableComment = "";
-		if (config.isGenComment()) tableComment = commentMap.get(table.getTableName());
+		if (config.isGenComment() && commentMap!=null) tableComment = commentMap.get(table.getTableName());
 
 		String authorComment = "/**" + LINE_SEPARATOR;
 		if (config.isGenComment() && !"".equals(tableComment))
@@ -613,8 +618,11 @@ public class GenBean {
 		} else if (DatabaseConst.ORACLE.equalsIgnoreCase(dbName)) {
 			sql = "select column_name,comments from user_col_comments where table_name=?";
 		} else {
-			throw new BeeException(
+//			throw new BeeException(
+			Logger.warn( //V1.17
 					"There are not default sql, please check the bee.db.dbName in bee.properties is right or not, or define queryColumnCommnetSql in GenConfig!");
+		
+			return ;
 		}
 		PreparedStatement ps = null;
 		PreparedStatement ps2 = null;
