@@ -30,7 +30,6 @@ import org.teasoft.honey.osql.name.NameUtil;
 import org.teasoft.honey.osql.type.*;
 import org.teasoft.honey.osql.util.AnnoUtil;
 import org.teasoft.honey.osql.util.NameCheckUtil;
-import org.teasoft.honey.osql.util.PropertiesReader;
 import org.teasoft.honey.util.ObjectUtils;
 import org.teasoft.honey.util.StringUtils;
 
@@ -41,15 +40,13 @@ import org.teasoft.honey.util.StringUtils;
  */
 public final class HoneyUtil {
 
-	private static final String STRING = "String";
-	private static Map<String, String> jdbcTypeMap = new HashMap<>(); 
+//	private static final String STRING = "String";
+//	private static Map<String, String> jdbc2JavaTypeMap = new HashMap<>(); 
 	private static Map<String, Integer> javaTypeMap = new HashMap<>();
 
-	private static PropertiesReader jdbcTypeCustomProp = new PropertiesReader("/jdbcTypeToFieldType.properties");
-	private static PropertiesReader jdbcTypeCustomProp_specificalDB = null;
+//	private static PropertiesReader jdbcTypeCustomProp = new PropertiesReader("/jdbcTypeToFieldType.properties");
+//	private static PropertiesReader jdbcTypeCustomProp_specificalDB = null;
 	
-	private static String SET_WRONG_VALUE_IN="Annotation JoinTable set wrong value in ";
-
 	static {
 		initTypeMapConfig();
 	}
@@ -61,7 +58,8 @@ public final class HoneyUtil {
 	private HoneyUtil() {}
 	
 	private static void initTypeMapConfig() {
-		String proFileName = "/jdbcTypeToFieldType-{DbName}.properties";
+		
+/*		String proFileName = "/jdbcTypeToFieldType-{DbName}.properties";
 		
 		initJdbcTypeMap();
 		appendJdbcTypeCustomProp();
@@ -70,7 +68,9 @@ public final class HoneyUtil {
 		if (dbName != null) {
 			jdbcTypeCustomProp_specificalDB = new PropertiesReader(proFileName.replace("{DbName}", dbName));
 			appendJdbcTypeCustomProp_specificalDB();
-		}
+		}*/
+		
+		
 
 		initJavaTypeMap();
 		
@@ -652,284 +652,288 @@ public final class HoneyUtil {
 	 * @return the string of java type
 	 */
 	public static String getFieldType(String jdbcType) {
+		
+		String dbName = HoneyConfig.getHoneyConfig().getDbName();
+		Map<String, String> jdbc2JavaTypeMap=JdbcToJavaType.getJdbcToJavaType(dbName);
 
-		String javaType = jdbcTypeMap.get(jdbcType);
+		String javaType = jdbc2JavaTypeMap.get(jdbcType);
 
 		if (javaType != null) return javaType;
 
-		if (null == jdbcTypeMap.get(jdbcType)) {
+		if (null == jdbc2JavaTypeMap.get(jdbcType)) {
 
 			//fix UNSIGNED,  like :TINYINT UNSIGNED 
 			String tempType = jdbcType.trim();
 			if (tempType.endsWith(" UNSIGNED")) {
 				int i = tempType.indexOf(" ");
-				javaType = jdbcTypeMap.get(tempType.substring(0, i));
+				javaType = jdbc2JavaTypeMap.get(tempType.substring(0, i));
 				if (javaType != null) return javaType;
 			}
 			
 			if (javaType == null){
-				javaType =jdbcTypeMap.get(jdbcType.toLowerCase());
+				javaType =jdbc2JavaTypeMap.get(jdbcType.toLowerCase());
 				if (javaType != null) return javaType;
 				
 				if (javaType == null){
-					javaType =jdbcTypeMap.get(jdbcType.toUpperCase());
+					javaType =jdbc2JavaTypeMap.get(jdbcType.toUpperCase());
 					if (javaType != null) return javaType;
 				}
 			}
 			
 			javaType = "[UNKNOWN TYPE]" + jdbcType;
+			Logger.debug(javaType); //V1.17
 		}
 
 		return javaType;
 	}
 
-	private static void initJdbcTypeMap() {
+/*	private static void initJdbcTypeMap() {
 
 		//url: https://docs.oracle.com/javase/1.5.0/docs/guide/jdbc/getstart/mapping.html
 		//		https://docs.oracle.com/javadb/10.8.3.0/ref/rrefjdbc20377.html
 		//		https://docs.oracle.com/javase/8/docs/api/java/sql/package-summary.html
-		jdbcTypeMap.put("CHAR", STRING);
-		jdbcTypeMap.put("VARCHAR", STRING);
-		jdbcTypeMap.put("LONGVARCHAR", STRING);
+		jdbc2JavaTypeMap.put("CHAR", STRING);
+		jdbc2JavaTypeMap.put("VARCHAR", STRING);
+		jdbc2JavaTypeMap.put("LONGVARCHAR", STRING);
 
-		jdbcTypeMap.put("NVARCHAR", STRING);
-		jdbcTypeMap.put("NCHAR", STRING);
+		jdbc2JavaTypeMap.put("NVARCHAR", STRING);
+		jdbc2JavaTypeMap.put("NCHAR", STRING);
 
-		jdbcTypeMap.put("NUMERIC", "BigDecimal");
-		jdbcTypeMap.put("DECIMAL", "BigDecimal");
+		jdbc2JavaTypeMap.put("NUMERIC", "BigDecimal");
+		jdbc2JavaTypeMap.put("DECIMAL", "BigDecimal");
 
-		jdbcTypeMap.put("BIT", "Boolean");
+		jdbc2JavaTypeMap.put("BIT", "Boolean");
 
 		//rs.getObject(int index)  bug   
 		//pst.setByte(i+1,(Byte)value); break;设置查询没问题,结果也能返回,用rs.getObject拿结果时才报错
-		jdbcTypeMap.put("TINYINT", "Byte");
-		jdbcTypeMap.put("SMALLINT", "Short");
+		jdbc2JavaTypeMap.put("TINYINT", "Byte");
+		jdbc2JavaTypeMap.put("SMALLINT", "Short");
 
-		jdbcTypeMap.put("INT", "Integer");
-		jdbcTypeMap.put("INTEGER", "Integer");
+		jdbc2JavaTypeMap.put("INT", "Integer");
+		jdbc2JavaTypeMap.put("INTEGER", "Integer");
 
-		jdbcTypeMap.put("BIGINT", "Long");
-		jdbcTypeMap.put("REAL", "Float");
-		jdbcTypeMap.put("FLOAT", "Float"); //notice: mysql在创表时,要指定float的小数位数,否则查询时不能用=精确查询
-		jdbcTypeMap.put("DOUBLE", "Double");
+		jdbc2JavaTypeMap.put("BIGINT", "Long");
+		jdbc2JavaTypeMap.put("REAL", "Float");
+		jdbc2JavaTypeMap.put("FLOAT", "Float"); //notice: mysql在创表时,要指定float的小数位数,否则查询时不能用=精确查询
+		jdbc2JavaTypeMap.put("DOUBLE", "Double");
 
-		jdbcTypeMap.put("BINARY", "byte[]");
-		jdbcTypeMap.put("VARBINARY", "byte[]");
-		jdbcTypeMap.put("LONGVARBINARY", "byte[]");
+		jdbc2JavaTypeMap.put("BINARY", "byte[]");
+		jdbc2JavaTypeMap.put("VARBINARY", "byte[]");
+		jdbc2JavaTypeMap.put("LONGVARBINARY", "byte[]");
 		
-		jdbcTypeMap.put("image","byte[]");
+		jdbc2JavaTypeMap.put("image","byte[]");
 
-		jdbcTypeMap.put("DATE", "Date");
-		jdbcTypeMap.put("TIME", "Time");
-		jdbcTypeMap.put("TIMESTAMP", "Timestamp");
+		jdbc2JavaTypeMap.put("DATE", "Date");
+		jdbc2JavaTypeMap.put("TIME", "Time");
+		jdbc2JavaTypeMap.put("TIMESTAMP", "Timestamp");
 
-		jdbcTypeMap.put("CLOB", "Clob");
-		jdbcTypeMap.put("BLOB", "Blob");
-		jdbcTypeMap.put("ARRAY", "Array");
+		jdbc2JavaTypeMap.put("CLOB", "Clob");
+		jdbc2JavaTypeMap.put("BLOB", "Blob");
+		jdbc2JavaTypeMap.put("ARRAY", "Array");
 
-		jdbcTypeMap.put("NCLOB", "java.sql.NClob");//JDK6
-		jdbcTypeMap.put("ROWID", "java.sql.RowId"); //JDK6
-		jdbcTypeMap.put("SQLXML", "java.sql.SQLXML"); //JDK6
+		jdbc2JavaTypeMap.put("NCLOB", "java.sql.NClob");//JDK6
+		jdbc2JavaTypeMap.put("ROWID", "java.sql.RowId"); //JDK6
+		jdbc2JavaTypeMap.put("SQLXML", "java.sql.SQLXML"); //JDK6
 
 		// JDBC 4.2 JDK8
-		jdbcTypeMap.put("TIMESTAMP_WITH_TIMEZONE", "Timestamp");
-		jdbcTypeMap.put("TIMESTAMP WITH TIME ZONE", "Timestamp"); //test in oralce 11g
-		jdbcTypeMap.put("TIMESTAMP WITH LOCAL TIME ZONE", "Timestamp");//test in oralce 11g
+		jdbc2JavaTypeMap.put("TIMESTAMP_WITH_TIMEZONE", "Timestamp");
+		jdbc2JavaTypeMap.put("TIMESTAMP WITH TIME ZONE", "Timestamp"); //test in oralce 11g
+		jdbc2JavaTypeMap.put("TIMESTAMP WITH LOCAL TIME ZONE", "Timestamp");//test in oralce 11g
 		
 		//V1.11
-		jdbcTypeMap.put("JSON", STRING);
+		jdbc2JavaTypeMap.put("JSON", STRING);
 		//mysql 8.0
-		jdbcTypeMap.put("TEXT", STRING);
-		jdbcTypeMap.put("LONGTEXT", STRING);
-		jdbcTypeMap.put("TINYTEXT", STRING);
-		jdbcTypeMap.put("MEDIUMTEXT", STRING);
+		jdbc2JavaTypeMap.put("TEXT", STRING);
+		jdbc2JavaTypeMap.put("LONGTEXT", STRING);
+		jdbc2JavaTypeMap.put("TINYTEXT", STRING);
+		jdbc2JavaTypeMap.put("MEDIUMTEXT", STRING);
 
 		String dbName = HoneyConfig.getHoneyConfig().getDbName();
 
 		if (DatabaseConst.MYSQL.equalsIgnoreCase(dbName) || DatabaseConst.MariaDB.equalsIgnoreCase(dbName)) {
-			jdbcTypeMap.put("MEDIUMINT", "Integer");
+			jdbc2JavaTypeMap.put("MEDIUMINT", "Integer");
 //			jdbcTypeMap.put("DATETIME", "Date");
-			jdbcTypeMap.put("DATETIME", "Timestamp");//fix on 2019-01-19
-			jdbcTypeMap.put("TINYBLOB", "Blob");
-			jdbcTypeMap.put("MEDIUMBLOB", "Blob");
-			jdbcTypeMap.put("LONGBLOB", "Blob");
-			jdbcTypeMap.put("YEAR", "Integer"); //todo 
+			jdbc2JavaTypeMap.put("DATETIME", "Timestamp");//fix on 2019-01-19
+			jdbc2JavaTypeMap.put("TINYBLOB", "Blob");
+			jdbc2JavaTypeMap.put("MEDIUMBLOB", "Blob");
+			jdbc2JavaTypeMap.put("LONGBLOB", "Blob");
+			jdbc2JavaTypeMap.put("YEAR", "Integer"); //todo 
 			
-			jdbcTypeMap.put("TINYINT", "Byte");
-			jdbcTypeMap.put("SMALLINT", "Short");
-			jdbcTypeMap.put("TINYINT UNSIGNED", "Short");
-			jdbcTypeMap.put("SMALLINT UNSIGNED", "Integer");
+			jdbc2JavaTypeMap.put("TINYINT", "Byte");
+			jdbc2JavaTypeMap.put("SMALLINT", "Short");
+			jdbc2JavaTypeMap.put("TINYINT UNSIGNED", "Short");
+			jdbc2JavaTypeMap.put("SMALLINT UNSIGNED", "Integer");
 
-			jdbcTypeMap.put("INT UNSIGNED", "Long");
-			jdbcTypeMap.put("BIGINT UNSIGNED", "BigInteger");
+			jdbc2JavaTypeMap.put("INT UNSIGNED", "Long");
+			jdbc2JavaTypeMap.put("BIGINT UNSIGNED", "BigInteger");
 		} else if (DatabaseConst.ORACLE.equalsIgnoreCase(dbName)) {
 //			https://docs.oracle.com/cd/B12037_01/java.101/b10983/datamap.htm
 //			https://docs.oracle.com/cd/B19306_01/java.102/b14188/datamap.htm
-			jdbcTypeMap.put("LONG", STRING);
-			jdbcTypeMap.put("VARCHAR2", STRING);
-			jdbcTypeMap.put("NVARCHAR2", STRING);
-			jdbcTypeMap.put("NUMBER", "BigDecimal"); //oracle todo
-			jdbcTypeMap.put("RAW", "byte[]");
+			jdbc2JavaTypeMap.put("LONG", STRING);
+			jdbc2JavaTypeMap.put("VARCHAR2", STRING);
+			jdbc2JavaTypeMap.put("NVARCHAR2", STRING);
+			jdbc2JavaTypeMap.put("NUMBER", "BigDecimal"); //oracle todo
+			jdbc2JavaTypeMap.put("RAW", "byte[]");
 
-			jdbcTypeMap.put("INTERVALYM", STRING); //11g 
-			jdbcTypeMap.put("INTERVALDS", STRING); //11g
-			jdbcTypeMap.put("INTERVAL YEAR TO MONTH", STRING); //just Prevention
-			jdbcTypeMap.put("INTERVAL DAY TO SECOND", STRING);//just Prevention
+			jdbc2JavaTypeMap.put("INTERVALYM", STRING); //11g 
+			jdbc2JavaTypeMap.put("INTERVALDS", STRING); //11g
+			jdbc2JavaTypeMap.put("INTERVAL YEAR TO MONTH", STRING); //just Prevention
+			jdbc2JavaTypeMap.put("INTERVAL DAY TO SECOND", STRING);//just Prevention
 //			jdbcTypeMap.put("TIMESTAMP", "Timestamp");   exist in comm
 			
-			jdbcTypeMap.put("DATE", "Timestamp");
-			jdbcTypeMap.put("BINARY_DOUBLE", "oracle.sql.BINARY_DOUBLE");
-			jdbcTypeMap.put("BINARY_FLOAT", "oracle.sql.BINARY_FLOAT");
+			jdbc2JavaTypeMap.put("DATE", "Timestamp");
+			jdbc2JavaTypeMap.put("BINARY_DOUBLE", "oracle.sql.BINARY_DOUBLE");
+			jdbc2JavaTypeMap.put("BINARY_FLOAT", "oracle.sql.BINARY_FLOAT");
 
 		} else if (DatabaseConst.SQLSERVER.equalsIgnoreCase(dbName)) {
 //			jdbcTypeMap.put("SMALLINT", "Short");  //comm
-			jdbcTypeMap.put("TINYINT", "Short");
+			jdbc2JavaTypeMap.put("TINYINT", "Short");
 //			jdbcTypeMap.put("TIME","java.sql.Time");  exist in comm
 //			 DATETIMEOFFSET // SQL Server 2008  microsoft.sql.DateTimeOffset
-			jdbcTypeMap.put("DATETIMEOFFSET", "microsoft.sql.DateTimeOffset");
-			jdbcTypeMap.put("microsoft.sql.Types.DATETIMEOFFSET", "microsoft.sql.DateTimeOffset");
+			jdbc2JavaTypeMap.put("DATETIMEOFFSET", "microsoft.sql.DateTimeOffset");
+			jdbc2JavaTypeMap.put("microsoft.sql.Types.DATETIMEOFFSET", "microsoft.sql.DateTimeOffset");
 			
-			jdbcTypeMap.put("datetime","Timestamp");
-			jdbcTypeMap.put("money","BigDecimal");
-			jdbcTypeMap.put("smallmoney","BigDecimal");
+			jdbc2JavaTypeMap.put("datetime","Timestamp");
+			jdbc2JavaTypeMap.put("money","BigDecimal");
+			jdbc2JavaTypeMap.put("smallmoney","BigDecimal");
 			
-			jdbcTypeMap.put("ntext",STRING);
-			jdbcTypeMap.put("text",STRING);
-			jdbcTypeMap.put("xml",STRING);
+			jdbc2JavaTypeMap.put("ntext",STRING);
+			jdbc2JavaTypeMap.put("text",STRING);
+			jdbc2JavaTypeMap.put("xml",STRING);
 			
-			jdbcTypeMap.put("smalldatetime","Timestamp");
-			jdbcTypeMap.put("uniqueidentifier",STRING);
+			jdbc2JavaTypeMap.put("smalldatetime","Timestamp");
+			jdbc2JavaTypeMap.put("uniqueidentifier",STRING);
 			
-			jdbcTypeMap.put("hierarchyid","byte[]");
-			jdbcTypeMap.put("image","byte[]");
+			jdbc2JavaTypeMap.put("hierarchyid","byte[]");
+			jdbc2JavaTypeMap.put("image","byte[]");
 			
 		} else if (DatabaseConst.PostgreSQL.equalsIgnoreCase(dbName)) {	
 
-			jdbcTypeMap.put("bigint","Long");
-			jdbcTypeMap.put("int8","Long");
-			jdbcTypeMap.put("bigserial","Long");
-			jdbcTypeMap.put("serial8","Long");
+			jdbc2JavaTypeMap.put("bigint","Long");
+			jdbc2JavaTypeMap.put("int8","Long");
+			jdbc2JavaTypeMap.put("bigserial","Long");
+			jdbc2JavaTypeMap.put("serial8","Long");
 
-			jdbcTypeMap.put("integer","Integer");
-			jdbcTypeMap.put("int","Integer");
-			jdbcTypeMap.put("int4","Integer");
+			jdbc2JavaTypeMap.put("integer","Integer");
+			jdbc2JavaTypeMap.put("int","Integer");
+			jdbc2JavaTypeMap.put("int4","Integer");
 			
-			jdbcTypeMap.put("serial","Integer");
-			jdbcTypeMap.put("serial4","Integer");
+			jdbc2JavaTypeMap.put("serial","Integer");
+			jdbc2JavaTypeMap.put("serial4","Integer");
 			
-			jdbcTypeMap.put("smallint","Short");
-			jdbcTypeMap.put("int2","Short");
-			jdbcTypeMap.put("smallserial","Short");
-			jdbcTypeMap.put("serial2","Short");
+			jdbc2JavaTypeMap.put("smallint","Short");
+			jdbc2JavaTypeMap.put("int2","Short");
+			jdbc2JavaTypeMap.put("smallserial","Short");
+			jdbc2JavaTypeMap.put("serial2","Short");
 
-			jdbcTypeMap.put("money", "BigDecimal");
-			jdbcTypeMap.put("numeric", "BigDecimal");
-			jdbcTypeMap.put("decimal", "BigDecimal");
+			jdbc2JavaTypeMap.put("money", "BigDecimal");
+			jdbc2JavaTypeMap.put("numeric", "BigDecimal");
+			jdbc2JavaTypeMap.put("decimal", "BigDecimal");
 			
-			jdbcTypeMap.put("bit",STRING);
-			jdbcTypeMap.put("bit varying",STRING);
-			jdbcTypeMap.put("varbit",STRING);
-			jdbcTypeMap.put("character",STRING);
-			jdbcTypeMap.put("char",STRING);
-			jdbcTypeMap.put("character varying",STRING);
-			jdbcTypeMap.put("varchar",STRING);
-			jdbcTypeMap.put("text",STRING);
-			jdbcTypeMap.put("bpchar",STRING);//get from JDBC
+			jdbc2JavaTypeMap.put("bit",STRING);
+			jdbc2JavaTypeMap.put("bit varying",STRING);
+			jdbc2JavaTypeMap.put("varbit",STRING);
+			jdbc2JavaTypeMap.put("character",STRING);
+			jdbc2JavaTypeMap.put("char",STRING);
+			jdbc2JavaTypeMap.put("character varying",STRING);
+			jdbc2JavaTypeMap.put("varchar",STRING);
+			jdbc2JavaTypeMap.put("text",STRING);
+			jdbc2JavaTypeMap.put("bpchar",STRING);//get from JDBC
 
-			jdbcTypeMap.put("boolean","Boolean");
-			jdbcTypeMap.put("bool","Boolean");
+			jdbc2JavaTypeMap.put("boolean","Boolean");
+			jdbc2JavaTypeMap.put("bool","Boolean");
 			
-			jdbcTypeMap.put("double precision","Double"); //prevention
-			jdbcTypeMap.put("float8","Double");
+			jdbc2JavaTypeMap.put("double precision","Double"); //prevention
+			jdbc2JavaTypeMap.put("float8","Double");
 
-			jdbcTypeMap.put("real","Float");
-			jdbcTypeMap.put("float4","Float");
+			jdbc2JavaTypeMap.put("real","Float");
+			jdbc2JavaTypeMap.put("float4","Float");
 
 //			jdbcTypeMap.put("cidr","
 //			jdbcTypeMap.put("inet ","
 //			jdbcTypeMap.put("macaddr","
 //			jdbcTypeMap.put("macaddr8","
 
-			jdbcTypeMap.put("json",STRING);  //
+			jdbc2JavaTypeMap.put("json",STRING);  //
 //			jdbcTypeMap.put("jsonb","
 
-			jdbcTypeMap.put("bytea","byte[]");  //
+			jdbc2JavaTypeMap.put("bytea","byte[]");  //
 
-			jdbcTypeMap.put("date","Date");
+			jdbc2JavaTypeMap.put("date","Date");
 //			jdbcTypeMap.put("interval","
-			jdbcTypeMap.put("time","Time");
-			jdbcTypeMap.put("timestamp","Timestamp");
+			jdbc2JavaTypeMap.put("time","Time");
+			jdbc2JavaTypeMap.put("timestamp","Timestamp");
 
-			jdbcTypeMap.put("time without time zone","Time");
-			jdbcTypeMap.put("timetz","Time");
-			jdbcTypeMap.put("timestamp without time zone","Timestamp");
-			jdbcTypeMap.put("timestamptz","Timestamp");
+			jdbc2JavaTypeMap.put("time without time zone","Time");
+			jdbc2JavaTypeMap.put("timetz","Time");
+			jdbc2JavaTypeMap.put("timestamp without time zone","Timestamp");
+			jdbc2JavaTypeMap.put("timestamptz","Timestamp");
 			
 			//if want to change, can set in jdbcTypeToFieldType-PostgreSQL.properties
-			jdbcTypeMap.put("uuid","java.util.UUID");
-			jdbcTypeMap.put("UUID","java.util.UUID");
-			jdbcTypeMap.put("xml",STRING);
-			jdbcTypeMap.put("cidr",STRING);
-			jdbcTypeMap.put("inet",STRING);
-			jdbcTypeMap.put("macaddr",STRING);
-			jdbcTypeMap.put("macaddr8",STRING);
+			jdbc2JavaTypeMap.put("uuid","java.util.UUID");
+			jdbc2JavaTypeMap.put("UUID","java.util.UUID");
+			jdbc2JavaTypeMap.put("xml",STRING);
+			jdbc2JavaTypeMap.put("cidr",STRING);
+			jdbc2JavaTypeMap.put("inet",STRING);
+			jdbc2JavaTypeMap.put("macaddr",STRING);
+			jdbc2JavaTypeMap.put("macaddr8",STRING);
 
 		} else if (DatabaseConst.H2.equalsIgnoreCase(dbName) 
 			    || DatabaseConst.SQLite.equalsIgnoreCase(dbName)) {
-			jdbcTypeMap.put("MEDIUMINT", "Integer");
-			jdbcTypeMap.put("INT4", "Integer");
-			jdbcTypeMap.put("INT2", "Short");
-			jdbcTypeMap.put("INT8", "Long");
+			jdbc2JavaTypeMap.put("MEDIUMINT", "Integer");
+			jdbc2JavaTypeMap.put("INT4", "Integer");
+			jdbc2JavaTypeMap.put("INT2", "Short");
+			jdbc2JavaTypeMap.put("INT8", "Long");
 			
-			jdbcTypeMap.put("NUMBER", "BigDecimal");
-			jdbcTypeMap.put("NUMERIC", "BigDecimal");
+			jdbc2JavaTypeMap.put("NUMBER", "BigDecimal");
+			jdbc2JavaTypeMap.put("NUMERIC", "BigDecimal");
 
-			jdbcTypeMap.put("BOOLEAN", "Boolean");
-			jdbcTypeMap.put("BOOL", "Boolean");
-			jdbcTypeMap.put("BIT", "Boolean");
+			jdbc2JavaTypeMap.put("BOOLEAN", "Boolean");
+			jdbc2JavaTypeMap.put("BOOL", "Boolean");
+			jdbc2JavaTypeMap.put("BIT", "Boolean");
 
-			jdbcTypeMap.put("FLOAT8", "Double");
-			jdbcTypeMap.put("FLOAT4 ", "Float");
+			jdbc2JavaTypeMap.put("FLOAT8", "Double");
+			jdbc2JavaTypeMap.put("FLOAT4 ", "Float");
 
-			jdbcTypeMap.put("CHARACTER", STRING);
-			jdbcTypeMap.put("VARCHAR2", STRING);
-			jdbcTypeMap.put("NVARCHAR2", STRING);
-			jdbcTypeMap.put("VARCHAR_IGNORECASE", STRING);
+			jdbc2JavaTypeMap.put("CHARACTER", STRING);
+			jdbc2JavaTypeMap.put("VARCHAR2", STRING);
+			jdbc2JavaTypeMap.put("NVARCHAR2", STRING);
+			jdbc2JavaTypeMap.put("VARCHAR_IGNORECASE", STRING);
 		} 
 		
 //		else if (DatabaseConst.H2.equalsIgnoreCase(dbName)) {  // can not use elseif again.
 		if (DatabaseConst.H2.equalsIgnoreCase(dbName)) {
 			
 			//	/h2/docs/html/datatypes.html#real_type
-			jdbcTypeMap.put("SIGNED", "Integer");
-			jdbcTypeMap.put("DEC", "BigDecimal");
-			jdbcTypeMap.put("YEAR", "Byte");
-			jdbcTypeMap.put("BINARY VARYING", "byte[]");
-			jdbcTypeMap.put("WITHOUT TIME ZONE", "Time");
+			jdbc2JavaTypeMap.put("SIGNED", "Integer");
+			jdbc2JavaTypeMap.put("DEC", "BigDecimal");
+			jdbc2JavaTypeMap.put("YEAR", "Byte");
+			jdbc2JavaTypeMap.put("BINARY VARYING", "byte[]");
+			jdbc2JavaTypeMap.put("WITHOUT TIME ZONE", "Time");
 			
-			jdbcTypeMap.put("BINARY LARGE OBJECT","Blob");     //java.sql.Blob
-			jdbcTypeMap.put("CHARACTER LARGE OBJECT","Clob");  //java.sql.Clob
+			jdbc2JavaTypeMap.put("BINARY LARGE OBJECT","Blob");     //java.sql.Blob
+			jdbc2JavaTypeMap.put("CHARACTER LARGE OBJECT","Clob");  //java.sql.Clob
 			
-			jdbcTypeMap.put("CHARACTER VARYING",STRING); 
-			jdbcTypeMap.put("VARCHAR_CASESENSITIVE",STRING); 
-			jdbcTypeMap.put("VARCHAR_IGNORECASE",STRING); 
+			jdbc2JavaTypeMap.put("CHARACTER VARYING",STRING); 
+			jdbc2JavaTypeMap.put("VARCHAR_CASESENSITIVE",STRING); 
+			jdbc2JavaTypeMap.put("VARCHAR_IGNORECASE",STRING); 
 			
 			//if you want to change, can set in jdbcTypeToFieldType-H2.properties
-			jdbcTypeMap.put("IDENTITY", "Long");
-			jdbcTypeMap.put("UUID", "java.util.UUID");
+			jdbc2JavaTypeMap.put("IDENTITY", "Long");
+			jdbc2JavaTypeMap.put("UUID", "java.util.UUID");
 //			jdbcTypeMap.put("YEAR", "Time");
-			jdbcTypeMap.put("TIME", "Object");
-			jdbcTypeMap.put("OTHER", "bbb");
-			jdbcTypeMap.put("ENUM", "Integer");
-			jdbcTypeMap.put("ARRAY", "Object[]");
-			jdbcTypeMap.put("GEOMETRY", STRING);
-			jdbcTypeMap.put("POINT", STRING);
-			jdbcTypeMap.put("LINESTRING", STRING);
-			jdbcTypeMap.put("POLYGON", STRING);
-			jdbcTypeMap.put("MULTIPOINT", STRING);
-			jdbcTypeMap.put("MULTILINESTRING", STRING);
-			jdbcTypeMap.put("MULTIPOLYGON", STRING);
-			jdbcTypeMap.put("GEOMETRYCOLLECTION", STRING);
+			jdbc2JavaTypeMap.put("TIME", "Object");
+			jdbc2JavaTypeMap.put("OTHER", "bbb");
+			jdbc2JavaTypeMap.put("ENUM", "Integer");
+			jdbc2JavaTypeMap.put("ARRAY", "Object[]");
+			jdbc2JavaTypeMap.put("GEOMETRY", STRING);
+			jdbc2JavaTypeMap.put("POINT", STRING);
+			jdbc2JavaTypeMap.put("LINESTRING", STRING);
+			jdbc2JavaTypeMap.put("POLYGON", STRING);
+			jdbc2JavaTypeMap.put("MULTIPOINT", STRING);
+			jdbc2JavaTypeMap.put("MULTILINESTRING", STRING);
+			jdbc2JavaTypeMap.put("MULTIPOLYGON", STRING);
+			jdbc2JavaTypeMap.put("GEOMETRYCOLLECTION", STRING);
 //					INTERVAL\ YEAR=org.h2.api.Interval
 //					INTERVAL\ MONTH=org.h2.api.Interval
 //					INTERVAL\ DAY=org.h2.api.Interval
@@ -946,57 +950,45 @@ public final class HoneyUtil {
 			
 		}else if (DatabaseConst.SQLite.equalsIgnoreCase(dbName)) {
 			
-			jdbcTypeMap.put("VARYING CHARACTER", STRING);
-			jdbcTypeMap.put("NATIVE CHARACTER", STRING);
-			jdbcTypeMap.put("TEXT", STRING);
-			jdbcTypeMap.put("DOUBLE PRECISION", "Double");
+			jdbc2JavaTypeMap.put("VARYING CHARACTER", STRING);
+			jdbc2JavaTypeMap.put("NATIVE CHARACTER", STRING);
+			jdbc2JavaTypeMap.put("TEXT", STRING);
+			jdbc2JavaTypeMap.put("DOUBLE PRECISION", "Double");
 			
-			jdbcTypeMap.put("DATETIME", STRING);
-			jdbcTypeMap.put("INTEGER", "Long");  // INTEGER  PRIMARY key
+			jdbc2JavaTypeMap.put("DATETIME", STRING);
+			jdbc2JavaTypeMap.put("INTEGER", "Long");  // INTEGER  PRIMARY key
 			
-			jdbcTypeMap.put("UNSIGNED BIG INT", "Long");
+			jdbc2JavaTypeMap.put("UNSIGNED BIG INT", "Long");
 			
-			jdbcTypeMap.put("VARYING", STRING);
+			jdbc2JavaTypeMap.put("VARYING", STRING);
 			
-			jdbcTypeMap.put("DATE", STRING);
-			jdbcTypeMap.put("TIMESTAMP", STRING);
+			jdbc2JavaTypeMap.put("DATE", STRING);
+			jdbc2JavaTypeMap.put("TIMESTAMP", STRING);
 		}
 		
 		//V1.11
 		if (DatabaseConst.Cassandra.equalsIgnoreCase(dbName)) {
-			jdbcTypeMap.put("ascii", STRING);
-			jdbcTypeMap.put("inet", STRING);
+			jdbc2JavaTypeMap.put("ascii", STRING);
+			jdbc2JavaTypeMap.put("inet", STRING);
 			
-			jdbcTypeMap.put("timeuuid", "java.util.UUID");
-			jdbcTypeMap.put("uuid", "java.util.UUID");
+			jdbc2JavaTypeMap.put("timeuuid", "java.util.UUID");
+			jdbc2JavaTypeMap.put("uuid", "java.util.UUID");
 			
-			jdbcTypeMap.put("boolean", "Boolean");
-			jdbcTypeMap.put("varint", "Integer");
+			jdbc2JavaTypeMap.put("boolean", "Boolean");
+			jdbc2JavaTypeMap.put("varint", "Integer");
 			
-			jdbcTypeMap.put("duration", STRING);
-			jdbcTypeMap.put("counter", "Long");
+			jdbc2JavaTypeMap.put("duration", STRING);
+			jdbc2JavaTypeMap.put("counter", "Long");
 			
 //			jdbcTypeMap.put("list", "java.util.List");
 //			jdbcTypeMap.put("set", "java.util.Set");
 //			jdbcTypeMap.put("map", "java.util.Map");
 			
-			jdbcTypeMap.put("list", "List");
-			jdbcTypeMap.put("set", "Set");
-			jdbcTypeMap.put("map", "Map");
+			jdbc2JavaTypeMap.put("list", "List");
+			jdbc2JavaTypeMap.put("set", "Set");
+			jdbc2JavaTypeMap.put("map", "Map");
 		}
-	}
-
-	private static void appendJdbcTypeCustomProp() {
-		for (String s : jdbcTypeCustomProp.getKeys()) {
-			jdbcTypeMap.put(s, jdbcTypeCustomProp.getValue(s));
-		}
-	}
-
-	private static void appendJdbcTypeCustomProp_specificalDB() {
-		for (String s : jdbcTypeCustomProp_specificalDB.getKeys()) {
-			jdbcTypeMap.put(s, jdbcTypeCustomProp_specificalDB.getValue(s));
-		}
-	}
+	}*/
 
 	private static void initJavaTypeMap() {
 
@@ -1665,6 +1657,7 @@ public final class HoneyUtil {
 		return NameTranslateHandle.toTableName(entityName);
 	}
 
+	private static String SET_WRONG_VALUE_IN="Annotation JoinTable set wrong value in ";
 	private static String checkJoinTable(JoinTable joinTable) {
 		String mainField= joinTable.mainField();
 		String subField=joinTable.subField();
@@ -1932,6 +1925,19 @@ public final class HoneyUtil {
 		for (String type : NumberArrayTypes) {
 			if (type.equals(c.getName())) return true;
 		}
+		return false;
+	}
+	
+	/**
+	 * 只判断MySQL,MariaDB,Oracle,H2,SQLite,PostgreSQL,SQL Server,Cassandra
+	 * @return
+	 */
+	public static boolean isUpperCaseDB() {
+		if (isOracle())
+			return true;
+		else if (DatabaseConst.H2.equalsIgnoreCase(HoneyConfig.getHoneyConfig().getDbName()))
+			return true;
+
 		return false;
 	}
 
