@@ -7,7 +7,9 @@
 package org.teasoft.honey.osql.name;
 
 /**
- * DB<-->Java,eg: ORDER_NO<-->orderNo.
+ * Java驼峰命名与DB下划线命名，且DB使用大写。
+ * Java Camel and Database UnderScore & UpperCase transform.
+ * Java<-->DB,eg: orderNo<-->ORDER_NO.
  * @author Kingstar
  * @since  1.5
  */

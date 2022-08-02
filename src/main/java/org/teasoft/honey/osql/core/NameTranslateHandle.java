@@ -50,13 +50,16 @@ public class NameTranslateHandle {
 	 * @param nameTranslate
 	 */
 	public static void setNameTranslate(NameTranslate nameTranslate) { // for set customer naming.
-		NameTranslateHandle.nameTranslate = nameTranslate;
 		HoneyContext.clearFieldNameCache();
+		NameTranslateHandle.nameTranslate = nameTranslate;
 	}
 
 	public static NameTranslate getNameTranslate() {
 		NameTranslate nameTranslate1=HoneyContext.getCurrentNameTranslate();
-		if(nameTranslate1!=null) return nameTranslate1; //当前对象设置有,则优先使用.
+		if(nameTranslate1!=null) {
+			HoneyContext.clearFieldNameCache(); //V1.17
+			return nameTranslate1; //当前对象设置有,则优先使用.
+		}
 		return NameTranslateHandle.nameTranslate;
 	}
 	

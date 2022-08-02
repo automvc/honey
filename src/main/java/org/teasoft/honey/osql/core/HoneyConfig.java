@@ -189,6 +189,9 @@ public final class HoneyConfig {
 	@SysValue("${bee.osql.naming.translateType}")
 	public int naming_translateType = 1;
 	
+	@SysValue("${bee.osql.naming.useMoreTranslateType}") //V1.17
+	public boolean naming_useMoreTranslateType;
+	
 	@SysValue("${bee.osql.naming.entity2tableMappingList}")
 	public String naming_entity2tableMappingList;
 	
@@ -468,7 +471,7 @@ public final class HoneyConfig {
 				
 				if(alreadyPrintDbName && changeDataSource) { //auto refresh the type map config
 					changeDataSource=false;
-					HoneyUtil.refreshTypeMapConfig();
+					HoneyUtil.refreshTypeMapConfig(); //todo
 				}
 				changeDataSource=false;
 			}

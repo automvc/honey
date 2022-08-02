@@ -29,6 +29,7 @@ import org.teasoft.honey.osql.dialect.mysql.MySqlFeature;
 import org.teasoft.honey.osql.dialect.oracle.OracleFeature;
 import org.teasoft.honey.osql.dialect.sqlserver.SqlServerFeature;
 import org.teasoft.honey.osql.interccept.InterceptorChainRegistry;
+import org.teasoft.honey.osql.name.DbUpperAndJavaLower;
 import org.teasoft.honey.osql.name.OriginalName;
 import org.teasoft.honey.osql.name.UnderScoreAndCamelName;
 import org.teasoft.honey.osql.name.UpperCaseUnderScoreAndCamelName;
@@ -277,7 +278,8 @@ public class HoneyFactory {
 			if(translateType==1) nameTranslate=new UnderScoreAndCamelName();
 			else if(translateType==2) nameTranslate=new UpperCaseUnderScoreAndCamelName();
 			else if(translateType==3) nameTranslate=new OriginalName();
-			else nameTranslate=new UnderScoreAndCamelName();  //if the value is not 1,2,3
+			else if(translateType==4) nameTranslate=new DbUpperAndJavaLower(); //V1.17
+			else nameTranslate=new UnderScoreAndCamelName();  //if the value is not 1,2,3,4
 				
 			return nameTranslate;
 		}else {
