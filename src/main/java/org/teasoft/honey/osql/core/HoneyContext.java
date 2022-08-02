@@ -228,11 +228,17 @@ public final class HoneyContext {
 	}
 	
 	static void addBeanField(String key, String value) {
+		if(HoneyConfig.getHoneyConfig().naming_useMoreTranslateType) {
+			key+=NameTranslateHandle.getNameTranslate().getClass().getName();
+		}
 		beanMap.put(key, value);
 	}
 
 	public static String getBeanField(String key) {
 		if (key == null) key = "";
+		if(HoneyConfig.getHoneyConfig().naming_useMoreTranslateType) {
+			key+=NameTranslateHandle.getNameTranslate().getClass().getName();
+		}
 		return beanMap.get(key);
 	}
 

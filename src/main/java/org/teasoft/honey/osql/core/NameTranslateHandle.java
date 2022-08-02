@@ -57,7 +57,7 @@ public class NameTranslateHandle {
 	public static NameTranslate getNameTranslate() {
 		NameTranslate nameTranslate1=HoneyContext.getCurrentNameTranslate();
 		if(nameTranslate1!=null) {
-			HoneyContext.clearFieldNameCache(); //V1.17
+//			HoneyContext.clearFieldNameCache(); //V1.17
 			return nameTranslate1; //当前对象设置有,则优先使用.
 		}
 		return NameTranslateHandle.nameTranslate;
