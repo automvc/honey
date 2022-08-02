@@ -247,11 +247,17 @@ public final class HoneyContext {
 	}
 
 	static void addBeanCustomPKey(String key, String value) {
+		if(HoneyConfig.getHoneyConfig().naming_useMoreTranslateType) {
+			key+=NameTranslateHandle.getNameTranslate().getClass().getName();
+		}
 		beanCustomPKey.put(key, value);
 	}
 
 	public static String getBeanCustomPKey(String key) {
 		if (key == null) return null;
+		if(HoneyConfig.getHoneyConfig().naming_useMoreTranslateType) {
+			key+=NameTranslateHandle.getNameTranslate().getClass().getName();
+		}
 		return beanCustomPKey.get(key);
 	}
 	
