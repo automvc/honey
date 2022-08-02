@@ -252,7 +252,10 @@ public final class CacheUtil {
 			try {
 				
 				boolean isSerial=isSerial(rs); //rs用ArrayList包装后是序列化,但实体仍然不是,也会序列化不了.
-				if(!isSerial && getCachePrototype()==1) return false; //do not put in cache
+				if(!isSerial && getCachePrototype()==1) {
+					Logger.debug("bee.osql.cache.prototype=1 , the entity is not Serial, will do not put in cache!");
+					return false; //do not put in cache
+				}
 				if (isSerial) { //实体有实现Serializable接口
 					Serializer jdks = new JdkSerializer();
 					Object rsNew = jdks.unserialize(jdks.serialize(rs));
