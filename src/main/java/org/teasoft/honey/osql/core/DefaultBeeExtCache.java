@@ -107,7 +107,6 @@ public class DefaultBeeExtCache implements BeeExtCache {
 				}
 				if (canAddInLevelTow) {
 					String key = CacheKey.genKey(sql);
-
 					try {
 						addInExtCache(key, result);
 					} catch (Exception e) {

@@ -936,10 +936,19 @@ public final class HoneyContext {
 //      是多数据源,有同时使用多种不同类型DB
 		boolean enableMultiDs = HoneyConfig.getHoneyConfig().multiDS_enable;
 		boolean isDifferentDbType = HoneyConfig.getHoneyConfig().multiDS_differentDbType;
-		if (enableMultiDs && isDifferentDbType)
+		if (enableMultiDs && isDifferentDbType) {
 			return true;
-		else
+		}else {
+			if(useStructForLevel2()) return true;//1.17 fixed
 			return false;
+		}
+	}
+	
+   static boolean useStructForLevel2() {
+		boolean useLevelTwo=HoneyConfig.getHoneyConfig().cache_useLevelTwo;
+		boolean levelOneTolevelTwo = HoneyConfig.getHoneyConfig().cache_levelOneTolevelTwo;
+		return useLevelTwo && !levelOneTolevelTwo;  //use LevelTwo,but do not put all levelOneTolevelTwo; need use the struct
+
 	}
 
 	//同时使用多种类型数据库时,才会触发.   没有分页时,走原来的流程,到SqlLib,才获取数据源处理Suid操作.

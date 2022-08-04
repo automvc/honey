@@ -70,17 +70,22 @@ public final class HoneyUtil {
 			appendJdbcTypeCustomProp_specificalDB();
 		}*/
 		
-		
 
 		initJavaTypeMap();
 		
-		SetParaTypeConverterRegistry.register(java.util.Date.class, new UtilDotDateTypeToTimestampConvert<java.util.Date>(), DatabaseConst.ORACLE);
+//		SetParaTypeConverterRegistry.register(java.util.Date.class, new UtilDotDateTypeToTimestampConvert<java.util.Date>(), DatabaseConst.ORACLE); //close in 1.17
 		SetParaTypeConverterRegistry.register(java.util.Date.class, new UtilDotDateTypeToTimestampConvert<java.util.Date>(), DatabaseConst.PostgreSQL);
 		SetParaTypeConverterRegistry.register(java.util.Date.class, new UtilDotDateTypeToTimestampConvert<java.util.Date>(), DatabaseConst.H2);
-		SetParaTypeConverterRegistry.register(java.util.Date.class, new UtilDotDateTypeToTimestampConvert<java.util.Date>(), DatabaseConst.MYSQL);
+//		SetParaTypeConverterRegistry.register(java.util.Date.class, new UtilDotDateTypeToTimestampConvert<java.util.Date>(), DatabaseConst.MYSQL); //close in 1.17
 		SetParaTypeConverterRegistry.register(java.util.Date.class, new UtilDotDateTypeConvert<java.util.Date>());
 		
 		TypeHandlerRegistry.register(char.class, new CharTypeHandler<Character>(),true);
+		
+		if (isSQLite() || HoneyContext.isNeedRealTimeDb()) { //不能只用isSQLite(),否则动态切换时,不一定能运行到.
+			TypeHandlerRegistry.register(Timestamp.class, new TimestampTypeHandler<Timestamp>(),DatabaseConst.SQLite);
+			TypeHandlerRegistry.register(java.util.Date.class, new UtilDotDateTypeHandler<java.util.Date>(), DatabaseConst.SQLite);
+			TypeHandlerRegistry.register(java.sql.Date.class, new SqlDotDateTypeHandler<java.util.Date>(), DatabaseConst.SQLite);
+		}
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -1018,12 +1023,12 @@ public final class HoneyUtil {
 		javaTypeMap.put("java.sql.Time", 12);
 		
 		javaTypeMap.put("java.sql.Timestamp", 13);
-		if(isSQLite()) {
-//		  javaTypeMap.put("java.sql.Timestamp", 3); //V1.11 fixed SQLite bug.  SQLite 需要用Long获取Timestamp    Long只获取到年份.
-//		 javaTypeMap.put("java.sql.Timestamp", 11); // not ok
-//		  javaTypeMap.put("java.sql.Timestamp", 1); //设置参数时,是可以不用转的
-		  TypeHandlerRegistry.register(Timestamp.class, new TimestampTypeHandler<Timestamp>(),DatabaseConst.SQLite);
-		}
+//		if(isSQLite()) {
+////		  javaTypeMap.put("java.sql.Timestamp", 3); //V1.11 fixed SQLite bug.  SQLite 需要用Long获取Timestamp    Long只获取到年份.
+////		 javaTypeMap.put("java.sql.Timestamp", 11); // not ok
+////		  javaTypeMap.put("java.sql.Timestamp", 1); //设置参数时,是可以不用转的
+//		  TypeHandlerRegistry.register(Timestamp.class, new TimestampTypeHandler<Timestamp>(),DatabaseConst.SQLite);
+//		}
 		
 		javaTypeMap.put("java.sql.Blob", 14);
 		javaTypeMap.put("java.sql.Clob", 15);
@@ -1081,7 +1086,8 @@ public final class HoneyUtil {
 	public static boolean isSkipField(Field field) {
 		if (field != null) {
 			if ("serialVersionUID".equals(field.getName())) return true;
-			if (field.isAnnotationPresent(Ignore.class)) return true; //v1.9
+//			if (field.isAnnotationPresent(Ignore.class)) return true; //v1.9
+			if(AnnoUtil.isIgnore(field)) return true; //1.17
 			if (field.isAnnotationPresent(JoinTable.class)) return true;
 			if (field.isSynthetic()) return true;
 		}
@@ -1091,7 +1097,8 @@ public final class HoneyUtil {
 	static boolean isSkipFieldForMoreTable(Field field) {
 		if (field != null) {
 			if ("serialVersionUID".equals(field.getName())) return true;
-			if (field.isAnnotationPresent(Ignore.class)) return true; //v1.9
+//			if (field.isAnnotationPresent(Ignore.class)) return true; //v1.9
+			if(AnnoUtil.isIgnore(field)) return true; //1.17
 //			if (field.isAnnotationPresent(JoinTable.class)) return true;
 			if (field.isSynthetic()) return true;
 		}
@@ -1346,7 +1353,8 @@ public final class HoneyUtil {
 	static Object getResultObjectByIndex(ResultSet rs, String typeName, int index) throws SQLException {
 
 		int k = HoneyUtil.getJavaTypeIndex(typeName);
-		if (isSQLite() && "java.sql.Timestamp".equals(typeName)) {
+//		if (isSQLite() && "java.sql.Timestamp".equals(typeName)) {
+		if (isSQLite() && ( "java.sql.Timestamp".equals(typeName) ||"java.sql.Date".equals(typeName) )  ) {
 			k = 1;
 		}
 

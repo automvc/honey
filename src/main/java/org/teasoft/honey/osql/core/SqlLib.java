@@ -1492,7 +1492,8 @@ public class SqlLib implements BeeSql {
 	@SuppressWarnings("rawtypes")
 	protected void initRoute(SuidType suidType, Class clazz, String sql) {
 		boolean enableMultiDs=HoneyConfig.getHoneyConfig().multiDS_enable;
-		if (!enableMultiDs) return;
+//		if (!enableMultiDs) return;  //close in 1.17
+		if (!enableMultiDs && !HoneyContext.useStructForLevel2()) return; //1.17 fixed
 		if(HoneyContext.isNeedRealTimeDb() && HoneyContext.isAlreadySetRoute()) return; // already set in parse entity to sql.
 		//enableMultiDs=true,且还没设置的,都要设置   因此,清除时,也是这样清除.
 		HoneyContext.initRoute(suidType, clazz, sql);

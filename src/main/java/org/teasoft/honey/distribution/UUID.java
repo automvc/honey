@@ -11,6 +11,8 @@ package org.teasoft.honey.distribution;
  * @since  1.17
  */
 public class UUID {
+	
+	private UUID() {}
 
 	public static String getId() {
 		return java.util.UUID.randomUUID().toString().replace("-", "");
