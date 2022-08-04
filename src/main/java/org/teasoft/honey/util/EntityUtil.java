@@ -119,6 +119,8 @@ public final class EntityUtil {
 	
 	public static boolean isCustomBean(Field field) {
 		
+		if(field==null) return false;
+		
 		String typeName = field.getType().getName();
 		
 		return !(field.getType().isPrimitive() || typeName.startsWith("java.")

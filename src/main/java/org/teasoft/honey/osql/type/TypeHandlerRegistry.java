@@ -94,7 +94,11 @@ public final class TypeHandlerRegistry implements Registry {
 	public static <T> T handlerProcess(Class<T> fieldType, Object result) {
 //		return getHandler(fieldType).process(fieldType, result);
 		TypeHandler<T> handler=getHandler(fieldType);
-		if(handler!=null) handler.process(fieldType, result);
+		if(handler!=null) {
+			T obj=handler.process(fieldType, result);
+			if(obj!=null) return obj; //V1.17
+		}
+		
 		return (T)result;
 	}
 }

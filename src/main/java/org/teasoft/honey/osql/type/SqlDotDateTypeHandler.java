@@ -7,18 +7,18 @@
 package org.teasoft.honey.osql.type;
 
 import java.sql.Timestamp;
-import java.util.Date;
+import java.sql.Date;
 
 import org.teasoft.bee.osql.type.TypeHandler;
 import org.teasoft.honey.osql.util.DateUtil;
 
 /**
-* transform to java.util.Date 
+*transform to java.sql.Date 
 *
  * @author Kingstar
  * @since  1.11
  */
-public class UtilDotDateTypeHandler<T> implements TypeHandler<Date> {
+public class SqlDotDateTypeHandler<T> implements TypeHandler<Date> {
 
 	@Override
 	public Date process(Class<Date> fieldType, Object result) {
@@ -27,7 +27,7 @@ public class UtilDotDateTypeHandler<T> implements TypeHandler<Date> {
 
 		if (result.getClass().equals(java.sql.Date.class)) {
 			try {
-				java.util.Date d = new java.util.Date(((java.sql.Date) result).getTime());
+				Date d = new Date(((java.sql.Date) result).getTime());
 				return d;
 			} catch (Exception e) {
 			}
@@ -46,8 +46,9 @@ public class UtilDotDateTypeHandler<T> implements TypeHandler<Date> {
 			try {
 				t = new Timestamp((Long) result);
 				return getDate(t);
-			} catch (Exception e) {
+			} catch (NumberFormatException e) {
 			}
+
 		}
 
 		if (result.getClass().equals(String.class)) {
@@ -56,6 +57,7 @@ public class UtilDotDateTypeHandler<T> implements TypeHandler<Date> {
 				t = new Timestamp(timeNum);
 				return getDate(t);
 			} catch (Exception e) {
+
 			}
 
 			try {
@@ -65,11 +67,12 @@ public class UtilDotDateTypeHandler<T> implements TypeHandler<Date> {
 
 			}
 		}
-		return (java.util.Date) result;
+
+		return (Date) result;
 	}
 
-	private java.util.Date getDate(Timestamp t) {
-		java.util.Date d = new java.util.Date(t.getTime());
+	private Date getDate(Timestamp t) {
+		Date d = new Date(t.getTime());
 		return d;
 	}
 

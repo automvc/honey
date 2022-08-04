@@ -104,6 +104,11 @@ public class AnnoUtil {
 	public static boolean isPrimaryKey(Field field) {
 		return annoAdapter.isPrimaryKey(field);
 	}
+	
+	public static boolean isIgnore(Field field) {
+		return annoAdapter.isIgnore(field);
+	}
+	
 
 	public static String getValue(Field field) {
 		return annoAdapter.getValue(field);
