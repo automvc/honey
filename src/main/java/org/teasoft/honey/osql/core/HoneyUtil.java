@@ -82,9 +82,9 @@ public final class HoneyUtil {
 		TypeHandlerRegistry.register(char.class, new CharTypeHandler<Character>(),true);
 		
 		if (isSQLite() || HoneyContext.isNeedRealTimeDb()) { //不能只用isSQLite(),否则动态切换时,不一定能运行到.
-			TypeHandlerRegistry.register(Timestamp.class, new TimestampTypeHandler<Timestamp>(),DatabaseConst.SQLite);
-			TypeHandlerRegistry.register(java.util.Date.class, new UtilDotDateTypeHandler<java.util.Date>(), DatabaseConst.SQLite);
-			TypeHandlerRegistry.register(java.sql.Date.class, new SqlDotDateTypeHandler<java.util.Date>(), DatabaseConst.SQLite);
+			TypeHandlerRegistry.register(Timestamp.class, new TimestampTypeHandler<Timestamp>(),DatabaseConst.SQLite,true);
+			TypeHandlerRegistry.register(java.util.Date.class, new UtilDotDateTypeHandler<java.util.Date>(), DatabaseConst.SQLite,true);
+			TypeHandlerRegistry.register(java.sql.Date.class, new SqlDotDateTypeHandler<java.util.Date>(), DatabaseConst.SQLite,true);
 		}
 	}
 
