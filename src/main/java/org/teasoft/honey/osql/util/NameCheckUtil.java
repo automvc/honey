@@ -69,7 +69,7 @@ public class NameCheckUtil {
 		if (name != null && name.contains(",")) {
 			String n[] = name.split(",");
 			for (int i = 0; i < n.length; i++) {
-				_checkName(n[i]);
+				_checkName(n[i].trim());
 			}
 		} else {
 			_checkName(name);

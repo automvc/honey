@@ -653,7 +653,7 @@ public class Ddl {
 		String columns = "";
 		for (int i = 0; i < str.length; i++) {
 			if (i != 0) columns += ",";
-			columns += _toColumnName(str[i], c);
+			columns += _toColumnName(str[i].trim(), c);
 		}
 
 		return columns;
