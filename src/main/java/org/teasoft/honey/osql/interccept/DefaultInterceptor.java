@@ -24,6 +24,8 @@ public class DefaultInterceptor implements Interceptor {
 	private String ds;
 	private String tabName;
 	private String tabSuffix;
+	
+	private static final long serialVersionUID = 1595293159215L;
 
 	@Override
 	public Object beforePasreEntity(Object entity, SuidType suidType) {

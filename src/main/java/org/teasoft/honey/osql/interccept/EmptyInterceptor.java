@@ -20,6 +20,8 @@ public class EmptyInterceptor implements Interceptor {
 	protected String ds;
 	protected String tabName;
 	protected String tabSuffix;
+	
+	private static final long serialVersionUID = 1595293159216L;
 
 	protected boolean isSkip(Object entity) {
 		if (entity == null) return true; //自定义sql会用到
