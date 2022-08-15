@@ -75,9 +75,6 @@ public class CommInterceptorChain implements InterceptorChain {
 		int countTabSuffix = 0;
 		String ds,tabName,tabSuffix;
 		for (int i = 0; i < chain.size(); i++) {
-			System.out.println("----------------------------------------dsdds");
-			System.out.println(chain.get(i));
-
 			ds = chain.get(i).getOneTimeDataSource();
 			tabName=chain.get(i).getOneTimeTabName();
 			tabSuffix=chain.get(i).getOneTimeTabSuffix();
@@ -146,7 +143,6 @@ public class CommInterceptorChain implements InterceptorChain {
 		HoneyContext.removeCurrentRoute();
 		HoneyContext.removeAppointTab(); //V1.17
 		HoneyContext.removeTabSuffix();//V1.17
-		System.out.println("----------------23333333333333----------------------------------fsdlksfdfd;s");
 	}
 
 	@Override
