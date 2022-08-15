@@ -406,10 +406,17 @@ public final class HoneyConfig {
 
 	public String getDbName() {
 		checkAndInitDbName();
-		if (HoneyContext.isNeedRealTimeDb()) { //支持同时使用多种数据库的,需要动态获取,才准确
+		if (HoneyContext.isNeedRealTimeDb()) { // 支持同时使用多种数据库的,需要动态获取,才准确
 			String dsName = Router.getDsName();
-			if (dsName != null && HoneyContext.getDsName2DbName() != null) 
-				return HoneyContext.getDsName2DbName().get(dsName);
+			if (dsName != null && HoneyContext.getDsName2DbName() != null) {
+				String temp_dbName = HoneyContext.getDsName2DbName().get(dsName);
+				if (temp_dbName == null) { //V1.17
+//					Logger.warn("Did not find the dataSource name : " + dsName); //数据源池里没有,应该抛异常
+				    throw new ConfigWrongException("Did not find the dataSource name : " + dsName);
+				} else {
+					return temp_dbName;
+				}
+			}
 		}
 		return dbName;
 	}
