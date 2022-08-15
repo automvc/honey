@@ -13,7 +13,7 @@ import java.util.Set;
 import org.teasoft.bee.osql.BeeException;
 import org.teasoft.bee.osql.DatabaseConst;
 import org.teasoft.bee.osql.ObjSQLException;
-import org.teasoft.bee.osql.annotation.Ignore;
+import org.teasoft.bee.osql.Serializer;
 import org.teasoft.bee.osql.annotation.JoinTable;
 import org.teasoft.bee.osql.annotation.JoinType;
 import org.teasoft.bee.osql.annotation.JustFetch;
@@ -24,6 +24,7 @@ import org.teasoft.bee.osql.exception.BeeIllegalEntityException;
 import org.teasoft.bee.osql.exception.BeeIllegalSQLException;
 import org.teasoft.bee.osql.exception.JoinTableException;
 import org.teasoft.bee.osql.exception.JoinTableParameterException;
+import org.teasoft.bee.osql.interccept.InterceptorChain;
 import org.teasoft.bee.osql.type.SetParaTypeConvert;
 import org.teasoft.honey.osql.constant.NullEmpty;
 import org.teasoft.honey.osql.name.NameUtil;
@@ -1947,6 +1948,16 @@ public final class HoneyUtil {
 			return true;
 
 		return false;
+	}
+	
+	public static InterceptorChain copy(InterceptorChain ojb) {
+		try {
+			Serializer jdks = new JdkSerializer();
+			return (InterceptorChain) jdks.unserialize(jdks.serialize(ojb));
+		} catch (Exception e) {
+			Logger.debug(e.getMessage(), e);
+		}
+		return null;
 	}
 
 }

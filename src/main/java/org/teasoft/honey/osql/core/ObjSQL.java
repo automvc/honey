@@ -58,7 +58,7 @@ public class ObjSQL implements Suid {
 		if (interceptorChain == null) {
 			interceptorChain = BeeFactory.getHoneyFactory().getInterceptorChain();
 		}
-		return interceptorChain;
+		return HoneyUtil.copy(interceptorChain);
 	}
 
 	/**

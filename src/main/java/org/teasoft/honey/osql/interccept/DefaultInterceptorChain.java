@@ -12,6 +12,8 @@ package org.teasoft.honey.osql.interccept;
  */
 public class DefaultInterceptorChain extends CommInterceptorChain{
 	
+	private static final long serialVersionUID = 1595293159214L;
+	
 	public DefaultInterceptorChain(){
 		super.addInterceptor(new DefaultInterceptor());
 	}

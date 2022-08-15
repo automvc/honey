@@ -53,7 +53,7 @@ public class NameUtil {
 		char temp;
 		for (int i = 1; i < buf.length() - 1; i++) {
 			temp=buf.charAt(i);
-			if (buf.charAt(i)=='_') {
+			if (temp=='_') {
 				buf.deleteCharAt(i);
 				temp=buf.charAt(i);
 				if(temp>='a' && temp<='z')

@@ -59,7 +59,7 @@ public class PreparedSqlLib implements PreparedSql {
 	public InterceptorChain getInterceptorChain() {
 		if (interceptorChain == null)
 			interceptorChain = BeeFactory.getHoneyFactory().getInterceptorChain();
-		return interceptorChain;
+		return HoneyUtil.copy(interceptorChain);
 	}
 
 	public void setInterceptorChain(InterceptorChain interceptorChain) {

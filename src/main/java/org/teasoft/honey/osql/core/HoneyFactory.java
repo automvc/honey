@@ -335,10 +335,13 @@ public class HoneyFactory {
 
 	public InterceptorChain getInterceptorChain() {
 		//当前对象没有设置拦截器链,则使用全局的
+//		if (interceptorChain == null) return InterceptorChainRegistry.getInterceptorChain();
+//		return interceptorChain;
+		
 		if (interceptorChain == null) return InterceptorChainRegistry.getInterceptorChain();
-		return interceptorChain;
+		return HoneyUtil.copy(interceptorChain);
 	}
-
+	
 	public void setInterceptorChain(InterceptorChain interceptorChain) {
 		this.interceptorChain = interceptorChain;
 	}

@@ -45,7 +45,7 @@ public class MapSuidImpl implements MapSuid {
 	public InterceptorChain getInterceptorChain() {
 		if (interceptorChain == null)
 			interceptorChain = BeeFactory.getHoneyFactory().getInterceptorChain();
-		return interceptorChain;
+		return HoneyUtil.copy(interceptorChain);
 	}
 
 	public void setInterceptorChain(InterceptorChain interceptorChain) {

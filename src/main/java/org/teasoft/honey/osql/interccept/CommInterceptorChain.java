@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.teasoft.bee.osql.SuidType;
+//import org.teasoft.bee.osql.annotation.customizable.MultiTenancy;
 import org.teasoft.bee.osql.interccept.Interceptor;
 import org.teasoft.bee.osql.interccept.InterceptorChain;
 import org.teasoft.honey.osql.core.HoneyContext;
@@ -23,7 +24,9 @@ import org.teasoft.honey.util.StringUtils;
  * @since  1.11
  */
 public class CommInterceptorChain implements InterceptorChain {
-
+	
+	private static final long serialVersionUID = 1595293159213L;
+	
 	private final List<Interceptor> chain = new ArrayList<>();
 	private final Set<Class<?>> set=new HashSet<>();
 
@@ -72,6 +75,8 @@ public class CommInterceptorChain implements InterceptorChain {
 		int countTabSuffix = 0;
 		String ds,tabName,tabSuffix;
 		for (int i = 0; i < chain.size(); i++) {
+			System.out.println("----------------------------------------dsdds");
+			System.out.println(chain.get(i));
 
 			ds = chain.get(i).getOneTimeDataSource();
 			tabName=chain.get(i).getOneTimeTabName();
@@ -79,7 +84,7 @@ public class CommInterceptorChain implements InterceptorChain {
 
 			if (StringUtils.isNotBlank(ds)) {
 				count++;
-				HoneyContext.setAppointDS(ds);
+				HoneyContext.setAppointDS(ds);   //拦截器里获取的,  而拦截器则是从@MultiTenancy等获取到.
 				Logger.info("[Bee] Reset the DataSource OneTime, ds name:" + ds);
 			}
 			
@@ -123,8 +128,7 @@ public class CommInterceptorChain implements InterceptorChain {
 		for (int i = 0; i < chain.size(); i++) {
 			chain.get(i).beforeReturn(list);
 		}
-		HoneyContext.removeAppointDS(); //放在这可能影响异步. 
-		HoneyContext.removeCurrentRoute();
+		_remove();
 	}
 
 	//用于update,insert,delete及没有返回Javabean结构的查询方法
@@ -134,8 +138,15 @@ public class CommInterceptorChain implements InterceptorChain {
 		for (int i = 0; i < chain.size(); i++) {
 			chain.get(i).beforeReturn();
 		}
-		HoneyContext.removeAppointDS();
+		_remove();
+	}
+	
+	private void _remove() {
+		HoneyContext.removeAppointDS(); //放在这可能影响异步. 
 		HoneyContext.removeCurrentRoute();
+		HoneyContext.removeAppointTab(); //V1.17
+		HoneyContext.removeTabSuffix();//V1.17
+		System.out.println("----------------23333333333333----------------------------------fsdlksfdfd;s");
 	}
 
 	@Override

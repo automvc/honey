@@ -508,6 +508,7 @@ public final class HoneyContext {
 		return appointDS.get();
 	}
 
+	//拦截器里获取的,  而拦截器则是从@MultiTenancy等获取到.
 	public static void setAppointDS(String dsName) {
 		if (isMultiDs()) appointDS.set(dsName);
 	}
