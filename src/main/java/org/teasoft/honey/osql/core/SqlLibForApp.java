@@ -723,7 +723,6 @@ public class SqlLibForApp extends SqlLib {
 						//v1=     ;  TODO 2  
 //						v1 = rsMap.get(tempCName1);
 						v1 =ObjectCreatorFactory.create(rsMap.get(tempCName1), fields1[i].getType());
-//						System.out.println("---------------v1:"+v1);
 						
 						boolean processAsJson = false;
 						if (isJoson(fields1[i])) {
@@ -837,7 +836,6 @@ public class SqlLibForApp extends SqlLib {
 						}
 //						v=rsMap.get(tempCName);
 						v = ObjectCreatorFactory.create(rsMap.get(tempCName), field[i].getType());
-//						System.out.println("---------------v:"+v);
 						
 						boolean processAsJson = false;
 						if (isJoson(field[i])) {
