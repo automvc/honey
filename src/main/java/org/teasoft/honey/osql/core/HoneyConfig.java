@@ -30,11 +30,7 @@ public final class HoneyConfig {
 		
 		honeyConfig.init(); // just run one time
 		
-		Logger.info("[Bee] ========= Bee Version is: "+BeeVersion.version);
-		Logger.info("[Bee] ========= Honey Version is: "+HoneyVersion.version);
-		
-		Logger.debug("[Bee] ========= Bee buildId is: "+BeeVersion.buildId);
-		Logger.debug("[Bee] ========= Honey buildId is: "+HoneyVersion.buildId);
+		printVersionLog();
 	}
 
 	private HoneyConfig() {
@@ -44,6 +40,20 @@ public final class HoneyConfig {
 //		System.err.println("--------in HoneyConfig block");
 //		honeyConfig.init(); // just run one time
 //	}
+	
+	private static void printVersionLog() {
+		Logger.info("[Bee] ========= Bee Version is: " + BeeVersion.version);
+		Logger.info("[Bee] ========= Honey Version is: " + HoneyVersion.version);
+
+		Logger.debug("[Bee] ========= Bee buildId is: " + BeeVersion.buildId);
+		Logger.debug("[Bee] ========= Honey buildId is: " + HoneyVersion.buildId);
+
+		try {
+			Class.forName("org.teasoft.beex.util.BeeExtVersion");
+		} catch (Exception e) {
+			// ignore
+		}
+	}
 
 	public static HoneyConfig getHoneyConfig() {
 		return honeyConfig;
