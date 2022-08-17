@@ -89,10 +89,7 @@ public class SystemLogger implements Log{
 	public void debug(String msg, Throwable t) {
 		if (level > DEBUG_NUM) return;
 		debug(msg);
-        if (t != null) {
-//            t.printStackTrace();
-        	_printStackTrace(t);
-        }
+		_printStackTrace(t);
 	}
 
 	@Override
@@ -128,10 +125,7 @@ public class SystemLogger implements Log{
 	public void warn(String msg, Throwable t) {
 		if (level > WARN_NUM) return;
 		warn(msg);
-        if (t != null) {
-//            t.printStackTrace(); //SystemLogger print the error message to console.
-        	_printStackTrace(t);
-        }
+		_printStackTrace(t);
 	}
 
 	@Override
@@ -151,14 +145,13 @@ public class SystemLogger implements Log{
 	public void error(String msg, Throwable t) {
 		error(msg);
 		//开发时可打开调试
-        if (t != null) {
-//            t.printStackTrace();  //SystemLogger print the error message to console.
-        	_printStackTrace(t);
-        }
+		_printStackTrace(t);
 	}
 	
 	private void _printStackTrace(Throwable t) {
-		t.printStackTrace();
+		if (t != null) {
+			t.printStackTrace(); // SystemLogger print the error message to console.
+		}
 	}
 	
 	private void print(String level,String msg){
