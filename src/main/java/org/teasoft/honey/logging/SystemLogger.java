@@ -90,7 +90,8 @@ public class SystemLogger implements Log{
 		if (level > DEBUG_NUM) return;
 		debug(msg);
         if (t != null) {
-            t.printStackTrace();
+//            t.printStackTrace();
+        	_printStackTrace(t);
         }
 	}
 
@@ -128,7 +129,8 @@ public class SystemLogger implements Log{
 		if (level > WARN_NUM) return;
 		warn(msg);
         if (t != null) {
-            t.printStackTrace(); //SystemLogger print the error message to console.
+//            t.printStackTrace(); //SystemLogger print the error message to console.
+        	_printStackTrace(t);
         }
 	}
 
@@ -150,8 +152,13 @@ public class SystemLogger implements Log{
 		error(msg);
 		//开发时可打开调试
         if (t != null) {
-            t.printStackTrace();  //SystemLogger print the error message to console.
+//            t.printStackTrace();  //SystemLogger print the error message to console.
+        	_printStackTrace(t);
         }
+	}
+	
+	private void _printStackTrace(Throwable t) {
+		t.printStackTrace();
 	}
 	
 	private void print(String level,String msg){

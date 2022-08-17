@@ -28,18 +28,19 @@ public class JdkSerializer implements Serializer {
 		ObjectOutputStream objOut = new ObjectOutputStream(out);
 		objOut.writeObject(obj);
 		b = out.toByteArray();
+		out.close();
+		objOut.close();
 		return b;
 	}
 
 	@Override
-	public Object unserialize(byte[] bytes) throws IOException{
+	public Object unserialize(byte[] bytes) throws IOException {
 		if (bytes == null) {
 			return null;
 		}
 		Object obj = null;
-		try {
-			ByteArrayInputStream input = new ByteArrayInputStream(bytes);
-			ObjectInputStream objInput = new ObjectInputStream(input);
+		try (ByteArrayInputStream input = new ByteArrayInputStream(bytes);
+				ObjectInputStream objInput = new ObjectInputStream(input)) {
 			obj = objInput.readObject();
 		} catch (ClassNotFoundException e) {
 			Logger.warn(e.getMessage(), e);
