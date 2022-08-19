@@ -30,7 +30,7 @@ public final class HoneyConfig {
 		
 		honeyConfig.init(); // just run one time
 		
-		printVersionLog();
+		printVersion();
 	}
 
 	private HoneyConfig() {
@@ -41,7 +41,7 @@ public final class HoneyConfig {
 //		honeyConfig.init(); // just run one time
 //	}
 	
-	private static void printVersionLog() {
+	private static void printVersion() {
 		Logger.info("[Bee] ========= Bee Version is: " + BeeVersion.version);
 		Logger.info("[Bee] ========= Honey Version is: " + HoneyVersion.version);
 
