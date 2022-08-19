@@ -91,11 +91,11 @@ public class NameTranslateHandle {
 	 */
 	public static void setSchemaName(String schemaName) {
 		
-		checkName(schemaName);
+		checkSchemaName(schemaName);
 		NameTranslateHandle.schemaName = schemaName;
 	}
 	
-	private static void checkName(String schemaName) {
+	private static void checkSchemaName(String schemaName) {
 		if(NameCheckUtil.isIllegal(schemaName)) {
 			throw new BeeErrorNameException("The schemaName: '" + schemaName + "' is illegal!");
 		}
@@ -106,7 +106,7 @@ public class NameTranslateHandle {
 	}
 
 	public static void setSchemaNameLocal(String schemaNameLocal) {
-		checkName(schemaNameLocal);
+		checkSchemaName(schemaNameLocal);
 		HoneyContext.setSysCommStrLocal(StringConst.SchemaName, schemaNameLocal);
 	}
 	

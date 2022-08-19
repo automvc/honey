@@ -73,6 +73,13 @@ public class StreamUtil {
 			}
 		} catch (Exception e) {
 			throw ExceptionHelper.convert(e);
+		}finally {
+			try {
+				if(in!=null) in.close();  //V1.17
+			} catch (Exception e2) {
+				Logger.debug(e2.getMessage(), e2);
+			}
+			
 		}
 
 		return sb.toString();

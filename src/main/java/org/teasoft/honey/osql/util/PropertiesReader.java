@@ -20,15 +20,18 @@ public class PropertiesReader {
 	public PropertiesReader() {}
 
 	public PropertiesReader(String fileName) {
+		InputStream in =null;
 		try {
 			if (!fileName.trim().startsWith("/")) fileName = "/" + fileName.trim();
 //			if (fileName!=null && !fileName.trim().startsWith(File.separator)) fileName = File.separator + fileName.trim();
 			prop = new Properties();
-			InputStream in = PropertiesReader.class.getResourceAsStream(fileName);
+			in = PropertiesReader.class.getResourceAsStream(fileName);
 			prop.load(in);
 		} catch (IOException | NullPointerException e) {
 			Logger.warn("  In PropertiesReader not found the file :"+fileName+" .  exception message:" + e.getMessage());
 		    //不需要抛出异常,适合有则执行,没有则忽略的情况.
+		} finally {
+			closeStream(in);
 		}
 	}
 	
@@ -39,13 +42,16 @@ public class PropertiesReader {
 	 * @since 1.9.8
 	 */
 	public PropertiesReader(String filePathAndName,boolean custom) {  //custom just a flag
+		InputStream in = null;
 		try {
 			prop = new Properties();
-			InputStream in = new FileInputStream(new File(filePathAndName));
+			in = new FileInputStream(new File(filePathAndName));
 			prop.load(in);
 		} catch (IOException | NullPointerException e) {
 			Logger.warn("  In PropertiesReader not found the file :"+filePathAndName+"  .  " + e.getMessage());
 			throw new ConfigWrongException("filePathAndName: "+filePathAndName+" config wrong!  "+ e.getMessage());
+		} finally {
+			closeStream(in);
 		}
 	}
 	
@@ -53,15 +59,26 @@ public class PropertiesReader {
 	 * @since 1.17
 	 */
 	public PropertiesReader(InputStream inputStream) { 
+		InputStream in = null;
 		try {
 			prop = new Properties();
-			InputStream in = inputStream;
+			in = inputStream;
 			prop.load(in);
 		} catch (IOException | NullPointerException e) {
 			Logger.warn("  In PropertiesReader PropertiesReader(InputStream inputStream) : " + e.getMessage());
+		} finally {
+			closeStream(in);
 		}
 	}
 	
+	// V1.17
+	private void closeStream(InputStream in) {
+		try {
+			if (in != null) in.close(); // V1.17
+		} catch (Exception e2) {
+			Logger.debug(e2.getMessage(), e2);
+		}
+	}
 
 	/**
 	 * @param key
