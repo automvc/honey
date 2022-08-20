@@ -13,6 +13,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.teasoft.bee.osql.NameTranslate;
 import org.teasoft.bee.osql.SuidType;
+import org.teasoft.bee.osql.exception.BeeIllegalParameterException;
 import org.teasoft.honey.distribution.ds.RouteStruct;
 import org.teasoft.honey.osql.dialect.sqlserver.SqlServerPagingStruct;
 import org.teasoft.honey.util.ObjectUtils;
@@ -30,7 +31,7 @@ public final class HoneyContext {
 	private static ConcurrentMap<String, String> beanCustomPKey; //Custom Primary Key
 	private static ConcurrentMap<String, Map<String, String>> customMap;
 	
-	private static ConcurrentMap<String, String> sysCommStr;
+//	private static ConcurrentMap<String, String> sysCommStr;
 	
 	
 	//	since v1.7.0
@@ -111,7 +112,7 @@ public final class HoneyContext {
 	static {
 		beanMap = new ConcurrentHashMap<>();
 		beanCustomPKey = new ConcurrentHashMap<>();
-		sysCommStr = new ConcurrentHashMap<>();
+//		sysCommStr = new ConcurrentHashMap<>();
 		customMap = new ConcurrentHashMap<>();
 		//		moreTableStructMap= new ConcurrentHashMap<>();
 
@@ -228,6 +229,7 @@ public final class HoneyContext {
 	}
 	
 	static void addBeanField(String key, String value) {
+		if (key == null) return;
 		if(HoneyConfig.getHoneyConfig().naming_useMoreTranslateType) {
 			key+=NameTranslateHandle.getNameTranslate().getClass().getName();
 		}
@@ -247,6 +249,7 @@ public final class HoneyContext {
 	}
 
 	static void addBeanCustomPKey(String key, String value) {
+		if (key == null) return;
 		if(HoneyConfig.getHoneyConfig().naming_useMoreTranslateType) {
 			key+=NameTranslateHandle.getNameTranslate().getClass().getName();
 		}
@@ -261,16 +264,20 @@ public final class HoneyContext {
 		return beanCustomPKey.get(key);
 	}
 	
-	static void addSysCommStr(String key, String value) {
-		sysCommStr.put(key, value);
-	}
-
-	public static String getSysCommStr(String key) {
-		if (key == null) return null;
-		return sysCommStr.get(key);
-	}
+//	static void addSysCommStr(String key, String value) {
+//		sysCommStr.put(key, value);
+//	}
+//
+//	public static String getSysCommStr(String key) {
+//		if (key == null) return null;
+//		return sysCommStr.get(key);
+//	}
 
 	public static void addCustomMap(String key, Map<String, String> mapValue) {
+		if (key == null) {
+			Logger.warn("Do not support the null key!", new BeeIllegalParameterException("Do not support the null key!"));
+			return;
+		}
 		customMap.put(key, mapValue);
 	}
 
@@ -287,6 +294,11 @@ public final class HoneyContext {
 		return null;
 	}
 	
+	public static void removeCustomMap(String key) {
+//		if (key == null) return ;
+		if(customMap.containsKey(key)) customMap.remove(key);
+	}
+	
 	public static void setCustomMapLocal(String key, Map<String, String> mapValue) {
 		if (mapValue == null) return;
 		if (key == null || "".equals(key.trim())) return;
@@ -300,6 +312,12 @@ public final class HoneyContext {
 		Map<String, Map<String, String>> map = customMapLocal.get();
 		if (null == map || key==null) return null;
 		return map.get(key);
+	}
+	
+	public static void removeCustomMapLocal(String key) {
+		Map<String, Map<String, String>> map = customMapLocal.get();
+		if (null == map || key == null) return;
+		if (map.containsKey(key)) map.remove(key);
 	}
 	
 	static void setSysCommStrLocal(String key, String sysCommStr) {
@@ -320,6 +338,7 @@ public final class HoneyContext {
 	public static void removeSysCommStrLocal(String key) {
 		Map<String, String> map = sysCommStrLocal.get();
 		if (map != null) map.remove(key);
+//		if (map != null && map.containsKey(key)) map.remove(key);
 	}
 
 	//	static MoreTableStruct[] addMoreTableStructs(String key, MoreTableStruct[] value) {
@@ -362,14 +381,16 @@ public final class HoneyContext {
 	static void clearPreparedValue(String sqlStr) {
 		Map<String, List<PreparedValue>> map = sqlPreValueLocal.get();
 		if (null == map || sqlStr==null) return;
-		if (map.get(sqlStr) != null) map.remove(sqlStr);
+//		if (map.get(sqlStr) != null) map.remove(sqlStr);
+		if (map.containsKey(sqlStr)) map.remove(sqlStr);
 	}
 
 	static List<PreparedValue> getAndClearPreparedValue(String sqlStr) {
 		Map<String, List<PreparedValue>> map = sqlPreValueLocal.get();
 		if (null == map || sqlStr==null) return null;
 		List<PreparedValue> list = map.get(sqlStr);
-		if (list != null) map.remove(sqlStr);
+//		if (list != null) map.remove(sqlStr);
+		if (map.containsKey(sqlStr)) map.remove(sqlStr);
 
 		return list;
 	}
@@ -425,7 +446,8 @@ public final class HoneyContext {
 		Map<String, SqlServerPagingStruct> map = sqlServerPaging.get();
 		if (null == map || sqlStr==null) return null;
 		SqlServerPagingStruct struct= map.get(sqlStr);
-		if (struct != null) map.remove(sqlStr);
+//		if (struct != null) map.remove(sqlStr);
+		if (map.containsKey(sqlStr)) map.remove(sqlStr);
 		return struct;
 	}
 	
@@ -1022,6 +1044,7 @@ public final class HoneyContext {
 	}
 
 	public static void addModifiedFlagForCache2(String tableName,boolean isModified) {
+		if (tableName == null) return;
 		modifiedFlagMapForCache2.put(tableName, isModified);
 	}
 	
@@ -1030,6 +1053,7 @@ public final class HoneyContext {
 	}
 	
 	public static void addEntityInterceptorFlag(String fullClassName,boolean isHas) {
+		if (fullClassName == null) return;
 		entityInterceptorFlag.put(fullClassName, isHas);
 	}
 
@@ -1039,6 +1063,7 @@ public final class HoneyContext {
 	}
 	
 	public static void addCustomFlagMap(String key,boolean flag) {
+		if (key == null) return;
 		customFlagMap.put(key, flag);
 	}
 	
