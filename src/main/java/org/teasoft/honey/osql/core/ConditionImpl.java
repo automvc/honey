@@ -439,6 +439,7 @@ public class ConditionImpl implements Condition {
 	@Override
 	public Condition selectDistinctField(String fieldName,String alias) {
 		checkField(alias);
+		alias=_toColumnName(alias);
 		funExpList.add(new FunExpress("distinct", fieldName, alias));
 		return this;
 	}
@@ -521,6 +522,7 @@ public class ConditionImpl implements Condition {
 	@Override
 	public Condition selectFun(FunctionType functionType, String fieldForFun, String alias) {
 		checkField(alias);
+		alias=_toColumnName(alias);
 		funExpList.add(new FunExpress(functionType, fieldForFun, alias));
 		return this;
 	}
@@ -538,6 +540,10 @@ public class ConditionImpl implements Condition {
 	//1.17
 	public Map<String, String> getOrderByMap() {
 		return orderByMap;
+	}
+	
+	private String _toColumnName(String fieldName) {
+		return NameTranslateHandle.toColumnName(fieldName);
 	}
 
 	final class FunExpress{
