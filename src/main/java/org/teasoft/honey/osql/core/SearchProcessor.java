@@ -53,8 +53,15 @@ public class SearchProcessor {
 			
 			switch (operator) {
 				case like:
-					value=adjustValueForLike(value,value2);
-					condition.op(field, Op.like, value);
+					if ("Left".equalsIgnoreCase(value2))
+						condition.op(field, Op.likeLeft, value);
+					else if ("Right".equalsIgnoreCase(value2))
+						condition.op(field, Op.likeRight, value);
+					else if ("LeftRight".equalsIgnoreCase(value2))
+						condition.op(field, Op.likeLeftRight, value);
+					else {
+						condition.op(field, Op.like, value);
+					}
 					break;
 				case notLike:
 					value=adjustValueForLike(value,value2);
