@@ -42,16 +42,13 @@ public final class HoneyConfig {
 //	}
 	
 	private static void printVersion() {
-		Logger.info("[Bee] ========= Bee Version is: " + BeeVersion.version);
-		Logger.info("[Bee] ========= Honey Version is: " + HoneyVersion.version);
-
-		Logger.debug("[Bee] ========= Bee buildId is: " + BeeVersion.buildId);
-		Logger.debug("[Bee] ========= Honey buildId is: " + HoneyVersion.buildId);
-
+		Logger.info("[Bee] -------- Bee    " + BeeVersion.version+" -------- ");
+		Logger.info("[Bee] -------- Honey  " + HoneyVersion.version+" -------- ");
 		try {
 			Class.forName("org.teasoft.beex.util.BeeExtVersion");
 		} catch (Exception e) {
-			// ignore
+			Logger.debug("[Bee] ========= Bee   buildId  " + BeeVersion.buildId);
+			Logger.debug("[Bee] ========= Honey buildId  " + HoneyVersion.buildId);
 		}
 	}
 

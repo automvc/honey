@@ -21,6 +21,7 @@ public final class SessionFactory {
 
 	private static BeeFactory beeFactory = null;
 	private static boolean isFirst=true;
+	private static boolean isFirstWithOriginal=true;
 
 	public static BeeFactory getBeeFactory() {
 		if (beeFactory == null) {
@@ -60,8 +61,11 @@ public final class SessionFactory {
 
 			if (ds != null) {
 				conn = ds.getConnection();
-			} else {//do not set the dataSource
-				Logger.debug("Use OriginalConn!");
+			} else {// do not set the dataSource
+				if (isFirstWithOriginal || HoneyConfig.getHoneyConfig().multiDS_enable) {
+					isFirstWithOriginal=false;
+					Logger.debug("Use OriginalConn!");
+				}
 				conn = getOriginalConn();
 			}
 		} catch (SQLException e) {

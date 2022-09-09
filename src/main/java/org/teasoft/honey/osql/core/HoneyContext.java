@@ -1016,6 +1016,7 @@ public final class HoneyContext {
 
 	public static void setConfigRefresh(boolean configRefresh) {
 		HoneyContext.configRefresh = configRefresh;
+		HoneyUtil.refreshTypeMapConfig();
 	}
 
 	public static void updateConfig(Map<String, Object> map) {

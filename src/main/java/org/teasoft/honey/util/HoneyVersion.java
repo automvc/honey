@@ -14,7 +14,7 @@ public final class HoneyVersion {
 	
 	private HoneyVersion() {}
 
-	public static final String version = "V1.17";
-	public static final String buildId = "V1.17.0.10";
+	public static final String version = "1.17";
+	public static final String buildId = "1.17.0.99";
 
 }

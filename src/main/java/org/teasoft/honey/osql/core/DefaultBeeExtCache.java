@@ -60,6 +60,7 @@ public class DefaultBeeExtCache implements BeeExtCache {
 					boolean f2 = HoneyContext.isConfigLevelTwoCache(routeStruct.getEntityClass());
 					if (f2) canGetInLevelTow = true;
 				}
+				
 				if (canGetInLevelTow) {
 					//才到二级缓存查.
 					String key = CacheKey.genKey(sql);
