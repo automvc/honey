@@ -1,7 +1,7 @@
 package org.teasoft.honey.osql.core;
 
 import java.sql.Connection;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.sql.DataSource;
@@ -56,6 +56,7 @@ public class BeeFactory extends BeeAbstractFactory {
 	private DataSource _getDsFromDsMap() {
 		String dsName = Router.getDsName();
 		Logger.info("[Bee] ========= the current DataSource name is :"+dsName); //V1.17
+//		Logger.logSQL("========= the current DataSource name is :"+dsName,""); //V1.17
 //		Logger.logSQL("使用logSQL, 会引发异常", "");
 		return getDataSourceMap().get(dsName);
 	}
@@ -67,7 +68,7 @@ public class BeeFactory extends BeeAbstractFactory {
 		
 		Map<String, DataSource> dsMap = getDataSourceMap();
         if(dsMap==null) return ;
-		Map<String, String> dsName2DbName=new HashMap<>();
+		Map<String, String> dsName2DbName=new LinkedHashMap<>();
 		for (Map.Entry<String, DataSource> entry : dsMap.entrySet()) {
 			dsName2DbName.put(entry.getKey(), getDbName(entry.getValue()));
 		}

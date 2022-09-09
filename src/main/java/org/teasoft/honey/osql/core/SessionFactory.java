@@ -61,6 +61,7 @@ public final class SessionFactory {
 			if (ds != null) {
 				conn = ds.getConnection();
 			} else {//do not set the dataSource
+				Logger.debug("Use OriginalConn!");
 				conn = getOriginalConn();
 			}
 		} catch (SQLException e) {

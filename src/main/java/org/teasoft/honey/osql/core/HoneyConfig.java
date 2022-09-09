@@ -478,12 +478,12 @@ public final class HoneyConfig {
 					alreadyPrintDbName = true;
 				}
 			} catch (Exception e) {
-				Logger.error(e.getMessage());
+				Logger.error(e.getMessage(),e);
 			} finally {
 				try {
 					if (conn != null) conn.close();
 				} catch (Exception e2) {
-					Logger.error(e2.getMessage());
+					Logger.error(e2.getMessage(),e2);
 				}
 				
 				if(alreadyPrintDbName && changeDataSource) { //auto refresh the type map config

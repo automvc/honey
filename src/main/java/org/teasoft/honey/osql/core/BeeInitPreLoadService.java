@@ -27,19 +27,16 @@ public class BeeInitPreLoadService {
 	static void initLoad() {
 		if (notStart) {
 			notStart = false;
-			_initLoad();
-		}
-	}
 
-	private static void _initLoad() {
-		Logger.info("[Bee] ========= BeeInitPreLoadService initLoad..."); 
-		ServiceLoader<PreLoad> loads = ServiceLoader.load(PreLoad.class);
-		Iterator<PreLoad> loadIterator = loads.iterator();
-		while (loadIterator.hasNext()) {
-			try {
-				loadIterator.next();
-			} catch (ServiceConfigurationError e) {
-				Logger.error(e.getMessage(), e);
+			Logger.info("[Bee] ========= BeeInitPreLoadService initLoad..."); 
+			ServiceLoader<PreLoad> loads = ServiceLoader.load(PreLoad.class);
+			Iterator<PreLoad> loadIterator = loads.iterator();
+			while (loadIterator.hasNext()) {
+				try {
+					loadIterator.next();
+				} catch (ServiceConfigurationError e) {
+					Logger.error(e.getMessage(), e);
+				}
 			}
 		}
 	}
