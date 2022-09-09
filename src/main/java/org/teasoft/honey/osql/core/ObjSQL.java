@@ -115,11 +115,10 @@ public class ObjSQL implements Suid {
 		String sql = "";
 		int updateNum = -1;
 		sql = getObjToSQL().toUpdateSQL(entity);
-		
+		_regEntityClass(entity);
 		sql=doAfterCompleteSql(sql);
 		
 		Logger.logSQL("update SQL: ", sql);
-		_regEntityClass(entity);
 		updateNum = getBeeSql().modify(sql);
 		
 		doBeforeReturn();
@@ -134,10 +133,10 @@ public class ObjSQL implements Suid {
 		doBeforePasreEntity(entity,SuidType.INSERT);
 		_ObjectToSQLHelper.setInitIdByAuto(entity); // 更改了原来的对象
 		String sql = getObjToSQL().toInsertSQL(entity);
+		_regEntityClass(entity);
 		sql=doAfterCompleteSql(sql);
 		int insertNum = -1;
 		Logger.logSQL("insert SQL: ", sql);
-		_regEntityClass(entity);
 		HoneyUtil.revertId(entity); //v1.9
 		insertNum = getBeeSql().modify(sql);
 		
@@ -225,10 +224,10 @@ public class ObjSQL implements Suid {
 		if (entity == null) return -1;
 		doBeforePasreEntity(entity,SuidType.DELETE);
 		String sql = getObjToSQL().toDeleteSQL(entity);
+		_regEntityClass(entity);
 		sql=doAfterCompleteSql(sql);
 		int deleteNum = -1;
 		Logger.logSQL("delete SQL: ", sql);
-		_regEntityClass(entity);
 		deleteNum = getBeeSql().modify(sql);
 		doBeforeReturn();
 		return deleteNum;
@@ -252,12 +251,12 @@ public class ObjSQL implements Suid {
 		if (entity == null) return -1;
 		doBeforePasreEntity(entity,SuidType.DELETE);
 		String sql = getObjToSQL().toDeleteSQL(entity,condition);
+		_regEntityClass(entity);
 		sql=doAfterCompleteSql(sql);
 		int deleteNum = -1;
 		if (!"".equals(sql)) {
 			Logger.logSQL("delete SQL: ", sql);
 		}
-		_regEntityClass(entity);
 		deleteNum = getBeeSql().modify(sql);
 		doBeforeReturn();
 		return deleteNum;
