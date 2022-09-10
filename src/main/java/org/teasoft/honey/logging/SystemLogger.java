@@ -178,10 +178,10 @@ public class SystemLogger implements Log{
 		
 		b.append(msg);
 		
-		if(ERROR.equals(level) || WARN.equals(level))
-			System.err.println(b.toString());
+		if (ERROR.equals(level) || WARN.equals(level))
+			printerr(b.toString());
 		else
-		   System.out.println(b.toString());
+			printout(b.toString());
 		
 	}
 	
@@ -215,9 +215,17 @@ public class SystemLogger implements Log{
 		
 		 .append(msg);
 		
-		if(ERROR.equals(level) || WARN.equals(level))
-			System.err.println(b.toString());
+		if (ERROR.equals(level) || WARN.equals(level))
+			printerr(b.toString());
 		else
-		   System.out.println(b.toString());
+			printout(b.toString());
+	}
+	
+	private void printerr(String str) {
+		System.err.println(str);
+	}
+	
+	private void printout(String str) {
+		System.out.println(str);
 	}
 }

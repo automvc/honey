@@ -38,7 +38,7 @@ public class NoLogging implements Log {
     @Override
     public void error(String msg) {
         if (msg != null) {
-            System.err.println(loggerName + " : " + msg);
+        	printerr(loggerName + " : " + msg);
         }
     }
 
@@ -55,9 +55,13 @@ public class NoLogging implements Log {
     @Override
     public void warn(String msg) {
         if (msg != null) {
-            System.err.println(loggerName + " : " + msg);
+        	printerr(loggerName + " : " + msg);
         }
     }
+    
+	private void printerr(String str) {
+		System.err.println(str);
+	}
 
     @Override
     public void warn(String msg, Throwable e) {
