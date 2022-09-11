@@ -62,11 +62,11 @@ public final class SessionFactory {
 			if (ds != null) {
 				conn = ds.getConnection();
 			} else {// do not set the dataSource
+				conn = getOriginalConn();
 				if (isFirstWithOriginal || HoneyConfig.getHoneyConfig().multiDS_enable) {
 					isFirstWithOriginal=false;
 					Logger.debug("Use OriginalConn!");
 				}
-				conn = getOriginalConn();
 			}
 		} catch (SQLException e) {
 			Logger.debug(e.getMessage());

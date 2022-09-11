@@ -49,16 +49,18 @@ public final class HoneyUtil {
 //	private static PropertiesReader jdbcTypeCustomProp_specificalDB = null;
 	
 	static {
-		initTypeMapConfig();
+		initJavaTypeMap();
+		initSetParaAndResultTypeHandlerRegistry();
 	}
 
-	static void refreshTypeMapConfig() {
-		initTypeMapConfig();
+	static void refreshSetParaAndResultTypeHandlerRegistry() {
+		initSetParaAndResultTypeHandlerRegistry();
 	}
 	
 	private HoneyUtil() {}
 	
-	private static void initTypeMapConfig() {
+	//初始化  SQL设置参数转换注册器 和 查询结果类型转换注册器
+	private static void initSetParaAndResultTypeHandlerRegistry() {
 		
 /*		String proFileName = "/jdbcTypeToFieldType-{DbName}.properties";
 		
@@ -72,7 +74,7 @@ public final class HoneyUtil {
 		}*/
 		
 
-		initJavaTypeMap();
+//		initJavaTypeMap();
 		
 //		SetParaTypeConverterRegistry.register(java.util.Date.class, new UtilDotDateTypeToTimestampConvert<java.util.Date>(), DatabaseConst.ORACLE); //close in 1.17
 		SetParaTypeConverterRegistry.register(java.util.Date.class, new UtilDotDateTypeToTimestampConvert<java.util.Date>(), DatabaseConst.PostgreSQL);
@@ -83,8 +85,13 @@ public final class HoneyUtil {
 		TypeHandlerRegistry.register(char.class, new CharTypeHandler<Character>(),true);
 		
 //		if (isSQLite() || HoneyContext.isNeedRealTimeDb()) { //不能只用isSQLite(),否则动态切换时,不一定能运行到.   这样,也还是可能运行不到
-		if(isSQLite() || (HoneyContext.isNeedRealTimeDb() && HoneyContext.getDsName2DbName().containsValue(DatabaseConst.SQLite))) {
-			TypeHandlerRegistry.register(Timestamp.class, new TimestampTypeHandler<Timestamp>(),DatabaseConst.SQLite,true);
+//		if(isSQLite() || (HoneyContext.isNeedRealTimeDb() && HoneyContext.getDsName2DbName().containsValue(DatabaseConst.SQLite))) {
+	
+		//单DS  或者  DsMap中包含有   才执行.   触发时间,应该是在被更改配置时,调用一次
+		if ((!HoneyConfig.getHoneyConfig().multiDS_enable)
+		  || (HoneyContext.getDsName2DbName() != null && HoneyContext.getDsName2DbName().containsValue(DatabaseConst.SQLite))) {
+			
+		    TypeHandlerRegistry.register(Timestamp.class, new TimestampTypeHandler<Timestamp>(),DatabaseConst.SQLite,true);
 			TypeHandlerRegistry.register(java.util.Date.class, new UtilDotDateTypeHandler<java.util.Date>(), DatabaseConst.SQLite,true);
 			TypeHandlerRegistry.register(java.sql.Date.class, new SqlDotDateTypeHandler<java.util.Date>(), DatabaseConst.SQLite,true);
 		}

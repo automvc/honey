@@ -69,11 +69,19 @@ public class BeeFactory extends BeeAbstractFactory {
 		Map<String, DataSource> dsMap = getDataSourceMap();
         if(dsMap==null) return ;
 		Map<String, String> dsName2DbName=new LinkedHashMap<>();
+		int i=0;
+		String dbName="";
 		for (Map.Entry<String, DataSource> entry : dsMap.entrySet()) {
 			dsName2DbName.put(entry.getKey(), getDbName(entry.getValue()));
+			if(i==0) {
+				dbName=dsName2DbName.get(entry.getKey());
+				i++;
+			}
 		}
-		HoneyContext.setDsName2DbName(dsName2DbName);
 		Logger.info("[Bee] Parse DataSourceMap: dataSource name to database name , result: "+dsName2DbName);
+		HoneyConfig.getHoneyConfig().setDbName(dbName);
+		HoneyContext.setDsName2DbName(dsName2DbName);
+		HoneyUtil.refreshSetParaAndResultTypeHandlerRegistry();
 	}
 	
 	private String getDbName(DataSource ds) {

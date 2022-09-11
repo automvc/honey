@@ -47,8 +47,8 @@ public final class HoneyConfig {
 		try {
 			Class.forName("org.teasoft.beex.util.BeeExtVersion");
 		} catch (Exception e) {
-			Logger.debug("[Bee] ========= Bee   buildId  " + BeeVersion.buildId);
-			Logger.debug("[Bee] ========= Honey buildId  " + HoneyVersion.buildId);
+			Logger.debug("[Bee] ========= Bee    buildId  " + BeeVersion.buildId);
+			Logger.debug("[Bee] ========= Honey  buildId  " + HoneyVersion.buildId);
 		}
 	}
 
@@ -412,7 +412,9 @@ public final class HoneyConfig {
 	//----------------------------- multiDs  end
 
 	public String getDbName() {
-		checkAndInitDbName();
+		checkAndRefreshDbNameForSingleDs(); //单个DS
+		//多DS时,在BeeFactory解析parseDbNameByDsMap时设置
+		
 		if (HoneyContext.isNeedRealTimeDb()) { // 支持同时使用多种数据库的,需要动态获取,才准确
 			String dsName = Router.getDsName();
 			if (dsName != null && HoneyContext.getDsName2DbName() != null) {
@@ -446,9 +448,12 @@ public final class HoneyConfig {
 	private static boolean alreadyPrintDbName = false;
 	private static boolean changeDataSource = false;
 
-	private static void checkAndInitDbName() {
-		if (HoneyConfig.getHoneyConfig().dbName == null || changeDataSource) {
-
+	
+	private static void checkAndRefreshDbNameForSingleDs() {
+		//单库时, dbName是null或有更改Ds才要重新设置
+		if ( !HoneyConfig.getHoneyConfig().multiDS_enable
+				&& (HoneyConfig.getHoneyConfig().dbName == null || changeDataSource)) {
+			
 			Connection conn = null;
 			try {
 				conn = SessionFactory.getConnection();
@@ -475,7 +480,7 @@ public final class HoneyConfig {
 					alreadyPrintDbName = true;
 				}
 			} catch (Exception e) {
-				Logger.error(e.getMessage(),e);
+				Logger.warn("Can not get the Connection when check the dbName.  \n"+e.getMessage(),e);
 			} finally {
 				try {
 					if (conn != null) conn.close();
@@ -483,11 +488,10 @@ public final class HoneyConfig {
 					Logger.error(e2.getMessage(),e2);
 				}
 				
-				if(alreadyPrintDbName && changeDataSource) { //auto refresh the type map config
+				if(alreadyPrintDbName && changeDataSource) { //alreadyPrintDbName只打印过
 					changeDataSource=false;
-					HoneyUtil.refreshTypeMapConfig(); //todo
+					HoneyUtil.refreshSetParaAndResultTypeHandlerRegistry();  //里面有用到dbName
 				}
-				changeDataSource=false;
 			}
 		} else {
 			if (!alreadyPrintDbName) {
@@ -502,12 +506,11 @@ public final class HoneyConfig {
 	}
 
 	public void setUrl(String url) {
-//		changeDataSource=true;
 		HoneyConfig.setChangeDataSource(true);
 		this.url = url;
 	}
 	
-	private static void setChangeDataSource(boolean flag) {
+    static void setChangeDataSource(boolean flag) {
 		HoneyConfig.changeDataSource=true;
 	}
 
