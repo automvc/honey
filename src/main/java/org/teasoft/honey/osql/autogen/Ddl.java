@@ -59,6 +59,7 @@ public class Ddl {
 		return Java2DbType.getJava2DbType(HoneyContext.getDbDialect());
 	}
 
+	@SuppressWarnings("deprecation")
 	public static <T> boolean createTable(T entity, boolean isDropExistTable) {
 		if (isDropExistTable) {
 			String tableName = _toTableName(entity);
@@ -135,6 +136,7 @@ public class Ddl {
 		return result;
 	}
 
+	@SuppressWarnings("deprecation")
 	private static void ddlModify(String sql) {
 		// V1.11 创建语句的可执行语句与占位的是一样的,无需要重复输出.
 		boolean old = HoneyConfig.getHoneyConfig().showSql_showExecutableSql;

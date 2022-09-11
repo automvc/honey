@@ -14,6 +14,8 @@ import org.teasoft.honey.osql.core.HoneyConfig;
 import org.teasoft.honey.osql.util.DateUtil;
 
 /**
+ * System Logger,print the error message to console.
+ * eg:System.out, System.err
  * @author Kingstar
  * @since  1.4
  */
