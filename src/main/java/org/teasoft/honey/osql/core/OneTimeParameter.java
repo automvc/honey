@@ -40,13 +40,11 @@ class OneTimeParameter {
 	}
 	
 	static void setTrueForKey(String key) {
-//		System.out.println("------------setTrueForKey:  "+key);
 		setAttribute(key, StringConst.tRue);
 	}
 	
 	public static boolean isTrue(String key) {
 		Object value = getAttribute(key);
-//		System.out.println("key:"+key+"------------isTrue:  "+value);
 		return StringConst.tRue.equals(value) ? true : false;
 	}
 	

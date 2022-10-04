@@ -264,8 +264,6 @@ public class _MoreObjectToSQLHelper {
 					
 					useSubTableNames[s-1]=moreTableStruct[s].useSubTableName; //for conditon parse    TODO ??????
 					
-//				    System.err.println(">>>>>>>>>>>>>>>>>>>>>>>>>>ssdds:::"+moreTableStruct[s].tableName);
-					
 					sqlBuffer.append(COMMA);
 					sqlBuffer.append(moreTableStruct[s].tableName);
 //					tableNamesForCache+="##"+moreTableStruct[s].tableName; //V1.9

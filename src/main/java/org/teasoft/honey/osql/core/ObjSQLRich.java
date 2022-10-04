@@ -195,7 +195,6 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 		if (batchSize <= 0) batchSize = 10;
 		
 		if (ShardingUtil.isShardingBatchInsertDoing()) { // 正在执行分片的,不再走以下判断 // 防止重复解析
-//			System.err.println("--------------------isShardingBatchInsertDoing---------:"+Thread.currentThread().getId()+"   "+this.hashCode());
 			return _insert(entity, batchSize, excludeFields);
 		}
 		
@@ -206,7 +205,6 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 		if (!ShardingUtil.isSharding() || ObjectUtils.isEmpty(tabNameListForBatch)) {
 			a = _insert(entity, batchSize, excludeFields);
 		} else {
-//			System.err.println("--------------------ShardingBatchInsertEngine---------:" + Thread.currentThread().getId() + "   " + this.hashCode());
 			try {
 //			a = new ShardingForkJoinBatchInsertEngine<T>().batchInsert(entity, batchSize, excludeFields,tabNameListForBatch, this);
 				a = new ShardingBatchInsertEngine<T>().batchInsert(entity, batchSize, excludeFields, tabNameListForBatch, this);

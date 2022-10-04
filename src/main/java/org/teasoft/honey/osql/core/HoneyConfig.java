@@ -37,7 +37,6 @@ public final class HoneyConfig {
 	}
 	
 //	{   //放在这,会报异常.
-//		System.err.println("--------in HoneyConfig block");
 //		honeyConfig.init(); // just run one time
 //	}
 	
