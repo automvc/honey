@@ -1,5 +1,6 @@
 package org.teasoft.honey.osql.core;
 
+import java.io.Serializable;
 import java.lang.reflect.Field;
 
 /**
@@ -7,11 +8,20 @@ import java.lang.reflect.Field;
  * @author Kingstar
  * @since  1.0
  */
-class PreparedValue {
+class PreparedValue implements Serializable {
+
+	private static final long serialVersionUID = 1592803913604L;
 	
 	private String type;
 	private Object value;
-	private Field field;//V1.11
+	private Field field;//V1.11    没有序列化到, 是否有影响???
+	
+	public PreparedValue(){}
+	
+//	public PreparedValue(String type, Object value) {
+//		this.type = type;
+//		this.value = value;
+//	}
 
 	public String getType() {
 		return type;

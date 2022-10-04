@@ -12,12 +12,13 @@ import java.util.concurrent.ConcurrentMap;
 
 import org.teasoft.bee.osql.NameTranslate;
 import org.teasoft.bee.osql.annotation.Entity;
-import org.teasoft.bee.osql.annotation.Table;
 import org.teasoft.bee.osql.annotation.customizable.ColumnHandler;
 import org.teasoft.bee.osql.exception.BeeErrorNameException;
 import org.teasoft.bee.osql.exception.BeeIllegalParameterException;
 import org.teasoft.honey.osql.util.AnnoUtil;
 import org.teasoft.honey.osql.util.NameCheckUtil;
+import org.teasoft.honey.sharding.ShardingUtil;
+import org.teasoft.honey.sharding.config.ShardingRegistry;
 import org.teasoft.honey.util.StringUtils;
 
 /**
@@ -113,6 +114,15 @@ public class NameTranslateHandle {
 	
 	public static String toTableName(String entityName) {
 		String tableName = _toTableName(entityName);
+		
+		if (ShardingUtil.isSharding() && ShardingRegistry.isBroadcastTab(tableName))
+			return tableName;
+		
+		if(ShardingUtil.hadSharding()) {
+			//TODO 还要考虑Hint指定的优先情形.
+			return tableName+StringConst.ShardingTableIndexStr;
+		}
+		
 		if (tableName.indexOf('.') == -1) {
 			if (StringUtils.isNotBlank(getSchemaNameLocal()))
 				tableName = getSchemaNameLocal() + "." + tableName; //V1.11
@@ -128,14 +138,15 @@ public class NameTranslateHandle {
 			//V1.11 via ThreadLocal
 			String appointTab = HoneyContext.getAppointTab();
 			if (StringUtils.isNotBlank(appointTab)) return appointTab;
-			String tabSuffix = HoneyContext.getTabSuffix();
-			if (StringUtils.isNotBlank(tabSuffix)) {
-				int index = entityName.lastIndexOf('.');
-				if (index > 0) {
-					entityName = entityName.substring(index + 1);
-					return getNameTranslate().toTableName(entityName) + tabSuffix;
-				}
-			}
+			
+//			String tabSuffix = HoneyContext.getTabSuffix();
+//			if (StringUtils.isNotBlank(tabSuffix)) {
+//				int index = entityName.lastIndexOf('.');
+//				if (index > 0) {
+//					entityName = entityName.substring(index + 1);
+//					return getNameTranslate().toTableName(entityName) + tabSuffix;
+//				}
+//			}
 
 			if (OneTimeParameter.isTrue(StringConst.DoNotCheckAnnotation)) {
 				//nothing
@@ -183,7 +194,15 @@ public class NameTranslateHandle {
 			}
 		}
 		
-		return getNameTranslate().toTableName(entityName); //到此的entityName只包含类名
+		String returnTableName= getNameTranslate().toTableName(entityName); //到此的entityName只包含类名
+		
+		//转换后再加下标
+		String tabSuffix = HoneyContext.getTabSuffix();
+		if (StringUtils.isNotBlank(tabSuffix)) {
+				returnTableName += tabSuffix;
+		}
+		
+		return returnTableName;
 	}
 
 	public static String toColumnName(String fieldName) {

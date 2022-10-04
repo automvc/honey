@@ -13,6 +13,7 @@ import org.teasoft.bee.osql.MoreTable;
 import org.teasoft.bee.osql.PreparedSql;
 import org.teasoft.bee.osql.Suid;
 import org.teasoft.bee.osql.SuidRich;
+import org.teasoft.bee.osql.chain.UnionSelect;
 
 /**
  * 获取接口相应对象的帮助类.Helper Class for get the corresponding object of the interface.
@@ -47,6 +48,11 @@ public class BeeFactoryHelper {
 	
 	public static MapSql getMapSql() {
 		return BeeFactory.getHoneyFactory().getMapSql();
+	}
+	
+	//@since 2.0
+	public static UnionSelect getUnionSelect() {
+		return BeeFactory.getHoneyFactory().getUnionSelect();
 	}
 
 }

@@ -27,8 +27,8 @@ public class RwDs implements Route{
 	private String writeDd;
 	private List<String> readDsList;
 
-	private static int count = 0;
-	private static int max_cout = Integer.MAX_VALUE - 1000000;
+	private static volatile int count = 0;
+	private static volatile int max_cout = Integer.MAX_VALUE - 1000000;
 	private static Random r = new Random();
 	private byte lock[] = new byte[0];
 	
@@ -67,7 +67,7 @@ public class RwDs implements Route{
 		RouteStruct routeStruct = HoneyContext.getCurrentRoute();
 		
 		//V1.11 同一连接,默认走写库.  (前面有指定会用指定的)
-		if (StringConst.tRue.equals(HoneyContext.getSameConnctionDoing())
+		if (StringConst.tRue.equals(HoneyContext.getSameConnectionDoing())
 		 || StringConst.tRue.equals(HoneyContext.getJdbcTranWriterDs())) {
 			return getWriteDs();
 		}

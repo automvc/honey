@@ -1,5 +1,6 @@
 package org.teasoft.honey.osql.core;
 
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.sql.*;
@@ -31,6 +32,7 @@ import org.teasoft.honey.osql.name.NameUtil;
 import org.teasoft.honey.osql.type.*;
 import org.teasoft.honey.osql.util.AnnoUtil;
 import org.teasoft.honey.osql.util.NameCheckUtil;
+import org.teasoft.honey.sharding.ShardingUtil;
 import org.teasoft.honey.util.ObjectUtils;
 import org.teasoft.honey.util.StringUtils;
 
@@ -41,13 +43,8 @@ import org.teasoft.honey.util.StringUtils;
  */
 public final class HoneyUtil {
 
-//	private static final String STRING = "String";
-//	private static Map<String, String> jdbc2JavaTypeMap = new HashMap<>(); 
 	private static Map<String, Integer> javaTypeMap = new HashMap<>();
 
-//	private static PropertiesReader jdbcTypeCustomProp = new PropertiesReader("/jdbcTypeToFieldType.properties");
-//	private static PropertiesReader jdbcTypeCustomProp_specificalDB = null;
-	
 	static {
 		initJavaTypeMap();
 		initSetParaAndResultTypeHandlerRegistry();
@@ -62,31 +59,12 @@ public final class HoneyUtil {
 	//初始化  SQL设置参数转换注册器 和 查询结果类型转换注册器
 	private static void initSetParaAndResultTypeHandlerRegistry() {
 		
-/*		String proFileName = "/jdbcTypeToFieldType-{DbName}.properties";
-		
-		initJdbcTypeMap();
-		appendJdbcTypeCustomProp();
-		
-		String dbName = HoneyConfig.getHoneyConfig().getDbName();
-		if (dbName != null) {
-			jdbcTypeCustomProp_specificalDB = new PropertiesReader(proFileName.replace("{DbName}", dbName));
-			appendJdbcTypeCustomProp_specificalDB();
-		}*/
-		
-
-//		initJavaTypeMap();
-		
-//		SetParaTypeConverterRegistry.register(java.util.Date.class, new UtilDotDateTypeToTimestampConvert<java.util.Date>(), DatabaseConst.ORACLE); //close in 1.17
 		SetParaTypeConverterRegistry.register(java.util.Date.class, new UtilDotDateTypeToTimestampConvert<java.util.Date>(), DatabaseConst.PostgreSQL);
 		SetParaTypeConverterRegistry.register(java.util.Date.class, new UtilDotDateTypeToTimestampConvert<java.util.Date>(), DatabaseConst.H2);
-//		SetParaTypeConverterRegistry.register(java.util.Date.class, new UtilDotDateTypeToTimestampConvert<java.util.Date>(), DatabaseConst.MYSQL); //close in 1.17
 		SetParaTypeConverterRegistry.register(java.util.Date.class, new UtilDotDateTypeConvert<java.util.Date>());
 		
 		TypeHandlerRegistry.register(char.class, new CharTypeHandler<Character>(),true);
 		
-//		if (isSQLite() || HoneyContext.isNeedRealTimeDb()) { //不能只用isSQLite(),否则动态切换时,不一定能运行到.   这样,也还是可能运行不到
-//		if(isSQLite() || (HoneyContext.isNeedRealTimeDb() && HoneyContext.getDsName2DbName().containsValue(DatabaseConst.SQLite))) {
-	
 		//单DS  或者  DsMap中包含有   才执行.   触发时间,应该是在被更改配置时,调用一次
 		if ((!HoneyConfig.getHoneyConfig().multiDS_enable)
 		  || (HoneyContext.getDsName2DbName() != null && HoneyContext.getDsName2DbName().containsValue(DatabaseConst.SQLite))) {
@@ -1780,6 +1758,7 @@ public final class HoneyUtil {
 
 	public static void regPagePlaceholder() {
 	    if(isSqlServer()) return ;
+	    if(ShardingUtil.hadSharding()) return ; //2.0 有分片则不用
 		OneTimeParameter.setTrueForKey("_SYS_Bee_Paing_Placeholder");
 	}
 
@@ -1966,6 +1945,21 @@ public final class HoneyUtil {
 			Logger.debug(e.getMessage(), e);
 		}
 		return null;
+	}
+	
+	public static <T extends Serializable> Object copyObject(T ojb) {
+		try {
+			Serializer jdks = new JdkSerializer();
+			return jdks.unserialize(jdks.serialize(ojb));
+		} catch (Exception e) {
+			Logger.debug(e.getMessage(), e);
+		}
+		return null;
+	}
+	
+	//include union,union all
+	public static boolean isNotSupportUnionQuery() {
+		return HoneyConfig.getHoneyConfig().notSupportUnionQuery || HoneyUtil.isSQLite();
 	}
 
 }

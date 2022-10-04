@@ -6,6 +6,8 @@
 
 package org.teasoft.honey.osql.core;
 
+import java.io.Serializable;
+
 import org.teasoft.bee.osql.Cache;
 
 /**
@@ -13,7 +15,9 @@ import org.teasoft.bee.osql.Cache;
  * @author Kingstar
  * @since  1.4
  */
-public class DefaultCache implements Cache{
+public class DefaultCache implements Cache, Serializable {
+	
+	private static final long serialVersionUID = 1596710362260L;
 
 	@Override
 	public Object get(String sql) {

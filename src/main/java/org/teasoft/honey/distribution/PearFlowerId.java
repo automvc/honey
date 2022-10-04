@@ -59,7 +59,7 @@ public class PearFlowerId implements GenId {
 	private long startSecond = Start.getStartSecond();
 	private long lastTimestamp = -1L;
 
-	private static boolean useHalfWorkId ;
+	private static volatile boolean useHalfWorkId ;
 	private static long tolerateSecond=10;
 	private static long switchWorkIdTimeThreshold=120;
 	private static int randomNumBound;

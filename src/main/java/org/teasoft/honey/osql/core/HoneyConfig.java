@@ -162,6 +162,9 @@ public final class HoneyConfig {
 	@SysValue("${bee.osql.notShowModifyDuplicateException}")
 	public boolean notShowModifyDuplicateException;
 	
+	@SysValue("${bee.osql.notSupportUnionQuery}")
+	public boolean notSupportUnionQuery; //2.0
+	
 	@SysValue("${bee.osql.insertBatchSize}")
 	int insertBatchSize = 10000; //不设置,默认10000
 	
@@ -177,6 +180,9 @@ public final class HoneyConfig {
 	
 	@SysValue("${bee.osql.showSQL}")   //属于 bee.osql
 	public boolean showSQL = false;
+	
+	@SysValue("${bee.osql.showShardingSQL}")   //属于 bee.osql
+	public boolean showShardingSQL = false;
 	//----------------------------- showSql start
 
 	@SysValue("${bee.osql.showSql.showType}")
@@ -409,9 +415,14 @@ public final class HoneyConfig {
 	//	支持同时使用多种类型数据库的数据源.support different type muli-Ds at same time.
 	@SysValue("${bee.dosql.multiDS.differentDbType}")
 	public boolean multiDS_differentDbType;
+	
+	@SysValue("${bee.dosql.multiDS.sharding}")
+	public boolean multiDS_sharding; //用于分库分表的分片
+	
 	//----------------------------- multiDs  end
 
 	public String getDbName() {
+		
 		checkAndRefreshDbNameForSingleDs(); //单个DS
 		//多DS时,在BeeFactory解析parseDbNameByDsMap时设置
 		
@@ -448,12 +459,11 @@ public final class HoneyConfig {
 	private static boolean alreadyPrintDbName = false;
 	private static boolean changeDataSource = false;
 
-	
 	private static void checkAndRefreshDbNameForSingleDs() {
 		//单库时, dbName是null或有更改Ds才要重新设置
 		if ( !HoneyConfig.getHoneyConfig().multiDS_enable
 				&& (HoneyConfig.getHoneyConfig().dbName == null || changeDataSource)) {
-			
+
 			Connection conn = null;
 			try {
 				conn = SessionFactory.getConnection();

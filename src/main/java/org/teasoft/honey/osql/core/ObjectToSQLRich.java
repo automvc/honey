@@ -27,6 +27,7 @@ import org.teasoft.honey.distribution.UUID;
 import org.teasoft.honey.osql.dialect.sqlserver.SqlServerPagingStruct;
 import org.teasoft.honey.osql.name.NameUtil;
 import org.teasoft.honey.osql.util.AnnoUtil;
+import org.teasoft.honey.sharding.ShardingReg;
 
 /**
  * 对象到SQL的转换(对应SuidRich).Object to SQL string for SuidRich. 
@@ -37,38 +38,8 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 
 	private static final String ASC = K.asc;
 	
-	private int batchSize = HoneyConfig.getHoneyConfig().insertBatchSize;
-
 	private DbFeature getDbFeature() {
 		return BeeFactory.getHoneyFactory().getDbFeature();
-	}
-
-	@Override
-	public <T> String toSelectSQL(T entity, int size) {
-		
-		String tableName="";
-		if(isNeedRealTimeDb()) {
-			tableName= _toTableName(entity);  //这里,取过了参数, 到解析sql的,就不能再取
-			OneTimeParameter.setAttribute(StringConst.TABLE_NAME, tableName);
-			HoneyContext.initRouteWhenParseSql(SuidType.SELECT, entity.getClass(),tableName);
-			OneTimeParameter.setTrueForKey(StringConst.ALREADY_SET_ROUTE);
-		}
-
-		SqlValueWrap wrap = toSelectSQL_0(entity);
-		String sql = wrap.getSql();
-		regPagePlaceholder();
-		adjustSqlServerPagingPkIfNeed(sql, entity.getClass());
-		sql = getDbFeature().toPageSql(sql, size);
-		HoneyUtil.setPageNum(wrap.getList());
-		
-		if(isNeedRealTimeDb()) {
-			setContext(sql, wrap.getList(), tableName);
-		}else {
-			setContext(sql, wrap.getList(), wrap.getTableNames());
-		}
-		
-		Logger.logSQL("select SQL(entity,size): ", sql);
-		return sql;
 	}
 	
 	private void regPagePlaceholder(){
@@ -90,7 +61,13 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		String sql = wrap.getSql();
 		regPagePlaceholder();
 		adjustSqlServerPagingPkIfNeed(sql, entity.getClass());
-		sql = getDbFeature().toPageSql(sql, start, size);
+		String beforeSql=sql;
+		if (start == -1)
+			sql = getDbFeature().toPageSql(sql, size);
+		else
+			sql = getDbFeature().toPageSql(sql, start, size);
+		ShardingReg.regShadingPage(beforeSql, sql, start, size);
+		
 		HoneyUtil.setPageNum(wrap.getList());
 		
 		if(isNeedRealTimeDb()) {
@@ -99,7 +76,40 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			setContext(sql, wrap.getList(), wrap.getTableNames());
 		}
 
-		Logger.logSQL("select(entity,start,size) SQL: ", sql);
+		if (start == -1)
+			Logger.logSQL("select SQL(entity,size): ", sql);
+		else
+			Logger.logSQL("select(entity,start,size) SQL: ", sql);
+		return sql;
+	}
+	
+	@Override
+	public <T> String toSelectSQL(T entity, String selectFields, int start, int size) {
+
+		String tableName="";
+		if(isNeedRealTimeDb()) {
+			tableName= _toTableName(entity);  //这里,取过了参数, 到解析sql的,就不能再取
+			OneTimeParameter.setAttribute(StringConst.TABLE_NAME, tableName);
+			HoneyContext.initRouteWhenParseSql(SuidType.SELECT, entity.getClass(),tableName);
+			OneTimeParameter.setTrueForKey(StringConst.ALREADY_SET_ROUTE);
+		}
+		
+		SqlValueWrap wrap = toSelectSQL_0(entity, selectFields);
+		String sql = wrap.getSql();
+		regPagePlaceholder();
+		adjustSqlServerPagingPkIfNeed(sql, entity.getClass());
+		String beforeSql=sql;
+		sql = getDbFeature().toPageSql(sql, start, size);
+		ShardingReg.regShadingPage(beforeSql, sql, start, size);
+		HoneyUtil.setPageNum(wrap.getList());
+		
+		if(isNeedRealTimeDb()) {
+			setContext(sql, wrap.getList(), tableName);
+		}else {
+			setContext(sql, wrap.getList(), wrap.getTableNames());
+		}
+
+		Logger.logSQL("select(entity,selectFields,start,size) SQL: ", sql);
 		return sql;
 	}
 	
@@ -118,34 +128,6 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		struct.setJustChangeOrderColumn(true);
 		struct.setOrderColumn(pkName);
 		HoneyContext.setSqlServerPagingStruct(sql, struct);
-	}
-
-	@Override
-	public <T> String toSelectSQL(T entity, String selectFields, int start, int size) {
-
-		String tableName="";
-		if(isNeedRealTimeDb()) {
-			tableName= _toTableName(entity);  //这里,取过了参数, 到解析sql的,就不能再取
-			OneTimeParameter.setAttribute(StringConst.TABLE_NAME, tableName);
-			HoneyContext.initRouteWhenParseSql(SuidType.SELECT, entity.getClass(),tableName);
-			OneTimeParameter.setTrueForKey(StringConst.ALREADY_SET_ROUTE);
-		}
-		
-		SqlValueWrap wrap = toSelectSQL_0(entity, selectFields);
-		String sql = wrap.getSql();
-		regPagePlaceholder();
-		adjustSqlServerPagingPkIfNeed(sql, entity.getClass());
-		sql = getDbFeature().toPageSql(sql, start, size);
-		HoneyUtil.setPageNum(wrap.getList());
-		
-		if(isNeedRealTimeDb()) {
-			setContext(sql, wrap.getList(), tableName);
-		}else {
-			setContext(sql, wrap.getList(), wrap.getTableNames());
-		}
-
-		Logger.logSQL("select(entity,selectFields,start,size) SQL: ", sql);
-		return sql;
 	}
 	
 	@Override
@@ -174,6 +156,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			orderBy += _toColumnName(orderFields[i],entity.getClass()) + " " + ASC;
 			if (i < lenA - 1) orderBy += ",";
 		}
+		ShardingReg.regShardingSort(orderBy, orderFields, null); //2.0
 		
 		SqlValueWrap wrap=toSelectSQL_0(entity);
 		String sql=wrap.getSql();
@@ -197,6 +180,8 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			if (i < lenA - 1) orderBy += ",";
 		}
 
+		ShardingReg.regShardingSort(orderBy, orderFields, orderTypes); //2.0
+		
 		SqlValueWrap wrap = toSelectSQL_0(entity);
 		String sql = wrap.getSql();
 		sql += " "+K.orderBy+" " + orderBy;
@@ -373,19 +358,14 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		return sql;
 	}
 
-	@Override
-	public <T> String[] toInsertSQL(T entity[]) {
-		return toInsertSQL(entity, "");
-	}
+//	@Override
+//	public <T> String[] toInsertSQL(T entity[]) {
+//		return toInsertSQL(entity, "");
+//	}
 	
 	private static final String INDEX1 = "_SYS[index";
 	private static final String INDEX2 = "]_End ";
 	private static final String INDEX3 = "]";
-	
-	@Override
-	public <T> String[] toInsertSQL(T entity[], String excludeFieldList) {
-		return toInsertSQL(entity, batchSize, excludeFieldList);
-	}
 	
 	@Override
 	public <T> String[] toInsertSQL(T entity[],int batchSize, String excludeFieldList) {
@@ -995,7 +975,7 @@ private <T> void setInitArrayIdByAuto(T entity[]) {
 			//is no id field , ignore.
 			return;
 		} catch (Exception e) {
-			Logger.error(e.getMessage());
+			Logger.error(e.getMessage(),e);
 			return;
 		}
 }

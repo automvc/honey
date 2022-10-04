@@ -22,6 +22,7 @@ import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
 import org.teasoft.bee.osql.exception.BeeIllegalSQLException;
 import org.teasoft.honey.osql.core.ConditionImpl.FunExpress;
 import org.teasoft.honey.osql.dialect.sqlserver.SqlServerPagingStruct;
+import org.teasoft.honey.sharding.ShardingReg;
 import org.teasoft.honey.util.StringUtils;
 
 /**
@@ -149,18 +150,9 @@ public class ConditionHelper {
 	
 	static boolean processCondition(StringBuffer sqlBuffer, 
 		 List<PreparedValue> list, Condition condition, boolean firstWhere) {
-//		 StringBuffer valueBuffer=new StringBuffer(); //don't use, just adapt the old method
-//		 return processCondition(sqlBuffer, valueBuffer, list, condition, firstWhere, null);
 		 return processCondition(sqlBuffer, list, condition, firstWhere, null);
 	}
 	
-	//v1.7.2  add return value for delete/update control
-//	static boolean processCondition(StringBuffer sqlBuffer, StringBuffer valueBuffer, 
-//			List<PreparedValue> list, Condition condition, boolean firstWhere) {
-//		
-////		 return processCondition(sqlBuffer, valueBuffer, list, condition, firstWhere, null);
-//		 return processCondition(sqlBuffer, list, condition, firstWhere, null);
-//	}
 	//v1.7.2  add return value for delete/update control
 	static boolean processCondition(StringBuffer sqlBuffer, 
 			List<PreparedValue> list, Condition condition, boolean firstWhere,String useSubTableNames[]) {
@@ -230,27 +222,11 @@ public class ConditionHelper {
 					p.setValue(null);
 					p.setType(Object.class.getName());
 					list.add(p);
-				} else if (List.class.isAssignableFrom(v.getClass())
-						|| Set.class.isAssignableFrom(v.getClass())) { // List,Set
-					Collection<?> c = (Collection<?>) v;
-					len = c.size();
-					for (Object e : c) {
-						setPreValue(list, e);
-					}
-				} else if (HoneyUtil.isNumberArray(v.getClass())) { // Number Array
-					Number n[] = (Number[]) v;
-					len = n.length;
-					for (Number number : n) {
-						setPreValue(list, number);
-					}
-				} else if (String.class.equals(v.getClass())) { // String 逗号(,)为分隔符
-					Object values[] = v.toString().trim().split(",");
-					len = values.length;
-					for (Object e : values) {
-						setPreValue(list, e);
-					}
-				} else { // other one elements
-					setPreValue(list, v);
+				} 
+				else {
+					List<PreparedValue> inList=processIn(v);
+					len=inList.size();
+					if(len>0) list.addAll(inList);
 				}
 				
 				for (int i = 1; i < len; i++) { //start 1
@@ -258,9 +234,6 @@ public class ConditionHelper {
 				}
 
 				sqlBuffer.append(")");
-
-//				valueBuffer.append(","); //valueBuffer
-//				valueBuffer.append(expression.getValue());
 
 				isNeedAnd = true;
 				continue;
@@ -274,9 +247,6 @@ public class ConditionHelper {
 				if(HoneyUtil.isSqlKeyWordUpper()) sqlBuffer.append(expression.getOpType().toUpperCase());
 				else sqlBuffer.append(expression.getOpType());
 				sqlBuffer.append("?");
-
-//				valueBuffer.append(","); //valueBuffer
-//				valueBuffer.append(expression.getValue());
 
 				String v = (String) expression.getValue();
 				if (v != null) {
@@ -302,7 +272,6 @@ public class ConditionHelper {
 				preparedValue = new PreparedValue();
 				if(v==null) preparedValue.setType(Object.class.getName());
 				else preparedValue.setType(expression.getValue().getClass().getName());
-//				preparedValue.setValue(expression.getValue());
 				preparedValue.setValue(v);
 				list.add(preparedValue);
 
@@ -318,11 +287,6 @@ public class ConditionHelper {
 				sqlBuffer.append("?");
 				sqlBuffer.append(" "+K.and+" ");
 				sqlBuffer.append("?");
-
-//				valueBuffer.append(","); //valueBuffer
-//				valueBuffer.append(expression.getValue()); //low
-//				valueBuffer.append(","); //valueBuffer
-//				valueBuffer.append(expression.getValue2()); //high
 
 				preparedValue = new PreparedValue();
 				preparedValue.setType(expression.getValue().getClass().getName());
@@ -368,11 +332,7 @@ public class ConditionHelper {
 
 					sqlBuffer.append(")");
 					sqlBuffer.append(expression.getValue4()); //Op
-					//		                  sqlBuffer.append(expression.getValue2()); 
 					sqlBuffer.append("?");
-
-//					valueBuffer.append(",");
-//					valueBuffer.append(expression.getValue2()); // here is value2
 
 					preparedValue = new PreparedValue();
 					preparedValue.setType(expression.getValue2().getClass().getName());
@@ -389,7 +349,6 @@ public class ConditionHelper {
 
 				sqlBuffer.append(expression.getValue());//order by或者,
 				if (4 == expression.getOpNum()) { //order by max(total)
-//					sqlBuffer.append(expression.getValue3());
 					sqlBuffer.append(FunAndOrderTypeMap.transfer(expression.getValue3().toString()));
 					sqlBuffer.append("(");
 					sqlBuffer.append(columnName);
@@ -400,7 +359,6 @@ public class ConditionHelper {
 
 				if (3 == expression.getOpNum() || 4 == expression.getOpNum()) { //指定 desc,asc
 					sqlBuffer.append(ONE_SPACE);
-//					sqlBuffer.append(expression.getValue2());
 					sqlBuffer.append(FunAndOrderTypeMap.transfer(expression.getValue2().toString()));
 					
 //					//V1.17
@@ -472,9 +430,6 @@ public class ConditionHelper {
 					sqlBuffer.append(expression.getOpType());
 					sqlBuffer.append("?");
 
-//				    valueBuffer.append(",");
-//				    valueBuffer.append(expression.getValue());
-
 					preparedValue = new PreparedValue();
 					preparedValue.setType(expression.getValue().getClass().getName());
 					preparedValue.setValue(expression.getValue());
@@ -489,7 +444,7 @@ public class ConditionHelper {
 			if (! OneTimeParameter.isTrue(StringConst.Select_Fun)) {
 				Integer size = conditionImpl.getSize();
 				String sql = "";
-				if (start != null && size != null) {
+				if (start != null && start!=-1 && size != null) {
 					HoneyUtil.regPagePlaceholder();
 					
 					// V1.17 sql server paging
@@ -497,6 +452,7 @@ public class ConditionHelper {
 					adjustSqlServerPagingIfNeed(sqlBuffer, orderByMap, start, entityClass, useSubTableNames);
 					
 					sql = getDbFeature().toPageSql(sqlBuffer.toString(), start, size);
+					ShardingReg.regShadingPage(sqlBuffer.toString(), sql, start, size);//2.0
 //			        sqlBuffer=new StringBuffer(sql); //new 之后不是原来的sqlBuffer,不能带回去.
 					sqlBuffer.delete(0, sqlBuffer.length());
 					sqlBuffer.append(sql);
@@ -510,12 +466,17 @@ public class ConditionHelper {
 					adjustSqlServerPagingIfNeed(sqlBuffer, orderByMap, 0, entityClass, useSubTableNames); //start=0,只用于2012的offset语法
 
 					sql = getDbFeature().toPageSql(sqlBuffer.toString(), size);
-//			        sqlBuffer=new StringBuffer(sql);
+					ShardingReg.regShadingPage(sqlBuffer.toString(), sql, null, size); //2.0
 					sqlBuffer.delete(0, sqlBuffer.length());
 					sqlBuffer.append(sql);
 					HoneyUtil.setPageNum(list);
 				}
 			}
+			
+			//2.0 reg sort
+//			private Map<String,String> orderByMap=new LinkedHashMap<>();
+			ShardingReg.regShardingSort(conditionImpl.getOrderByMap());
+			
 		}
 		//>>>>>>>>>>>>>>>>>>>paging end
 		
@@ -542,6 +503,34 @@ public class ConditionHelper {
 		}
 		
 		return isFirstWhere;
+	}
+	
+	private static List<PreparedValue> processIn(Object v) {
+		List<PreparedValue> inList =new ArrayList<>();
+		if (List.class.isAssignableFrom(v.getClass())
+				|| Set.class.isAssignableFrom(v.getClass())) { // List,Set
+			Collection<?> c = (Collection<?>) v;
+//			len = c.size();
+			for (Object e : c) {
+				setPreValue(inList, e);
+			}
+		} else if (HoneyUtil.isNumberArray(v.getClass())) { // Number Array
+			Number n[] = (Number[]) v;
+//			len = n.length;
+			for (Number number : n) {
+				setPreValue(inList, number);
+			}
+		} else if (String.class.equals(v.getClass())) { // String 逗号(,)为分隔符
+			Object values[] = v.toString().trim().split(",");
+//			len = values.length;
+			for (Object e : values) {
+				setPreValue(inList, e);
+			}
+		} else { // other one elements
+			setPreValue(inList, v);
+		}
+		
+		return inList;
 	}
 	
 	private static void checkLikeEmptyException(String value) {

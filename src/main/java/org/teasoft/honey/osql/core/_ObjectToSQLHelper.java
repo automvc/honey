@@ -38,7 +38,6 @@ final class _ObjectToSQLHelper {
 		
 		String sql = "";
 		StringBuffer sqlBuffer = new StringBuffer();
-//		StringBuffer valueBuffer = new StringBuffer();
 		try {
 			String tableName = _toTableName(entity);
 			Field fields[] = entity.getClass().getDeclaredFields();
@@ -51,17 +50,13 @@ final class _ObjectToSQLHelper {
 			PreparedValue preparedValue = null;
 			for (int i = 0; i < len; i++) {
 				fields[i].setAccessible(true);
-//				if (fields[i].get(entity) == null || "serialVersionUID".equals(fields[i].getName()) || fields[i].isSynthetic()
-//				 || fields[i].isAnnotationPresent(JoinTable.class)){
 				if (HoneyUtil.isContinue(-1, fields[i].get(entity),fields[i])) {
 					continue;	
 				}else {
 					if (firstWhere) {
-//						sqlBuffer.append(" where ");
 						sqlBuffer.append(" ").append(K.where).append(" ");
 						firstWhere = false;
 					} else {
-//						sqlBuffer.append(" and ");
 						sqlBuffer.append(" ").append(K.and).append(" ");
 					}
 
@@ -90,7 +85,7 @@ final class _ObjectToSQLHelper {
 	static <T> String _toSelectSQL(T entity, int includeType, Condition condition) {
 		return _toSelectSQL(entity, includeType, condition, false);
 	}
-	static <T> String _toSelectSQL(T entity, int includeType, Condition condition,boolean isCheckOneFunction) {
+	static <T> String _toSelectSQL(T entity, int includeType, Condition condition, boolean isCheckOneFunction) {
 		checkPackage(entity);
 		
 //		Set<String> conditionFieldSet=null;
@@ -100,7 +95,7 @@ final class _ObjectToSQLHelper {
 		String tableName = _toTableName(entity);
 		List<PreparedValue> list = new ArrayList<>();
 		boolean firstWhere = true;
-		boolean isFun=false;
+//		boolean isFun=false;
 		try {
 			Field fields[] = entity.getClass().getDeclaredFields(); 
 			String columnNames;
@@ -141,7 +136,6 @@ final class _ObjectToSQLHelper {
 				}
 			}
 			
-//			sqlBuffer.append(K.select+" " + columnNames + " "+K.from+" ");
 			sqlBuffer.append(K.select).append(" ").append(columnNames).append(" ").append(K.from).append(" ");
 			sqlBuffer.append(tableName);
 			
@@ -153,25 +147,20 @@ final class _ObjectToSQLHelper {
 					continue;
 				} else {
 					
-//					if (fields[i].get(entity) == null && "id".equalsIgnoreCase(fields[i].getName())) 
-//						continue; //id=null不作为过滤条件
 					if(isNullPkOrId(fields[i], entity)) continue; //主键=null不作为过滤条件
 					
 //					if(conditionFieldSet!=null && conditionFieldSet.contains(fields[i].getName()))  //closed in V1.9
 //						continue; //Condition已包含的,不再遍历
 
 					if (firstWhere) {
-//						sqlBuffer.append(" where ");
 						sqlBuffer.append(" ").append(K.where).append(" ");
 						firstWhere = false;
 					} else {
-//						sqlBuffer.append(" and ");
 						sqlBuffer.append(" ").append(K.and).append(" ");
 					}
 					sqlBuffer.append(_toColumnName(fields[i].getName(),entity.getClass()));
 					
 					if (fields[i].get(entity) == null) {
-//						sqlBuffer.append(" is null");
 						sqlBuffer.append(" ").append(K.isNull);
 					} else {
 						sqlBuffer.append("=");
@@ -192,20 +181,17 @@ final class _ObjectToSQLHelper {
 			
 		if (condition != null) {
 			condition.setSuidType(SuidType.SELECT);
-			if (isFun) { //close
-				OneTimeParameter.setTrueForKey(StringConst.Select_Fun);  //不用分页
-			} else {
-				if (HoneyContext.isNeedRealTimeDb()) {
-					HoneyContext.initRouteWhenParseSql(SuidType.SELECT, entity.getClass(), tableName);
-					OneTimeParameter.setTrueForKey(StringConst.ALREADY_SET_ROUTE);
-				}
+			//2.0 sharding不支持同时多种DB,不会走这 
+			if (HoneyContext.isNeedRealTimeDb()) {
+				HoneyContext.initRouteWhenParseSql(SuidType.SELECT, entity.getClass(), tableName);
+				OneTimeParameter.setTrueForKey(StringConst.ALREADY_SET_ROUTE);
 			}
-			
 			OneTimeParameter.setAttribute(StringConst.Column_EC, entity.getClass());
 			ConditionHelper.processCondition(sqlBuffer, list, condition, firstWhere);
 		}
 
-		setContext(sqlBuffer.toString(), list, tableName);
+		setContext(sqlBuffer.toString(), list, tableName); //若使用表名占位用于sharding, 则拆分sql运行后,要重置缓存.
+		                                                   //TODO 这样,就不用在这修改生成sql的代码
 
 		return sqlBuffer.toString();
 	}
@@ -214,101 +200,6 @@ final class _ObjectToSQLHelper {
          return _toSelectSQL(entity, includeType, null);
 	}
 	
-/*	static <T> String _toUpdateSQL(T entity, String whereColumn, int includeType) throws ObjSQLException, IllegalAccessException {
-		checkPackage(entity);
-		
-		String sql = "";
-		StringBuffer sqlBuffer = new StringBuffer();
-		StringBuffer valueBuffer = new StringBuffer();
-		StringBuffer whereValueBuffer = new StringBuffer();
-		boolean firstSet = true;
-		boolean isExistWhere = false; //don't delete
-		StringBuffer whereStament = new StringBuffer();
-		String tableName = _toTableName(entity);
-		sqlBuffer.append("update ");
-		sqlBuffer.append(tableName);
-		sqlBuffer.append(" set ");
-
-		Field fields[] = entity.getClass().getDeclaredFields();
-		int len = fields.length;
-		List<PreparedValue> list = new ArrayList<>();
-		List<PreparedValue> whereList = new ArrayList<>();
-		PreparedValue preparedValue = null;
-		for (int i = 0, k = 0, w = 0; i < len; i++) {
-			fields[i].setAccessible(true);
-			if ("id".equalsIgnoreCase(whereColumn) && fields[i].get(entity) == null && "id".equalsIgnoreCase(fields[i].getName()))
-				throw new ObjSQLException("ObjSQLException: in the update(T entity), the id field of entity must not be null !");
-			//			if (fields[i].get(entity) == null || "serialVersionUID".equals(fields[i].getName()))
-			if (HoneyUtil.isContinue(includeType, fields[i].get(entity),fields[i])) {
-				continue;
-			} else {
-				if (whereColumn.equalsIgnoreCase(fields[i].getName())) { //java.lang.ClassCastException: java.lang.Integer cannot be cast to java.lang.String
-					whereStament.append(" where ");
-					whereStament.append(_toColumnName(fields[i].getName()));
-
-					if (fields[i].get(entity) == null) {
-						whereValueBuffer.append(" is null");
-					} else {
-
-						whereStament.append("=");
-						whereStament.append("?");
-
-						whereValueBuffer.append(",");
-						whereValueBuffer.append(fields[i].get(entity));
-
-						preparedValue = new PreparedValue();
-						preparedValue.setType(fields[i].getType().getName());
-						preparedValue.setValue(fields[i].get(entity));
-						whereList.add(w++, preparedValue);
-					}
-					isExistWhere = true;
-				} else { //set value
-
-					if (firstSet) {
-
-						sqlBuffer.append(" ");
-						firstSet = false;
-					} else {
-						//  sqlBuffer.append(" and "); //update 的set部分不是用and  ，而是用逗号的
-						sqlBuffer.append(" , ");
-					}
-
-					sqlBuffer.append(_toColumnName(fields[i].getName()));
-					if (fields[i].get(entity) == null) {
-						sqlBuffer.append(" =null"); //  =
-					} else {
-
-						sqlBuffer.append("=");
-						sqlBuffer.append("?");
-
-						valueBuffer.append(",");
-						valueBuffer.append(fields[i].get(entity));
-
-						preparedValue = new PreparedValue();
-						preparedValue.setType(fields[i].getType().getName());
-						preparedValue.setValue(fields[i].get(entity));
-						list.add(k++, preparedValue);
-					}
-				}
-			}
-		}//end for
-		sqlBuffer.append(whereStament);
-//		sqlBuffer.append(" ;");
-		sql = sqlBuffer.toString();
-
-		list.addAll(whereList);
-		valueBuffer.append(whereValueBuffer);
-
-		if (valueBuffer.length() > 0) valueBuffer.deleteCharAt(0);
-		HoneyContext.setPreparedValue(sql, list);
-		HoneyContext.setSqlValue(sql, valueBuffer.toString());
-		addInContextForCache(sqlBuffer.toString(), valueBuffer.toString(), tableName);//2019-09-29
-//		if(!isExistWhere) {sql="no where stament for filter!"; throw new ObjSQLException("no where stament for filter!"); }
-
-		return sql;
-	}*/
-	
-//	static <T> String _toUpdateSQL(T entity, String whereColumn, int includeType) {
 	static <T> String _toUpdateSQL(T entity, int includeType) { //whereColumn is id
 		checkPackage(entity);
 		Field field = null;

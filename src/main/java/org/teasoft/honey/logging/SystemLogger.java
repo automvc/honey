@@ -180,12 +180,20 @@ public class SystemLogger implements Log{
 		
 		b.append(msg);
 		
-		if (ERROR.equals(level) || WARN.equals(level))
+		if(ERROR.equals(level) || WARN.equals(level) || DEBUG.equals(level)) //为了便于识别,DEBUG在SystemLogger使用err,让其显示为红色.
 			printerr(b.toString());
 		else
 			printout(b.toString());
 		
 	}
+	
+    private void printerr(String msg) {
+    	System.err.println(msg);
+    }
+    
+    private void printout(String msg) {
+    	System.out.println(msg);
+    }
 	
 	private void print(String level,String msg,String className){
 		StringBuffer b=new StringBuffer();
@@ -217,17 +225,9 @@ public class SystemLogger implements Log{
 		
 		 .append(msg);
 		
-		if (ERROR.equals(level) || WARN.equals(level))
+		if(ERROR.equals(level) || WARN.equals(level) || DEBUG.equals(level))
 			printerr(b.toString());
 		else
 			printout(b.toString());
-	}
-	
-	private void printerr(String str) {
-		System.err.println(str);
-	}
-	
-	private void printout(String str) {
-		System.out.println(str);
 	}
 }

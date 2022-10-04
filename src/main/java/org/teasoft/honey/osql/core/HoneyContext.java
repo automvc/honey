@@ -11,11 +11,17 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.teasoft.bee.osql.Condition;
+import org.teasoft.bee.osql.FunctionType;
 import org.teasoft.bee.osql.NameTranslate;
 import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.exception.BeeIllegalParameterException;
+import org.teasoft.bee.osql.exception.ShardingErrorException;
+import org.teasoft.bee.sharding.ShardingPageStruct;
+import org.teasoft.bee.sharding.ShardingSortStruct;
 import org.teasoft.honey.distribution.ds.RouteStruct;
 import org.teasoft.honey.osql.dialect.sqlserver.SqlServerPagingStruct;
+import org.teasoft.honey.sharding.ShardingUtil;
 import org.teasoft.honey.util.ObjectUtils;
 
 /**
@@ -31,14 +37,10 @@ public final class HoneyContext {
 	private static ConcurrentMap<String, String> beanCustomPKey; //Custom Primary Key
 	private static ConcurrentMap<String, Map<String, String>> customMap;
 	
-//	private static ConcurrentMap<String, String> sysCommStr;
-	
-	
-	//	since v1.7.0
-	//	private static ConcurrentMap<String, MoreTableStruct[]> moreTableStructMap;
-
 	private static ThreadLocal<Map<String, List<PreparedValue>>> sqlPreValueLocal;
-	//	private static ThreadLocal<Map<String, String>> sqlValueLocal;
+	private static ThreadLocal<Integer> sqlIndexLocal; //标识子操作线程的下标, 也说明是子线程
+	private static ThreadLocal<Condition> conditionLocal; 
+//	private static ThreadLocal<List<String>> tabNameListLocal; 
 
 	private static ThreadLocal<Map<String, CacheSuidStruct>> cacheLocal;
 	private static ThreadLocal<Map<String, SqlServerPagingStruct>> sqlServerPaging;
@@ -46,8 +48,11 @@ public final class HoneyContext {
 	private static ThreadLocal<Map<String, Map<String, String>>> customMapLocal;
 	
 	private static ThreadLocal<Map<String,String>> sysCommStrLocal;
+	private static ThreadLocal<Map<String,List<String>>> listLocal;
 
 	private static ThreadLocal<RouteStruct> currentRoute;
+	private static ThreadLocal<ShardingPageStruct> currentShardingPage;
+	private static ThreadLocal<ShardingSortStruct> currentShardingSort;
 
 	private static ThreadLocal<Connection> currentConnection; //当前事务的Conn
 	
@@ -55,11 +60,11 @@ public final class HoneyContext {
 	
 	private static ThreadLocal<NameTranslate> currentNameTranslate;
 
-	private static ThreadLocal<String> sameConnctionDoing; //当前多个ORM操作使用同一个connection.
+	private static ThreadLocal<String> sameConnectionDoing; //当前多个ORM操作使用同一个connection.
 	private static ThreadLocal<String> jdbcTranWriterDs; 
 	
-	private static ThreadLocal<String> appointDS; 
-	private static ThreadLocal<String> tempDS;  //for Suid.setDataSourceName(String dsName) and so on
+	private static ThreadLocal<String> appointDS; //1.拦截器等设置的值; 因处理不同的javabean对象,可能有不同的值;比Suid对象的tempDS,动态性更强.所以appointDS优于tempDS
+	private static ThreadLocal<String> tempDS;  //2.对象级别设置的值; for Suid.setDataSourceName(String dsName) and so on
 	
 	private static ThreadLocal<String> appointTab; 
 	private static ThreadLocal<String> tabSuffix; 
@@ -68,11 +73,7 @@ public final class HoneyContext {
 	
 	private static String lang; 
 
-	//	private static ThreadLocal<Transaction> transactionLocal;  
-
 	private static ConcurrentMap<String, String> entity2table;
-//	private static volatile ConcurrentMap<String, String> table2entity = null; //for creat Javabean (just one to one can work well)
-//	private static final byte lock[] = new byte[0];
 	private static ConcurrentMap<String, String> table2entity = null; //for creat Javabean (just one to one can work well)
 	
 	private static Map<String, String> entityList_includes_Map = new ConcurrentHashMap<>();
@@ -112,35 +113,37 @@ public final class HoneyContext {
 	static {
 		beanMap = new ConcurrentHashMap<>();
 		beanCustomPKey = new ConcurrentHashMap<>();
-//		sysCommStr = new ConcurrentHashMap<>();
 		customMap = new ConcurrentHashMap<>();
-		//		moreTableStructMap= new ConcurrentHashMap<>();
 
-		sqlPreValueLocal = new ThreadLocal<>();
-		//		sqlValueLocal = new ThreadLocal<>();
-		cacheLocal = new ThreadLocal<>();
+		sqlPreValueLocal = new InheritableThreadLocal<>(); 
+		sqlIndexLocal = new InheritableThreadLocal<>(); 
+		conditionLocal = new InheritableThreadLocal<>(); 
+//		tabNameListLocal = new ThreadLocal<>(); //每个子线程都有一个具体表名,不需要.
+		
+		cacheLocal = new InheritableThreadLocal<>();
 		sqlServerPaging = new ThreadLocal<>();
 		customMapLocal = new ThreadLocal<>();
-		sysCommStrLocal = new ThreadLocal<>();
+		sysCommStrLocal = new InheritableThreadLocal<>();
+		listLocal = new ThreadLocal<>(); //子线程没有用到.
 
 		currentConnection = new ThreadLocal<>();
 		currentAppDB = new ThreadLocal<>();
 		currentNameTranslate = new ThreadLocal<>();
-//		transactionLocal = new ThreadLocal<>();
 		
-		sameConnctionDoing = new ThreadLocal<>();
+		sameConnectionDoing = new ThreadLocal<>();
 		jdbcTranWriterDs = new ThreadLocal<>();
-		appointDS = new ThreadLocal<>();
+		appointDS = new InheritableThreadLocal<>();
 		tempDS = new ThreadLocal<>();
 		appointTab = new ThreadLocal<>();
 		tabSuffix = new ThreadLocal<>();
 		
 		tempLang = new ThreadLocal<>();
 
-		currentRoute = new ThreadLocal<>();
+		currentRoute = new InheritableThreadLocal<>();
+		currentShardingPage=new ThreadLocal<>();
+		currentShardingSort=new InheritableThreadLocal<>();
 
 		entity2table = new ConcurrentHashMap<>();
-		//		table2entity=new ConcurrentHashMap<>();
 		initEntity2Table();
 
 		parseEntityListToMap();
@@ -153,7 +156,7 @@ public final class HoneyContext {
 	}
 
 	private HoneyContext() {}
-
+	
 	static void initLoad() {
 		BeeInitPreLoadService.initLoad();
 	}
@@ -256,23 +259,14 @@ public final class HoneyContext {
 		beanCustomPKey.put(key, value);
 	}
 
-	public static String getBeanCustomPKey(String key) {
-		if (key == null) return null;
+	public static String getBeanCustomPKey(String mapKey) {
+		if (mapKey == null) return null;
 		if(HoneyConfig.getHoneyConfig().naming_useMoreTranslateType) {
-			key+=NameTranslateHandle.getNameTranslate().getClass().getName();
+			mapKey+=NameTranslateHandle.getNameTranslate().getClass().getName();
 		}
-		return beanCustomPKey.get(key);
+		return beanCustomPKey.get(mapKey);
 	}
 	
-//	static void addSysCommStr(String key, String value) {
-//		sysCommStr.put(key, value);
-//	}
-//
-//	public static String getSysCommStr(String key) {
-//		if (key == null) return null;
-//		return sysCommStr.get(key);
-//	}
-
 	public static void addCustomMap(String key, Map<String, String> mapValue) {
 		if (key == null) {
 			Logger.warn("Do not support the null key!", new BeeIllegalParameterException("Do not support the null key!"));
@@ -320,7 +314,7 @@ public final class HoneyContext {
 		if (map.containsKey(key)) map.remove(key);
 	}
 	
-	static void setSysCommStrLocal(String key, String sysCommStr) {
+	public static void setSysCommStrLocal(String key, String sysCommStr) {
 		if (sysCommStr == null) return;
 		if (key == null || "".equals(key.trim())) return;
 		Map<String, String> map = sysCommStrLocal.get();
@@ -340,14 +334,35 @@ public final class HoneyContext {
 		if (map != null) map.remove(key);
 //		if (map != null && map.containsKey(key)) map.remove(key);
 	}
+	
+	public static void setTrueInSysCommStrLocal(String key) {
+		setSysCommStrLocal(key, StringConst.tRue);
+	}
+	
+	public static boolean isTrueInSysCommStrLocal(String key) {
+		return StringConst.tRue.equals(HoneyContext.getSysCommStrLocal(key));
+	}
+	
+	
+	public static void setListLocal(String key, List<String> listString) {
+		if (listString == null) return;
+		if (key == null || "".equals(key.trim())) return;
+		Map<String, List<String>> map = listLocal.get();
+		if (null == map) map = new ConcurrentHashMap<>();
+		map.put(key, listString);
+		listLocal.set(map);
+	}
 
-	//	static MoreTableStruct[] addMoreTableStructs(String key, MoreTableStruct[] value) {
-	//		return moreTableStructMap.put(key, value);
-	//	}
-	//
-	//	public static MoreTableStruct[] getMoreTableStructs(String key) {
-	//		return moreTableStructMap.get(key);
-	//	}
+	public static List<String> getListLocal(String key) {
+		Map<String, List<String>> map = listLocal.get();
+		if (map == null || key == null) return null;
+		return map.get(key);
+	}
+
+	public static void removeListLocal(String key) {
+		Map<String, List<String>> map = listLocal.get();
+		if (map != null) map.remove(key);
+	}
 	
 	private static boolean isShowExecutableSql() {
 		return HoneyConfig.getHoneyConfig().showSql_showExecutableSql;
@@ -371,46 +386,27 @@ public final class HoneyContext {
 		Map<String, List<PreparedValue>> map = sqlPreValueLocal.get();
 		if (null == map || sqlStr==null) return null;
 
+//		if(getSqlIndexLocal()!=null) sqlStr+=getSqlIndexLocal();
 		return map.get(sqlStr);
 	}
-//	public static void test() {
-//		Map<String, List<PreparedValue>> map = sqlPreValueLocal.get();
-//		System.err.println(map);
-//	}
 
-	static void clearPreparedValue(String sqlStr) {
+ 	static void clearPreparedValue(String sqlStr) {
 		Map<String, List<PreparedValue>> map = sqlPreValueLocal.get();
 		if (null == map || sqlStr==null) return;
 //		if (map.get(sqlStr) != null) map.remove(sqlStr);
+		
+//		if(getSqlIndexLocal()!=null) sqlStr+=getSqlIndexLocal();
 		if (map.containsKey(sqlStr)) map.remove(sqlStr);
 	}
 
-	static List<PreparedValue> getAndClearPreparedValue(String sqlStr) {
+ 	static List<PreparedValue> getAndClearPreparedValue(String sqlStr) {
 		Map<String, List<PreparedValue>> map = sqlPreValueLocal.get();
 		if (null == map || sqlStr==null) return null;
 		List<PreparedValue> list = map.get(sqlStr);
 //		if (list != null) map.remove(sqlStr);
 		if (map.containsKey(sqlStr)) map.remove(sqlStr);
-
 		return list;
 	}
-
-	/*    static void setSqlValue(String sqlStr, String value) {
-			if (value == null || "".equals(value.trim())) return;
-			if(sqlStr==null || "".equals(sqlStr.trim())) return;
-			Map<String, String> map = sqlValueLocal.get();
-			if (null == map) map = new HashMap<>();
-			map.put(sqlStr, value); 
-			sqlValueLocal.set(map);
-		}
-	
-		public static String getSqlValue(String sqlStr) {
-			Map<String, String> map = sqlValueLocal.get();
-			if (null == map) return null;
-			String s = map.get(sqlStr);
-			if (s != null) map.remove(sqlStr);
-			return s;
-		}*/
 
 	static void setCacheInfo(String sqlStr, CacheSuidStruct cacheInfo) {
 		if (cacheInfo == null) return;
@@ -461,6 +457,16 @@ public final class HoneyContext {
 	}
 
 	public static void setCurrentConnection(Connection conn) {
+//		//TODO 判断要是有分片时涉及多个库, 要将ds放入  Map<ds,Connection>
+		//看下是否会影响到sameConnectionDoing???
+//		if (HoneyContext.hadSharding()) {
+//			List<String> dsNameListLocal = HoneyContext
+//					.getListLocal(StringConst.DsNameListLocal);
+//			if (dsNameListLocal != null && dsNameListLocal.size() > 1) {
+//			
+//			}
+//		}
+		
 		currentConnection.set(conn);
 	}
 
@@ -504,16 +510,16 @@ public final class HoneyContext {
 		currentNameTranslate.remove();
 	}
 
-	public static String getSameConnctionDoing() {
-		return sameConnctionDoing.get();
+	public static String getSameConnectionDoing() {
+		return sameConnectionDoing.get();
 	}
 
-	private static void setSameConnctionDoing() {
-		sameConnctionDoing.set(StringConst.tRue);
+	private static void setSameConnectionDoing() {
+		sameConnectionDoing.set(StringConst.tRue);
 	}
 
-	private static void removeSameConnctionDoing() {
-		sameConnctionDoing.remove();
+	private static void removesameConnectionDoing() {
+		sameConnectionDoing.remove();
 	}
 	
 	public static String getJdbcTranWriterDs() {
@@ -551,7 +557,7 @@ public final class HoneyContext {
 		if (isMultiDs()) tempDS.remove();
 	}
 	
-	private static boolean isMultiDs() {
+	public static boolean isMultiDs() {
 		return HoneyConfig.getHoneyConfig().multiDS_enable;
 	}
 	
@@ -578,6 +584,28 @@ public final class HoneyContext {
 
 	public static void removeTabSuffix() {
 		tabSuffix.remove();
+	}
+	
+	public static Integer getSqlIndexLocal() {
+		return sqlIndexLocal.get();
+	}
+	public static void setSqlIndexLocal(int index) {
+		sqlIndexLocal.set(index);
+	}
+	public static void removeSqlIndexLocal() {
+		sqlIndexLocal.remove();
+	}
+	
+	public static Condition getConditionLocal() {
+		return conditionLocal.get();
+	}
+
+	public static void setConditionLocal(Condition condition) {
+		conditionLocal.set(condition);
+	}
+
+	public static void removeConditionLocal() {
+		conditionLocal.remove();
 	}
 	
 	public static String getTempLang() {
@@ -617,7 +645,7 @@ public final class HoneyContext {
 		
 		if (OneTimeParameter.isTrue("_SYS_Bee_SAME_CONN_BEGIN")) { //all get from cache.
 			Logger.warn("Do not get the new Connection in the SameConnection.Maybe all the results get from cache! ");
-		} else if (!StringConst.tRue.equals(getSameConnctionDoing())) {
+		} else if (!StringConst.tRue.equals(getSameConnectionDoing())) {
 			if (OneTimeParameter.isTrue("_SYS_Bee_SAME_CONN_EXCEPTION")) {//exception,   //异常时,会删除上下文连接 
 //				next select will get every conn like normal case.
 //				若报异常后到调用endSameConnection()之时, 1)没有新获取连接,则直接到这个方法;  不用特别处理
@@ -626,7 +654,7 @@ public final class HoneyContext {
 			} else { //miss beginSameConnection          
 				Logger.warn("Calling the endSameConnection(), but miss the beginSameConnection()");
 			}
-		}else if (StringConst.tRue.equals(getSameConnctionDoing())) { // 正常流程
+		}else if (StringConst.tRue.equals(getSameConnectionDoing())) { // 正常流程
 			OneTimeParameter.setTrueForKey("_SYS_Bee_SAME_CONN_END");
 			checkClose(null, getCurrentConnection());
 		}
@@ -641,22 +669,6 @@ public final class HoneyContext {
 	//		transactionLocal.set(transaction);
 	//	}
 
-	//	static void setRouteInfo(String sqlStr, RouteStruct routeStruct) {
-	//		if (routeStruct == null) return;
-	//		if(sqlStr==null || "".equals(sqlStr.trim())) return;
-	//		Map<String, RouteStruct> map = routeLocal.get();
-	//		if (null == map) map = new HashMap<>();  //
-	//		map.put(sqlStr, routeStruct); 
-	//		routeLocal.set(map);
-	//	}
-	//
-	//	public static RouteStruct getRouteInfo(String sqlStr) {
-	//		Map<String, RouteStruct> map = routeLocal.get();
-	//		if (null == map) return null;
-	//		RouteStruct struct=map.get(sqlStr);
-	//		return  struct;
-	//	}
-
 	public static RouteStruct getCurrentRoute() {
 		return currentRoute.get();
 	}
@@ -668,10 +680,35 @@ public final class HoneyContext {
 	public static void removeCurrentRoute() {
 		currentRoute.remove();
 	}
+	
+	
+	public static ShardingPageStruct getCurrentShardingPage() {
+		return currentShardingPage.get();
+	}
+
+	public static void setCurrentShardingPage(ShardingPageStruct shardingPage) {
+		currentShardingPage.set(shardingPage);
+	}
+
+	public static void removeCurrentShardingPage() {
+		currentShardingPage.remove();
+	}
+	
+	public static ShardingSortStruct getCurrentShardingSort() {
+		return currentShardingSort.get();
+	}
+
+	public static void setCurrentShardingSort(ShardingSortStruct shardingSort) {
+		currentShardingSort.set(shardingSort);
+	}
+
+	public static void removeCurrentShardingSort() {
+		currentShardingSort.remove();
+	}
 
 	static void setContext(String sql, List<PreparedValue> list, String tableName) {
 		setPreparedValue(sql, list);
-		addInContextForCache(sql, tableName);
+		addInContextForCache(sql, tableName);  //若子句是在统一解析时设置上下文,  为保证异步起的子线程,能拿到值,cacheLocal应该也要用可继承本地线程
 	}
 
 	static void addInContextForCache(String sql, String tableName) {
@@ -684,6 +721,10 @@ public final class HoneyContext {
 	@SuppressWarnings("rawtypes")
 	static void regEntityClass(Class clazz) {
 		OneTimeParameter.setAttribute(StringConst.Route_EC, clazz); //EC:Entity Class
+	}
+	
+	static void regFunType(FunctionType functionType) {
+		HoneyContext.setSysCommStrLocal(StringConst.FunType, functionType.getName());
 	}
 	
 	static void regSuidType(SuidType suidType) {
@@ -703,7 +744,8 @@ public final class HoneyContext {
 		if (conn == null) {
 			boolean isSameConn=OneTimeParameter.isTrue("_SYS_Bee_SAME_CONN_BEGIN");
 			if (isSameConn) {
-				setSameConnctionDoing(); //提前设置,因RW时,同一连接要改为默认走写库
+				checkShadingHasMoreDs("Donot support SameConnection in more DataSources at one time!");
+				setSameConnectionDoing(); //提前设置,因RW时,同一连接要改为默认走写库
 			}
 			
 			conn = SessionFactory.getConnection(); 
@@ -717,6 +759,17 @@ public final class HoneyContext {
 		return conn;
 	}
 	
+	public static void checkShadingHasMoreDs(String exceptionMsg) {
+		if (ShardingUtil.hadSharding()) {//有分片时,涉及多个DS
+			List<String> dsNameListLocal = HoneyContext
+					.getListLocal(StringConst.DsNameListLocal);
+			if (dsNameListLocal != null && dsNameListLocal.size() > 1) {
+//				throw new ShardingErrorException("Donot support SameConnection in more DataSources!");
+				throw new ShardingErrorException(exceptionMsg);
+			}
+		}
+	}
+	
 	//For exception case. when have exception, must close the conn.
 	static void closeConn(Connection conn) {
 		try {
@@ -726,8 +779,8 @@ public final class HoneyContext {
 			throw ExceptionHelper.convert(e);
 		} finally {
 			removeCurrentConnection(); //事务结束时要删除;在事务中间报异常也要删除;同一conn也要删除
-			if (StringConst.tRue.equals(getSameConnctionDoing())) {
-				removeSameConnctionDoing(); //同一conn
+			if (StringConst.tRue.equals(getSameConnectionDoing())) {
+				removesameConnectionDoing(); //同一conn
 				OneTimeParameter.setTrueForKey("_SYS_Bee_SAME_CONN_EXCEPTION");
 			}
 //			boolean enableMultiDs = HoneyConfig.getHoneyConfig().multiDS_enable;
@@ -767,9 +820,9 @@ public final class HoneyContext {
 		try {
 			//			如果设置了同一Connection
 			//			并且调用了endSameConnection才关闭   
-			if (StringConst.tRue.equals(getSameConnctionDoing())) {
+			if (StringConst.tRue.equals(getSameConnectionDoing())) {
 				if (OneTimeParameter.isTrue("_SYS_Bee_SAME_CONN_END")) { // 调用suid.endSameConnection();前的SQL操作 不会触发这里的.
-					removeSameConnctionDoing();
+					removesameConnectionDoing();
 					if (conn != null) conn.close();
 				}
 				//else { do not close}
@@ -987,7 +1040,7 @@ public final class HoneyContext {
 		if (isMultiDs()) {
 			int multiDsType = HoneyConfig.getHoneyConfig().multiDS_type;
 			boolean differentDbType = HoneyConfig.getHoneyConfig().multiDS_differentDbType;
-			if (!(multiDsType == 1 && !differentDbType)) // 不是(模式1的同种DB) //sameDbType=!differentDbType
+			if (!(multiDsType == 1 && !differentDbType)) // 不是(模式1(RW)的同种DB) //sameDbType=!differentDbType
 				return true;
 			else
 				return false;
@@ -995,7 +1048,8 @@ public final class HoneyContext {
 			return false;
 		}
 	}
-
+	
+	
 	static boolean isAlreadySetRoute() {
 		return OneTimeParameter.isTrue(StringConst.ALREADY_SET_ROUTE);
 	}
@@ -1016,7 +1070,7 @@ public final class HoneyContext {
 
 	public static void setConfigRefresh(boolean configRefresh) {
 		HoneyContext.configRefresh = configRefresh;
-		HoneyConfig.setChangeDataSource(true);
+		HoneyConfig.setChangeDataSource(true); //1.17
 	}
 
 	public static void updateConfig(Map<String, Object> map) {
@@ -1066,6 +1120,10 @@ public final class HoneyContext {
 	public static void addCustomFlagMap(String key,boolean flag) {
 		if (key == null) return;
 		customFlagMap.put(key, flag);
+	}
+	
+	public static boolean isInterceptorSubEntity() {
+		return OneTimeParameter.isTrue(StringConst.InterceptorSubEntity);
 	}
 	
 }

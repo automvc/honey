@@ -55,9 +55,7 @@ public class ObjSQL implements Suid {
 	
 	@Override
 	public InterceptorChain getInterceptorChain() {
-		if (interceptorChain == null) {
-			interceptorChain = BeeFactory.getHoneyFactory().getInterceptorChain();
-		}
+		if (interceptorChain == null) return BeeFactory.getHoneyFactory().getInterceptorChain();
 		return HoneyUtil.copy(interceptorChain);
 	}
 
@@ -137,6 +135,7 @@ public class ObjSQL implements Suid {
 		sql=doAfterCompleteSql(sql);
 		int insertNum = -1;
 		Logger.logSQL("insert SQL: ", sql);
+		
 		HoneyUtil.revertId(entity); //v1.9
 		insertNum = getBeeSql().modify(sql);
 		
@@ -236,6 +235,7 @@ public class ObjSQL implements Suid {
 	@Override
 	public <T> List<T> select(T entity, Condition condition) {
 		if (entity == null) return null;
+		regCondition(condition);
 		doBeforePasreEntity(entity,SuidType.SELECT);
 		List<T> list = null;
 		String sql = getObjToSQL().toSelectSQL(entity,condition);
@@ -249,6 +249,7 @@ public class ObjSQL implements Suid {
 	@Override
 	public <T> int delete(T entity, Condition condition) {
 		if (entity == null) return -1;
+		regCondition(condition);
 		doBeforePasreEntity(entity,SuidType.DELETE);
 		String sql = getObjToSQL().toDeleteSQL(entity,condition);
 		_regEntityClass(entity);
@@ -284,10 +285,16 @@ public class ObjSQL implements Suid {
 	public void endSameConnection() {
 		HoneyContext.endSameConnection();
 	}
+	
+	void regCondition(Condition condition) {
+		HoneyContext.setConditionLocal(condition);
+	}
 
 	void doBeforePasreEntity(Object entity, SuidType SuidType) {
 		regSuidType(SuidType);
-		if (this.dsName != null) HoneyContext.setTempDS(dsName);
+		if (this.dsName != null) {
+			HoneyContext.setTempDS(dsName);
+		}
 		if(this.nameTranslate!=null) HoneyContext.setCurrentNameTranslate(nameTranslate);
 		getInterceptorChain().beforePasreEntity(entity, SuidType);
 	}
@@ -300,15 +307,18 @@ public class ObjSQL implements Suid {
 
 	@SuppressWarnings("rawtypes")
 	void doBeforeReturn(List list) {
-		if (this.dsName != null) HoneyContext.removeTempDS();
-		if(this.nameTranslate!=null) HoneyContext.removeCurrentNameTranslate();
+		_doBeforeReturn();
 		getInterceptorChain().beforeReturn(list);
 	}
-
+	
 	void doBeforeReturn() {
+		_doBeforeReturn();
+		getInterceptorChain().beforeReturn();
+	}
+	
+	private void _doBeforeReturn() {
 		if (this.dsName != null) HoneyContext.removeTempDS();
 		if(this.nameTranslate!=null) HoneyContext.removeCurrentNameTranslate();
-		getInterceptorChain().beforeReturn();
 	}
 	
 	protected void regSuidType(SuidType SuidType) {

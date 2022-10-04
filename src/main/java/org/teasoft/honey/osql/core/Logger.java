@@ -34,6 +34,11 @@ public class Logger {
 	private static Log log = null;
 
 	//专门用于Bee框架输出SQL日志.
+	static void logSQL(String hardStr) {
+		logSQL(hardStr, "");
+	}
+	 
+	//专门用于Bee框架输出SQL日志.
 	 static void logSQL(String hardStr, String sql) {
 
 		if (!isShowSQL()) return;
