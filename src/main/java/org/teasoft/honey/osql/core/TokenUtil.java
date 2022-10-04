@@ -179,7 +179,6 @@ public class TokenUtil {
 						preparedValue.setType(v.getClass().getName());
 						list.add(preparedValue);
 					} else if (key.endsWith(CustomAutoSqlToken.atIn)) {
-//						System.err.println("process :  @in!");
 //						Object objIn = map.get(key.substring(0, key.length() - 3));
 						String keyIn = key.replace(CustomAutoSqlToken.atIn, "").trim();
 						Object objIn = map.get(keyIn);
@@ -361,9 +360,7 @@ public class TokenUtil {
 		TokenStruct struct = getKeyStruct(sbf, startToken, endToken);
 		if (struct != null) {
 			String key1 = struct.key;
-			//			System.err.println(key1); //userid in #{userid@in}
 			String key2 = getKey(key1, "#{", "}");
-			//			System.err.println(key2);//userid @in
 			//去除%,@in ...
 			if (StringUtils.isNotBlank(key2)) {
 				String key3 = key2.replace("%", "").replace(CustomAutoSqlToken.atIn, "")
@@ -417,7 +414,7 @@ public class TokenUtil {
 	//		//		map.put("name0", "has");
 	//
 	//		doProcessJudgeToken(sbf, map);
-	//		System.err.println(sbf.toString());
+	//		.err.println(sbf.toString());
 	//	}
 
 }

@@ -66,6 +66,10 @@ public class K {
 	public static final String exists=k.exists();
 	public static final String notExists=k.notExists();
 	
+	//2.0
+	public static final String union=k.union();
+	public static final String unionAll=k.unionAll();
+	
 	private static SqlKeyWord getSqlKeyWord() {
 		if (HoneyUtil.isSqlKeyWordUpper())
 			return new UpperKey();

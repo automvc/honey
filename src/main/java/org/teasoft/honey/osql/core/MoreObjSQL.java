@@ -58,7 +58,7 @@ public class MoreObjSQL implements MoreTable{
 	
 	@Override
 	public InterceptorChain getInterceptorChain() {
-		if (interceptorChain == null) interceptorChain = BeeFactory.getHoneyFactory().getInterceptorChain();
+		if (interceptorChain == null) return BeeFactory.getHoneyFactory().getInterceptorChain();
 		return HoneyUtil.copy(interceptorChain);
 	}
 
@@ -105,6 +105,7 @@ public class MoreObjSQL implements MoreTable{
 	@Override
 	public <T> List<T> select(T entity, Condition condition) {
 		if (entity == null) return null;
+		regCondition(condition);
 		doBeforePasreEntity(entity);  //因要解析子表,子表下放再执行
 		String sql = getMoreObjToSQL().toSelectSQL(entity,condition);
 		sql=doAfterCompleteSql(sql);
@@ -112,6 +113,10 @@ public class MoreObjSQL implements MoreTable{
 		List<T> list = getBeeSql().moreTableSelect(sql, entity); 
 		doBeforeReturn(list);
 		return list;
+	}
+	
+	private void regCondition(Condition condition) {
+		HoneyContext.setConditionLocal(condition);
 	}
 	
 	@Override

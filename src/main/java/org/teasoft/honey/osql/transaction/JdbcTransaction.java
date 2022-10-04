@@ -53,6 +53,7 @@ public class JdbcTransaction implements Transaction {
 	public void commit() {
 		Logger.info("[Bee] JdbcTransaction commit. ");
 		if (!isBegin) throw new BeeSQLException("The Transaction did not to begin!");
+		HoneyContext.checkShadingHasMoreDs("Donot support JdbcTransaction in more DataSources at one time!");
 		try {
 			if (conn != null && !conn.getAutoCommit()) {
 				conn.commit();

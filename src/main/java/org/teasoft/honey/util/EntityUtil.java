@@ -13,9 +13,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.teasoft.bee.spi.BeanSort;
+import org.teasoft.bee.spi.entity.SortStruct;
 import org.teasoft.honey.osql.core.HoneyUtil;
 import org.teasoft.honey.osql.core.Logger;
 import org.teasoft.honey.osql.core.NameTranslateHandle;
+import org.teasoft.honey.spi.SpiInstanceFactory;
 
 /**
  * 实体相关工具类
@@ -168,5 +171,10 @@ public final class EntityUtil {
 //		}
 //		return str;
 //	}
+	
+	private static BeanSort beanSort =SpiInstanceFactory.getBeanSort();
+	public static void sort(List<?> entityList, List<SortStruct> sortStructList) {
+		beanSort.sort(entityList, sortStructList);
+	}
 	
 }

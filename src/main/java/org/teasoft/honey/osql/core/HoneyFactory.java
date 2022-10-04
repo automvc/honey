@@ -19,10 +19,12 @@ import org.teasoft.bee.osql.ObjToSQLRich;
 import org.teasoft.bee.osql.PreparedSql;
 import org.teasoft.bee.osql.Suid;
 import org.teasoft.bee.osql.SuidRich;
+import org.teasoft.bee.osql.chain.UnionSelect;
 import org.teasoft.bee.osql.dialect.DbFeature;
 import org.teasoft.bee.osql.dialect.DbFeatureRegistry;
 import org.teasoft.bee.osql.exception.NoConfigException;
 import org.teasoft.bee.osql.interccept.InterceptorChain;
+import org.teasoft.honey.osql.chain.UnionSelectImpl;
 import org.teasoft.honey.osql.dialect.LimitOffsetPaging;
 import org.teasoft.honey.osql.dialect.NoPagingSupported;
 import org.teasoft.honey.osql.dialect.mysql.MySqlFeature;
@@ -61,6 +63,10 @@ public class HoneyFactory {
 	private DbFeature dbFeature;
 	private NameTranslate nameTranslate;
 	private static Cache cache;
+	
+	
+	//@since 2.0
+	private UnionSelect unionSelect;
 	
 	private InterceptorChain interceptorChain;
 	
@@ -237,6 +243,15 @@ public class HoneyFactory {
 		this.mapSuid = mapSuid;
 	}
 	
+	public UnionSelect getUnionSelect() {
+		if(unionSelect==null) return new UnionSelectImpl();
+		return unionSelect;
+	}
+
+	public void setUnionSelect(UnionSelect unionSelect) {
+		this.unionSelect = unionSelect;
+	}
+
 	public Cache getCache() {
 		if (cache == null) cache = initCache();
 		return cache;

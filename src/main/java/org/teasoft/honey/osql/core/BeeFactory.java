@@ -55,10 +55,20 @@ public class BeeFactory extends BeeAbstractFactory {
 	
 	private DataSource _getDsFromDsMap() {
 		String dsName = Router.getDsName();
-		Logger.info("[Bee] ========= the current DataSource name is :"+dsName); //V1.17
-//		Logger.logSQL("========= the current DataSource name is :"+dsName,""); //V1.17
-//		Logger.logSQL("使用logSQL, 会引发异常", "");
+
+		Logger.info("[Bee] ========= the current DataSource name is :"+dsName+shardingIndex()); //V1.17
+//		Logger.logSQL("========= the current DataSource name is :" + dsName + shardingIndex()); // V1.17
+//		Logger.logSQL("使用logSQL, 会引发异常", ""); //因为在Config首先获取dbName时,要使用这个方法,而logSQL这个方法又要使用Config里的信息.
 		return getDataSourceMap().get(dsName);
+	}
+	
+	private String shardingIndex() {
+		Integer subThreadIndex = HoneyContext.getSqlIndexLocal();
+		String index = "";
+		if (subThreadIndex != null) {
+			index = " (sharding " + subThreadIndex + ")";
+		}
+		return index;
 	}
 	
 	@Override
@@ -68,17 +78,20 @@ public class BeeFactory extends BeeAbstractFactory {
 		
 		Map<String, DataSource> dsMap = getDataSourceMap();
         if(dsMap==null) return ;
+        int i=0;
+        String dbName="";
 		Map<String, String> dsName2DbName=new LinkedHashMap<>();
-		int i=0;
-		String dbName="";
 		for (Map.Entry<String, DataSource> entry : dsMap.entrySet()) {
 			dsName2DbName.put(entry.getKey(), getDbName(entry.getValue()));
 			if(i==0) {
 				dbName=dsName2DbName.get(entry.getKey());
 				i++;
 			}
+			
 		}
+//		HoneyContext.setDsName2DbName(dsName2DbName);
 		Logger.info("[Bee] Parse DataSourceMap: dataSource name to database name , result: "+dsName2DbName);
+//		HoneyConfig.getHoneyConfig().dbName=dbName;
 		HoneyConfig.getHoneyConfig().setDbName(dbName);
 		HoneyContext.setDsName2DbName(dsName2DbName);
 		HoneyUtil.refreshSetParaAndResultTypeHandlerRegistry();

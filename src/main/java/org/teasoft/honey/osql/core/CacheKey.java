@@ -11,6 +11,7 @@ import java.util.List;
 
 import org.teasoft.honey.distribution.ds.Router;
 import org.teasoft.honey.osql.util.MD5;
+import org.teasoft.honey.sharding.ShardingUtil;
 
 /**
  * Cache Key.
@@ -63,8 +64,17 @@ public final class CacheKey {
 			strBuf.append(SEPARATOR);
 		}
 		
+		//确定DataSourceName:null (@separator#) Sharding_tabNameList:null时,是否可以表示查所有??
+//		DataSourceName:null (@separator#) Sharding_tabNameList:null (@separator#) select id,userid,orderid,name,total,createtime,remark,sequence,abc,updatetime from orders##(index)## where remark=? (@separator#) [values]: Bee(ORM Framework)(String) (@separator#) [returnType]: List<T>
 		
-		if(HoneyConfig.getHoneyConfig().naming_useMoreTranslateType) {
+		if(ShardingUtil.hadSharding() && HoneyContext.getSqlIndexLocal()==null) { //用于分片的总查询; 每个子线程都有一个具体表名,不需要.
+			strBuf.append("Sharding_tabNameList:");
+//			strBuf.append(HoneyContext.getTabNameListLocal());
+			strBuf.append(HoneyContext.getListLocal(StringConst.TabNameListLocal)+"");
+			strBuf.append(SEPARATOR);
+		}
+		
+		if(HoneyConfig.getHoneyConfig().naming_useMoreTranslateType) { //使用多种命名转换类型
 			strBuf.append("TranslateType:");
 			strBuf.append(NameTranslateHandle.getNameTranslate().getClass().getName());
 			strBuf.append(SEPARATOR);

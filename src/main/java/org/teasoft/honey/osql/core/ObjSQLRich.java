@@ -6,6 +6,7 @@
 
 package org.teasoft.honey.osql.core;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +26,9 @@ import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
 import org.teasoft.bee.osql.exception.BeeIllegalParameterException;
 import org.teasoft.honey.osql.name.NameUtil;
+import org.teasoft.honey.sharding.ShardingUtil;
+import org.teasoft.honey.sharding.engine.batch.ShardingBatchInsertEngine;
+import org.teasoft.honey.util.ObjectUtils;
 import org.teasoft.honey.util.SuidHelper;
 
 /**
@@ -32,8 +36,10 @@ import org.teasoft.honey.util.SuidHelper;
  * @author Kingstar
  * @since  1.0
  */
-public class ObjSQLRich extends ObjSQL implements SuidRich {
+public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 
+	private static final long serialVersionUID = 1596710362258L;
+	
 	private ObjToSQLRich objToSQLRich; 
 	
 	private static final String SELECT_SQL = "select SQL: ";
@@ -46,6 +52,8 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
     private static final String START_GREAT_EQ_0 = "Parameter 'start' need great equal 0!";
 	private static final String SIZE_GREAT_0 = "Parameter 'size' need great than 0!";
 	private static final String TIP_SIZE_0 = "The size is 0, but it should be greater than 0 (>0)";
+	
+	private int defaultBatchSize = HoneyConfig.getHoneyConfig().insertBatchSize;
 	
     
 	public ObjToSQLRich getObjToSQLRich() {
@@ -67,7 +75,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		if (size < 0) throw new BeeIllegalParameterException(SIZE_GREAT_0);
 
 		doBeforePasreEntity(entity,SuidType.SELECT);
-		String sql = getObjToSQLRich().toSelectSQL(entity, size);
+		String sql = getObjToSQLRich().toSelectSQL(entity, -1, size);
 		sql = doAfterCompleteSql(sql);
 
 		List<T> list = getBeeSql().select(sql, entity);
@@ -167,41 +175,12 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 
 	@Override
 	public <T> int insert(T entity[]) {
-		if (entity == null || entity.length < 1) return -1;
-		checkNull(entity);
-		doBeforePasreEntity(entity, SuidType.INSERT);
-		String insertSql[] = getObjToSQLRich().toInsertSQL(entity);
-		_regEntityClass1(entity[0]);
-		insertSql[0] = doAfterCompleteSql(insertSql[0]);
-
-		HoneyUtil.revertId(entity);
-
-		int a = getBeeSql().batch(insertSql);
-		doBeforeReturn();
-
-		return a;
+		return insert(entity, defaultBatchSize, "");
 	}
 	
-	private <T> void checkNull(T entity[]) {
-		for (int i = 0; i < entity.length; i++) {
-			if(entity[i]==null) throw new ObjSQLException("entity[] have null element, index: "+i);
-		}
-	}
-
 	@Override
 	public <T> int insert(T entity[], String excludeFields) {
-		if (entity == null || entity.length < 1) return -1;
-		checkNull(entity);
-		doBeforePasreEntity(entity, SuidType.INSERT);
-		String insertSql[] = getObjToSQLRich().toInsertSQL(entity, excludeFields);
-		_regEntityClass1(entity[0]);
-		insertSql[0] = doAfterCompleteSql(insertSql[0]);
-
-		HoneyUtil.revertId(entity);
-
-		int a = getBeeSql().batch(insertSql);
-		doBeforeReturn();
-		return a;
+		return insert(entity, defaultBatchSize, "");
 	}
 
 	@Override
@@ -211,10 +190,39 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 
 	@Override
 	public <T> int insert(T entity[], int batchSize, String excludeFields) {
-		if (entity == null || entity.length<1) return -1;
+		if (entity == null || entity.length < 1) return -1;
 		checkNull(entity);
+		if (batchSize <= 0) batchSize = 10;
+		
+		if (ShardingUtil.isShardingBatchInsertDoing()) { // 正在执行分片的,不再走以下判断 // 防止重复解析
+			return _insert(entity, batchSize, excludeFields);
+		}
+		
 		doBeforePasreEntity(entity, SuidType.INSERT);
-		if(batchSize<=0) batchSize=10;
+
+		int a = 0;
+		List<String> tabNameListForBatch = HoneyContext.getListLocal(StringConst.TabNameListForBatchLocal);
+		if (!ShardingUtil.isSharding() || ObjectUtils.isEmpty(tabNameListForBatch)) {
+			a = _insert(entity, batchSize, excludeFields);
+		} else {
+			try {
+//			a = new ShardingForkJoinBatchInsertEngine<T>().batchInsert(entity, batchSize, excludeFields,tabNameListForBatch, this);
+				a = new ShardingBatchInsertEngine<T>().batchInsert(entity, batchSize, excludeFields, tabNameListForBatch, this);
+			} catch (Exception e) {
+				Logger.error(e.getMessage(), e);
+			} finally {
+				HoneyContext.removeSysCommStrLocal(StringConst.ShardingBatchInsertDoing);
+			}
+		}
+
+		doBeforeReturn();
+		return a;
+	}
+	
+	private <T> int _insert(T entity[], int batchSize, String excludeFields) {
+//		Logger.debug("------------->  _insert, the currentThread id:  " + Thread.currentThread().getId());
+//		System.out.println(this.toString());
+		
 		String insertSql[] = getObjToSQLRich().toInsertSQL(entity,batchSize, excludeFields);
 		_regEntityClass1(entity[0]);
 		insertSql[0] = doAfterCompleteSql(insertSql[0]);
@@ -222,8 +230,14 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		HoneyUtil.revertId(entity);
 		
 		int a= getBeeSql().batch(insertSql, batchSize);
-		doBeforeReturn();
+		
 		return a;
+	}
+	
+	private <T> void checkNull(T entity[]) {
+		for (int i = 0; i < entity.length; i++) {
+			if(entity[i]==null) throw new ObjSQLException("entity[] have null element, index: "+i);
+		}
 	}
 
 	@Override
@@ -256,10 +270,12 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Override
 	public <T> String selectWithFun(T entity, FunctionType functionType, String fieldForFun, Condition condition) {
 		if (entity == null) return null;
+		regCondition(condition);
 		doBeforePasreEntity(entity,SuidType.SELECT);
 		String s = null;
 		String sql = getObjToSQLRich().toSelectFunSQL(entity, functionType, fieldForFun, condition);
 		_regEntityClass1(entity);
+		_regFunType(functionType);
 		sql = doAfterCompleteSql(sql);
 		s = getBeeSql().selectFun(sql);
 		doBeforeReturn();
@@ -341,8 +357,6 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		return _insertAndReturnId(entity, sql);
 		
 	}
-	
-	
 
 	@Override
 	public <T> int delete(T entity, IncludeType includeType) {
@@ -367,6 +381,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		String sql = getObjToSQLRich().toSelectSQL(entity);
 		_regEntityClass1(entity);
 		sql = doAfterCompleteSql(sql);
+//		Logger.logSQL("List<String[]> select SQL: ", sql);
 		Logger.logSQL("select SQL(return List<String[]>): ", sql);
 		list = getBeeSql().select(sql);
 		doBeforeReturn();
@@ -396,11 +411,13 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Override
 	public <T> List<String[]> selectString(T entity, Condition condition) {
 		if (entity == null) return null;
+		regCondition(condition);
 		doBeforePasreEntity(entity,SuidType.SELECT);
 		List<String[]> list = null;
 		String sql = getObjToSQLRich().toSelectSQL(entity, condition.getIncludeType(), condition);
 		_regEntityClass1(entity);
 		sql = doAfterCompleteSql(sql);
+//		Logger.logSQL(SELECT_SQL, sql);
 		Logger.logSQL("select SQL(return List<String[]>): ", sql);
 		list= getBeeSql().select(sql);
 		doBeforeReturn();
@@ -601,6 +618,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Deprecated
 	public <T> List<T> select(T entity, IncludeType includeType, Condition condition) {
 		if (entity == null) return null;
+		regCondition(condition);
 		doBeforePasreEntity(entity,SuidType.SELECT);
 		String sql = getObjToSQLRich().toSelectSQL(entity, includeType, condition);
 		sql = doAfterCompleteSql(sql);
@@ -613,6 +631,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Override
 	public <T> String selectJson(T entity, IncludeType includeType, Condition condition) {
 		if (entity == null) return null;
+		regCondition(condition);
 		doBeforePasreEntity(entity,SuidType.SELECT);
 		String sql = getObjToSQLRich().toSelectSQL(entity, includeType,condition);
 		_regEntityClass1(entity);
@@ -626,9 +645,10 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Override
 	public <T> String selectJson(T entity, Condition condition) {
 		if (entity == null) return null;
+		regCondition(condition);
 		doBeforePasreEntity(entity,SuidType.SELECT);
-		String sql = getObjToSQLRich().toSelectSQL(entity, condition.getIncludeType(),condition);
 		_regEntityClass1(entity);
+		String sql = getObjToSQLRich().toSelectSQL(entity, condition.getIncludeType(),condition);
 		sql = doAfterCompleteSql(sql);
 		Logger.logSQL(SELECT_JSON_SQL, sql);
 		
@@ -670,6 +690,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Override
 	public <T> int updateBy(T entity, String whereFields, Condition condition) {
 		if (entity == null) return -1;
+		regCondition(condition);
 		doBeforePasreEntity(entity,SuidType.UPDATE);
 		int r = 0;
 		String sql = getObjToSQLRich().toUpdateBySQL(entity, whereFields, condition);//updateBy
@@ -700,6 +721,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Override
 	public <T> int update(T entity, String updateFields, Condition condition) {
 		if (entity == null) return -1;
+		regCondition(condition);
 		doBeforePasreEntity(entity,SuidType.UPDATE);
 		int r = 0;
 		String sql = getObjToSQLRich().toUpdateSQL(entity, updateFields, condition);
@@ -715,6 +737,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@Override
 	public <T> int update(T entity, Condition condition) {
 		if (entity == null) return -1;
+		regCondition(condition);
 		doBeforePasreEntity(entity,SuidType.UPDATE);
 		int r = 0;
 		String sql = getObjToSQLRich().toUpdateSQL(entity, "", condition);
@@ -768,6 +791,10 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	@SuppressWarnings("rawtypes")
 	private void _regEntityClass2(Class clazz){
 		HoneyContext.regEntityClass(clazz);
+	}
+	
+	private <T> void _regFunType(FunctionType functionType){
+		HoneyContext.regFunType(functionType);
 	}
 	
 	@SuppressWarnings("unchecked")

@@ -95,7 +95,6 @@ public final class CacheUtil {
 	 * @return 从缓存获取的结果.the result get from cache.
 	 */
 	public static Object get(String sql) {
-		
 		String key = CacheKey.genKey(sql);
 		if (key == null) return null;
 		
@@ -275,6 +274,7 @@ public final class CacheUtil {
 		}
 	
 		 String key=CacheKey.genKey(sql);
+		
 		 List<String> tableNameList=CacheKey.genTableNameList(sql);  //支持多表的情况
 		 
 		 //never 列表的不用放缓存       暂时只是用表名标识

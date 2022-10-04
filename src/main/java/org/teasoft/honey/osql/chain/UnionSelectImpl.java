@@ -8,6 +8,7 @@ package org.teasoft.honey.osql.chain;
 
 import org.teasoft.bee.osql.chain.Select;
 import org.teasoft.bee.osql.chain.UnionSelect;
+import org.teasoft.honey.osql.core.K;
 
 /**
  * @author Kingstar
@@ -20,6 +21,8 @@ public class UnionSelectImpl implements UnionSelect {
 	private static final String ONE_SPACE = " ";
 	
 	private StringBuffer sql = new StringBuffer();
+	
+	public UnionSelectImpl() {}
 
 	private UnionSelect useUnionSelect(String keyword, String subSelect1, String subSelect2) {
 
@@ -44,7 +47,7 @@ public class UnionSelectImpl implements UnionSelect {
 
 	@Override
 	public UnionSelect union(String subSelect1, String subSelect2) {
-		return useUnionSelect("union", subSelect1, subSelect2);
+		return useUnionSelect(K.union, subSelect1, subSelect2);
 	}
 
 	@Override
@@ -54,7 +57,12 @@ public class UnionSelectImpl implements UnionSelect {
 
 	@Override
 	public UnionSelect unionAll(String subSelect1, String subSelect2) {
-		return useUnionSelect("union all", subSelect1, subSelect2);
+		return useUnionSelect(K.unionAll, subSelect1, subSelect2);
+	}
+	
+	@Override
+	public UnionSelect unionAll(String[] subSelects) {
+		return useUnionSelect(K.unionAll, subSelects);
 	}
 	
 	public String toSQL() {
@@ -70,5 +78,29 @@ public class UnionSelectImpl implements UnionSelect {
 		}
 		sql = new StringBuffer();
 		return sqlStr;
+	}
+	
+	
+	private UnionSelect useUnionSelect(String keyword, String[] subSelects) {
+        if(subSelects==null || subSelects.length==0) {
+        	//do nothing
+        }else if (subSelects.length == 1) {
+			sql.append(subSelects[0]);
+		} else {
+			sql.append(L_PARENTHESES);
+			sql.append(subSelects[0]);
+			sql.append(R_PARENTHESES);
+
+			for (int j = 1; j < subSelects.length; j++) {
+				sql.append(ONE_SPACE);
+				sql.append(keyword);
+				sql.append(ONE_SPACE);
+
+				sql.append(L_PARENTHESES);
+				sql.append(subSelects[j]);
+				sql.append(R_PARENTHESES);
+			}
+		}
+		return this;
 	}
 }

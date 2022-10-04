@@ -21,6 +21,7 @@ import org.teasoft.bee.osql.OrderType;
 import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
 import org.teasoft.bee.osql.exception.BeeErrorNameException;
+import org.teasoft.bee.osql.exception.BeeIllegalParameterException;
 import org.teasoft.honey.osql.util.NameCheckUtil;
 import org.teasoft.honey.util.StringUtils;
 
@@ -46,7 +47,7 @@ public class ConditionImpl implements Condition {
 	
 	private List<Expression> onExpList = new ArrayList<>();
 	
-	private Map<String,String> orderByMap=new LinkedHashMap<>();//V1.17 用于sql server分页
+	private Map<String,String> orderByMap=new LinkedHashMap<>();//V1.17 用于sql server分页 ;  2.0 用于 分片后排序
 	
 	private boolean isStartGroupBy = true;
 	private boolean isStartHaving = true;
@@ -57,15 +58,20 @@ public class ConditionImpl implements Condition {
 
 	private Integer start;
 	private Integer size;
+	private static final String START_GREAT_EQ_0 = "Parameter 'start' need great equal 0!";
+	private static final String SIZE_GREAT_0 = "Parameter 'size' need great than 0!";
 
 	@Override
 	public Condition start(Integer start) {
+		if (start == null || (start < 0 && start != -1))
+			throw new BeeIllegalParameterException(START_GREAT_EQ_0);
 		this.start = start;
 		return this;
 	}
 
 	@Override
 	public Condition size(Integer size) {
+		if (size == null || size < 0) throw new BeeIllegalParameterException(SIZE_GREAT_0);
 		this.size = size;
 		return this;
 	}

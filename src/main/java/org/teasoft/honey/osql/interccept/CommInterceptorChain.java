@@ -20,6 +20,7 @@ import org.teasoft.honey.osql.core.Logger;
 import org.teasoft.honey.util.StringUtils;
 
 /**
+ * Common Interceptor Chain
  * @author Kingstar
  * @since  1.11
  */
@@ -114,7 +115,7 @@ public class CommInterceptorChain implements InterceptorChain {
 		for (int i = 0; i < chain.size(); i++) {
 			sql = chain.get(i).afterCompleteSql(sql);
 		}
-		//		HoneyContext.removeAppointDS();  //放在这影响缓存
+//		HoneyContext.removeAppointDS();  //放在这影响缓存
 		return sql;
 	}
 

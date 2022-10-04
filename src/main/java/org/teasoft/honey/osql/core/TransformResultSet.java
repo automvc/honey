@@ -14,6 +14,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.teasoft.bee.sharding.ShardingSortStruct;
+import org.teasoft.honey.sharding.ShardingUtil;
+
 /**
  * Transform ResultSet.
  * @author Kingstar
@@ -24,7 +27,7 @@ public class TransformResultSet {
 	private TransformResultSet() {}
 
 	@SuppressWarnings("rawtypes")
-	public static StringBuffer toJson(ResultSet rs,Class entityClass) throws SQLException {
+	public static JsonResultWrap toJson(ResultSet rs,Class entityClass) throws SQLException {
 		StringBuffer json = new StringBuffer("");
 		ResultSetMetaData rmeta = rs.getMetaData();
 		int columnCount = rmeta.getColumnCount();
@@ -35,8 +38,9 @@ public class TransformResultSet {
 		boolean timeWithMillisecond = HoneyConfig.getHoneyConfig().selectJson_timeWithMillisecond;
 		boolean timestampWithMillisecond = HoneyConfig.getHoneyConfig().selectJson_timestampWithMillisecond;
 		boolean longToString = HoneyConfig.getHoneyConfig().selectJson_longToString;
-
+        int rowCount=0;
 		while (rs.next()) {
+			rowCount++;
 			json.append(",{");
 			for (int i = 1; i <= columnCount; i++) { //1..n
 				if (rs.getString(i) == null && ignoreNull) {
@@ -122,8 +126,12 @@ public class TransformResultSet {
 		}
 		json.insert(0, "[");
 		json.append("]");
-
-		return json;
+		
+		JsonResultWrap wrap =new JsonResultWrap();
+		wrap.setResultJson(json.toString());
+		wrap.setRowCount(rowCount);
+		
+		return wrap;
 	}
 	
 	@SuppressWarnings("rawtypes")
@@ -137,6 +145,7 @@ public class TransformResultSet {
 		int columnCount = rmeta.getColumnCount();
 		boolean nullToEmptyString = HoneyConfig.getHoneyConfig().returnStringList_nullToEmptyString;
 		String str[] = null;
+		boolean firstRow=true;
 		while (rs.next()) {
 			str = new String[columnCount];
 			for (int i = 0; i < columnCount; i++) {
@@ -145,13 +154,61 @@ public class TransformResultSet {
 				} else {
 					str[i] = rs.getString(i + 1);
 				}
+				if(firstRow) { //2.0
+					firstRow=false;
+					regSort(rmeta);
+				}
 			}
 			list.add(str);
 		}
 		return list;
 	}
 	
-	
+	// 2.0
+	private static void regSort(ResultSetMetaData rmeta) {
+		if (!ShardingUtil.hadSharding()) return;
+		ShardingSortStruct struct = HoneyContext.getCurrentShardingSort();
+		if (struct == null) return;
+		String orderFields[] = struct.getOrderFields();
+		if (orderFields == null) return;
+
+		if (struct.regFlag) return; // 如何有其它子线程已处理,则不再处理.
+		struct.regFlag = true;
+
+		int orderFieldsLen = orderFields.length;
+		String type[] = new String[orderFieldsLen];
+		int index[] = new int[orderFieldsLen];
+
+		String fieldName;
+		String javaType;
+		try {
+			int k = 0;
+			int columnCount = rmeta.getColumnCount();
+			for (int i = 0; i < columnCount; i++) {
+				fieldName = _toFieldName(rmeta.getColumnName(i + 1), null);
+//				if (!isOrderField(orderFields, fieldName)) continue;
+				for (int j = 0; j < orderFieldsLen; j++) {
+					if (fieldName.equals(orderFields[j])) {
+						javaType = HoneyUtil
+								.getFieldType(rmeta.getColumnTypeName(i + 1).trim());
+						type[j] = javaType;
+						index[k] = i;
+						k++;
+						break;
+					}
+				}
+				if (k == orderFieldsLen) break;
+			}
+			if (k != 0) {
+				struct.setIndex(index);
+				struct.setType(type);
+				HoneyContext.setCurrentShardingSort(struct);
+			}
+		} catch (SQLException e) {
+			Logger.debug(e.getMessage(), e);
+		}
+	}
+		
 	public static List<Map<String,Object>> toMapList(ResultSet rs) throws SQLException {
 		List<Map<String,Object>> list = new ArrayList<>();
 		ResultSetMetaData rmeta = rs.getMetaData();
