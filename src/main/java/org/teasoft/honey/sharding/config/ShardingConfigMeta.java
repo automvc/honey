@@ -14,7 +14,7 @@ import java.util.Set;
  * @since  2.0
  */
 public class ShardingConfigMeta {
-	public Map<String, Map<String, Set<String>>> actualDataNodes;// 1
+	public Map<String, Map<String, Set<String>>> fullNodes;// 1
 	public Map<String, String> tabToDsMap; // 2
 	public String tabBaseName;
 	public Integer tabSize;

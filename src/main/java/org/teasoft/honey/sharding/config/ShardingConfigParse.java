@@ -30,7 +30,7 @@ public class ShardingConfigParse {
 
 		NodeBean bean = parse(str,assignType);
 
-		Map<String, Map<String, Set<String>>> actualDataNodes = new HashMap<>();// 1
+		Map<String, Map<String, Set<String>>> fullNodes = new HashMap<>();// 1
 		Map<String, String> tabToDsMap = new LinkedHashMap<>(); // 2
 
 		List<String> dsList = bean.getDsList();
@@ -53,13 +53,13 @@ public class ShardingConfigParse {
 			ds2TabIndexSet.put(bean.getDsBaseName() + dsList.get(i), tabIndexSet);
 		}
 
-		actualDataNodes.put(bean.getTabBaseName().toLowerCase(), ds2TabIndexSet);
+		fullNodes.put(bean.getTabBaseName().toLowerCase(), ds2TabIndexSet);
 
-		Logger.info("[Bee] actualDataNodes: " + actualDataNodes.toString());
+		Logger.info("[Bee] fullNodes: " + fullNodes.toString());
 		Logger.info("[Bee] tabToDsMap: " + tabToDsMap.toString());
 
 		ShardingConfigMeta shardingConfigMeta = new ShardingConfigMeta();
-		shardingConfigMeta.actualDataNodes = actualDataNodes;
+		shardingConfigMeta.fullNodes = fullNodes;
 		shardingConfigMeta.tabToDsMap = tabToDsMap;
 		shardingConfigMeta.tabSize=tabList.size();
 		shardingConfigMeta.tabBaseName=bean.getTabBaseName();
@@ -99,6 +99,12 @@ public class ShardingConfigParse {
 
 		}
 
+		int dsMin = nodes.getDsIndex0();
+		int dsMax = nodes.getDsIndex1();
+		if (dsMin != -1) {
+			nodes.setDsList(Assign.order(dsMin, dsMax));
+		}
+
 		int index2 = str.indexOf('[', mid + 2);
 		String tabNum = str.substring(index2 + 1, str.length() - 1);
 		String tabNumArray[] = tabNum.split("\\.\\.");
@@ -107,22 +113,26 @@ public class ShardingConfigParse {
 			nodes.setTabIndex1(Integer.parseInt(tabNumArray[1]));
 		} else {
 			String tabNumArray2[] = tabNum.split(",");
+			int len = tabNumArray2.length;
 			List<String> tabList = new ArrayList<>();
-			for (int i = 0; i < tabNumArray2.length; i++) {
-				tabList.add(tabNumArray2[i]);
+			if (len > 1) {
+				for (int i = 0; i < len; i++) {
+					tabList.add(tabNumArray2[i]);
+				}
+			} else {// 为了只分库
+				len = nodes.getDsList().size();
+				for (int i = 0; i < len; i++) {
+					tabList.add("");
+				}
 			}
 			nodes.setTabList(tabList);
 		}
 		nodes.setTabBaseName(str.substring(mid + 2, index2));
 
 		// 通过顺序号设置
-		int dsMin = nodes.getDsIndex0();
-		int dsMax = nodes.getDsIndex1();
+
 		int tabMin = nodes.getTabIndex0();
 		int tabMax = nodes.getTabIndex1();
-		if (dsMin != -1) {
-			nodes.setDsList(Assign.order(dsMin, dsMax));
-		}
 		if (tabMin != -1) {
 			if (assignType == 1)
 				nodes.setTabList(Assign.polling(tabMin, tabMax, nodes.getDsList().size())); // polling

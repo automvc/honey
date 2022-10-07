@@ -24,7 +24,7 @@ import org.teasoft.honey.osql.core.Logger;
  */
 public class ShardingRegistry implements Registry {
 	private static final Map<Class<?>, ShardingBean> shardingMap = new ConcurrentHashMap<>();  //TODO 改成表名
-	private static Map<String, Map<String, Set<String>>> actualDataNodes = new HashMap<>();// 1
+	private static Map<String, Map<String, Set<String>>> fullNodes = new HashMap<>();// 1
 	private static Map<String, String> tabToDsMap = new LinkedHashMap<>(); // 2
 	private static Map<String, Integer> tabSizeMap = new HashMap<>(); // 3
 	
@@ -61,10 +61,10 @@ public class ShardingRegistry implements Registry {
 	 * @param baseTableName
 	 * @return
 	 */
-	public static Map<String, Set<String>> getActualDataNodes(String baseTableName) {
+	public static Map<String, Set<String>> getFullNodes(String baseTableName) {
 //		"orders":"ds0"->[orders0,orders1,orders2],"ds1"->[orders3,orders4,orders5];
 //		return:  "ds0"->[orders0,orders1,orders2],"ds1"->[orders3,orders4,orders5]
-		return actualDataNodes.get(baseTableName.toLowerCase());
+		return fullNodes.get(baseTableName.toLowerCase());
 	}
 	
 	public static boolean isBroadcastTab(String tabName) {
@@ -84,31 +84,31 @@ public class ShardingRegistry implements Registry {
 		if (entity == null || shardingBean == null) return;
 		shardingMap.put(entity, shardingBean);
 
-		parseActualDataNodesStringAndregister(shardingBean.getActualDataNodes(),shardingBean.getTabAssignType(), entity);
+		parseFullNodesStringAndregister(shardingBean.getFullNodes(),shardingBean.getTabAssignType(), entity);
 	}
 
 	static void addTabToDsMap(Map<String, String> someTabToDsMap) {
 		tabToDsMap.putAll(someTabToDsMap);
 	}
 
-	static void addActualDataNodes(Map<String, Map<String, Set<String>>> someNodes) {
-		actualDataNodes.putAll(someNodes);
+	static void addFullNodes(Map<String, Map<String, Set<String>>> someNodes) {
+		fullNodes.putAll(someNodes);
 	}
 
-	static void parseActualDataNodesStringAndregister(String actualDataNodes) {
-		parseActualDataNodesStringAndregister(actualDataNodes,0, null);
+	static void parseFullNodesStringAndregister(String fullNodes) {
+		parseFullNodesStringAndregister(fullNodes,0, null);
 	}
 
-	private static void parseActualDataNodesStringAndregister(String actualDataNodes,int tabAssignType,
+	private static void parseFullNodesStringAndregister(String fullNodes,int tabAssignType,
 			Class<?> entity) {
 		ShardingConfigParse t = new ShardingConfigParse();
-		ShardingConfigMeta shardingConfigMeta = t.parseForSharding(actualDataNodes);
+		ShardingConfigMeta shardingConfigMeta = t.parseForSharding(fullNodes);
 		if (shardingConfigMeta != null) {
-			addActualDataNodes(shardingConfigMeta.actualDataNodes);
+			addFullNodes(shardingConfigMeta.fullNodes);
 			addTabToDsMap(shardingConfigMeta.tabToDsMap);
 			tabSizeMap.put(shardingConfigMeta.tabBaseName, shardingConfigMeta.tabSize);
 		} else {
-			String msg = "Can not parse the actualDataNodes:" + actualDataNodes;
+			String msg = "Can not parse the fullNodes:" + fullNodes;
 			if (entity != null) msg += "! Its entity name:" + entity.getName();
 			Logger.warn(msg, new BeeException());
 		}

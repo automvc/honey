@@ -75,11 +75,11 @@ public class OrderByPagingRewriteSql {
 				list.add(new String[] { newSql });
 				list.add(new String[] { dsNameList.get(0) });
 			}else {
-				Logger.warn("涉及多个库   或  不支持union all  !! ");
+				Logger.warn("Involved many dataSource or not supported union all!! ");
 //				是否还要按库分,然后,不同库的使用union?  取决于union all 和IO 哪个用的时间更少!!
 				//其它的,应该可以重用.  只不过涉及分页的,sql重新使用新的扩大的分页参数生成
 				
-				shardingPage.setPagingType(2); //MoreDs
+				shardingPage.setPagingType(2); //ManyDs
 				SimpleRewriteSql._createSql(list, tabSuffixList, sql, listValue, tabNameList,tab2DsMap);
 				
 				//合并结果后,要重新排序(在List排),然后再取需要的页的数据.  
