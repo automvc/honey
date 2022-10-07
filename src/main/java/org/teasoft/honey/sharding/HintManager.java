@@ -10,7 +10,7 @@ import org.teasoft.honey.osql.core.HoneyContext;
 import org.teasoft.honey.osql.core.StringConst;
 
 /**
- * 强制修改路由,只在当次操作有效.
+ * 强制指定当次操作的路由.
  * @author AiTeaSoft
  * @since  2.0
  */
