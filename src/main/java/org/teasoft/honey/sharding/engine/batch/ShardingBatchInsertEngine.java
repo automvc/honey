@@ -42,7 +42,7 @@ public class ShardingBatchInsertEngine<T> {
 		
 		ShardingReg.regShardingBatchInsertDoing();
 
-//		 集合大小一致
+//		 集合大小一致 TODO
         Logger.debug(""+(tabNameListForBatch.size() == entity.length));
 
 		// 要求的数据
@@ -73,8 +73,7 @@ public class ShardingBatchInsertEngine<T> {
 		}
 
 		ExecutorService executor = Executors.newCachedThreadPool();
-		CompletionService<Integer> completionService = new ExecutorCompletionService<>(
-				executor);
+		CompletionService<Integer> completionService = new ExecutorCompletionService<>(executor);
 		final List<Callable<Integer>> tasks = new ArrayList<>(); // 构造任务
 
 		for (int i = 0; i < newEntityArrayList.size(); i++) {
@@ -134,6 +133,7 @@ public class ShardingBatchInsertEngine<T> {
 
 		}
 
+		@Override
 		public Integer shardingWork() {
 		    int b = copy(suidRich).insert(newEntityArrayList.get(index), batchSize, excludeFields);
 //			int b = suidRich.insert(newEntityArrayList.get(index), batchSize, excludeFields);
