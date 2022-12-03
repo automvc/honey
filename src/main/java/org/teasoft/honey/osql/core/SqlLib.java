@@ -12,14 +12,12 @@ import java.sql.BatchUpdateException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
@@ -37,9 +35,10 @@ import org.teasoft.honey.sharding.ShardingUtil;
 import org.teasoft.honey.sharding.engine.ShardingAvgEngine;
 import org.teasoft.honey.sharding.engine.ShardingModifyEngine;
 import org.teasoft.honey.sharding.engine.ShardingSelectEngine;
+import org.teasoft.honey.sharding.engine.ShardingSelectFunEngine;
 import org.teasoft.honey.sharding.engine.ShardingSelectJsonEngine;
 import org.teasoft.honey.sharding.engine.ShardingSelectListStringArrayEngine;
-import org.teasoft.honey.sharding.engine.ShardingSelectFunEngine;
+import org.teasoft.honey.sharding.engine.ShardingSelectRsEngine;
 import org.teasoft.honey.util.StringUtils;
 
 /**
@@ -100,7 +99,9 @@ public class SqlLib implements BeeSql, Serializable {
 					logDsTab();
 					return list; 
 				}
-				List<T> rsList =new ShardingSelectEngine().asynProcess(sql, entity, this); // 应该还要传suid类型
+//				List<T> rsList =new ShardingSelectEngine().asynProcess(sql, entity, this); // 应该还要传suid类型
+				//TODO  要动态选择
+				List<T> rsList =new ShardingSelectRsEngine().asynProcess(sql, entity, this); // 应该还要传suid类型
 				
 				addInCache(sql, rsList, "List<T>", SuidType.SELECT, rsList.size());
 				logSelectRows(rsList.size());
@@ -120,7 +121,7 @@ public class SqlLib implements BeeSql, Serializable {
 		Logger.logSQL("========= Involved DataSource: "+dsNameListLocal+"  ,Involved Table: "+tabNameList);
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings("unchecked")
 	private <T> List<T> _selectSomeField(String sql, T entity) {
 
 //		if (sql == null || "".equals(sql.trim())) return Collections.emptyList();
@@ -143,7 +144,7 @@ public class SqlLib implements BeeSql, Serializable {
 		ResultSet rs = null;
 		T targetObj = null;
 		List<T> rsList = null;
-		Map<String, Field> map = null;
+//		Map<String, Field> map = null;
 		boolean hasException = false;
 		
 		try {
@@ -154,83 +155,20 @@ public class SqlLib implements BeeSql, Serializable {
 			setPreparedValues(pst, sql);
 
 			rs = pst.executeQuery();
-			ResultSetMetaData rmeta = rs.getMetaData();
-			int columnCount = rmeta.getColumnCount();
+//			ResultSetMetaData rmeta = rs.getMetaData();
+//			int columnCount = rmeta.getColumnCount();
 			rsList = new ArrayList<>();
-			map = new Hashtable<>();
-			Field field = null;
-			String name = null;
-			boolean isFirst = true;
+//			map = new Hashtable<>();
+//			Field field = null;
+//			String name = null;
+//			boolean isFirst = true;
 			
 			while (rs.next()) {
+//				targetObj = (T) entity.getClass().newInstance();
+				targetObj=TransformResultSet.rowToEntity(rs, entity);
 
-				targetObj = (T) entity.getClass().newInstance();
-				for (int i = 0; i < columnCount; i++) {
-					try {
-						name = _toFieldName(rmeta.getColumnName(i + 1), entity.getClass());
-						if (isFirst) {
-							field = entity.getClass().getDeclaredField(name);//可能会找不到Javabean的字段
-							map.put(name, field);
-						} else {
-							field = map.get(name);
-							if (field == null) continue;
-						}
-					} catch (NoSuchFieldException e) {
-						continue;
-					}
-					field.setAccessible(true);
-					Object obj =null;
-					boolean isRegHandlerPriority = false;
-					
-					try {
-						boolean processAsJson=false;
-						if (isJoson(field)) {							
-							obj = rs.getString(i + 1);
-							TypeHandler jsonHandler =TypeHandlerRegistry.getHandler(Json.class);
-							if (jsonHandler != null) {
-								obj = jsonHandlerProcess(field, obj, jsonHandler);
-								processAsJson = true;
-							}
-						}else {
-							if (openFieldTypeHandler) {
-								isRegHandlerPriority = TypeHandlerRegistry.isPriorityType(field.getType());
-							}
-						}
-						
-						if (! processAsJson) obj = rs.getObject(i + 1);
-						
-						if (isRegHandlerPriority) {
-							obj=TypeHandlerRegistry.handlerProcess(field.getType(), obj);
-							field.set(targetObj, obj); //对相应Field设置
-						} else {
-							field.set(targetObj, obj); //对相应Field设置
-						}
-					} catch (IllegalArgumentException e) {
-//						e.printStackTrace();
-						boolean alreadyProcess = false;
-						obj=_getObjectByindex(rs, field, i + 1);
-//						obj = rs.getObject(i + 1,field.getType()); //oracle do not support
-						if (openFieldTypeHandler) {
-							Class type = field.getType();
-							TypeHandler handler = TypeHandlerRegistry.getHandler(type);
-							if (handler != null) {
-								try {
-									Object newObj = handler.process(type, obj);
-									field.set(targetObj, newObj);
-									alreadyProcess = true;
-								} catch (Exception e2) {
-									alreadyProcess = false;
-								}
-							}
-						}
-						if (!alreadyProcess) {
-							field.set(targetObj, obj);
-						}
-					}
-
-				}
 				rsList.add(targetObj);
-				isFirst = false;
+//				isFirst = false;
 			}
 
 			addInCache(sql, rsList, "List<T>", SuidType.SELECT, rsList.size());
@@ -255,12 +193,46 @@ public class SqlLib implements BeeSql, Serializable {
 			}
 			entity = null;  //???   改了的,没有传回去.
 			targetObj = null;
-			map = null;
+//			map = null;
 		}
 		logSelectRows(rsList.size());
 
 		return rsList;
 	}
+	
+	
+//	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Override
+	public ResultSet selectRs(String sql) {   //TODO 如何关闭Connection
+
+		Connection conn = null;
+		PreparedStatement pst = null;
+		ResultSet rs = null;
+		try {
+			conn = getConn();
+			String exe_sql = HoneyUtil.deleteLastSemicolon(sql);
+			pst = conn.prepareStatement(exe_sql);
+
+			setPreparedValues(pst, sql);
+
+			rs = pst.executeQuery();
+			
+////			CachedRowSet rowset = new CachedRowSetImpl();
+//			RowSetFactory factory = RowSetProvider.newFactory();
+//	        CachedRowSet  rowset= factory.createCachedRowSet();
+//			rowset.populate(rs);
+//			return rowset;
+			
+			return rs;
+		} catch (SQLException e) {
+			throw ExceptionHelper.convert(e);
+		} finally {
+			clearContext(sql);
+			HoneyContext.regConnForSelectRs(conn);
+		}
+	}
+	
+	
 	
 	//检测是否有Json注解
 	protected boolean isJoson(Field field) {
@@ -646,7 +618,6 @@ public class SqlLib implements BeeSql, Serializable {
 					logDsTab();
 					return cacheValue;
 				}
-				
 				
 				JsonResultWrap wrap = new ShardingSelectJsonEngine().asynProcess(sql, this,JsonType,entityClass); // 应该还要传suid类型
 				logSelectRows(wrap.getRowCount());
@@ -1627,19 +1598,19 @@ public class SqlLib implements BeeSql, Serializable {
 		return HoneyUtil.getResultObject(rs, field.getType().getName(), _toColumnName(field.getName(),entityClass));
 	}
 	
-	private Object _getObjectByindex(ResultSet rs,Field field, int index) throws SQLException{
-		return HoneyUtil.getResultObjectByIndex(rs, field.getType().getName(),index);
-	}
+//	private Object _getObjectByindex(ResultSet rs,Field field, int index) throws SQLException{
+//		return HoneyUtil.getResultObjectByIndex(rs, field.getType().getName(),index);
+//	}
 	
 	@SuppressWarnings("rawtypes")
 	protected static String _toColumnName(String fieldName, Class entityClass) {
 		return NameTranslateHandle.toColumnName(fieldName, entityClass);
 	}
 
-	@SuppressWarnings("rawtypes")
-	private static String _toFieldName(String columnName,Class entityClass) {
-		return NameTranslateHandle.toFieldName(columnName,entityClass);
-	}
+//	@SuppressWarnings("rawtypes")
+//	private static String _toFieldName(String columnName,Class entityClass) {
+//		return NameTranslateHandle.toFieldName(columnName,entityClass);
+//	}
 	
 	//add on 2019-10-01
 	protected void addInCache(String sql, Object rs, String returnType, SuidType suidType,int resultSetSize) {

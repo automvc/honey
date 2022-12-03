@@ -257,7 +257,8 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 	@Override
 	public <T> T selectOne(T entity) {
 		if (entity == null) return null;
-		List<T> list = select(entity);  //已处理拦截器链
+//		List<T> list = select(entity);  //已处理拦截器链
+		List<T> list = select(entity, 2);  //已处理拦截器链     2.0
 		if (list == null || list.size() != 1) return null;
 		return list.get(0);
 	}
