@@ -315,6 +315,7 @@ public class GenBean {
 		// 表名对应的实体类名
 		String entityName = "";
 		entityName = NameTranslateHandle.toEntityName(tableName);
+//		String selfName=entityName;
 
 		entityName = NameUtil.firstLetterToUpperCase(entityName);// 确保类名首字母大写.
 
@@ -379,6 +380,8 @@ public class GenBean {
             String columnName="";
             String allFieldName="";
             boolean genFieldAll=config.isGenFieldAll();
+            boolean genSelfName=config.isGenSelfName();
+            
 			for (int i = 0; i < columnNames.size(); i++) {
 				columnName=columnNames.get(i);
 				fieldName = NameTranslateHandle.toFieldName(columnName);
@@ -403,6 +406,14 @@ public class GenBean {
 				}
 			}
 
+			if(genSelfName) {
+				bw.write("	public static final String ENTITY_NAME = \"" + entityName + "\";");
+				bw.write(LINE_SEPARATOR);	
+				
+				bw.write("	public static final String TABLE_NAME = \"" + tableName + "\";");
+				bw.write(LINE_SEPARATOR);	
+			}
+			
 			if (genFieldAll) {
 				bw.write("	public static final String ALL_NAMES = \"" + allFieldName + "\";");
 				bw.write(LINE_SEPARATOR);

@@ -32,6 +32,7 @@ public class GenConfig {
 	private String fieldFilePrefix="";
 	private String fieldFileSuffix="_F";
 	private boolean genFieldAll=true; //V1.17
+	private boolean genSelfName=true; //V2.0  first letter is lowerCase
 
 	public String getEncode() {
 		return encode;
@@ -201,5 +202,13 @@ public class GenConfig {
 	public void setGenFieldAll(boolean genFieldAll) {
 		this.genFieldAll = genFieldAll;
 	}
-	
+
+	public boolean isGenSelfName() {
+		return genSelfName;
+	}
+
+	public void setGenSelfName(boolean genSelfName) {
+		this.genSelfName = genSelfName;
+	}
+
 }

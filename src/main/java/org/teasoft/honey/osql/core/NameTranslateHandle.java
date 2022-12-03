@@ -210,6 +210,7 @@ public class NameTranslateHandle {
 	}
 	
 	public static String toColumnName(String fieldName, Class entityClass) {
+		if(fieldName==null) return null;
 		boolean openDefineColumn=HoneyConfig.getHoneyConfig().openDefineColumn;
 		if (openDefineColumn && entityClass != null) {
 			if (getColumnHandler() != null) {

@@ -35,6 +35,10 @@ public class JdbcToJavaType {
 		if (map == null) {
 			initTypeMapConfig(dbName);
 			map = dbJdbc2JavaTypeMap.get(dbName.toLowerCase());
+			if (map == null) {
+				map=getCommon();
+				dbJdbc2JavaTypeMap.put(dbName.toLowerCase(), map);
+			}
 		}
 
 		return map;
@@ -67,9 +71,10 @@ public class JdbcToJavaType {
 		appendJdbcTypeCustomProp(dbName);
 
 		if (dbName != null) {
-			jdbcTypeCustomProp_specificalDB = new PropertiesReader(
-					proFileName.replace("{DbName}", dbName));
-			appendJdbcTypeCustomProp_specificalDB(dbName);
+			jdbcTypeCustomProp_specificalDB = new PropertiesReader(proFileName.replace("{DbName}", dbName));
+			if(jdbcTypeCustomProp_specificalDB != null) {
+				appendJdbcTypeCustomProp_specificalDB(dbName);
+			}
 		}
 	}
 	
@@ -116,7 +121,8 @@ public class JdbcToJavaType {
 			setJdbcToJavaType(DatabaseConst.SQLSERVER.toLowerCase(), forSQLSERVER());
 		else if (DatabaseConst.Cassandra.equalsIgnoreCase(dbName))
 			setJdbcToJavaType(DatabaseConst.Cassandra.toLowerCase(), forCassandra());
-		
+		else 
+			setJdbcToJavaType(dbName.toLowerCase(), getCommon());
 	}
 
 	
@@ -129,6 +135,7 @@ public class JdbcToJavaType {
 		jdbc2JavaType.put("CHAR", STRING);
 		jdbc2JavaType.put("VARCHAR", STRING);
 		jdbc2JavaType.put("LONGVARCHAR", STRING);
+		jdbc2JavaType.put("CHARACTER", STRING);
 
 		jdbc2JavaType.put("NVARCHAR", STRING);
 		jdbc2JavaType.put("NCHAR", STRING);
@@ -137,6 +144,7 @@ public class JdbcToJavaType {
 		jdbc2JavaType.put("DECIMAL", "BigDecimal");
 
 		jdbc2JavaType.put("BIT", "Boolean");
+		jdbc2JavaType.put("BOOLEAN", "Boolean");
 
 		//rs.getObject(int index)  bug   
 		//pst.setByte(i+1,(Byte)value); break;设置查询没问题,结果也能返回,用rs.getObject拿结果时才报错
@@ -309,7 +317,7 @@ public class JdbcToJavaType {
 		jdbc2JavaTypeMap.put("UUID", "java.util.UUID");
 //		jdbcTypeMap.put("YEAR", "Time");
 		jdbc2JavaTypeMap.put("TIME", "Object");
-		jdbc2JavaTypeMap.put("OTHER", "bbb");
+//		jdbc2JavaTypeMap.put("OTHER", "bbb");
 		jdbc2JavaTypeMap.put("ENUM", "Integer");
 		jdbc2JavaTypeMap.put("ARRAY", "Object[]");
 		jdbc2JavaTypeMap.put("GEOMETRY", STRING);

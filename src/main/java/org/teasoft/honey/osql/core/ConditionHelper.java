@@ -397,7 +397,7 @@ public class ConditionHelper {
 				isNeedAnd = true;
 				continue;
 
-			} else if (expression.getOpNum() == 1) { // or operation 
+			} else if (expression.getOpNum() == 1) { // or || and operation 
 				sqlBuffer.append(" ");
 				sqlBuffer.append(expression.getValue());
 				sqlBuffer.append(" ");

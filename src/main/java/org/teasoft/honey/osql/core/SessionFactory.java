@@ -144,7 +144,7 @@ public final class SessionFactory {
 		Connection conn = null;
 		if (StringUtils.isNotBlank(driverName)) Class.forName(driverName);  //some db,no need set the driverName //v1.8.15
 
-		if (StringUtils.isNotBlank(username) && password != null)
+		if (username!=null && password != null)
 			conn = DriverManager.getConnection(url, username, password);
 		else
 			conn = DriverManager.getConnection(url);  //v1.8.15
