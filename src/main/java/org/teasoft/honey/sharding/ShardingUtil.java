@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.teasoft.bee.osql.DatabaseConst;
+import org.teasoft.bee.osql.OrderType;
+import org.teasoft.bee.sharding.ShardingSortStruct;
 import org.teasoft.honey.osql.core.HoneyConfig;
 import org.teasoft.honey.osql.core.HoneyContext;
 import org.teasoft.honey.osql.core.StringConst;
@@ -89,6 +91,29 @@ public class ShardingUtil {
 		if (str == null) return 0;
 		int a = str.hashCode();
 		return a < 0 ? -a : a;
+	}
+	
+	public static ShardingSortStruct parseOrderByMap(Map<String, String> orderByMap) {
+		String orderFields[] = new String[orderByMap.size()];
+		OrderType[] orderTypes = new OrderType[orderByMap.size()];
+		int lenA = orderFields.length;
+		String orderBy = "";
+		int i = 0;
+		for (Map.Entry<String, String> entry : orderByMap.entrySet()) {
+			String fName = entry.getKey();
+			String orderType = entry.getValue();
+			orderFields[i] = fName;
+			if (OrderType.DESC.getName().equals(orderType))
+				orderTypes[i] = OrderType.DESC;
+			else
+				orderTypes[i] = OrderType.ASC;
+			orderBy += fName + " " + orderType;
+			if (i < lenA - 1) orderBy += ",";
+			i++;
+		}
+		
+		ShardingSortStruct struct = new ShardingSortStruct(orderBy, orderFields, orderTypes);
+		return struct;
 	}
 
 }

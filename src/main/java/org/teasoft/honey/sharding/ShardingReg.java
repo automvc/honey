@@ -106,7 +106,11 @@ public class ShardingReg {
 		
 		ShardingSortStruct struct = new ShardingSortStruct(orderSql, orderFields, orderTypes);
 		HoneyContext.setCurrentShardingSort(struct);
-
+	}
+	
+	public static void regShardingSort(ShardingSortStruct struct) {
+		if (!ShardingUtil.hadSharding()) return;
+		HoneyContext.setCurrentShardingSort(struct);
 	}
 
 //	private Map<String,String> orderByMap=new LinkedHashMap<>();
@@ -115,25 +119,28 @@ public class ShardingReg {
 		if (!ShardingUtil.hadSharding()) return;
 		if (ObjectUtils.isEmpty(orderByMap)) return;
 		
-		String orderFields[] = new String[orderByMap.size()];
-		OrderType[] orderTypes = new OrderType[orderByMap.size()];
-		int lenA = orderFields.length;
-		String orderBy = "";
-		int i = 0;
-		for (Map.Entry<String, String> entry : orderByMap.entrySet()) {
-			String fName = entry.getKey();
-			String orderType = entry.getValue();
-			orderFields[i] = fName;
-			if (OrderType.DESC.getName().equals(orderType))
-				orderTypes[i] = OrderType.DESC;
-			else
-				orderTypes[i] = OrderType.ASC;
-			orderBy += fName + " " + orderType;
-			if (i < lenA - 1) orderBy += ",";
-			i++;
-		}
-
-		regShardingSort(orderBy, orderFields, orderTypes);
+//		String orderFields[] = new String[orderByMap.size()];
+//		OrderType[] orderTypes = new OrderType[orderByMap.size()];
+//		int lenA = orderFields.length;
+//		String orderBy = "";
+//		int i = 0;
+//		for (Map.Entry<String, String> entry : orderByMap.entrySet()) {
+//			String fName = entry.getKey();
+//			String orderType = entry.getValue();
+//			orderFields[i] = fName;
+//			if (OrderType.DESC.getName().equals(orderType))
+//				orderTypes[i] = OrderType.DESC;
+//			else
+//				orderTypes[i] = OrderType.ASC;
+//			orderBy += fName + " " + orderType;
+//			if (i < lenA - 1) orderBy += ",";
+//			i++;
+//		}
+//
+//		regShardingSort(orderBy, orderFields, orderTypes);
+		
+		regShardingSort(ShardingUtil.parseOrderByMap(orderByMap));
+		
 	}
 	
 	public static void regMoreTableQuery() {
@@ -141,8 +148,8 @@ public class ShardingReg {
 	}
 	
 	
+	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>重写,排序,分页时用.  end
 	
-	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>重写,排序,分页时用.  start
 	
 	
 	public static void regShardingBatchInsertDoing() {

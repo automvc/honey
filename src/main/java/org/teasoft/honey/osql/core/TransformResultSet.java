@@ -6,6 +6,7 @@
 
 package org.teasoft.honey.osql.core;
 
+import java.lang.reflect.Field;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -14,7 +15,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.teasoft.bee.osql.annotation.customizable.Json;
+import org.teasoft.bee.osql.type.TypeHandler;
 import org.teasoft.bee.sharding.ShardingSortStruct;
+import org.teasoft.honey.osql.type.TypeHandlerRegistry;
+import org.teasoft.honey.osql.util.AnnoUtil;
 import org.teasoft.honey.sharding.ShardingUtil;
 
 /**
@@ -165,7 +170,7 @@ public class TransformResultSet {
 	}
 	
 	// 2.0
-	private static void regSort(ResultSetMetaData rmeta) {
+	static void regSort(ResultSetMetaData rmeta) {
 		if (!ShardingUtil.hadSharding()) return;
 		ShardingSortStruct struct = HoneyContext.getCurrentShardingSort();
 		if (struct == null) return;
@@ -223,6 +228,107 @@ public class TransformResultSet {
 			list.add(rowMap);
 		}
 		return list;
+	}
+	
+	//检测是否有Json注解
+	private static boolean isJoson(Field field) {
+		return AnnoUtil.isJson(field);
+	}
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private static Object jsonHandlerProcess(Field field, Object obj, TypeHandler jsonHandler) {
+		if (List.class.isAssignableFrom(field.getType())) {
+			Object newOjb[] = new Object[2];
+			newOjb[0] = obj;
+			newOjb[1] = field;
+			obj = jsonHandler.process(field.getType(), newOjb);
+		} else {
+			obj = jsonHandler.process(field.getType(), obj);
+		}
+		return obj;
+	}
+	
+	private static Object _getObjectByindex(ResultSet rs,Field field, int index) throws SQLException{
+		return HoneyUtil.getResultObjectByIndex(rs, field.getType().getName(),index);
+	}
+	
+	private static boolean openFieldTypeHandler = HoneyConfig.getHoneyConfig().openFieldTypeHandler;
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public static <T> T rowToEntity(ResultSet rs, T entity) throws SQLException,IllegalAccessException,InstantiationException {
+
+		T targetObj = null;
+		targetObj = (T) entity.getClass().newInstance();
+		ResultSetMetaData rmeta = rs.getMetaData();
+		
+		if(rs.isBeforeFirst()) rs.next();
+		
+
+		int columnCount = rmeta.getColumnCount();
+		Field field = null;
+		String name = null;
+		boolean firstRow=true;
+		for (int i = 0; i < columnCount; i++) {
+			try {
+				name = _toFieldName(rmeta.getColumnName(i + 1), entity.getClass());
+				field = entity.getClass().getDeclaredField(name);// 可能会找不到Javabean的字段
+			} catch (NoSuchFieldException e) {
+				continue;
+			}
+			if(firstRow) { //2.0
+				firstRow=false;
+				regSort(rmeta);
+			}
+			field.setAccessible(true);
+			Object obj = null;
+			boolean isRegHandlerPriority = false;
+			try {
+				boolean processAsJson = false;
+				if (isJoson(field)) {
+					obj = rs.getString(i + 1);
+					TypeHandler jsonHandler = TypeHandlerRegistry.getHandler(Json.class);
+					if (jsonHandler != null) {
+						obj = jsonHandlerProcess(field, obj, jsonHandler);
+						processAsJson = true;
+					}
+				} else {
+					if (openFieldTypeHandler) {
+						isRegHandlerPriority = TypeHandlerRegistry.isPriorityType(field.getType());
+					}
+				}
+
+				if (!processAsJson) obj = rs.getObject(i + 1);
+
+				if (isRegHandlerPriority) {
+					obj = TypeHandlerRegistry.handlerProcess(field.getType(), obj);
+					field.set(targetObj, obj); // 对相应Field设置
+				} else {
+					field.set(targetObj, obj); // 对相应Field设置
+				}
+			} catch (IllegalArgumentException e) {
+//				e.printStackTrace();
+				boolean alreadyProcess = false;
+				obj = _getObjectByindex(rs, field, i + 1);
+//				obj = rs.getObject(i + 1,field.getType()); //oracle do not support
+				if (openFieldTypeHandler) {
+					Class type = field.getType();
+					TypeHandler handler = TypeHandlerRegistry.getHandler(type);
+					if (handler != null) {
+						try {
+							Object newObj = handler.process(type, obj);
+							field.set(targetObj, newObj);
+							alreadyProcess = true;
+						} catch (Exception e2) {
+							alreadyProcess = false;
+						}
+					}
+				}
+				if (!alreadyProcess) {
+					field.set(targetObj, obj);
+				}
+			}
+		}
+		return targetObj;
 	}
 
 }
