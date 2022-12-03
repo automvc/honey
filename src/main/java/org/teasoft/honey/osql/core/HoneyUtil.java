@@ -1053,7 +1053,7 @@ public final class HoneyUtil {
 		return NameUtil.firstLetterToUpperCase(str);
 	}
 
-	static boolean isContinue(int includeType, Object object, Field field) {
+	public static boolean isContinue(int includeType, Object object, Field field) {
 		//		object字段上对应的值
 		if (field != null) {
 			if(isSkipField(field)) return true;
@@ -1561,7 +1561,7 @@ public final class HoneyUtil {
 		return checkAndProcessSelectFieldViaString(columnsdNames, null, fieldList);
 	}
 	 
-	 static String checkAndProcessSelectFieldViaString(String columnsdNames,Map<String,String> subDulFieldMap,String ...fields){
+	public static String checkAndProcessSelectFieldViaString(String columnsdNames,Map<String,String> subDulFieldMap,String ...fields){
 			
 		if (fields == null) return null;
 		 
@@ -1859,7 +1859,7 @@ public final class HoneyUtil {
 		}
 	}
 	
-	static <T> String getPkFieldName(T entity) {
+	public static <T> String getPkFieldName(T entity) {
 		if (entity == null) return null;
 		return getPkFieldNameByClass(entity.getClass());
 	}
@@ -1870,7 +1870,7 @@ public final class HoneyUtil {
 	 * @return
 	 */
 	@SuppressWarnings("rawtypes")
-	static String getPkFieldNameByClass(Class c) {
+	public static String getPkFieldNameByClass(Class c) {
 
 		if (c == null) return null;
 		String classFullName = c.getName();

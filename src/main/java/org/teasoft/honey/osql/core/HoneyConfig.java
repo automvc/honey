@@ -219,16 +219,16 @@ public final class HoneyConfig {
 	@SysValue("${bee.osql.selectJson.ignoreNull}")
 	public boolean selectJson_ignoreNull = true;
 	@SysValue("${bee.osql.selectJson.timestampWithMillisecond}")
-	boolean selectJson_timestampWithMillisecond;
+	public boolean selectJson_timestampWithMillisecond;
 
 	@SysValue("${bee.osql.selectJson.dateWithMillisecond}")
-	boolean selectJson_dateWithMillisecond;
+	public boolean selectJson_dateWithMillisecond;
 
 	@SysValue("${bee.osql.selectJson.timeWithMillisecond}")
-	boolean selectJson_timeWithMillisecond;
+	public boolean selectJson_timeWithMillisecond;
 
 	@SysValue("${bee.osql.selectJson.longToString}")
-	boolean selectJson_longToString = true;
+	public boolean selectJson_longToString = true;
 	//----------------------------- selectJson end
 
 	@SysValue("${bee.osql.returnStringList.nullToEmptyString}")

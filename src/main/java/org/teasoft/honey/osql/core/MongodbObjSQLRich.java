@@ -1,0 +1,710 @@
+/*
+ * Copyright 2013-2022 the original author.All rights reserved.
+ * Kingstar(honeysoft@126.com)
+ * The license,see the LICENSE file.
+ */
+
+package org.teasoft.honey.osql.core;
+
+import java.io.Serializable;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.teasoft.bee.osql.Condition;
+import org.teasoft.bee.osql.FunctionType;
+import org.teasoft.bee.osql.IncludeType;
+import org.teasoft.bee.osql.ObjSQLException;
+import org.teasoft.bee.osql.OrderType;
+import org.teasoft.bee.osql.SuidRich;
+import org.teasoft.bee.osql.SuidType;
+import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
+import org.teasoft.bee.osql.exception.BeeIllegalParameterException;
+import org.teasoft.honey.osql.name.NameUtil;
+import org.teasoft.honey.osql.shortcut.BF;
+import org.teasoft.honey.sharding.ShardingUtil;
+import org.teasoft.honey.sharding.engine.batch.ShardingBatchInsertEngine;
+import org.teasoft.honey.util.ObjectUtils;
+
+/**
+ * SuidRich实现类.Suidrich implementation class.
+ * @author Kingstar
+ * @since  2.0
+ */
+public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serializable {
+
+	private static final long serialVersionUID = 1596710362258L;
+	
+//	private ObjToSQLRich objToSQLRich; 
+	
+	private static final String SELECT_SQL = "select SQL: ";
+	private static final String SELECT_JSON_SQL = "selectJson SQL: ";
+	private static final String DELETE_BY_ID_SQL = "deleteById SQL: ";
+	private static final String SELECT_BY_ID_SQL = "selectById SQL: ";
+	private static final String UPDATE_SQL_WHERE_FIELDS = "update SQL(whereFields) :";
+	private static final String UPDATE_SQL_UPDATE_FIELDS = "update SQL(updateFields) :";
+	private static final String ID_IS_NULL = "in method selectById,id is null! ";
+    private static final String START_GREAT_EQ_0 = "Parameter 'start' need great equal 0!";
+	private static final String SIZE_GREAT_0 = "Parameter 'size' need great than 0!";
+	private static final String TIP_SIZE_0 = "The size is 0, but it should be greater than 0 (>0)";
+	
+	
+//	private int defaultBatchSize = HoneyConfig.getHoneyConfig().insertBatchSize;
+	private int defaultBatchSize =1000;
+
+	@Override
+	public <T> List<T> select(T entity, int size) {
+		if (entity == null) return null;
+		if (size == 0) {
+			Logger.warn(TIP_SIZE_0);
+			return Collections.emptyList();
+		}
+		if (size < 0) throw new BeeIllegalParameterException(SIZE_GREAT_0);
+
+		return select(entity, 0, size);
+	}
+
+	@Override
+	public <T> List<T> select(T entity, int start, int size) {
+		if (entity == null) return null;
+		if (size == 0) {
+			Logger.warn(TIP_SIZE_0);
+			return Collections.emptyList();
+		}
+		if(size<0) throw new BeeIllegalParameterException(SIZE_GREAT_0);
+		if(start<0) throw new BeeIllegalParameterException(START_GREAT_EQ_0);
+		
+		
+		Condition condition=BF.getCondition();
+		condition.start(start).size(size);
+		
+		return select(entity, condition);
+	}
+
+	@Override
+	public <T> List<T> select(T entity, String selectField) {
+		if (entity == null) return null;
+		
+		Condition condition=BF.getCondition();
+		condition.selectField(selectField);
+		
+		return select(entity, condition);
+	}
+
+	@Override
+	public <T> List<T> select(T entity, String selectFields, int start, int size) {
+		if (entity == null) return null;
+		if (size == 0) {
+			Logger.warn(TIP_SIZE_0);
+			return Collections.emptyList();
+		}
+		if(size<0) throw new BeeIllegalParameterException(SIZE_GREAT_0);
+		if(start<0) throw new BeeIllegalParameterException(START_GREAT_EQ_0);
+		
+		Condition condition=BF.getCondition();
+		condition.selectField(selectFields);
+		condition.start(start).size(size);
+		
+		return select(entity, condition);
+	}
+
+	@Override
+	public <T> List<T> selectOrderBy(T entity, String orderFields) {
+		return selectOrderBy(entity, orderFields, null);
+	}
+
+	@Override
+	public <T> List<T> selectOrderBy(T entity, String orderFields, OrderType[] orderTypes) {
+		if (entity == null) return null;
+		
+		doBeforePasreEntity(entity, SuidType.SELECT);
+		List<T> list = null;
+
+		list = getMongodbBeeSql().selectOrderBy(entity, orderFields, orderTypes);
+
+		doBeforeReturn(list);
+
+		return list;
+	}
+
+	@Override
+	public <T> int insert(T entity[]) {
+		return insert(entity, defaultBatchSize, "");
+	}
+	
+	@Override
+	public <T> int insert(T entity[], String excludeFields) {
+		return insert(entity, defaultBatchSize, "");
+	}
+
+	@Override
+	public <T> int insert(T entity[], int batchSize) {
+		return insert(entity, batchSize, "");
+	}
+
+	@Override
+	public <T> int insert(T entity[], int batchSize, String excludeFields) {
+		if (entity == null || entity.length < 1) return -1;
+		checkNull(entity);
+		if (batchSize <= 0) batchSize = 10;
+		
+		if (ShardingUtil.isShardingBatchInsertDoing()) { // 正在执行分片的,不再走以下判断 // 防止重复解析
+			return _insert(entity, batchSize, excludeFields);
+		}
+		
+		doBeforePasreEntity(entity, SuidType.INSERT);
+
+		int a = 0;
+		List<String> tabNameListForBatch = HoneyContext.getListLocal(StringConst.TabNameListForBatchLocal);
+		if (!ShardingUtil.isSharding() || ObjectUtils.isEmpty(tabNameListForBatch)) {
+			a = _insert(entity, batchSize, excludeFields);
+		} else {
+			try {
+//			a = new ShardingForkJoinBatchInsertEngine<T>().batchInsert(entity, batchSize, excludeFields,tabNameListForBatch, this);
+				a = new ShardingBatchInsertEngine<T>().batchInsert(entity, batchSize, excludeFields, tabNameListForBatch, this);
+			} catch (Exception e) {
+				Logger.error(e.getMessage(), e);
+			} finally {
+				HoneyContext.removeSysCommStrLocal(StringConst.ShardingBatchInsertDoing);
+			}
+		}
+
+		doBeforeReturn();
+		return a;
+	}
+	
+	private <T> int _insert(T entity[], int batchSize, String excludeFields) {
+
+//		String insertSql[] = getObjToSQLRich().toInsertSQL(entity,batchSize, excludeFields);
+//		
+//		_regEntityClass1(entity[0]);
+//		insertSql[0] = doAfterCompleteSql(insertSql[0]);
+
+		HoneyUtil.revertId(entity);
+
+		int a = getMongodbBeeSql().insert(entity, batchSize, excludeFields);
+
+		return a;
+	}
+	
+	private <T> void checkNull(T entity[]) {
+		for (int i = 0; i < entity.length; i++) {
+			if(entity[i]==null) throw new ObjSQLException("entity[] have null element, index: "+i);
+		}
+	}
+
+	@Override
+	public <T> int update(T entity, String updateFields) {
+		Condition condition=null;
+		return update(entity, updateFields, condition);
+	}
+
+	@Override
+	public <T> T selectOne(T entity) {
+		if (entity == null) return null;
+		List<T> list = select(entity,2);  //已处理拦截器链
+		if (list == null || list.size() != 1) return null;
+		return list.get(0);
+	}
+
+	@Override
+	public <T> String selectWithFun(T entity, FunctionType functionType, String fieldForFun) {
+		return selectWithFun(entity, functionType, fieldForFun, null);
+	}
+
+	@Override
+	public <T> String selectWithFun(T entity, FunctionType functionType, String fieldForFun, Condition condition) {
+		if (entity == null) return null;
+		
+		if(FunctionType.COUNT==functionType) return count(entity, condition)+"";
+		
+		regCondition(condition);
+		doBeforePasreEntity(entity,SuidType.SELECT);
+		
+//		String s = null;
+//		String sql = getObjToSQLRich().toSelectFunSQL(entity, functionType, fieldForFun, condition);
+		
+		_regEntityClass1(entity);
+		_regFunType(functionType);
+		
+//		sql = doAfterCompleteSql(sql);
+		
+//		s = getMongodbBeeSql().selectFun(sql);
+		
+		String rs=getMongodbBeeSql().selectWithFun(entity, functionType, fieldForFun, condition);
+
+		doBeforeReturn();
+		return rs;
+	}
+
+	@Override
+	public <T> int count(T entity) {
+		return count(entity, null);
+	}
+
+	@Override
+	public <T> int count(T entity, Condition condition) {
+
+		if (entity == null) return 0;
+		regCondition(condition);
+		doBeforePasreEntity(entity, SuidType.SELECT);
+		if (condition != null) condition.setSuidType(SuidType.SELECT);
+		int c = getMongodbBeeSql().count(entity, condition);
+		doBeforeReturn();
+
+		return c;
+	}
+
+	@Override
+	public <T> int update(T entity, String updateFields, IncludeType includeType) {
+		return update(entity, updateFields, BF.getCondition().setIncludeType(includeType));
+	}
+
+	@Override
+	public <T> List<T> select(T entity, IncludeType includeType) {
+		if (entity == null) return null;
+		return select(entity, BF.getCondition().setIncludeType(includeType));
+	}
+
+	@Override
+	public <T> int update(T entity, IncludeType includeType) {
+		return updateBy(entity, "id", BF.getCondition().setIncludeType(includeType));
+	}
+
+	@Override
+	public <T> int insert(T entity, IncludeType includeType) {
+		if (entity == null) return -1;
+
+		long a = insertAndReturnId(entity, includeType);
+		if (a > 0)
+			return 1;
+		else
+			return 0;
+	}
+	
+	@Override
+	public <T> long insertAndReturnId(T entity, IncludeType includeType) {
+		if (entity == null) return -1;
+		doBeforePasreEntity(entity, SuidType.INSERT);
+		_ObjectToSQLHelper.setInitIdByAuto(entity); // 更改了原来的对象
+
+		HoneyUtil.revertId(entity);
+		long returnId = getMongodbBeeSql().insertAndReturnId(entity, includeType);
+
+		doBeforeReturn();
+
+		return returnId;
+	}
+
+	@Override
+	public <T> int delete(T entity, IncludeType includeType) {
+		if (entity == null) return -1;
+		return delete(entity, BF.getCondition().setIncludeType(includeType));
+	}
+
+	@Override
+	public <T> List<String[]> selectString(T entity) {
+		Condition condition = null;
+		return selectString(entity, condition);
+	}
+
+	@Override
+	public <T> List<String[]> selectString(T entity, String... selectFields) {
+
+		Condition condition = BF.getCondition();
+		condition.selectField(selectFields);
+
+		return selectString(entity, condition);
+	}
+	
+	@Override
+	public <T> List<String[]> selectString(T entity, Condition condition) {
+		if (entity == null) return null;
+		regCondition(condition);
+		doBeforePasreEntity(entity, SuidType.SELECT);
+		List<String[]> list = null;
+
+		list = getMongodbBeeSql().selectString(entity, condition);
+
+		doBeforeReturn();
+		return list;
+	}
+	
+	@Override
+	public <T> String selectJson(T entity) {
+		Condition condition=null;
+		return selectJson(entity, condition);
+	}
+
+	@Override
+	public <T> String selectJson(T entity, IncludeType includeType) {
+		Condition condition=BF.getCondition();
+		return selectJson(entity, condition.setIncludeType(includeType));
+	}
+	
+	@Override
+	public <T> String selectJson(T entity, String selectField) {
+		Condition condition=BF.getCondition();
+		return selectJson(entity, condition.selectField(selectField));
+	}
+	
+	@Override
+	public <T> String selectJson(T entity, String selectFields, int start, int size) {
+		if (entity == null) return null;
+		if (size == 0) {
+			Logger.warn(TIP_SIZE_0);
+			return null;
+		}
+		if (size < 0) throw new BeeIllegalParameterException(SIZE_GREAT_0);
+		if (start < 0) throw new BeeIllegalParameterException(START_GREAT_EQ_0);
+
+		Condition condition = BF.getCondition();
+		condition.selectField(selectFields).start(start).size(size);
+		return selectJson(entity, condition);
+	}
+	
+	
+	private <T> T selectByIdObject(T entity, Object id) {
+		
+		doBeforePasreEntity(entity, SuidType.SELECT);
+		
+		List<T> list = getMongodbBeeSql().selectById(entity, id);
+
+		return getIdEntity(list);
+	}
+	
+	private <T> T getIdEntity(List<T> list) {
+		if(list==null || list.size()<1) {
+			doBeforeReturn();
+			return null;
+		}else {
+			doBeforeReturn(list);
+			return list.get(0);
+		}
+	}
+
+	@Override
+	public <T> T selectById(T entity, Integer id) {
+		if (entity == null) return null;
+
+		if (id==null) {
+			Logger.warn(ID_IS_NULL);
+			return null;
+		}
+		
+		return selectByIdObject(entity, id);
+	}
+	
+	@Override
+	public <T> T selectById(T entity, Long id) {
+		if (entity == null) return null;
+
+		if (id==null) {
+			Logger.warn(ID_IS_NULL);
+			return null;
+		}
+		
+		return selectByIdObject(entity, id);
+	}
+	
+	@Override
+	public <T> T selectById(T entity, String id) {
+		if (entity == null) return null;
+
+		if (id==null) {
+			Logger.warn(ID_IS_NULL);
+			return null;
+		}
+		if(id.contains(",")) {
+			throw new BeeIllegalParameterException("The parameter 'id' of method selectById does not allow to contain comma!");
+		}
+		
+		
+		return selectByIdObject(entity, id);
+	}
+	
+	@Override
+	public <T> List<T> selectByIds(T entity, String ids) {
+		if (entity == null) return null;
+
+		if (ids==null) {
+			Logger.warn("in method selectByIds,ids is null! ");
+			return null;
+		}
+		
+		doBeforePasreEntity(entity,SuidType.SELECT);
+		
+		List<T> list = getMongodbBeeSql().selectById(entity, ids);
+		
+		doBeforeReturn(list);
+		return list;
+	}
+	
+	@SuppressWarnings("rawtypes")
+	public int deleteByIdObject(Class c, Object id) {
+		
+		doBeforePasreEntity(c,SuidType.DELETE);
+		
+		int a=getMongodbBeeSql().deleteById(c, id);
+		
+		doBeforeReturn();
+		return a;
+	}
+
+	@Override
+	@SuppressWarnings("rawtypes")
+	public int deleteById(Class c, Integer id) {
+		if(id==null) Logger.warn("in method deleteById,id is null! ");
+		if (c == null || id==null) return 0;
+		
+		return deleteByIdObject(c, id);
+	}
+
+	@Override
+	@SuppressWarnings("rawtypes")
+	public int deleteById(Class c, Long id) {
+		if(id==null) Logger.warn("in method deleteById,id is null! ");
+		if (c == null || id==null) return 0;
+		
+		return deleteByIdObject(c, id);
+	}
+
+	@Override
+	@SuppressWarnings("rawtypes")
+	public int deleteById(Class c, String ids) {
+		if(ids==null) Logger.warn("in method deleteById,ids is null! ");
+		if (c == null || ids==null) return 0;
+		
+		return deleteByIdObject(c, ids);
+	}
+
+	@Override
+	@Deprecated
+	public <T> List<T> select(T entity, IncludeType includeType, Condition condition) {
+            return select(entity, condition.setIncludeType(includeType));
+	}
+
+	@Override
+	public <T> String selectJson(T entity, IncludeType includeType, Condition condition) {
+		if (entity == null) return null;
+		
+		return selectJson(entity, condition.setIncludeType(includeType));
+	}
+	
+	@Override
+	public <T> String selectJson(T entity, Condition condition) {
+		if (entity == null) return null;
+		regCondition(condition);
+		doBeforePasreEntity(entity,SuidType.SELECT);
+		_regEntityClass1(entity);
+		
+//		String sql = getObjToSQLRich().toSelectSQL(entity, condition.getIncludeType(),condition);
+//		sql = doAfterCompleteSql(sql);
+//		Logger.logSQL(SELECT_JSON_SQL, sql);
+//		
+//		String json= getMongodbBeeSql().selectJson(sql);
+		
+		
+		String json=getMongodbBeeSql().selectJson(entity, condition);
+		
+		doBeforeReturn();
+		
+		return json;
+	}
+
+	@Override
+	public <T> int updateBy(T entity, String whereFields) {
+		Condition condition = null;
+		return updateBy(entity, whereFields, condition);
+	}
+
+	@Override
+	public <T> int updateBy(T entity, String whereFields, IncludeType includeType) {
+		return updateBy(entity, whereFields, BF.getCondition().setIncludeType(includeType));
+	}
+
+	// v1.7.2
+	@Override
+	public <T> int updateBy(T entity, String whereFields, Condition condition) {
+		if (entity == null) return 0;
+
+		doBeforePasreEntity(entity, SuidType.UPDATE);
+
+		int updateNum = getMongodbBeeSql().updateBy(entity, whereFields, condition);
+
+		doBeforeReturn();
+
+		return updateNum;
+	}
+
+	// v1.9
+	@Override
+	public <T> int updateById(T entity, Condition condition) {
+		String pkName = "";
+		try {
+			entity.getClass().getDeclaredField("id");
+			pkName = "id";
+		} catch (NoSuchFieldException e) {
+			pkName = HoneyUtil.getPkFieldName(entity);
+		}
+
+		// 支持联合主键
+		return updateBy(entity, pkName, condition);
+	}
+
+	// v1.7.2
+	@Override
+	public <T> int update(T entity, String updateFields, Condition condition) {
+		if (entity == null) return 0;
+
+		doBeforePasreEntity(entity, SuidType.UPDATE);
+
+		int updateNum = getMongodbBeeSql().update(entity, updateFields, condition);
+
+		doBeforeReturn();
+
+		return updateNum;
+	}
+	
+	//v1.8
+	@Override
+	public <T> int update(T entity, Condition condition) {
+		return update(entity, "", condition);
+	}
+	
+	//1.9
+	@Override
+	public <T> int insert(List<T> entityList) {
+		if (entityList == null || entityList.size()<1) return -1;
+		T entity[]=toEntityArray(entityList);
+		return insert(entity);
+	}
+	
+	//1.9
+	@Override
+	public <T> int insert(List<T> entityList, int batchSize) {
+		if (entityList == null || entityList.size()<1) return -1;
+		T entity[]=toEntityArray(entityList);
+		return insert(entity, batchSize);
+	}
+
+	//1.9
+	@Override
+	public <T> int insert(List<T> entityList, String excludeFields) {
+		if (entityList == null || entityList.size()<1) return -1;
+		T entity[]=toEntityArray(entityList);
+		return insert(entity, excludeFields);
+	}
+
+	//1.9
+	@Override
+	public <T> int insert(List<T> entityList, int batchSize, String excludeFields) {
+		if (entityList == null || entityList.size()<1) return -1;
+		T entity[]=toEntityArray(entityList);
+		
+		return insert(entity, batchSize, excludeFields);
+	}
+
+	//没能将entity传到SqlLib,需要注册
+	private <T> void _regEntityClass1(T entity){
+		if(entity==null) return ;
+		HoneyContext.regEntityClass(entity.getClass());
+	}
+	
+//	@SuppressWarnings("rawtypes")
+//	private void _regEntityClass2(Class clazz){
+//		HoneyContext.regEntityClass(clazz);
+//	}
+	
+	private <T> void _regFunType(FunctionType functionType){
+		HoneyContext.regFunType(functionType);
+	}
+	
+	@SuppressWarnings("unchecked")
+	private <T> T[] toEntityArray(List<T> entityList) {
+		
+		int len=entityList.size();
+		T entity[]=(T[])new Object[len];
+		
+		for (int i=0; i < len; i++) {
+			entity[i]=entityList.get(i);
+		}
+		
+		return entity;
+	}
+	
+	@Override
+	public SuidRich setDynamicParameter(String para, String value) {
+		OneTimeParameter.setAttribute(para, value);
+		return this;
+	}
+	
+	@Override
+	public <T> boolean exist(T entity) {
+		int r = count(entity);
+		return r > 0 ? true : false;
+	}
+
+	@Override
+	public <T> int update(T oldEntity, T newEntity) {
+
+		if (oldEntity == null || newEntity == null) return -1;
+		
+		String oldEntityFullName = oldEntity.getClass().getName();
+		String newEntityFullName = newEntity.getClass().getName();
+		if (!oldEntityFullName.equals(newEntityFullName)) {
+			throw new BeeErrorGrammarException(
+					"BeeErrorGrammarException: the oldEntity and newEntity must be same type!");
+		}
+		
+		doBeforePasreEntity(newEntity,SuidType.UPDATE); //拦截器只处理新实体；  旧实体oldEntity作为条件不在拦截器处理。
+
+		
+//		Map<String, Object> oldMap = SuidHelper.entityToMap(oldEntity);
+//		Map<String, Object> newMap = SuidHelper.entityToMap(newEntity);
+//
+//		MapSql updateMapSql = BeeFactoryHelper.getMapSql();
+//		updateMapSql.put(MapSqlKey.Table, _toTableName(oldEntity));
+//		updateMapSql.put(MapSqlSetting.IsNamingTransfer, true);
+//		updateMapSql.put(oldMap);
+//		updateMapSql.putNew(newMap);
+//
+//		Logger.logSQL("update(T oldEntity, T newEntity) with MapSuid, ", "");
+//		MapSuid mapSuid = BeeFactoryHelper.getMapSuid();
+		
+//		return mapSuid.update(updateMapSql);  //it will use Interceptor
+		
+		
+		int updateNum =getMongodbBeeSql().update(oldEntity, newEntity);
+		
+		doBeforeReturn();
+		
+		return updateNum;
+		
+	}
+	
+	
+	/**
+	 * 保存一个实体(一条记录).
+	 * 如果可以区分开,建议明确调用insert(entity)或者update(entity),这样更加安全和高效.
+	 * @param entity
+	 * @return 返回受影响的行数.
+	 * @since 1.9.8
+	 */
+	@Override
+	public <T> int save(T entity) {
+		Object id = HoneyUtil.getIdValue(entity);
+		if (id == null) return insert(entity);
+		Object one = selectById(entity, id.toString());
+		if (one != null)
+			return update(entity);
+		else
+			return insert(entity);
+	}
+	
+	private void doBeforePasreEntity(Object entity[], SuidType SuidType) {
+		getInterceptorChain().beforePasreEntity(entity, SuidType);
+	}
+
+}
