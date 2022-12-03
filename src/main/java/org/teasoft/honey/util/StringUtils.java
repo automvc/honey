@@ -154,6 +154,40 @@ public final class StringUtils {
 		return buf.toString();
 	}
 	
+	public static String escapeMatch(String value) {
+		if(value==null) return value;
+		
+		StringBuffer buf = new StringBuffer(value);
+		char temp;
+		for (int i = 0; i < buf.length(); i++) {
+			temp=buf.charAt(i);
+//			if (temp=='\\') {
+//				i++;
+//			}else if (temp=='*' || temp=='?' || temp=='$' || temp=='+' || temp=='^' || temp=='.') {
+//			}else {
+				switch (temp) {
+					case '\\':
+						if(i+1< buf.length()  && buf.charAt(i+1)=='u') 
+							break;
+		            case '*':
+		            case '+':
+		            case '?':
+		            case '{':
+		            case '$':
+		            case '.':
+		            case '^':
+		            case '(':
+		            case '[':
+		            case '|':
+		            case ')':
+				       buf.insert(i++, '\\'); break;
+				    default : break;
+			}
+//		}
+		}
+		return buf.toString();
+	}
+	
 	  public static String getUnicode(String str) {
 	        String strTemp = "";
 	        if (str != null) {
