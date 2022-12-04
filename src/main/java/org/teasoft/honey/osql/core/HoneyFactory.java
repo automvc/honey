@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.ServiceConfigurationError;
 import java.util.ServiceLoader;
 
+import org.teasoft.bee.mongodb.MongodbBeeSql;
 import org.teasoft.bee.osql.BeeSql;
 import org.teasoft.bee.osql.Cache;
 import org.teasoft.bee.osql.CallableSql;
@@ -31,6 +32,7 @@ import org.teasoft.honey.osql.dialect.mysql.MySqlFeature;
 import org.teasoft.honey.osql.dialect.oracle.OracleFeature;
 import org.teasoft.honey.osql.dialect.sqlserver.SqlServerFeature;
 import org.teasoft.honey.osql.interccept.InterceptorChainRegistry;
+import org.teasoft.honey.osql.mongodb.MongodbBeeSqlRegister;
 import org.teasoft.honey.osql.name.DbUpperAndJavaLower;
 import org.teasoft.honey.osql.name.OriginalName;
 import org.teasoft.honey.osql.name.UnderScoreAndCamelName;
@@ -70,6 +72,9 @@ public class HoneyFactory {
 	
 	private InterceptorChain interceptorChain;
 	
+	//@since 2.0
+	private MongodbBeeSql mongodbBeeSql;
+	
 	static {
        cache=initCache();
 	}
@@ -84,7 +89,7 @@ public class HoneyFactory {
 		boolean nocache = HoneyConfig.getHoneyConfig().cache_nocache;
 		boolean useLevelTwo=getUseLevelTwo();
 		if (nocache) {
-			Logger.warn("[Bee]==========Now the Cache type is: nocache.");
+			Logger.warn("[Bee] ==========Now the Cache type is: nocache.");
 			cache= new NoCache(); //v1.7.2
 		}else if(useLevelTwo) {//V1.11
 			ServiceLoader<Cache> caches = ServiceLoader.load(Cache.class);
@@ -127,21 +132,46 @@ public class HoneyFactory {
 	}
 
 	public Suid getSuid() {
-		if(suid==null) return new ObjSQL();
-		return suid; //可以通过配置spring bean的方式注入
+		if (suid == null) {
+			// 是多数据源,有同时使用多种不同类型DB
+			boolean enableMultiDs = HoneyConfig.getHoneyConfig().multiDS_enable;
+			boolean isDifferentDbType = HoneyConfig.getHoneyConfig().multiDS_differentDbType;
+			if (!(enableMultiDs && isDifferentDbType) && HoneyUtil.isMongoDB())
+				return new MongodbObjSQL(); // 2.0
+			else
+				return new ObjSQL();
+		}
+		return suid; // 可以通过配置spring bean的方式注入
 	}
-
+	
 	public void setSuid(Suid suid) {
 		this.suid = suid;
 	}
 	
 	public SuidRich getSuidRich() {
-		if(suidRich==null) return new ObjSQLRich();
+		if (suidRich == null) {
+			// 是多数据源,有同时使用多种不同类型DB
+			boolean enableMultiDs = HoneyConfig.getHoneyConfig().multiDS_enable;
+			boolean isDifferentDbType = HoneyConfig.getHoneyConfig().multiDS_differentDbType;
+			if (!(enableMultiDs && isDifferentDbType) && HoneyUtil.isMongoDB())
+				return new MongodbObjSQLRich(); // 2.0
+			else
+				return new ObjSQLRich();
+		}
 		return suidRich;
 	}
 
 	public void setSuidRich(SuidRich suidRich) {
 		this.suidRich = suidRich;
+	}
+	
+	//同时使用多种类型的DB,在为Mongodb获取时,需要用声明是获取给Mongodb用的方法
+	public Suid getSuidForMongodb() {//2.0
+		return new MongodbObjSQL(); 
+	}
+	//同时使用多种类型的DB,在为Mongodb获取时,需要用声明是获取给Mongodb用的方法
+	public SuidRich getSuidRichForMongodb() { //2.0
+		return new MongodbObjSQLRich(); 
 	}
 	
 	public MoreTable getMoreTable() {
@@ -169,6 +199,15 @@ public class HoneyFactory {
 
 	public void setBeeSql(BeeSql beeSql) {
 		this.beeSql = beeSql;
+	}
+	
+	public MongodbBeeSql getMongodbBeeSql() {
+		if(mongodbBeeSql==null) return MongodbBeeSqlRegister.getInstance();
+		return mongodbBeeSql;
+	}
+
+	public void setMongodbBeeSql(MongodbBeeSql mongodbBeeSql) {
+		this.mongodbBeeSql = mongodbBeeSql;
 	}
 
 	public ObjToSQL getObjToSQL() {

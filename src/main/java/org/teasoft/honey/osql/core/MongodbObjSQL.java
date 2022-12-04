@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 the original author.All rights reserved.
+ * Copyright 2016-2023 the original author.All rights reserved.
  * Kingstar(honeysoft@126.com)
  * The license,see the LICENSE file.
  */
@@ -9,10 +9,10 @@ package org.teasoft.honey.osql.core;
 import java.lang.reflect.Field;
 import java.util.List;
 
+import org.teasoft.bee.mongodb.MongodbBeeSql;
 import org.teasoft.bee.osql.Condition;
 import org.teasoft.bee.osql.Suid;
 import org.teasoft.bee.osql.SuidType;
-import org.teasoft.honey.mongodb.MongodbBeeSql;
 
 /**
  * @author Jade
@@ -279,7 +279,7 @@ public class MongodbObjSQL extends AbstractCommOperate implements Suid {
 	
 	
 	public MongodbBeeSql getMongodbBeeSql() {
-//		if(mongodbBeeSql==null)
+		if(mongodbBeeSql==null) return BeeFactory.getHoneyFactory().getMongodbBeeSql();
 		return mongodbBeeSql;
 	}
 

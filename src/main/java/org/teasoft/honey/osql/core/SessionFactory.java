@@ -6,8 +6,11 @@ import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
+import org.teasoft.bee.osql.DatabaseConst;
 import org.teasoft.bee.osql.exception.NoConfigException;
 import org.teasoft.bee.osql.transaction.Transaction;
+import org.teasoft.honey.database.ClientDataSource;
+import org.teasoft.honey.mongodb.MongodbConnection;
 import org.teasoft.honey.osql.constant.DbConfigConst;
 import org.teasoft.honey.osql.transaction.JdbcTransaction;
 import org.teasoft.honey.util.StringUtils;
@@ -42,6 +45,30 @@ public final class SessionFactory {
 
 	public SessionFactory() {
 		//empty
+	}
+	
+	public static Object getDatabaseClient() {
+		Object client = null;
+		try {
+			DataSource ds = getBeeFactory().getDataSource();
+			if (ds != null) {
+				String dbName=ds.getConnection().getMetaData().getDatabaseProductName();
+				if(DatabaseConst.MongoDB.equalsIgnoreCase(dbName)) {
+					client= ((ClientDataSource)ds).getDatabaseClient();
+				}
+			} else {// do not set the dataSource
+				//todo
+//				System.err.println("do not set the dataSource");
+			}
+
+		} catch (SQLException e) {
+			Logger.debug(e.getMessage());
+			throw ExceptionHelper.convert(e);
+		} catch (Exception e) {
+			throw ExceptionHelper.convert(e);
+		}
+		
+		return client;
 	}
 
 	public static Connection getConnection() {
@@ -144,11 +171,13 @@ public final class SessionFactory {
 		Connection conn = null;
 		if (StringUtils.isNotBlank(driverName)) Class.forName(driverName);  //some db,no need set the driverName //v1.8.15
 
-		if (username!=null && password != null)
+		if (username!=null && password != null) {
+			if(url.trim().startsWith("mongodb:")) return new MongodbConnection();
 			conn = DriverManager.getConnection(url, username, password);
-		else
+		}else {
+			if(url.trim().startsWith("mongodb:")) return new MongodbConnection();
 			conn = DriverManager.getConnection(url);  //v1.8.15
-
+		}
 		return conn;
 	}
 }

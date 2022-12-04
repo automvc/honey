@@ -54,5 +54,13 @@ public class BeeFactoryHelper {
 	public static UnionSelect getUnionSelect() {
 		return BeeFactory.getHoneyFactory().getUnionSelect();
 	}
+	
+	public static Suid getSuidForMongodb() {
+		return BeeFactory.getHoneyFactory().getSuidForMongodb();
+	}
+	
+	public static SuidRich getSuidRichForMongodb() {
+		return BeeFactory.getHoneyFactory().getSuidRichForMongodb();
+	}
 
 }

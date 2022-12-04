@@ -803,6 +803,12 @@ public final class HoneyContext {
 
 		return conn;
 	}
+	
+	public static Object getDatabaseClient() {
+		Object client = null;
+		client = SessionFactory.getDatabaseClient();
+		return client;
+	}
 
 	public static void checkShadingHasMoreDs(String exceptionMsg) {
 		if (ShardingUtil.hadSharding()) {// 有分片时,涉及多个DS
