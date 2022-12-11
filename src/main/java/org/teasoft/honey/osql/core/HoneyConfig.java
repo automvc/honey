@@ -153,7 +153,7 @@ public final class HoneyConfig {
 	public boolean notDeleteWholeRecords = true; //v1.7.2
 
 	@SysValue("${bee.osql.notUpdateWholeRecords}")
-	boolean notUpdateWholeRecords = true; //v1.7.2
+	public boolean notUpdateWholeRecords = true; //v1.7.2
 	
 	@SysValue("${bee.osql.notCatchModifyDuplicateException}")
 	public boolean notCatchModifyDuplicateException;
