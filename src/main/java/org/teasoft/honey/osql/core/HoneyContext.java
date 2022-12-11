@@ -19,6 +19,7 @@ import org.teasoft.bee.osql.exception.BeeIllegalParameterException;
 import org.teasoft.bee.osql.exception.ShardingErrorException;
 import org.teasoft.bee.sharding.ShardingPageStruct;
 import org.teasoft.bee.sharding.ShardingSortStruct;
+import org.teasoft.honey.database.DatabaseClientConnection;
 import org.teasoft.honey.distribution.ds.RouteStruct;
 import org.teasoft.honey.osql.dialect.sqlserver.SqlServerPagingStruct;
 import org.teasoft.honey.sharding.ShardingUtil;
@@ -804,10 +805,10 @@ public final class HoneyContext {
 		return conn;
 	}
 	
-	public static Object getDatabaseClient() {
-		Object client = null;
-		client = SessionFactory.getDatabaseClient();
-		return client;
+	public static DatabaseClientConnection getDatabaseConnection() {
+		DatabaseClientConnection conn = null;
+		conn = SessionFactory.getDatabaseConnection();
+		return conn;
 	}
 
 	public static void checkShadingHasMoreDs(String exceptionMsg) {

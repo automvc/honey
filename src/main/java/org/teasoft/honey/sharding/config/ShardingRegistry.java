@@ -28,7 +28,7 @@ public class ShardingRegistry implements Registry {
 	private static Map<String, String> tabToDsMap = new LinkedHashMap<>(); // 2
 	private static Map<String, Integer> tabSizeMap = new HashMap<>(); // 3
 	
-	private static Integer ONE=1;
+	private static final Integer ONE=1;
 	private static Map<String, Integer> broadcastTabMap = new HashMap<>(); // 4
 	
 	public static ShardingBean getShardingBean(Class<?> entity) {
@@ -68,7 +68,7 @@ public class ShardingRegistry implements Registry {
 	}
 	
 	public static boolean isBroadcastTab(String tabName) {
-		return  ONE==broadcastTabMap.get(tabName);
+		return ONE.equals(broadcastTabMap.get(tabName));
 	}
 	
 	

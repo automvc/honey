@@ -1937,20 +1937,20 @@ public final class HoneyUtil {
 		return false;
 	}
 	
-	public static InterceptorChain copy(InterceptorChain ojb) {
+	public static InterceptorChain copy(InterceptorChain obj) {
 		try {
 			Serializer jdks = new JdkSerializer();
-			return (InterceptorChain) jdks.unserialize(jdks.serialize(ojb));
+			return (InterceptorChain) jdks.unserialize(jdks.serialize(obj));
 		} catch (Exception e) {
 			Logger.debug(e.getMessage(), e);
 		}
 		return null;
 	}
 	
-	public static <T extends Serializable> Object copyObject(T ojb) {
+	public static <T extends Serializable> Object copyObject(T obj) {
 		try {
 			Serializer jdks = new JdkSerializer();
-			return jdks.unserialize(jdks.serialize(ojb));
+			return jdks.unserialize(jdks.serialize(obj));
 		} catch (Exception e) {
 			Logger.debug(e.getMessage(), e);
 		}

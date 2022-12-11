@@ -18,12 +18,12 @@ public class MongodbBeeSqlRegister implements Registry {
 	private static MongodbBeeSql mongodbBeeSql0 = null;
 
 	public static void register(MongodbBeeSql mongodbBeeSql) {
-		System.out.println("---------------------------------注册成功!");
+//		System.out.println("---------------------------------注册成功!");
 		MongodbBeeSqlRegister.mongodbBeeSql0 = mongodbBeeSql;
 	}
 
 	public static MongodbBeeSql getInstance() {
-		System.out.println("获取mongodbBeeSql0对象: "+mongodbBeeSql0);
+//		System.out.println("获取mongodbBeeSql0对象: "+mongodbBeeSql0);
 		return mongodbBeeSql0;
 	}
 

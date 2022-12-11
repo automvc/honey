@@ -8,9 +8,7 @@ package org.teasoft.honey.osql.core;
 
 import java.io.Serializable;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.teasoft.bee.osql.Condition;
 import org.teasoft.bee.osql.FunctionType;
@@ -21,7 +19,6 @@ import org.teasoft.bee.osql.SuidRich;
 import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
 import org.teasoft.bee.osql.exception.BeeIllegalParameterException;
-import org.teasoft.honey.osql.name.NameUtil;
 import org.teasoft.honey.osql.shortcut.BF;
 import org.teasoft.honey.sharding.ShardingUtil;
 import org.teasoft.honey.sharding.engine.batch.ShardingBatchInsertEngine;
@@ -38,19 +35,19 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 	
 //	private ObjToSQLRich objToSQLRich; 
 	
-	private static final String SELECT_SQL = "select SQL: ";
-	private static final String SELECT_JSON_SQL = "selectJson SQL: ";
-	private static final String DELETE_BY_ID_SQL = "deleteById SQL: ";
-	private static final String SELECT_BY_ID_SQL = "selectById SQL: ";
-	private static final String UPDATE_SQL_WHERE_FIELDS = "update SQL(whereFields) :";
-	private static final String UPDATE_SQL_UPDATE_FIELDS = "update SQL(updateFields) :";
+//	private static final String SELECT_SQL = "select SQL: ";
+//	private static final String SELECT_JSON_SQL = "selectJson SQL: ";
+//	private static final String DELETE_BY_ID_SQL = "deleteById SQL: ";
+//	private static final String SELECT_BY_ID_SQL = "selectById SQL: ";
+//	private static final String UPDATE_SQL_WHERE_FIELDS = "update SQL(whereFields) :";
+//	private static final String UPDATE_SQL_UPDATE_FIELDS = "update SQL(updateFields) :";
 	private static final String ID_IS_NULL = "in method selectById,id is null! ";
     private static final String START_GREAT_EQ_0 = "Parameter 'start' need great equal 0!";
 	private static final String SIZE_GREAT_0 = "Parameter 'size' need great than 0!";
 	private static final String TIP_SIZE_0 = "The size is 0, but it should be greater than 0 (>0)";
 	
 	
-//	private int defaultBatchSize = HoneyConfig.getHoneyConfig().insertBatchSize;
+//	private int defaultBatchSize = HoneyConfig.getHoneyConfig().insertBatchSize;  //TODO
 	private int defaultBatchSize =1000;
 
 	@Override
@@ -176,11 +173,6 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 	
 	private <T> int _insert(T entity[], int batchSize, String excludeFields) {
 
-//		String insertSql[] = getObjToSQLRich().toInsertSQL(entity,batchSize, excludeFields);
-//		
-//		_regEntityClass1(entity[0]);
-//		insertSql[0] = doAfterCompleteSql(insertSql[0]);
-
 		HoneyUtil.revertId(entity);
 
 		int a = getMongodbBeeSql().insert(entity, batchSize, excludeFields);
@@ -222,15 +214,8 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 		regCondition(condition);
 		doBeforePasreEntity(entity,SuidType.SELECT);
 		
-//		String s = null;
-//		String sql = getObjToSQLRich().toSelectFunSQL(entity, functionType, fieldForFun, condition);
-		
 		_regEntityClass1(entity);
 		_regFunType(functionType);
-		
-//		sql = doAfterCompleteSql(sql);
-		
-//		s = getMongodbBeeSql().selectFun(sql);
 		
 		String rs=getMongodbBeeSql().selectWithFun(entity, functionType, fieldForFun, condition);
 

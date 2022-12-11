@@ -6,13 +6,13 @@
 
 package org.teasoft.honey.osql.mongodb;
 
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
-//import org.bson.Document;
 import org.teasoft.bee.osql.Condition;
 import org.teasoft.bee.osql.Op;
 import org.teasoft.bee.osql.SuidType;
@@ -33,30 +33,15 @@ public class MongoConditionHelper {
     private static final String OR = "or";
 
 	private static final String AND = "and";
-//	private static final String ONE_SPACE = " ";
-//
-//	private static final String setAdd = "setAdd";
-//	private static final String setMultiply = "setMultiply";
-//
-//	private static final String setAddField = "setAddField";
-//	private static final String setMultiplyField = "setMultiplyField";
-//
-//	private static final String setWithField = "setWithField";
-
 	private static final String GROUP_BY = "groupBy";
 	private static final String HAVING = "having";
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static Map<String, Object> processCondition(Condition condition) throws Exception {
 
-//	Class entityClass = (Class) OneTimeParameter.getAttribute(StringConst.Column_EC);
-
 		if (condition == null) return null;
 		
 //		condition中op,between,notBetween方法设置的字段,不受includeType的值影响
-
-//		Map<String, Object> documentAsMap = null;
-//		documentAsMap = new LinkedHashMap<String, Object>();
 
 		ConditionImpl conditionImpl = (ConditionImpl) condition;
 		List<Expression> expList = conditionImpl.getExpList();
@@ -95,10 +80,17 @@ public class MongoConditionHelper {
 					throw new BeeErrorGrammarException(conditionImpl.getSuidType()
 							+ " do not support the opType: " + opType + "!");
 				}
-			}
+			} 
 			
+			if (GROUP_BY.equalsIgnoreCase(opType)) {
+				Logger.debug("------------------process in selectWithGroupBy...");
+//				在 selectWithGroupBy 处理
+				continue;
+			}
+					
 
-	        if ("orderBy".equalsIgnoreCase(opType)) {
+	        if ("orderBy".equalsIgnoreCase(opType)) {//TODO 
+
 
 				continue;
 			} // end orderBy
@@ -258,4 +250,6 @@ public class MongoConditionHelper {
 	private static String _toColumnName(String fieldName, Class entityClass) {
 		return NameTranslateHandle.toColumnName(fieldName, entityClass);
 	}
+	
+	
 }

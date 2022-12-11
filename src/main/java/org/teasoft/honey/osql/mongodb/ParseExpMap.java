@@ -14,6 +14,7 @@ import java.util.Stack;
 
 /**
  * 解析条件表达式
+ * Parse Expression Map
  * @author Jade
  * @since  2.0
  */

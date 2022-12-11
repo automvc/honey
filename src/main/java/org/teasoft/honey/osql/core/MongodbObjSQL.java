@@ -185,44 +185,35 @@ public class MongodbObjSQL extends AbstractCommOperate implements Suid {
 	public <T> List<T> select(T entity, Condition condition) {
 		if (entity == null) return null;
 		regCondition(condition);
-		doBeforePasreEntity(entity,SuidType.SELECT);
+		doBeforePasreEntity(entity, SuidType.SELECT);
 		if (condition != null) condition.setSuidType(SuidType.SELECT);
-		
+
 		List<T> list = null;
-		
-//		String sql = getObjToSQL().toSelectSQL(entity,condition);
-//		sql=doAfterCompleteSql(sql);
-//		Logger.logSQL("select SQL: ", sql);
-//		list = getBeeSql().select(sql, entity); 
-		
-		
-		ConditionImpl conditionImpl = (ConditionImpl) condition;
-		String[] selectFields=conditionImpl.getSelectField();
-		if(selectFields!=null && selectFields.length==1) selectFields=selectFields[0].split(",");
-		
-		if(selectFields!=null) {
-			Field fields[] = entity.getClass().getDeclaredFields(); 
-			String columnNames;
-			
-			String packageAndClassName = entity.getClass().getName();
-			columnNames = HoneyContext.getBeanField(packageAndClassName);
-			if (columnNames == null) {
-				columnNames = HoneyUtil.getBeanField(fields,entity.getClass());
-				HoneyContext.addBeanField(packageAndClassName, columnNames);
+
+		if (condition != null) {
+			ConditionImpl conditionImpl = (ConditionImpl) condition;
+			String[] selectFields = conditionImpl.getSelectField();
+			if (selectFields != null && selectFields.length == 1)
+				selectFields = selectFields[0].split(",");
+
+			if (selectFields != null) {
+				Field fields[] = entity.getClass().getDeclaredFields();
+				String columnNames;
+
+				String packageAndClassName = entity.getClass().getName();
+				columnNames = HoneyContext.getBeanField(packageAndClassName);
+				if (columnNames == null) {
+					columnNames = HoneyUtil.getBeanField(fields, entity.getClass());
+					HoneyContext.addBeanField(packageAndClassName, columnNames);
+				}
+				// 检测字段,是否是实体的 TODO
+
+				conditionImpl.selectField(selectFields);
 			}
-			//检测字段,是否是实体的  TODO
-			
-			conditionImpl.selectField(selectFields); 
 		}
-		
-		       
-		
-//		System.err.println(selectFields);
-			
-			
-			
-		list=getMongodbBeeSql().select(entity, condition);
-		
+
+		list = getMongodbBeeSql().select(entity, condition);
+
 		doBeforeReturn(list);
 		return list;
 	}

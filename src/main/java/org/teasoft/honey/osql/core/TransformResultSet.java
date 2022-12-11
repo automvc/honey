@@ -238,10 +238,10 @@ public class TransformResultSet {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private static Object jsonHandlerProcess(Field field, Object obj, TypeHandler jsonHandler) {
 		if (List.class.isAssignableFrom(field.getType())) {
-			Object newOjb[] = new Object[2];
-			newOjb[0] = obj;
-			newOjb[1] = field;
-			obj = jsonHandler.process(field.getType(), newOjb);
+			Object newObj[] = new Object[2];
+			newObj[0] = obj;
+			newObj[1] = field;
+			obj = jsonHandler.process(field.getType(), newObj);
 		} else {
 			obj = jsonHandler.process(field.getType(), obj);
 		}

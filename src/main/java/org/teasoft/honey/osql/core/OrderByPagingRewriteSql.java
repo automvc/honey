@@ -92,10 +92,10 @@ public class OrderByPagingRewriteSql {
 	}
 	
    @SuppressWarnings("rawtypes")
-	public static List copyObject(List<PreparedValue> ojb) {
+	public static List copyObject(List<PreparedValue> obj) {
 		try {
 			Serializer jdks = new JdkSerializer();
-			return (List)jdks.unserialize(jdks.serialize(ojb));
+			return (List)jdks.unserialize(jdks.serialize(obj));
 		} catch (Exception e) {
 			Logger.debug(e.getMessage(), e);
 		}

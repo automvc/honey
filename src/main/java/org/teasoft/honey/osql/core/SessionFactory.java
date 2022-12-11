@@ -10,6 +10,7 @@ import org.teasoft.bee.osql.DatabaseConst;
 import org.teasoft.bee.osql.exception.NoConfigException;
 import org.teasoft.bee.osql.transaction.Transaction;
 import org.teasoft.honey.database.ClientDataSource;
+import org.teasoft.honey.database.DatabaseClientConnection;
 import org.teasoft.honey.mongodb.MongodbConnection;
 import org.teasoft.honey.osql.constant.DbConfigConst;
 import org.teasoft.honey.osql.transaction.JdbcTransaction;
@@ -47,7 +48,28 @@ public final class SessionFactory {
 		//empty
 	}
 	
-	public static Object getDatabaseClient() {
+	public static DatabaseClientConnection getDatabaseConnection() {
+		DatabaseClientConnection dbConnection = null;
+		try {
+			DataSource ds = getBeeFactory().getDataSource();
+			if (ds != null) {
+				String dbName=ds.getConnection().getMetaData().getDatabaseProductName();
+				if(DatabaseConst.MongoDB.equalsIgnoreCase(dbName)) {
+					dbConnection=new DatabaseClientConnection((ClientDataSource)ds);
+				}
+			} 
+		} catch (SQLException e) {
+			Logger.debug(e.getMessage());
+			throw ExceptionHelper.convert(e);
+		} catch (Exception e) {
+			throw ExceptionHelper.convert(e);
+		}
+		
+		return dbConnection;
+	}
+	
+	
+	/*public static Object getDatabaseClient() {
 		Object client = null;
 		try {
 			DataSource ds = getBeeFactory().getDataSource();
@@ -58,9 +80,9 @@ public final class SessionFactory {
 				}
 			} else {// do not set the dataSource
 				//todo
-//				System.err.println("do not set the dataSource");
+	//				System.err.println("do not set the dataSource");
 			}
-
+	
 		} catch (SQLException e) {
 			Logger.debug(e.getMessage());
 			throw ExceptionHelper.convert(e);
@@ -69,7 +91,7 @@ public final class SessionFactory {
 		}
 		
 		return client;
-	}
+	}*/
 
 	public static Connection getConnection() {
 		Connection conn = null;

@@ -60,6 +60,9 @@ public class ConditionImpl implements Condition {
 	private Integer size;
 	private static final String START_GREAT_EQ_0 = "Parameter 'start' need great equal 0!";
 	private static final String SIZE_GREAT_0 = "Parameter 'size' need great than 0!";
+	
+	private Boolean hasGroupBy;
+	List<String> groupByFields;
 
 	@Override
 	public Condition start(Integer start) {
@@ -179,14 +182,18 @@ public class ConditionImpl implements Condition {
 		exp.fieldName = field;
 		exp.opType = "groupBy";
 		
+		hasGroupBy=true; //for mongodb
+		
 		if (isStartGroupBy) {
 			isStartGroupBy = false;
 //			exp.value =" group by ";
 			exp.value =" "+K.groupBy+" ";
+			groupByFields=new ArrayList<>();
 		} else {
 			//exp.fieldName=","+field; //不能这样写,field需要转换
 			exp.value = COMMA;
 		}
+		groupByFields.add(field);
 		list.add(exp);
 		return this;
 	}
@@ -426,6 +433,11 @@ public class ConditionImpl implements Condition {
 	}
 	
 	@Override
+	public Condition setNull(String fieldNmae) {
+		return _forUpdateSet2(fieldNmae, null);
+	}
+	
+	@Override
 	public Condition selectField(String... fieldList) {
 		if (fieldList != null && fieldList.length == 1)
 			checkField(fieldList[0]);
@@ -472,12 +484,12 @@ public class ConditionImpl implements Condition {
 		return _forUpdateSet(field, num, opType);
 	}
 	
-	private Condition _forUpdateSet(String field, Object ojb,String opType){
+	private Condition _forUpdateSet(String field, Object obj,String opType){
 		checkField(field);
 		Expression exp = new Expression();
 		exp.fieldName = field;
 		exp.opType =opType; //"setAdd" or "setMultiply";  setAddField; setMultiplyField; setWithField
-		exp.value=ojb;
+		exp.value=obj;
 		exp.opNum=1;  
 		
 		this.updatefields.add(field);
@@ -487,12 +499,12 @@ public class ConditionImpl implements Condition {
 	}
 	
 	//set field=value
-	private Condition _forUpdateSet2(String field, Object ojb) {
+	private Condition _forUpdateSet2(String field, Object obj) {
 		checkField(field);
 		Expression exp = new Expression();
 		exp.fieldName = field;
 	  //exp.opType =opType; 
-		exp.value = ojb;
+		exp.value = obj;
 		exp.opNum = 1;
 
 		this.updatefields.add(field);
@@ -517,6 +529,11 @@ public class ConditionImpl implements Condition {
 		return isForUpdate;
 	}
 	
+	@Override
+	public Boolean hasGroupBy() {
+		return hasGroupBy;
+	}
+	
 	//v1.9
 	@Override
 	public Condition selectFun(FunctionType functionType, String fieldForFun) {
@@ -531,6 +548,12 @@ public class ConditionImpl implements Condition {
 		alias=_toColumnName(alias);
 		funExpList.add(new FunExpress(functionType, fieldForFun, alias));
 		return this;
+	}
+	
+
+	@Override
+	public List<String> getGroupByFields() {
+		return groupByFields;
 	}
 
 	private void checkField(String fields){
@@ -552,7 +575,7 @@ public class ConditionImpl implements Condition {
 		return NameTranslateHandle.toColumnName(fieldName);
 	}
 
-	final class FunExpress{
+public final class FunExpress{
 //		private FunctionType functionType;
 		private String functionType;
 		private String field;

@@ -228,7 +228,7 @@ public class SqlLib implements BeeSql, Serializable {
 			throw ExceptionHelper.convert(e);
 		} finally {
 			clearContext(sql);
-			HoneyContext.regConnForSelectRs(conn);
+			if (conn != null) HoneyContext.regConnForSelectRs(conn);
 		}
 	}
 	
@@ -242,10 +242,10 @@ public class SqlLib implements BeeSql, Serializable {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	protected Object jsonHandlerProcess(Field field, Object obj, TypeHandler jsonHandler) {
 		if (List.class.isAssignableFrom(field.getType())) {
-			Object newOjb[] = new Object[2];
-			newOjb[0] = obj;
-			newOjb[1] = field;
-			obj = jsonHandler.process(field.getType(), newOjb);
+			Object newObj[] = new Object[2];
+			newObj[0] = obj;
+			newObj[1] = field;
+			obj = jsonHandler.process(field.getType(), newObj);
 		} else {
 			obj = jsonHandler.process(field.getType(), obj);
 		}
