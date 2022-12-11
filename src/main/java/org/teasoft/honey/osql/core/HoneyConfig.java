@@ -150,7 +150,7 @@ public final class HoneyConfig {
 	public String sqlKeyWordCase;
 	
 	@SysValue("${bee.osql.notDeleteWholeRecords}")
-	boolean notDeleteWholeRecords = true; //v1.7.2
+	public boolean notDeleteWholeRecords = true; //v1.7.2
 
 	@SysValue("${bee.osql.notUpdateWholeRecords}")
 	boolean notUpdateWholeRecords = true; //v1.7.2

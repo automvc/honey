@@ -179,9 +179,8 @@ public class MongoConditionHelper {
 			}
 
 
-			if (expression.getValue() == null) {
-				// TODO IS NULL 怎么用
-				continue;
+			if (expression.getValue() == null) { // column is null
+				stack.push(EasyMapUtil.createMap(columnName,null));
 			} else {
 
 				String type = expression.getOpType();
