@@ -532,32 +532,33 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	}
 	
 	@Override
-	public <T> String toSelectByIdSQL(T entity, Integer id) {
-		SqlValueWrap sqlBuffer = toSelectByIdSQL0(entity);
-		String pkName=getPkName(entity);
-		return _toSelectAndDeleteByIdSQL(sqlBuffer, id, "java.lang.Integer",pkName,entity.getClass());
+	public <T> String toSelectByIdSQL(Class<T> entityClazz, Integer id) {
+		SqlValueWrap sqlBuffer = toSelectByIdSQL0(entityClazz);
+		String pkName=getPkName(entityClazz);
+		return _toSelectAndDeleteByIdSQL(sqlBuffer, id, "java.lang.Integer",pkName,entityClazz);
 	}
 
 	@Override
-	public <T> String toSelectByIdSQL(T entity, Long id) {
-		SqlValueWrap sqlBuffer = toSelectByIdSQL0(entity);
-		String pkName=getPkName(entity);
-		return _toSelectAndDeleteByIdSQL(sqlBuffer, id, "java.lang.Long",pkName,entity.getClass());
+//	public <T> String toSelectByIdSQL(T entity, Long id) {
+	public <T> String toSelectByIdSQL(Class<T> entityClazz, Long id) {
+		SqlValueWrap sqlBuffer = toSelectByIdSQL0(entityClazz);
+		String pkName=getPkName(entityClazz);
+		return _toSelectAndDeleteByIdSQL(sqlBuffer, id, "java.lang.Long",pkName,entityClazz);
 	}
 
 	@Override
-	public <T> String toSelectByIdSQL(T entity, String ids) {
+	public <T> String toSelectByIdSQL(Class<T> entityClazz, String ids) {
 		if(ids==null || "".equals(ids.trim())) return null;
-		SqlValueWrap sqlBuffer=toSelectByIdSQL0(entity);
-		String pkName=getPkName(entity);
-		return _toSelectAndDeleteByIdSQL(sqlBuffer,ids,getIdType(entity,pkName),pkName,entity.getClass());
+		SqlValueWrap sqlBuffer=toSelectByIdSQL0(entityClazz);
+		String pkName=getPkName(entityClazz);
+		return _toSelectAndDeleteByIdSQL(sqlBuffer,ids,getIdType(entityClazz,pkName),pkName,entityClazz);
 	}
 	
-	private <T> String getIdType(T entity,String pkName) {
+	private <T> String getIdType(Class<T> entityClazz,String pkName) {
 		Field field = null;
 		String type=null;
 		try {
-			field = entity.getClass().getDeclaredField(pkName);
+			field = entityClazz.getDeclaredField(pkName);
 			type=field.getType().getSimpleName();
 		} catch (Exception e) {
 			//ignore
@@ -716,17 +717,17 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		return sqlBuffer.toString();
 	}
 	
-	private <T> SqlValueWrap toSelectByIdSQL0(T entity) {
+	private <T> SqlValueWrap toSelectByIdSQL0(Class<T> entityClazz) {
 		StringBuffer sqlBuffer = new StringBuffer();
 		SqlValueWrap wrap = new SqlValueWrap();
 
-		String tableName = _toTableName(entity);
+		String tableName = _toTableNameByClass(entityClazz);
 
-		String packageAndClassName = entity.getClass().getName();
+		String packageAndClassName = entityClazz.getName();
 		String columnNames = HoneyContext.getBeanField(packageAndClassName);
 		if (columnNames == null) {
-			Field fields[] = entity.getClass().getDeclaredFields();
-			columnNames = HoneyUtil.getBeanField(fields,entity.getClass());
+			Field fields[] = entityClazz.getDeclaredFields();
+			columnNames = HoneyUtil.getBeanField(fields,entityClazz);
 			HoneyContext.addBeanField(packageAndClassName, columnNames);
 		}
 

@@ -82,47 +82,57 @@ public class PreparedSqlLib implements PreparedSql {
 	
 
 	@Override
-	public <T> List<T> select(String sql, T returnType, Object[] preValues) {
-		doBeforePasreEntity(returnType, SuidType.SELECT);//returnType的值,虽然不用作占位参数的值,但可以用作拦截器的业务逻辑判断
-		initPreparedValues(sql, preValues, returnType);
+	public <T> List<T> select(String sql, Class<T> entityClass, Object[] preValues) {
+		doBeforePasreEntity(entityClass, SuidType.SELECT);//returnType的值,虽然不用作占位参数的值,但可以用作拦截器的业务逻辑判断
+		initPreparedValues(sql, preValues, entityClass);
 		sql = doAfterCompleteSql(sql);
 
 		Logger.logSQL(SELECT_SQL, sql);
-		List<T> list = getBeeSql().select(sql, returnType);
+		List<T> list = getBeeSql().select(sql, entityClass);
 
 		doBeforeReturn(list);
 		return list;
 	}
 
 	@Override
-	public <T> List<T> select(String sql, T returnType) {
+	public <T> List<T> select(String sql, Class<T> entityClass) {
 		Object[] preValues = null;
-		return select(sql, returnType, preValues);
+		return select(sql, entityClass, preValues);
 	}
+	
+	
+	
 
+//	@Override
+//	public <T> List<T> select(String sql, Class<T> entityClass, Object[] preValues, int start,
+//			int size) {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
+	
 	@Override
-	public <T> List<T> select(String sql, T entity, Object[] preValues, int start, int size) {
+	public <T> List<T> select(String sql, Class<T> entityClass, Object[] preValues, int start, int size) {
 		if (size <= 0) throw new BeeIllegalParameterException(SIZE_GREAT_0);
 		if (start < 0) throw new BeeIllegalParameterException(START_GREAT_EQ_0);
 
-		doBeforePasreEntity(entity, SuidType.SELECT);
+		doBeforePasreEntity(entityClass, SuidType.SELECT);
 
 		regPagePlaceholder();
 
 		String tableName = "";
 		if (isNeedRealTimeDb()) {
-			tableName = _toTableName(entity); //这里,取过了参数, 到解析sql的,就不能再取
+			tableName = _toTableName(entityClass); //这里,取过了参数, 到解析sql的,就不能再取
 			OneTimeParameter.setAttribute(StringConst.TABLE_NAME, tableName);
-			HoneyContext.initRouteWhenParseSql(SuidType.SELECT, entity.getClass(), tableName);
+			HoneyContext.initRouteWhenParseSql(SuidType.SELECT, entityClass, tableName);
 			OneTimeParameter.setTrueForKey(StringConst.ALREADY_SET_ROUTE);
 		}
 
 		sql = getDbFeature().toPageSql(sql, start, size);
-		initPreparedValues(sql, preValues, entity);
+		initPreparedValues(sql, preValues, entityClass);
 
 		sql = doAfterCompleteSql(sql);
 		Logger.logSQL(SELECT_SQL, sql);
-		List<T> list = getBeeSql().select(sql, entity);
+		List<T> list = getBeeSql().select(sql, entityClass);
 
 		doBeforeReturn(list);
 		return list;
@@ -134,10 +144,15 @@ public class PreparedSqlLib implements PreparedSql {
 		String sql = initPrepareValuesViaMap(sqlStr, map, entity);
 		sql = doAfterCompleteSql(sql);
 		Logger.logSQL(SELECT_SQL, sql);
-		List<T> list = getBeeSql().select(sql, entity);
+		List<T> list = getBeeSql().select(sql, toClassT(entity));
 
 		doBeforeReturn(list);
 		return list;
+	}
+	
+	@SuppressWarnings("unchecked")
+	private <T> Class<T> toClassT(T entity) {
+		return (Class<T>)entity.getClass();
 	}
 
 	@Override
@@ -161,7 +176,7 @@ public class PreparedSqlLib implements PreparedSql {
 		String sql = initPrepareValuesViaMap(pageSql, map, entity);
 		sql = doAfterCompleteSql(sql);
 		Logger.logSQL(SELECT_SQL, sql);
-		List<T> list = getBeeSql().select(sql, entity);
+		List<T> list = getBeeSql().select(sql, toClassT(entity));
 
 		doBeforeReturn(list);
 		return list;
@@ -175,7 +190,7 @@ public class PreparedSqlLib implements PreparedSql {
 		initPreparedValues(sql, preValues, entity);
 		sql = doAfterCompleteSql(sql);
 		Logger.logSQL(SELECT_SOME_FIELD_SQL, sql);
-		List<T> list = getBeeSql().selectSomeField(sql, entity);
+		List<T> list = getBeeSql().selectSomeField(sql, toClassT(entity));
 
 		doBeforeReturn(list);
 		return list;
@@ -202,7 +217,7 @@ public class PreparedSqlLib implements PreparedSql {
 		initPreparedValues(sql, preValues, entity);
 		sql = doAfterCompleteSql(sql);
 		Logger.logSQL(SELECT_SOME_FIELD_SQL, sql);
-		List<T> list = getBeeSql().selectSomeField(sql, entity);
+		List<T> list = getBeeSql().selectSomeField(sql, toClassT(entity));
 
 		doBeforeReturn(list);
 		return list;
@@ -216,7 +231,7 @@ public class PreparedSqlLib implements PreparedSql {
 		String sql = initPrepareValuesViaMap(sqlStr, map, entity);
 		sql = doAfterCompleteSql(sql);
 		Logger.logSQL(SELECT_SOME_FIELD_SQL, sql);
-		List<T> list = getBeeSql().selectSomeField(sql, entity);
+		List<T> list = getBeeSql().selectSomeField(sql, toClassT(entity));
 
 		doBeforeReturn(list);
 		return list;
@@ -245,7 +260,7 @@ public class PreparedSqlLib implements PreparedSql {
 
 		sql = doAfterCompleteSql(sql);
 		Logger.logSQL(SELECT_SOME_FIELD_SQL, sql);
-		List<T> list = getBeeSql().selectSomeField(sql, entity);
+		List<T> list = getBeeSql().selectSomeField(sql, toClassT(entity));
 
 		doBeforeReturn(list);
 		return list;
@@ -670,7 +685,7 @@ public class PreparedSqlLib implements PreparedSql {
 		String sql = initPrepareValuesViaMap(sqlStr, map, entity);
 		sql = doAfterCompleteSql(sql);
 		Logger.logSQL(SELECT_MoreTable_SQL, sql);
-		List<T> list = getBeeSql().select(sql, entity);
+		List<T> list = getBeeSql().select(sql, toClassT(entity));
 
 		doBeforeReturn(list);
 		return list;

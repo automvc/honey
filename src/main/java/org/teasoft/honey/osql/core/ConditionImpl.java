@@ -193,7 +193,10 @@ public class ConditionImpl implements Condition {
 			//exp.fieldName=","+field; //不能这样写,field需要转换
 			exp.value = COMMA;
 		}
-		groupByFields.add(field);
+		String strArray[] = field.split(",");
+		for (String f : strArray) {
+			groupByFields.add(f);
+		}
 		list.add(exp);
 		return this;
 	}

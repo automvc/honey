@@ -240,7 +240,7 @@ public final class CacheUtil {
 	 * @param rs 结果集.result
 	 * @return 返回是否已放缓存.whether it has been put in cache.
 	 */
-	public static boolean add(String sql,Object rs){
+	static boolean add(String sql,Object rs){
 		return addInCache(sql,rs);
 	}
 	

@@ -21,7 +21,7 @@ class SqlLibEmptyForApp implements BeeSqlForApp{
 	private static final String MSG="You are using SqlLibEmptyForApp. It is empty!";
 
 	@Override
-	public <T> List<T> select(String sql, T entity, String[] selectionArgs) {
+	public <T> List<T> select(String sql, Class<T> entityClass, String[] selectionArgs) {
 		Logger.warn(MSG);
 		return null;
 	}

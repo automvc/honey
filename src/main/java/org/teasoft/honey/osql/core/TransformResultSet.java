@@ -255,10 +255,11 @@ public class TransformResultSet {
 	private static boolean openFieldTypeHandler = HoneyConfig.getHoneyConfig().openFieldTypeHandler;
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static <T> T rowToEntity(ResultSet rs, T entity) throws SQLException,IllegalAccessException,InstantiationException {
+//	public static <T> T rowToEntity(ResultSet rs, T entity) throws SQLException,IllegalAccessException,InstantiationException {
+		public static <T> T rowToEntity(ResultSet rs, Class<T> clazz) throws SQLException,IllegalAccessException,InstantiationException {
 
 		T targetObj = null;
-		targetObj = (T) entity.getClass().newInstance();
+		targetObj = (T) clazz.newInstance();
 		ResultSetMetaData rmeta = rs.getMetaData();
 		
 		if(rs.isBeforeFirst()) rs.next();
@@ -270,8 +271,8 @@ public class TransformResultSet {
 		boolean firstRow=true;
 		for (int i = 0; i < columnCount; i++) {
 			try {
-				name = _toFieldName(rmeta.getColumnName(i + 1), entity.getClass());
-				field = entity.getClass().getDeclaredField(name);// 可能会找不到Javabean的字段
+				name = _toFieldName(rmeta.getColumnName(i + 1), clazz);
+				field = clazz.getDeclaredField(name);// 可能会找不到Javabean的字段
 			} catch (NoSuchFieldException e) {
 				continue;
 			}

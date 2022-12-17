@@ -1095,7 +1095,7 @@ public final class HoneyContext {
 		if (isMultiDs()) {
 			int multiDsType = HoneyConfig.getHoneyConfig().multiDS_type;
 			boolean differentDbType = HoneyConfig.getHoneyConfig().multiDS_differentDbType;
-			if (!(multiDsType == 1 && !differentDbType)) // 不是(模式1(RW)的同种DB) //sameDbType=!differentDbType
+			if (!(multiDsType == 1 && !differentDbType)) // 不是(模式1(RW)的同种DB) //sameDbType= !differentDbType
 				return true;
 			else
 				return false;

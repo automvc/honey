@@ -24,11 +24,12 @@ import org.teasoft.honey.sharding.ShardingUtil;
 public class OrderByStreamResult<T> {
 
 	private Queue<CompareResult> orderByValuesQueue;
-	T entity;
+//	T entity;
+	Class<T> entityClass;
 
-	public OrderByStreamResult(Queue<CompareResult> orderByValuesQueue, T entity) {
+	public OrderByStreamResult(Queue<CompareResult> orderByValuesQueue, Class<T> entityClass) {
 		this.orderByValuesQueue = orderByValuesQueue;
-		this.entity = entity;
+		this.entityClass = entityClass;
 	}
 
 //	取出队头的元素转成Javabean,然后又放入队列,继续取出,直到队列为空.
@@ -70,16 +71,16 @@ public class OrderByStreamResult<T> {
 					if (cr.hasNext()) {
 						ResultSet rs = cr.getResultSet();
 						if (orderByValuesQueue.size() == 0) { //原来一个,取出后,变成0
-							onePageList.add(TransformResultSet.rowToEntity(rs, entity));
+							onePageList.add(TransformResultSet.rowToEntity(rs, entityClass));
 							i++; // 转换了,才算
 							while (i < to && rs.next()) {
 //								System.err.println("===============while===============");
-								onePageList.add(TransformResultSet.rowToEntity(rs, entity));
+								onePageList.add(TransformResultSet.rowToEntity(rs, entityClass));
 								i++; // 转换了,才算
 							}
 						} else {
 							if (rs.isAfterLast()) continue;
-							onePageList.add(TransformResultSet.rowToEntity(rs, entity));
+							onePageList.add(TransformResultSet.rowToEntity(rs, entityClass));
 							i++; // 转换了,才算
 							this.orderByValuesQueue.offer(new CompareResult(rs, cr.getStruct()));
 						}

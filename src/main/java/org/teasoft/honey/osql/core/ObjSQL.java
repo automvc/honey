@@ -41,11 +41,16 @@ public class ObjSQL extends AbstractCommOperate implements Suid {
 		sql=doAfterCompleteSql(sql);
 		
 		Logger.logSQL("select SQL: ", sql);
-		list = getBeeSql().select(sql, entity); // 返回值用到泛型
+		list = getBeeSql().select(sql, toClassT(entity)); // 返回值用到泛型
 		
 		doBeforeReturn(list);
 		
 		return list;
+	}
+	
+	@SuppressWarnings("unchecked")
+	protected <T> Class<T> toClassT(T entity) {
+		return (Class<T>)entity.getClass();
 	}
 	
 	@Override
@@ -187,7 +192,7 @@ public class ObjSQL extends AbstractCommOperate implements Suid {
 		String sql = getObjToSQL().toSelectSQL(entity,condition);
 		sql=doAfterCompleteSql(sql);
 		Logger.logSQL("select SQL: ", sql);
-		list = getBeeSql().select(sql, entity); 
+		list = getBeeSql().select(sql, toClassT(entity));
 		doBeforeReturn(list);
 		return list;
 	}

@@ -6,7 +6,9 @@
 
 package org.teasoft.honey.osql.core;
 
+import java.io.Serializable;
 import java.lang.reflect.Field;
+import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -14,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.teasoft.bee.app.BeeSqlForApp;
+import org.teasoft.bee.osql.BeeSql;
 import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.annotation.JoinTable;
 import org.teasoft.bee.osql.annotation.customizable.Json;
@@ -27,7 +30,10 @@ import org.teasoft.honey.util.ObjectCreatorFactory;
  * @author Kingstar
  * @since  1.17
  */
-public class SqlLibForApp extends SqlLib {
+//public class SqlLibForApp extends SqlLib {
+public class SqlLibForApp  extends AbstractBase implements BeeSql, Serializable {
+	
+	private static final long serialVersionUID = 1596710362260L;
 	
 	private static boolean  showSQL=HoneyConfig.getHoneyConfig().showSQL;
 	
@@ -35,6 +41,13 @@ public class SqlLibForApp extends SqlLib {
 	
 	private static boolean isFirst = true;
 	private static String SUCCESS_MSG = "[Bee] ==========Load BeeSqlForApp implement class successfully!";
+
+	
+	@Override
+	public ResultSet selectRs(String sql) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 	public BeeSqlForApp getBeeSqlForApp() {
 		if(beeSqlForApp!=null) return beeSqlForApp; 
@@ -66,19 +79,19 @@ public class SqlLibForApp extends SqlLib {
 	}
 
 	@Override
-	public <T> List<T> select(String sql, T entity) {
-		return selectSomeField(sql, entity);
+	public <T> List<T> select(String sql, Class<T> entityClass) {
+		return selectSomeField(sql, entityClass);
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public <T> List<T> selectSomeField(String sql, T entity) {
+	public <T> List<T> selectSomeField(String sql, Class<T> entityClass) {
 
 		if (sql == null || "".equals(sql.trim())) return Collections.emptyList();
 
 		boolean isReg = updateInfoInCache(sql, "List<T>", SuidType.SELECT);
 		if (isReg) {
-			initRoute(SuidType.SELECT, entity.getClass(), sql);
+			initRoute(SuidType.SELECT, entityClass, sql);
 			Object cacheObj = getCache().get(sql); //这里的sql还没带有值
 			if (cacheObj != null) {
 				clearContext(sql);
@@ -90,7 +103,7 @@ public class SqlLibForApp extends SqlLib {
 		List<T> rsList = null;
 //		boolean hasException = false;
 		try {
-			rsList=getBeeSqlForApp().select(sql, entity, toStringArray(sql));
+			rsList=getBeeSqlForApp().select(sql, entityClass, toStringArray(sql));
 			addInCache(sql, rsList, "List<T>", SuidType.SELECT, rsList.size());
 
 		} catch (Exception e) {

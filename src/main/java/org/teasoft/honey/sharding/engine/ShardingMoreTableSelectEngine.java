@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 the original author.All rights reserved.
+ * Copyright 2016-2023 the original author.All rights reserved.
  * Kingstar(honeysoft@126.com)
  * The license,see the LICENSE file.
  */
@@ -29,22 +29,22 @@ import org.teasoft.honey.sharding.engine.decorate.SortListDecorator;
  * @author AiTeaSoft
  * @since  2.0
  */
-public class ShardingSelectEngine {
+public class ShardingMoreTableSelectEngine {
 	
 	private boolean showShardingSQL = getShowShardingSQL();
 	
 	private boolean getShowShardingSQL() {
 		return HoneyConfig.getHoneyConfig().showSQL && HoneyConfig.getHoneyConfig().showShardingSQL;
 	}
-	
-	public <T> List<T> asynProcess(String sql, Class<T> entityClass, BeeSql beeSql) {
+
+	public <T> List<T> asynProcess(String sql, T entity, BeeSql beeSql) {
 
 		List<String[]> list;
 		String sqls[] = null;
 		String dsArray[] = null;
 
 		if (ShardingUtil.hadShardingFullSelect()) {// 全域查询 或某些DS的某表全查询
-			list = OrderByPagingRewriteSql.createSqlsForFullSelect(sql, entityClass);
+			list = OrderByPagingRewriteSql.createSqlsForFullSelect(sql, entity.getClass());
 		} else {
 			list = OrderByPagingRewriteSql.createSqlsAndInit(sql); // 涉及部分分片
 		}
@@ -57,7 +57,7 @@ public class ShardingSelectEngine {
 		final List<Callable<List<T>>> tasks = new ArrayList<>(); // 构造任务
 
 		for (int i = 0; sqls != null && i < sqls.length; i++) {
-			tasks.add(new ShardingBeeSQLExecutorEngine<T>(sqls[i], i + 1, beeSql, dsArray[i], entityClass));
+			tasks.add(new ShardingBeeSQLExecutorEngine<T>(sqls[i], i + 1, beeSql, dsArray[i], entity));
 		}
 
 //		Logger.logSQL("========= Do sharding , the size of sub operation is :" + sqls.length);
@@ -96,17 +96,17 @@ public class ShardingSelectEngine {
 	private class ShardingBeeSQLExecutorEngine<T>
 			extends ShardingAbstractBeeSQLExecutorEngine<List<T>> {
 
-		private Class<T> entityClass;
+		private T entity;
 
 		public ShardingBeeSQLExecutorEngine(String sql, int index, BeeSql beeSql, String ds,
-				Class<T> entityClass) {
+				T entity) {
 			super(sql, index, beeSql, ds);
-			this.entityClass = entityClass;
+			this.entity = entity;
 		}
 
 		public List<T> shardingWork() {
 			ShardingLogReg.regShardingSqlLog("select SQL", index, sql);
-			return beeSql.selectSomeField(this.sql, entityClass); // 都是传同一个beeSql,是否会有线程问题?????
+			return beeSql.moreTableSelect(this.sql, this.entity); // 都是传同一个beeSql,是否会有线程问题?????
 		}
 
 	}

@@ -36,14 +36,14 @@ import org.teasoft.honey.sharding.engine.decorate.OrderByStreamResult;
  */
 public class ShardingSelectRsEngine {  //当只有一个子线程时,不应该走这个??  
 	
-	public <T> List<T> asynProcess(String sql, T entity, BeeSql beeSql) {
+	public <T> List<T> asynProcess(String sql, Class<T> entityClass, BeeSql beeSql) {
 
 		List<String[]> list;
 		String sqls[] = null;
 		String dsArray[] = null;
 
 		if (ShardingUtil.hadShardingFullSelect()) {// 全域查询 或某些DS的某表全查询
-			list = OrderByPagingRewriteSql.createSqlsForFullSelect(sql, entity.getClass());
+			list = OrderByPagingRewriteSql.createSqlsForFullSelect(sql, entityClass);
 		} else {
 			list = OrderByPagingRewriteSql.createSqlsAndInit(sql); // 涉及部分分片
 		}
@@ -85,7 +85,7 @@ public class ShardingSelectRsEngine {  //当只有一个子线程时,不应该�
 		executor.shutdown();
 		
 		//放入优先队列后,就转换出需要的数据.   要传入需要多少数据? 在内部处理.   有取中间几条的吗? 有
-		List<T> rsList =new OrderByStreamResult<>(queue,entity).getOnePageList();
+		List<T> rsList =new OrderByStreamResult<>(queue,entityClass).getOnePageList();
 		
 //		此处如何将子线程的Connection关掉???   Connection会一直占用连接资源吗???
 //		放入上下文??   在此处统一关闭????   在sqlLib将Connection放入上下文, 在此处则统一关闭 selectRS

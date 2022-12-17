@@ -350,11 +350,11 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 	}
 	
 	
-	private <T> T selectByIdObject(T entity, Object id) {
+	private <T> T selectByIdObject(Class<T> entityClass, Object id) {
 		
-		doBeforePasreEntity(entity, SuidType.SELECT);
+		doBeforePasreEntity(entityClass, SuidType.SELECT);
 		
-		List<T> list = getMongodbBeeSql().selectById(entity, id);
+		List<T> list = getMongodbBeeSql().selectById(entityClass, id);
 
 		return getIdEntity(list);
 	}
@@ -370,32 +370,32 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 	}
 
 	@Override
-	public <T> T selectById(T entity, Integer id) {
-		if (entity == null) return null;
+	public <T> T selectById(Class<T> entityClass, Integer id) {
+		if (entityClass == null) return null;
 
 		if (id==null) {
 			Logger.warn(ID_IS_NULL);
 			return null;
 		}
 		
-		return selectByIdObject(entity, id);
+		return selectByIdObject(entityClass, id);
 	}
 	
 	@Override
-	public <T> T selectById(T entity, Long id) {
-		if (entity == null) return null;
+	public <T> T selectById(Class<T> entityClass, Long id) {
+		if (entityClass == null) return null;
 
 		if (id==null) {
 			Logger.warn(ID_IS_NULL);
 			return null;
 		}
 		
-		return selectByIdObject(entity, id);
+		return selectByIdObject(entityClass, id);
 	}
 	
 	@Override
-	public <T> T selectById(T entity, String id) {
-		if (entity == null) return null;
+	public <T> T selectById(Class<T> entityClass, String id) {
+		if (entityClass == null) return null;
 
 		if (id==null) {
 			Logger.warn(ID_IS_NULL);
@@ -406,21 +406,21 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 		}
 		
 		
-		return selectByIdObject(entity, id);
+		return selectByIdObject(entityClass, id);
 	}
 	
 	@Override
-	public <T> List<T> selectByIds(T entity, String ids) {
-		if (entity == null) return null;
+	public <T> List<T> selectByIds(Class<T> entityClass, String ids) {
+		if (entityClass == null) return null;
 
 		if (ids==null) {
 			Logger.warn("in method selectByIds,ids is null! ");
 			return null;
 		}
 		
-		doBeforePasreEntity(entity,SuidType.SELECT);
+		doBeforePasreEntity(entityClass,SuidType.SELECT);
 		
-		List<T> list = getMongodbBeeSql().selectById(entity, ids);
+		List<T> list = getMongodbBeeSql().selectById(entityClass, ids);
 		
 		doBeforeReturn(list);
 		return list;
@@ -679,9 +679,10 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 	 */
 	@Override
 	public <T> int save(T entity) {
+		if(entity==null) return 0;
 		Object id = HoneyUtil.getIdValue(entity);
 		if (id == null) return insert(entity);
-		Object one = selectById(entity, id.toString());
+		Object one = selectById(entity.getClass(), id.toString());
 		if (one != null)
 			return update(entity);
 		else

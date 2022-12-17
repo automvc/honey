@@ -78,7 +78,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 		String sql = getObjToSQLRich().toSelectSQL(entity, -1, size);
 		sql = doAfterCompleteSql(sql);
 
-		List<T> list = getBeeSql().select(sql, entity);
+		List<T> list = getBeeSql().select(sql, toClassT(entity));
 		doBeforeReturn(list);
 
 		return list;
@@ -97,7 +97,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 		String sql = getObjToSQLRich().toSelectSQL(entity, start, size);
 		sql = doAfterCompleteSql(sql);
 		
-		List<T> list = getBeeSql().select(sql, entity);
+		List<T> list = getBeeSql().select(sql, toClassT(entity));
 		doBeforeReturn(list);
 		return list;
 	}
@@ -110,7 +110,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 			doBeforePasreEntity(entity,SuidType.SELECT);
 			String sql = getObjToSQLRich().toSelectSQL(entity, selectField);
 			sql = doAfterCompleteSql(sql);
-			list = getBeeSql().selectSomeField(sql, entity);
+			list = getBeeSql().selectSomeField(sql, toClassT(entity));
 			doBeforeReturn(list);
 		} catch (ObjSQLException e) {
 			throw e;
@@ -132,7 +132,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 		List<T> list = null;
 		String sql = getObjToSQLRich().toSelectSQL(entity, selectFields,start,size);
 		sql = doAfterCompleteSql(sql);
-		list = getBeeSql().selectSomeField(sql, entity);
+		list = getBeeSql().selectSomeField(sql, toClassT(entity));
 		doBeforeReturn(list);
 		return list;
 	}
@@ -146,7 +146,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 			String sql = getObjToSQLRich().toSelectOrderBySQL(entity, orderFields);
 			sql = doAfterCompleteSql(sql);
 			Logger.logSQL("selectOrderBy SQL: ", sql);
-			list = getBeeSql().select(sql, entity);
+			list = getBeeSql().select(sql, toClassT(entity));
 			doBeforeReturn(list);
 		} catch (ObjSQLException e) {
 			throw e;
@@ -164,7 +164,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 			String sql = getObjToSQLRich().toSelectOrderBySQL(entity, orderFields, orderTypes);
 			sql = doAfterCompleteSql(sql);
 			Logger.logSQL("selectOrderBy SQL: ", sql);
-			list = getBeeSql().select(sql, entity);
+			list = getBeeSql().select(sql, toClassT(entity));
 			doBeforeReturn(list);
 		} catch (ObjSQLException e) {
 			throw e;
@@ -315,7 +315,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 		String sql = getObjToSQLRich().toSelectSQL(entity, includeType);
 		sql = doAfterCompleteSql(sql);
 		Logger.logSQL(SELECT_SQL, sql);
-		List<T> list = getBeeSql().select(sql, entity);
+		List<T> list = getBeeSql().select(sql, toClassT(entity));
 		doBeforeReturn(list);
 		return list;
 	}
@@ -489,42 +489,42 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 	}
 
 	@Override
-	public <T> T selectById(T entity, Integer id) {
-		if (entity == null) return null;
+	public <T> T selectById(Class<T> entityClass, Integer id) {
+		if (entityClass == null) return null;
 
 		if (id==null) {
 			Logger.warn(ID_IS_NULL);
 			return null;
 		}
-		doBeforePasreEntity(entity,SuidType.SELECT);
-		String sql = getObjToSQLRich().toSelectByIdSQL(entity, id);
+		doBeforePasreEntity(entityClass,SuidType.SELECT);
+		String sql = getObjToSQLRich().toSelectByIdSQL(entityClass, id);
 		sql = doAfterCompleteSql(sql);
 		Logger.logSQL(SELECT_BY_ID_SQL, sql);
-		List<T> list = getBeeSql().select(sql, entity);
+		List<T> list = getBeeSql().select(sql, entityClass);
 		
 		return getIdEntity(list);
 	}
 	
 	@Override
-	public <T> T selectById(T entity, Long id) {
-		if (entity == null) return null;
+	public <T> T selectById(Class<T> entityClass, Long id) {
+		if (entityClass == null) return null;
 
 		if (id==null) {
 			Logger.warn(ID_IS_NULL);
 			return null;
 		}
-		doBeforePasreEntity(entity,SuidType.SELECT);
-		String sql = getObjToSQLRich().toSelectByIdSQL(entity, id);
+		doBeforePasreEntity(entityClass,SuidType.SELECT);
+		String sql = getObjToSQLRich().toSelectByIdSQL(entityClass, id);
 		sql = doAfterCompleteSql(sql);
 		Logger.logSQL(SELECT_BY_ID_SQL, sql);
-		List<T> list = getBeeSql().select(sql, entity);
+		List<T> list = getBeeSql().select(sql, entityClass);
 		
 		return getIdEntity(list);
 	}
 	
 	@Override
-	public <T> T selectById(T entity, String id) {
-		if (entity == null) return null;
+	public <T> T selectById(Class<T> entityClass, String id) {
+		if (entityClass == null) return null;
 
 		if (id==null) {
 			Logger.warn(ID_IS_NULL);
@@ -533,29 +533,29 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 		if(id.contains(",")) {
 			throw new BeeIllegalParameterException("The parameter 'id' of method selectById does not allow to contain comma!");
 		}
-		doBeforePasreEntity(entity,SuidType.SELECT);
-		String sql = getObjToSQLRich().toSelectByIdSQL(entity, id);
+		doBeforePasreEntity(entityClass,SuidType.SELECT);
+		String sql = getObjToSQLRich().toSelectByIdSQL(entityClass, id);
 		sql = doAfterCompleteSql(sql);
 		Logger.logSQL(SELECT_BY_ID_SQL, sql);
 		
-		List<T> list = getBeeSql().select(sql, entity);
+		List<T> list = getBeeSql().select(sql, entityClass);
 		
 		return getIdEntity(list);
 	}
 	
 	@Override
-	public <T> List<T> selectByIds(T entity, String ids) {
-		if (entity == null) return null;
+	public <T> List<T> selectByIds(Class<T> entityClass, String ids) {
+		if (entityClass == null) return null;
 
 		if (ids==null) {
 			Logger.warn("in method selectByIds,ids is null! ");
 			return null;
 		}
-		doBeforePasreEntity(entity,SuidType.SELECT);
-		String sql = getObjToSQLRich().toSelectByIdSQL(entity, ids);
+		doBeforePasreEntity(entityClass,SuidType.SELECT);
+		String sql = getObjToSQLRich().toSelectByIdSQL(entityClass, ids);
 		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("selectByIds SQL: ", sql);
-		List<T> list= getBeeSql().select(sql, entity);
+		List<T> list= getBeeSql().select(sql, entityClass);
 		doBeforeReturn(list);
 		return list;
 	}
@@ -624,7 +624,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 		String sql = getObjToSQLRich().toSelectSQL(entity, includeType, condition);
 		sql = doAfterCompleteSql(sql);
 		Logger.logSQL(SELECT_SQL, sql);
-		List<T> list= getBeeSql().select(sql, entity);
+		List<T> list= getBeeSql().select(sql, toClassT(entity));
 		doBeforeReturn(list);
 		return list;
 	}
@@ -863,9 +863,10 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 	 */
 	@Override
 	public <T> int save(T entity) {
+		if(entity==null) return 0;
 		Object id = HoneyUtil.getIdValue(entity);
 		if (id == null) return insert(entity);
-		Object one = selectById(entity, id.toString());
+		Object one = selectById(entity.getClass(), id.toString());
 		if (one != null)
 			return update(entity);
 		else
