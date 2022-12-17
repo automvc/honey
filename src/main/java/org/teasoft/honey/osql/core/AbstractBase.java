@@ -114,6 +114,13 @@ public abstract class AbstractBase {
 		Logger.logSQL(" | <--  select rows: ", size + "" + shardingIndex());
 	}
 	
+	protected void logDsTab() {
+		if (! showShardingSQL) return ;
+		List<String> dsNameListLocal=HoneyContext.getListLocal(StringConst.DsNameListLocal);
+		List<String> tabNameList=HoneyContext.getListLocal(StringConst.TabNameListLocal);
+		Logger.logSQL("========= Involved DataSource: "+dsNameListLocal+"  ,Involved Table: "+tabNameList);
+	}
+	
 	protected static final String INDEX1 = "_SYS[index";
 	protected static final String INDEX2 = "]_End ";
 	

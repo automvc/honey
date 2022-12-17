@@ -98,13 +98,6 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 
 	}
 	
-	private void logDsTab() {
-		if (! showShardingSQL) return ;
-		List<String> dsNameListLocal=HoneyContext.getListLocal(StringConst.DsNameListLocal);
-		List<String> tabNameList=HoneyContext.getListLocal(StringConst.TabNameListLocal);
-		Logger.logSQL("========= Involved DataSource: "+dsNameListLocal+"  ,Involved Table: "+tabNameList);
-	}
-
 	@SuppressWarnings("unchecked")
 //	private <T> List<T> _selectSomeField(String sql, T entity) {
 	private <T> List<T> _selectSomeField(String sql, Class<T> entityClass) {

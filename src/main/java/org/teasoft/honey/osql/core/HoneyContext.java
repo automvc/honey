@@ -756,7 +756,7 @@ public final class HoneyContext {
 		addInContextForCache(sql, tableName); // 若子句是在统一解析时设置上下文, 为保证异步起的子线程,能拿到值,cacheLocal应该也要用可继承本地线程
 	}
 
-	static void addInContextForCache(String sql, String tableName) {
+	public static void addInContextForCache(String sql, String tableName) {
 		CacheSuidStruct struct = new CacheSuidStruct();
 		struct.setSql(sql);
 		struct.setTableNames(tableName);

@@ -33,7 +33,7 @@ import org.teasoft.honey.util.ObjectCreatorFactory;
 //public class SqlLibForApp extends SqlLib {
 public class SqlLibForApp  extends AbstractBase implements BeeSql, Serializable {
 	
-	private static final long serialVersionUID = 1596710362260L;
+	private static final long serialVersionUID = 1596710362262L;
 	
 	private static boolean  showSQL=HoneyConfig.getHoneyConfig().showSQL;
 	
