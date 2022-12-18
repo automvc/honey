@@ -27,6 +27,7 @@ public final class CacheKey {
 	
 	public static String genKey(String key) {
 		String str = fullSql(key);
+//		System.err.println(str);
 		if (cacheKeyUseMD5) {//v1.8.99
 			str = MD5.getMd5(str);
 		}

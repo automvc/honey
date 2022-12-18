@@ -49,6 +49,11 @@ public abstract class AbstractBase {
 //		return NameTranslateHandle.toFieldName(columnName,entityClass);
 //	}
 	
+	protected void addInCache(String sql, Object rs,int resultSetSize) {
+//		String returnType, SuidType suidType  已不使用
+		addInCache(sql, rs, null, null, resultSetSize);
+	}
+	
 	//add on 2019-10-01
 	protected void addInCache(String sql, Object rs, String returnType, SuidType suidType,int resultSetSize) {
 		
@@ -62,6 +67,7 @@ public abstract class AbstractBase {
 		
 		CacheSuidStruct struct = HoneyContext.getCacheInfo(sql);
 		if (struct != null) { //之前已定义有表结构,才放缓存.否则放入缓存,可能会产生脏数据.  不判断的话,自定义的查询也可以放缓存
+//			String returnType, SuidType suidType  已不使用
 //			struct.setReturnType(returnType);  //因一进来updateInfoInCache时,已添加有
 //			struct.setSuidType(suidType.getType());
 //			HoneyContext.setCacheInfo(sql, struct);
