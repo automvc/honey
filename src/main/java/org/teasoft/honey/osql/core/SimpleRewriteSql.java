@@ -39,7 +39,7 @@ public class SimpleRewriteSql {
 		String sqls[] = new String[tabSuffixList.size()];
 		String dsArray[] = new String[tabSuffixList.size()];
 		for (int i = 0; i < tabSuffixList.size(); i++) {
-			sqls[i] = sql.replace(StringConst.ShardingTableIndexStr, tabSuffixList.get(i)); // eg: #$(index)$#替换成下标等
+			sqls[i] = sql.replace(StringConst.ShardingTableIndexStr, tabSuffixList.get(i)); // eg: [$#(index)#$]替换成下标等
 			HoneyContext.setPreparedValue(sqls[i], listValue);
 			String dsName = tab2DsMap.get(tabSuffixList.get(i)); // 只在使用注解时, 分库与分表同属于一个分片键,才有用. TODO
 			if (StringUtils.isBlank(dsName)) {

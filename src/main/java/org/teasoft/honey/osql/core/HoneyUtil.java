@@ -466,7 +466,7 @@ public final class HoneyUtil {
 						else
 							moreTableStruct[1 + j].subObject = subField[j].get(moreTableStruct[1].subObject);
 					} else {
-						moreTableStruct[1 + j].subObject = subField[j].get(entity);
+						moreTableStruct[1 + j].subObject = subField[j].get(entity); //need entity , not class
 					}
 				} catch (IllegalAccessException e) {
 					throw ExceptionHelper.convert(e);
@@ -1772,18 +1772,22 @@ public final class HoneyUtil {
 	}
 	
 	public static <T> Field getPkField(T entity) {
+		return getPkField(entity.getClass());
+	}
+	
+	public static <T> Field getPkField(Class<T> entityClass) {
 		Field field = null;
 		try {
-			field = entity.getClass().getDeclaredField("id");
+			field = entityClass.getDeclaredField("id");
 		} catch (NoSuchFieldException e) {
-			String pkName = getPkFieldName(entity);
+			String pkName = getPkFieldNameByClass(entityClass);
 
 			boolean hasException = false;
 			if ("".equals(pkName)) {
 				hasException = true;
 			} else if (pkName != null && !pkName.contains(",")) {
 				try {
-					field = entity.getClass().getDeclaredField(pkName);
+					field = entityClass.getDeclaredField(pkName);
 				} catch (NoSuchFieldException e2) {
 					hasException = true;
 				}
