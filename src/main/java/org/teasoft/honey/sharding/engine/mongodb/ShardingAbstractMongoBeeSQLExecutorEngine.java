@@ -4,29 +4,29 @@
  * The license,see the LICENSE file.
  */
 
-package org.teasoft.honey.sharding.engine;
+package org.teasoft.honey.sharding.engine.mongodb;
 
 import java.util.concurrent.Callable;
 
-import org.teasoft.bee.osql.BeeSql;
+import org.teasoft.bee.mongodb.MongodbBeeSql;
 import org.teasoft.bee.osql.Serializer;
 import org.teasoft.honey.osql.core.JdkSerializer;
 import org.teasoft.honey.osql.core.Logger;
+import org.teasoft.honey.sharding.engine.ShardingTemplate;
 
 /**
  * @author AiTeaSoft
  * @since  2.0
  */
-public abstract class ShardingAbstractBeeSQLExecutorEngine<T> extends ShardingTemplate<T>
+public abstract class ShardingAbstractMongoBeeSQLExecutorEngine<T> extends ShardingTemplate<T>
 		implements Callable<T> {
 
 	protected String sql;
-	protected BeeSql beeSql;
+	protected MongodbBeeSql beeSql;
 
-	public ShardingAbstractBeeSQLExecutorEngine(String sql, int index, BeeSql beeSql,
+	public ShardingAbstractMongoBeeSQLExecutorEngine(String sql, int index, MongodbBeeSql beeSql,
 			String ds) {
 		this.sql = sql;
-//		this.beeSql = beeSql;
 		this.beeSql = copy(beeSql);
 
 		super.index = index;
@@ -38,10 +38,10 @@ public abstract class ShardingAbstractBeeSQLExecutorEngine<T> extends ShardingTe
 		return doSharding();
 	}
 	
-	private BeeSql copy(BeeSql beeSql) {
+	private MongodbBeeSql copy(MongodbBeeSql beeSql) {
 		try {
 			Serializer jdks = new JdkSerializer();
-			return (BeeSql) jdks.unserialize(jdks.serialize(beeSql));
+			return (MongodbBeeSql) jdks.unserialize(jdks.serialize(beeSql));
 		} catch (Exception e) {
 			Logger.debug(e.getMessage(), e);
 		}

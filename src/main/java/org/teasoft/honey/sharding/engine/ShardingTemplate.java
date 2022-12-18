@@ -14,8 +14,8 @@ import org.teasoft.honey.osql.core.HoneyContext;
  */
 public abstract class ShardingTemplate<T> {
 
-	int index;
-	String ds;
+	protected int index;
+	protected String ds;
 
 	public abstract T shardingWork();
 
