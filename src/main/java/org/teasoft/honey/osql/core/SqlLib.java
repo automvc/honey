@@ -33,10 +33,10 @@ import org.teasoft.honey.sharding.ShardingUtil;
 import org.teasoft.honey.sharding.engine.ShardingAvgEngine;
 import org.teasoft.honey.sharding.engine.ShardingModifyEngine;
 import org.teasoft.honey.sharding.engine.ShardingMoreTableSelectEngine;
+import org.teasoft.honey.sharding.engine.ShardingSelectEngine;
 import org.teasoft.honey.sharding.engine.ShardingSelectFunEngine;
 import org.teasoft.honey.sharding.engine.ShardingSelectJsonEngine;
 import org.teasoft.honey.sharding.engine.ShardingSelectListStringArrayEngine;
-import org.teasoft.honey.sharding.engine.ShardingSelectRsEngine;
 import org.teasoft.honey.util.StringUtils;
 
 /**
@@ -83,11 +83,11 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 					logDsTab();
 					return list; 
 				}
-//				List<T> rsList =new ShardingSelectEngine().asynProcess(sql, entity, this); // 应该还要传suid类型
+				List<T> rsList =new ShardingSelectEngine().asynProcess(sql, entityClass, this); // 应该还要传suid类型
 				//TODO  要动态选择
-				List<T> rsList =new ShardingSelectRsEngine().asynProcess(sql, entityClass, this); // 应该还要传suid类型
-				
-				addInCache(sql, rsList, "List<T>", SuidType.SELECT, rsList.size());
+//				List<T> rsList =new ShardingSelectRsEngine().asynProcess(sql, entityClass, this); //无结果集时,可能会报错
+//				if(rsList==null) rsList=Collections.emptyList();
+				addInCache(sql, rsList, "List<T>", SuidType.SELECT, rsList.size());  //缓存Key,是否包括了分片的DS,Tables
 				logSelectRows(rsList.size());
 				return rsList;
 				
@@ -581,7 +581,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 				JsonResultWrap wrap = new ShardingSelectJsonEngine().asynProcess(sql, this,JsonType,entityClass); // 应该还要传suid类型
 				logSelectRows(wrap.getRowCount());
 				String json =wrap.getResultJson();
-				addInCache(sql, json,"StringJson",SuidType.SELECT,-1);  //没有作最大结果集判断
+				addInCache(sql, json, "StringJson", SuidType.SELECT, -1); // 没有作最大结果集判断
 				
 				return json;
 			}else { // 子线程执行

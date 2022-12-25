@@ -69,30 +69,6 @@ public final class SessionFactory {
 	}
 	
 	
-	/*public static Object getDatabaseClient() {
-		Object client = null;
-		try {
-			DataSource ds = getBeeFactory().getDataSource();
-			if (ds != null) {
-				String dbName=ds.getConnection().getMetaData().getDatabaseProductName();
-				if(DatabaseConst.MongoDB.equalsIgnoreCase(dbName)) {
-					client= ((ClientDataSource)ds).getDatabaseClient();
-				}
-			} else {// do not set the dataSource
-				//todo
-	//				System.err.println("do not set the dataSource");
-			}
-	
-		} catch (SQLException e) {
-			Logger.debug(e.getMessage());
-			throw ExceptionHelper.convert(e);
-		} catch (Exception e) {
-			throw ExceptionHelper.convert(e);
-		}
-		
-		return client;
-	}*/
-
 	public static Connection getConnection() {
 		Connection conn = null;
 		try {

@@ -12,25 +12,26 @@ import org.teasoft.bee.mongodb.MongodbBeeSql;
 import org.teasoft.bee.osql.Serializer;
 import org.teasoft.honey.osql.core.JdkSerializer;
 import org.teasoft.honey.osql.core.Logger;
-import org.teasoft.honey.sharding.engine.ShardingTemplate;
 
 /**
  * @author AiTeaSoft
  * @since  2.0
  */
-public abstract class ShardingAbstractMongoBeeSQLExecutorEngine<T> extends ShardingTemplate<T>
+public abstract class ShardingAbstractMongoBeeSQLExecutorEngine<T> extends ShardingMongodbTemplate<T>
 		implements Callable<T> {
 
-	protected String sql;
-	protected MongodbBeeSql beeSql;
+	protected MongodbBeeSql mongodbBeeSql;
 
-	public ShardingAbstractMongoBeeSQLExecutorEngine(String sql, int index, MongodbBeeSql beeSql,
+	public ShardingAbstractMongoBeeSQLExecutorEngine(String tab, int index, MongodbBeeSql mongodbBeeSql,
 			String ds) {
-		this.sql = sql;
-		this.beeSql = copy(beeSql);
+		super.tab = tab;
+		this.mongodbBeeSql = copy(mongodbBeeSql);
 
 		super.index = index;
 		super.ds = ds;
+		
+//		System.out.println("----------------------- ds: "+ds);
+//		System.out.println("----------------------- tab: "+tab);
 	}
 
 	@Override
