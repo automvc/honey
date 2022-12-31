@@ -80,8 +80,7 @@ public class ShardingSelectListStringArrayEngine {
 
 
 //	Return ListStringArray
-	private class ShardingBeeSQLExecutorEngine
-			extends ShardingAbstractBeeSQLExecutorEngine<List<String[]>> {
+	private class ShardingBeeSQLExecutorEngine extends ShardingAbstractBeeSQLExecutorEngine<List<String[]>> {
 
 		public ShardingBeeSQLExecutorEngine(String sql, int index, BeeSql beeSql, String ds) {
 			super(sql, index, beeSql, ds);

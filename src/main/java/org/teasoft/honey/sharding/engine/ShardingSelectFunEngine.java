@@ -66,8 +66,7 @@ public class ShardingSelectFunEngine {
 
 	
 //	Return String 
-	private class ShardingBeeSQLFunExecutorEngine
-			extends ShardingAbstractBeeSQLExecutorEngine<String> {
+	private class ShardingBeeSQLFunExecutorEngine extends ShardingAbstractBeeSQLExecutorEngine<String> {
 
 		public ShardingBeeSQLFunExecutorEngine(String sql, int index, BeeSql beeSql, String ds) {
 			super(sql, index, beeSql, ds);

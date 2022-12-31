@@ -87,10 +87,7 @@ public class ShardingMoreTableSelectEngine {
 		return rsList;
 	}
 
-//	private class ShardingBeeSQLExecutorEngine<T> extends ShardingTemplate<List<T>> implements Callable<List<T>> {
-
-	private class ShardingBeeSQLExecutorEngine<T>
-			extends ShardingAbstractBeeSQLExecutorEngine<List<T>> {
+	private class ShardingBeeSQLExecutorEngine<T> extends ShardingAbstractBeeSQLExecutorEngine<List<T>> {
 
 		private T entity;
 

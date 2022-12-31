@@ -112,8 +112,7 @@ public class ShardingSelectJsonEngine {
 	}
 	
 //	Return String 
-	private class ShardingBeeSQLJsonExecutorEngine
-			extends ShardingAbstractBeeSQLExecutorEngine<String> {
+	private class ShardingBeeSQLJsonExecutorEngine extends ShardingAbstractBeeSQLExecutorEngine<String> {
 
 		public ShardingBeeSQLJsonExecutorEngine(String sql, int index, BeeSql beeSql, String ds) {
 			super(sql, index, beeSql, ds);

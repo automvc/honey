@@ -184,9 +184,8 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 	}
 	
 	
-//	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	public ResultSet selectRs(String sql) { 
+	public ResultSet selectRs(String sql) {
 
 		Connection conn = null;
 		PreparedStatement pst = null;
@@ -199,13 +198,6 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 			setPreparedValues(pst, sql);
 
 			rs = pst.executeQuery();
-			
-////			CachedRowSet rowset = new CachedRowSetImpl();
-//			RowSetFactory factory = RowSetProvider.newFactory();
-//	        CachedRowSet  rowset= factory.createCachedRowSet();
-//			rowset.populate(rs);
-//			return rowset;
-			
 			return rs;
 		} catch (SQLException e) {
 			throw ExceptionHelper.convert(e);

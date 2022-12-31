@@ -23,6 +23,7 @@ import org.teasoft.honey.osql.core.Logger;
  * @since  2.0
  */
 public class ShardingRegistry implements Registry {
+	
 	private static final Map<Class<?>, ShardingBean> shardingMap = new ConcurrentHashMap<>();  //TODO 改成表名
 	private static Map<String, Map<String, Set<String>>> fullNodes = new HashMap<>();// 1
 	private static Map<String, String> tabToDsMap = new LinkedHashMap<>(); // 2

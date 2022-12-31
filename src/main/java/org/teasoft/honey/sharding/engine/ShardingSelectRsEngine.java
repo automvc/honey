@@ -67,7 +67,6 @@ public class ShardingSelectRsEngine {
 		}
 
 		//Result Merge
-//		ShardingSortStruct struct = HoneyContext.getCurrentShardingSort();
 		ShardingSortStruct struct =null;
 		Queue<CompareResult> queue= new PriorityQueue<>(size);
 		for (int i = 0; i < size; i++) {
@@ -87,31 +86,21 @@ public class ShardingSelectRsEngine {
 		//放入优先队列后,就转换出需要的数据.   要传入需要多少数据? 在内部处理.   有取中间几条的吗? 有
 		List<T> rsList =new OrderByStreamResult<>(queue,entityClass).getOnePageList();
 		
-//		此处如何将子线程的Connection关掉???   Connection会一直占用连接资源吗???
-//		放入上下文??   在此处统一关闭????   在sqlLib将Connection放入上下文, 在此处则统一关闭 selectRS
-		
 		HoneyContext.clearConnForSelectRs();
 		
 		return rsList;
 	}
 
-//	private class ShardingBeeSQLExecutorEngine<T> extends ShardingTemplate<List<T>> implements Callable<List<T>> {
-
-	private class ShardingBeeSQLExecutorEngine<T>
-			extends ShardingAbstractBeeSQLExecutorEngine<ResultSet> {
-
-//		private T entity;
+	private class ShardingBeeSQLExecutorEngine<T> extends ShardingAbstractBeeSQLExecutorEngine<ResultSet> {
 
 		public ShardingBeeSQLExecutorEngine(String sql, int index, BeeSql beeSql, String ds) {
 			super(sql, index, beeSql, ds);
-//			this.entity = entity;
 		}
 
 		public ResultSet shardingWork() {
 			ShardingLogReg.regShardingSqlLog("select SQL", index, sql);
-			return beeSql.selectRs(this.sql); 
+			return beeSql.selectRs(this.sql);
 		}
-
 	}
 
 }

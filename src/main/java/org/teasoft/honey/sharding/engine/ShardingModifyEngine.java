@@ -65,9 +65,7 @@ public class ShardingModifyEngine {
 		return r;
 	}
 
-//	  ShardingModifyTask
-	private class ShardingBeeSQLModifyExecutorEngine
-			extends ShardingAbstractBeeSQLExecutorEngine<Integer> {
+	private class ShardingBeeSQLModifyExecutorEngine extends ShardingAbstractBeeSQLExecutorEngine<Integer> {
 
 		public ShardingBeeSQLModifyExecutorEngine(String sql, int index, BeeSql beeSql, String ds) {
 			super(sql, index, beeSql, ds);
