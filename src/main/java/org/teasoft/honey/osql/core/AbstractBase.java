@@ -44,11 +44,6 @@ public abstract class AbstractBase {
 		return NameTranslateHandle.toColumnName(fieldName, entityClass);
 	}
 
-//	@SuppressWarnings("rawtypes")
-//	private static String _toFieldName(String columnName,Class entityClass) {
-//		return NameTranslateHandle.toFieldName(columnName,entityClass);
-//	}
-	
 	protected void addInCache(String sql, Object rs,int resultSetSize) {
 //		String returnType, SuidType suidType  已不使用
 		addInCache(sql, rs, null, null, resultSetSize);
@@ -136,7 +131,6 @@ public abstract class AbstractBase {
 			clearContext(sql_i);
 		}
 	}
-	
 	
 	//检测是否有Json注解
 	protected boolean isJoson(Field field) {
