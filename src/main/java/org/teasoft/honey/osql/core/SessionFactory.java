@@ -53,18 +53,20 @@ public final class SessionFactory {
 		try {
 			DataSource ds = getBeeFactory().getDataSource();
 			if (ds != null) {
-				String dbName=ds.getConnection().getMetaData().getDatabaseProductName();
-				if(DatabaseConst.MongoDB.equalsIgnoreCase(dbName)) {
-					dbConnection=new DatabaseClientConnection((ClientDataSource)ds);
+				try (Connection conn = ds.getConnection()) {
+					String dbName = conn.getMetaData().getDatabaseProductName();
+					if (DatabaseConst.MongoDB.equalsIgnoreCase(dbName)) {
+						dbConnection = new DatabaseClientConnection((ClientDataSource) ds);
+					}
 				}
-			} 
+			}
 		} catch (SQLException e) {
 			Logger.debug(e.getMessage());
 			throw ExceptionHelper.convert(e);
 		} catch (Exception e) {
 			throw ExceptionHelper.convert(e);
 		}
-		
+
 		return dbConnection;
 	}
 	

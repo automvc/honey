@@ -59,10 +59,10 @@ public class ShardingConfigParse {
 		Logger.info("[Bee] tabToDsMap: " + tabToDsMap.toString());
 
 		ShardingConfigMeta shardingConfigMeta = new ShardingConfigMeta();
-		shardingConfigMeta.fullNodes = fullNodes;
-		shardingConfigMeta.tabToDsMap = tabToDsMap;
-		shardingConfigMeta.tabSize=tabList.size();
-		shardingConfigMeta.tabBaseName=bean.getTabBaseName();
+		shardingConfigMeta.setFullNodes(fullNodes);
+		shardingConfigMeta.setTabToDsMap(tabToDsMap);
+		shardingConfigMeta.setTabSize(tabList.size());
+		shardingConfigMeta.setTabBaseName(bean.getTabBaseName());
 
 		return shardingConfigMeta;
 	}

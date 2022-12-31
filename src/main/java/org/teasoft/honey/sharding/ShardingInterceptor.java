@@ -28,6 +28,7 @@ import org.teasoft.honey.osql.core.Expression;
 import org.teasoft.honey.osql.core.HoneyConfig;
 import org.teasoft.honey.osql.core.HoneyContext;
 import org.teasoft.honey.osql.core.HoneyUtil;
+import org.teasoft.honey.osql.core.K;
 import org.teasoft.honey.osql.core.Logger;
 import org.teasoft.honey.osql.core.NameTranslateHandle;
 import org.teasoft.honey.osql.core.StringConst;
@@ -259,8 +260,11 @@ public class ShardingInterceptor extends EmptyInterceptor {
 
 		for (int j = 0; j < expList.size(); j++) {
 			expression = expList.get(j);
+			
+			if(! isShardingField(shardingBean, expression.getFieldName())) continue;
+			
 			String opType = expression.getOpType();
-			int opNum = expression.getOpNum();
+//			int opNum = expression.getOpNum();
 			boolean foundSharding = false;
 //			if (opNum == 2 && !"orderBy".equalsIgnoreCase(opType)) {
 			if(Op.eq.getOperator().equalsIgnoreCase(opType)) {
@@ -292,18 +296,31 @@ public class ShardingInterceptor extends EmptyInterceptor {
 					shardingBean.setTabShardingValue(null);
 				}
 				
-			}else if (Op.in.getOperator().equalsIgnoreCase(opType)){
-				
+			} else if (Op.in.getOperator().equalsIgnoreCase(opType)
+					|| K.between.equalsIgnoreCase(opType)) {
+
 				Object v = expression.getValue();
-				List inList=processIn(v);
-				int len=inList.size();
+				
+				List inList;
+				if (Op.in.getOperator().equalsIgnoreCase(opType)) {
+					inList = processIn(v);
+				} else {
+					String tableName = _toTableName(entity);
+					int tabSize=ShardingRegistry.getTabSize(tableName);
+					Object v2 = expression.getValue2();
+					inList = processBetween(v,v2,tabSize);
+				}
+
+				int len = inList.size();
 				for (Object value : inList) {
-					foundSharding=checkAndProcessShardingField(shardingBean, expression.getFieldName(),value);
+					foundSharding = checkAndProcessShardingField(shardingBean,
+							expression.getFieldName(), value);
 					// 找到一个,就计算一次
 					if (foundSharding) {
 						dsTabStruct = new ShardingSumHandler().process(shardingBean);
-						if(dsTabStruct!=null) sharded=true;
-						setValeueForSharding(dsTabStruct, dsNameList, tabNameList, tabSuffixList,tab2DsMap);
+						if (dsTabStruct != null) sharded = true;
+						setValeueForSharding(dsTabStruct, dsNameList, tabNameList,
+								tabSuffixList, tab2DsMap);
 						// 将分片值置空,供下次使用
 						shardingBean.setDsShardingValue(null);
 						shardingBean.setTabShardingValue(null);
@@ -311,13 +328,12 @@ public class ShardingInterceptor extends EmptyInterceptor {
 				}
 			}
 //			else if
-			// 还要判断in, betewwn等的. TODO
 			// or,and可能不需要另外处理   不拆分sql,则不需要
 
 
 		} // end for
 
-		// TODO 要区分自定义的分片类, 还是系统默认的.
+		// 要区分自定义的分片类, 还是系统默认的.
 		// 自定义的,可以不写分片规则, 由给出的类提供逻辑,运算后,返回结果.
 //		if(tabSuffixList.size()>1) Collections.sort(tabSuffixList);
 		
@@ -405,6 +421,25 @@ public class ShardingInterceptor extends EmptyInterceptor {
 		return sharded;
 	}
 	
+	
+	private boolean isShardingField(ShardingBean shardingBean, String fieldName) {
+		boolean foundSharding = false;
+		String dsField = shardingBean.getDsField();
+		String tabField = shardingBean.getTabField();
+
+		if (dsField != null) {
+			if (dsField.equals(fieldName)) {
+				foundSharding = true;
+			}
+		}
+		if (tabField != null) {
+			if (tabField.equals(fieldName)) {
+				foundSharding = true;
+			}
+		}
+		return foundSharding;
+	}
+	
 //	private boolean checkAndProcessShardingField(ShardingBean shardingBean,Expression expression) {
 	private boolean checkAndProcessShardingField(ShardingBean shardingBean,String fieldName,Object value) {
 		boolean foundSharding=false;
@@ -460,6 +495,35 @@ public class ShardingInterceptor extends EmptyInterceptor {
 			inList.add(v);
 		}
 		
+		return inList;
+	}
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private static List processBetween(Object v, Object v2,int tabSize) {
+		List inList = new ArrayList();
+
+		try {
+			int r;
+			int r2 = 0;
+			String value = v.toString();
+			if (value.contains(".")) {
+				Double d = Double.parseDouble(value);
+				r = d.intValue();
+
+				Double d2 = Double.parseDouble(v2.toString());
+				r2 = d2.intValue();
+			} else {
+				r = Integer.parseInt(value);
+				r2 = Integer.parseInt(value.toString());
+			}
+			for (int i = r; i < r2 && r2<=i+tabSize; i++) {
+				inList.add(i);
+			}
+
+		} catch (Exception e) {
+			// ignore
+		}
+
 		return inList;
 	}
 	

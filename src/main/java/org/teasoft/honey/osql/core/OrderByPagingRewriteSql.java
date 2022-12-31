@@ -68,7 +68,7 @@ public class OrderByPagingRewriteSql {
 				//g) adjust PreparedValue
 				List newListValue =copyObject(listValue);
 				for (int j = 1; j < sqls.length; j++) {
-					newListValue.addAll(listValue);  //TODO ??? addAll
+					newListValue.addAll(listValue); 
 				}
 				HoneyContext.setPreparedValue(newSql, newListValue);
 				
@@ -92,14 +92,14 @@ public class OrderByPagingRewriteSql {
 	}
 	
    @SuppressWarnings("rawtypes")
-	public static List copyObject(List<PreparedValue> obj) {
+	private static List copyObject(List<PreparedValue> obj) {
 		try {
 			Serializer jdks = new JdkSerializer();
 			return (List)jdks.unserialize(jdks.serialize(obj));
 		} catch (Exception e) {
 			Logger.debug(e.getMessage(), e);
 		}
-		return null;
+		return obj;
 	}
 	
 	@SuppressWarnings("rawtypes")

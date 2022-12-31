@@ -104,9 +104,9 @@ public class ShardingRegistry implements Registry {
 		ShardingConfigParse t = new ShardingConfigParse();
 		ShardingConfigMeta shardingConfigMeta = t.parseForSharding(fullNodes);
 		if (shardingConfigMeta != null) {
-			addFullNodes(shardingConfigMeta.fullNodes);
-			addTabToDsMap(shardingConfigMeta.tabToDsMap);
-			tabSizeMap.put(shardingConfigMeta.tabBaseName, shardingConfigMeta.tabSize);
+			addFullNodes(shardingConfigMeta.getFullNodes());
+			addTabToDsMap(shardingConfigMeta.getTabToDsMap());
+			tabSizeMap.put(shardingConfigMeta.getTabBaseName(), shardingConfigMeta.getTabSize());
 		} else {
 			String msg = "Can not parse the fullNodes:" + fullNodes;
 			if (entity != null) msg += "! Its entity name:" + entity.getName();

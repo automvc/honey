@@ -152,7 +152,7 @@ public class SystemLogger implements Log{
 	
 	private void _printStackTrace(Throwable t) {
 		if (t != null) {
-			t.printStackTrace(); // SystemLogger print the error message to console.
+			t.printStackTrace(); //No problem.Just use in dev(local). SystemLogger print the error message to console.
 		}
 	}
 	

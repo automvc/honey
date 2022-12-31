@@ -177,8 +177,8 @@ public class TransformResultSet {
 		String orderFields[] = struct.getOrderFields();
 		if (orderFields == null) return;
 
-		if (struct.regFlag) return; // 如何有其它子线程已处理,则不再处理.
-		struct.regFlag = true;
+		if (struct.isRegFlag()) return; // 如何有其它子线程已处理,则不再处理.
+		struct.setRegFlag(true);
 
 		int orderFieldsLen = orderFields.length;
 		String type[] = new String[orderFieldsLen];
