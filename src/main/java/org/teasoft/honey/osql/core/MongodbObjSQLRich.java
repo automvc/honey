@@ -196,6 +196,18 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 		if (list == null || list.size() != 1) return null;
 		return list.get(0);
 	}
+	
+	@Override
+	public <T> T selectFirst(T entity, Condition condition) {
+		if (entity == null) return null;
+
+		if (condition == null) condition = BF.getCondition();
+		condition.size(1);
+		
+		List<T> list = select(entity, condition);
+		if (list == null || list.size() < 1) return null;
+		return list.get(0);
+	}
 
 	@Override
 	public <T> String selectWithFun(T entity, FunctionType functionType, String fieldForFun) {

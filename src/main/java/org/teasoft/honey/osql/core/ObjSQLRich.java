@@ -26,6 +26,7 @@ import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
 import org.teasoft.bee.osql.exception.BeeIllegalParameterException;
 import org.teasoft.honey.osql.name.NameUtil;
+import org.teasoft.honey.osql.shortcut.BF;
 import org.teasoft.honey.sharding.ShardingUtil;
 import org.teasoft.honey.sharding.engine.batch.ShardingBatchInsertEngine;
 import org.teasoft.honey.sharding.engine.batch.ShardingForkJoinBatchInsertEngine;
@@ -264,6 +265,18 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 //		List<T> list = select(entity);  //已处理拦截器链
 		List<T> list = select(entity, 2);  //已处理拦截器链     2.0
 		if (list == null || list.size() != 1) return null;
+		return list.get(0);
+	}
+	
+	@Override
+	public <T> T selectFirst(T entity, Condition condition) {
+		if (entity == null) return null;
+
+		if (condition == null) condition = BF.getCondition();
+		condition.size(1);
+		
+		List<T> list = select(entity, condition);
+		if (list == null || list.size() < 1) return null;
 		return list.get(0);
 	}
 
