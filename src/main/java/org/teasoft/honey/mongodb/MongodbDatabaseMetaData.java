@@ -19,7 +19,6 @@ public class MongodbDatabaseMetaData extends EmptyDatabaseMetaData {
 	
 	@Override
 	public String getDatabaseProductName() throws SQLException {
-//		Logger.info("------------------ getDatabaseProductName in MongodbDatabaseMetaData");
 		return DatabaseConst.MongoDB; //为了兼容JDBC
 	}
 }

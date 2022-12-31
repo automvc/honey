@@ -250,5 +250,4 @@ public class MongoConditionHelper {
 		return NameTranslateHandle.toColumnName(fieldName, entityClass);
 	}
 	
-	
 }

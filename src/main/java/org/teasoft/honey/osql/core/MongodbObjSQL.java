@@ -164,16 +164,6 @@ public class MongodbObjSQL extends AbstractCommOperate implements Suid {
 		
 		int deleteNum =0;
 		
-//		_regEntityClass(entity);//TODO
-		
-//		String sql = getObjToSQL().toDeleteSQL(entity);
-//		_regEntityClass(entity);
-//		sql=doAfterCompleteSql(sql);
-//		int deleteNum = -1;
-//		Logger.logSQL("delete SQL: ", sql);
-//		deleteNum = getBeeSql().modify(sql);
-		
-		
 		deleteNum=getMongodbBeeSql().delete(entity);
 		
 		doBeforeReturn();
@@ -206,7 +196,7 @@ public class MongodbObjSQL extends AbstractCommOperate implements Suid {
 					columnNames = HoneyUtil.getBeanField(fields, entity.getClass());
 					HoneyContext.addBeanField(packageAndClassName, columnNames);
 				}
-				// 检测字段,是否是实体的 TODO
+				// 检测字段,是否是实体的  ?
 
 				conditionImpl.selectField(selectFields);
 			}
@@ -224,16 +214,6 @@ public class MongodbObjSQL extends AbstractCommOperate implements Suid {
 		regCondition(condition);
 		doBeforePasreEntity(entity,SuidType.DELETE);
 		int deleteNum =0;
-		
-//		String sql = getObjToSQL().toDeleteSQL(entity,condition);
-//		_regEntityClass(entity);
-//		sql=doAfterCompleteSql(sql);
-//		int deleteNum = -1;
-//		if (!"".equals(sql)) {
-//			Logger.logSQL("delete SQL: ", sql);
-//		}
-//		deleteNum = getBeeSql().modify(sql);
-		
 		
 		deleteNum=getMongodbBeeSql().delete(entity);
 		
