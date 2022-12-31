@@ -43,7 +43,7 @@ public class CompareResult implements Comparable<CompareResult> {
 					for (int k = 0; k < struct.getOrderFields().length; k++) {
 //						if(k==0) this.orderValues = new Object[struct.getOrderFields().length];
 						this.orderValues[k] = this.resultSet.getObject(struct.getOrderFields()[k]); // TODO 转字段
-					   System.err.println(this.orderValues[k]);
+//					   System.err.println(this.orderValues[k]);
 					} // end for
 				}
 			} // end if next

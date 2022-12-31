@@ -28,6 +28,7 @@ import org.teasoft.bee.osql.exception.BeeIllegalParameterException;
 import org.teasoft.honey.osql.name.NameUtil;
 import org.teasoft.honey.sharding.ShardingUtil;
 import org.teasoft.honey.sharding.engine.batch.ShardingBatchInsertEngine;
+import org.teasoft.honey.sharding.engine.batch.ShardingForkJoinBatchInsertEngine;
 import org.teasoft.honey.util.ObjectUtils;
 import org.teasoft.honey.util.SuidHelper;
 
@@ -206,8 +207,11 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 			a = _insert(entity, batchSize, excludeFields);
 		} else {
 			try {
-//			a = new ShardingForkJoinBatchInsertEngine<T>().batchInsert(entity, batchSize, excludeFields,tabNameListForBatch, this);
-				a = new ShardingBatchInsertEngine<T>().batchInsert(entity, batchSize, excludeFields, tabNameListForBatch, this);
+				boolean forkJoin = HoneyConfig.getHoneyConfig().sharding_forkJoinBatchInsert;
+				if (forkJoin)
+					a = new ShardingForkJoinBatchInsertEngine<T>().batchInsert(entity, batchSize, excludeFields, tabNameListForBatch, this);
+				else
+					a = new ShardingBatchInsertEngine<T>().batchInsert(entity, batchSize, excludeFields, tabNameListForBatch, this);
 			} catch (Exception e) {
 				Logger.error(e.getMessage(), e);
 			} finally {

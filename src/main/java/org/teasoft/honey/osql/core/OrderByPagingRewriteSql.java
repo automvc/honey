@@ -68,7 +68,7 @@ public class OrderByPagingRewriteSql {
 				//g) adjust PreparedValue
 				List newListValue =copyObject(listValue);
 				for (int j = 1; j < sqls.length; j++) {
-					newListValue.addAll(listValue);
+					newListValue.addAll(listValue);  //TODO ??? addAll
 				}
 				HoneyContext.setPreparedValue(newSql, newListValue);
 				
@@ -83,7 +83,7 @@ public class OrderByPagingRewriteSql {
 				SimpleRewriteSql._createSql(list, tabSuffixList, sql, listValue, tabNameList,tab2DsMap);
 				
 				//合并结果后,要重新排序(在List排),然后再取需要的页的数据.  
-				//两种情况,都要放缓存. 查询时,也要能能缓存中,取出. TODO
+				//两种情况,都要放缓存. 查询时,也要能从缓存中,取出. TODO
 			}
 		}
 		

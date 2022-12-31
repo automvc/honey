@@ -31,6 +31,8 @@ import org.teasoft.honey.util.ObjectUtils;
  * @since  1.0
  */
 public final class HoneyContext {
+	
+	private static byte[] lock=new byte[0];
 
 	private static ConcurrentMap<String, String> beanMap;
 
@@ -131,8 +133,12 @@ public final class HoneyContext {
 
 		currentConnection = new ThreadLocal<>();
 
-		conneForSelectRs = new InheritableThreadLocal<>();
-		conneForSelectRs.set(new CopyOnWriteArrayList<Connection>()); // 一开始就要设值,在主线程才能处理子线程加入的元素
+		
+//		synchronized(lock) {
+		  conneForSelectRs = new InheritableThreadLocal<>();
+		  conneForSelectRs.set(new CopyOnWriteArrayList<Connection>()); // 一开始就要设值,在主线程才能处理子线程加入的元素
+		  
+//		}
 
 		currentAppDB = new ThreadLocal<>();
 		currentNameTranslate = new ThreadLocal<>();
@@ -488,6 +494,12 @@ public final class HoneyContext {
 	public static void regConnForSelectRs(Connection conn) {
 		List<Connection> list = conneForSelectRs.get();
 //		if(list==null) list=new ArrayList<>();
+		if(list==null) {
+			System.err.println("====================list==null======================");
+			  conneForSelectRs = new InheritableThreadLocal<>();
+			  list=new CopyOnWriteArrayList<Connection>();
+//			  conneForSelectRs.set(list);
+		}
 		list.add(conn);
 		conneForSelectRs.set(list);
 		Logger.info("the regConnectionForSelectRs, " + list.size());
@@ -507,6 +519,7 @@ public final class HoneyContext {
 					throw ExceptionHelper.convert(e);
 				}
 			}
+			list.clear();
 		}
 		conneForSelectRs.remove();
 	}

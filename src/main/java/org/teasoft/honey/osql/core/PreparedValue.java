@@ -9,12 +9,13 @@ import java.lang.reflect.Field;
  * @since  1.0
  */
 class PreparedValue implements Serializable {
+//	class PreparedValue {
 
-	private static final long serialVersionUID = 1592803913604L;
+//	private static final long serialVersionUID = 1592803913604L;
 	
 	private String type;
 	private Object value;
-	private Field field;//V1.11    没有序列化到, 是否有影响???
+	private transient Field field;//V1.11    没有序列化到, 是否有影响???
 	
 	public PreparedValue(){}
 	

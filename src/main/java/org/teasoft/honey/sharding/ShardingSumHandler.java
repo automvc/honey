@@ -39,7 +39,7 @@ public class ShardingSumHandler implements DsTabHandler {
 		String tabShardingValue=ObjectUtils.string(bean.getTabShardingValue());
 		
 		
-		if (dsShardingValue == null && tabShardingValue== null) { //要用全域查询.  像select * from tableName;  //TODO
+		if (dsShardingValue == null && tabShardingValue== null) { //要用全域查询.  像select * from tableName; 
 			return null; //不是一库一表
 	    }
 		DsTabStruct dsTabStruct = new DsTabStruct();
@@ -62,7 +62,7 @@ public class ShardingSumHandler implements DsTabHandler {
 			// 通过算法类别dsAlgorithm,获取具体的算法.
 			if (calculate1 == null) {
 				calculate1 = CalculateFactory.getCalculate(dsAlgorithm);
-			                                              //TODO bug, dsAlgorithm是基本类型,默认会是0;  
+			                                              // bug, dsAlgorithm是基本类型,默认会是0;  
 	                                                          //要是想用getDsAlgorithmClass设置就无法实现.
 	                                                           //改为默认值为-1,看是否会对原来有影响??   不需要;
 	                                                          //旧的是DsAlgorithmClass>dsAlgorithm
@@ -72,13 +72,13 @@ public class ShardingSumHandler implements DsTabHandler {
 			}
 			
 			String suffix = calculate1.process(dsRule, dsShardingValue);
-			if (dsName.contains(dsRuleConst)) { // TODO test
+			if (dsName.contains(dsRuleConst)) { //  test
 				dsName = dsName.replace(dsRuleConst, suffix);
 			} else {
 				dsName = dsName + suffix;
 			}
 			dsTabStruct.setDsName(dsName);
-		} else if (StringUtils.isNotBlank(dsName) && dsShardingValue!=null) { //TODO
+		} else if (StringUtils.isNotBlank(dsName) && dsShardingValue!=null) { 
 			dsTabStruct.setDsName(dsName);
 		}
 		//---------ds--------------end

@@ -208,6 +208,8 @@ public class ShardingInterceptor extends EmptyInterceptor {
 							regFull(suidType);
 						}
 					} // end condition!=null
+				}else {
+					Logger.debug("Confirm whether had set sharding config for entity: "+entity.getClass().getName());
 				}
 			}
 		}
@@ -341,7 +343,7 @@ public class ShardingInterceptor extends EmptyInterceptor {
 			ShardingReg.regHadSharding();
 			
 			// 若是下标有值,都转成具体的表名. sharding只返回Ds和Tab   下标也要返回,更方便生成新sql
-			//不要这个是否可以??  TODO   有时只转出了下标,就需要处理.
+			//不要这个是否可以??     有时只转出了下标,就需要处理.
 			if (tabSuffixList.size() > 1 && tabNameList.size() < 1) {
 				String tableName = _toTableName(entity);
 				for (int i = 0; i < tabSuffixList.size(); i++) {
@@ -358,7 +360,7 @@ public class ShardingInterceptor extends EmptyInterceptor {
 			this.tabSuffix =null;
 			
 			//寻找tabName对应的dsName.即使dsNameList不为空,但它在分库键与分表键是不同的字段时,只计算了部分值,所以还是要计算一遍.
-			//TODO 当ds0:tab0,tab1; ds1:tab0,tab1; 像这样时, ShardingRegistry.getDsByTab 不能获取到值.
+			// 当ds0:tab0,tab1; ds1:tab0,tab1; 像这样时, ShardingRegistry.getDsByTab 不能获取到值.
 //			该如何处理????    不同库同表名,且分库键与分表键是不同的字段时,触发全域查询.
 			String dsName="";
 			for (int i = 0; i < tabNameList.size(); i++) {
@@ -374,7 +376,7 @@ public class ShardingInterceptor extends EmptyInterceptor {
 			}
 			
 //			HoneyContext.setListLocal(StringConst.TabNameListLocal, tabNameList);
-//			HoneyContext.setListLocal(StringConst.TabSuffixListLocal, tabSuffixList);  //TODO
+//			HoneyContext.setListLocal(StringConst.TabSuffixListLocal, tabSuffixList);  
 //			HoneyContext.setListLocal(StringConst.DsNameListLocal, dsNameList);
 //			HoneyContext.setCustomMapLocal(StringConst.ShardingTab2DsMap, tab2DsMap);
 			
@@ -534,7 +536,7 @@ public class ShardingInterceptor extends EmptyInterceptor {
 		if (StringUtils.isBlank(dsTabStruct.getDsName())) { // 一库一表时, 若ds为空,通过表名查到ds后并设置. 用于在获取连接时使用.
 			dsTabStruct.setDsName(ShardingRegistry.getDsByTab(tabName));    // Sharding注解,肯定是ds,tab都能确认的.
 			                                                                //统一配置的,只有表分表,可以通过表名,反查.  
-			                                                                 //TODO 要是ds0:tab0,tab1; ds1:tab0,tab1, 这种就没办法反查.
+			                                                                 // 要是ds0:tab0,tab1; ds1:tab0,tab1, 这种就没办法反查.
 			                        //一库一表的, 关了tab2ds就可以测.
 //			String dsName = tab2DsMap.get(tabSuffixList.get(i)); // 只在使用注解  或  分库与分表同属于一个分片键,才有用. 
 //			if (StringUtils.isBlank(dsName)) {

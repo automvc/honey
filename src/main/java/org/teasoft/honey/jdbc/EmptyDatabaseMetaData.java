@@ -12,11 +12,15 @@ import java.sql.ResultSet;
 import java.sql.RowIdLifetime;
 import java.sql.SQLException;
 
+import org.teasoft.bee.osql.exception.NotSupportedException;
+
 /**
  * @author Kingstar
  * @since  2.0
  */
 public class EmptyDatabaseMetaData implements DatabaseMetaData{
+	
+	private static final String MSG="Do not support this method!";
 
 	@Override
 	public <T> T unwrap(Class<T> iface) throws SQLException {
@@ -51,7 +55,7 @@ public class EmptyDatabaseMetaData implements DatabaseMetaData{
 	@Override
 	public String getUserName() throws SQLException {
 		
-		return null;
+		throw new NotSupportedException(MSG);
 	}
 
 	@Override
@@ -86,25 +90,25 @@ public class EmptyDatabaseMetaData implements DatabaseMetaData{
 
 	@Override
 	public String getDatabaseProductName() throws SQLException {
-		return null;
+		throw new NotSupportedException(MSG);
 	}
 
 	@Override
 	public String getDatabaseProductVersion() throws SQLException {
 		
-		return null;
+		throw new NotSupportedException(MSG);
 	}
 
 	@Override
 	public String getDriverName() throws SQLException {
 		
-		return null;
+		throw new NotSupportedException(MSG);
 	}
 
 	@Override
 	public String getDriverVersion() throws SQLException {
 		
-		return null;
+		throw new NotSupportedException(MSG);
 	}
 
 	@Override
@@ -182,31 +186,31 @@ public class EmptyDatabaseMetaData implements DatabaseMetaData{
 	@Override
 	public String getIdentifierQuoteString() throws SQLException {
 		
-		return null;
+		throw new NotSupportedException(MSG);
 	}
 
 	@Override
 	public String getSQLKeywords() throws SQLException {
 		
-		return null;
+		throw new NotSupportedException(MSG);
 	}
 
 	@Override
 	public String getNumericFunctions() throws SQLException {
 		
-		return null;
+		throw new NotSupportedException(MSG);
 	}
 
 	@Override
 	public String getStringFunctions() throws SQLException {
 		
-		return null;
+		throw new NotSupportedException(MSG);
 	}
 
 	@Override
 	public String getSystemFunctions() throws SQLException {
 		
-		return null;
+		throw new NotSupportedException(MSG);
 	}
 
 	@Override
@@ -218,13 +222,13 @@ public class EmptyDatabaseMetaData implements DatabaseMetaData{
 	@Override
 	public String getSearchStringEscape() throws SQLException {
 		
-		return null;
+		throw new NotSupportedException(MSG);
 	}
 
 	@Override
 	public String getExtraNameCharacters() throws SQLException {
 		
-		return null;
+		throw new NotSupportedException(MSG);
 	}
 
 	@Override
@@ -392,19 +396,19 @@ public class EmptyDatabaseMetaData implements DatabaseMetaData{
 	@Override
 	public String getSchemaTerm() throws SQLException {
 		
-		return null;
+		throw new NotSupportedException(MSG);
 	}
 
 	@Override
 	public String getProcedureTerm() throws SQLException {
 		
-		return null;
+		throw new NotSupportedException(MSG);
 	}
 
 	@Override
 	public String getCatalogTerm() throws SQLException {
 		
-		return null;
+		throw new NotSupportedException(MSG);
 	}
 
 	@Override
@@ -416,7 +420,7 @@ public class EmptyDatabaseMetaData implements DatabaseMetaData{
 	@Override
 	public String getCatalogSeparator() throws SQLException {
 		
-		return null;
+		throw new NotSupportedException(MSG);
 	}
 
 	@Override
@@ -741,39 +745,39 @@ public class EmptyDatabaseMetaData implements DatabaseMetaData{
 	public ResultSet getProcedures(String catalog, String schemaPattern,
 			String procedureNamePattern) throws SQLException {
 		
-		return null;
+		throw new NotSupportedException(MSG);
 	}
 
 	@Override
 	public ResultSet getProcedureColumns(String catalog, String schemaPattern,
 			String procedureNamePattern, String columnNamePattern) throws SQLException {
 		
-		return null;
+		throw new NotSupportedException(MSG);
 	}
 
 	@Override
 	public ResultSet getTables(String catalog, String schemaPattern, String tableNamePattern,
 			String[] types) throws SQLException {
 		
-		return null;
+		throw new NotSupportedException(MSG);
 	}
 
 	@Override
 	public ResultSet getSchemas() throws SQLException {
 		
-		return null;
+		throw new NotSupportedException(MSG);
 	}
 
 	@Override
 	public ResultSet getCatalogs() throws SQLException {
 		
-		return null;
+		throw new NotSupportedException(MSG);
 	}
 
 	@Override
 	public ResultSet getTableTypes() throws SQLException {
 		
-		return null;
+		throw new NotSupportedException(MSG);
 	}
 
 	@Override
@@ -787,7 +791,7 @@ public class EmptyDatabaseMetaData implements DatabaseMetaData{
 	public ResultSet getColumnPrivileges(String catalog, String schema, String table,
 			String columnNamePattern) throws SQLException {
 		
-		return null;
+		throw new NotSupportedException(MSG);
 	}
 
 	@Override
@@ -802,35 +806,35 @@ public class EmptyDatabaseMetaData implements DatabaseMetaData{
 	public ResultSet getBestRowIdentifier(String catalog, String schema, String table,
 			int scope, boolean nullable) throws SQLException {
 		
-		return null;
+		throw new NotSupportedException(MSG);
 	}
 
 	@Override
 	public ResultSet getVersionColumns(String catalog, String schema, String table)
 			throws SQLException {
 		
-		return null;
+		throw new NotSupportedException(MSG);
 	}
 
 	@Override
 	public ResultSet getPrimaryKeys(String catalog, String schema, String table)
 			throws SQLException {
 		
-		return null;
+		throw new NotSupportedException(MSG);
 	}
 
 	@Override
 	public ResultSet getImportedKeys(String catalog, String schema, String table)
 			throws SQLException {
 		
-		return null;
+		throw new NotSupportedException(MSG);
 	}
 
 	@Override
 	public ResultSet getExportedKeys(String catalog, String schema, String table)
 			throws SQLException {
 		
-		return null;
+		throw new NotSupportedException(MSG);
 	}
 
 	@Override
@@ -838,7 +842,7 @@ public class EmptyDatabaseMetaData implements DatabaseMetaData{
 			String parentTable, String foreignCatalog, String foreignSchema,
 			String foreignTable) throws SQLException {
 		
-		return null;
+		throw new NotSupportedException(MSG);
 	}
 
 	@Override
@@ -851,7 +855,7 @@ public class EmptyDatabaseMetaData implements DatabaseMetaData{
 	public ResultSet getIndexInfo(String catalog, String schema, String table, boolean unique,
 			boolean approximate) throws SQLException {
 		
-		return null;
+		throw new NotSupportedException(MSG);
 	}
 
 	@Override
@@ -930,7 +934,7 @@ public class EmptyDatabaseMetaData implements DatabaseMetaData{
 	public ResultSet getUDTs(String catalog, String schemaPattern, String typeNamePattern,
 			int[] types) throws SQLException {
 		
-		return null;
+		throw new NotSupportedException(MSG);
 	}
 
 	@Override
@@ -1041,13 +1045,13 @@ public class EmptyDatabaseMetaData implements DatabaseMetaData{
 	@Override
 	public RowIdLifetime getRowIdLifetime() throws SQLException {
 		
-		return null;
+		throw new NotSupportedException(MSG);
 	}
 
 	@Override
 	public ResultSet getSchemas(String catalog, String schemaPattern) throws SQLException {
 		
-		return null;
+		throw new NotSupportedException(MSG);
 	}
 
 	@Override
@@ -1065,28 +1069,28 @@ public class EmptyDatabaseMetaData implements DatabaseMetaData{
 	@Override
 	public ResultSet getClientInfoProperties() throws SQLException {
 		
-		return null;
+		throw new NotSupportedException(MSG);
 	}
 
 	@Override
 	public ResultSet getFunctions(String catalog, String schemaPattern,
 			String functionNamePattern) throws SQLException {
 		
-		return null;
+		throw new NotSupportedException(MSG);
 	}
 
 	@Override
 	public ResultSet getFunctionColumns(String catalog, String schemaPattern,
 			String functionNamePattern, String columnNamePattern) throws SQLException {
 		
-		return null;
+		throw new NotSupportedException(MSG);
 	}
 
 	@Override
 	public ResultSet getPseudoColumns(String catalog, String schemaPattern,
 			String tableNamePattern, String columnNamePattern) throws SQLException {
 		
-		return null;
+		throw new NotSupportedException(MSG);
 	}
 
 	@Override

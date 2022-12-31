@@ -6,6 +6,9 @@
 
 package org.teasoft.honey.util;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
 /**
  * @author Kingstar
  * @since  1.9
@@ -51,6 +54,26 @@ public class ObjectCreator {
 	public static Float createFloat(String s) {
 		if (StringUtils.isBlank(s)) return null;
 		return Float.parseFloat(s);
+	}
+	
+	/**
+	 * create BigDecimal value
+	 * @param s
+	 * @return BigDecimal value
+	 * @since 2.0
+	 */
+	public static BigDecimal createBigDecimal(String s) {
+		return new BigDecimal(s);
+	}
+	
+	/**
+	 * create BigInteger value
+	 * @param s
+	 * @return BigInteger
+	 * @since 2.0
+	 */
+	public static BigInteger createBigInteger(String s) {
+		return new BigInteger(s);
 	}
 
 }

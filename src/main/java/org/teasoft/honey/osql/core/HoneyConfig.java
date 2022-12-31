@@ -419,6 +419,17 @@ public final class HoneyConfig {
 	public boolean multiDS_sharding; //用于分库分表的分片
 	
 	//----------------------------- multiDs  end
+	
+	
+	//----------------------------- sharding start
+	@SysValue("${bee.dosql.sharding.forkJoinBatchInsert}")
+	public boolean sharding_forkJoinBatchInsert;
+	
+	@SysValue("${bee.dosql.sharding.jdbcStreamSelect}")
+	public boolean sharding_jdbcStreamSelect=true;
+	
+	//----------------------------- sharding end
+	
 
 	public String getDbName() {
 		

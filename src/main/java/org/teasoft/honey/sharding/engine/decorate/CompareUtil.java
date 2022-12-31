@@ -55,8 +55,8 @@ public class CompareUtil {
 			return compareCaseInsensitiveString((String) thisValue, (String) otherValue,
 					orderType);
 		}
-		return OrderType.ASC == orderType ? thisValue.compareTo(otherValue)
-				: -thisValue.compareTo(otherValue);
+		int t = thisValue.compareTo(otherValue);
+		return OrderType.ASC == orderType ? t : -t;
 	}
 
 	private static Integer compareNumber(String thisValue, String otherValue,

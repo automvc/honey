@@ -29,9 +29,6 @@ public abstract class ShardingAbstractMongoBeeSQLExecutorEngine<T> extends Shard
 
 		super.index = index;
 		super.ds = ds;
-		
-//		System.out.println("----------------------- ds: "+ds);
-//		System.out.println("----------------------- tab: "+tab);
 	}
 
 	@Override
@@ -39,13 +36,13 @@ public abstract class ShardingAbstractMongoBeeSQLExecutorEngine<T> extends Shard
 		return doSharding();
 	}
 	
-	private MongodbBeeSql copy(MongodbBeeSql beeSql) {
+	private MongodbBeeSql copy(MongodbBeeSql mongodbBeeSql) {
 		try {
 			Serializer jdks = new JdkSerializer();
-			return (MongodbBeeSql) jdks.unserialize(jdks.serialize(beeSql));
+			return (MongodbBeeSql) jdks.unserialize(jdks.serialize(mongodbBeeSql));
 		} catch (Exception e) {
 			Logger.debug(e.getMessage(), e);
 		}
-		return beeSql; //有异常返回原来的
+		return mongodbBeeSql; //有异常返回原来的
 	}
 }

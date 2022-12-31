@@ -161,7 +161,7 @@ public abstract class AbstractBase {
 		return c.newInstance();
 	}
 	
-	private String shardingIndex() {
+	protected String shardingIndex() {
 		Integer subThreadIndex = HoneyContext.getSqlIndexLocal();
 		String index = "";
 		if (subThreadIndex != null) {
@@ -170,11 +170,11 @@ public abstract class AbstractBase {
 		return index;
 	}
 	
-	private boolean getShowSQL() {
+	protected boolean getShowSQL() {
 		return HoneyConfig.getHoneyConfig().showSQL;
 	}
 	
-	private boolean getShowShardingSQL() {
+	protected boolean getShowShardingSQL() {
 		return showSQL && HoneyConfig.getHoneyConfig().showShardingSQL;
 	}
 

@@ -37,6 +37,7 @@ import org.teasoft.honey.sharding.engine.ShardingSelectEngine;
 import org.teasoft.honey.sharding.engine.ShardingSelectFunEngine;
 import org.teasoft.honey.sharding.engine.ShardingSelectJsonEngine;
 import org.teasoft.honey.sharding.engine.ShardingSelectListStringArrayEngine;
+import org.teasoft.honey.sharding.engine.ShardingSelectRsEngine;
 import org.teasoft.honey.util.StringUtils;
 
 /**
@@ -83,10 +84,14 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 					logDsTab();
 					return list; 
 				}
-				List<T> rsList =new ShardingSelectEngine().asynProcess(sql, entityClass, this); // 应该还要传suid类型
-				//TODO  要动态选择
-//				List<T> rsList =new ShardingSelectRsEngine().asynProcess(sql, entityClass, this); //无结果集时,可能会报错
-//				if(rsList==null) rsList=Collections.emptyList();
+				
+				List<T> rsList;
+				boolean jdbcStreamSelect =HoneyConfig.getHoneyConfig().sharding_jdbcStreamSelect;
+				if(jdbcStreamSelect)
+					rsList =new ShardingSelectRsEngine().asynProcess(sql, entityClass, this); //无结果集时,可能会报错
+				else
+				   rsList =new ShardingSelectEngine().asynProcess(sql, entityClass, this); // 应该还要传suid类型
+				
 				addInCache(sql, rsList, "List<T>", SuidType.SELECT, rsList.size());  //缓存Key,是否包括了分片的DS,Tables
 				logSelectRows(rsList.size());
 				return rsList;
@@ -181,7 +186,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 	
 //	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	public ResultSet selectRs(String sql) {   //TODO 如何关闭Connection
+	public ResultSet selectRs(String sql) { 
 
 		Connection conn = null;
 		PreparedStatement pst = null;
@@ -1626,21 +1631,21 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 	}
 	*/
 	
-	private String shardingIndex() {
-		Integer subThreadIndex = HoneyContext.getSqlIndexLocal();
-		String index = "";
-		if (subThreadIndex != null) {
-			index = " (sharding " + subThreadIndex + ")";
-		}
-		return index;
-	}
+//	private String shardingIndex() {
+//		Integer subThreadIndex = HoneyContext.getSqlIndexLocal();
+//		String index = "";
+//		if (subThreadIndex != null) {
+//			index = " (sharding " + subThreadIndex + ")";
+//		}
+//		return index;
+//	}
 	
-	private boolean getShowSQL() {
-		return HoneyConfig.getHoneyConfig().showSQL;
-	}
-	
-	private boolean getShowShardingSQL() {
-		return showSQL && HoneyConfig.getHoneyConfig().showShardingSQL;
-	}
+//	private boolean getShowSQL() {
+//		return HoneyConfig.getHoneyConfig().showSQL;
+//	}
+//	
+//	private boolean getShowShardingSQL() {
+//		return showSQL && HoneyConfig.getHoneyConfig().showShardingSQL;
+//	}
 	
 }

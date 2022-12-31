@@ -51,10 +51,9 @@ public class ShardingSelectEngine {
 		sqls = list.get(0);
 		dsArray = list.get(1);
 
-		ExecutorService executor = Executors.newCachedThreadPool(); // TODO 池是否要调整
-//		ExecutorService executor = Executors.newWorkStealingPool(3);  //jdk 1.8 
+		ExecutorService executor = Executors.newCachedThreadPool();
 		CompletionService<List<T>> completionService = new ExecutorCompletionService<>(executor);
-		final List<Callable<List<T>>> tasks = new ArrayList<>(); // 构造任务
+		final List<Callable<List<T>>> tasks = new ArrayList<>();
 
 		for (int i = 0; sqls != null && i < sqls.length; i++) {
 			tasks.add(new ShardingBeeSQLExecutorEngine<T>(sqls[i], i + 1, beeSql, dsArray[i], entityClass));

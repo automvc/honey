@@ -62,7 +62,7 @@ public class ShardingAnnoHandlerController {
 			field.setAccessible(true);
 			Object shardingValue = field.get(entity); //可能是null,如何处理???
 			
-			//TODO 分库分表时,分片字段的值是null是,要查所有库表,怎么知道所有的库和表?
+			// 分库分表时,分片字段的值是null是,要查所有库表,怎么知道所有的库和表?
 			//交给具体处理器处理. 2022-05-02
 //			if (tenancyValue == null) {  
 //				Logger.error("多租户字段值是null.");

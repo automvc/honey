@@ -45,7 +45,7 @@ public class SqlLibForApp  extends AbstractBase implements BeeSql, Serializable 
 	
 	@Override
 	public ResultSet selectRs(String sql) {
-		// TODO Auto-generated method stub
+		
 		return null;
 	}
 

@@ -34,7 +34,7 @@ public class MongodbShardingRouter {
 
 		String dsArray[] = new String[tabSuffixList.size()];
 		for (int i = 0; i < tabSuffixList.size(); i++) {
-			String dsName = tab2DsMap.get(tabSuffixList.get(i)); // 只在使用注解时, 分库与分表同属于一个分片键,才有用. TODO
+			String dsName = tab2DsMap.get(tabSuffixList.get(i)); // 只在使用注解时, 分库与分表同属于一个分片键,才有用. 
 			if (StringUtils.isBlank(dsName)) {
 				dsName = ShardingRegistry.getDsByTab(tabNameList.get(i));
 			}

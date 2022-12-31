@@ -57,9 +57,8 @@ public class ShardingSelectJsonEngine {
 		dsArray = list.get(1);
 
 		ExecutorService executor = Executors.newCachedThreadPool();
-//		ExecutorService executor = Executors.newWorkStealingPool(3);  //jdk 1.8 
 		CompletionService<String> completionService = new ExecutorCompletionService<>(executor);
-		final List<Callable<String>> tasks = new ArrayList<>(); // 构造任务
+		final List<Callable<String>> tasks = new ArrayList<>();
 
 		for (int i = 0; sqls != null && i < sqls.length; i++) {
 			tasks.add(new ShardingBeeSQLJsonExecutorEngine(sqls[i], i + 1, beeSql, dsArray[i]));
@@ -96,8 +95,6 @@ public class ShardingSelectJsonEngine {
 
 			// 排序装饰
 			SortListDecorator.sort(entityList);
-
-			// 排序后,要将数据放缓存. TODO
 
 			// 分页装饰
 			// 获取指定的一页数据

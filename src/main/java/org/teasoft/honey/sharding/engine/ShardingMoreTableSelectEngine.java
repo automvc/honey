@@ -51,16 +51,14 @@ public class ShardingMoreTableSelectEngine {
 		sqls = list.get(0);
 		dsArray = list.get(1);
 
-		ExecutorService executor = Executors.newCachedThreadPool(); // TODO 池是否要调整
-//		ExecutorService executor = Executors.newWorkStealingPool(3);  //jdk 1.8 
+		ExecutorService executor = Executors.newCachedThreadPool();
 		CompletionService<List<T>> completionService = new ExecutorCompletionService<>(executor);
-		final List<Callable<List<T>>> tasks = new ArrayList<>(); // 构造任务
+		final List<Callable<List<T>>> tasks = new ArrayList<>(); 
 
 		for (int i = 0; sqls != null && i < sqls.length; i++) {
 			tasks.add(new ShardingBeeSQLExecutorEngine<T>(sqls[i], i + 1, beeSql, dsArray[i], entity));
 		}
 
-//		Logger.logSQL("========= Do sharding , the size of sub operation is :" + sqls.length);
 		if(sqls!=null) ShardingLogReg.log(sqls.length);
 		
 //		Bee SQL Executor Engine
@@ -77,8 +75,6 @@ public class ShardingMoreTableSelectEngine {
 
 		// 排序装饰
 		SortListDecorator.sort(rsList);
-
-		// 排序后,要将数据放缓存. TODO
 
 		if(showShardingSQL) Logger.debug("before ResultPagingDecorator, rows: "+rsList.size());
 		
@@ -108,7 +104,6 @@ public class ShardingMoreTableSelectEngine {
 			ShardingLogReg.regShardingSqlLog("select SQL", index, sql);
 			return beeSql.moreTableSelect(this.sql, this.entity); // 都是传同一个beeSql,是否会有线程问题?????
 		}
-
 	}
 
 }

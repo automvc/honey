@@ -83,7 +83,9 @@ public class ShardingReg {
 	
 	public static void regShadingPage(String beforeSql, String pagingSql, Integer start, Integer size) {
 		
-		// TODO 可能一些标记还要保留
+		if(size==null || (start==null && size==null)) return ;
+		
+		//  可能一些标记还要保留
 		if (ShardingUtil.hadSharding()) {// 有分片才要记录
 			ShardingPageStruct struct=new ShardingPageStruct();
 			struct.setBeforeSql(beforeSql);

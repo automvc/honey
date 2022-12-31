@@ -16,23 +16,25 @@ import java.util.concurrent.Executors;
 
 import org.teasoft.bee.mongodb.MongoSqlStruct;
 import org.teasoft.bee.mongodb.MongodbBeeSql;
+import org.teasoft.bee.osql.FunctionType;
+import org.teasoft.honey.osql.core.HoneyContext;
 import org.teasoft.honey.osql.core.ShardingLogReg;
+import org.teasoft.honey.osql.core.StringConst;
 import org.teasoft.honey.sharding.ShardingUtil;
 import org.teasoft.honey.sharding.engine.ResultMergeEngine;
-import org.teasoft.honey.sharding.engine.decorate.ResultPagingDecorator;
-import org.teasoft.honey.sharding.engine.decorate.SortStringArrayListDecorator;
+import org.teasoft.honey.sharding.engine.ShardingFunResultEngine;
 
 /**
  * 分片的select操作
- * 专门为处理返回值是List<String[]>的类型
+ * 主要是对函数操作的分片.
  * @author AiTeaSoft
  * @since  2.0
  */
-public class MongodbShardingSelectListStringArrayEngine {
+public class MongodbShardingSelectFunEngine {
 
-//	@SuppressWarnings("rawtypes")
-	public <T> List<String[]> asynProcess(Class<T> entityClass, MongodbBeeSql mongodbBeeSql,MongoSqlStruct struct) {
-		
+	public <T> String asynProcess(Class<T> entityClass, MongodbBeeSql mongodbBeeSql,
+			MongoSqlStruct struct) {
+
 		List<String[]> list;
 		String dsArray[];
 		String tabArray[];
@@ -46,59 +48,59 @@ public class MongodbShardingSelectListStringArrayEngine {
 		tabArray = list.get(1);
 
 		ExecutorService executor = Executors.newCachedThreadPool();
-		CompletionService<List<String[]>> completionService = new ExecutorCompletionService<>(executor);
-		final List<Callable<List<String[]>>> tasks = new ArrayList<>(); 
+		CompletionService<String> completionService = new ExecutorCompletionService<>(executor);
+		final List<Callable<String>> tasks = new ArrayList<>(); 
 
-//		for (int i = 0; sqls != null && i < sqls.length; i++) {
-//			tasks.add(new ShardingBeeSQLExecutorEngine(sqls[i], i + 1, beeSql, dsArray[i]));
-//		}
-		
 		for (int i = 0; dsArray != null && i < dsArray.length; i++) {
-			tasks.add(new ShardingBeeSQLExecutorEngine<T>(tabArray[i], i + 1, mongodbBeeSql,
+			tasks.add(new ShardingBeeSQLFunExecutorEngine(tabArray[i], i + 1, mongodbBeeSql,
 					dsArray[i], entityClass, struct));
 		}
-		
+
 		if (dsArray != null) ShardingLogReg.log(dsArray.length);
-		
-//		Bee SQL Executor Engine
-		int size=tasks.size();
+
+		int size = tasks.size();
 		for (int i = 0; tasks != null && i < size; i++) {
 			completionService.submit(tasks.get(i));
 		}
 
-		//Result Merge
-		List<String[]> rsList = ResultMergeEngine.merge(completionService, size);
+		List<String> rsList = ResultMergeEngine.mergeFunResult(completionService, size);
 
 		executor.shutdown();
-		
-		// 排序装饰
-		SortStringArrayListDecorator.sort(rsList);
 
-		// 分页装饰
-		// 获取指定的一页数据
-		ResultPagingDecorator.pagingList(rsList);
-		
-		return rsList;
+		return ShardingFunResultEngine.funResultEngine(rsList);
 	}
 
-
-	private class ShardingBeeSQLExecutorEngine<T>
-			extends ShardingAbstractMongoBeeSQLExecutorEngine<List<String[]>> {
-
-		private Class<T> entityClass;
+//	Return String 		
+	private class ShardingBeeSQLFunExecutorEngine
+			extends ShardingAbstractMongoBeeSQLExecutorEngine<String> {
+		private Class entityClass;
 		private MongoSqlStruct struct;
 
-		public ShardingBeeSQLExecutorEngine(String tab, int index, MongodbBeeSql mongodbBeeSql,
-				String ds, Class<T> entityClass, MongoSqlStruct struct) {
+		public ShardingBeeSQLFunExecutorEngine(String tab, int index,
+				MongodbBeeSql mongodbBeeSql, String ds, Class entityClass,
+				MongoSqlStruct struct) {
 			super(tab, index, mongodbBeeSql, ds);
 			this.entityClass = entityClass;
 			this.struct = struct.copy();
 			this.struct.setTableName(tab);
 		}
 
-		public List<String[]> shardingWork() {
-			ShardingLogReg.regShardingSqlLog("select SQL", index, tab);
-			return mongodbBeeSql.selectString(struct, entityClass);
+		public String shardingWork() {
+			ShardingLogReg.regShardingSqlLog("select fun SQL", index, tab);
+			String rsStr = "";
+			String typeTag = "";
+			typeTag = "select fun";
+
+			String funType = HoneyContext.getSysCommStrLocal(StringConst.FunType);
+			if (FunctionType.COUNT.getName().equalsIgnoreCase(funType)) {
+				rsStr = mongodbBeeSql.count(struct, entityClass);
+			} else {
+				rsStr = mongodbBeeSql.selectWithFun(struct, entityClass);
+			}
+			
+			ShardingLogReg.regShardingSqlLog("    | <--  " + typeTag, index, rsStr);
+
+			return rsStr;
 		}
 	}
 

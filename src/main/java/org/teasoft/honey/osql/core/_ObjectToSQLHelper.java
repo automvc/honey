@@ -191,7 +191,7 @@ final class _ObjectToSQLHelper {
 		}
 
 		setContext(sqlBuffer.toString(), list, tableName); //若使用表名占位用于sharding, 则拆分sql运行后,要重置缓存.
-		                                                   //TODO 这样,就不用在这修改生成sql的代码
+		                                                   //todo 这样,就不用在这修改生成sql的代码
 
 		return sqlBuffer.toString();
 	}

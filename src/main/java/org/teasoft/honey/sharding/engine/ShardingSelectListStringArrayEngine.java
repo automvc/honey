@@ -70,7 +70,6 @@ public class ShardingSelectListStringArrayEngine {
 		
 		// 排序装饰
 		SortStringArrayListDecorator.sort(rsList);
-		// 排序后,要将数据放缓存. TODO
 
 		// 分页装饰
 		// 获取指定的一页数据

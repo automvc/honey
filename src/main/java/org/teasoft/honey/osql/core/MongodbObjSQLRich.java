@@ -22,7 +22,9 @@ import org.teasoft.bee.osql.exception.BeeIllegalParameterException;
 import org.teasoft.honey.osql.shortcut.BF;
 import org.teasoft.honey.sharding.ShardingUtil;
 import org.teasoft.honey.sharding.engine.batch.ShardingBatchInsertEngine;
+import org.teasoft.honey.sharding.engine.batch.ShardingForkJoinBatchInsertEngine;
 import org.teasoft.honey.util.ObjectUtils;
+import org.teasoft.honey.util.currency.CurrencyArithmetic;
 
 /**
  * SuidRich实现类.Suidrich implementation class.
@@ -33,22 +35,14 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 
 	private static final long serialVersionUID = 1596710362258L;
 	
-//	private ObjToSQLRich objToSQLRich; 
-	
-//	private static final String SELECT_SQL = "select SQL: ";
-//	private static final String SELECT_JSON_SQL = "selectJson SQL: ";
-//	private static final String DELETE_BY_ID_SQL = "deleteById SQL: ";
-//	private static final String SELECT_BY_ID_SQL = "selectById SQL: ";
-//	private static final String UPDATE_SQL_WHERE_FIELDS = "update SQL(whereFields) :";
-//	private static final String UPDATE_SQL_UPDATE_FIELDS = "update SQL(updateFields) :";
 	private static final String ID_IS_NULL = "in method selectById,id is null! ";
     private static final String START_GREAT_EQ_0 = "Parameter 'start' need great equal 0!";
 	private static final String SIZE_GREAT_0 = "Parameter 'size' need great than 0!";
 	private static final String TIP_SIZE_0 = "The size is 0, but it should be greater than 0 (>0)";
 	
 	
-//	private int defaultBatchSize = HoneyConfig.getHoneyConfig().insertBatchSize;  //TODO
-	private int defaultBatchSize =1000;
+	private int defaultBatchSize = HoneyConfig.getHoneyConfig().insertBatchSize;  //TODO
+//	private int defaultBatchSize =1000;
 
 	@Override
 	public <T> List<T> select(T entity, int size) {
@@ -158,8 +152,11 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 			a = _insert(entity, batchSize, excludeFields);
 		} else {
 			try {
-//			a = new ShardingForkJoinBatchInsertEngine<T>().batchInsert(entity, batchSize, excludeFields,tabNameListForBatch, this);
-				a = new ShardingBatchInsertEngine<T>().batchInsert(entity, batchSize, excludeFields, tabNameListForBatch, this);
+				boolean forkJoin=HoneyConfig.getHoneyConfig().sharding_forkJoinBatchInsert;
+				if(forkJoin)
+			       a = new ShardingForkJoinBatchInsertEngine<T>().batchInsert(entity, batchSize, excludeFields,tabNameListForBatch, this);
+				else
+				  a = new ShardingBatchInsertEngine<T>().batchInsert(entity, batchSize, excludeFields, tabNameListForBatch, this);
 			} catch (Exception e) {
 				Logger.error(e.getMessage(), e);
 			} finally {
@@ -217,7 +214,15 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 		_regEntityClass1(entity);
 		_regFunType(functionType);
 		
-		String rs=getMongodbBeeSql().selectWithFun(entity, functionType, fieldForFun, condition);
+		String rs = "";
+		if (FunctionType.AVG == functionType && ShardingUtil.hadSharding()
+				&& HoneyContext.getSqlIndexLocal() == null) { //avg sharding
+			String count = count(entity, condition) + "";
+			String sum = selectWithFun(entity, FunctionType.SUM, fieldForFun, condition);
+			rs = CurrencyArithmetic.divide(sum, count);
+		} else {
+			rs = getMongodbBeeSql().selectWithFun(entity, functionType, fieldForFun, condition);
+		}
 
 		doBeforeReturn();
 		return rs;
@@ -233,6 +238,7 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 
 		if (entity == null) return 0;
 		regCondition(condition);
+		_regFunType(FunctionType.COUNT);
 		doBeforePasreEntity(entity, SuidType.SELECT);
 		if (condition != null) condition.setSuidType(SuidType.SELECT);
 		int c = getMongodbBeeSql().count(entity, condition);
@@ -484,13 +490,6 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 		doBeforePasreEntity(entity,SuidType.SELECT);
 		_regEntityClass1(entity);
 		
-//		String sql = getObjToSQLRich().toSelectSQL(entity, condition.getIncludeType(),condition);
-//		sql = doAfterCompleteSql(sql);
-//		Logger.logSQL(SELECT_JSON_SQL, sql);
-//		
-//		String json= getMongodbBeeSql().selectJson(sql);
-		
-		
 		String json=getMongodbBeeSql().selectJson(entity, condition);
 		
 		doBeforeReturn();
@@ -596,11 +595,6 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 		if(entity==null) return ;
 		HoneyContext.regEntityClass(entity.getClass());
 	}
-	
-//	@SuppressWarnings("rawtypes")
-//	private void _regEntityClass2(Class clazz){
-//		HoneyContext.regEntityClass(clazz);
-//	}
 	
 	private <T> void _regFunType(FunctionType functionType){
 		HoneyContext.regFunType(functionType);

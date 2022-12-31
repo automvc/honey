@@ -404,6 +404,8 @@ public final class CacheUtil {
 	
 	private static void _clearMoreTabCache(String sql){
 	    List<String> tableNameList=CacheKey.genTableNameList(sql); 
+//	    System.err.println("------------清除缓存----------------");
+//	    System.err.println(tableNameList);
 	    HoneyContext.deleteCacheInfo(sql);//要清除cacheStruct
 		for (int j = 0; tableNameList!=null && j < tableNameList.size(); j++) {  // NULL tableNameList
 			_clearOneTabCache(tableNameList.get(j));
@@ -413,6 +415,7 @@ public final class CacheUtil {
 	private static void _clearForeverModifySyn(String sql) {
 
 		List<String> tableNameList = CacheKey.genTableNameList(sql);
+		System.err.println(tableNameList);
 //		String key=CacheKey.genKey(sql);
 		 
 		Integer k;

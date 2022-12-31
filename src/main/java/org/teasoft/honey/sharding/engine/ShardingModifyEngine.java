@@ -44,7 +44,7 @@ public class ShardingModifyEngine {
 		ExecutorService executor = Executors.newCachedThreadPool();
 		CompletionService<Integer> completionService = new ExecutorCompletionService<>(
 				executor);
-		final List<Callable<Integer>> tasks = new ArrayList<>(); // 构造任务
+		final List<Callable<Integer>> tasks = new ArrayList<>(); 
 
 		for (int i = 0; sqls != null && i < sqls.length; i++) {
 			tasks.add(new ShardingBeeSQLModifyExecutorEngine(sqls[i], i + 1, beeSql, dsArray[i]));

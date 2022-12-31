@@ -34,7 +34,7 @@ import org.teasoft.honey.sharding.engine.decorate.OrderByStreamResult;
  * @author AiTeaSoft
  * @since  2.0
  */
-public class ShardingSelectRsEngine {  //当只有一个子线程时,不应该走这个??  
+public class ShardingSelectRsEngine {
 	
 	public <T> List<T> asynProcess(String sql, Class<T> entityClass, BeeSql beeSql) {
 

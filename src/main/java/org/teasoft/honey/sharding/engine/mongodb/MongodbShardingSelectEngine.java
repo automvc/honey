@@ -39,8 +39,7 @@ public class MongodbShardingSelectEngine {
 				&& HoneyConfig.getHoneyConfig().showShardingSQL;
 	}
 
-	public <T> List<T> asynProcess(Class<T> entityClass, MongodbBeeSql mongodbBeeSql,
-			MongoSqlStruct struct) {
+	public <T> List<T> asynProcess(Class<T> entityClass, MongodbBeeSql mongodbBeeSql,MongoSqlStruct struct) {
 
 		List<String[]> list;
 		String dsArray[];
@@ -102,16 +101,16 @@ public class MongodbShardingSelectEngine {
 		private Class<T> entityClass;
 		private MongoSqlStruct struct;
 
-		public ShardingBeeSQLExecutorEngine(String tab, int index, MongodbBeeSql beeSql,
+		public ShardingBeeSQLExecutorEngine(String tab, int index, MongodbBeeSql mongodbBeeSql,
 				String ds, Class<T> entityClass, MongoSqlStruct struct) {
-			super(tab, index, beeSql, ds);
+			super(tab, index, mongodbBeeSql, ds);
 			this.entityClass = entityClass;
 			this.struct = struct.copy();
-			this.struct.tableName = tab;
+			this.struct.setTableName(tab);
 		}
 
 		public List<T> shardingWork() {
-//			ShardingLogReg.regShardingSqlLog("select SQL", index, tab);
+			ShardingLogReg.regShardingSqlLog("select SQL", index, tab);
 			return mongodbBeeSql.select(struct, entityClass);
 		}
 	}

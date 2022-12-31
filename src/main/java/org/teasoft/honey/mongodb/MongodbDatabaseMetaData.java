@@ -10,7 +10,6 @@ import java.sql.SQLException;
 
 import org.teasoft.bee.osql.DatabaseConst;
 import org.teasoft.honey.jdbc.EmptyDatabaseMetaData;
-import org.teasoft.honey.osql.core.Logger;
 
 /**
  * @author Kingstar
@@ -20,7 +19,7 @@ public class MongodbDatabaseMetaData extends EmptyDatabaseMetaData {
 	
 	@Override
 	public String getDatabaseProductName() throws SQLException {
-		Logger.info("------------------ getDatabaseProductName in MongodbDatabaseMetaData");
+//		Logger.info("------------------ getDatabaseProductName in MongodbDatabaseMetaData");
 		return DatabaseConst.MongoDB; //为了兼容JDBC
 	}
 }

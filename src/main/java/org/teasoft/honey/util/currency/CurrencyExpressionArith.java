@@ -105,7 +105,7 @@ protected static String arith(List<String> list,int scale,RoundingMode divideRou
 		
 	}
 	
-	//todo 带变量的,从这调用
+	//带变量的,从这调用
 	static List<String> inToPostList(String s,boolean isNumberCalculate){
     	 Stack<Character> op = new Stack<>();  //堆栈用来放符号
     	 

@@ -38,7 +38,8 @@ public class OrderByStreamResult<T> {
 		ShardingPageStruct shardingPage = HoneyContext.getCurrentShardingPage();
 		if (shardingPage != null) {
 			int type = shardingPage.getPagingType();
-			if (type == 2 || type == 3) {
+//			if (type == 2 || type == 3) {
+			if (type != 1) {
 				int start = shardingPage.getStart();
 				int size = shardingPage.getSize();
 				int first = ShardingUtil.firstRecordIndex();

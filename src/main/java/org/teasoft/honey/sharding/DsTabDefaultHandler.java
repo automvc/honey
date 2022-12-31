@@ -76,7 +76,7 @@ public class DsTabDefaultHandler implements DsTabHandler {
 	     	}
 			
 			String suffix = calculate1.process(dsRule, shardingValue);
-			if (dsName.contains(dsRuleConst)) { //TODO test
+			if (dsName.contains(dsRuleConst)) { // test
 				dsName=dsName.replace(dsRuleConst, suffix);
 			} else {
 				dsName = dsName + suffix;

@@ -25,11 +25,15 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Executor;
 
+import org.teasoft.bee.osql.exception.NotSupportedException;
+
 /**
  * @author Kingstar
  * @since  2.0
  */
 public class EmptyConnection implements Connection{
+	
+	private static final String MSG="Do not support this method!";
 
 	@Override
 	public <T> T unwrap(Class<T> iface) throws SQLException {
@@ -51,8 +55,7 @@ public class EmptyConnection implements Connection{
 
 	@Override
 	public PreparedStatement prepareStatement(String sql) throws SQLException {
-		// TODO Auto-generated method stub
-		return null;
+		throw new NotSupportedException(MSG);
 	}
 
 	@Override

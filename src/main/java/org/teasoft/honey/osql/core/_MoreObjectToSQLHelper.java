@@ -262,7 +262,7 @@ public class _MoreObjectToSQLHelper {
 			  for (int s = 1; s <= 2; s++) { // 从表在数组下标是1和2. 0是主表
 				if (moreTableStruct[s] != null) {
 					
-					useSubTableNames[s-1]=moreTableStruct[s].useSubTableName; //for conditon parse    TODO ??????
+					useSubTableNames[s-1]=moreTableStruct[s].useSubTableName; //for conditon parse    todo ??????
 					
 					sqlBuffer.append(COMMA);
 					sqlBuffer.append(moreTableStruct[s].tableName);
@@ -334,10 +334,10 @@ public class _MoreObjectToSQLHelper {
 				 useSubTableNames[2]=tableName;   //v1.9.8 useSubTableNames[2] add main tableName 放主表实际表名
 				 
 				 OneTimeParameter.setAttribute(StringConst.Column_EC, entity.getClass());
-			     ConditionHelper.processCondition(sqlBuffer, list, condition, firstWhere,useSubTableNames); //这句会有分页. TODO
+			     ConditionHelper.processCondition(sqlBuffer, list, condition, firstWhere,useSubTableNames); //这句会有分页. 
 			}
 			
-//			if(start!=-1 && size!=-1){ //若传参及Condition都有分页,转出来的sql可能语法不对.   //应该合并. TODO   MoreTable不会同时传两样过来.
+//			if(start!=-1 && size!=-1){ //若传参及Condition都有分页,转出来的sql可能语法不对.   //应该合并.    MoreTable不会同时传两样过来.
 //				HoneyUtil.regPagePlaceholder();
 //				adjustSqlServerPagingPkIfNeed(sqlBuffer.toString(), entity.getClass(),tableName);
 //				sql=getDbFeature().toPageSql(sqlBuffer.toString(), start, size);
