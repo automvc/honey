@@ -297,18 +297,18 @@ public class ShardingInterceptor extends EmptyInterceptor {
 				}
 				
 			} else if (Op.in.getOperator().equalsIgnoreCase(opType)
-					|| K.between.equalsIgnoreCase(opType)) {
+					|| (" "+K.between+" ").equalsIgnoreCase(opType)) {
 
 				Object v = expression.getValue();
 				
-				List inList;
+				List<?> inList;
 				if (Op.in.getOperator().equalsIgnoreCase(opType)) {
 					inList = processIn(v);
-				} else {
+				} else { // between v and v2 -> [v,v2]
 					String tableName = _toTableName(entity);
-					int tabSize=ShardingRegistry.getTabSize(tableName);
+					int tabSize = ShardingRegistry.getTabSize(tableName);
 					Object v2 = expression.getValue2();
-					inList = processBetween(v,v2,tabSize);
+					inList = processBetween(v, v2, tabSize);
 				}
 
 				int len = inList.size();
@@ -499,7 +499,7 @@ public class ShardingInterceptor extends EmptyInterceptor {
 	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private static List processBetween(Object v, Object v2,int tabSize) {
+	private static List processBetween(Object v, Object v2, int tabSize) {
 		List inList = new ArrayList();
 
 		try {
@@ -514,9 +514,9 @@ public class ShardingInterceptor extends EmptyInterceptor {
 				r2 = d2.intValue();
 			} else {
 				r = Integer.parseInt(value);
-				r2 = Integer.parseInt(value.toString());
+				r2 = Integer.parseInt(v2.toString());
 			}
-			for (int i = r; i < r2 && r2<=i+tabSize; i++) {
+			for (int i = r; i <= r2 && r2<=i+tabSize; i++) {
 				inList.add(i);
 			}
 
