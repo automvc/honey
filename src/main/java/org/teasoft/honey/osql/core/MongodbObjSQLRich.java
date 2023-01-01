@@ -74,7 +74,7 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 	}
 
 	@Override
-	public <T> List<T> select(T entity, String selectField) {
+	public <T> List<T> select(T entity, String... selectField) {
 		if (entity == null) return null;
 		
 		Condition condition=BF.getCondition();
@@ -84,7 +84,7 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 	}
 
 	@Override
-	public <T> List<T> select(T entity, String selectFields, int start, int size) {
+	public <T> List<T> select(T entity, int start, int size, String... selectFields) {
 		if (entity == null) return null;
 		if (size == 0) {
 			Logger.warn(TIP_SIZE_0);
@@ -184,9 +184,9 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 	}
 
 	@Override
-	public <T> int update(T entity, String updateFields) {
+	public <T> int update(T entity, String... updateFields) {
 		Condition condition=null;
-		return update(entity, updateFields, condition);
+		return update(entity, condition, updateFields);
 	}
 
 	@Override
@@ -260,8 +260,8 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 	}
 
 	@Override
-	public <T> int update(T entity, String updateFields, IncludeType includeType) {
-		return update(entity, updateFields, BF.getCondition().setIncludeType(includeType));
+	public <T> int update(T entity, IncludeType includeType, String... updateFields) {
+		return update(entity, BF.getCondition().setIncludeType(includeType), updateFields);
 	}
 
 	@Override
@@ -272,7 +272,7 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 
 	@Override
 	public <T> int update(T entity, IncludeType includeType) {
-		return updateBy(entity, "id", BF.getCondition().setIncludeType(includeType));
+		return updateBy(entity, BF.getCondition().setIncludeType(includeType), "id");
 	}
 
 	@Override
@@ -347,13 +347,13 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 	}
 	
 	@Override
-	public <T> String selectJson(T entity, String selectField) {
-		Condition condition=BF.getCondition();
+	public <T> String selectJson(T entity, String... selectField) {
+		Condition condition = BF.getCondition();
 		return selectJson(entity, condition.selectField(selectField));
 	}
 	
 	@Override
-	public <T> String selectJson(T entity, String selectFields, int start, int size) {
+	public <T> String selectJson(T entity, int start, int size, String... selectFields) {
 		if (entity == null) return null;
 		if (size == 0) {
 			Logger.warn(TIP_SIZE_0);
@@ -510,24 +510,24 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 	}
 
 	@Override
-	public <T> int updateBy(T entity, String whereFields) {
+	public <T> int updateBy(T entity, String... whereFields) {
 		Condition condition = null;
-		return updateBy(entity, whereFields, condition);
+		return updateBy(entity, condition, whereFields);
 	}
 
 	@Override
-	public <T> int updateBy(T entity, String whereFields, IncludeType includeType) {
-		return updateBy(entity, whereFields, BF.getCondition().setIncludeType(includeType));
+	public <T> int updateBy(T entity, IncludeType includeType, String... whereFields) {
+		return updateBy(entity, BF.getCondition().setIncludeType(includeType), whereFields);
 	}
 
 	// v1.7.2
 	@Override
-	public <T> int updateBy(T entity, String whereFields, Condition condition) {
+	public <T> int updateBy(T entity, Condition condition, String... whereFields) {
 		if (entity == null) return 0;
 
 		doBeforePasreEntity(entity, SuidType.UPDATE);
 
-		int updateNum = getMongodbBeeSql().updateBy(entity, whereFields, condition);
+		int updateNum = getMongodbBeeSql().updateBy(entity, condition, whereFields);
 
 		doBeforeReturn();
 
@@ -546,17 +546,17 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 		}
 
 		// 支持联合主键
-		return updateBy(entity, pkName, condition);
+		return updateBy(entity, condition, pkName);
 	}
 
 	// v1.7.2
 	@Override
-	public <T> int update(T entity, String updateFields, Condition condition) {
+	public <T> int update(T entity, Condition condition, String... updateFields) {
 		if (entity == null) return 0;
 
 		doBeforePasreEntity(entity, SuidType.UPDATE);
 
-		int updateNum = getMongodbBeeSql().update(entity, updateFields, condition);
+		int updateNum = getMongodbBeeSql().update(entity, condition, updateFields);
 
 		doBeforeReturn();
 
@@ -566,7 +566,7 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 	//v1.8
 	@Override
 	public <T> int update(T entity, Condition condition) {
-		return update(entity, "", condition);
+		return update(entity, condition, "");
 	}
 	
 	//1.9

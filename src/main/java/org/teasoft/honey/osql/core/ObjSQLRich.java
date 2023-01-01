@@ -105,7 +105,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 	}
 
 	@Override
-	public <T> List<T> select(T entity, String selectField) {//sqlLib.selectSomeField
+	public <T> List<T> select(T entity, String... selectField) {//sqlLib.selectSomeField
 		if (entity == null) return null;
 		List<T> list = null;
 		try {
@@ -122,7 +122,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 	}
 
 	@Override
-	public <T> List<T> select(T entity, String selectFields, int start, int size) {
+	public <T> List<T> select(T entity, int start, int size, String... selectFields) {
 		if (entity == null) return null;
 		if (size == 0) {
 			Logger.warn(TIP_SIZE_0);
@@ -132,7 +132,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 		if(start<0) throw new BeeIllegalParameterException(START_GREAT_EQ_0);
 		doBeforePasreEntity(entity,SuidType.SELECT);
 		List<T> list = null;
-		String sql = getObjToSQLRich().toSelectSQL(entity, selectFields,start,size);
+		String sql = getObjToSQLRich().toSelectSQL(entity, start, size, selectFields);
 		sql = doAfterCompleteSql(sql);
 		list = getBeeSql().selectSomeField(sql, toClassT(entity));
 		doBeforeReturn(list);
@@ -246,7 +246,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 	}
 
 	@Override
-	public <T> int update(T entity, String updateFields) {
+	public <T> int update(T entity, String... updateFields) {
 		if (entity == null) return -1;
 		doBeforePasreEntity(entity,SuidType.UPDATE);
 		int r = 0;
@@ -312,11 +312,11 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 	}
 
 	@Override
-	public <T> int update(T entity, String updateFields, IncludeType includeType) {
+	public <T> int update(T entity, IncludeType includeType, String... updateFields) {
 		if (entity == null) return -1;
 		doBeforePasreEntity(entity,SuidType.UPDATE);
 		int r = 0;
-		String sql = getObjToSQLRich().toUpdateSQL(entity, updateFields, includeType);
+		String sql = getObjToSQLRich().toUpdateSQL(entity, includeType, updateFields);
 		_regEntityClass1(entity);
 		sql = doAfterCompleteSql(sql);
 		Logger.logSQL(UPDATE_SQL_UPDATE_FIELDS, sql);
@@ -472,7 +472,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 	}
 	
 	@Override
-	public <T> String selectJson(T entity, String selectField) {
+	public <T> String selectJson(T entity, String... selectField) {
 		if (entity == null) return null;
 		doBeforePasreEntity(entity,SuidType.SELECT);
 		
@@ -486,7 +486,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 	}
 	
 	@Override
-	public <T> String selectJson(T entity, String selectFields, int start, int size) {
+	public <T> String selectJson(T entity, int start, int size, String... selectFields) {
 		if (entity == null) return null;
 		if (size == 0) {
 			Logger.warn(TIP_SIZE_0);
@@ -496,7 +496,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 		if(start<0) throw new BeeIllegalParameterException(START_GREAT_EQ_0);
 		
 		doBeforePasreEntity(entity,SuidType.SELECT);
-		String sql = getObjToSQLRich().toSelectSQL(entity, selectFields,start,size);
+		String sql = getObjToSQLRich().toSelectSQL(entity,start,size, selectFields);
 		_regEntityClass1(entity);
 		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("selectJson(T entity, String selectField, int start, int size) SQL: ", sql);
@@ -677,7 +677,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 	}
 
 	@Override
-	public <T> int updateBy(T entity, String whereFields) {
+	public <T> int updateBy(T entity, String... whereFields) {
 		if (entity == null) return -1;
 		doBeforePasreEntity(entity,SuidType.UPDATE);
 		int r = 0;
@@ -691,11 +691,11 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 	}
 
 	@Override
-	public <T> int updateBy(T entity, String whereFields, IncludeType includeType) {
+	public <T> int updateBy(T entity, IncludeType includeType, String... whereFields) {
 		if (entity == null) return -1;
 		doBeforePasreEntity(entity,SuidType.UPDATE);
 		int r = 0;
-		String sql = getObjToSQLRich().toUpdateBySQL(entity, whereFields, includeType);//updateBy
+		String sql = getObjToSQLRich().toUpdateBySQL(entity, includeType, whereFields);//updateBy
 		_regEntityClass1(entity);
 		sql = doAfterCompleteSql(sql);
 		Logger.logSQL(UPDATE_SQL_WHERE_FIELDS, sql);
@@ -706,12 +706,12 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 	
 	//v1.7.2
 	@Override
-	public <T> int updateBy(T entity, String whereFields, Condition condition) {
+	public <T> int updateBy(T entity, Condition condition, String... whereFields) {
 		if (entity == null) return -1;
 		regCondition(condition);
 		doBeforePasreEntity(entity,SuidType.UPDATE);
 		int r = 0;
-		String sql = getObjToSQLRich().toUpdateBySQL(entity, whereFields, condition);//updateBy
+		String sql = getObjToSQLRich().toUpdateBySQL(entity, condition, whereFields);//updateBy
 		_regEntityClass1(entity);
 		sql = doAfterCompleteSql(sql);
 		Logger.logSQL(UPDATE_SQL_WHERE_FIELDS, sql);
@@ -732,17 +732,17 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 		}
 		
 	   //支持联合主键
-       return updateBy(entity, pkName, condition);
+       return updateBy(entity, condition, pkName);
 	}
 
 	//v1.7.2
 	@Override
-	public <T> int update(T entity, String updateFields, Condition condition) {
+	public <T> int update(T entity, Condition condition, String... updateFields) {
 		if (entity == null) return -1;
 		regCondition(condition);
 		doBeforePasreEntity(entity,SuidType.UPDATE);
 		int r = 0;
-		String sql = getObjToSQLRich().toUpdateSQL(entity, updateFields, condition);
+		String sql = getObjToSQLRich().toUpdateSQL(entity, condition, updateFields);
 		_regEntityClass1(entity);
 		sql = doAfterCompleteSql(sql);
 		Logger.logSQL(UPDATE_SQL_UPDATE_FIELDS, sql);
@@ -758,7 +758,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 		regCondition(condition);
 		doBeforePasreEntity(entity,SuidType.UPDATE);
 		int r = 0;
-		String sql = getObjToSQLRich().toUpdateSQL(entity, "", condition);
+		String sql = getObjToSQLRich().toUpdateSQL(entity, condition, "");
 		_regEntityClass1(entity);
 		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("update SQL(condition) :", sql);

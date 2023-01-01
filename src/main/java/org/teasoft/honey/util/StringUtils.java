@@ -76,7 +76,7 @@ public final class StringUtils {
 		String idsStr = "";
 		for (int i = 0; i < stringArray.length; i++) {
 			if (i != 0) idsStr += ",";
-			idsStr += stringArray[i];
+			idsStr += stringArray[i].trim();
 		}
 
 		return idsStr;

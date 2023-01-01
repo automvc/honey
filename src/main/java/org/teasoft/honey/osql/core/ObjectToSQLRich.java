@@ -84,7 +84,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	}
 	
 	@Override
-	public <T> String toSelectSQL(T entity, String selectFields, int start, int size) {
+	public <T> String toSelectSQL(T entity, int start, int size, String... selectFields) {
 
 		String tableName="";
 		if(isNeedRealTimeDb()) {
@@ -189,28 +189,45 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 
 		return sql;
 	}
+	
+	private String[] adjustVariableString(String... fieldList) {
+
+		if (fieldList == null) return new String[] { "" };
+
+		String fields[];
+
+		if (fieldList.length == 1) { // 变长参数,只有一个时,才允许用逗号隔开
+			fields = fieldList[0].split(",");
+		} else {
+			fields = fieldList;
+		}
+		return fields;
+	}
 
 	@Override
-	public <T> String toUpdateSQL(T entity, String updateFieldList) {
+	public <T> String toUpdateSQL(T entity, String... updateFieldList) {
 		if (updateFieldList == null) return null;
 
 		String sql = "";
-		String updateFields[] = updateFieldList.split(",");
+//		String updateFields[] = updateFieldList.split(",");
+		
+		String updateFields[]=adjustVariableString(updateFieldList);
 
-		if (updateFields.length == 0 || "".equals(updateFieldList.trim())) throw new ObjSQLException("ObjSQLException:updateFieldList at least include one field.");
+		if (updateFields.length == 0 || "".equals(updateFieldList[0].trim())) throw new ObjSQLException("ObjSQLException:updateFieldList at least include one field.");
 
 		sql = _ObjectToSQLHelper._toUpdateSQL(entity, updateFields, -1);
 		return sql;
 	}
 
 	@Override
-	public <T> String toUpdateSQL(T entity, String updateFieldList, IncludeType includeType) {
+	public <T> String toUpdateSQL(T entity, IncludeType includeType, String... updateFieldList) {
 		if (updateFieldList == null) return null;
 
 		String sql = "";
-		String updateFields[] = updateFieldList.split(",");
+//		String updateFields[] = updateFieldList.split(",");
+		String updateFields[]=adjustVariableString(updateFieldList);
 
-		if (updateFields.length == 0 || "".equals(updateFieldList.trim())) throw new ObjSQLException("ObjSQLException:updateFieldList at least include one field.");
+		if (updateFields.length == 0 || "".equals(updateFieldList[0].trim())) throw new ObjSQLException("ObjSQLException:updateFieldList at least include one field.");
 
 		sql = _ObjectToSQLHelper._toUpdateSQL(entity, updateFields, includeType.getValue());
 		return sql;
@@ -589,34 +606,37 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			return _ObjectToSQLHelper._toSelectSQL(entity, includeType.getValue(), condition);
 	}
 	
-	private <T> String _toUpdateBySQL(T entity, String whereFieldList, int includeType) {
+	private <T> String _toUpdateBySQL(T entity, int includeType, String... whereFieldList) {
 		if (whereFieldList == null) return null;
+		if (whereFieldList.length == 0 || "".equals(whereFieldList[0].trim())) throw new ObjSQLException("ObjSQLException:whereFieldList at least include one field.");
 
 		String sql = "";
-		String whereFields[] = whereFieldList.split(",");
+//		String whereFields[] = whereFieldList.split(",");
+		String whereFields[] = adjustVariableString(whereFieldList);
 
-		if (whereFields.length == 0 || "".equals(whereFieldList.trim())) throw new ObjSQLException("ObjSQLException:whereFieldList at least include one field.");
 
 		sql = _ObjectToSQLHelper._toUpdateBySQL(entity, whereFields, includeType);
 		return sql;
 	}
 	
 	@Override
-	public <T> String toUpdateBySQL(T entity, String whereFieldList) {
-	    return _toUpdateBySQL(entity, whereFieldList, -1);
+	public <T> String toUpdateBySQL(T entity, String... whereFieldList) {
+	    return _toUpdateBySQL(entity, -1, whereFieldList);
 	}
 
 	@Override
-	public <T> String toUpdateBySQL(T entity, String whereFieldList, IncludeType includeType) {
-		return _toUpdateBySQL(entity, whereFieldList, includeType.getValue());
+	public <T> String toUpdateBySQL(T entity, IncludeType includeType, String... whereFieldList) {
+		return _toUpdateBySQL(entity, includeType.getValue(), whereFieldList);
 	}
 
 	@Override
-	public <T> String toUpdateBySQL(T entity, String whereFieldList, Condition condition) {
+	public <T> String toUpdateBySQL(T entity, Condition condition, String... whereFieldList) {
 
-		String whereFields[] = whereFieldList.split(",");
-		if (whereFields.length == 0 || "".equals(whereFieldList.trim()))
+		if (whereFieldList.length == 0 || "".equals(whereFieldList[0].trim()))
 			throw new ObjSQLException("ObjSQLException:whereFieldList at least include one field.");
+		
+//		String whereFields[] = whereFieldList.split(",");
+		String whereFields[] = adjustVariableString(whereFieldList);
 
 		if (condition == null || condition.getIncludeType() == null) {
 			return _ObjectToSQLHelper._toUpdateBySQL(entity, whereFields, -1, condition); //includeType=-1
@@ -626,10 +646,14 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	}
 
 	@Override
-	public <T> String toUpdateSQL(T entity, String updateFieldList, Condition condition) {
+	public <T> String toUpdateSQL(T entity, Condition condition, String... updateFieldList) {
 		
-		if(updateFieldList==null) updateFieldList="";
-		String updateFields[] = updateFieldList.split(","); //setColmns
+//		if(updateFieldList==null) updateFieldList="";
+//		String updateFields[] = updateFieldList.split(","); //setColmns
+		String updateFields[] = adjustVariableString(updateFieldList); //setColmns
+		
+		
+		
 //		if (updateFields.length == 0 || "".equals(updateFieldList.trim()))  //close in v1.8    because: set can define in condition
 //			throw new ObjSQLException("ObjSQLException:updateFieldList at least include one field.");
 
@@ -745,7 +769,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		return toSelectSQL_0(entity,null);
 	}
 	
-	private <T> SqlValueWrap toSelectSQL_0(T entity,String selectField) {
+	private <T> SqlValueWrap toSelectSQL_0(T entity, String... selectField) {
 
 		StringBuffer sqlBuffer = new StringBuffer();
 		SqlValueWrap wrap = new SqlValueWrap();
@@ -763,7 +787,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			
 			Field fields[] = entity.getClass().getDeclaredFields(); //返回所有字段,包括公有和私有    
 			String fieldNames ="";
-			if (selectField != null && !"".equals(selectField.trim())) {
+			if (selectField != null && !"".equals(selectField[0].trim())) {
 				fieldNames = HoneyUtil.checkAndProcessSelectField(entity, selectField);
 			} else {
 				String packageAndClassName = entity.getClass().getName();
