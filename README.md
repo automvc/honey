@@ -9,8 +9,12 @@ Bee
 **Good Feature:**  AI, Timesaving/Tasteful, Easy, Automatic (**AiTeaSoft Style**)   
 
 ## **Good News:**  
-1)**V1.17 add support Android and HarmonyOS ORM function**  
-2)In **Android and HarmonyOS** environment can use the **same ORM code with Bee**  
+**Bee V2.0 Sharding is coming !**  
+[2.0-sharding-dev branch](../../../bee/tree/2.0-sharding-dev)  
+
+Sharding target: It is mainly transparent to business development and coding, with only a little sharding config.  
+#### [Quick Start:Shardign better example](guide/Quick-start-Sharding.md) 
+
 
 **Bee** see:  
 https://github.com/automvc/bee  
@@ -61,6 +65,24 @@ In addition to **JDBC, Android and HarmonyOS** are also supported.
 * 29.can automatically generate entity_F for referenced to the entity field name.  
 
 ## Newest Function
+
+### **V2.0 Sharding** 
+**V2.0.0.1001(2022·National Day) **  
+Add Sharding Function  
+1)object-oriented Sharding  
+2)Suid,SuidRich,select,modify Sharding  
+3)MoreTable select Sharding  
+4)batch insert Sharding  
+5)MAX,MIN,COUNT,SUM,AVG select Sharding  
+6)paging/sort select Sharding  
+7)support Sharding type:Separate databases and tables,separate databases only,separate tables only  
+8)support route Sharding type:One database and one table, one database and multiple tables, multiple databases and multiple tables, all databases and all tables, only specifying tables, only specifying databases  
+9)Forcibly specify the partition route for the current operation through Hint(appoint ds and table)  
+10)Sharding broadcast table support  
+11)easy Sharding config support   
+12)stream select,reduce query memory usage  
+13)**mongodb ORM function**  
+14)**mongodb Sharding function**  
 
 ### **V1.17(2022·Mid-Autumn Day)**  
 
