@@ -41,7 +41,7 @@ public class SimpleRewriteSql {
 		for (int i = 0; i < tabSuffixList.size(); i++) {
 			sqls[i] = sql.replace(StringConst.ShardingTableIndexStr, tabSuffixList.get(i)); // eg: [$#(index)#$]替换成下标等
 			HoneyContext.setPreparedValue(sqls[i], listValue);
-			String dsName = tab2DsMap.get(tabSuffixList.get(i)); // 只在使用注解时, 分库与分表同属于一个分片键,才有用. TODO
+			String dsName = tab2DsMap.get(tabSuffixList.get(i)); // 只在使用注解时, 分库与分表同属于一个分片键,才有用.
 			if (StringUtils.isBlank(dsName)) {
 				dsName = ShardingRegistry.getDsByTab(tabNameList.get(i));
 			}
@@ -82,6 +82,7 @@ public class SimpleRewriteSql {
 			for (String tabIndex : tabIndexSet) {
 //			    tempSql = sql.replace(tableName, tab); // eg: orders##(index)##替换成orders1等
 				tempSql = sql.replace(StringConst.ShardingTableIndexStr, tabIndex); // 将下标占位符改为具体下标
+				System.out.println("---------------tempSql :--------"+tempSql);
 				sqlList.add(tempSql);
 				dsList.add(dsName);
 				HoneyContext.setPreparedValue(tempSql, listValue);

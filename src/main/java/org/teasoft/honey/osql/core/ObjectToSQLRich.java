@@ -598,13 +598,13 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		return type;
 	}
 
-	@Override
-	public <T> String toSelectSQL(T entity, IncludeType includeType, Condition condition) {
-		if (includeType == null)
-			return _ObjectToSQLHelper._toSelectSQL(entity, -1, condition);
-		else
-			return _ObjectToSQLHelper._toSelectSQL(entity, includeType.getValue(), condition);
-	}
+//	@Override
+//	public <T> String toSelectSQL(T entity, IncludeType includeType, Condition condition) {
+//		if (includeType == null)
+//			return _ObjectToSQLHelper._toSelectSQL(entity, -1, condition);
+//		else
+//			return _ObjectToSQLHelper._toSelectSQL(entity, includeType.getValue(), condition);
+//	}
 	
 	private <T> String _toUpdateBySQL(T entity, int includeType, String... whereFieldList) {
 		if (whereFieldList == null) return null;

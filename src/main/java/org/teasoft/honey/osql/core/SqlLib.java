@@ -31,6 +31,7 @@ import org.teasoft.bee.osql.type.TypeHandler;
 import org.teasoft.honey.osql.type.TypeHandlerRegistry;
 import org.teasoft.honey.sharding.ShardingUtil;
 import org.teasoft.honey.sharding.engine.ShardingAvgEngine;
+import org.teasoft.honey.sharding.engine.ShardingGroupbyListStringArrayEngine;
 import org.teasoft.honey.sharding.engine.ShardingModifyEngine;
 import org.teasoft.honey.sharding.engine.ShardingMoreTableSelectEngine;
 import org.teasoft.honey.sharding.engine.ShardingSelectEngine;
@@ -70,6 +71,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 	}
 	
 	@Override
+	@SuppressWarnings("unchecked")
 	public <T> List<T> selectSomeField(String sql, Class<T> entityClass) {
 
 		if (sql == null || "".equals(sql.trim())) return Collections.emptyList();
@@ -87,10 +89,17 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 				
 				List<T> rsList;
 				boolean jdbcStreamSelect =HoneyConfig.getHoneyConfig().sharding_jdbcStreamSelect;
-				if(jdbcStreamSelect)
-					rsList =new ShardingSelectRsEngine().asynProcess(sql, entityClass, this); //无结果集时,可能会报错
-				else
-				   rsList =new ShardingSelectEngine().asynProcess(sql, entityClass, this); // 应该还要传suid类型
+				
+				System.err.println("=================================jdbcStreamSelect: "+jdbcStreamSelect);
+				
+				if (ShardingUtil.hadAvgSharding()) {
+					int List_T = 2;
+					rsList = (List<T>) new ShardingGroupbyListStringArrayEngine().asynProcess(sql, this, entityClass, List_T);
+				} else if (jdbcStreamSelect && ! ShardingUtil.hadGroupSharding()) {
+					rsList = new ShardingSelectRsEngine().asynProcess(sql, entityClass, this); // 无结果集时,可能会报错
+				} else {
+					rsList = new ShardingSelectEngine().asynProcess(sql, entityClass, this); // 应该还要传suid类型
+				}
 				
 				addInCache(sql, rsList, "List<T>", SuidType.SELECT, rsList.size());  //缓存Key,是否包括了分片的DS,Tables
 				logSelectRows(rsList.size());
@@ -314,7 +323,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 	}
 	
 	@Override
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public List<String[]> select(String sql) {
 		Class entityClass = (Class) OneTimeParameter.getAttribute(StringConst.Route_EC);
 		if (sql == null || "".equals(sql.trim())) return Collections.emptyList();
@@ -328,7 +337,15 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 					logDsTab();
 					return list;
 				}
-				List<String[]> rsList = new ShardingSelectListStringArrayEngine().asynProcess(sql, this, entityClass);
+				
+				List<String[]> rsList;
+				if (ShardingUtil.hadGroupSharding()) {
+					int List_String_Array = 1;
+					rsList = (List<String[]>) new ShardingGroupbyListStringArrayEngine().asynProcess(sql, this, entityClass, List_String_Array);
+				} else {
+					rsList = new ShardingSelectListStringArrayEngine().asynProcess(sql, this, entityClass);
+				}
+				
 				addInCache(sql, rsList, "List<String[]>", SuidType.SELECT, rsList.size());
 
 				return rsList;
@@ -559,7 +576,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 	 * @since  1.1
 	 */
 	@Override
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public String selectJson(String sql) {
 		Class entityClass = (Class) OneTimeParameter.getAttribute(StringConst.Route_EC);
 		if(sql==null || "".equals(sql.trim())) return null;
@@ -574,8 +591,13 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 					logDsTab();
 					return cacheValue;
 				}
+				JsonResultWrap wrap;
+				if (ShardingUtil.hadAvgSharding()) {
+					wrap= (JsonResultWrap) new ShardingGroupbyListStringArrayEngine().asynProcess(sql, this, entityClass,3);
+				} else  {
+					wrap = new ShardingSelectJsonEngine().asynProcess(sql, this,JsonType,entityClass); // 应该还要传suid类型
+				}
 				
-				JsonResultWrap wrap = new ShardingSelectJsonEngine().asynProcess(sql, this,JsonType,entityClass); // 应该还要传suid类型
 				logSelectRows(wrap.getRowCount());
 				String json =wrap.getResultJson();
 				addInCache(sql, json, "StringJson", SuidType.SELECT, -1); // 没有作最大结果集判断
@@ -618,7 +640,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 			
 			JsonResultWrap wrap = TransformResultSet.toJson(rs, entityClass);
 			json = wrap.getResultJson();
-			logSelectRows(wrap.getRowCount());  //TODO 这里的日志,是容易输出,但从缓存取,则计算不了,是多少行.
+			logSelectRows(wrap.getRowCount());  // 这里的日志,是容易输出,但从缓存取,则计算不了,是多少行.
 			
 			addInCache(sql, json,"StringJson",SuidType.SELECT,-1);  //没有作最大结果集判断
 

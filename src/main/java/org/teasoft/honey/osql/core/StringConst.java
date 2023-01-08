@@ -72,4 +72,8 @@ public final class StringConst {
 	public static final String InterceptorSubEntity=PREFIX+"InterceptorSubEntity";
 	
 	public static final String ShardingBatchInsertDoing=PREFIX+"ShardingBatchInsertDoing";
+	
+	public static final String  Check_Group_ForSharding=PREFIX+"Check_Group_ForSharding";
+	public static final String  Get_GroupFunStruct=PREFIX+"Get_GroupFunStruct";
+	public static final String  Return_GroupFunStruct=PREFIX+"Return_GroupFunStruct";
 }

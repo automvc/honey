@@ -102,7 +102,7 @@ public final class SessionFactory {
 			Logger.error("Can not find the Database driver!  " + e.getMessage());
 			throw new NoConfigException("Can not find the Database driver(maybe miss the jar file).");
 		} catch (Exception e) {
-//			Logger.error("Have Exception when getConnection: " + e.getMessage());
+			Logger.error("Have Exception when getConnection: " + e.getMessage());
 			throw ExceptionHelper.convert(e);
 		}
 

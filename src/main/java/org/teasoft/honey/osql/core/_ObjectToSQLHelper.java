@@ -3,6 +3,7 @@ package org.teasoft.honey.osql.core;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.teasoft.bee.osql.Condition;
@@ -12,10 +13,12 @@ import org.teasoft.bee.osql.annotation.GenId;
 import org.teasoft.bee.osql.annotation.GenUUID;
 import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
 import org.teasoft.bee.osql.exception.BeeIllegalBusinessException;
+import org.teasoft.bee.sharding.GroupFunStruct;
 import org.teasoft.honey.distribution.GenIdFactory;
 import org.teasoft.honey.distribution.UUID;
 import org.teasoft.honey.osql.name.NameUtil;
 import org.teasoft.honey.osql.util.AnnoUtil;
+import org.teasoft.honey.sharding.ShardingUtil;
 import org.teasoft.honey.util.ObjectUtils;
 import org.teasoft.honey.util.StringUtils;
 
@@ -109,6 +112,13 @@ final class _ObjectToSQLHelper {
 			if (condition != null) {
 				condition.setSuidType(SuidType.SELECT);
 				
+				//V2.0
+				boolean checkGroup = OneTimeParameter.isTrue(StringConst.Check_Group_ForSharding) && ShardingUtil.hadSharding();
+				List<String> groupNameslist = condition.getGroupByFields();
+				int size = groupNameslist == null ? -1 : groupNameslist.size();
+				if (checkGroup) checkGroup = checkGroup && size >= 1;
+				OneTimeParameter.setTrueForKey(StringConst.Get_GroupFunStruct); 
+				
 				//v1.9
 				String fun=ConditionHelper.processFunction(columnNames, condition);
 				if(isCheckOneFunction) {
@@ -121,19 +131,66 @@ final class _ObjectToSQLHelper {
 				}
 				
 				String selectField = ConditionHelper.processSelectField(columnNames, condition);
-//				isFun=true;
+				
 				if (isCheckOneFunction) {
 					columnNames = fun;
 				}else if (selectField != null && StringUtils.isEmpty(fun)) {
 					columnNames = selectField;
-//					isFun=false;
 				}else if (selectField != null && StringUtils.isNotEmpty(fun)) {
 					columnNames = selectField + "," + fun;
 				}else if (selectField == null && StringUtils.isNotEmpty(fun)) {
+					
 					columnNames = fun;
-				}else {
-//					isFun=false;
 				}
+//				else {
+//					//full column names
+//				}
+				
+				if(checkGroup) {
+					// 判断,是否是分片,且有group分组,聚合
+					//pre自定义和返回string[]的查询,也不需要.   可以传入标记, select,selectJson的才可以.
+					
+//				 改写sql: 	avg改写; select没有分组字段的,要补上;    是否放这?    
+					
+//					String groupFields[], GroupFunStruct gfsArray[]
+//					private String fieldName;
+//					private String functionType;
+					
+					Map<String, String> orderByMap=condition.getOrderBy();
+					boolean isEmptyOrderByMap=orderByMap.size()==0;
+					boolean needGroupWhenNoFun=false;  // must NoFun
+					
+					//hadSharding, 分组的字段没有查询出来,则加分组的字段
+					for (String g : groupNameslist) {
+						if (columnNames.contains("," + g) || columnNames.contains(g + ",") || columnNames.equals(g)) {
+							// already contain group field
+						} else {
+							columnNames += "," + g;
+						}
+						if(isEmptyOrderByMap) condition.orderBy(g);
+						else {
+							if(!needGroupWhenNoFun && !orderByMap.containsKey(g)) needGroupWhenNoFun=true;
+						}
+						
+						//一个实体,原来有一个Map属性,取出后,能清空里面的元素吗???
+					}
+					GroupFunStruct gfStruct=null;
+					if(StringUtils.isNotEmpty(fun)) { //&& size>=1 
+						gfStruct=(GroupFunStruct)OneTimeParameter.getAttribute(StringConst.Return_GroupFunStruct);
+					}
+					
+					//排序没有分组字段,添加进去?
+					if (gfStruct != null) {
+						gfStruct.setGroupFields(groupNameslist);
+						gfStruct.setNeedGroupWhenNoFun(needGroupWhenNoFun); // 有一个排序字段, 但不是分组字段的, 多个分片的记录汇聚合到一起后,可能不合顺序.
+						gfStruct.setColumnNames(columnNames);
+						
+						HoneyContext.setCurrentGroupFunStruct(gfStruct);
+					}
+				}
+				
+				
+				
 			}
 			
 			sqlBuffer.append(K.select).append(" ").append(columnNames).append(" ").append(K.from).append(" ");

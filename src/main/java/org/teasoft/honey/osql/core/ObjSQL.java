@@ -188,6 +188,8 @@ public class ObjSQL extends AbstractCommOperate implements Suid {
 		if (entity == null) return null;
 		regCondition(condition);
 		doBeforePasreEntity(entity,SuidType.SELECT);
+		//传递要判断是否有group
+		OneTimeParameter.setTrueForKey(StringConst.Check_Group_ForSharding); 
 		List<T> list = null;
 		String sql = getObjToSQL().toSelectSQL(entity,condition);
 		sql=doAfterCompleteSql(sql);

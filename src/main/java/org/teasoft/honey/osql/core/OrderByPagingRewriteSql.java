@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.teasoft.bee.osql.Serializer;
+//import org.teasoft.bee.osql.Serializer;
 import org.teasoft.bee.osql.chain.UnionSelect;
 import org.teasoft.bee.osql.dialect.DbFeature;
 import org.teasoft.bee.sharding.ShardingPageStruct;
@@ -25,7 +25,6 @@ import org.teasoft.honey.sharding.engine.decorate.PagingSqlDecorator;
  */
 public class OrderByPagingRewriteSql {
 	
-   @SuppressWarnings({ "unchecked", "rawtypes" })
    public static List<String[]> createSqlsAndInit(String sql) {
 		
 		List<String[]> list=new ArrayList<>();
@@ -66,11 +65,16 @@ public class OrderByPagingRewriteSql {
 				
 				//g)调整参数缓存
 				//g) adjust PreparedValue
-				List newListValue =copyObject(listValue);
+//				List newListValue =copyObject(listValue); 
+//				for (int j = 1; j < sqls.length; j++) {
+//					newListValue.addAll(listValue); //TODO
+//				}
+//				HoneyContext.setPreparedValue(newSql, newListValue);
+				
 				for (int j = 1; j < sqls.length; j++) {
-					newListValue.addAll(listValue); 
+					listValue.addAll(listValue); 
 				}
-				HoneyContext.setPreparedValue(newSql, newListValue);
+				HoneyContext.setPreparedValue(newSql, listValue);
 				
 				list.add(new String[] { newSql });
 				list.add(new String[] { dsNameList.get(0) });
@@ -91,16 +95,16 @@ public class OrderByPagingRewriteSql {
 		return list;
 	}
 	
-   @SuppressWarnings("rawtypes")
-	private static List copyObject(List<PreparedValue> obj) {
-		try {
-			Serializer jdks = new JdkSerializer();
-			return (List)jdks.unserialize(jdks.serialize(obj));
-		} catch (Exception e) {
-			Logger.debug(e.getMessage(), e);
-		}
-		return obj;
-	}
+//   @SuppressWarnings("rawtypes")
+//	private static List copyObject(List<PreparedValue> obj) {
+//		try {
+//			Serializer jdks = new JdkSerializer();
+//			return (List)jdks.unserialize(jdks.serialize(obj));
+//		} catch (Exception e) {
+//			Logger.debug(e.getMessage(), e);
+//		}
+//		return obj;
+//	}
 	
 	@SuppressWarnings("rawtypes")
 	public static List<String[]> createSqlsForFullSelect(String sql, Class entityClass) {

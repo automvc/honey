@@ -17,6 +17,7 @@ import org.teasoft.bee.osql.NameTranslate;
 import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.exception.BeeIllegalParameterException;
 import org.teasoft.bee.osql.exception.ShardingErrorException;
+import org.teasoft.bee.sharding.GroupFunStruct;
 import org.teasoft.bee.sharding.ShardingPageStruct;
 import org.teasoft.bee.sharding.ShardingSortStruct;
 import org.teasoft.honey.database.DatabaseClientConnection;
@@ -32,7 +33,7 @@ import org.teasoft.honey.util.ObjectUtils;
  */
 public final class HoneyContext {
 	
-	private static byte[] lock=new byte[0];
+//	private static byte[] lock=new byte[0];
 
 	private static ConcurrentMap<String, String> beanMap;
 
@@ -56,6 +57,7 @@ public final class HoneyContext {
 	private static ThreadLocal<RouteStruct> currentRoute;
 	private static ThreadLocal<ShardingPageStruct> currentShardingPage;
 	private static ThreadLocal<ShardingSortStruct> currentShardingSort;
+	public static ThreadLocal<GroupFunStruct> currentGroupFunStruct;
 
 	private static ThreadLocal<Connection> currentConnection; // 当前事务的Conn
 
@@ -151,6 +153,7 @@ public final class HoneyContext {
 		currentRoute = new InheritableThreadLocal<>();
 		currentShardingPage = new ThreadLocal<>();
 		currentShardingSort = new InheritableThreadLocal<>();
+		currentGroupFunStruct = new InheritableThreadLocal<>();
 
 		entity2table = new ConcurrentHashMap<>();
 		initEntity2Table();
@@ -469,7 +472,7 @@ public final class HoneyContext {
 	}
 
 	public static void setCurrentConnection(Connection conn) {
-//		//TODO 判断要是有分片时涉及多个库, 要将ds放入  Map<ds,Connection>
+//		// 判断要是有分片时涉及多个库, 要将ds放入  Map<ds,Connection>
 		// 看下是否会影响到sameConnectionDoing???
 //		if (HoneyContext.hadSharding()) {
 //			List<String> dsNameListLocal = HoneyContext
@@ -478,6 +481,8 @@ public final class HoneyContext {
 //			
 //			}
 //		}
+		
+		//TODO 分片,涉及多个DS的,不能使用同一连接.
 
 		currentConnection.set(conn);
 	}
@@ -494,8 +499,8 @@ public final class HoneyContext {
 		}
 		list.add(conn);
 		conneForSelectRs.set(list);
-//		Logger.info("the regConnectionForSelectRs, " + list.size());
-//		Logger.info("the regConnectionForSelectRs , hashcode: " + conn.hashCode());
+		Logger.info("the regConnectionForSelectRs, " + list.size());
+		Logger.info("the regConnectionForSelectRs , hashcode: " + conn.hashCode());
 	}
 
 	public static void clearConnForSelectRs() {
@@ -755,6 +760,21 @@ public final class HoneyContext {
 	public static void removeCurrentShardingSort() {
 		currentShardingSort.remove();
 	}
+	
+	
+	public static GroupFunStruct getCurrentGroupFunStruct() {
+		return currentGroupFunStruct.get();
+	}
+
+	public static void setCurrentGroupFunStruct(GroupFunStruct groupFunStruct) {
+		currentGroupFunStruct.set(groupFunStruct);
+	}
+
+	public static void removeCurrentGroupFunStruct() {
+		currentGroupFunStruct.remove();
+	}
+	
+	
 
 	static void setContext(String sql, List<PreparedValue> list, String tableName) {
 		setPreparedValue(sql, list);

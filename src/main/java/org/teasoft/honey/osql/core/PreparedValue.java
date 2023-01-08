@@ -11,7 +11,7 @@ import java.lang.reflect.Field;
 class PreparedValue implements Serializable {
 //	class PreparedValue {
 
-//	private static final long serialVersionUID = 1592803913604L;
+	private static final long serialVersionUID = 1592803913604L;
 	
 	private String type;
 	private Object value;

@@ -20,9 +20,12 @@ import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.dialect.DbFeature;
 import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
 import org.teasoft.bee.osql.exception.BeeIllegalSQLException;
+import org.teasoft.bee.sharding.FunStruct;
+import org.teasoft.bee.sharding.GroupFunStruct;
 import org.teasoft.honey.osql.core.ConditionImpl.FunExpress;
 import org.teasoft.honey.osql.dialect.sqlserver.SqlServerPagingStruct;
 import org.teasoft.honey.sharding.ShardingReg;
+import org.teasoft.honey.sharding.ShardingUtil;
 import org.teasoft.honey.util.StringUtils;
 
 /**
@@ -448,7 +451,7 @@ public class ConditionHelper {
 					HoneyUtil.regPagePlaceholder();
 					
 					// V1.17 sql server paging
-					Map<String, String> orderByMap = conditionImpl.getOrderByMap();
+					Map<String, String> orderByMap = conditionImpl.getOrderBy();
 					adjustSqlServerPagingIfNeed(sqlBuffer, orderByMap, start, entityClass, useSubTableNames);
 					
 					sql = getDbFeature().toPageSql(sqlBuffer.toString(), start, size);
@@ -462,7 +465,7 @@ public class ConditionHelper {
 					HoneyUtil.regPagePlaceholder();
 					
 					// V1.17 sql server paging
-					Map<String, String> orderByMap = conditionImpl.getOrderByMap();
+					Map<String, String> orderByMap = conditionImpl.getOrderBy();
 					adjustSqlServerPagingIfNeed(sqlBuffer, orderByMap, 0, entityClass, useSubTableNames); //start=0,只用于2012的offset语法
 
 					sql = getDbFeature().toPageSql(sqlBuffer.toString(), size);
@@ -475,7 +478,7 @@ public class ConditionHelper {
 			
 			//2.0 reg sort
 //			private Map<String,String> orderByMap=new LinkedHashMap<>();
-			ShardingReg.regShardingSort(conditionImpl.getOrderByMap());
+			ShardingReg.regShardingSort(conditionImpl.getOrderBy());
 			
 		}
 		//>>>>>>>>>>>>>>>>>>>paging end
@@ -634,6 +637,8 @@ public class ConditionHelper {
 	
 	public static String processFunction(String columnNames,Condition condition) {
 //		if(condition==null) return null;
+		
+		boolean get_FunStructForSharding=OneTimeParameter.isTrue(StringConst.Get_GroupFunStruct);  //V2.0
 
 		ConditionImpl conditionImpl = (ConditionImpl) condition;
 		List<FunExpress> funExpList=conditionImpl.getFunExpList();
@@ -641,7 +646,33 @@ public class ConditionHelper {
 		String funStr="";
 		boolean isFirst=true;
 		String alias;
+		
+		int size=funExpList.size();
+//		FunStruct funStructs[]=null;
+		List<FunStruct> funStructs=null;
+		
+		String funUseName="";
+		
+		get_FunStructForSharding = get_FunStructForSharding && size > 0 && ShardingUtil.hadSharding();
+		
+//		String sumStr="";
+//		String countStr="";
+		
+		if(get_FunStructForSharding) {
+			funStructs=new ArrayList<>(size);	
+//			sumStr="_sum_";
+//			countStr="_count_";
+//			if (HoneyUtil.isSqlKeyWordUpper()) {
+//				sumStr=sumStr.toUpperCase();
+//				countStr=countStr.toUpperCase();
+//			}
+				
+		}
+		
+		boolean hasAvg=false;
+//		int adjust=0;
 		for (int i = 0; i < funExpList.size(); i++) {
+			
 			if("*".equals(funExpList.get(i).getField())) {
 				columnName="*";
 			}else {
@@ -655,10 +686,40 @@ public class ConditionHelper {
 //			funStr+=funExpList.get(i).getFunctionType().getName()+"("+columnName+")"; // funType要能转大小写风格
 //			String functionTypeName=funExpList.get(i).getFunctionType().getName();
 			String functionTypeName=funExpList.get(i).getFunctionType();
-			funStr+=FunAndOrderTypeMap.transfer(functionTypeName)+"("+columnName+")"; 
+			functionTypeName=FunAndOrderTypeMap.transfer(functionTypeName);
+			
+			funStr += functionTypeName + "(" + columnName + ")";
 			
 			alias=funExpList.get(i).getAlias();
-			if(StringUtils.isNotBlank(alias)) funStr+=" "+K.as+" "+alias;
+			if(StringUtils.isNotBlank(alias)) {
+				funStr+=" "+K.as+" "+alias;
+				funUseName=alias;
+			}else {
+				funUseName=columnName;
+			}
+			
+			if (get_FunStructForSharding) {
+//				funStructs[i+adjust] = new FunStruct(funUseName, functionTypeName);
+				funStructs.add(new FunStruct(funUseName, functionTypeName));
+				if(!hasAvg && FunctionType.AVG.getName().equalsIgnoreCase(functionTypeName)) {
+					hasAvg=true;
+//					adjust++;
+//					funStructs[i+adjust] = new FunStruct(funUseName+"_sum_", FunctionType.SUM.getName());
+					funStructs.add(new FunStruct(funUseName+"_sum_", FunctionType.SUM.getName()));
+//					adjust++;
+//					funStructs[i+adjust] = new FunStruct(funUseName+"_count_", FunctionType.COUNT.getName());
+					funStructs.add(new FunStruct(funUseName+"_count_", FunctionType.COUNT.getName()));
+					
+					funStr +=", sum("+columnName+") "+K.as+" "+funUseName+"_sum_ , count("+columnName+") "+K.as+" "+funUseName+"_count_ "; //改写
+				}
+			}
+		}
+		
+		if (get_FunStructForSharding) {
+			GroupFunStruct struct=new GroupFunStruct();
+			struct.setFunStructs(funStructs);
+			struct.setHasAvg(hasAvg);
+			OneTimeParameter.setAttribute(StringConst.Return_GroupFunStruct, struct);
 		}
 		
 		return funStr;
