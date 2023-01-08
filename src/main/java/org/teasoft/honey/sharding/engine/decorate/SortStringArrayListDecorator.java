@@ -31,7 +31,7 @@ public class SortStringArrayListDecorator {
 					int i = 0;
 					for (int index : indexArray) {
 						int result = CompareUtil.compareTo(a[index], b[index], struct, i);
-						if (0 != result) {
+						if (result != 0) {
 							return result;
 						}
 						i++;
