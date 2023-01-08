@@ -65,6 +65,7 @@ public class ObjectCreatorFactory {
 		classMap.put("float", float.class);
 		classMap.put("long", long.class);
 		classMap.put("boolean", boolean.class);
+		classMap.put("char", char.class); 
 		
 		classMap.put("java.lang.Integer", Integer.class);
 		classMap.put("java.lang.Short", Short.class);
@@ -73,6 +74,9 @@ public class ObjectCreatorFactory {
 		classMap.put("java.lang.Float", Float.class);
 		classMap.put("java.lang.Long", Long.class);
 		classMap.put("java.lang.Boolean", Boolean.class);
+		classMap.put("java.lang.Character", Character.class);
+		classMap.put("java.math.BigDecimal", BigDecimal.class);
+		classMap.put("java.math.BigInteger", BigInteger.class);
 		
 		classMap.put("java.lang.String", String.class);
 	}
