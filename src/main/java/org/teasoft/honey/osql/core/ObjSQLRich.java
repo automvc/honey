@@ -271,11 +271,15 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 	@Override
 	public <T> T selectFirst(T entity, Condition condition) {
 		if (entity == null) return null;
-
-		if (condition == null) condition = BF.getCondition();
-		condition.size(1);
 		
-		List<T> list = select(entity, condition);
+		List<T> list;
+		if (condition == null) {
+			list = select(entity, 1);
+		} else {
+			condition.size(1);
+			list = select(entity, condition);
+		}
+
 		if (list == null || list.size() < 1) return null;
 		return list.get(0);
 	}
@@ -431,8 +435,10 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 		if (entity == null) return null;
 		regCondition(condition);
 		doBeforePasreEntity(entity,SuidType.SELECT);
+		OneTimeParameter.setTrueForKey(StringConst.Check_Group_ForSharding); 
 		List<String[]> list = null;
-		String sql = getObjToSQLRich().toSelectSQL(entity, condition.getIncludeType(), condition);
+//		String sql = getObjToSQLRich().toSelectSQL(entity, condition.getIncludeType(), condition);
+		String sql = getObjToSQLRich().toSelectSQL(entity, condition);
 		_regEntityClass1(entity);
 		sql = doAfterCompleteSql(sql);
 //		Logger.logSQL(SELECT_SQL, sql);
@@ -636,28 +642,40 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 	@Deprecated
 	public <T> List<T> select(T entity, IncludeType includeType, Condition condition) {
 		if (entity == null) return null;
-		regCondition(condition);
-		doBeforePasreEntity(entity,SuidType.SELECT);
-		String sql = getObjToSQLRich().toSelectSQL(entity, includeType, condition);
-		sql = doAfterCompleteSql(sql);
-		Logger.logSQL(SELECT_SQL, sql);
-		List<T> list= getBeeSql().select(sql, toClassT(entity));
-		doBeforeReturn(list);
-		return list;
+		if (includeType != null) {
+			if (condition == null) condition = BF.getCondition();
+			condition.setIncludeType(includeType);
+		}
+		return select(entity, condition);
+
+//		regCondition(condition);
+//		doBeforePasreEntity(entity,SuidType.SELECT);
+//		String sql = getObjToSQLRich().toSelectSQL(entity, includeType, condition);
+//		sql = doAfterCompleteSql(sql);
+//		Logger.logSQL(SELECT_SQL, sql);
+//		List<T> list= getBeeSql().select(sql, toClassT(entity));
+//		doBeforeReturn(list);
+//		return list;
 	}
 
 	@Override
 	public <T> String selectJson(T entity, IncludeType includeType, Condition condition) {
 		if (entity == null) return null;
-		regCondition(condition);
-		doBeforePasreEntity(entity,SuidType.SELECT);
-		String sql = getObjToSQLRich().toSelectSQL(entity, includeType,condition);
-		_regEntityClass1(entity);
-		sql = doAfterCompleteSql(sql);
-		Logger.logSQL(SELECT_JSON_SQL, sql);
-		String json= getBeeSql().selectJson(sql);
-		doBeforeReturn();
-		return json;
+		if (includeType != null) {
+			if (condition == null) condition = BF.getCondition();
+			condition.setIncludeType(includeType);
+		}
+		return selectJson(entity, condition);
+		
+//		regCondition(condition);
+//		doBeforePasreEntity(entity,SuidType.SELECT);
+//		String sql = getObjToSQLRich().toSelectSQL(entity, includeType,condition);
+//		_regEntityClass1(entity);
+//		sql = doAfterCompleteSql(sql);
+//		Logger.logSQL(SELECT_JSON_SQL, sql);
+//		String json= getBeeSql().selectJson(sql);
+//		doBeforeReturn();
+//		return json;
 	}
 	
 	@Override
@@ -666,7 +684,9 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 		regCondition(condition);
 		doBeforePasreEntity(entity,SuidType.SELECT);
 		_regEntityClass1(entity);
-		String sql = getObjToSQLRich().toSelectSQL(entity, condition.getIncludeType(),condition);
+		OneTimeParameter.setTrueForKey(StringConst.Check_Group_ForSharding); 
+//		String sql = getObjToSQLRich().toSelectSQL(entity, condition.getIncludeType(),condition);
+		String sql = getObjToSQLRich().toSelectSQL(entity, condition);
 		sql = doAfterCompleteSql(sql);
 		Logger.logSQL(SELECT_JSON_SQL, sql);
 		
@@ -855,6 +875,9 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 
 		Map<String, Object> oldMap = SuidHelper.entityToMap(oldEntity);
 		Map<String, Object> newMap = SuidHelper.entityToMap(newEntity);
+		
+		
+//		updateBy不行, 试下updateSet  TODO
 
 		MapSql updateMapSql = BeeFactoryHelper.getMapSql();
 		updateMapSql.put(MapSqlKey.Table, _toTableName(oldEntity));
