@@ -40,10 +40,10 @@ public class CompareUtil {
 			return 0;
 		}
 		if (null == thisValue) {
-			return nullFirst ? 1 : -1;
+			return nullFirst ? -1 : 1;
 		}
 		if (null == otherValue) {
-			return nullFirst ? -1 : 1;
+			return nullFirst ? 1 : -1;
 		}
 
 		// Number compare
