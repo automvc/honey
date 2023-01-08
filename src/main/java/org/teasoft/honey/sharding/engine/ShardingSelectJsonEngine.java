@@ -21,6 +21,7 @@ import org.teasoft.honey.osql.core.OrderByPagingRewriteSql;
 import org.teasoft.honey.osql.core.ShardingLogReg;
 import org.teasoft.honey.sharding.ShardingUtil;
 import org.teasoft.honey.sharding.engine.decorate.ResultPagingDecorator;
+import org.teasoft.honey.sharding.engine.decorate.ShardingGroupByDecorator;
 import org.teasoft.honey.sharding.engine.decorate.SortListDecorator;
 import org.teasoft.honey.spi.SpiInstanceFactory;
 import org.teasoft.honey.util.ObjectUtils;
@@ -92,6 +93,9 @@ public class ShardingSelectJsonEngine {
 					entityList.addAll(jsonTransform.toEntity(rsList.get(i), List.class, entityClass));
 				}
 			}
+			
+			//group and aggregate Entity,if necessary
+			ShardingGroupByDecorator.groupAndAggregateEntity(rsList);
 
 			// 排序装饰
 			SortListDecorator.sort(entityList);
@@ -105,7 +109,7 @@ public class ShardingSelectJsonEngine {
 		}
 
 		JsonResultWrap wrap = new JsonResultWrap();
-		wrap.setResultJson(json.toString());
+		wrap.setResultJson(json);
 		wrap.setRowCount(rowCount);
 
 		return wrap;

@@ -75,7 +75,6 @@ public class OrderByStreamResult<T> {
 							onePageList.add(TransformResultSet.rowToEntity(rs, entityClass));
 							i++; // 转换了,才算
 							while (i < to && rs.next()) {
-//								System.err.println("===============while===============");
 								onePageList.add(TransformResultSet.rowToEntity(rs, entityClass));
 								i++; // 转换了,才算
 							}

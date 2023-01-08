@@ -62,6 +62,14 @@ public class ShardingUtil {
 		return isSharding() && isTrueInSysCommStrLocal(StringConst.HadSharding);
 	}
 	
+	public static boolean hadGroupSharding() {
+		return HoneyContext.getCurrentGroupFunStruct()!=null;
+	}
+	
+	public static boolean hadAvgSharding() {//要分片,且有AVG分组
+		return hadGroupSharding() && HoneyContext.getCurrentGroupFunStruct().isHasAvg();
+	}
+	
 	public static boolean hadShardingFullSelect() {//要分片,且要全域查询
 		return isSharding() && isTrueInSysCommStrLocal(StringConst.ShardingFullSelect);
 	}

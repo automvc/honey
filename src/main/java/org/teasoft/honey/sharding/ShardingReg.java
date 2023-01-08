@@ -103,6 +103,7 @@ public class ShardingReg {
 		}
 	}
 	
+	//selectOrderBy
 	public static void regShardingSort(String orderSql, String[] orderFields, OrderType[] orderTypes) {
 		if (!ShardingUtil.hadSharding()) return;
 		
@@ -110,6 +111,7 @@ public class ShardingReg {
 		HoneyContext.setCurrentShardingSort(struct);
 	}
 	
+	//带condition
 	public static void regShardingSort(ShardingSortStruct struct) {
 		if (!ShardingUtil.hadSharding()) return;
 		HoneyContext.setCurrentShardingSort(struct);
@@ -183,6 +185,9 @@ public class ShardingReg {
 			
 			HoneyContext.removeCurrentShardingPage();
 			HoneyContext.removeCurrentShardingSort();
+			HoneyContext.removeCurrentGroupFunStruct();
+			
+			HoneyContext.currentGroupFunStruct.remove();
 		}
 	
 	public static void setTrueInSysCommStrLocal(String key) {

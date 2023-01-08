@@ -21,6 +21,7 @@ import org.teasoft.honey.osql.core.OrderByPagingRewriteSql;
 import org.teasoft.honey.osql.core.ShardingLogReg;
 import org.teasoft.honey.sharding.ShardingUtil;
 import org.teasoft.honey.sharding.engine.decorate.ResultPagingDecorator;
+import org.teasoft.honey.sharding.engine.decorate.ShardingGroupByDecorator;
 import org.teasoft.honey.sharding.engine.decorate.SortListDecorator;
 
 /**
@@ -73,6 +74,9 @@ public class ShardingSelectEngine {
 		List<T> rsList = ResultMergeEngine.merge(completionService, size);
 		
 		executor.shutdown();
+		
+		//group and aggregate Entity,if necessary
+		ShardingGroupByDecorator.groupAndAggregateEntity(rsList);
 
 		// 排序装饰
 		SortListDecorator.sort(rsList);
