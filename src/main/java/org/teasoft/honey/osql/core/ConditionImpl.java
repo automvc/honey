@@ -132,7 +132,9 @@ public class ConditionImpl implements Condition {
 	
 	@Override
 	public Set<String> getWhereFields() {
-		return whereField;
+//		return whereField;
+		final Set<String> set = new HashSet<>(whereField);
+		return set;
 	}
 
 	@Override
@@ -377,11 +379,17 @@ public class ConditionImpl implements Condition {
 
 	public List<Expression> getExpList() {
 		//todo 若要自动调整顺序,可以在这改.  group by,having, order by另外定义,在这才添加到list.
-		return list;
+//		return list;
+		
+		final List<Expression> list0 = new ArrayList<>(this.list);
+		return list0;
 	}
 	
 	public List<Expression> getOnExpList() {
-		return onExpList;
+//		return onExpList;
+		
+		final List<Expression> onExpList0 = new ArrayList<>(this.onExpList);
+		return onExpList0;
 	}
 
 	public Integer getStart() {
@@ -466,16 +474,25 @@ public class ConditionImpl implements Condition {
 	}
 
 	@Override
-	public String[] getSelectField(){
-		return this.selectField;
+	public String[] getSelectField() {
+//		return this.selectField;
+
+		final String[] selectField0 = this.selectField;
+		return selectField0;
 	}
 
 	public List<Expression> getUpdateExpList() {
-		return updateSetList;
+//		return updateSetList;
+		
+		final List<Expression> updateSetList0 = new ArrayList<>(this.updateSetList);
+		return updateSetList0;
 	}
 	
 	public List<FunExpress> getFunExpList() {
-		return funExpList;
+//		return funExpList;
+		
+		final List<FunExpress> funExpList0=new ArrayList<>(this.funExpList);
+		return funExpList0;
 	}
 	
 	private Condition forUpdateSet(String field, String otherFieldName,String opType){
@@ -518,7 +535,10 @@ public class ConditionImpl implements Condition {
 	
 	@Override
 	public Set<String> getUpdatefields() {
-		return updatefields;
+//		return updatefields;
+		
+		final Set<String> updatefields0 = new HashSet<>(this.updatefields);
+		return updatefields0;
 	}
 
 	@Override
@@ -529,7 +549,9 @@ public class ConditionImpl implements Condition {
 
 	@Override
 	public Boolean getForUpdate() {
-		return isForUpdate;
+//		return isForUpdate;
+		final Boolean f=isForUpdate;
+		return f;
 	}
 	
 	@Override
@@ -556,7 +578,14 @@ public class ConditionImpl implements Condition {
 
 	@Override
 	public List<String> getGroupByFields() {
-		return groupByFields;
+//		return groupByFields;
+		
+		final List<String> list;
+		if (groupByFields == null)
+			list = null;
+		else
+			list = new ArrayList<>(groupByFields);
+		return list;
 	}
 
 	private void checkField(String fields){
@@ -570,7 +599,8 @@ public class ConditionImpl implements Condition {
 	}
 	
 	//1.17
-	public Map<String, String> getOrderByMap() {
+	@Override //2.0
+	public Map<String, String> getOrderBy() {
 		return orderByMap;
 	}
 	
