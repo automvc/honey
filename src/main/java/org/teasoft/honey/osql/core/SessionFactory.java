@@ -29,19 +29,17 @@ public final class SessionFactory {
 
 	public static BeeFactory getBeeFactory() {
 		if (beeFactory == null) {
-//			beeFactory = new BeeFactory();
 			beeFactory = BeeFactory.getInstance();
 		}
 		return beeFactory;
 	}
 	
 	public void setBeeFactory(BeeFactory beeFactory) {
-//		SessionFactory.beeFactory = beeFactory;
 		_setBeeFactory(beeFactory);
 	}
 	
-	private static void _setBeeFactory(BeeFactory beeFactory) {
-		SessionFactory.beeFactory = beeFactory;
+	private static void _setBeeFactory(BeeFactory beeFactory0) {
+		SessionFactory.beeFactory = beeFactory0;
 	}
 
 	public SessionFactory() {
@@ -69,7 +67,6 @@ public final class SessionFactory {
 
 		return dbConnection;
 	}
-	
 	
 	public static Connection getConnection() {
 		Connection conn = null;
@@ -139,12 +136,18 @@ public final class SessionFactory {
 		return tran;
 	}
 
-	private static Connection getOriginalConn() throws ClassNotFoundException, SQLException,Exception {
+	private static Connection getOriginalConn() throws ClassNotFoundException, SQLException, Exception {
 
 		String driverName = HoneyConfig.getHoneyConfig().getDriverName();
 		String url = HoneyConfig.getHoneyConfig().getUrl();
 		String username = HoneyConfig.getHoneyConfig().getUsername();
 		String password = HoneyConfig.getHoneyConfig().getPassword();
+
+		return getOriginalConnForIntra(url, username, password, driverName);
+	}
+	
+	
+	public static Connection getOriginalConnForIntra(String url,String username,String password,String driverName) throws ClassNotFoundException, SQLException,Exception {
 
 		String nullInfo = "";
 		final String DO_NOT_CONFIG = " do not config; ";
@@ -152,9 +155,6 @@ public final class SessionFactory {
 		if (url == null) nullInfo += DbConfigConst.DB_URL + DO_NOT_CONFIG;
 		
 		if (url == null) {
-//			Logger.error("The url can not be null when get the Connection directly from DriverManager!  "+nullInfo);
-//			Logger.warn("The system will be exit!......");
-//			System.exit(0);
 			throw new Exception("The url can not be null when get the Connection directly from DriverManager!  ("+nullInfo+")");
 		}
 		
@@ -162,7 +162,6 @@ public final class SessionFactory {
 		if (password == null) nullInfo += DbConfigConst.DB_PWORD + DO_NOT_CONFIG;
 
 		if (!"".equals(nullInfo)) {
-//			throw new NoConfigException("NoConfigException,Do not set the database info: " + nullInfo);
 			if(isFirst){
 			  Logger.warn("Do not set the database info: " + nullInfo); 
 			  isFirst=false;

@@ -7,7 +7,7 @@
 package org.teasoft.honey.sharding;
 
 import org.teasoft.bee.osql.BeeException;
-import org.teasoft.bee.osql.annotation.customizable.DsTabHandler;
+import org.teasoft.bee.osql.annotation.DsTabHandler;
 import org.teasoft.bee.sharding.DsTabStruct;
 import org.teasoft.bee.sharding.ShardingSimpleStruct;
 import org.teasoft.bee.sharding.algorithm.Calculate;

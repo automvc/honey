@@ -3,6 +3,7 @@ package org.teasoft.honey.osql.core;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -1927,6 +1928,26 @@ public final class HoneyUtil {
 		}
 		return false;
 	}
+	
+	  /**
+     * 判断参数是否为数字
+     * @param obj
+     * @return 是数字返回true
+     */
+    public static boolean isNumber(Object obj){
+        if(obj instanceof Integer ||
+                obj instanceof Long ||
+                obj instanceof Short ||
+                obj instanceof Byte ||
+                obj instanceof Double ||
+                obj instanceof Float ||
+                obj instanceof BigInteger ||
+                obj instanceof BigDecimal
+        		){
+            return true;
+        }
+        return false;
+    }
 	
 	/**
 	 * 只判断MySQL,MariaDB,Oracle,H2,SQLite,PostgreSQL,SQL Server,Cassandra

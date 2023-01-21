@@ -188,17 +188,33 @@ public final class StringUtils {
 		return buf.toString();
 	}
 	
-	  public static String getUnicode(String str) {
-	        String strTemp = "";
-	        if (str != null) {
-	            for (char c : str.toCharArray()) {
-	                if (c > 255) {
-	                    strTemp += "\\u" + Integer.toHexString((int)c);
-	                } else {
-	                    strTemp += "\\u00" + Integer.toHexString((int)c);
-	                }
-	            }
-	        }
-	        return strTemp;
-	    }
+	public static String getUnicode(String str) {
+		String strTemp = "";
+		if (str != null) {
+			for (char c : str.toCharArray()) {
+				if (c > 255) {
+					strTemp += "\\u" + Integer.toHexString((int) c);
+				} else {
+					strTemp += "\\u00" + Integer.toHexString((int) c);
+				}
+			}
+		}
+		return strTemp;
+	}
+	  
+	public static String subRight(String str, int len) {
+		if (str == null || "".equals(str) || str.length() <= len) return str;
+
+		return str.substring(str.length() - len);
+	}
+	
+//	public static void main(String[] args) {
+//		String file="abcd.jpg";
+////		String file="jpg";
+////		String file="pg";
+////		String file="";
+////		String file=null;
+//		String ext=subRight(file, 3);
+//		System.out.println(ext);
+//	}
 }

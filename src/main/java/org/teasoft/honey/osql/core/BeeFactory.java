@@ -7,6 +7,7 @@ import java.util.Map;
 import javax.sql.DataSource;
 
 import org.teasoft.bee.osql.BeeAbstractFactory;
+import org.teasoft.bee.osql.DatabaseConst;
 import org.teasoft.honey.distribution.ds.Router;
 
 /**
@@ -105,6 +106,10 @@ public class BeeFactory extends BeeAbstractFactory {
 			conn = ds.getConnection();
 			if (conn != null) {
 				dbName = conn.getMetaData().getDatabaseProductName();
+				if (dbName.contains("Microsoft Access")) {
+					Logger.debug("Transform the dbName:'"+dbName+"' to '"+DatabaseConst.MsAccess+"'");
+					dbName = DatabaseConst.MsAccess;
+				}
 			}
 		} catch (Exception e) {
 			Logger.error(e.getMessage(),e);

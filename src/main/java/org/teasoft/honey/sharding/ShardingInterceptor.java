@@ -163,6 +163,9 @@ public class ShardingInterceptor extends EmptyInterceptor {
 			if (ShardingUtil.isSharding()) {
 				// 设置sharding Value
 				shardingBean = ShardingRegistry.getShardingBean(entity.getClass());
+				if(shardingBean ==null) {
+					shardingBean = ShardingRegistry.getShardingBean(NameTranslateHandle.toTableName(NameUtil.getClassFullName(entity)));
+				}
 
 				// 以下要检测,是会路由到一库一表,再处理; 否则,只解析出ds,tab记录到缓存,就返回.
 				int type = 0;

@@ -14,10 +14,10 @@ import java.util.Map;
 import org.teasoft.bee.osql.Condition;
 import org.teasoft.bee.osql.FunctionType;
 import org.teasoft.bee.osql.IncludeType;
-import org.teasoft.bee.osql.MapSql;
-import org.teasoft.bee.osql.MapSqlKey;
-import org.teasoft.bee.osql.MapSqlSetting;
-import org.teasoft.bee.osql.MapSuid;
+//import org.teasoft.bee.osql.MapSql;
+//import org.teasoft.bee.osql.MapSqlKey;
+//import org.teasoft.bee.osql.MapSqlSetting;
+//import org.teasoft.bee.osql.MapSuid;
 import org.teasoft.bee.osql.ObjSQLException;
 import org.teasoft.bee.osql.ObjToSQLRich;
 import org.teasoft.bee.osql.OrderType;
@@ -25,7 +25,7 @@ import org.teasoft.bee.osql.SuidRich;
 import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
 import org.teasoft.bee.osql.exception.BeeIllegalParameterException;
-import org.teasoft.honey.osql.name.NameUtil;
+//import org.teasoft.honey.osql.name.NameUtil;
 import org.teasoft.honey.osql.shortcut.BF;
 import org.teasoft.honey.sharding.ShardingUtil;
 import org.teasoft.honey.sharding.engine.batch.ShardingBatchInsertEngine;
@@ -105,12 +105,12 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 	}
 
 	@Override
-	public <T> List<T> select(T entity, String... selectField) {//sqlLib.selectSomeField
+	public <T> List<T> select(T entity, String... selectFields) {//sqlLib.selectSomeField
 		if (entity == null) return null;
 		List<T> list = null;
 		try {
 			doBeforePasreEntity(entity,SuidType.SELECT);
-			String sql = getObjToSQLRich().toSelectSQL(entity, selectField);
+			String sql = getObjToSQLRich().toSelectSQL(entity, selectFields);
 			sql = doAfterCompleteSql(sql);
 			list = getBeeSql().selectSomeField(sql, toClassT(entity));
 			doBeforeReturn(list);
@@ -873,26 +873,38 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 		
 		doBeforePasreEntity(newEntity,SuidType.UPDATE); //拦截器只处理新实体；  旧实体oldEntity作为条件不在拦截器处理。
 
-		Map<String, Object> oldMap = SuidHelper.entityToMap(oldEntity);
+//		Map<String, Object> oldMap = SuidHelper.entityToMap(oldEntity);
 		Map<String, Object> newMap = SuidHelper.entityToMap(newEntity);
 		
 		
-//		updateBy不行, 试下updateSet  TODO
 
-		MapSql updateMapSql = BeeFactoryHelper.getMapSql();
-		updateMapSql.put(MapSqlKey.Table, _toTableName(oldEntity));
-		updateMapSql.put(MapSqlSetting.IsNamingTransfer, true);
-		updateMapSql.put(oldMap);
-		updateMapSql.putNew(newMap);
-
-		Logger.logSQL("update(T oldEntity, T newEntity) with MapSuid, ", "");
-		MapSuid mapSuid = BeeFactoryHelper.getMapSuid();
-		return mapSuid.update(updateMapSql);  //it will use Interceptor
+//		MapSql updateMapSql = BeeFactoryHelper.getMapSql();
+//		updateMapSql.put(MapSqlKey.Table, _toTableName(oldEntity));
+//		updateMapSql.put(MapSqlSetting.IsNamingTransfer, true);
+//		updateMapSql.put(oldMap);
+//		updateMapSql.putNew(newMap);
+//
+//		Logger.logSQL("update(T oldEntity, T newEntity) with MapSuid, ", "");
+//		MapSuid mapSuid = BeeFactoryHelper.getMapSuid();
+//		return mapSuid.update(updateMapSql);  //it will use Interceptor
+		
+//		updateBy不行, 使用updateSet  
+		Condition condition=BF.getCondition();
+		for (Map.Entry<String, Object> entry : newMap.entrySet()) {
+			if(HoneyUtil.isNumber(entry.getValue()))
+			   condition.set(entry.getKey(), (Number)entry.getValue());
+			else
+			  condition.set(entry.getKey(), (String)entry.getValue());
+		}
+		
+		Logger.logSQL("update(T oldEntity, T newEntity), ", "");
+		return update(oldEntity, condition);
+		
 	}
 	
-	private static String _toTableName(Object entity) {
-		return NameTranslateHandle.toTableName(NameUtil.getClassFullName(entity));
-	}
+//	private static String _toTableName(Object entity) {
+//		return NameTranslateHandle.toTableName(NameUtil.getClassFullName(entity));
+//	}
 	
 	/**
 	 * 保存一个实体(一条记录).

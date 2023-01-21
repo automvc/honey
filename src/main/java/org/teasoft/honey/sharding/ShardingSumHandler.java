@@ -8,7 +8,7 @@ package org.teasoft.honey.sharding;
 
 import java.lang.reflect.Modifier;
 
-import org.teasoft.bee.osql.annotation.customizable.DsTabHandler;
+import org.teasoft.bee.osql.annotation.DsTabHandler;
 import org.teasoft.bee.sharding.DsTabStruct;
 import org.teasoft.bee.sharding.ShardingBean;
 import org.teasoft.bee.sharding.ShardingSimpleStruct;

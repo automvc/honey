@@ -10,7 +10,7 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.teasoft.bee.osql.annotation.customizable.ColumnHandler;
+import org.teasoft.bee.osql.annotation.ColumnHandler;
 import org.teasoft.bee.osql.exception.BeeIllegalParameterException;
 import org.teasoft.honey.osql.util.AnnoUtil;
 import org.teasoft.honey.osql.util.NameCheckUtil;

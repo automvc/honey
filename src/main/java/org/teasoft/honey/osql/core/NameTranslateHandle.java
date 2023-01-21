@@ -11,8 +11,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
 import org.teasoft.bee.osql.NameTranslate;
+import org.teasoft.bee.osql.annotation.ColumnHandler;
 import org.teasoft.bee.osql.annotation.Entity;
-import org.teasoft.bee.osql.annotation.customizable.ColumnHandler;
 import org.teasoft.bee.osql.exception.BeeErrorNameException;
 import org.teasoft.bee.osql.exception.BeeIllegalParameterException;
 import org.teasoft.honey.osql.util.AnnoUtil;

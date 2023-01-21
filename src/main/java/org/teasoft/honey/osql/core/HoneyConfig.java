@@ -487,6 +487,9 @@ public final class HoneyConfig {
 						if(majorVersion>=11) {
 							DbFeatureRegistry.register(DatabaseConst.SQLSERVER, new SqlServerFeature2012());
 						}
+					}else if(newDbName.contains("Microsoft Access")) {
+						Logger.debug("Transform the dbName:'"+newDbName+"' to '"+DatabaseConst.MsAccess+"'");
+						newDbName=DatabaseConst.MsAccess;
 					}
 
 					if (changeDataSource) {
@@ -547,6 +550,12 @@ public final class HoneyConfig {
 	}
 
 	public String getUrl() {
+		//Ms Access
+//		if(DatabaseConst.MsAccess.equals(this.dbName) && StringUtils.isNotBlank(this.password) && url!=null && !url.contains("jackcessOpener=")) {
+		if(StringUtils.isNotBlank(this.password) && url.startsWith("jdbc:ucanaccess:") && url!=null && !url.contains("jackcessOpener=")) {
+//			System.out.println(url);
+			return url+=";jackcessOpener=org.teasoft.beex.access.BeeAccessCryptOpener";
+		}
 		return url;
 	}
 

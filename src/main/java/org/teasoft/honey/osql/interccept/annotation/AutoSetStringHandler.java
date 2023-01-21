@@ -9,8 +9,8 @@ package org.teasoft.honey.osql.interccept.annotation;
 import java.lang.reflect.Field;
 
 import org.teasoft.bee.osql.SuidType;
-import org.teasoft.bee.osql.annotation.customizable.AnnotationHandler;
-import org.teasoft.bee.osql.annotation.customizable.AutoSetString;
+import org.teasoft.bee.osql.annotation.AnnotationHandler;
+import org.teasoft.bee.osql.annotation.AutoSetString;
 import org.teasoft.honey.osql.core.Logger;
 
 /**

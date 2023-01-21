@@ -10,8 +10,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
 import org.teasoft.bee.osql.SuidType;
-import org.teasoft.bee.osql.annotation.customizable.DsTabHandler;
-import org.teasoft.bee.osql.annotation.customizable.MultiTenancy;
+import org.teasoft.bee.osql.annotation.DsTabHandler;
+import org.teasoft.bee.osql.annotation.MultiTenancy;
 import org.teasoft.bee.sharding.DsTabStruct;
 import org.teasoft.bee.sharding.ShardingSimpleStruct;
 import org.teasoft.honey.osql.core.Logger;

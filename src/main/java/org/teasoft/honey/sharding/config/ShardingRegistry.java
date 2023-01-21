@@ -24,7 +24,8 @@ import org.teasoft.honey.osql.core.Logger;
  */
 public class ShardingRegistry implements Registry {
 	
-	private static final Map<Class<?>, ShardingBean> shardingMap = new ConcurrentHashMap<>();  //TODO 改成表名
+	private static final Map<Class<?>, ShardingBean> shardingMap = new ConcurrentHashMap<>();  
+	private static final Map<String, ShardingBean> shardingTableKeyMap = new ConcurrentHashMap<>();  
 	private static Map<String, Map<String, Set<String>>> fullNodes = new HashMap<>();// 1
 	private static Map<String, String> tabToDsMap = new LinkedHashMap<>(); // 2
 	private static Map<String, Integer> tabSizeMap = new HashMap<>(); // 3
@@ -35,7 +36,12 @@ public class ShardingRegistry implements Registry {
 	public static ShardingBean getShardingBean(Class<?> entity) {
 		return shardingMap.get(entity);
 	}
+	
+	public static ShardingBean getShardingBean(String baseTableName) {
+		return shardingTableKeyMap.get(baseTableName.toLowerCase());
+	}
 
+	
 	public static String getDsShardingField(Class<?> entity) {
 		ShardingBean bean = shardingMap.get(entity);
 		if (bean != null) return bean.getDsField();
@@ -86,6 +92,13 @@ public class ShardingRegistry implements Registry {
 		shardingMap.put(entity, shardingBean);
 
 		parseFullNodesStringAndregister(shardingBean.getFullNodes(),shardingBean.getTabAssignType(), entity);
+	}
+	
+	static void register(String baseTableName, ShardingBean shardingBean) {
+		if (baseTableName == null || shardingBean == null) return;
+		shardingTableKeyMap.put(baseTableName.toLowerCase(), shardingBean);
+
+		parseFullNodesStringAndregister(shardingBean.getFullNodes(),shardingBean.getTabAssignType(), null);
 	}
 
 	static void addTabToDsMap(Map<String, String> someTabToDsMap) {

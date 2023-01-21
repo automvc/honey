@@ -8,7 +8,7 @@ package org.teasoft.honey.osql.name;
 
 import org.teasoft.bee.osql.NameTranslate;
 import org.teasoft.bee.osql.Registry;
-import org.teasoft.bee.osql.annotation.customizable.ColumnHandler;
+import org.teasoft.bee.osql.annotation.ColumnHandler;
 import org.teasoft.honey.osql.core.NameTranslateHandle;
 
 /**

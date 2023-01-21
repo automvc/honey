@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.teasoft.bee.osql.annotation.customizable.AbstractDictI18nDefaultHandler;
+import org.teasoft.bee.osql.annotation.AbstractDictI18nDefaultHandler;
 import org.teasoft.honey.osql.core.HoneyConfig;
 import org.teasoft.honey.osql.core.Logger;
 import org.teasoft.honey.osql.core.NameTranslateHandle;

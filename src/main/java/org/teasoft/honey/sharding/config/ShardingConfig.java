@@ -21,6 +21,10 @@ public class ShardingConfig {
 		ShardingRegistry.register(entity, shardingBean);
 	}
 	
+	public static void addShardingBean(String baseTableName, ShardingBean shardingBean) {
+		ShardingRegistry.register(baseTableName, shardingBean);
+	}
+	
 //	public static void addShardingBean(Class<?> entity, List<ShardingBean> shardingBeanList) {
 //		ShardingRegistry.register(entity, shardingBeanList);
 //	}

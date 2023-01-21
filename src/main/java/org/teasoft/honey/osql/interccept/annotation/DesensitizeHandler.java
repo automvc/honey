@@ -9,7 +9,7 @@ package org.teasoft.honey.osql.interccept.annotation;
 import java.lang.reflect.Field;
 import java.util.List;
 
-import org.teasoft.bee.osql.annotation.customizable.Desensitize;
+import org.teasoft.bee.osql.annotation.Desensitize;
 import org.teasoft.honey.osql.core.Logger;
 import org.teasoft.honey.util.StringUtils;
 
