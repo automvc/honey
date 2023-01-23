@@ -68,7 +68,6 @@ public class SimpleDataSource extends EmptyDataSource {
 	public String getUrl() {
 		//Ms Access
 		if(StringUtils.isNotBlank(this.password) && url!=null && url.startsWith("jdbc:ucanaccess:") && !url.contains("jackcessOpener=")) {
-			System.out.println(url);
 			return url+=";jackcessOpener=org.teasoft.beex.access.BeeAccessCryptOpener";
 		}
 		return url;
@@ -85,7 +84,6 @@ public class SimpleDataSource extends EmptyDataSource {
 
 	public void setUsername(String username) {
 		this.username = username;
-//		counter_name= 2;
 	}
 
 	public String getPassword() {
@@ -94,7 +92,6 @@ public class SimpleDataSource extends EmptyDataSource {
 
 	public void setPassword(String password) {
 		this.password = password;
-//		counter += 4;
 	}
 
 	public String getDriverName() {

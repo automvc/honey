@@ -13,6 +13,7 @@ import java.util.Map;
 
 import org.teasoft.bee.osql.annotation.Dict;
 import org.teasoft.honey.osql.core.Logger;
+import org.teasoft.honey.util.StringUtils;
 
 /**
  * @author Kingstar
@@ -35,15 +36,17 @@ public class DictHandler {
 	public static void process(Field field, List list) {
 		try {
 			Dict anno = field.getAnnotation(Dict.class);
-			String mapStr = anno.map(); // 0=No,1=Yes
+			String mapStr = anno.map(); // eg:0=No,1=Yes
 
 			Map<String, String> dictMap = new HashMap<>();
-
-			String kvPair[] = mapStr.split(",");
-			String kv[];
-			for (int i = 0; i < kvPair.length; i++) {
-				kv = kvPair[i].split("=");
-				dictMap.put(kv[0], kv[1]);
+			
+			if (StringUtils.isNotBlank(mapStr)) {
+				String kvPair[] = mapStr.split(",");
+				String kv[];
+				for (int i = 0; i < kvPair.length; i++) {
+					kv = kvPair[i].split("=");
+					dictMap.put(kv[0], kv[1]);
+				}
 			}
 
 			boolean isReplaceNull = false;
