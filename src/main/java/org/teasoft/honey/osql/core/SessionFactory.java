@@ -1,3 +1,9 @@
+/*
+ * Copyright 2013-2023 the original author.All rights reserved.
+ * Kingstar(honeysoft@126.com)
+ * The license,see the LICENSE file.
+ */
+
 package org.teasoft.honey.osql.core;
 
 import java.sql.Connection;
