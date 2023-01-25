@@ -551,9 +551,7 @@ public final class HoneyConfig {
 
 	public String getUrl() {
 		//Ms Access
-//		if(DatabaseConst.MsAccess.equals(this.dbName) && StringUtils.isNotBlank(this.password) && url!=null && !url.contains("jackcessOpener=")) {
-		if(StringUtils.isNotBlank(this.password) && url.startsWith("jdbc:ucanaccess:") && url!=null && !url.contains("jackcessOpener=")) {
-//			System.out.println(url);
+		if(StringUtils.isNotBlank(this.password) && url!=null && url.startsWith("jdbc:ucanaccess:") && !url.contains("jackcessOpener=")) {
 			return url+=";jackcessOpener=org.teasoft.beex.access.BeeAccessCryptOpener";
 		}
 		return url;

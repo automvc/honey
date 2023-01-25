@@ -156,9 +156,10 @@ public class ShardingGroupByDecorator {
 								}
 							}
 //							else {fun为empty,则不处理,保留原来的}
-						} else if (FunctionType.AVG.getName().equalsIgnoreCase(funStructs.get(k).getFunctionType())) {
-//							System.err.println("AVG不应该走这里的分支...");
 						}
+//						else if (FunctionType.AVG.getName().equalsIgnoreCase(funStructs.get(k).getFunctionType())) {
+////							.println("AVG不应该走这里的分支...");
+//						}
 					}
 					t = null;
 				}
