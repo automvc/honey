@@ -15,7 +15,11 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Queue;
+import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import org.teasoft.bee.osql.BeeException;
 import org.teasoft.bee.osql.DatabaseConst;
@@ -28,6 +32,8 @@ import org.teasoft.honey.osql.core.HoneyUtil;
 import org.teasoft.honey.osql.core.Logger;
 import org.teasoft.honey.osql.core.NameTranslateHandle;
 import org.teasoft.honey.osql.core.SessionFactory;
+import org.teasoft.honey.osql.mongodb.MongodbComm;
+import org.teasoft.honey.osql.mongodb.MongodbCommRegister;
 import org.teasoft.honey.osql.name.NameUtil;
 import org.teasoft.honey.osql.util.DateUtil;
 import org.teasoft.honey.osql.util.NameCheckUtil;
@@ -430,10 +436,91 @@ public class GenBean {
 			throw ExceptionHelper.convert(e);
 		}
 	}
+	
+	private Queue<Set> setQueue = new LinkedBlockingQueue<>();
+	private Queue<Integer> layerQueue = new LinkedBlockingQueue<>();
+	private Queue<String> nameQueue = new LinkedBlockingQueue<>();
+
+	private boolean isMongodb() {
+		return DatabaseConst.MongoDB.equalsIgnoreCase(HoneyConfig.getHoneyConfig().getDbName());
+	}
+
+	private void _genBeanFileForMongodb(String[] tableNames) {
+		for (String tab : tableNames) {
+			_genBeanForMongodb(tab);
+		}
+	}
+
+	private boolean some_mongodb=false;
+	private boolean all_mongodb=true;
+	private boolean f1_mongodb;
+	private void _genBeanForMongodb(String tableName) {
+		MongodbComm mongodbComm = MongodbCommRegister.getInstance();
+		Set<Map.Entry<String, Object>> set = mongodbComm.getCollectStrcut(tableName);
+		if (set == null || set.size() < 1) {
+			Logger.warn("Generate Javabean via " + tableName
+					+ " for Mongodb,the collection(table) must have one document(row) at least!!!  collection(table):"
+					+ tableName);
+			return;
+		}
+		
+		_genBeanForMongodb(set, 1, tableName);
+	}
+
+	private void _genBeanForMongodb(Set<Map.Entry<String, Object>> set, int layer,
+			String tableNameOrPropertyName) {
+		Table table = new Table();
+		table.setTableName(tableNameOrPropertyName);
+		String key = "";
+		Logger.debug("The layer is: " + layer);
+		for (Entry<String, Object> entry : set) {
+			key = entry.getKey();
+			if ("_id".equals(key)) key = "id";
+			table.getColumnNames().add(key);
+//			table.getColumnTypes().add(entry.getValue().getClass().getName());
+
+			if ("org.bson.Document".equals(entry.getValue().getClass().getName())) {
+				Map d2 = (Map) entry.getValue();
+				setQueue.add(d2.entrySet());
+				layerQueue.add(layer + 1);
+//				nameQueue.add(entry.getValue().getClass().getSimpleName());
+				nameQueue.add(key);
+				table.getColumnTypes().add(key);
+			} else {
+				table.getColumnTypes().add(entry.getValue().getClass().getName());
+			}
+		}
+
+		f1_mongodb=genBeanFile(table);
+		if(config.isGenFieldFile()) genFieldFile(table);
+		some_mongodb=some_mongodb || f1_mongodb;
+		all_mongodb=all_mongodb && f1_mongodb;
+
+		if (!setQueue.isEmpty()) {
+			_genBeanForMongodb(setQueue.poll(), layerQueue.poll(), nameQueue.poll());
+		}else {
+			if (all_mongodb) Logger.info("Generate Success!");
+			else if (some_mongodb) Logger.info("Generate some file Success!");
+			
+			printCheck(all_mongodb || some_mongodb);
+		}
+	}
 
 	public void genAllBeanFile() {
+
+		if (isMongodb()) {
+			MongodbComm mongodbComm = MongodbCommRegister.getInstance();
+			_genBeanFileForMongodb(mongodbComm.getAllCollectionNames());
+			return;
+		}
+
+		List<Table> tableList = getAllTables();
+		_genBeanFiles(tableList);
+	}
+
+	private void _genBeanFiles(List<Table> tables) {
 		Logger.info("Generating...");
-		List<Table> tables = getAllTables();
+//		List<Table> tables = getAllTables();
 		Table table = null;
 		boolean some=false;
 		boolean all=true;
@@ -459,25 +546,22 @@ public class GenBean {
 		if(isNeed) Logger.info("Please check folder: " + config.getBaseDir() + config.getPackagePath().replace(".", "\\"));
 	}
 	
-	public void genSomeBeanFile(String tableList) {// throws IOException {
-		String[] tables = tableList.split(",");
+	public void genSomeBeanFile(String tableNameList) {
+		String[] tableNames = tableNameList.split(",");
+		if (isMongodb()) {
+			_genBeanFileForMongodb(tableNames);
+			return;
+		}
+
 		Connection con = null;
-		boolean some=false;
-		boolean all=true;
-		boolean f1;
-		
+		List<Table> tablesList = new ArrayList<>();
 		try {
 			con = SessionFactory.getConnection();
 			Table table = null;
-			for (int i = 0; i < tables.length; i++) {
-				table = getTable(tables[i], con);
-				// 生成实体类
-				f1=genBeanFile(table);
-				if(config.isGenFieldFile()) genFieldFile(table);
-				
-				some=some || f1;
-				all=all && f1;
-				
+
+			for (int i = 0; i < tableNames.length; i++) {
+				table = getTable(tableNames[i], con);
+				tablesList.add(table);
 			}
 		} catch (Exception e) {
 			Logger.warn(e.getMessage(),e);
@@ -490,13 +574,10 @@ public class GenBean {
 			try {
 				if (con != null) con.close();
 			} catch (Exception e2) {
-				//ignore
+				// ignore
 			}
 		}
-		if (all) Logger.info("Generate Success!");
-		else if (some) Logger.info("Generate some file Success!");
-		
-		printCheck(all || some);
+		_genBeanFiles(tablesList);
 	}
 
 	// 获取所有表信息

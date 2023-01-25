@@ -673,7 +673,11 @@ public final class HoneyUtil {
 				}
 			}
 			
-			javaType = "[UNKNOWN TYPE]" + jdbcType;
+			if (HoneyUtil.isMongoDB()) {
+				javaType = NameTranslateHandle.toEntityName(jdbcType);
+			} else {
+				javaType = "[UNKNOWN TYPE]" + jdbcType;
+			}
 			Logger.debug(javaType); //V1.17
 		}
 

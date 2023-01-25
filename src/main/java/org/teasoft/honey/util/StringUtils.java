@@ -6,6 +6,7 @@
 
 package org.teasoft.honey.util;
 
+import java.util.List;
 import java.util.regex.Pattern;
 
 /**
@@ -206,6 +207,15 @@ public final class StringUtils {
 		if (str == null || "".equals(str) || str.length() <= len) return str;
 
 		return str.substring(str.length() - len);
+	}
+	
+	public static String[] listToArray(List<String> list) {
+		if (list == null) return null;
+		String[] arry = new String[list.size()];
+		for (int i = 0; i < arry.length; i++) {
+			arry[i] = list.get(i);
+		}
+		return arry;
 	}
 	
 //	public static void main(String[] args) {
