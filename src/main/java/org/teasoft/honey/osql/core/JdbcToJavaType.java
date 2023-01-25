@@ -55,7 +55,8 @@ public class JdbcToJavaType {
 
 	
 	public static void appendJdbcToJavaType(String databaseName,Map<String, String> oneDb_Java2DbTypeMap) {
-		Map<String, String> map = dbJdbc2JavaTypeMap.get(databaseName);
+//		Map<String, String> map = dbJdbc2JavaTypeMap.get(databaseName);
+		Map<String, String> map = dbJdbc2JavaTypeMap.get(databaseName.toLowerCase());
 		if (map == null) {
 			setJdbcToJavaType(databaseName.toLowerCase(), oneDb_Java2DbTypeMap);
 		} else {
@@ -79,19 +80,20 @@ public class JdbcToJavaType {
 	}
 	
 	private static void appendJdbcTypeCustomProp(String dbName) {
-		Map<String, String> map = dbJdbc2JavaTypeMap.get(dbName);
+//		Map<String, String> map = dbJdbc2JavaTypeMap.get(dbName);
+		Map<String, String> map = dbJdbc2JavaTypeMap.get(dbName.toLowerCase());
 		if (map == null) {
 			map= new HashMap<>(); 
 		}
 		for (String s : jdbcTypeCustomProp.getKeys()) {
 			map.put(s, jdbcTypeCustomProp.getValue(s));
 		}
-		
 		setJdbcToJavaType(dbName, map);
 	}
 
 	private static void appendJdbcTypeCustomProp_specificalDB(String dbName) {
-		Map<String, String> map = dbJdbc2JavaTypeMap.get(dbName);
+//		Map<String, String> map = dbJdbc2JavaTypeMap.get(dbName);
+		Map<String, String> map = dbJdbc2JavaTypeMap.get(dbName.toLowerCase());
 		if (map == null) {
 			map= new HashMap<>(); 
 		}
@@ -121,6 +123,8 @@ public class JdbcToJavaType {
 			setJdbcToJavaType(DatabaseConst.SQLSERVER.toLowerCase(), forSQLSERVER());
 		else if (DatabaseConst.Cassandra.equalsIgnoreCase(dbName))
 			setJdbcToJavaType(DatabaseConst.Cassandra.toLowerCase(), forCassandra());
+		else if (DatabaseConst.MongoDB.equalsIgnoreCase(dbName))
+			setJdbcToJavaType(DatabaseConst.MongoDB.toLowerCase(), forMongoDB());
 		else 
 			setJdbcToJavaType(dbName.toLowerCase(), getCommon());
 	}
@@ -465,6 +469,25 @@ public class JdbcToJavaType {
 		jdbc2JavaTypeMap.put("list", "List");
 		jdbc2JavaTypeMap.put("set", "Set");
 		jdbc2JavaTypeMap.put("map", "Map");
+		
+		return jdbc2JavaTypeMap;
+	}
+	
+	private static Map<String, String> forMongoDB() {
+		Map<String, String> jdbc2JavaTypeMap = getCommon();
+	
+//		jdbc2JavaTypeMap.put("org.bson.types.ObjectId", "org.bson.types.ObjectId");
+		jdbc2JavaTypeMap.put("org.bson.types.ObjectId", "String");
+		jdbc2JavaTypeMap.put("java.lang.String", "String");
+		jdbc2JavaTypeMap.put("java.util.ArrayList", "java.util.ArrayList");
+		jdbc2JavaTypeMap.put("java.lang.Integer", "Integer");
+		
+		jdbc2JavaTypeMap.put("java.lang.Long", "Long");
+		jdbc2JavaTypeMap.put("java.lang.Double", "Double");
+		jdbc2JavaTypeMap.put("java.lang.Boolean", "Boolean");
+		jdbc2JavaTypeMap.put("java.util.Date", "java.util.Date");
+		
+		jdbc2JavaTypeMap.put("org.bson.Document", "org.bson.Document");
 		
 		return jdbc2JavaTypeMap;
 	}
