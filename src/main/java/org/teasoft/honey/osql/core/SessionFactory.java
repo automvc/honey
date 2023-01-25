@@ -161,6 +161,7 @@ public final class SessionFactory {
 		if (url == null) nullInfo += DbConfigConst.DB_URL + DO_NOT_CONFIG;
 		
 		if (url == null) {
+			if(HoneyConfig.getHoneyConfig().multiDS_enable) Logger.warn("Now is multi-DataSource model, please confirm whether set the config !!!");
 			throw new Exception("The url can not be null when get the Connection directly from DriverManager!  ("+nullInfo+")");
 		}
 		
