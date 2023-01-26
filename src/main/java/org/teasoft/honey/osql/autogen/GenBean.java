@@ -44,6 +44,7 @@ import org.teasoft.honey.util.StringUtils;
  * @author Kingstar
  * @since 1.0
  */
+@SuppressWarnings({"unchecked","rawtypes","deprecation"})
 public class GenBean {
 
 	private GenConfig config;
@@ -479,7 +480,9 @@ public class GenBean {
 			table.getColumnNames().add(key);
 //			table.getColumnTypes().add(entry.getValue().getClass().getName());
 
-			if ("org.bson.Document".equals(entry.getValue().getClass().getName())) {
+//			多层Json结构当String处理,不会生成多个Javabean
+			if ("org.bson.Document".equals(entry.getValue().getClass().getName())
+					&& !"String".equals(HoneyUtil.getFieldType("org.bson.Document"))) {
 				Map d2 = (Map) entry.getValue();
 				setQueue.add(d2.entrySet());
 				layerQueue.add(layer + 1);
