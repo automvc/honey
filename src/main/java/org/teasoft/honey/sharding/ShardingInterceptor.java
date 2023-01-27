@@ -59,13 +59,28 @@ public class ShardingInterceptor extends EmptyInterceptor {
 
 	@Override
 	public Object beforePasreEntity(Object entity, SuidType suidType) {
+		boolean isSharding = ShardingUtil.isSharding();
+		if (!isSharding) return entity;
 		
-		if(! ShardingUtil.isSharding()) return entity;
 		 //2.0从表对应的从实体,不用来计算分片. 从表分片的下标与主表的一致
 		if(HoneyContext.isInterceptorSubEntity()) return entity;
 		
-		
 		if (isSkip(entity)) return entity;
+		
+		
+		String tableName = _toTableName(entity);
+		
+		if (isSharding && ShardingRegistry.isBroadcastTab(tableName)) {
+			
+			if(suidType==SuidType.SELECT) {
+				//第一个
+//				Map<String, Set<String>> map = ShardingRegistry.getFullNodes(tableName);
+				this.ds = ShardingRegistry.getRandDs(tableName);
+			}else { //更改要对所在ds
+				regFullInModifyForBroadcast(suidType);
+			}
+			return entity;
+		}
 
 		String key = partKey + "_beforePasreEntity" + entity.getClass().getName();
 		Boolean flag = HoneyContext.getCustomFlagMap(key);
@@ -230,6 +245,10 @@ public class ShardingInterceptor extends EmptyInterceptor {
 	
 	private void regFull(SuidType suidType) {
 		ShardingReg.regFull(suidType);
+	}
+	
+	private void regFullInModifyForBroadcast(SuidType suidType) {
+		ShardingReg.regFullInModifyForBroadcast(suidType);
 	}
 	
 	private boolean processCondition(Object entity, ShardingBean shardingBean, Condition condition,

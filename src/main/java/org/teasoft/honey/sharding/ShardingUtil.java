@@ -44,15 +44,15 @@ public class ShardingUtil {
 		return 0;
 	}
 	
-	public static String[] list2Array(List<String> entityList) {
-		int len = entityList.size();
-		String entity[] = new String[len];
-
-		for (int i = 0; i < len; i++) {
-			entity[i] = entityList.get(i);
-		}
-		return entity;
-	}
+//	public static String[] list2Array(List<String> entityList) {
+//		int len = entityList.size();
+//		String entity[] = new String[len];
+//
+//		for (int i = 0; i < len; i++) {
+//			entity[i] = entityList.get(i);
+//		}
+//		return entity;
+//	}
 	
 	public static boolean isSharding() {
 		return HoneyContext.isMultiDs() && HoneyConfig.getHoneyConfig().multiDS_sharding;

@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -30,8 +31,8 @@ public class ShardingRegistry implements Registry {
 	private static Map<String, String> tabToDsMap = new LinkedHashMap<>(); // 2
 	private static Map<String, Integer> tabSizeMap = new HashMap<>(); // 3
 	
-	private static final Integer ONE=1;
-	private static Map<String, Integer> broadcastTabMap = new HashMap<>(); // 4
+	private static final Byte ONE=1;
+	private static Map<String, Byte> broadcastTabMap = new HashMap<>(); // 4
 	
 	public static ShardingBean getShardingBean(Class<?> entity) {
 		return shardingMap.get(entity);
@@ -54,6 +55,11 @@ public class ShardingRegistry implements Registry {
 		return null;
 	}
 
+	/**
+	 * 通过表名,获取数据源名称; 只分库时,只会返回最后一个数据源.
+	 * @param tabName
+	 * @return
+	 */
 	public static String getDsByTab(String tabName) {
 		// 考虑ds0,ds1里的表名都是:orders0,orders1,orders2时,如何区分?? 不在此解析.获取不到,上游再判断??
 		return tabToDsMap.get(tabName);
@@ -74,8 +80,25 @@ public class ShardingRegistry implements Registry {
 		return fullNodes.get(baseTableName.toLowerCase());
 	}
 	
+	public static String getRandDs(String baseTableName) {
+		Map<String, Set<String>> map = getFullNodes(baseTableName);
+		if (map == null || map.size() < 1) return null;
+
+		int size = map.size();
+		int rand = new Random().nextInt(size);
+
+		Set<String> set = map.keySet();
+		int i = 0;
+		for (String ds : set) {
+			if (i == rand) return ds;
+			i++;
+		}
+
+		return null;
+	}
+	
 	public static boolean isBroadcastTab(String tabName) {
-		return ONE.equals(broadcastTabMap.get(tabName));
+		return ONE.equals(broadcastTabMap.get(tabName.toLowerCase()));
 	}
 	
 	
@@ -130,8 +153,12 @@ public class ShardingRegistry implements Registry {
 	
 	static void addBroadcastTabList(List<String> broadTabList) {
 		for (String tab : broadTabList) {
-			broadcastTabMap.put(tab, ONE);
+			broadcastTabMap.put(tab.toLowerCase(), ONE);
 		}
+	}
+	
+	static void addBroadcastTabList(String broadTab) {
+		broadcastTabMap.put(broadTab.toLowerCase(), ONE);
 	}
 
 }

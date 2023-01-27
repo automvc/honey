@@ -56,7 +56,7 @@ public class ShardingConfigParse {
 		fullNodes.put(bean.getTabBaseName().toLowerCase(), ds2TabIndexSet);
 
 		Logger.info("[Bee] fullNodes: " + fullNodes.toString());
-		Logger.info("[Bee] tabToDsMap: " + tabToDsMap.toString());
+		Logger.info("[Bee] tabToDsMap: " + tabToDsMap.toString()); //只分库时,map只会保留最后一个的
 
 		ShardingConfigMeta shardingConfigMeta = new ShardingConfigMeta();
 		shardingConfigMeta.setFullNodes(fullNodes);

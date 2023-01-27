@@ -82,15 +82,15 @@ public class SimpleRewriteSql {
 			for (String tabIndex : tabIndexSet) {
 //			    tempSql = sql.replace(tableName, tab); // eg: orders##(index)##替换成orders1等
 				tempSql = sql.replace(StringConst.ShardingTableIndexStr, tabIndex); // 将下标占位符改为具体下标
-				System.out.println("---------------tempSql :--------"+tempSql);
+//				System.out.println("---------------tempSql :--------"+tempSql);
 				sqlList.add(tempSql);
 				dsList.add(dsName);
 				HoneyContext.setPreparedValue(tempSql, listValue);
 			}
 		}
 
-		String sqls[] = ShardingUtil.list2Array(sqlList);
-		String dsArray[] = ShardingUtil.list2Array(dsList);
+		String sqls[] = StringUtils.listToArray(sqlList);
+		String dsArray[] = StringUtils.listToArray(dsList);
 		list.add(sqls);
 		list.add(dsArray);
 	}

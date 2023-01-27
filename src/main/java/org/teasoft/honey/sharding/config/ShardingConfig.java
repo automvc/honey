@@ -30,8 +30,12 @@ public class ShardingConfig {
 //	}
 
 
-	public static void addBroadcastTabList(List<String> broadcastTabList) {
+	public static void addBroadcastTable(List<String> broadcastTabList) {
 		ShardingRegistry.addBroadcastTabList(broadcastTabList);
+	}
+	
+	public static void addBroadcastTable(String broadcastTab) {
+		ShardingRegistry.addBroadcastTabList(broadcastTab);
 	}
 
 }

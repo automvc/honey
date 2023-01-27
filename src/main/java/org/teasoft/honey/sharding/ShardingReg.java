@@ -40,6 +40,13 @@ public class ShardingReg {
 		HoneyContext.setCustomMapLocal(StringConst.ShardingTab2DsMap, tab2DsMap);
 	}
 	
+	public static void regFullInModifyForBroadcast(SuidType suidType) {
+		if(suidType!=SuidType.SELECT) {
+			setTrueInSysCommStrLocal(StringConst.ShardingFullSelect);
+			regHadSharding();
+		}
+	}
+	
 	public static void regFull(SuidType suidType) {
 		//来到这里,说明是涉及全域操作,是没有设置分片值的.
 		

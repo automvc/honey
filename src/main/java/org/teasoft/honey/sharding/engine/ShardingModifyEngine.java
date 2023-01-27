@@ -33,7 +33,7 @@ public class ShardingModifyEngine {
 		String sqls[] = null;
 		String dsArray[] = null;
 
-		if (ShardingUtil.hadShardingFullSelect()) {// 全域查询
+		if (ShardingUtil.hadShardingFullSelect()) {// 全域查询 ,  modify也是这个
 			list = SimpleRewriteSql.createSqlsForFull(sql, entityClass);
 		} else {
 			list = SimpleRewriteSql.createSqlsAndInit(sql); // 涉及部分分片

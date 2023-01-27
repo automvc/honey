@@ -42,7 +42,7 @@ public class MongodbShardingRouter {
 //			System.err.println(">>>>>>>>>>>>>>>>>>:"+dsArray[i]);
 		}
 
-		String tabArray[] = ShardingUtil.list2Array(tabNameList);
+		String tabArray[] = StringUtils.listToArray(tabNameList);
 		List<String[]> list = new ArrayList<>();
 
 		list.add(dsArray);
@@ -80,8 +80,8 @@ public class MongodbShardingRouter {
 		}
 
 //		String sqls[] = ShardingUtil.list2Array(sqlList);
-		String dsArray[] = ShardingUtil.list2Array(dsList);
-		String tabArray[] = ShardingUtil.list2Array(tabList);
+		String dsArray[] = StringUtils.listToArray(dsList);
+		String tabArray[] = StringUtils.listToArray(tabList);
 
 		List<String[]> list = new ArrayList<>();
 		list.add(dsArray);
