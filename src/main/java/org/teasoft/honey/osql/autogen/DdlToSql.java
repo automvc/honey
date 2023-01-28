@@ -11,14 +11,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.teasoft.bee.osql.DatabaseConst;
+import org.teasoft.bee.osql.exception.BeeErrorNameException;
 import org.teasoft.honey.osql.core.HoneyContext;
 import org.teasoft.honey.osql.core.HoneyUtil;
 import org.teasoft.honey.osql.core.Logger;
 import org.teasoft.honey.osql.core.NameTranslateHandle;
 import org.teasoft.honey.osql.name.NameUtil;
 import org.teasoft.honey.osql.util.AnnoUtil;
+import org.teasoft.honey.osql.util.NameCheckUtil;
 import org.teasoft.honey.util.EntityUtil;
 import org.teasoft.honey.util.SqlKeyCheck;
+import org.teasoft.honey.util.StringUtils;
 
 /**
  * @author Kingstar
@@ -416,6 +419,76 @@ public class DdlToSql {
 		String sql0 = "";
 		sql0 = "DROP TABLE " + tableName;
 		return sql0;
+	}
+	
+	
+	private static String transferField(String fields, Class c) {
+		String str[] = fields.split(",");
+		String columns = "";
+		for (int i = 0; i < str.length; i++) {
+			if (i != 0) columns += ",";
+			columns += _toColumnName(str[i].trim(), c);
+		}
+
+		return columns;
+	}
+
+	private static void checkField(String fields) {
+		NameCheckUtil.checkName(fields);
+	}
+	public static <T> String toPrimaryKeySql(Class<T> entityClass, String fields, String keyName) {
+//		alter table tableName add constraint pk_name primary key (id,pid) --添加主键约束
+
+		String PREFIX = "pk_";
+		String typeTip = "normal";
+
+		if (StringUtils.isBlank(fields)) {
+			throw new BeeErrorNameException(
+					"Create " + typeTip + " index, the fields can not be empty!");
+		}
+		checkField(fields);
+		String tableName = _toTableNameByClass(entityClass);
+
+		String columns = transferField(fields, entityClass);
+
+		if (StringUtils.isBlank(keyName)) {
+			keyName = PREFIX + tableName + "_" + columns.replace(",", "_");
+		} else {
+			checkField(keyName);
+		}
+
+		String indexSql = "ALTER TABLE " + tableName + " ADD CONSTRAINT " + keyName
+				+ " PRIMARY KEY (" + columns + ")";
+		
+		return indexSql;
+	}
+	
+	public static <T> String toIndexSql(Class<T> entityClass, String fields, String indexName, String PREFIX,
+			String IndexTypeTip, String IndexType) {
+//		String PREFIX = "idx_";
+//		String IndexTypeTip = "normal";
+//		String IndexType = ""; //normal will empty
+
+		if (StringUtils.isBlank(fields)) {
+			throw new BeeErrorNameException(
+					"Create " + IndexTypeTip + " index, the fields can not be empty!");
+		}
+		checkField(fields);
+		String tableName = _toTableNameByClass(entityClass);
+
+		String columns = transferField(fields, entityClass);
+
+		if (StringUtils.isBlank(indexName)) {
+			indexName = PREFIX + tableName + "_" + columns.replace(",", "_");
+		} else {
+			checkField(indexName);
+		}
+
+		String indexSql = "CREATE " + IndexType + "INDEX " + indexName + " ON " + tableName
+				+ "(" + columns + ")";
+		
+		return indexSql;
+		
 	}
 
 }

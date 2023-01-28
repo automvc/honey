@@ -877,7 +877,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		return NameTranslateHandle.toColumnName(pkName,entityClass);
 	}
 	
-private <T> void setInitArrayIdByAuto(T entity[]) {
+    private <T> void setInitArrayIdByAuto(T entity[]) {
 		
 		if(entity==null || entity.length<1) return ;
 		

@@ -482,7 +482,6 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 	
 	private int _modify(String sql, Class entityClass) {
 		
-		
 //		if(sql==null || "".equals(sql)) return -2;
 		
 		initRoute(SuidType.MODIFY, entityClass, sql);

@@ -651,7 +651,7 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 		
 		doBeforePasreEntity(newEntity,SuidType.UPDATE); //拦截器只处理新实体；  旧实体oldEntity作为条件不在拦截器处理。
 
-		
+		 
 //		Map<String, Object> oldMap = SuidHelper.entityToMap(oldEntity);
 //		Map<String, Object> newMap = SuidHelper.entityToMap(newEntity);
 //
@@ -696,15 +696,27 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 	}
 	
 	@Override
-	public <T> boolean createTable(Class<T> entityClass) {
-		// TODO Auto-generated method stub
-		return false;
+	public <T> boolean createTable(Class<T> entityClass, boolean isDropExistTable) {
+		if (entityClass == null) return false;
+		doBeforePasreEntity(entityClass, SuidType.DDL);
+		boolean f=getMongodbBeeSql().createTable(entityClass,isDropExistTable);
+		doBeforeReturn();
+		return f;
+	}
+	
+	@Override
+	public <T> void indexNormal(Class<T> entityClass, String fields, String indexName) {
+		Logger.warn("Do not support this method for Mongodb in V2.0");
 	}
 
 	@Override
-	public <T> boolean createTable(Class<T> entityClass, boolean isDropExistTable) {
-		// TODO Auto-generated method stub
-		return false;
+	public <T> void unique(Class<T> entityClass, String fields, String indexName) {
+		Logger.warn("Do not support this method for Mongodb in V2.0");
+	}
+
+	@Override
+	public <T> void primaryKey(Class<T> entityClass, String fields, String keyName) {
+		Logger.warn("Do not support this method for Mongodb in V2.0");
 	}
 
 	private void doBeforePasreEntity(Object entity[], SuidType SuidType) {

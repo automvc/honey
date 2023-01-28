@@ -154,22 +154,13 @@ public class Ddl {
 		return NameTranslateHandle.toTableName(NameUtil.getClassFullName(entity));
 	}
 
-	@SuppressWarnings("rawtypes")
-	private static String _toColumnName(String fieldName, Class entityClass) {
-		String name = NameTranslateHandle.toColumnName(fieldName, entityClass);
-		if (SqlKeyCheck.isKeyWord(name)) {
-			Logger.warn("The '" + name + "' is Sql Keyword. Do not recommend!");
-		}
-		return name;
-	}
-
 	/**
 	 * 创建通用索引.create normal index
 	 * @param entity table's entity(do not allow null).
 	 * @param fields  field name,if more than one,separate with comma.
 	 */
-	public static <T> void indexNormal(T entity, String fields) {
-		indexNormal(entity, fields, null);
+	public static <T> void indexNormal(Class<T> entityClass, String fields) {
+		indexNormal(entityClass, fields, null);
 	}
 
 	/**
@@ -178,47 +169,8 @@ public class Ddl {
 	 * @param fields  field name,if more than one,separate with comma.
 	 * @param indexName  index name
 	 */
-	public static <T> void indexNormal(T entity, String fields, String indexName) {
-//		String PREFIX = "idx_";
-//		String IndexTypeTip = "normal";
-//		String IndexType = ""; //normal will empty
-//
-//		if (StringUtils.isBlank(fields)) {
-//			throw new BeeErrorNameException(
-//					"Create " + IndexTypeTip + " index, the fields can not be empty!");
-//		}
-//		checkField(fields);
-//		String tableName = _toTableName(entity);
-//
-//		String columns = transferField(fields, entity.getClass());
-//
-//		if (StringUtils.isBlank(indexName)) {
-//			indexName = PREFIX + tableName + "_" + columns.replace(",", "_");
-//		}
-//
-//		String indexSql = "CREATE "+IndexType+"INDEX " + indexName + " ON " + tableName + "(" + columns
-//				+ ")";
-//		ddlModify(indexSql);
-
-		String PREFIX = "idx_";
-		String IndexTypeTip = "normal";
-		String IndexType = ""; // normal will empty
-		_index(entity, fields, indexName, PREFIX, IndexTypeTip, IndexType);
-	}
-
-	private static String transferField(String fields, Class c) {
-		String str[] = fields.split(",");
-		String columns = "";
-		for (int i = 0; i < str.length; i++) {
-			if (i != 0) columns += ",";
-			columns += _toColumnName(str[i].trim(), c);
-		}
-
-		return columns;
-	}
-
-	private static void checkField(String fields) {
-		NameCheckUtil.checkName(fields);
+	public static <T> void indexNormal(Class<T> entityClass, String fields, String indexName) {
+		suidRich.indexNormal(entityClass, fields, indexName);
 	}
 
 	/**
@@ -226,53 +178,22 @@ public class Ddl {
 	 * @param entity table's entity(do not allow null).
 	 * @param fields  field name,if more than one,separate with comma.
 	 */
-	public static <T> void unique(T entity, String fields) {
-		unique(entity, fields, null);
+	public static <T> void unique(Class<T> entityClass, String fields) {
+		unique(entityClass, fields, null);
 	}
 
 	/**
 	 * 创建唯一索引.create unique index
-	 * @param entity table's entity(do not allow null).
+	 * @param entityClass table's entityClass(do not allow null).
 	 * @param fields  field name,if more than one,separate with comma.
 	 * @param indexName  index name
 	 */
-	public static <T> void unique(T entity, String fields, String indexName) {
-		String PREFIX = "uie_";
-		String IndexTypeTip = "unique";
-		String IndexType = "UNIQUE "; // 后面有一个空格
-		_index(entity, fields, indexName, PREFIX, IndexTypeTip, IndexType);
+	public static <T> void unique(Class<T> entityClass, String fields, String indexName) {
+		suidRich.unique(entityClass, fields,indexName);
 	}
 
-	private static <T> void _index(T entity, String fields, String indexName, String PREFIX,
-			String IndexTypeTip, String IndexType) {
-//		String PREFIX = "idx_";
-//		String IndexTypeTip = "normal";
-//		String IndexType = ""; //normal will empty
-
-		if (StringUtils.isBlank(fields)) {
-			throw new BeeErrorNameException(
-					"Create " + IndexTypeTip + " index, the fields can not be empty!");
-		}
-		checkField(fields);
-		String tableName = _toTableName(entity);
-
-		String columns = transferField(fields, entity.getClass());
-
-		if (StringUtils.isBlank(indexName)) {
-			indexName = PREFIX + tableName + "_" + columns.replace(",", "_");
-		} else {
-			checkField(indexName);
-		}
-
-		String indexSql = "CREATE " + IndexType + "INDEX " + indexName + " ON " + tableName
-				+ "(" + columns + ")";
-		ddlModify(indexSql);
-	}
-
-//	
-
-	public static <T> void primaryKey(T entity, String fields) {
-		primaryKey(entity, fields, null);
+	public static <T> void primaryKey(Class<T> entityClass, String fields) {
+		primaryKey(entityClass, fields, null);
 	}
 
 	/**
@@ -281,29 +202,11 @@ public class Ddl {
 	 * @param fields  field name,if more than one,separate with comma.
 	 * @param keyName  key name
 	 */
-	public static <T> void primaryKey(T entity, String fields, String keyName) {
-//		alter table tableName add constraint pk_name primary key (id,pid) --添加主键约束
-
-		String PREFIX = "pk_";
-		String typeTip = "normal";
-
-		if (StringUtils.isBlank(fields)) {
-			throw new BeeErrorNameException(
-					"Create " + typeTip + " index, the fields can not be empty!");
-		}
-		checkField(fields);
-		String tableName = _toTableName(entity);
-
-		String columns = transferField(fields, entity.getClass());
-
-		if (StringUtils.isBlank(keyName)) {
-			keyName = PREFIX + tableName + "_" + columns.replace(",", "_");
-		} else {
-			checkField(keyName);
-		}
-
-		String indexSql = "ALTER TABLE " + tableName + " ADD CONSTRAINT " + keyName
-				+ " PRIMARY KEY (" + columns + ")";
-		ddlModify(indexSql);
+	public static <T> void primaryKey(Class<T> entityClass, String fields, String keyName) {
+        
+//		String primaryKeySql=DdlToSql.toPrimaryKeySql(entityClass, fields, keyName);
+//		ddlModify(primaryKeySql);
+		
+		suidRich.primaryKey(entityClass, fields, keyName);
 	}
 }
