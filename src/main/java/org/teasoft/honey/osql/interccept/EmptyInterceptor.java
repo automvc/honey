@@ -23,10 +23,11 @@ public class EmptyInterceptor implements Interceptor {
 	
 	private static final long serialVersionUID = 1595293159216L;
 
-	protected boolean isSkip(Object entity) {
+	protected boolean isSkip(Object entity,SuidType suidType) {
 		if (entity == null) return true; //自定义sql会用到
 
 		if (entity.getClass().equals(Class.class)) { //是Class类型,默认不处理. //deleteById
+			if(suidType!=null && suidType==SuidType.DDL) return false;
 			return true;
 		}
 

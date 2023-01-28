@@ -695,8 +695,21 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 			return insert(entity);
 	}
 	
+	@Override
+	public <T> boolean createTable(Class<T> entityClass) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public <T> boolean createTable(Class<T> entityClass, boolean isDropExistTable) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 	private void doBeforePasreEntity(Object entity[], SuidType SuidType) {
 		getInterceptorChain().beforePasreEntity(entity, SuidType);
 	}
+	
 
 }

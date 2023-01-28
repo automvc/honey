@@ -65,8 +65,7 @@ public class ShardingInterceptor extends EmptyInterceptor {
 		 //2.0从表对应的从实体,不用来计算分片. 从表分片的下标与主表的一致
 		if(HoneyContext.isInterceptorSubEntity()) return entity;
 		
-		if (isSkip(entity)) return entity;
-		
+		if (isSkip(entity,suidType)) return entity;
 		
 		String tableName = _toTableName(entity);
 		
@@ -79,6 +78,11 @@ public class ShardingInterceptor extends EmptyInterceptor {
 			}else { //更改要对所在ds
 				regFullInModifyForBroadcast(suidType);
 			}
+			return entity;
+		}
+		
+		if(isSharding && suidType==SuidType.DDL) {
+			regFullInModifyForBroadcast(suidType);
 			return entity;
 		}
 
