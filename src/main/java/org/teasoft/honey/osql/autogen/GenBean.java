@@ -481,7 +481,8 @@ public class GenBean {
 //			table.getColumnTypes().add(entry.getValue().getClass().getName());
 
 //			多层Json结构当String处理,不会生成多个Javabean
-			if ("org.bson.Document".equals(entry.getValue().getClass().getName())
+			String className=entry.getValue().getClass().getName();
+			if ("org.bson.Document".equals(className)
 					&& !"String".equals(HoneyUtil.getFieldType("org.bson.Document"))) {
 				Map d2 = (Map) entry.getValue();
 				setQueue.add(d2.entrySet());

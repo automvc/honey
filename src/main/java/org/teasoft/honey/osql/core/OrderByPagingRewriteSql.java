@@ -71,10 +71,13 @@ public class OrderByPagingRewriteSql {
 //				}
 //				HoneyContext.setPreparedValue(newSql, newListValue);
 				
+				List<PreparedValue> newListValue =new ArrayList<>();
+				newListValue.addAll(listValue);
 				for (int j = 1; j < sqls.length; j++) {
-					listValue.addAll(listValue); 
+//					listValue.addAll(listValue); 
+					newListValue.addAll(listValue);
 				}
-				HoneyContext.setPreparedValue(newSql, listValue);
+				HoneyContext.setPreparedValue(newSql, newListValue);
 				
 				list.add(new String[] { newSql });
 				list.add(new String[] { dsNameList.get(0) });

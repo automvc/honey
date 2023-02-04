@@ -66,16 +66,20 @@ public class JdbcToJavaType {
 	
 	public static void initTypeMapConfig(String dbName) {
 
+		if (dbName == null) {
+			Logger.warn("The dbName is null");
+			return;
+		}
+
 		String proFileName = "/jdbcTypeToFieldType-{DbName}.properties";
 
 		initJdbcTypeMap(dbName);
 		appendJdbcTypeCustomProp(dbName);
 
-		if (dbName != null) {
-			jdbcTypeCustomProp_specificalDB = new PropertiesReader(proFileName.replace("{DbName}", dbName));
-			if(jdbcTypeCustomProp_specificalDB != null) {
-				appendJdbcTypeCustomProp_specificalDB(dbName);
-			}
+		jdbcTypeCustomProp_specificalDB = new PropertiesReader(
+				proFileName.replace("{DbName}", dbName));
+		if (jdbcTypeCustomProp_specificalDB != null) {
+			appendJdbcTypeCustomProp_specificalDB(dbName);
 		}
 	}
 	

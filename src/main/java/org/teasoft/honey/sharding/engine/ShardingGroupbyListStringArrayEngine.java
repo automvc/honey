@@ -21,6 +21,7 @@ import org.teasoft.bee.sharding.GroupFunStruct;
 import org.teasoft.bee.spi.JsonTransform;
 import org.teasoft.honey.osql.core.HoneyContext;
 import org.teasoft.honey.osql.core.JsonResultWrap;
+import org.teasoft.honey.osql.core.Logger;
 import org.teasoft.honey.osql.core.NameTranslateHandle;
 import org.teasoft.honey.osql.core.OrderByPagingRewriteSql;
 import org.teasoft.honey.osql.core.ShardingLogReg;
@@ -128,7 +129,7 @@ public class ShardingGroupbyListStringArrayEngine {
 					entityList.add(targetObj);
 				}
 			} catch (IllegalAccessException | InstantiationException e) {
-				e.printStackTrace();
+				Logger.warn(e.getMessage(), e);
 			}
 
 			if (returnType == List_T) {

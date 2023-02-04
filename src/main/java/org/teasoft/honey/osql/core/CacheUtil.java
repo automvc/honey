@@ -415,7 +415,6 @@ public final class CacheUtil {
 	private static void _clearForeverModifySyn(String sql) {
 
 		List<String> tableNameList = CacheKey.genTableNameList(sql);
-		System.err.println(tableNameList);
 //		String key=CacheKey.genKey(sql);
 		 
 		Integer k;

@@ -57,7 +57,7 @@ public final class HoneyContext {
 	private static ThreadLocal<RouteStruct> currentRoute;
 	private static ThreadLocal<ShardingPageStruct> currentShardingPage;
 	private static ThreadLocal<ShardingSortStruct> currentShardingSort;
-	public static ThreadLocal<GroupFunStruct> currentGroupFunStruct;
+	private static ThreadLocal<GroupFunStruct> currentGroupFunStruct;
 
 	private static ThreadLocal<Connection> currentConnection; // 当前事务的Conn
 

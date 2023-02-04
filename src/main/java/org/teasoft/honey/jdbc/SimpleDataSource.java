@@ -57,7 +57,7 @@ public class SimpleDataSource extends EmptyDataSource {
 			this.conn = SessionFactory.getOriginalConnForIntra(getUrl(), getUsername(), getPassword(), getDriverName());
 			inited = true;
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			Logger.warn(ex.getMessage(), ex);
 		}
 
 		return this.conn;

@@ -53,11 +53,11 @@ public class DesensitizeHandler {
 	/**
 	 * @param targetStr 需要处理的目录字符串.
 	 * @param start 起始索引（包含）,从0开始.
-	 * @param size 需要替换的字符数量.
+	 * @param size 需要替换的字符数量.如果是-1,则一直替换到结束
 	 * @param mask 使用的掩码.
 	 * @return
 	 */
-	public static String replace(String targetStr, int start, int size, String mask) {
+	private static String replace(String targetStr, int start, int size, String mask) {
 		if (StringUtils.isBlank(targetStr)) return targetStr;
 		if (start > targetStr.length()) {
 			Logger.warn("The start position exceeds the length of the string!", new Exception());//加new Exception()有得追踪位置. 但systemLogger体现不出来.
@@ -66,6 +66,7 @@ public class DesensitizeHandler {
 
 		if (start < 0) start = 0;
 		int end = start + size;
+		if (size == -1) end = targetStr.length(); //V2.0
 
 		StringBuffer b = new StringBuffer(targetStr);
 		for (int i = start; i < end && i < targetStr.length(); i++) {

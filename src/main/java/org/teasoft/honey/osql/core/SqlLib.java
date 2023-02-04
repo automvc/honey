@@ -90,8 +90,6 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 				List<T> rsList;
 				boolean jdbcStreamSelect =HoneyConfig.getHoneyConfig().sharding_jdbcStreamSelect;
 				
-				System.err.println("=================================jdbcStreamSelect: "+jdbcStreamSelect);
-				
 				if (ShardingUtil.hadAvgSharding()) {
 					int List_T = 2;
 					rsList = (List<T>) new ShardingGroupbyListStringArrayEngine().asynProcess(sql, this, entityClass, List_T);

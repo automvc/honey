@@ -79,11 +79,11 @@ public class SortListDecorator {
 			field.setAccessible(true);
 			Object obj = field.get(t);
 			if (obj != null) {
-				System.err.println(obj.toString());
+//				System.err.println(obj.toString());
 				return obj.toString();
 			}
 		} catch (IllegalAccessException | NoSuchFieldException e) {
-			System.err.println(e.getMessage());
+//			System.err.println(e.getMessage());
 		}
 		return null;
 	}

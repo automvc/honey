@@ -194,7 +194,8 @@ public class ShardingReg {
 			HoneyContext.removeCurrentShardingSort();
 			HoneyContext.removeCurrentGroupFunStruct();
 			
-			HoneyContext.currentGroupFunStruct.remove();
+//			HoneyContext.currentGroupFunStruct.remove();
+			HoneyContext.removeCurrentGroupFunStruct();
 		}
 	
 	public static void setTrueInSysCommStrLocal(String key) {

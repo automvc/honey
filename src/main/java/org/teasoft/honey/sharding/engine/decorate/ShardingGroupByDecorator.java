@@ -17,6 +17,7 @@ import org.teasoft.bee.osql.FunctionType;
 import org.teasoft.bee.sharding.FunStruct;
 import org.teasoft.bee.sharding.GroupFunStruct;
 import org.teasoft.honey.osql.core.HoneyContext;
+import org.teasoft.honey.osql.core.Logger;
 import org.teasoft.honey.osql.core.NameTranslateHandle;
 import org.teasoft.honey.util.ObjectCreatorFactory;
 import org.teasoft.honey.util.StringUtils;
@@ -183,7 +184,8 @@ public class ShardingGroupByDecorator {
 
 					} catch (Exception e) {
 //						throw ExceptionHelper.convert(e);
-						e.printStackTrace();
+//						e.printStackTrace();
+						Logger.warn(e.getMessage(), e);
 					}
 				}
 			}
@@ -201,8 +203,8 @@ public class ShardingGroupByDecorator {
 			valueMap = null;
 
 		} catch (Exception e) {
-//			Logger.debug(e.getMessage(),e);
-			e.printStackTrace();
+			Logger.debug(e.getMessage(),e);
+//			e.printStackTrace();
 		}
 	}
 	
@@ -231,9 +233,7 @@ public class ShardingGroupByDecorator {
 //		if ((funStruts == null || funStruts.length == 0) && ! groupFunStruct.isNeedGroupWhenNoFun()) return;
 		if (funStructs == null || funStructs.size() == 0) return; 
 		
-
-
-		System.err.println(list.size());
+//		System.err.println(list.size());
 
 //		Field field = null;
 //		Field oldField = null;
@@ -254,7 +254,6 @@ public class ShardingGroupByDecorator {
 				currentStringArray = list.get(i);
 				groupKey = "";
 				for (int j = 0; groupFields!=null && j < groupFields.size(); j++) {
-//					System.out.println("--------aa----------"+groupFunStruct.getIndexByColumn(groupFields.get(j)));
 					groupKey += currentStringArray[groupFunStruct.getIndexByColumn(groupFields.get(j))] + ",";
 				}
 				String[] old = groupEntityMap.get(groupKey);
@@ -320,7 +319,8 @@ public class ShardingGroupByDecorator {
 						int index=groupFunStruct.getIndexByColumn(entry.getKey());
 						tempEntity[index]=entry.getValue();
 					} catch (Exception e) {
-						e.printStackTrace();
+//						e.printStackTrace();
+						Logger.warn(e.getMessage(), e);
 					}
 				}
 			}
@@ -340,7 +340,8 @@ public class ShardingGroupByDecorator {
 			valueMap = null;
 
 		} catch (Exception e) {
-			e.printStackTrace();
+//			e.printStackTrace();
+			Logger.warn(e.getMessage(), e);
 		}
 	}
 	
