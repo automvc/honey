@@ -161,9 +161,6 @@ public final class HoneyConfig {
 	@SysValue("${bee.osql.notShowModifyDuplicateException}")
 	public boolean notShowModifyDuplicateException;
 	
-	@SysValue("${bee.osql.notSupportUnionQuery}")
-	public boolean notSupportUnionQuery; //2.0
-	
 	@SysValue("${bee.osql.insertBatchSize}")
 	int insertBatchSize = 10000; //不设置,默认10000
 	
@@ -427,6 +424,9 @@ public final class HoneyConfig {
 	
 	@SysValue("${bee.dosql.sharding.jdbcStreamSelect}")
 	public boolean sharding_jdbcStreamSelect=true;
+	
+	@SysValue("${bee.dosql.sharding.notSupportUnionQuery}")
+	public boolean notSupportUnionQuery; //2.0
 	
 	//----------------------------- sharding end
 	
