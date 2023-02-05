@@ -36,7 +36,8 @@ public class ShardingReg {
 			List<String> tabSuffixList, Map<String, String> tab2DsMap) {
 		HoneyContext.setListLocal(StringConst.TabNameListLocal, tabNameList);
 		HoneyContext.setListLocal(StringConst.TabSuffixListLocal, tabSuffixList);
-		HoneyContext.setListLocal(StringConst.DsNameListLocal, dsNameList);
+		//一般用于判断,是否是某个数据源
+		HoneyContext.setListLocal(StringConst.DsNameListLocal, dsNameList); //极少用于指定ds;  一般用反查或tab2DsMap
 		HoneyContext.setCustomMapLocal(StringConst.ShardingTab2DsMap, tab2DsMap);
 	}
 	
@@ -65,8 +66,8 @@ public class ShardingReg {
 		setTrueInSysCommStrLocal(StringConst.ShardingSomeDsFullSelect);
 	}
 	
-	public static void regShardingJustDs(List<String> dsNameList) {
-		HoneyContext.setListLocal(StringConst.DsNameListLocal, dsNameList);
+	public static void regShardingJustDs(List<String> dsNameList) {  //一般用于判断,是否是某个数据源
+		HoneyContext.setListLocal(StringConst.DsNameListLocal, dsNameList);  //极少用于指定ds;  一般用反查或tab2DsMap
 	}
 	
 	private static final String DoNotSetTabShadngValue="Do not set the sharding value for table!";

@@ -7,7 +7,6 @@
 package org.teasoft.honey.sharding;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.teasoft.bee.osql.DatabaseConst;
@@ -16,6 +15,8 @@ import org.teasoft.bee.sharding.ShardingSortStruct;
 import org.teasoft.honey.osql.core.HoneyConfig;
 import org.teasoft.honey.osql.core.HoneyContext;
 import org.teasoft.honey.osql.core.StringConst;
+import org.teasoft.honey.sharding.config.ShardingRegistry;
+import org.teasoft.honey.util.StringUtils;
 
 /**
  * @author AiTeaSoft
@@ -122,6 +123,22 @@ public class ShardingUtil {
 		
 		ShardingSortStruct struct = new ShardingSortStruct(orderBy, orderFields, orderTypes);
 		return struct;
+	}
+	
+	
+	public static String findDs(Map<String, String> tab2DsMap,String tabSuffix,String tabName) {
+		
+		String dsName = HoneyContext.getAppointDS(); //用在只指定了ds,不使用反查
+		
+		if (StringUtils.isBlank(dsName)) {
+			tab2DsMap.get(tabSuffix); // 只在使用注解时, 分库与分表同属于一个分片键,才有用.
+		}
+		
+		if (StringUtils.isBlank(dsName)) {
+			dsName = ShardingRegistry.getDsByTab(tabName);
+		}
+		
+		return dsName;
 	}
 
 }

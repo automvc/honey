@@ -41,10 +41,11 @@ public class SimpleRewriteSql {
 		for (int i = 0; i < tabSuffixList.size(); i++) {
 			sqls[i] = sql.replace(StringConst.ShardingTableIndexStr, tabSuffixList.get(i)); // eg: [$#(index)#$]替换成下标等
 			HoneyContext.setPreparedValue(sqls[i], listValue);
-			String dsName = tab2DsMap.get(tabSuffixList.get(i)); // 只在使用注解时, 分库与分表同属于一个分片键,才有用.
-			if (StringUtils.isBlank(dsName)) {
-				dsName = ShardingRegistry.getDsByTab(tabNameList.get(i));
-			}
+//			String dsName = tab2DsMap.get(tabSuffixList.get(i)); // 只在使用注解时, 分库与分表同属于一个分片键,才有用.
+//			if (StringUtils.isBlank(dsName)) {
+//				dsName = ShardingRegistry.getDsByTab(tabNameList.get(i));
+//			}
+			String dsName=ShardingUtil.findDs(tab2DsMap, tabSuffixList.get(i), tabNameList.get(i));
 			dsArray[i] = dsName;
 		}
 		list.add(sqls);

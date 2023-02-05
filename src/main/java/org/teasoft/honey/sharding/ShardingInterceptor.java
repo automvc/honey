@@ -87,8 +87,7 @@ public class ShardingInterceptor extends EmptyInterceptor {
 		}
 		
 		// Hint指定,提前返回.
-		if(isHint()) { //ds,tab都指定了,就提前返回
-//			System.err.println("-----------直接返回了-----");
+		if(isHintBoth()) { //ds,tab都指定了,就提前返回; 批量插入也可提前返回
 			return entity;
 		} else if (isHintTab()) { // 只指定了tab,通过反查,查ds
 			String t_ds = ShardingRegistry.getDsByTab(HoneyContext.getAppointTab());
@@ -135,7 +134,7 @@ public class ShardingInterceptor extends EmptyInterceptor {
 				ShardingSimpleStruct shardingSimpleStruct = null;
 				if (condition != null) {
 					shardingSimpleStruct = new ShardingSimpleStruct();
-					shardingSimpleStruct.setTabName(_toTableName(entity)); //要是注解没有设置就会用
+					shardingSimpleStruct.setTabName(tableName); //要是注解没有设置就会用
 				}
 				
 				dsTabStruct = ShardingAnnoHandlerController.process(fields[i], entity, suidType,shardingSimpleStruct);
@@ -173,7 +172,7 @@ public class ShardingInterceptor extends EmptyInterceptor {
 					adjustValue(dsTabStruct, entity);
 					setValeueForOneDsOneTab(dsTabStruct,suidType);
 				}else {
-					regFull(suidType);
+					regFullorHintDsFull(suidType);
 				}
 				// 不用处理condition提前返回
 				if (flag == null) // 原来为null,还没设置的,会进行初次设置
@@ -183,7 +182,7 @@ public class ShardingInterceptor extends EmptyInterceptor {
 				//要将Sharding注解的转成shardingBean 用了注解,就不再用配置的sharding信息.所以Sharding注解,还有全表的属性
 				boolean sharded=processCondition(entity, shardingBean, condition, dsTabStruct,suidType);
 				if(!sharded && dsTabStruct==null) {
-					regFull(suidType);
+					regFullorHintDsFull(suidType);
 				}
 			}
 
@@ -219,7 +218,7 @@ public class ShardingInterceptor extends EmptyInterceptor {
 					}
 					
 					if (StringUtils.isBlank(shardingBean.getTabName())) {
-						shardingBean.setTabName(_toTableName(entity));
+						shardingBean.setTabName(tableName);
 					}
 
 					if (flag == null && !isHas) isHas = true;
@@ -232,12 +231,12 @@ public class ShardingInterceptor extends EmptyInterceptor {
 						adjustValue(dsTabStruct, entity);
 						setValeueForOneDsOneTab(dsTabStruct,suidType); // 一库一表时,设置到当前线程.
 						}else {
-							regFull(suidType);
+							 regFullorHintDsFull(suidType);
 						}
 					} else if (condition != null) {//case 5
 						boolean sharded=processCondition(entity, shardingBean, condition, dsTabStruct,suidType);
 						if(dsTabStruct==null && !sharded) {//原来dsTabStruct是null,后来也没发现有
-							regFull(suidType);
+							 regFullorHintDsFull(suidType);
 						}
 					} // end condition!=null
 				}else {
@@ -252,7 +251,7 @@ public class ShardingInterceptor extends EmptyInterceptor {
 		return entity;
 	}
 	
-	private boolean isHint() {
+	private boolean isHintBoth() {
 		return ShardingUtil.isTrueInSysCommStrLocal(StringConst.HintDs)
 				&& ShardingUtil.isTrueInSysCommStrLocal(StringConst.HintTab);
 	}
@@ -265,8 +264,16 @@ public class ShardingInterceptor extends EmptyInterceptor {
 		return ShardingUtil.isTrueInSysCommStrLocal(StringConst.HintTab);
 	}
 	
-	private void regFull(SuidType suidType) {
-		ShardingReg.regFull(suidType);
+	private void regFullorHintDsFull(SuidType suidType) {
+		if (isHintDs()) {
+			ShardingReg.regSomeDsFull(suidType);
+
+			List<String> dsList = new ArrayList<String>();
+			dsList.add(HoneyContext.getAppointDS());
+			ShardingReg.regShardingJustDs(dsList);
+		} else {
+			ShardingReg.regFull(suidType);
+		}
 	}
 	
 	private void regFullInModifyAllNodes(SuidType suidType) { //Broadcast,DDL
@@ -426,11 +433,14 @@ public class ShardingInterceptor extends EmptyInterceptor {
 			for (int i = 0; i < tabNameList.size(); i++) {
 //				dsName=ShardingRegistry.getDsByTab(tabNameList.get(i));
 				
+				if (isHintDs()) { //即使设置了,在重写sql时,能用反查查到,也不会用这个   ; 改成ShardingUtil.findDs()会好些
+					dsName=HoneyContext.getAppointDS();
+				}else {
 				dsName = tab2DsMap.get(tabSuffixList.get(i)); // 只在使用注解  或  分库与分表同属于一个分片键,才有用. 
 				if (StringUtils.isBlank(dsName)) {
 					dsName = ShardingRegistry.getDsByTab(tabNameList.get(i));
 				}
-				
+				}
 				if(StringUtils.isNotBlank(dsName)) dsNameList.add(dsName);
 				else Logger.error("Table name :"+tabNameList.get(i)+" , can not find its dataSoure name!");
 			}
@@ -594,7 +604,7 @@ public class ShardingInterceptor extends EmptyInterceptor {
 			if (StringUtils.isNotBlank(dsTabStruct.getDsName()))
 				this.ds = dsTabStruct.getDsName();
 
-//		tabName,tabSuffix不会同时设置;当只设置tabSuffix下标时,表基本名称同实体名转化而来.
+//		tabName,tabSuffix不会同时设置;当只设置tabSuffix下标时,表基本名称由实体名转化而来.
 			if (StringUtils.isNotBlank(dsTabStruct.getTabName()))
 				this.tabName = dsTabStruct.getTabName();
 			else if (StringUtils.isNotBlank(dsTabStruct.getTabSuffix())) // 是否要使用下划线间隔开??
