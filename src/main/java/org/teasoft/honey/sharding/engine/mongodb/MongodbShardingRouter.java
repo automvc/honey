@@ -40,7 +40,6 @@ public class MongodbShardingRouter {
 //			}
 			String dsName=ShardingUtil.findDs(tab2DsMap, tabSuffixList.get(i), tabNameList.get(i));
 			dsArray[i] = dsName;
-//			System.err.println(">>>>>>>>>>>>>>>>>>:"+dsArray[i]);
 		}
 
 		String tabArray[] = StringUtils.listToArray(tabNameList);

@@ -49,8 +49,6 @@ public class ShardingGroupByDecorator {
 //		if ((funStruts == null || funStruts.length == 0) && ! groupFunStruct.isNeedGroupWhenNoFun()) return;
 		if (funStructs == null || funStructs.size() == 0) return; 
 
-		System.err.println(list.size());
-
 //		String groupFields[]=new String[]{"userid","name"};
 ////		String groupFields[]=new String[]{"userid"};
 //		//FunType,fieldName,
