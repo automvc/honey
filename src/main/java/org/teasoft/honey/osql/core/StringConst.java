@@ -61,7 +61,8 @@ public final class StringConst {
 	public static final String ShardingSomeDsFullSelect=PREFIX+"ShardingSomeDsFullSelect";
 	public static final String ShardingTab2DsMap=PREFIX+"ShardingTab2DsMap";
 	
-	public static final String HintDsTab=PREFIX+"HintDsTab";
+	public static final String HintDs=PREFIX+"HintDs";
+	public static final String HintTab=PREFIX+"HintTab";
 	public static final String FunType=PREFIX+"FunType";
 	
 	public static final String DsNameListForBatchLocal=PREFIX+"DsNameListForBatchLocal";

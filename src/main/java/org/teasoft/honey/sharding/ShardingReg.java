@@ -40,7 +40,7 @@ public class ShardingReg {
 		HoneyContext.setCustomMapLocal(StringConst.ShardingTab2DsMap, tab2DsMap);
 	}
 	
-	public static void regFullInModifyForBroadcast(SuidType suidType) {
+	public static void regFullInModifyAllNodes(SuidType suidType) {
 		if(suidType!=SuidType.SELECT) {
 			setTrueInSysCommStrLocal(StringConst.ShardingFullSelect);
 			regHadSharding();
@@ -177,7 +177,8 @@ public class ShardingReg {
 			HoneyContext.removeSysCommStrLocal(StringConst.HadSharding);
 			HoneyContext.removeSysCommStrLocal(StringConst.ShardingFullSelect);
 			HoneyContext.removeSysCommStrLocal(StringConst.ShardingSomeDsFullSelect);
-			HoneyContext.removeSysCommStrLocal(StringConst.HintDsTab);
+			HoneyContext.removeSysCommStrLocal(StringConst.HintDs);
+			HoneyContext.removeSysCommStrLocal(StringConst.HintTab);
 			HoneyContext.removeSysCommStrLocal(StringConst.FunType);
 			HoneyContext.removeSysCommStrLocal(StringConst.MoreTableQuery);
 			

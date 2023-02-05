@@ -69,21 +69,37 @@ public class ShardingInterceptor extends EmptyInterceptor {
 		
 		String tableName = _toTableName(entity);
 		
-		if (isSharding && ShardingRegistry.isBroadcastTab(tableName)) {
+		if (isSharding && ShardingRegistry.isBroadcastTab(tableName)) { //广播表
 			
 			if(suidType==SuidType.SELECT) {
 				//第一个
 //				Map<String, Set<String>> map = ShardingRegistry.getFullNodes(tableName);
-				this.ds = ShardingRegistry.getRandDs(tableName);
+				this.ds = ShardingRegistry.getRandDs(tableName); //随机从一个ds获取
 			}else { //更改要对所在ds
-				regFullInModifyForBroadcast(suidType);
+				regFullInModifyAllNodes(suidType);
 			}
 			return entity;
 		}
 		
-		if(isSharding && suidType==SuidType.DDL) {
-			regFullInModifyForBroadcast(suidType);
+		if(isSharding && suidType==SuidType.DDL) { //DDL
+			regFullInModifyAllNodes(suidType);
 			return entity;
+		}
+		
+		// Hint指定,提前返回.
+		if(isHint()) { //ds,tab都指定了,就提前返回
+//			System.err.println("-----------直接返回了-----");
+			return entity;
+		} else if (isHintTab()) { // 只指定了tab,通过反查,查ds
+			String t_ds = ShardingRegistry.getDsByTab(HoneyContext.getAppointTab());
+			//可以反查时,直接返回;不能才计算
+			if (StringUtils.isNotBlank(t_ds)) {
+				HoneyContext.setAppointDS(t_ds);
+				return entity;
+			}
+		} else if (isHintDs()) { // 只指定了ds
+			this.ds = HoneyContext.getAppointDS();
+//			return entity;  //不能返回, 还要寻找tab分片
 		}
 
 		String key = partKey + "_beforePasreEntity" + entity.getClass().getName();
@@ -101,12 +117,8 @@ public class ShardingInterceptor extends EmptyInterceptor {
 		
 		Condition condition = HoneyContext.getConditionLocal();
 
+		//for 查找是否使用了注解
 		for (int i = 0; i < len; i++) {
-			
-			// TODO Hint指定,提前返回.
-//			如何判断,是否是全域查询??   没有那种说法, 只能指定一个ds和一个tab,就是一库和一表.
-			if(isHint()) continue;
-			
 			//处理sharding的5 case
 			//1. Sharding  Anno   condtion null
 			//2. Sharding  Anno   condtion is not null(whether is sharding value)
@@ -147,9 +159,6 @@ public class ShardingInterceptor extends EmptyInterceptor {
 
 			} 
 		} // end for 遍历完字段
-
-		// Hint指定,提前返回.
-		if(isHint()) return entity;
 
 		if (annoCounter > 1) {
 			throw new BeeErrorGrammarException(
@@ -244,15 +253,24 @@ public class ShardingInterceptor extends EmptyInterceptor {
 	}
 	
 	private boolean isHint() {
-		return ShardingUtil.isTrueInSysCommStrLocal(StringConst.HintDsTab);
+		return ShardingUtil.isTrueInSysCommStrLocal(StringConst.HintDs)
+				&& ShardingUtil.isTrueInSysCommStrLocal(StringConst.HintTab);
+	}
+	
+	private boolean isHintDs() {
+		return ShardingUtil.isTrueInSysCommStrLocal(StringConst.HintDs);
+	}
+	
+	private boolean isHintTab() {
+		return ShardingUtil.isTrueInSysCommStrLocal(StringConst.HintTab);
 	}
 	
 	private void regFull(SuidType suidType) {
 		ShardingReg.regFull(suidType);
 	}
 	
-	private void regFullInModifyForBroadcast(SuidType suidType) {
-		ShardingReg.regFullInModifyForBroadcast(suidType);
+	private void regFullInModifyAllNodes(SuidType suidType) { //Broadcast,DDL
+		ShardingReg.regFullInModifyAllNodes(suidType);
 	}
 	
 	private boolean processCondition(Object entity, ShardingBean shardingBean, Condition condition,

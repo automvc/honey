@@ -18,16 +18,16 @@ public class HintManager {
 	
 	public static void setDataSourceName(String dsName) {
 		HoneyContext.setAppointDS(dsName);
-		regHint();
+		HoneyContext.setSysCommStrLocal(StringConst.HintDs, StringConst.tRue);
 	}
 	
+	/**
+	 * 强制当次操作使用的表名;只设置tableName,框架会先通过反查确定ds
+	 * @param tableName
+	 */
 	public static void setTableName(String tableName) {
 		HoneyContext.setAppointTab(tableName);
-		regHint();
+		HoneyContext.setSysCommStrLocal(StringConst.HintTab, StringConst.tRue);
 	}
 	
-	private static void regHint() {
-		HoneyContext.setSysCommStrLocal(StringConst.HintDsTab, StringConst.tRue);
-	}
-
 }
