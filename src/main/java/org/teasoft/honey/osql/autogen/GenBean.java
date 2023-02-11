@@ -455,16 +455,17 @@ public class GenBean {
 	private boolean some_mongodb=false;
 	private boolean all_mongodb=true;
 	private boolean f1_mongodb;
+
 	private void _genBeanForMongodb(String tableName) {
 		MongodbComm mongodbComm = MongodbCommRegister.getInstance();
 		Set<Map.Entry<String, Object>> set = mongodbComm.getCollectStrcut(tableName);
 		if (set == null || set.size() < 1) {
-			Logger.warn("Generate Javabean via " + tableName
-					+ " for Mongodb,the collection(table) must have one document(row) at least!!!  collection(table):"
-					+ tableName);
+			Logger.warn(
+					"Generate Javabean via Mongodb,the collection(table) must have one document(row) at least!!!  collection(table):"
+							+ tableName);
 			return;
 		}
-		
+
 		_genBeanForMongodb(set, 1, tableName);
 	}
 

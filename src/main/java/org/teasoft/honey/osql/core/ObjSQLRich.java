@@ -245,9 +245,13 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 			if(entity[i]==null) throw new ObjSQLException("entity[] have null element, index: "+i);
 		}
 	}
-
+	
 	@Override
 	public <T> int update(T entity, String... updateFields) {
+		return _update(entity, updateFields);
+	}
+
+	private <T> int _update(T entity, String... updateFields) {
 		if (entity == null) return -1;
 		doBeforePasreEntity(entity,SuidType.UPDATE);
 		int r = 0;
@@ -644,7 +648,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 	public <T> List<T> select(T entity, IncludeType includeType, Condition condition) {
 		if (entity == null) return null;
 		if (includeType != null) {
-			if (condition == null) condition = BF.getCondition();
+			if (condition == null) condition = BeeFactoryHelper.getCondition();
 			condition.setIncludeType(includeType);
 		}
 		return select(entity, condition);
@@ -663,7 +667,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 	public <T> String selectJson(T entity, IncludeType includeType, Condition condition) {
 		if (entity == null) return null;
 		if (includeType != null) {
-			if (condition == null) condition = BF.getCondition();
+			if (condition == null) condition = BeeFactoryHelper.getCondition();
 			condition.setIncludeType(includeType);
 		}
 		return selectJson(entity, condition);
@@ -865,8 +869,16 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 	public <T> int update(T oldEntity, T newEntity) {
 
 		if (oldEntity == null || newEntity == null) return -1;
+		
+		// 变长参数后, 出现混淆,需要调整
+		if (newEntity.getClass() == String.class) return _update(oldEntity, newEntity.toString());
+		
 		String oldEntityFullName = oldEntity.getClass().getName();
 		String newEntityFullName = newEntity.getClass().getName();
+		
+		Logger.debug(oldEntityFullName);
+		Logger.debug(newEntityFullName);
+		
 		if (!oldEntityFullName.equals(newEntityFullName)) {
 			throw new BeeErrorGrammarException(
 					"BeeErrorGrammarException: the oldEntity and newEntity must be same type!");
@@ -890,7 +902,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 //		return mapSuid.update(updateMapSql);  //it will use Interceptor
 		
 //		updateBy不行, 使用updateSet  
-		Condition condition=BF.getCondition();
+		Condition condition=BeeFactoryHelper.getCondition();
 		for (Map.Entry<String, Object> entry : newMap.entrySet()) {
 			if(HoneyUtil.isNumber(entry.getValue()))
 			   condition.set(entry.getKey(), (Number)entry.getValue());

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 the original author.All rights reserved.
+ * Copyright 2016-2023 the original author.All rights reserved.
  * Kingstar(honeysoft@126.com)
  * The license,see the LICENSE file.
  */
@@ -88,7 +88,7 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 
 		if (sql == null || "".equals(sql.trim())) return Collections.emptyList();
 
-		boolean isReg = updateInfoInCache(sql, "List<T>", SuidType.SELECT);
+		boolean isReg = updateInfoInCache(sql, "List<T>", SuidType.SELECT, entityClass);
 		if (isReg) {
 			initRoute(SuidType.SELECT, entityClass, sql);
 			Object cacheObj = getCache().get(sql); //这里的sql还没带有值
@@ -102,7 +102,7 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 		List<T> rsList = null;
 		try {
 			rsList=getBeeSqlForApp().select(sql, entityClass, toStringArray(sql));
-			addInCache(sql, rsList, "List<T>", SuidType.SELECT, rsList.size());
+			addInCache(sql, rsList, rsList.size());
 
 		} catch (Exception e) {
 			throw ExceptionHelper.convert(e);
@@ -115,10 +115,12 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 	}
 	
 	@Override
+	@SuppressWarnings("rawtypes")
 	public String selectFun(String sql) {
+		Class entityClass = (Class) OneTimeParameter.getAttribute(StringConst.Route_EC);
 		if(sql==null || "".equals(sql.trim())) return null;
 		
-		boolean isReg = updateInfoInCache(sql, "String", SuidType.SELECT);
+		boolean isReg = updateInfoInCache(sql, "String", SuidType.SELECT, entityClass);
 		if (isReg) {
 			initRoute(SuidType.SELECT, null, sql);
 			Object cacheObj = getCache().get(sql); //这里的sql还没带有值
@@ -132,8 +134,7 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 		try {
 			result=getBeeSqlForApp().selectFun(sql, toStringArray(sql));
 			
-			addInCache(sql, result,"String",SuidType.SELECT,1);
-
+			addInCache(sql, result, 1);
 		} catch (Exception e) {
 			throw ExceptionHelper.convert(e);
 		} finally {
@@ -144,11 +145,12 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 	}
 
 	@Override
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public List<String[]> select(String sql) {
 		
+		Class entityClass = (Class) OneTimeParameter.getAttribute(StringConst.Route_EC);
 		if(sql==null || "".equals(sql.trim())) return Collections.emptyList();
-		
-		boolean isReg = updateInfoInCache(sql, "List<String[]>", SuidType.SELECT);
+		boolean isReg = updateInfoInCache(sql, "List<String[]>", SuidType.SELECT, entityClass);
 		if (isReg) {
 			initRoute(SuidType.SELECT, null, sql);
 			Object cacheObj = getCache().get(sql); //这里的sql还没带有值
@@ -165,7 +167,7 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 			list=getBeeSqlForApp().select(sql, toStringArray(sql));
 			
 			logSelectRows(list.size());
-			addInCache(sql, list,"List<String[]>",SuidType.SELECT,list.size());
+			addInCache(sql, list, list.size());
 			
 		} catch (Exception e) {
 			throw ExceptionHelper.convert(e);
@@ -180,9 +182,8 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 	@SuppressWarnings("unchecked")
 	public List<Map<String, Object>> selectMapList(String sql) {
 		
-	if(sql==null || "".equals(sql.trim())) return Collections.emptyList();
-		
-		boolean isReg = updateInfoInCache(sql, "List<Map<String,Object>>", SuidType.SELECT);
+	    if(sql==null || "".equals(sql.trim())) return Collections.emptyList();
+		boolean isReg = updateInfoInCache(sql, "List<Map<String,Object>>", SuidType.SELECT, null);
 		if (isReg) { 
 			initRoute(SuidType.SELECT, null, sql);
 			Object cacheObj = getCache().get(sql); //这里的sql还没带有值
@@ -201,7 +202,7 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 			
 			logSelectRows(list.size());
 			
-			addInCache(sql, list,"List<Map<String,Object>>",SuidType.SELECT,list.size());
+			addInCache(sql, list, list.size());
 			
 		} catch (Exception e) {
 			throw ExceptionHelper.convert(e);
@@ -216,10 +217,10 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 	@SuppressWarnings("rawtypes")
 	public String selectJson(String sql) {
 		
+		Class entityClass = (Class) OneTimeParameter.getAttribute(StringConst.Route_EC);
 		if(sql==null || "".equals(sql.trim())) return null;
 		
-		boolean isReg = updateInfoInCache(sql, "StringJson", SuidType.SELECT);
-		Class entityClass = (Class) OneTimeParameter.getAttribute(StringConst.Route_EC);
+		boolean isReg = updateInfoInCache(sql, "StringJson", SuidType.SELECT, entityClass);
 		if (isReg) {
 			initRoute(SuidType.SELECT, entityClass, sql);
 			Object cacheObj = getCache().get(sql); //这里的sql还没带有值
@@ -230,13 +231,12 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 		}
 		
 		String json="";
-		
 		try {
 			String exe_sql=HoneyUtil.deleteLastSemicolon(sql);
 			
 			json = getBeeSqlForApp().selectJson(exe_sql, toStringArray(sql), entityClass);
 			
-			addInCache(sql, json,"StringJson",SuidType.SELECT,-1);  //没有作最大结果集判断
+			addInCache(sql, json, -1); // 没有作最大结果集判断
 
 		} catch (Exception e) {
 			throw ExceptionHelper.convert(e);
@@ -248,10 +248,12 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 	}
 
 	@Override
+	@SuppressWarnings("rawtypes")
 	public int modify(String sql) {
+		Class entityClass = (Class) OneTimeParameter.getAttribute(StringConst.Route_EC);
 		if(sql==null || "".equals(sql)) return -2;
 		
-		initRoute(SuidType.MODIFY,null,sql);
+		initRoute(SuidType.MODIFY, entityClass, sql);
 		
 		int num = 0;
 		try {
@@ -260,7 +262,6 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 		} finally {
 			clearInCache(sql, "int",SuidType.MODIFY,num); //has clearContext(sql)
 		}
-		
 		Logger.logSQL(" | <--  Affected rows: ", num+"");
 		
 		return num;
@@ -281,7 +282,6 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 		} finally {
 			clearInCache(sql, "int", SuidType.INSERT, num); 
 		}
-
 		Logger.logSQL(" | <--  Affected rows: ", num + "");
 
 		return returnId;
@@ -359,7 +359,6 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 		return a;
 	}
 	
-	
 	@Override
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public <T> List<T> moreTableSelect(String sql, T entity) {
@@ -377,7 +376,7 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 		boolean subOneIsList1=moreTableStruct[0].subOneIsList;
 		boolean subTwoIsList2=moreTableStruct[0].subTwoIsList;
 		String listFieldType=""+subOneIsList1+subTwoIsList2+moreTableStruct[0].oneHasOne;
-		boolean isReg = updateInfoInCache(sql, "List<T>"+listFieldType, SuidType.SELECT);
+		boolean isReg = updateInfoInCache(sql, "List<T>"+listFieldType, SuidType.SELECT, entity.getClass());
 		if (isReg) {
 			initRoute(SuidType.SELECT, entity.getClass(), sql); //多表查询的多个表要在同一个数据源.
 			Object cacheObj = getCache().get(sql); //这里的sql还没带有值
@@ -398,12 +397,8 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 			String exe_sql=HoneyUtil.deleteLastSemicolon(sql);
 			
 			List<Map<String, String>> rsMapList=getBeeSqlForApp().selectMapListWithColumnName(exe_sql, toStringArray(sql));
-			
 			rsList = new ArrayList<>();
-
 			Field field[] = entity.getClass().getDeclaredFields();
-//			int columnCount = field.length;
-			
 			boolean oneHasOne=moreTableStruct[0].oneHasOne;
 			
 			Field subField[] = new Field[2];
@@ -523,7 +518,6 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 						} catch (IllegalArgumentException e) {
 							Logger.error(e.getMessage(),e);
 						}
-							
 					}
 				}
 				
@@ -551,7 +545,6 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 					isDul = false;
 					dulField = "";
 					try {
-
 						if (oneHasOne && fields1[i] != null && fields1[i].isAnnotationPresent(JoinTable.class)) {
 							if (subField[1] != null && fields1[i].getName().equals(variableName[1]) && subObj2 != null) {
 								fields1[i].setAccessible(true);
@@ -733,7 +726,8 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 					rsList.add(targetObj);
 				}
 			   } // end while (rs.next())
-			addInCache(sql, rsList,"List<T>"+listFieldType,SuidType.SELECT,rsList.size());
+			
+			addInCache(sql, rsList, rsList.size());
 			
 		} catch (IllegalAccessException e) {
 			hasException=true;
@@ -755,7 +749,6 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 
 		return rsList;
 	}
-	
 	
 	private static final String[] EMPTY_ARRAY = new String[0];
 	
@@ -803,7 +796,6 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 					}
 				}
 			}
-			
 			return obj;
 		}
 	}

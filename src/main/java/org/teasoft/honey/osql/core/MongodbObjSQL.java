@@ -120,17 +120,8 @@ public class MongodbObjSQL extends AbstractCommOperate implements Suid {
 		_ObjectToSQLHelper.setInitIdByAuto(entity); // 更改了原来的对象
 		
 		int insertNum =0;
-		
-//		_regEntityClass(entity); //TODO
-		
-//		String sql = getObjToSQL().toInsertSQL(entity);
-//		_regEntityClass(entity);
-//		sql=doAfterCompleteSql(sql);
-//		int insertNum = -1;
-//		Logger.logSQL("insert SQL: ", sql);
-		
-		HoneyUtil.revertId(entity); //v1.9
 		insertNum=getMongodbBeeSql().insert(entity);
+		HoneyUtil.revertId(entity); //v1.9
 		
 		doBeforeReturn();
 		
@@ -147,8 +138,9 @@ public class MongodbObjSQL extends AbstractCommOperate implements Suid {
 		
 		long insertNum =0;
 		
-		HoneyUtil.revertId(entity); 
 		insertNum=getMongodbBeeSql().insertAndReturnId(entity, null);
+		
+		HoneyUtil.revertId(entity); 
 		
 		doBeforeReturn();
 		

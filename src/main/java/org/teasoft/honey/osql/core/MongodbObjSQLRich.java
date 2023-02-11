@@ -7,6 +7,7 @@
 package org.teasoft.honey.osql.core;
 
 import java.io.Serializable;
+import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.List;
 
@@ -19,7 +20,6 @@ import org.teasoft.bee.osql.SuidRich;
 import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
 import org.teasoft.bee.osql.exception.BeeIllegalParameterException;
-import org.teasoft.honey.osql.shortcut.BF;
 import org.teasoft.honey.sharding.ShardingUtil;
 import org.teasoft.honey.sharding.engine.batch.ShardingBatchInsertEngine;
 import org.teasoft.honey.sharding.engine.batch.ShardingForkJoinBatchInsertEngine;
@@ -67,7 +67,7 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 		if(start<0) throw new BeeIllegalParameterException(START_GREAT_EQ_0);
 		
 		
-		Condition condition=BF.getCondition();
+		Condition condition=BeeFactoryHelper.getCondition();
 		condition.start(start).size(size);
 		
 		return select(entity, condition);
@@ -77,7 +77,7 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 	public <T> List<T> select(T entity, String... selectField) {
 		if (entity == null) return null;
 		
-		Condition condition=BF.getCondition();
+		Condition condition=BeeFactoryHelper.getCondition();
 		condition.selectField(selectField);
 		
 		return select(entity, condition);
@@ -93,7 +93,7 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 		if(size<0) throw new BeeIllegalParameterException(SIZE_GREAT_0);
 		if(start<0) throw new BeeIllegalParameterException(START_GREAT_EQ_0);
 		
-		Condition condition=BF.getCondition();
+		Condition condition=BeeFactoryHelper.getCondition();
 		condition.selectField(selectFields);
 		condition.start(start).size(size);
 		
@@ -170,10 +170,9 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 	
 	private <T> int _insert(T entity[], int batchSize, String excludeFields) {
 
-		HoneyUtil.revertId(entity);
-
 		int a = getMongodbBeeSql().insert(entity, batchSize, excludeFields);
-
+		
+		HoneyUtil.revertId(entity);
 		return a;
 	}
 	
@@ -201,7 +200,7 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 	public <T> T selectFirst(T entity, Condition condition) {
 		if (entity == null) return null;
 
-		if (condition == null) condition = BF.getCondition();
+		if (condition == null) condition = BeeFactoryHelper.getCondition();
 		condition.size(1);
 		
 		List<T> list = select(entity, condition);
@@ -261,18 +260,18 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 
 	@Override
 	public <T> int update(T entity, IncludeType includeType, String... updateFields) {
-		return update(entity, BF.getCondition().setIncludeType(includeType), updateFields);
+		return update(entity, BeeFactoryHelper.getCondition().setIncludeType(includeType), updateFields);
 	}
 
 	@Override
 	public <T> List<T> select(T entity, IncludeType includeType) {
 		if (entity == null) return null;
-		return select(entity, BF.getCondition().setIncludeType(includeType));
+		return select(entity, BeeFactoryHelper.getCondition().setIncludeType(includeType));
 	}
 
 	@Override
 	public <T> int update(T entity, IncludeType includeType) {
-		return updateBy(entity, BF.getCondition().setIncludeType(includeType), "id");
+		return updateBy(entity, BeeFactoryHelper.getCondition().setIncludeType(includeType), "id");
 	}
 
 	@Override
@@ -292,8 +291,9 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 		doBeforePasreEntity(entity, SuidType.INSERT);
 		_ObjectToSQLHelper.setInitIdByAuto(entity); // 更改了原来的对象
 
-		HoneyUtil.revertId(entity);
 		long returnId = getMongodbBeeSql().insertAndReturnId(entity, includeType);
+		
+		HoneyUtil.revertId(entity);
 
 		doBeforeReturn();
 
@@ -303,7 +303,7 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 	@Override
 	public <T> int delete(T entity, IncludeType includeType) {
 		if (entity == null) return -1;
-		return delete(entity, BF.getCondition().setIncludeType(includeType));
+		return delete(entity, BeeFactoryHelper.getCondition().setIncludeType(includeType));
 	}
 
 	@Override
@@ -315,7 +315,7 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 	@Override
 	public <T> List<String[]> selectString(T entity, String... selectFields) {
 
-		Condition condition = BF.getCondition();
+		Condition condition = BeeFactoryHelper.getCondition();
 		condition.selectField(selectFields);
 
 		return selectString(entity, condition);
@@ -328,10 +328,27 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 		doBeforePasreEntity(entity, SuidType.SELECT);
 		List<String[]> list = null;
 
+		if(condition==null) condition = BeeFactoryHelper.getCondition();
+				
+		if(condition.getSelectField()==null) condition.selectField(getColumnNames(entity));
+		
 		list = getMongodbBeeSql().selectString(entity, condition);
 
 		doBeforeReturn();
 		return list;
+	}
+	
+	private <T> String getColumnNames(T entity) {
+		Field fields[] = entity.getClass().getDeclaredFields(); 
+		String columnNames;
+		String packageAndClassName = entity.getClass().getName();
+		columnNames = HoneyContext.getBeanField(packageAndClassName);
+		if (columnNames == null) {
+			columnNames = HoneyUtil.getBeanField(fields,entity.getClass());
+			HoneyContext.addBeanField(packageAndClassName, columnNames);
+		}
+		
+		return columnNames;
 	}
 	
 	@Override
@@ -342,13 +359,13 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 
 	@Override
 	public <T> String selectJson(T entity, IncludeType includeType) {
-		Condition condition=BF.getCondition();
+		Condition condition=BeeFactoryHelper.getCondition();
 		return selectJson(entity, condition.setIncludeType(includeType));
 	}
 	
 	@Override
 	public <T> String selectJson(T entity, String... selectField) {
-		Condition condition = BF.getCondition();
+		Condition condition = BeeFactoryHelper.getCondition();
 		return selectJson(entity, condition.selectField(selectField));
 	}
 	
@@ -362,7 +379,7 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 		if (size < 0) throw new BeeIllegalParameterException(SIZE_GREAT_0);
 		if (start < 0) throw new BeeIllegalParameterException(START_GREAT_EQ_0);
 
-		Condition condition = BF.getCondition();
+		Condition condition = BeeFactoryHelper.getCondition();
 		condition.selectField(selectFields).start(start).size(size);
 		return selectJson(entity, condition);
 	}
@@ -517,7 +534,7 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 
 	@Override
 	public <T> int updateBy(T entity, IncludeType includeType, String... whereFields) {
-		return updateBy(entity, BF.getCondition().setIncludeType(includeType), whereFields);
+		return updateBy(entity, BeeFactoryHelper.getCondition().setIncludeType(includeType), whereFields);
 	}
 
 	// v1.7.2

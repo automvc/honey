@@ -7,6 +7,8 @@
 package org.teasoft.honey.osql.core;
 
 import java.lang.reflect.Field;
+import java.sql.BatchUpdateException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.List;
 
 import org.teasoft.bee.osql.Cache;
@@ -44,38 +46,25 @@ public abstract class AbstractBase {
 		return NameTranslateHandle.toColumnName(fieldName, entityClass);
 	}
 
-	protected void addInCache(String sql, Object rs,int resultSetSize) {
-//		String returnType, SuidType suidType  已不使用
-		addInCache(sql, rs, null, null, resultSetSize);
-	}
-	
-	//add on 2019-10-01
-	protected void addInCache(String sql, Object rs, String returnType, SuidType suidType,int resultSetSize) {
-		
+	protected void addInCache(String sql, Object rs, int resultSetSize) {
 		if(HoneyContext.getSqlIndexLocal()!=null) return ; //子查询不放缓存
-		
 //		如果结果集超过一定的值则不放缓存
 		if(resultSetSize>cacheWorkResultSetSize){
 		   HoneyContext.deleteCacheInfo(sql);
 		   return;
 		}
-		
-		CacheSuidStruct struct = HoneyContext.getCacheInfo(sql);
-		if (struct != null) { //之前已定义有表结构,才放缓存.否则放入缓存,可能会产生脏数据.  不判断的话,自定义的查询也可以放缓存
-//			String returnType, SuidType suidType  已不使用
-//			struct.setReturnType(returnType);  //因一进来updateInfoInCache时,已添加有
-//			struct.setSuidType(suidType.getType());
-//			HoneyContext.setCacheInfo(sql, struct);
-			getCache().add(sql, rs);
-		}
+//		returnType, suidType  已不使用; 因一进来updateInfoInCache时,已添加有
+		getCache().add(sql, rs);
 	}
 	
 //	查缓存前需要先更新缓存信息,才能去查看是否在缓存
-	protected boolean updateInfoInCache(String sql, String returnType, SuidType suidType) {
+	@SuppressWarnings("rawtypes")
+	protected boolean updateInfoInCache(String sql, String returnType, SuidType suidType,Class entityClass) {
 		if(HoneyContext.getSqlIndexLocal()!=null) return false; //子查询不放缓存
-		return HoneyContext.updateInfoInCache(sql, returnType, suidType);
+		return HoneyContext.updateInfoInCache(sql, returnType, suidType, entityClass);
 	}
 	
+	//清空缓存不需要entityClass;   原始sql对应的table相关的缓存都会删除。
 	protected void clearInCache(String sql, String returnType, SuidType suidType, int affectRow) {
 		CacheSuidStruct struct = HoneyContext.getCacheInfo(sql);
 		if (struct != null) {
@@ -115,11 +104,22 @@ public abstract class AbstractBase {
 		Logger.logSQL(" | <--  select rows: ", size + "" + shardingIndex());
 	}
 	
+	protected void logAffectRow(int num) {
+		if (ShardingUtil.isSharding()&& !showShardingSQL) return ;		
+		Logger.logSQL(" | <--  Affected rows: ", num+""+shardingIndex());
+	}
+	
 	protected void logDsTab() {
 		if (! showShardingSQL) return ;
 		List<String> dsNameListLocal=HoneyContext.getListLocal(StringConst.DsNameListLocal);
 		List<String> tabNameList=HoneyContext.getListLocal(StringConst.TabNameListLocal);
 		Logger.logSQL("========= Involved DataSource: "+dsNameListLocal+"  ,Involved Table: "+tabNameList);
+	}
+	
+	//主线程才打印（不需要分片或不是子线程）
+	protected static void logSQLForMain(String hardStr) {
+		if (!ShardingUtil.hadSharding() || HoneyContext.getSqlIndexLocal() == null)
+			Logger.logSQL(hardStr);
 	}
 	
 	protected static final String INDEX1 = "_SYS[index";
@@ -170,6 +170,23 @@ public abstract class AbstractBase {
 	
 	protected boolean getShowShardingSQL() {
 		return showSQL && HoneyConfig.getHoneyConfig().showShardingSQL;
+	}
+	
+	//JDBC,主要是SQLException
+	protected boolean isConstraint(Exception e) {
+		String className=e.getClass().getSimpleName();
+		String fullClassName=e.getClass().getName();
+		return ("MySQLIntegrityConstraintViolationException".equals(className) //mysql
+				|| e.getMessage().startsWith("Duplicate entry ") //mysql  
+				|| (e instanceof SQLIntegrityConstraintViolationException) 
+				|| e.getMessage().contains("ORA-00001:")    //Oracle 
+				|| (e instanceof BatchUpdateException) //PostgreSQL,...
+				|| e.getMessage().contains("duplicate key") || e.getMessage().contains("DUPLICATE KEY")  //PostgreSQL
+				|| e.getMessage().contains("primary key violation") || "org.h2.jdbc.JdbcBatchUpdateException".equals(fullClassName) //h2
+				|| e.getMessage().contains("SQLITE_CONSTRAINT_PRIMARYKEY") || e.getMessage().contains("PRIMARY KEY constraint") //SQLite
+				|| e.getMessage().contains("Duplicate entry")|| e.getMessage().contains("Duplicate Entry")
+				|| e.getMessage().contains("Duplicate key") || e.getMessage().contains("Duplicate Key")
+				);
 	}
 
 }

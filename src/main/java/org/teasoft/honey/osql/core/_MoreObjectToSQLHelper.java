@@ -97,7 +97,7 @@ public class _MoreObjectToSQLHelper {
 				}
 			}
 			
-			//TODO 在拦截器处理之后, 更新为新表名????   用别名????
+			//todo 在拦截器处理之后, 更新为新表名????   用别名????
 			//还是  from 主表, 新表名 (as) 旧表名    这样,字段列名就不用改了??
 			
 //			如何多表查询没有声明表别名，可以使用逻辑表作为别名？？
@@ -164,7 +164,7 @@ public class _MoreObjectToSQLHelper {
 						sqlStrForList=getDbFeature().toPageSql(sqlForList.toString(), start, size);
 //						HoneyUtil.setPageNum(list);
 						
-						//sharding分片??? 如何调整  TODO
+						//sharding分片??? 如何调整  todo
 						
 					    //后面不用再分页.  Condition里的分页参数呢????
 					    start = -1;
@@ -323,7 +323,7 @@ public class _MoreObjectToSQLHelper {
 			//V2.0 将分页统一放到condition再处理.
 			if (start != -1 && size != -1 && condition == null) { //多表查询,不会只传一个size    MoreTable不会同时传condition和分页的原生参数.
 				//只是传分页参数,不用将condition记录到sharding上下文.
-				condition=BF.getCondition();
+				condition=BeeFactoryHelper.getCondition();
 				condition.start(start);
 				condition.size(size);
 			}

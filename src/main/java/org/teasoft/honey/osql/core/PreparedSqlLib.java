@@ -100,16 +100,6 @@ public class PreparedSqlLib implements PreparedSql {
 		return select(sql, entityClass, preValues);
 	}
 	
-	
-	
-
-//	@Override
-//	public <T> List<T> select(String sql, Class<T> entityClass, Object[] preValues, int start,
-//			int size) {
-//		// TODO Auto-generated method stub
-//		return null;
-//	}
-	
 	@Override
 	public <T> List<T> select(String sql, Class<T> entityClass, Object[] preValues, int start, int size) {
 		if (size <= 0) throw new BeeIllegalParameterException(SIZE_GREAT_0);
@@ -608,7 +598,14 @@ public class PreparedSqlLib implements PreparedSql {
 			preparedValue = new PreparedValue();
 			value = map.get(keys[i]);
 			preparedValue.setValue(value);
-			preparedValue.setType(map.get(keys[i]).getClass().getName());
+			
+//			preparedValue.setType(map.get(keys[i]).getClass().getName()); //null bug
+			//fixed bug V2.0
+			if (value != null)
+				preparedValue.setType(value.getClass().getName());
+			else  
+				preparedValue.setType(Object.class.getName());
+			
 			list.add(preparedValue);
 		}
 		return list;
@@ -768,7 +765,7 @@ public class PreparedSqlLib implements PreparedSql {
 			sql_i = INDEX1 + i + INDEX2 + insertSql[0];
 			if (HoneyUtil.isMysql()) {
 				if (i == 0) {
-					OneTimeParameter.setAttribute("_SYS_Bee_PlaceholderValue", getPlaceholderValue(size));
+					OneTimeParameter.setAttribute("_SYS_Bee_PlaceholderValue", getPlaceholderValue(keys.length)); //fixed bug V2.0
 					HoneyContext.setPreparedValue(sql_i, oneRecoreList);
 				}
 				preparedValueList.addAll(oneRecoreList); //用于mysql批量插入时设置值

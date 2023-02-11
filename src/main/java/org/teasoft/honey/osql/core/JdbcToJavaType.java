@@ -483,13 +483,15 @@ public class JdbcToJavaType {
 //		jdbc2JavaTypeMap.put("org.bson.types.ObjectId", "org.bson.types.ObjectId");
 		jdbc2JavaTypeMap.put("org.bson.types.ObjectId", "String");
 		jdbc2JavaTypeMap.put("java.lang.String", "String");
-		jdbc2JavaTypeMap.put("java.util.ArrayList", "java.util.ArrayList");
+//		jdbc2JavaTypeMap.put("java.util.ArrayList", "java.util.ArrayList");
+		jdbc2JavaTypeMap.put("java.util.ArrayList", "List");
 		jdbc2JavaTypeMap.put("java.lang.Integer", "Integer");
-		
 		jdbc2JavaTypeMap.put("java.lang.Long", "Long");
 		jdbc2JavaTypeMap.put("java.lang.Double", "Double");
 		jdbc2JavaTypeMap.put("java.lang.Boolean", "Boolean");
 		jdbc2JavaTypeMap.put("java.util.Date", "java.util.Date");
+		
+		jdbc2JavaTypeMap.put("org.bson.types.decimal128", "BigDecimal");
 		
 		jdbc2JavaTypeMap.put("org.bson.Document", "org.bson.Document");
 		

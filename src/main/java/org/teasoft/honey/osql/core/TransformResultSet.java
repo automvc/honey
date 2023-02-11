@@ -255,7 +255,7 @@ public class TransformResultSet {
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 //	public static <T> T rowToEntity(ResultSet rs, T entity) throws SQLException,IllegalAccessException,InstantiationException {
-		public static <T> T rowToEntity(ResultSet rs, Class<T> clazz) throws SQLException,IllegalAccessException,InstantiationException {
+	public static <T> T rowToEntity(ResultSet rs, Class<T> clazz) throws SQLException,IllegalAccessException,InstantiationException {
 
 		T targetObj = null;
 		targetObj = (T) clazz.newInstance();
@@ -284,6 +284,7 @@ public class TransformResultSet {
 			boolean isRegHandlerPriority = false;
 			try {
 				boolean processAsJson = false;
+				// isJoson> isRegHandlerPriority(if open)
 				if (isJoson(field)) {
 					obj = rs.getString(i + 1);
 					TypeHandler jsonHandler = TypeHandlerRegistry.getHandler(Json.class);
@@ -301,10 +302,10 @@ public class TransformResultSet {
 
 				if (isRegHandlerPriority) {
 					obj = TypeHandlerRegistry.handlerProcess(field.getType(), obj);
-					field.set(targetObj, obj); // 对相应Field设置
-				} else {
-					field.set(targetObj, obj); // 对相应Field设置
 				}
+				
+				field.set(targetObj, obj); // 对相应Field设置
+				
 			} catch (IllegalArgumentException e) {
 //				e.printStackTrace();
 				boolean alreadyProcess = false;

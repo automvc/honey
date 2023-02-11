@@ -119,7 +119,6 @@ public class NameTranslateHandle {
 			return tableName;
 		
 		if(ShardingUtil.hadSharding()) {
-			//TODO 还要考虑Hint指定的优先情形.
 			return tableName+StringConst.ShardingTableIndexStr;
 		}
 		
