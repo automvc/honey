@@ -110,7 +110,6 @@ public class ShardingInterceptor extends EmptyInterceptor {
 		boolean isHas = false;
 		int annoCounter = 0;
 		DsTabStruct dsTabStruct = null;
-//		boolean hasMultiTenancyAnno = false;
 //		boolean hasShardingAnno = false;
 		ShardingBean shardingBean = null;
 		
@@ -126,9 +125,7 @@ public class ShardingInterceptor extends EmptyInterceptor {
 			//5. config sharding   condtion is not null(whether is sharding value)
 			//4,5 the javabean also can set value
 			
-			if (ShardingUtil.isSharding() && AnnoUtil.isShardingAnno(fields[i])) { // 加sharding配置标识
-				// 此处判断,若有Hint,则不再往下执行 TODO 如何区分是库的,还是表的??
-//				若检测到要分片,但不用注解,要使用全局的作处理.
+			if (ShardingUtil.isSharding() && AnnoUtil.isShardingAnno(fields[i])) {
 				if (flag == null && !isHas) isHas = true;
 				annoCounter++;
 				ShardingSimpleStruct shardingSimpleStruct = null;
@@ -150,12 +147,9 @@ public class ShardingInterceptor extends EmptyInterceptor {
 					
 				}
 			}else if (AnnoUtil.isMultiTenancyAnno(fields[i])) {
-				// 此处判断,若有Hint,则不再往下执行 TODO 如何区分是库的,还是表的??
 				if (flag == null && !isHas) isHas = true;
 				annoCounter++;
 				dsTabStruct = MultiTenancyHandlerController.process(fields[i], entity, suidType);
-//				hasMultiTenancyAnno = true;
-
 			} 
 		} // end for 遍历完字段
 

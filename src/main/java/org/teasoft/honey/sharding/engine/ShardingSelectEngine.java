@@ -81,7 +81,7 @@ public class ShardingSelectEngine {
 		// 排序装饰
 		SortListDecorator.sort(rsList);
 
-		// 排序后,要将数据放缓存. TODO
+		// 排序后,要将数据放缓存. 
 
 		if(showShardingSQL) Logger.debug("before ResultPagingDecorator, rows: "+rsList.size());
 		

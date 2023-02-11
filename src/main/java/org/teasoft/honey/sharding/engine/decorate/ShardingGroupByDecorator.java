@@ -45,7 +45,7 @@ public class ShardingGroupByDecorator {
 //		FunStruct funStructs[] = groupFunStruct.getFunStructs();
 		List<FunStruct> funStructs = groupFunStruct.getFunStructs();
 		//有分组,但没有聚合,也不需要;  要是同一个分组的数据分布在不同节点,可以在后面排序
-//		没有聚合函数,可能有多条一样的数据, 这个方法,处理不了. TODO
+//		没有聚合函数,可能有多条一样的数据, 这个方法,处理不了. 
 //		if ((funStruts == null || funStruts.length == 0) && ! groupFunStruct.isNeedGroupWhenNoFun()) return;
 		if (funStructs == null || funStructs.size() == 0) return; 
 
@@ -227,7 +227,7 @@ public class ShardingGroupByDecorator {
 //		FunStruct funStructs[] = groupFunStruct.getFunStructs();
 		List<FunStruct> funStructs = groupFunStruct.getFunStructs();
 		//有分组,但没有聚合,也不需要;  要是同一个分组的数据分布在不同节点,可以在后面排序
-//		没有聚合函数,可能有多条一样的数据, 这个方法,处理不了. TODO
+//		没有聚合函数,可能有多条一样的数据, 这个方法,处理不了. 
 //		if ((funStruts == null || funStruts.length == 0) && ! groupFunStruct.isNeedGroupWhenNoFun()) return;
 		if (funStructs == null || funStructs.size() == 0) return; 
 		
@@ -365,123 +365,6 @@ public class ShardingGroupByDecorator {
 		}
 		return false;
 	}
-	
-/*	
-	private static List initData() {
-//		-- 将分组的字段查出(假如没有时).
-//		-- 用所有分组的字段的值作为key
-//		-- 统计各种聚合; min,max则保留最值即可.
-//		  -- count 加起,sum加起; avg:改写
-		
 
-		
-//		select userid,name,max(total),min(total),count(total),sum(total),avg(total) from orders0 group by userid,name
-//		0		91.000000	91.000000	1	91.000000	91.0000000000
-//		0	client	93.990000	93.990000	4	375.960000	93.9900000000
-//		6		97.000000	97.000000	1	97.000000	97.0000000000
-//		12		103.000000	103.000000	1	103.000000	103.0000000000
-//		0		109.000000	109.000000	1	109.000000	109.0000000000
-		
-		OrdersGroupResponse res1=new OrdersGroupResponse();
-		res1.setUserid(0L);
-		res1.setName(null);
-		res1.setMaxTotal("91.000000");
-//		res1.setMinTotal(91.000000);
-		res1.setCountTotal(1);
-		res1.setSumTotal(91.000000);
-		res1.setAvgTotal(91.0000000000);
-		
-		OrdersGroupResponse res2=new OrdersGroupResponse();
-		res2.setUserid(0L);
-		res2.setName("client");
-		res2.setMaxTotal("93.990000");
-		res2.setMinTotal(93.990000);
-		res2.setCountTotal(4);
-		res2.setSumTotal(375.960000);
-		res2.setAvgTotal(93.9900000000);
-		
-		OrdersGroupResponse res3=new OrdersGroupResponse();
-		res3.setUserid(6L);
-//		res3.setUserid(null); //测试获取非String的null值
-		res3.setName(null);
-		res3.setMaxTotal("97.000000");
-		res3.setMinTotal(97.000000);
-		res3.setCountTotal(1);
-		res3.setSumTotal(97.000000);
-		res3.setAvgTotal(97.000000);
-		
-		OrdersGroupResponse res4=new OrdersGroupResponse();
-		res4.setUserid(12L);
-		res4.setName(null);
-		res4.setMaxTotal("103.000000");
-		res4.setMinTotal(103.000000);
-		res4.setCountTotal(1);
-		res4.setSumTotal(103.000000);
-		res4.setAvgTotal(103.0000000000);
-		
-		OrdersGroupResponse res5=new OrdersGroupResponse();
-		res5.setUserid(17L);
-		res5.setName(null);
-		res5.setMaxTotal("109.000000");
-		res5.setMinTotal(109.000000);
-		res5.setCountTotal(1);
-		res5.setSumTotal(109.000000);
-		res5.setAvgTotal(109.0000000000);
-		
-		List<OrdersGroupResponse> list=new ArrayList<>();
-		list.add(res1);
-		list.add(res2);
-		list.add(res3);
-		list.add(res4);
-		list.add(res5);
-		
-		return list;
-	}
-	
-	public static void main(String[] args) {
-		
-//		TODO 将分组的字段查出(假如没有时).
-//		 avg:改写
-//		 添加分片的逻辑.
-		
-		//分片要收集的信息:
-//		groupFields
-//		GroupFunStruct[], 字段名称,及聚合类型
-		//排序,是否要放一起??
-		
-		
-		List<OrdersGroupResponse> list=initData();
-		
-		
-//		String groupFields[]=new String[]{"userid","name"};
-//		String groupFields[]=new String[]{"userid"};
-		
-		List<String> groupFields=new ArrayList<>();
-		groupFields.add("userid");
-		groupFields.add("name");
-		
-		
-		//FunType,fieldName,
-//		Class fieldType
-		FunStruct g1=new FunStruct("maxTotal","max");
-		FunStruct g2=new FunStruct("minTotal","min");
-		FunStruct g3=new FunStruct("countTotal","count");
-		FunStruct g4=new FunStruct("sumTotal","sum");
-		FunStruct g5=new FunStruct("avgTotal","avg");
-		FunStruct gfsArray[]=new FunStruct[5];
-		gfsArray[0]=g1;
-		gfsArray[1]=g2;
-		gfsArray[2]=g3;
-		gfsArray[3]=g4;
-		gfsArray[4]=g5;
-		
-		
-//		ShardingGroupByEngine t=new ShardingGroupByEngine();
-//		groupAndAggregateEntity(list,groupFields,gfsArray);
-	
-		for (int i = 0; i < list.size(); i++) {
-			System.out.println(list.get(i));
-		}
-	}*/
 
 }

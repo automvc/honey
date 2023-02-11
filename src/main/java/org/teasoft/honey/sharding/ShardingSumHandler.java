@@ -48,7 +48,7 @@ public class ShardingSumHandler implements DsTabHandler {
 		String dsName = bean.getDsName();
 		int tabAlgorithm = bean.getTabAlgorithm();
 		String tabRule = bean.getTabRule();
-		String tabName = bean.getTabName();   //不写, 如可取默认值???  TODO
+		String tabName = bean.getTabName(); 
 		
 		if (StringUtils.isBlank(tabRule)){ //tabRule可以不写,   默认是: "tabField%tableListSize"
 			tabRule="tabField%"+ShardingRegistry.getTabSize(tabName);

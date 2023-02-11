@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 the original author.All rights reserved.
+ * Copyright 2016-2023 the original author.All rights reserved.
  * Kingstar(honeysoft@126.com)
  * The license,see the LICENSE file.
  */
@@ -15,6 +15,6 @@ public final class HoneyVersion {
 	private HoneyVersion() {}
 
 	public static final String version = "2.0";
-	public static final String buildId = "2.0.1.22";
+	public static final String buildId = "2.0.2.5";
 
 }

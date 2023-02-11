@@ -89,9 +89,7 @@ public class MongoConditionHelper {
 			}
 					
 
-	        if ("orderBy".equalsIgnoreCase(opType)) {//TODO 
-
-
+	        if ("orderBy".equalsIgnoreCase(opType)) {
 				continue;
 			} // end orderBy
 			
