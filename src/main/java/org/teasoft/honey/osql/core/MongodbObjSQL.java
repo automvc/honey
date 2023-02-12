@@ -6,13 +6,13 @@
 
 package org.teasoft.honey.osql.core;
 
-import java.lang.reflect.Field;
 import java.util.List;
 
 import org.teasoft.bee.mongodb.MongodbBeeSql;
 import org.teasoft.bee.osql.Condition;
 import org.teasoft.bee.osql.Suid;
 import org.teasoft.bee.osql.SuidType;
+import org.teasoft.honey.util.StringUtils;
 
 /**
  * @author Jade
@@ -175,22 +175,12 @@ public class MongodbObjSQL extends AbstractCommOperate implements Suid {
 		if (condition != null) {
 			ConditionImpl conditionImpl = (ConditionImpl) condition;
 			String[] selectFields = conditionImpl.getSelectField();
-			if (selectFields != null && selectFields.length == 1)
+			if (selectFields != null && selectFields.length == 1
+					&& StringUtils.isNotBlank(selectFields[0])) {
 				selectFields = selectFields[0].split(",");
-
-			if (selectFields != null) {
-				Field fields[] = entity.getClass().getDeclaredFields();
-				String columnNames;
-
-				String packageAndClassName = entity.getClass().getName();
-				columnNames = HoneyContext.getBeanField(packageAndClassName);
-				if (columnNames == null) {
-					columnNames = HoneyUtil.getBeanField(fields, entity.getClass());
-					HoneyContext.addBeanField(packageAndClassName, columnNames);
-				}
-				// 检测字段,是否是实体的  ?
-
-				conditionImpl.selectField(selectFields);
+			} else {
+				if (condition.getSelectField() == null)
+					condition.selectField(HoneyUtil.getColumnNames(entity));
 			}
 		}
 

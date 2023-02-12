@@ -61,10 +61,6 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 		return selectSomeField(sql, entityClass);
 	}
 
-	private boolean isShardingMain() {//有分片(多个)
-		return   HoneyContext.getSqlIndexLocal() == null && ShardingUtil.hadSharding(); //前提要是HoneyContext.hadSharding()
-	}
-	
 	@Override
 	@SuppressWarnings("unchecked")
 	public <T> List<T> selectSomeField(String sql, Class<T> entityClass) {
@@ -815,6 +811,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 			}
 //			conn.setAutoCommit(oldAutoCommit);
 		} catch (SQLException e) {
+			logAffectRow(total);
 			hasException=true;
 			clearContextForMysql(sql[0],batchSize,len);
 			if (isConstraint(e)) {
@@ -1511,6 +1508,10 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 		if (isDul) return HoneyUtil.getResultObject(rs, field.getType().getName(), otherName);
 
 		return HoneyUtil.getResultObject(rs, field.getType().getName(), _toColumnName(field.getName(),entityClass));
+	}
+	
+	private boolean isShardingMain() {//有分片(多个)
+		return   HoneyContext.getSqlIndexLocal() == null && ShardingUtil.hadSharding(); //前提要是HoneyContext.hadSharding()
 	}
 	
 }

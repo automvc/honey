@@ -7,7 +7,6 @@
 package org.teasoft.honey.osql.core;
 
 import java.io.Serializable;
-import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.List;
 
@@ -41,8 +40,7 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 	private static final String TIP_SIZE_0 = "The size is 0, but it should be greater than 0 (>0)";
 	
 	
-	private int defaultBatchSize = HoneyConfig.getHoneyConfig().insertBatchSize;  //TODO
-//	private int defaultBatchSize =1000;
+	private int defaultBatchSize = HoneyConfig.getHoneyConfig().insertBatchSize;
 
 	@Override
 	public <T> List<T> select(T entity, int size) {
@@ -184,6 +182,10 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 
 	@Override
 	public <T> int update(T entity, String... updateFields) {
+		return _update(entity, updateFields);
+	}
+	
+	public <T> int _update(T entity, String... updateFields) {
 		Condition condition=null;
 		return update(entity, condition, updateFields);
 	}
@@ -260,18 +262,22 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 
 	@Override
 	public <T> int update(T entity, IncludeType includeType, String... updateFields) {
-		return update(entity, BeeFactoryHelper.getCondition().setIncludeType(includeType), updateFields);
+		return update(entity, _getCondition(includeType), updateFields);
+	}
+
+	private Condition _getCondition(IncludeType includeType) {
+		return BeeFactoryHelper.getCondition().setIncludeType(includeType);
 	}
 
 	@Override
 	public <T> List<T> select(T entity, IncludeType includeType) {
 		if (entity == null) return null;
-		return select(entity, BeeFactoryHelper.getCondition().setIncludeType(includeType));
+		return select(entity, _getCondition(includeType));
 	}
 
 	@Override
 	public <T> int update(T entity, IncludeType includeType) {
-		return updateBy(entity, BeeFactoryHelper.getCondition().setIncludeType(includeType), "id");
+		return updateBy(entity, _getCondition(includeType), "id");
 	}
 
 	@Override
@@ -303,7 +309,7 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 	@Override
 	public <T> int delete(T entity, IncludeType includeType) {
 		if (entity == null) return -1;
-		return delete(entity, BeeFactoryHelper.getCondition().setIncludeType(includeType));
+		return delete(entity, _getCondition(includeType));
 	}
 
 	@Override
@@ -330,25 +336,12 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 
 		if(condition==null) condition = BeeFactoryHelper.getCondition();
 				
-		if(condition.getSelectField()==null) condition.selectField(getColumnNames(entity));
+		if(condition.getSelectField()==null) condition.selectField(HoneyUtil.getColumnNames(entity));
 		
 		list = getMongodbBeeSql().selectString(entity, condition);
 
 		doBeforeReturn();
 		return list;
-	}
-	
-	private <T> String getColumnNames(T entity) {
-		Field fields[] = entity.getClass().getDeclaredFields(); 
-		String columnNames;
-		String packageAndClassName = entity.getClass().getName();
-		columnNames = HoneyContext.getBeanField(packageAndClassName);
-		if (columnNames == null) {
-			columnNames = HoneyUtil.getBeanField(fields,entity.getClass());
-			HoneyContext.addBeanField(packageAndClassName, columnNames);
-		}
-		
-		return columnNames;
 	}
 	
 	@Override
@@ -359,8 +352,7 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 
 	@Override
 	public <T> String selectJson(T entity, IncludeType includeType) {
-		Condition condition=BeeFactoryHelper.getCondition();
-		return selectJson(entity, condition.setIncludeType(includeType));
+		return selectJson(entity, _getCondition(includeType));
 	}
 	
 	@Override
@@ -502,13 +494,14 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 	@Override
 	@Deprecated
 	public <T> List<T> select(T entity, IncludeType includeType, Condition condition) {
-            return select(entity, condition.setIncludeType(includeType));
+		if (condition == null) condition = BeeFactoryHelper.getCondition(); // fixed bug v2.0.2.14
+		return select(entity, condition.setIncludeType(includeType));
 	}
 
 	@Override
 	public <T> String selectJson(T entity, IncludeType includeType, Condition condition) {
 		if (entity == null) return null;
-		
+		if (condition == null) condition = BeeFactoryHelper.getCondition(); // fixed bug v2.0.2.14
 		return selectJson(entity, condition.setIncludeType(includeType));
 	}
 	
@@ -531,10 +524,24 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 		Condition condition = null;
 		return updateBy(entity, condition, whereFields);
 	}
+	
+	// v1.9
+	@Override
+	public <T> int updateById(T entity, Condition condition) {
+		String pkName = "";
+		try {
+			entity.getClass().getDeclaredField("id");
+			pkName = "id";
+		} catch (NoSuchFieldException e) {
+			pkName = HoneyUtil.getPkFieldName(entity);
+		}
+		
+		return updateBy(entity, condition, pkName);
+	}
 
 	@Override
 	public <T> int updateBy(T entity, IncludeType includeType, String... whereFields) {
-		return updateBy(entity, BeeFactoryHelper.getCondition().setIncludeType(includeType), whereFields);
+		return updateBy(entity, _getCondition(includeType), whereFields);
 	}
 
 	// v1.7.2
@@ -549,21 +556,6 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 		doBeforeReturn();
 
 		return updateNum;
-	}
-
-	// v1.9
-	@Override
-	public <T> int updateById(T entity, Condition condition) {
-		String pkName = "";
-		try {
-			entity.getClass().getDeclaredField("id");
-			pkName = "id";
-		} catch (NoSuchFieldException e) {
-			pkName = HoneyUtil.getPkFieldName(entity);
-		}
-
-		// 支持联合主键
-		return updateBy(entity, condition, pkName);
 	}
 
 	// v1.7.2
@@ -658,6 +650,9 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 	public <T> int update(T oldEntity, T newEntity) {
 
 		if (oldEntity == null || newEntity == null) return -1;
+		
+		// 变长参数后, 出现混淆,需要调整
+		if (newEntity.getClass() == String.class) return _update(oldEntity, newEntity.toString());
 		
 		String oldEntityFullName = oldEntity.getClass().getName();
 		String newEntityFullName = newEntity.getClass().getName();

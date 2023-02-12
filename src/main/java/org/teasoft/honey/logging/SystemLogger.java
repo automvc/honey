@@ -51,6 +51,8 @@ public class SystemLogger implements Log{
 		levelMap.put(ERROR, 4);
 		
 		level=levelMap.get(systemLoggerLevel.toUpperCase());
+		
+		System.out.println("[Bee] The current Level in SystemLogger is :"+systemLoggerLevel);
 	}
 	
 	public SystemLogger(){

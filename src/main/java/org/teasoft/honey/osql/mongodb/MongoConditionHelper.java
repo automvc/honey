@@ -179,8 +179,9 @@ public class MongoConditionHelper {
 
 			if (expression.getValue() == null) { // column is null
 				stack.push(EasyMapUtil.createMap(columnName,null));
+				isNeedAnd=true;
 			} else {
-
+                boolean find=true;
 				String type = expression.getOpType();
 				switch (type) {
 					case "=":
@@ -208,11 +209,12 @@ public class MongoConditionHelper {
 					case "<=":
 						stack.push(EasyMapUtil.createMap(columnName,EasyMapUtil.createMap("$lte", expression.getValue())));
 						break;
+						
+					default:
+						find=false;
 				}
-
+				if(find) isNeedAnd=true;
 			}
-			
-			isNeedAnd=true;
 
 		} // end expList for
 

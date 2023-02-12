@@ -170,7 +170,6 @@ public class ShardingGroupByDecorator {
 					try {
 //						System.err.println(entry.getKey());
 //						System.err.println(entry.getValue());
-//						System.err.println(entry);
 						
 						String fieldName2=_toFieldName(entry.getKey(),elementClass);
 						Field funField = tempEntity.getClass().getDeclaredField(fieldName2);
@@ -182,7 +181,6 @@ public class ShardingGroupByDecorator {
 
 					} catch (Exception e) {
 //						throw ExceptionHelper.convert(e);
-//						e.printStackTrace();
 						Logger.warn(e.getMessage(), e);
 					}
 				}
@@ -202,7 +200,6 @@ public class ShardingGroupByDecorator {
 
 		} catch (Exception e) {
 			Logger.debug(e.getMessage(),e);
-//			e.printStackTrace();
 		}
 	}
 	
@@ -317,7 +314,6 @@ public class ShardingGroupByDecorator {
 						int index=groupFunStruct.getIndexByColumn(entry.getKey());
 						tempEntity[index]=entry.getValue();
 					} catch (Exception e) {
-//						e.printStackTrace();
 						Logger.warn(e.getMessage(), e);
 					}
 				}
@@ -338,7 +334,6 @@ public class ShardingGroupByDecorator {
 			valueMap = null;
 
 		} catch (Exception e) {
-//			e.printStackTrace();
 			Logger.warn(e.getMessage(), e);
 		}
 	}

@@ -168,8 +168,8 @@ public final class StringUtils {
 //			}else {
 				switch (temp) {
 					case '\\':
-						if(i+1< buf.length()  && buf.charAt(i+1)=='u') 
-							break;
+//						if(i+1< buf.length()  && buf.charAt(i+1)=='u') 
+//							break;
 		            case '*':
 		            case '+':
 		            case '?':

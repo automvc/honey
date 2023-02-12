@@ -106,7 +106,7 @@ public class ShardingGroupbyListStringArrayEngine {
 			
 				GroupFunStruct groupFunStruct = HoneyContext.getCurrentGroupFunStruct();
 				for (int i = 0; i < rsList.size(); i++) {
-					targetObj = (T) entityClass.newInstance();
+					targetObj = entityClass.newInstance();
 					String[] current = rsList.get(i);
 
 					for (Map.Entry<String, Integer> entry : groupFunStruct.getColumnIndexMap().entrySet()) {

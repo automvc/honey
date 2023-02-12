@@ -1990,5 +1990,18 @@ public final class HoneyUtil {
 	public static boolean isNotSupportUnionQuery() {
 		return HoneyConfig.getHoneyConfig().notSupportUnionQuery || HoneyUtil.isSQLite();
 	}
+	
+	public static <T> String getColumnNames(T entity) {
+		Field fields[] = entity.getClass().getDeclaredFields(); 
+		String columnNames;
+		String packageAndClassName = entity.getClass().getName();
+		columnNames = HoneyContext.getBeanField(packageAndClassName);
+		if (columnNames == null) {
+			columnNames = HoneyUtil.getBeanField(fields,entity.getClass());
+			HoneyContext.addBeanField(packageAndClassName, columnNames);
+		}
+		
+		return columnNames;
+	}
 
 }

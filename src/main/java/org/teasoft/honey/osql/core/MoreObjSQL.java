@@ -33,49 +33,6 @@ public class MoreObjSQL implements MoreTable{
 	
 	private static final String SELECT_SQL = "select SQL: ";
 
-	public BeeSql getBeeSql() {
-		if(this.beeSql==null) beeSql = BeeFactory.getHoneyFactory().getBeeSql();
-		return beeSql;
-	}
-
-	public void setBeeSql(BeeSql beeSql) {
-		this.beeSql = beeSql;
-	}
-	
-	public MoreObjToSQL getMoreObjToSQL() {
-		if(moreObjToSQL==null) return BeeFactory.getHoneyFactory().getMoreObjToSQL();
-		return moreObjToSQL;
-	}
-
-	public void setMoreObjToSQL(MoreObjToSQL moreObjToSQL) {
-		this.moreObjToSQL = moreObjToSQL;
-	}
-	
-	@Override
-	public void setNameTranslate(NameTranslate nameTranslate) {
-		this.nameTranslate=nameTranslate;
-	}
-	
-	@Override
-	public InterceptorChain getInterceptorChain() {
-		if (interceptorChain == null) return BeeFactory.getHoneyFactory().getInterceptorChain();
-		return HoneyUtil.copy(interceptorChain);
-	}
-
-	public void setInterceptorChain(InterceptorChain interceptorChain) {
-		this.interceptorChain = interceptorChain;
-	}
-	
-	@Override
-	public void setDataSourceName(String dsName) {
-		this.dsName=dsName;
-	}
-
-	@Override
-	public String getDataSourceName() {
-		return dsName;
-	}
-
 	@Override
 	public <T> List<T> select(T entity) {
 		if (entity == null) return null;
@@ -142,6 +99,52 @@ public class MoreObjSQL implements MoreTable{
 		if (this.dsName != null) HoneyContext.removeTempDS();
 		if(this.nameTranslate!=null) HoneyContext.removeCurrentNameTranslate();
 		getInterceptorChain().beforeReturn(list);
+	}
+	
+	
+	
+	
+	public BeeSql getBeeSql() {
+		if(this.beeSql==null) beeSql = BeeFactory.getHoneyFactory().getBeeSql();
+		return beeSql;
+	}
+
+	public void setBeeSql(BeeSql beeSql) {
+		this.beeSql = beeSql;
+	}
+	
+	public MoreObjToSQL getMoreObjToSQL() {
+		if(moreObjToSQL==null) return BeeFactory.getHoneyFactory().getMoreObjToSQL();
+		return moreObjToSQL;
+	}
+
+	public void setMoreObjToSQL(MoreObjToSQL moreObjToSQL) {
+		this.moreObjToSQL = moreObjToSQL;
+	}
+	
+	@Override
+	public void setNameTranslate(NameTranslate nameTranslate) {
+		this.nameTranslate=nameTranslate;
+	}
+	
+	@Override
+	public InterceptorChain getInterceptorChain() {
+		if (interceptorChain == null) return BeeFactory.getHoneyFactory().getInterceptorChain();
+		return HoneyUtil.copy(interceptorChain);
+	}
+
+	public void setInterceptorChain(InterceptorChain interceptorChain) {
+		this.interceptorChain = interceptorChain;
+	}
+	
+	@Override
+	public void setDataSourceName(String dsName) {
+		this.dsName=dsName;
+	}
+
+	@Override
+	public String getDataSourceName() {
+		return dsName;
 	}
 
 }

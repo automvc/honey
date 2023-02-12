@@ -579,7 +579,6 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 							tempCName1=subUseTable[0] + "." + columnName;
 						}
 						
-						//v1=     ;  TODO 2  
 //						v1 = rsMap.get(tempCName1);
 						v1 =ObjectCreatorFactory.create(rsMap.get(tempCName1), fields1[i].getType());
 						
