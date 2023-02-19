@@ -26,6 +26,10 @@ public class AbstractCommOperate implements CommOperate{
 	protected String dsName;
 	protected NameTranslate nameTranslate; //用于设置当前对象使用的命名转换器.使用默认的不需要设置
 	
+	public AbstractCommOperate() {
+		System.out.println("============创建 AbstractCommOperate================"+this.toString());
+	}
+	
 	@Override
 	public InterceptorChain getInterceptorChain() {
 		if (interceptorChain == null) return BeeFactory.getHoneyFactory().getInterceptorChain();
@@ -47,6 +51,7 @@ public class AbstractCommOperate implements CommOperate{
 
 	@Override
 	public void setDataSourceName(String dsName) {
+		System.err.println("================setDataSourceName=============:"+dsName+"     "+this.toString());
 		this.dsName = dsName;
 	}
 
@@ -64,6 +69,7 @@ public class AbstractCommOperate implements CommOperate{
 		regSuidType(SuidType);
 		if (this.dsName != null) {
 			HoneyContext.setTempDS(dsName);
+			System.err.println("================HoneyContext.setTempDS(dsName)==============:"+dsName);
 		}
 		if(this.nameTranslate!=null) HoneyContext.setCurrentNameTranslate(nameTranslate);
 		getInterceptorChain().beforePasreEntity(entity, SuidType);

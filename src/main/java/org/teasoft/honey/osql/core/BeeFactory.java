@@ -1,13 +1,17 @@
 package org.teasoft.honey.osql.core;
 
 import java.sql.Connection;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.sql.DataSource;
 
+import org.teasoft.bee.ds.DataSourceBuilderFactory;
 import org.teasoft.bee.osql.BeeAbstractFactory;
 import org.teasoft.bee.osql.DatabaseConst;
+import org.teasoft.bee.osql.Serializer;
 import org.teasoft.honey.distribution.ds.Router;
 
 /**
@@ -46,10 +50,11 @@ public class BeeFactory extends BeeAbstractFactory {
 	
 	@Override
 	public DataSource getDataSource() {
-		
-		if(super.getDataSourceMap()==null){
-		   return super.getDataSource();
-		}else{
+		if (HoneyContext.isDsMapRefresh()) refreshDataSourceMap();
+
+		if (super.getDataSourceMap() == null) {
+			return super.getDataSource();
+		} else {
 			return _getDsFromDsMap();
 		}
 	}
@@ -97,6 +102,72 @@ public class BeeFactory extends BeeAbstractFactory {
 		HoneyConfig.getHoneyConfig().setDbName(dbName);
 		HoneyContext.setDsName2DbName(dsName2DbName);
 		HoneyUtil.refreshSetParaAndResultTypeHandlerRegistry();
+	}
+	
+	private void refreshDataSourceMap() {
+		
+		List<Map<String, String>> dbsList=HoneyConfig.getHoneyConfig().getDbs();
+		HoneyContext.setDsMapRefresh(false);
+		
+		if(dbsList==null || dbsList.size()==0) return ;
+		
+		System.err.println("----------------size:"+dbsList.size());
+		System.err.println(dbsList);
+		
+		boolean extendFirst=HoneyConfig.getHoneyConfig().extendFirst;
+		
+		try {
+			Class.forName("org.teasoft.beex.ds.DataSourceToolRegHandler");
+		} catch (Exception e) {
+			Logger.debug(e.getMessage(), e);
+		}
+		
+		int size=dbsList.size();
+		String dsNames[]=new String[size];
+		Map<String, DataSource> dataSourceMap=new HashMap<>();
+		Map<String, String> map;
+		Map<String, String> base0=null;
+		Map<String, String> copyMap=null;
+		
+		for (int i = 0; i < size; i++) {
+			map=dbsList.get(i);
+			dsNames[i]=map.get("dsName");
+			map.remove("dsName");
+			
+			if(extendFirst) {
+				if(i==0) base0=map;
+				else {
+					copyMap=(Map<String, String>)copyMap(base0);
+					if(copyMap!=null) {
+						copyMap.putAll(map);
+						map=copyMap;
+					}
+				}
+			}
+			
+			System.err.println(map);
+			//判断ds tool类型 TODO
+//			String dsToolType="druid";
+			String dsToolType="Hikari";
+			
+			dataSourceMap.put(dsNames[i], DataSourceBuilderFactory.getDataSourceBuilder(dsToolType).build(map));
+		
+		}
+		
+		setDataSourceMap(dataSourceMap);
+		System.err.println("----------------------完成更新ds Map ------------------------");
+		
+		
+	}
+	
+	private Object copyMap(Map obj) {
+		try {
+			Serializer jdks = new JdkSerializer();
+			return jdks.unserialize(jdks.serialize(obj));
+		} catch (Exception e) {
+			Logger.debug(e.getMessage(), e);
+		}
+		return null;
 	}
 	
 	private String getDbName(DataSource ds) {

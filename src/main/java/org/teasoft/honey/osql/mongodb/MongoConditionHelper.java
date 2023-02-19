@@ -53,6 +53,22 @@ public class MongoConditionHelper {
 			throw new BeeErrorGrammarException(
 					conditionImpl.getSuidType() + " do not support paging with start !");
 		}
+		
+		int len=expList.size();
+		for (int k = 0; k < len-2; k++) {  //将between,like,in,op两则的()删除
+			if (expList.get(k).getOpNum() == -2  && expList.get(k+2).getOpNum() == -1) {
+				String opType = expList.get(k+1).getOpType();
+				if (" between ".equalsIgnoreCase(opType) || " not between ".equalsIgnoreCase(opType)
+					|| (Op.like.getOperator().equalsIgnoreCase(opType) || Op.notLike.getOperator().equalsIgnoreCase(opType) )		
+					|| (Op.in.getOperator().equalsIgnoreCase(opType) || Op.notIn.getOperator().equalsIgnoreCase(opType))	
+					|| expList.get(k+1).getOpNum()==2 ) {
+					expList.remove(k+2);
+					expList.remove(k);
+					len=expList.size();
+				}
+			}
+		}
+		
 		String columnName = "";
 		boolean isNeedAnd = false;
 		Stack stack=new Stack<>();
@@ -224,12 +240,14 @@ public class MongoConditionHelper {
 	}
 
 	private static Object processIn(Object v) {
-		List<Object> inList = new ArrayList<>();
+	
 		if (List.class.isAssignableFrom(v.getClass())
 				|| Set.class.isAssignableFrom(v.getClass())) { // List,Set
 			return v;
-
-		} else if (HoneyUtil.isNumberArray(v.getClass())) { // Number Array
+		}
+		
+		List<Object> inList = new ArrayList<>();
+		if (HoneyUtil.isNumberArray(v.getClass())) { // Number Array
 			Number n[] = (Number[]) v;
 			for (Number number : n) {
 				inList.add(number);

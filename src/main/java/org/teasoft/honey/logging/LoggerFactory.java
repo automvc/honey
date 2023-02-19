@@ -12,7 +12,6 @@ import java.util.Map;
 
 import org.teasoft.bee.logging.Log;
 import org.teasoft.honey.osql.core.HoneyConfig;
-import org.teasoft.honey.osql.core.Logger;
 import org.teasoft.honey.util.StringUtils;
 
 /**
@@ -226,10 +225,12 @@ public class LoggerFactory {
 			clazz = Thread.currentThread().getContextClassLoader().loadClass(className);
 		} catch (Exception e) {
 			//ignore
-			Logger.warn(e.getMessage(),e);
+//			Logger.debug(e.getMessage(),e); //可能循环依赖
+//			System.err.println(e.getMessage());
 		}catch (Error e) {
 			//ignore
-			Logger.warn(e.getMessage(),e);
+//			Logger.debug(e.getMessage(),e);
+//			System.err.println(e.getMessage());
 		}
 		
 		if (clazz == null) {

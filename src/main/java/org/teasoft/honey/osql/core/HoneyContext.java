@@ -1144,9 +1144,18 @@ public final class HoneyContext {
 	}
 
 	private static boolean configRefresh = false;
+	private static boolean dsMapRefresh = false;
 
 	public static boolean isConfigRefresh() {
 		return configRefresh;
+	}
+	
+	public static boolean isDsMapRefresh() {
+		return dsMapRefresh;
+	}
+	
+	public static void setDsMapRefresh(boolean dsMapRefresh) {
+		HoneyContext.dsMapRefresh = dsMapRefresh;
 	}
 
 	public static void setConfigRefresh(boolean configRefresh) {
@@ -1172,6 +1181,7 @@ public final class HoneyContext {
 		}
 
 		setConfigRefresh(true);
+		setDsMapRefresh(true);
 	}
 
 	public static boolean getModifiedFlagForCache2(String tableName) {

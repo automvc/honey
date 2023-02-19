@@ -16,6 +16,10 @@ public class MongodbCommRegister implements Registry {
 
 	private static MongodbComm comm = null;
 
+	static {
+		NotifyExtMongodbDefaultReg.init();
+	}
+
 	public static void register(MongodbComm mongodbComm) {
 		MongodbCommRegister.comm = mongodbComm;
 	}

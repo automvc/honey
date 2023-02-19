@@ -2,6 +2,8 @@ package org.teasoft.honey.osql.core;
 
 import java.io.InputStream;
 import java.sql.Connection;
+import java.util.List;
+import java.util.Map;
 
 import org.teasoft.bee.osql.BeeVersion;
 import org.teasoft.bee.osql.DatabaseConst;
@@ -275,6 +277,12 @@ public final class HoneyConfig {
     
     @SysValue("${bee.db.pagingWithLimitOffset}")
 	boolean pagingWithLimitOffset;
+    
+    @SysValue("${bee.db.dbs}")
+    List<Map<String,String>> dbs; //V2.1 配置多个数据源, 属性值已具体工具对应
+    
+    @SysValue("${bee.db.extendFirst}")
+    boolean extendFirst;//V2.1 dbs数组,其它下标,是否从首个元素继承属性
 
 	//----------------------------- cache start
 	@SysValue("${bee.osql.cache.timeout}")
@@ -581,15 +589,13 @@ public final class HoneyConfig {
 		this.loggerType = loggerType;
 		LoggerFactory.setConfigRefresh(true);
 	}
-	
-	//动态刷新ds
-//	public void setDataSourceMap(Map<String, DataSource> dataSourceMap) {
-//		BeeFactory.getInstance().setDataSourceMap(dataSourceMap);
-//	}
-	
-//	context有:
-//	public static void setDsName2DbName(Map<String, String> dsName2DbName) {
-//		HoneyContext.dsName2DbName = dsName2DbName;
-//	}
+
+	public List<Map<String, String>> getDbs() {
+		return dbs;
+	}
+
+	public void setDbs(List<Map<String, String>> dbs) {
+		this.dbs = dbs;
+	}
 
 }
