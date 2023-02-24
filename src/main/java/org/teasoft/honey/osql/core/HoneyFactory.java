@@ -151,9 +151,10 @@ public class HoneyFactory {
 	public SuidRich getSuidRich() {
 		if (suidRich == null) {
 			// 是多数据源,有同时使用多种不同类型DB
+			boolean justMongodb = HoneyConfig.getHoneyConfig().multiDS_justMongodb;
 			boolean enableMultiDs = HoneyConfig.getHoneyConfig().multiDS_enable;
 			boolean isDifferentDbType = HoneyConfig.getHoneyConfig().multiDS_differentDbType;
-			if (!(enableMultiDs && isDifferentDbType) && HoneyUtil.isMongoDB())
+			if(justMongodb || (!(enableMultiDs && isDifferentDbType) && HoneyUtil.isMongoDB()) )
 				return new MongodbObjSQLRich(); // 2.0
 			else
 				return new ObjSQLRich();

@@ -420,6 +420,10 @@ public final class HoneyConfig {
 	@SysValue("${bee.dosql.multiDS.differentDbType}")
 	public boolean multiDS_differentDbType;
 	
+	@SysValue("${bee.dosql.multiDS.justMongodb}")
+	public boolean multiDS_justMongodb;
+	
+	
 	@SysValue("${bee.dosql.multiDS.sharding}")
 	public boolean multiDS_sharding; //用于分库分表的分片
 	

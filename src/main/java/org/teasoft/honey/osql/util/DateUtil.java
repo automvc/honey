@@ -68,6 +68,16 @@ public class DateUtil {
 		return null;
 	}
 	
+	public static Timestamp toTimestamp(Date date) {
+		try {
+			return new Timestamp(date.getTime());
+		} catch (Exception e) {
+			Logger.error(e.getMessage(), e);
+		}
+
+		return null;
+	}
+	
 	/**
 	 * 往前或往后指定天数
 	 * @param days

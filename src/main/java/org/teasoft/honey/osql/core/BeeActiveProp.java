@@ -6,6 +6,8 @@
 
 package org.teasoft.honey.osql.core;
 
+import java.util.Set;
+
 import org.teasoft.bee.osql.Properties;
 import org.teasoft.honey.osql.util.PropertiesReader;
 
@@ -26,6 +28,10 @@ class BeeActiveProp implements Properties {
 
 	public String getPropText(String key) {
 		return beePropReader.getValueText(key);
+	}
+	
+	public Set<String> getKeys() {
+		return beePropReader.getKeys();
 	}
 
 }

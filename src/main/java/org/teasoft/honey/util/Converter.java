@@ -6,6 +6,7 @@
 
 package org.teasoft.honey.util;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
 
@@ -15,6 +16,11 @@ import java.util.Properties;
  */
 public class Converter {
 
+	/**
+	 * Map to Properties
+	 * @param map
+	 * @return
+	 */
 	public static Properties map2Prop(Map<String, String> map) {
 		if (map == null) return null;
 
@@ -24,5 +30,46 @@ public class Converter {
 		}
 		return p;
 	}
+	
+	/**
+	 * change the key of map, eg: driver-class-name -> driverClassName
+	 * @param map
+	 * @return
+	 */
+	public static Map<String, String> transferKey(Map<String, String> map) {
+		if (map == null) return null;
+
+		Map<String, String> map2 = new LinkedHashMap<>(map.size());
+		for (Map.Entry<String, String> entry : map.entrySet()) {
+			map2.put(transfer(entry.getKey()), entry.getValue());
+		}
+		return map2;
+	}
+	
+	/**
+	 * eg: driver-class-name -> driverClassName
+	 * @param str
+	 * @return
+	 */
+	public static String transfer(String str) {
+		if (StringUtils.isBlank(str)) return str;
+		
+		StringBuffer buf=new StringBuffer(str);
+		for (int i = 0; i < buf.length(); i++) {
+			if('-'==buf.charAt(i)) {
+				buf.deleteCharAt(i);
+				if(i<buf.length() ) {
+					char temp=buf.charAt(i);
+					if(temp>='a' && temp<='z')
+					    buf.setCharAt(i, (char)(temp-32));
+				}
+			}
+		}
+		return buf.toString();
+	}
+	
+//	public static void main(String[] args) {
+//		System.err.println(transfer("driver-class-name")); //driverClassName
+//	}
 
 }

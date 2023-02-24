@@ -64,15 +64,23 @@ public class AbstractCommOperate implements CommOperate{
 	void regCondition(Condition condition) {
 		HoneyContext.setConditionLocal(condition);
 	}
-
-	void doBeforePasreEntity(Object entity, SuidType SuidType) {
+	
+	void _doBeforePasreEntity(SuidType SuidType) {
 		regSuidType(SuidType);
 		if (this.dsName != null) {
 			HoneyContext.setTempDS(dsName);
-			System.err.println("================HoneyContext.setTempDS(dsName)==============:"+dsName);
 		}
 		if(this.nameTranslate!=null) HoneyContext.setCurrentNameTranslate(nameTranslate);
+	}
+
+	void doBeforePasreEntity(Object entity, SuidType SuidType) {
+		_doBeforePasreEntity(SuidType);
 		getInterceptorChain().beforePasreEntity(entity, SuidType);
+	}
+	
+	void doBeforePasreEntity(Object entityArray[], SuidType SuidType) {
+		_doBeforePasreEntity(SuidType);
+		getInterceptorChain().beforePasreEntity(entityArray, SuidType);
 	}
 
 	String doAfterCompleteSql(String sql) {
