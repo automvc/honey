@@ -11,6 +11,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import javax.sql.DataSource;
+
 import org.teasoft.bee.osql.Condition;
 import org.teasoft.bee.osql.FunctionType;
 import org.teasoft.bee.osql.NameTranslate;
@@ -1214,6 +1216,11 @@ public final class HoneyContext {
 
 	public static boolean isInterceptorSubEntity() {
 		return OneTimeParameter.isTrue(StringConst.InterceptorSubEntity);
+	}
+	
+	//V2.1
+	public static void setDataSourceMap(Map<String, DataSource> dataSourceMap) {
+		BeeFactory.getInstance().setDataSourceMap(dataSourceMap);
 	}
 
 }
