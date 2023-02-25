@@ -65,8 +65,19 @@ In addition to **JDBC, Android and HarmonyOS** are also supported.
 * 29.can automatically generate entity_F for referenced to the entity field name.  
 
 ## Newest Function
+### **V2.0 Sharding(Mother Love)** 
+**The use of more dataSources is as convenient as the use of single database; Using MongoDB is as easy as using MySQL**  
+1)add support object-oriented Sharding,JDBC Sharding  
+2)add support Mongodb ORM(use like JDBC)  
+3)add Mongodb Sharding  
+4)add support MS Access  
+5)add annotation default implementation(org.teasoft.bee.osql.annotation)  
+6)enhance:entities of different packages cannot share the cache even if the same table is specified  
+enhance:Json String type query result conversion enhance  
+7)fixed bug:PreparedSql interface's method insertBatch null pointer and placeholder bug 
 
-### **V2.0 Sharding** 
+**V2.0.x.x detail as below.**  
+
 **V2.0.0.1001(2022·National Day) **  
 Add Sharding Function  
 1)object-oriented Sharding  
@@ -91,6 +102,26 @@ Add Sharding Function
 **V2.0.1.22(2023·Spring Festival)**  
 17)add support sharding for groupBy(including JDBC,Mongodb)  
 18)add support MS Access  
+19)support Mongodb generate Javabean,including multi-layer embedded document structure  
+20)add SuidRichExt,support non-hardcode point out the entity field  
+21)broadcast table query (randomly selected one dataSource), broadcast table modify (executed in all nodes)  
+22)DDL:createTable for sharding  
+
+**V2.0.2.5(2023·the Lantern Festival)**  
+23)update(T,T) change internal implementation  
+24)Desensitize support does not need to know the end position @Desensitize(start=0, size=-1, mask="*")  
+   0123456789 -> *********  
+25)Partitioning support:=, in, between; Where in supports Number, List and Set  
+Do not participate in fragmentation: not in, not between,>=,<=.  
+26)To improve HintManager, only dataSourceName or tableName can be specified  
+It is recommended to specify both or at least tableName  
+27)HintManager can use the shortcut HM  
+
+**V2.0.2.14(2023·Valentine's Day)**  
+enhance Mongodb ORM log  
+enhance Json String result transfer  
+fixed bug about insertBatch in PreparedSql  
+
 
 ### **V1.17(2022·Mid-Autumn Day)**  
 
@@ -421,18 +452,18 @@ Quick Start:
 		<dependency>
 			<groupId>org.teasoft</groupId>
 			<artifactId>bee</artifactId>
-			<version>1.17</version>
+			<version>2.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.teasoft</groupId>
 			<artifactId>honey</artifactId>
-			<version>1.17</version>
+			<version>2.0</version>
 		</dependency>
 		<!--for log framework,Excel(poi),Redis cache,Android,HarmonyOS,Json,Tran Annotation -->
 		<dependency>
 			<groupId>org.teasoft</groupId>
 			<artifactId>bee-ext</artifactId>
-			<version>1.17</version>
+			<version>2.0</version>
 		</dependency>
 ```
 
@@ -706,12 +737,6 @@ USD 49.00
 **The use of Enterprise Edition, professional technical support and solution consultation are provided by the following companies:**  
 **[Shenzhen Caifeng software](http://www.aiteasoft.com)**  
 (Enterprises willing to join in, please contact us!)  
-
-### Discount(2022)
-Before June:    40% discount  
-Before July:    30% discount  
-Before August:  20% discount  
-Before October: 10% discount  
 
 Contact & Welcome:
 =========	
