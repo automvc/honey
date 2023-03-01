@@ -26,7 +26,7 @@
 	<build>
 		<resources>
 			<resource>
-				<directory></directory>
+				<directory>./</directory>
 				<includes>
 					<include>COPYING</include>
 					<include>LICENSE</include>
