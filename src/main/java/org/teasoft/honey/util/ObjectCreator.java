@@ -58,22 +58,22 @@ public class ObjectCreator {
 	
 	/**
 	 * create BigDecimal value
-	 * @param s
+	 * @param v
 	 * @return BigDecimal value
 	 * @since 2.0
 	 */
-	public static BigDecimal createBigDecimal(String s) {
-		return new BigDecimal(s);
+	public static BigDecimal createBigDecimal(String v) {
+		return new BigDecimal(v);
 	}
 	
 	/**
 	 * create BigInteger value
-	 * @param s
-	 * @return BigInteger
+	 * @param v
+	 * @return BigInteger value
 	 * @since 2.0
 	 */
-	public static BigInteger createBigInteger(String s) {
-		return new BigInteger(s);
+	public static BigInteger createBigInteger(String v) {
+		return new BigInteger(v);
 	}
 
 }
