@@ -94,7 +94,6 @@ then BF.getSuid() can return Mongodb type Suid instance
 //	SuidRich suidRich; // ok  
 11)Mongodb GridFS file store  
 
-
 ### **V2.0 Sharding(Mother Love)** 
 **The use of more dataSources is as convenient as the use of single database; Using MongoDB is as easy as using MySQL**  
 1)add support object-oriented Sharding,JDBC Sharding  
