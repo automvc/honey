@@ -104,8 +104,9 @@ public class PearFlowerId implements GenId {
 		r[0]=getNextId();
 //		sequence=sequence+sizeOfIds-1;
 		sequence=sequence+sizeOfIds-1-1; //r[0]相当于已获取了第一个元素
-		if ((sequence >> sequenceBits) > 0) { // 超过序列位表示的最大值
-//			sequence = sequence & sequenceMask;
+//		if ((sequence >> sequenceBits) > 0) { // 超过序列位表示的最大值
+		if ((sequence + 1 >> sequenceBits) > 0) { // 超过序列位表示的最大值   提前将结束的那个数也计算入内  fixed V2.1
+//			sequence = sequence & sequencreMask;
 			if (segment >= maxSegment) { // 已用完
 				lastTimestamp++; //批获取时,提前消费1s
 				segment = 0L;
