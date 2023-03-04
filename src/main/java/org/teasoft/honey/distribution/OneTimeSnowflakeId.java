@@ -17,8 +17,6 @@ import org.teasoft.honey.osql.core.Logger;
  * 支持批获取ID号。可以一次取一批ID（即一个范围内的ID一次就可以获取了）。可以代替依赖DB的号段模式。
  * 应用订单号等有安全要求的场景,可随机不定时获取一些批的号码不用即可。
  * 
- * [<delete> 可间隔时间缓存时间值到文件，供重启时设置回初值用。若不缓存，则重启时，又用目前的时间点，重设开始的ID。只要平均不超过419w/s，重启时造成的时
- * 钟回拨都不会有影响（但却浪费了辛苦攒下的每秒没用完的ID号）。要是很多时间都超过419w/s，证明你有足够的能力做这件事：间隔时间缓存时间值到文件。</delete>]
  * 考虑到2019年双11的峰值不超过55万笔/秒, 因此419w/s这个值已可以满足此苛刻要求;采用testSpeedLimit()检测平均值不超过419w/s这个值即可,而且在空闲时
  * 段省下的ID号,还可以在高峰时使用。
  * 
@@ -48,11 +46,10 @@ public class OneTimeSnowflakeId implements GenId {
 	private static final long workerIdBits = 10L;
 	private static final long sequenceBits = 13L;
 
-	private static final long timestampShift = workerIdBits + segmentBits + sequenceBits;
+	private static final long timestampShift = segmentBits + workerIdBits + sequenceBits;
 	private static final long segmentShift = workerIdBits + sequenceBits;
 	private static final long workerIdShift = sequenceBits;
 
-//	private static final long sequenceMask = ~(-1L << sequenceBits);
 	private static final long maxSegment = (1L << segmentBits) - 1L;
 	private static final long maxSequence = 1L<<sequenceBits;
 
@@ -95,17 +92,17 @@ public class OneTimeSnowflakeId implements GenId {
 
 		sequence = sequence + sizeOfIds - 1 - 1; //r[0]相当于已获取了第一个元素
 		_counter=_counter + sizeOfIds - 1 - 1;
-		if ((sequence >> sequenceBits) > 0) { // 超过序列位表示的最大值
-//			sequence = sequence & sequenceMask;
+//		if ((sequence >> sequenceBits) > 0) { // 超过序列位表示的最大值
+		if ((sequence + 1 >> sequenceBits) > 0) { // 超过序列位表示的最大值 ; 提前将结束的那个数也计算入内   fixed V2.1
 			if (segment >= maxSegment) { // 已用完
 				time++;
 				segment = 0L;
 			} else {
 				segment++;
 			}
-			
 			sequence=0;
-			//取max时,超过序列位表示的最大值,不连续,要重新获取
+			
+			//取范围上限(max)时,超过序列位表示的最大值,不连续,要重新获取
 			return getRangeId(sizeOfIds); 
 		}
 		r[1] = getNextId(); //r[0]到r[1]是加1递增的吗? 不是. 因workid在太低位,会跳跃. v1.9,在往上两行重新设置segment和sequence,让其在segment内连续
@@ -117,16 +114,17 @@ public class OneTimeSnowflakeId implements GenId {
 	 * 返回id
 	 * @return id number.
 	 */
-	private long getNextId() {
+	private synchronized long getNextId() {
 		sequence++; 
 		_counter++; 
 		if ((sequence >> sequenceBits) > 0) { // 超过序列位表示的最大值
 			if (segment >= maxSegment) { // 已用完,自动用下一秒的
 				time++;
+				segment = 0L; //fixed bug. #3 warne-wyp
 			} else {
-				sequence = 0L;
 				segment++;
 			}
+			sequence = 0L;
 		}
 		return (time << timestampShift) | (segment << segmentShift) | (workerId << workerIdShift) | (sequence);
 	}
@@ -135,7 +133,6 @@ public class OneTimeSnowflakeId implements GenId {
 		return (System.currentTimeMillis()) / 1000L;
 	}
 	
-//	private void testSpeedLimit() {
 	private synchronized void testSpeedLimit() {
 		long spentTime=_curSecond() - timestamp + 1;
 		if (spentTime > 0) {
