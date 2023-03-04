@@ -8,7 +8,6 @@ package org.teasoft.honey.osql.autogen;
 
 import org.teasoft.bee.osql.PreparedSql;
 import org.teasoft.bee.osql.SuidRich;
-import org.teasoft.bee.osql.exception.BeeErrorNameException;
 import org.teasoft.honey.osql.core.BeeFactoryHelper;
 import org.teasoft.honey.osql.core.HoneyConfig;
 import org.teasoft.honey.osql.core.HoneyUtil;
@@ -16,9 +15,6 @@ import org.teasoft.honey.osql.core.Logger;
 import org.teasoft.honey.osql.core.NameTranslateHandle;
 import org.teasoft.honey.osql.name.NameUtil;
 import org.teasoft.honey.osql.shortcut.BF;
-import org.teasoft.honey.osql.util.NameCheckUtil;
-import org.teasoft.honey.util.SqlKeyCheck;
-import org.teasoft.honey.util.StringUtils;
 
 /**
  * 根据Javabean创建表.Create table according to Javabean
