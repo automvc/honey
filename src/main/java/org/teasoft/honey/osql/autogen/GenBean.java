@@ -608,12 +608,12 @@ public class GenBean {
 		}
 
 		if (isCommDb)
-			return _commDbTables(showTablesSql);
+			return _mainDbTables(showTablesSql);
 		else
 			return _otherDbTables();
 	}
 	
-	private List<Table> _commDbTables(String showTablesSql) {
+	private List<Table> _mainDbTables(String showTablesSql) {
 		List<Table> tables = new ArrayList<>();
 		try (Connection conn = SessionFactory.getConnection();
 				PreparedStatement ps = conn.prepareStatement(showTablesSql);
@@ -655,15 +655,9 @@ public class GenBean {
 			List<String> tabList = new ArrayList<>();
 			while (rs.next()) {
 				if (rs.getString(3) == null) continue;
-//			tables.add(getTable(rs.getString(3).trim(), conn));
-//				System.out.print(rs.getString(1)+"     ");
-//				System.out.print(rs.getString(2)+"     ");
-//				System.out.print(rs.getString(4)+"     ");
-//				System.out.println(rs.getString(3));
 				tabList.add(rs.getString(3).trim());
 				has = true;
 			}
-//System.err.println(tabList);
 			for (String tab : tabList) {
 				tables.add(getTable(tab, conn));
 			}
