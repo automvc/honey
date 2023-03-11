@@ -77,4 +77,10 @@ public final class StringConst {
 	public static final String  Check_Group_ForSharding=PREFIX+"Check_Group_ForSharding";
 	public static final String  Get_GroupFunStruct=PREFIX+"Get_GroupFunStruct";
 	public static final String  Return_GroupFunStruct=PREFIX+"Return_GroupFunStruct";
+	
+	//MongoDB
+	public static final String  GridFs_FileId=PREFIX+"GridFs_FileId";
+	public static final String  GridFs_FileName=PREFIX+"GridFs_FileName";
+	public static final String  GridFs_FileColumnName=PREFIX+"GridFs_FileColumnName";
+	public static final String  GridFs_MetadataMap=PREFIX+"GridFs_MetadataMap";
 }

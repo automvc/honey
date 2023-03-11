@@ -7,7 +7,6 @@
 package org.teasoft.honey.osql.core;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -15,6 +14,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -479,8 +479,10 @@ public final class CacheUtil {
 			 tableNameList.add(tableName);
 		 }else{
 //			 tableNameList= new ArrayList<>(3);  //一般一条语句最多三个表  
-			 tableNameList= new ArrayList<>();  // 但多线程,不同线程但一样的语句,都会放进来, 会超过3个.  已改为同步
-			 tableNameList.add(tableName);         //多个线程都添加数据, 可能导致越界  ,但删除时,可以删完. 
+//			 tableNameList= new ArrayList<>();  // 但多线程,不同线程但一样的语句,都会放进来, 会超过3个.  已改为同步
+//			 tableNameList.add(tableName);         //多个线程都添加数据, 可能导致越界  ,但删除时,可以删完. 
+			 tableNameList= new Vector<>(); 
+			 tableNameList.add(tableName);
 			 map_tableNameList.put(key, tableNameList);
 		 }
 	 }

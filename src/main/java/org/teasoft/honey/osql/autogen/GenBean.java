@@ -298,7 +298,7 @@ public class GenBean {
 			Logger.info("The Honey gen the JavaBean: " + config.getPackagePath() + "." + entityName);
 			
 		} catch (Exception e) {
-			Logger.error(e.getMessage());
+//			Logger.error(e.getMessage());
 			throw ExceptionHelper.convert(e);
 		}
 		
@@ -433,7 +433,7 @@ public class GenBean {
 					+ fieldFileName);
 			
 		} catch (Exception e) {
-			Logger.error(e.getMessage());
+//			Logger.error(e.getMessage());
 			throw ExceptionHelper.convert(e);
 		}
 	}
@@ -587,7 +587,10 @@ public class GenBean {
 
 	// 获取所有表信息
 	private List<Table> getAllTables() {
-		List<Table> tables = new ArrayList<>();
+//		List<Table> tables = new ArrayList<>();
+
+		boolean isCommDb = true;
+
 		// 获取所有表名
 		String showTablesSql = "";
 		if (!"".equals(config.getQueryTableSql().trim())) {
@@ -599,22 +602,82 @@ public class GenBean {
 		} else if (config.getDbName().equalsIgnoreCase(DatabaseConst.SQLSERVER)) {
 			showTablesSql = "select table_name from edp.information_schema.tables where table_type='base table'"; // SQLServer查询所有表格名称命令
 		} else {
+//			throw new BeeException(
+//					"There are not default sql, please check the bee.db.dbName in bee.properties is right or not, or define queryTableSql in GenConfig!");
+			isCommDb = false;
+		}
+
+		if (isCommDb)
+			return _commDbTables(showTablesSql);
+		else
+			return _otherDbTables();
+	}
+	
+	private List<Table> _commDbTables(String showTablesSql) {
+		List<Table> tables = new ArrayList<>();
+		try (Connection conn = SessionFactory.getConnection();
+				PreparedStatement ps = conn.prepareStatement(showTablesSql);
+				ResultSet rs = ps.executeQuery();) {
+
+			List<String> tabList = new ArrayList<>();
+			while (rs.next()) {
+				if (rs.getString(1) == null) continue;
+				tabList.add(rs.getString(1).trim());
+//				tables.add(getTable(rs.getString(1).trim(), con));
+			}
+
+			for (String tab : tabList) {
+				tables.add(getTable(tab, conn));
+			}
+		} catch (SQLException e) {
+//			Logger.error(e.getMessage());
+			throw ExceptionHelper.convert(e);
+		}
+
+		return tables;
+	}
+	
+	private List<Table> _otherDbTables() {
+		List<Table> tables = new ArrayList<>();
+		Connection conn = SessionFactory.getConnection();
+		boolean has = false;
+		try {
+			DatabaseMetaData dbmd = conn.getMetaData();
+			String schemaPattern=null;
+			String types[]=null;
+			if (config.getDbName().equalsIgnoreCase(DatabaseConst.H2)) schemaPattern="PUBLIC";
+			if (config.getDbName().equalsIgnoreCase(DatabaseConst.PostgreSQL)) {
+				schemaPattern="public";
+				types= new String[] {"TABLE"};
+			}
+			
+			ResultSet rs = dbmd.getTables(null, schemaPattern, "%", types);
+			List<String> tabList = new ArrayList<>();
+			while (rs.next()) {
+				if (rs.getString(3) == null) continue;
+//			tables.add(getTable(rs.getString(3).trim(), conn));
+//				System.out.print(rs.getString(1)+"     ");
+//				System.out.print(rs.getString(2)+"     ");
+//				System.out.print(rs.getString(4)+"     ");
+//				System.out.println(rs.getString(3));
+				tabList.add(rs.getString(3).trim());
+				has = true;
+			}
+//System.err.println(tabList);
+			for (String tab : tabList) {
+				tables.add(getTable(tab, conn));
+			}
+
+		} catch (Exception e) {
+			Logger.error(e.getMessage());
+			has = false;
+		}
+
+		if (!has) {
 			throw new BeeException(
 					"There are not default sql, please check the bee.db.dbName in bee.properties is right or not, or define queryTableSql in GenConfig!");
 		}
-		//			con = getConnection();
-		try (Connection con = SessionFactory.getConnection();
-				PreparedStatement ps = con.prepareStatement(showTablesSql);
-				ResultSet rs = ps.executeQuery();) {
 
-			while (rs.next()) {
-				if (rs.getString(1) == null) continue;
-				tables.add(getTable(rs.getString(1).trim(), con));
-			}
-		} catch (SQLException e) {
-			Logger.error(e.getMessage());
-			throw ExceptionHelper.convert(e);
-		}
 		return tables;
 	}
 

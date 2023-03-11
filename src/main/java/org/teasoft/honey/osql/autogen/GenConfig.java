@@ -12,7 +12,8 @@ public class GenConfig {
 
 	private String baseDir = "";
 	private String packagePath = "";
-	private String dbName = ""; // 数据库类型 MySQL, Oracle等
+//	private String dbName = ""; // 
+	private String dbName; // 数据库类型 MySQL, Oracle等     fixed bug. V2.1
 	private String queryTableSql = ""; // 查询所有表名的SQL语句，MySQL,Oracle和SQL Server不用设置
 	private boolean genToString;
 	private boolean genSerializable=true; //V1.17默认值改为true
