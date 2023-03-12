@@ -178,13 +178,13 @@ public class GenBean {
 				importSet.add("import java.util.Map;");
 				mapFlag = false;
 			} else if ("NCLOB".equals(javaType) && nClobFlag) {
-				importSet.add("java.sql.NClob");
+				importSet.add("import java.sql.NClob;");
 				nClobFlag = false;
 			} else if ("ROWID".equals(javaType) && rowIdFlag) {
-				importSet.add("java.sql.RowId");
+				importSet.add("import java.sql.RowId;");
 				rowIdFlag = false;
 			} else if ("SQLXML".equals(javaType) && sqlxmlFlag) {
-				importSet.add("java.sql.SQLXML");
+				importSet.add("import java.sql.SQLXML;");
 				sqlxmlFlag = false;
 				
 			}else if(javaType.startsWith("[UNKNOWN TYPE]")) {
@@ -221,11 +221,11 @@ public class GenBean {
 			}
 		} //end for
 		
-		if (config.isLombokSetter()) importSet.add("lombok.Setter");
-		if (config.isLombokGetter()) importSet.add("lombok.Getter");
-		if (config.isLombokData())   importSet.add("lombok.Data");
+		if (config.isLombokSetter()) importSet.add("import lombok.Setter;");
+		if (config.isLombokGetter()) importSet.add("import lombok.Getter;");
+		if (config.isLombokData())   importSet.add("import lombok.Data;");
 		if (config.isLombokSetter() || config.isLombokGetter() || config.isLombokData())
-			config.setNeedGetSet(false);
+			config.setGenGetSet(false);
 		
 		for (String s: importSet) {
 			importStr += s + LINE_SEPARATOR;
@@ -276,7 +276,7 @@ public class GenBean {
 			}
 			bw.write(propertiesStr);
 			bw.write(LINE_SEPARATOR);
-			if (config.isNeedGetSet()) bw.write(getsetStr);
+			if (config.isGenGetSet()) bw.write(getsetStr);
 
 			if (config.isGenToString()) { //toString()
 				tostr.deleteCharAt(tostr.indexOf(","));

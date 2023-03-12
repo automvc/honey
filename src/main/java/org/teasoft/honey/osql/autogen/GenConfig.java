@@ -37,7 +37,7 @@ public class GenConfig {
 	
 	
 	//2.1 
-	private boolean needGetSet;
+	private boolean genGetSet;
 	
 	//2.1 support lombok
 	private boolean lombokSetter;
@@ -245,12 +245,12 @@ public class GenConfig {
 		this.lombokData = lombokData;
 	}
 
-	public boolean isNeedGetSet() {
-		return needGetSet;
+	public boolean isGenGetSet() {
+		return genGetSet;
 	}
 
-	public void setNeedGetSet(boolean needGetSet) {
-		this.needGetSet = needGetSet;
+	public void setGenGetSet(boolean genGetSet) {
+		this.genGetSet = genGetSet;
 	}
 
 }
