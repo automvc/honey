@@ -34,6 +34,15 @@ public class GenConfig {
 	private String fieldFileSuffix="_F";
 	private boolean genFieldAll=true; //V1.17
 	private boolean genSelfName=true; //V2.0  first letter is lowerCase
+	
+	
+	//2.1 
+	private boolean needGetSet;
+	
+	//2.1 support lombok
+	private boolean lombokSetter;
+	private boolean lombokGetter;
+	private boolean lombokData;
 
 	public String getEncode() {
 		return encode;
@@ -210,6 +219,38 @@ public class GenConfig {
 
 	public void setGenSelfName(boolean genSelfName) {
 		this.genSelfName = genSelfName;
+	}
+
+	public boolean isLombokSetter() {
+		return lombokSetter;
+	}
+
+	public void setLombokSetter(boolean lombokSetter) {
+		this.lombokSetter = lombokSetter;
+	}
+
+	public boolean isLombokGetter() {
+		return lombokGetter;
+	}
+
+	public void setLombokGetter(boolean lombokGetter) {
+		this.lombokGetter = lombokGetter;
+	}
+
+	public boolean isLombokData() {
+		return lombokData;
+	}
+
+	public void setLombokData(boolean lombokData) {
+		this.lombokData = lombokData;
+	}
+
+	public boolean isNeedGetSet() {
+		return needGetSet;
+	}
+
+	public void setNeedGetSet(boolean needGetSet) {
+		this.needGetSet = needGetSet;
 	}
 
 }

@@ -221,6 +221,12 @@ public class GenBean {
 			}
 		} //end for
 		
+		if (config.isLombokSetter()) importSet.add("lombok.Setter");
+		if (config.isLombokGetter()) importSet.add("lombok.Getter");
+		if (config.isLombokData())   importSet.add("lombok.Data");
+		if (config.isLombokSetter() || config.isLombokGetter() || config.isLombokData())
+			config.setNeedGetSet(false);
+		
 		for (String s: importSet) {
 			importStr += s + LINE_SEPARATOR;
 		}
@@ -252,6 +258,13 @@ public class GenBean {
 			if (!"".equals(importStr)) bw.write(importStr + LINE_SEPARATOR);
 			bw.write(authorComment + LINE_SEPARATOR);
 			if(HoneyUtil.isCassandra()) bw.write("//@Table(\""+table.getSchema()+"."+tableName+"\")" + LINE_SEPARATOR);
+			
+			//support lombok
+			if (config.isLombokSetter()) bw.write("@Setter" + LINE_SEPARATOR);
+			if (config.isLombokGetter()) bw.write("@Getter" + LINE_SEPARATOR);
+			if (config.isLombokData())   bw.write("@Data"   + LINE_SEPARATOR);
+			
+			
 			bw.write("public class " + entityName);
 			if (config.isGenSerializable()) {
 				bw.write(" implements Serializable");
@@ -263,7 +276,7 @@ public class GenBean {
 			}
 			bw.write(propertiesStr);
 			bw.write(LINE_SEPARATOR);
-			bw.write(getsetStr);
+			if (config.isNeedGetSet()) bw.write(getsetStr);
 
 			if (config.isGenToString()) { //toString()
 				tostr.deleteCharAt(tostr.indexOf(","));
