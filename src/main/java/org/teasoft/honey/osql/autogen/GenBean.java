@@ -262,13 +262,8 @@ public class GenBean {
 				bw.write(LINE_SEPARATOR);
 			}
 			bw.write(propertiesStr);
-//			bw.write(LINE_SEPARATOR);
-//			bw.write(constructorStr);
 			bw.write(LINE_SEPARATOR);
-//			bw.write(toStringStr);
-//			bw.write(LINE_SEPARATOR);
 			bw.write(getsetStr);
-//			bw.write(LINE_SEPARATOR);
 
 			if (config.isGenToString()) { //toString()
 				tostr.deleteCharAt(tostr.indexOf(","));
