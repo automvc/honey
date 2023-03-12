@@ -13,12 +13,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.teasoft.bee.spi.BeanSort;
-import org.teasoft.bee.spi.entity.SortStruct;
 import org.teasoft.honey.osql.core.HoneyUtil;
 import org.teasoft.honey.osql.core.Logger;
 import org.teasoft.honey.osql.core.NameTranslateHandle;
-import org.teasoft.honey.spi.SpiInstanceFactory;
 
 /**
  * 实体相关工具类
@@ -154,27 +151,6 @@ public final class EntityUtil {
 				|| typeName.startsWith("ohos.")
 				|| typeName.startsWith("sun.")
 		);
-	}
-	
-//	/**
-//	 * String数组转为由逗号分隔的字符串.
-//	 * String array transfer to one string separate by comma.
-//	 * @param array String array
-//	 * @return one string separate by comma
-//	 */
-//	public static String arrayToString(String array[]) {
-//		if(array==null) return null;
-//		String str="";
-//		for (int i = 0; i < array.length; i++) {
-//			if(i!=0)str+=",";
-//			str+=array[i];
-//		}
-//		return str;
-//	}
-	
-	private static BeanSort beanSort =SpiInstanceFactory.getBeanSort();
-	public static void sort(List<?> entityList, List<SortStruct> sortStructList) {
-		beanSort.sort(entityList, sortStructList);
 	}
 	
 }

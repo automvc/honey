@@ -82,5 +82,4 @@ public final class StringConst {
 	public static final String  GridFs_FileId=PREFIX+"GridFs_FileId";
 	public static final String  GridFs_FileName=PREFIX+"GridFs_FileName";
 	public static final String  GridFs_FileColumnName=PREFIX+"GridFs_FileColumnName";
-	public static final String  GridFs_MetadataMap=PREFIX+"GridFs_MetadataMap";
 }

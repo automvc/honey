@@ -29,16 +29,4 @@ public class SpiInstanceFactory {
 		return jsonTransform;
 	}
 
-	public static BeanSort getBeanSort() {
-		BeanSort beanSort = SpiInstanceRegister.getInstance(BeanSort.class);
-		try {
-			if (beanSort == null) beanSort = (BeanSort) Class
-					.forName("org.teasoft.beex.sort.CommSort").newInstance();
-		} catch (Exception e) {
-			Logger.error(e.getMessage(), e);
-		}
-
-		return beanSort;
-	}
-
 }
