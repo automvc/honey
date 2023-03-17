@@ -35,8 +35,6 @@ import org.teasoft.honey.util.ObjectUtils;
  */
 public final class HoneyContext {
 	
-//	private static byte[] lock=new byte[0];
-
 	private static ConcurrentMap<String, String> beanMap;
 
 	// since 1.11
@@ -103,22 +101,6 @@ public final class HoneyContext {
 
 	private static ConcurrentMap<String, Boolean> customFlagMap;
 
-	/*	private static void _checkSize(ThreadLocal local,String name){
-			if(local==null)
-				err.println("==============="+name+"  is null");
-			else
-				err.println("==============="+name+"  size is : "+ local.get());
-			
-		}
-		
-		public static void checkSize(){
-			err.println("==============checkSize============");
-			_checkSize(sqlPreValueLocal,"sqlPreValueLocal");
-			_checkSize(cacheLocal,"cacheLocal");
-			_checkSize(currentConnection,"currentConnection");
-			_checkSize(currentRoute,"currentRoute");
-		}*/
-
 	static {
 		beanMap = new ConcurrentHashMap<>();
 		beanCustomPKey = new ConcurrentHashMap<>();
@@ -178,19 +160,6 @@ public final class HoneyContext {
 	static ConcurrentMap<String, String> getEntity2tableMap() {
 		return entity2table;
 	}
-
-//	static ConcurrentMap<String, String> getTable2entityMap() { //just create the Javabean files would use
-//		if (table2entity == null) {
-////			synchronized (HoneyContext.class) {
-//			synchronized (lock) {
-//				if (table2entity == null) {
-//					table2entity = new ConcurrentHashMap<>();
-//					initTable2Entity();
-//				}
-//			}
-//		}
-//		return table2entity;
-//	}
 
 	synchronized static ConcurrentMap<String, String> getTable2entityMap() { // just create the Javabean files would use
 		if (table2entity == null) {
@@ -509,7 +478,6 @@ public final class HoneyContext {
 		Logger.info("the clearConnectionForSelectRs. ");
 		List<Connection> list = conneForSelectRs.get();
 		if (list != null) {
-//			Logger.info("the connection size: " + list.size());
 			for (Connection conn : list) {
 				try {
 					if (conn != null) conn.close();
@@ -719,14 +687,6 @@ public final class HoneyContext {
 		removeCurrentConnection();
 	}
 
-	// public static Transaction getCurrentTransaction() {
-	// return transactionLocal.get();
-	// }
-	//
-	// public static void setCurrentTransaction(Transaction transaction) {
-	// transactionLocal.set(transaction);
-	// }
-
 	public static RouteStruct getCurrentRoute() {
 		return currentRoute.get();
 	}
@@ -775,8 +735,6 @@ public final class HoneyContext {
 	public static void removeCurrentGroupFunStruct() {
 		currentGroupFunStruct.remove();
 	}
-	
-	
 
 	static void setContext(String sql, List<PreparedValue> list, String tableName) {
 		setPreparedValue(sql, list);
@@ -989,7 +947,6 @@ public final class HoneyContext {
 		String levelTwoEntityList = HoneyConfig.getHoneyConfig().cache_levelTwoEntityList; // cache level 2
 		_parseListToMap(levelTwoEntityList, entityList_levelTwo_Map,
 				entityListWithStar_levelTwo);
-
 	}
 
 	private static void _parseListToMap(String str, Map<String, String> map,
@@ -1071,29 +1028,8 @@ public final class HoneyContext {
 		return _isConfig(clazz, entityList_levelTwo_Map, entityListWithStar_levelTwo);
 	}
 
-//closeed	//仅分库,有多个数据源时,且支持同时使用多种类型数据库时,
-//closeed	//才可能需要实时确认是什么数据库,没有分页的不需要
-
 //  是多数据源,有同时使用多种不同类型DB
 	static boolean isNeedRealTimeDb() {
-//		boolean enableMultiDs = HoneyConfig.getHoneyConfig().multiDS_enable;
-//		if (enableMultiDs) {
-////			int multiDsType = HoneyConfig.getHoneyConfig().multiDS_type;
-//			boolean isDifferentDbType = HoneyConfig.getHoneyConfig().multiDS_differentDbType;
-////			if (multiDsType == 2 && isDifferentDbType) {//仅分库,有多个数据源时,且支持同时使用多种类型数据库时
-////			if ((multiDsType ==2 || multiDsType == 1) && isDifferentDbType) {  //不同数据库才要实时获取数据库类型
-//			if(isDifferentDbType) {
-//			  return true;
-//			}
-//		}
-
-//closeed	//是多数据源, 又不是同种DB类型的只读模式, 则需要动态获取DB类型
-//		if (isNeedDs())
-//			return true;
-//		else
-//			return false;
-
-//      是多数据源,有同时使用多种不同类型DB
 		boolean enableMultiDs = HoneyConfig.getHoneyConfig().multiDS_enable;
 		boolean isDifferentDbType = HoneyConfig.getHoneyConfig().multiDS_differentDbType;
 		if (enableMultiDs && isDifferentDbType) {
@@ -1216,6 +1152,12 @@ public final class HoneyContext {
 
 	public static boolean isInterceptorSubEntity() {
 		return OneTimeParameter.isTrue(StringConst.InterceptorSubEntity);
+	}
+	
+	//V2.1
+	public static void setDataSource(DataSource dataSource) {
+		BeeFactory.getInstance().setDataSource(dataSource);
+		setConfigRefresh(true);
 	}
 	
 	//V2.1
