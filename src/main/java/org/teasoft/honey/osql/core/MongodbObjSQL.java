@@ -24,69 +24,18 @@ public class MongodbObjSQL extends AbstractCommOperate implements Suid {
 	
 	@Override
 	public <T> List<T> select(T entity) {
-		
-		checkPackage(entity);
-		
-		
 		if (entity == null) return null;
 		
+		checkPackage(entity);
 		doBeforePasreEntity(entity,SuidType.SELECT);
 
-		List<T> list = null;
-		
-//		String sql = getObjToSQL().toSelectSQL(entity);
-//		
-//		sql=doAfterCompleteSql(sql);
-//		
-//		Logger.logSQL("select SQL: ", sql);
-//		list = getBeeSql().select(sql, entity); // 返回值用到泛型
-		
-		//Sharding,还要更改表名; 库名
-		
-		list=getMongodbBeeSql().select(entity);
+		List<T> list =getMongodbBeeSql().select(entity);
 		
 		doBeforeReturn(list);
 		
 		return list;
-		
-		
-		
-		
-		
-		//1.
-		// entity -> map<key,value>
-		//1.5 是String要过滤 " , ' -- # 注释符     参考日志的.
-		
-		
-
-		//2. call mongodb api, return Document
-//		至少要传表名,  T或者map
-//		FindIterable<Document> findIterable = cols.find();  
-//        MongoCursor<Document> mongoCursor = findIterable.iterator();  
-//        while(mongoCursor.hasNext()){  
-//           System.out.println(mongoCursor.next());  
-//        }  
-		
-		
-		// Document -> entity List
-		
 	}
 
-//	@Override
-//	public <T> int update(T entity) {
-//		
-//		int a=getMongodbBeeSql().update(entity);
-//		
-//		
-//		return a;
-//	}
-//
-//	@Override
-//	public <T> int insert(T entity) {
-//		int a=getMongodbBeeSql().insert(entity);
-//		return a;
-//	}
-	
 	@Override
 	public <T> int update(T entity) {
 		// 当id为null时抛出异常  在转sql时抛出

@@ -112,6 +112,7 @@ public class MongodbShardingSelectJsonEngine {
 	}
 	
 //	Return String 
+	@SuppressWarnings("rawtypes")
 	private class ShardingBeeSQLJsonExecutorEngine
 			extends ShardingAbstractMongoBeeSQLExecutorEngine<String> 
 	{

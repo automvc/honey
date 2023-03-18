@@ -14,19 +14,13 @@ import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.teasoft.bee.mongodb.MongoSqlStruct;
 import org.teasoft.bee.mongodb.MongodbBeeSql;
-import org.teasoft.honey.osql.core.HoneyConfig;
 import org.teasoft.honey.osql.core.Logger;
 import org.teasoft.honey.osql.core.ShardingLogReg;
 import org.teasoft.honey.sharding.ShardingUtil;
-import org.teasoft.honey.sharding.engine.ResultMergeEngine;
-import org.teasoft.honey.sharding.engine.decorate.ResultPagingDecorator;
-import org.teasoft.honey.sharding.engine.decorate.SortListDecorator;
 
 /**
- * 分片的select操作
- * 返回类型是List<T>
+ * DDL创建表
  * @author AiTeaSoft
  * @since  2.0
  */
