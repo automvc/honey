@@ -754,7 +754,7 @@ public final class HoneyUtil {
 			jdbc2JavaTypeMap.put("TINYBLOB", "Blob");
 			jdbc2JavaTypeMap.put("MEDIUMBLOB", "Blob");
 			jdbc2JavaTypeMap.put("LONGBLOB", "Blob");
-			jdbc2JavaTypeMap.put("YEAR", "Integer"); //todo 
+			jdbc2JavaTypeMap.put("YEAR", "Integer"); // 
 			
 			jdbc2JavaTypeMap.put("TINYINT", "Byte");
 			jdbc2JavaTypeMap.put("SMALLINT", "Short");
@@ -769,7 +769,7 @@ public final class HoneyUtil {
 			jdbc2JavaTypeMap.put("LONG", STRING);
 			jdbc2JavaTypeMap.put("VARCHAR2", STRING);
 			jdbc2JavaTypeMap.put("NVARCHAR2", STRING);
-			jdbc2JavaTypeMap.put("NUMBER", "BigDecimal"); //oracle todo
+			jdbc2JavaTypeMap.put("NUMBER", "BigDecimal"); //oracle 
 			jdbc2JavaTypeMap.put("RAW", "byte[]");
 
 			jdbc2JavaTypeMap.put("INTERVALYM", STRING); //11g 
@@ -1043,7 +1043,7 @@ public final class HoneyUtil {
 		
 		javaTypeMap.put("java.net.URL", 27);
 		
-//		javaTypeMap.put("java.util.UUID", 28);  //1 todo
+//		javaTypeMap.put("java.util.UUID", 28);  //1 
 			
 	}
 
@@ -1222,7 +1222,7 @@ public final class HoneyUtil {
 				
 //				pst.setUnicodeStream(parameterIndex, x, length);
 			
-//			case 28:   //2 todo
+//			case 28:   //2 
 //				UUID u=(UUID)value;
 //				pst.setObject(i + 1, u.toString());
 //				pst.setString(i + 1, u.toString());

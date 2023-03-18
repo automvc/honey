@@ -97,9 +97,6 @@ public class _MoreObjectToSQLHelper {
 				}
 			}
 			
-			//todo 在拦截器处理之后, 更新为新表名????   用别名????
-			//还是  from 主表, 新表名 (as) 旧表名    这样,字段列名就不用改了??
-			
 //			如何多表查询没有声明表别名，可以使用逻辑表作为别名？？
 //			if(moreTableStruct[1].hasSubAlias) moreTableStruct[1].subAlias="ordersdetail";
 			//没用,解析MoreTableStruct时,已生成了字段等.
@@ -139,7 +136,6 @@ public class _MoreObjectToSQLHelper {
 				}else if(start!=-1 && size!=-1 && condition==null && moreTableStruct[1].subObject==null){ 
 					
 //					若condition!=null, 要判断不包括从表的字段.  todo
-					
 //					主表id不为空的,也不用.  因主表最多能查一条记录
 					
 					parseMainObject(entity, tableName, sqlBuffer0, mainList, firstWhere, includeType); //因顺序原因,调整时,需要多解析一次
@@ -163,8 +159,6 @@ public class _MoreObjectToSQLHelper {
 //						HoneyUtil.regPagePlaceholder();
 						sqlStrForList=getDbFeature().toPageSql(sqlForList.toString(), start, size);
 //						HoneyUtil.setPageNum(list);
-						
-						//sharding分片??? 如何调整  todo
 						
 					    //后面不用再分页.  Condition里的分页参数呢????
 					    start = -1;
