@@ -14,6 +14,8 @@ import org.teasoft.bee.osql.PreparedSql;
 import org.teasoft.bee.osql.Suid;
 import org.teasoft.bee.osql.SuidRich;
 import org.teasoft.bee.osql.chain.UnionSelect;
+import org.teasoft.bee.osql.service.ObjSQLRichService;
+import org.teasoft.bee.osql.service.ObjSQLService;
 
 /**
  * 获取接口相应对象的帮助类.Helper Class for get the corresponding object of the interface.
@@ -50,17 +52,26 @@ public class BeeFactoryHelper {
 		return BeeFactory.getHoneyFactory().getMapSql();
 	}
 	
-	//@since 2.0
+	// @since 2.0
 	public static UnionSelect getUnionSelect() {
 		return BeeFactory.getHoneyFactory().getUnionSelect();
 	}
-	
+	// @since 2.0
 	public static Suid getSuidForMongodb() {
 		return BeeFactory.getHoneyFactory().getSuidForMongodb();
 	}
-	
+	// @since 2.0
 	public static SuidRich getSuidRichForMongodb() {
 		return BeeFactory.getHoneyFactory().getSuidRichForMongodb();
+	}
+
+	// @since 2.1
+	public ObjSQLService getObjSQLService() {
+		return BeeFactory.getHoneyFactory().getObjSQLService();
+	}
+	// @since 2.1
+	public ObjSQLRichService getObjSQLRichService() {
+		return BeeFactory.getHoneyFactory().getObjSQLRichService();
 	}
 
 }

@@ -25,6 +25,8 @@ import org.teasoft.bee.osql.dialect.DbFeature;
 import org.teasoft.bee.osql.dialect.DbFeatureRegistry;
 import org.teasoft.bee.osql.exception.NoConfigException;
 import org.teasoft.bee.osql.interccept.InterceptorChain;
+import org.teasoft.bee.osql.service.ObjSQLRichService;
+import org.teasoft.bee.osql.service.ObjSQLService;
 import org.teasoft.honey.osql.chain.UnionSelectImpl;
 import org.teasoft.honey.osql.dialect.LimitOffsetPaging;
 import org.teasoft.honey.osql.dialect.NoPagingSupported;
@@ -37,6 +39,8 @@ import org.teasoft.honey.osql.name.DbUpperAndJavaLower;
 import org.teasoft.honey.osql.name.OriginalName;
 import org.teasoft.honey.osql.name.UnderScoreAndCamelName;
 import org.teasoft.honey.osql.name.UpperCaseUnderScoreAndCamelName;
+import org.teasoft.honey.osql.serviceimpl.ObjSQLRichServiceImpl;
+import org.teasoft.honey.osql.serviceimpl.ObjSQLServiceImpl;
 
 /**
  * Honey工厂类.Honey Factory class.
@@ -74,6 +78,10 @@ public class HoneyFactory {
 	
 	//@since 2.0
 	private MongodbBeeSql mongodbBeeSql;
+	
+	//@since 2.1
+	private ObjSQLService objSQLService;
+	private ObjSQLRichService objSQLRichService; 
 	
 	static {
        cache=initCache();
@@ -291,6 +299,24 @@ public class HoneyFactory {
 	public void setUnionSelect(UnionSelect unionSelect) {
 		this.unionSelect = unionSelect;
 	}
+	
+	public ObjSQLService getObjSQLService() {
+		if (objSQLService == null) return new ObjSQLServiceImpl();
+		return objSQLService;
+	}
+
+	public void setObjSQLService(ObjSQLService objSQLService) {
+		this.objSQLService = objSQLService;
+	}
+
+	public ObjSQLRichService getObjSQLRichService() {
+		if (objSQLRichService == null) return new ObjSQLRichServiceImpl();
+		return objSQLRichService;
+	}
+
+	public void setObjSQLRichService(ObjSQLRichService objSQLRichService) {
+		this.objSQLRichService = objSQLRichService;
+	}
 
 	public Cache getCache() {
 		if (cache == null) cache = initCache();
@@ -298,8 +324,6 @@ public class HoneyFactory {
 	}
 
 	public void setCache(Cache cache) {
-//		this.cache = cache;
-//		HoneyFactory.cache = cache; //not ok
 		_setCache(cache);
 	}
 	
