@@ -220,8 +220,6 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 	}
 	
 	private <T> int _insert(T entity[], int batchSize, String excludeFields) {
-//		Logger.debug("------------->  _insert, the currentThread id:  " + Thread.currentThread().getId());
-//		System.out.println(this.toString());
 		
 		String insertSql[] = getObjToSQLRich().toInsertSQL(entity,batchSize, excludeFields);
 		_regEntityClass1(entity[0]);
@@ -956,6 +954,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 				}
 			}
 		}
+		doBeforePasreEntity(entityClass, SuidType.DDL); //fixed bug 2.1
 		String sql = DdlToSql.toCreateTableSQL(entityClass);
 		return _ddlModify(entityClass, sql);
 	}
@@ -988,6 +987,9 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 	
 	private <T> void _index(Class<T> entityClass, String fields, String indexName,
 			String PREFIX, String IndexTypeTip, String IndexType) {
+		
+		doBeforePasreEntity(entityClass, SuidType.DDL);
+		_regEntityClass2(entityClass);
 
 		String indexSql = DdlToSql.toIndexSql(entityClass, fields, indexName, PREFIX,
 				IndexTypeTip, IndexType);
@@ -1002,6 +1004,9 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 	 * @param keyName  key name
 	 */
 	public <T> void primaryKey(Class<T> entityClass, String fields, String keyName) {
+		doBeforePasreEntity(entityClass, SuidType.DDL);
+		_regEntityClass2(entityClass);
+		
 		String primaryKeySql=DdlToSql.toPrimaryKeySql(entityClass, fields, keyName);
 		_ddlModify(entityClass, primaryKeySql);
 	}
