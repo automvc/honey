@@ -83,7 +83,6 @@ public class SimpleRewriteSql {
 			for (String tabIndex : tabIndexSet) {
 //			    tempSql = sql.replace(tableName, tab); // eg: orders##(index)##替换成orders1等
 				tempSql = sql.replace(StringConst.ShardingTableIndexStr, tabIndex); // 将下标占位符改为具体下标
-//				System.out.println("---------------tempSql :--------"+tempSql);
 				sqlList.add(tempSql);
 				dsList.add(dsName);
 				HoneyContext.setPreparedValue(tempSql, listValue);

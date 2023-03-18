@@ -117,10 +117,6 @@ class ProcessDataSourceMap {
 		}
 
 		return dataSourceMap;
-
-//		setDataSourceMap(dataSourceMap);
-//		System.err.println("----------------------完成更新ds Map ------------------------");
-//		HoneyContext.setDsMapRefresh(false);
 	}
 	
 	private static void notifyClass(String className) {

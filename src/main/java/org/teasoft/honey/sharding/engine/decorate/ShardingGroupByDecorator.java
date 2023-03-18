@@ -87,7 +87,6 @@ public class ShardingGroupByDecorator {
 					field.setAccessible(true);
 					groupKey += field.get(currentEntity) + ",";
 				}
-//			System.err.println(groupKey);
 				T old = groupEntityMap.get(groupKey);
 				if (old == null) {
 					groupEntityMap.put(groupKey, currentEntity); //第一条,放groupEntityMap
@@ -168,9 +167,6 @@ public class ShardingGroupByDecorator {
 				T tempEntity = groupEntityMap.get(entryKey.getKey());
 				for (Map.Entry<String, Object> entry : entryKey.getValue().entrySet()) {
 					try {
-//						System.err.println(entry.getKey());
-//						System.err.println(entry.getValue());
-						
 						String fieldName2=_toFieldName(entry.getKey(),elementClass);
 						Field funField = tempEntity.getClass().getDeclaredField(fieldName2);
 						funField.setAccessible(true);
@@ -228,8 +224,6 @@ public class ShardingGroupByDecorator {
 //		if ((funStruts == null || funStruts.length == 0) && ! groupFunStruct.isNeedGroupWhenNoFun()) return;
 		if (funStructs == null || funStructs.size() == 0) return; 
 		
-//		System.err.println(list.size());
-
 //		Field field = null;
 //		Field oldField = null;
 		String groupKey;

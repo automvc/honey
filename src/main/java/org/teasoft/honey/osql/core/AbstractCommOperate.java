@@ -27,7 +27,6 @@ public class AbstractCommOperate implements CommOperate{
 	protected NameTranslate nameTranslate; //用于设置当前对象使用的命名转换器.使用默认的不需要设置
 	
 	public AbstractCommOperate() {
-		System.out.println("============创建 AbstractCommOperate================"+this.toString());
 	}
 	
 	@Override
@@ -51,7 +50,6 @@ public class AbstractCommOperate implements CommOperate{
 
 	@Override
 	public void setDataSourceName(String dsName) {
-		System.err.println("================setDataSourceName=============:"+dsName+"     "+this.toString());
 		this.dsName = dsName;
 	}
 

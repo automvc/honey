@@ -45,19 +45,19 @@ public class GroupMap {
 		return list;
 	}
 	
-	public static void main(String[] args) {
-		GroupMap gm=new GroupMap();
-		gm.add("0", "name", "name0");
-		gm.add("3", "driver", "driver3");
-		gm.add("3", "name", "name3");
-		gm.add("1", "name", "name1");
-		gm.add("0", "name", "name0");
-		gm.add("0", "pw", "pw0");
-		gm.add("1", "pw", "pw1");
-		
-//		System.out.println(gm);
-		System.out.println(gm.toList());
-//		[{name=name0, pw=pw0}, {name=name1, pw=pw1}, {name=name3, driver=driver3}]
-	}
+//	public static void main(String[] args) {
+//		GroupMap gm=new GroupMap();
+//		gm.add("0", "name", "name0");
+//		gm.add("3", "driver", "driver3");
+//		gm.add("3", "name", "name3");
+//		gm.add("1", "name", "name1");
+//		gm.add("0", "name", "name0");
+//		gm.add("0", "pw", "pw0");
+//		gm.add("1", "pw", "pw1");
+//		
+////		System.out.println(gm);
+////		System.out.println(gm.toList());
+////		[{name=name0, pw=pw0}, {name=name1, pw=pw1}, {name=name3, driver=driver3}]
+//	}
 
 }

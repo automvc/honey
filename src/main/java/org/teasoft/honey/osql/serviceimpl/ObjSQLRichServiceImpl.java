@@ -15,7 +15,6 @@ public class ObjSQLRichServiceImpl extends ObjSQLRichAbstractServiceImpl {
 	private SuidRich suidRich;
 	
 	public ObjSQLRichServiceImpl() {
-		System.out.println("－－－－－－创建:ObjSQLRichServiceImpl,    "+ this.toString());
 	}
 	
 //	public void setSuid(Suid suid) {

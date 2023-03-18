@@ -470,12 +470,12 @@ public final class HoneyContext {
 		}
 		list.add(conn);
 		conneForSelectRs.set(list);
-		Logger.info("the regConnectionForSelectRs, " + list.size());
-		Logger.info("the regConnectionForSelectRs , hashcode: " + conn.hashCode());
+//		Logger.info("the regConnectionForSelectRs, " + list.size());
+//		Logger.info("the regConnectionForSelectRs , hashcode: " + conn.hashCode());
 	}
 
 	public static void clearConnForSelectRs() {
-		Logger.info("the clearConnectionForSelectRs. ");
+//		Logger.info("the clearConnectionForSelectRs. ");
 		List<Connection> list = conneForSelectRs.get();
 		if (list != null) {
 			for (Connection conn : list) {
