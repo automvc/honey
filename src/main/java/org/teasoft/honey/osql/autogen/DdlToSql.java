@@ -490,5 +490,10 @@ public class DdlToSql {
 		return indexSql;
 		
 	}
+	
+	public static <T> String toDropIndexSql(Class<T> entityClass, String fields, String indexName) {
+		
+		return "";  //TODO
+	}
 
 }
