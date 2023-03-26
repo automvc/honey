@@ -731,6 +731,12 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 		Logger.warn("Do not support this method for Mongodb in V2.0");
 	}
 
+	@Override
+	public <T> void dropIndex(Class<T> entityClass, String fields, String indexName) {
+	     //TODO
+	
+	}
+
 //	private void doBeforePasreEntity(Object entity[], SuidType SuidType) {  //fixed bug. no set dataSource name
 //		getInterceptorChain().beforePasreEntity(entity, SuidType);
 //	}
