@@ -46,6 +46,7 @@ public class AbstractCommOperate implements CommOperate{
 	@Override
 	public void setNameTranslate(NameTranslate nameTranslate) {
 		this.nameTranslate=nameTranslate;
+		if(this.nameTranslate!=null) HoneyContext.setCurrentNameTranslate(nameTranslate);  //enhance V2.1
 	}
 
 	@Override
@@ -68,10 +69,10 @@ public class AbstractCommOperate implements CommOperate{
 		if (this.dsName != null) {
 			HoneyContext.setTempDS(dsName);
 		}
-		if(this.nameTranslate!=null) HoneyContext.setCurrentNameTranslate(nameTranslate);
+//		if(this.nameTranslate!=null) HoneyContext.setCurrentNameTranslate(nameTranslate);
 	}
 
-	void doBeforePasreEntity(Object entity, SuidType SuidType) {
+	protected void doBeforePasreEntity(Object entity, SuidType SuidType) {
 		_doBeforePasreEntity(SuidType);
 		getInterceptorChain().beforePasreEntity(entity, SuidType);
 	}
@@ -88,7 +89,7 @@ public class AbstractCommOperate implements CommOperate{
 	}
 
 	@SuppressWarnings("rawtypes")
-	void doBeforeReturn(List list) {
+	protected void doBeforeReturn(List list) {
 		_doBeforeReturn();
 		getInterceptorChain().beforeReturn(list);
 	}
