@@ -35,9 +35,7 @@ public class GenConfig {
 	private boolean genFieldAll=true; //V1.17
 	private boolean genSelfName=true; //V2.0  first letter is lowerCase
 	
-	
-	//2.1 
-	private boolean genGetSet;
+	private boolean genGetSet=true;  //2.1 默认生成
 	
 	//2.1 support lombok
 	private boolean lombokSetter;
