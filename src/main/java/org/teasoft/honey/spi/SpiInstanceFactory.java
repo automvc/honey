@@ -6,7 +6,6 @@
 
 package org.teasoft.honey.spi;
 
-import org.teasoft.bee.spi.BeanSort;
 import org.teasoft.bee.spi.JsonTransform;
 import org.teasoft.honey.osql.core.Logger;
 

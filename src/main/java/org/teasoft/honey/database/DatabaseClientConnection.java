@@ -31,6 +31,7 @@ public class DatabaseClientConnection implements ClientConnection, Closeable {
 
 	@Override
 	public void close() throws IOException {
+//		System.err.println("------------DatabaseClientConnection-1------close()----------------");
 		ds.close();
 	}
 }

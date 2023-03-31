@@ -70,9 +70,11 @@ public class MongodbShardingSelectFunEngine {
 		return ShardingFunResultEngine.funResultEngine(rsList);
 	}
 
-//	Return String 		
+//	Return String 	
+	@SuppressWarnings("rawtypes")
 	private class ShardingBeeSQLFunExecutorEngine
 			extends ShardingAbstractMongoBeeSQLExecutorEngine<String> {
+
 		private Class entityClass;
 		private MongoSqlStruct struct;
 
@@ -85,6 +87,7 @@ public class MongodbShardingSelectFunEngine {
 			this.struct.setTableName(tab);
 		}
 
+		@SuppressWarnings("unchecked")
 		public String shardingWork() {
 			ShardingLogReg.regShardingSqlLog("select fun SQL", index, tab);
 			String rsStr = "";
@@ -97,7 +100,7 @@ public class MongodbShardingSelectFunEngine {
 			} else {
 				rsStr = mongodbBeeSql.selectWithFun(struct, entityClass);
 			}
-			
+
 			ShardingLogReg.regShardingSqlLog("    | <--  " + typeTag, index, rsStr);
 
 			return rsStr;

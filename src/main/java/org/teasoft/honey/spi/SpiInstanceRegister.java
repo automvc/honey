@@ -21,7 +21,7 @@ public class SpiInstanceRegister implements Registry {
 	
 	private static Map<Class<?>,Serializable> spiInstanceMap=new HashMap<>();
 	
-
+	@SuppressWarnings("unchecked")
 	public static <T> T getInstance(Class<T> clazz) {
 		return (T)HoneyUtil.copyObject(spiInstanceMap.get(clazz));
 	}

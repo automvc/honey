@@ -127,6 +127,7 @@ public class MongodbShardingSelectJsonEngine {
 			this.struct.setTableName(tab);
 		}
 
+		@SuppressWarnings("unchecked")
 		public String shardingWork() {
 			ShardingLogReg.regShardingSqlLog("selectJson SQL", index, tab);
 			return mongodbBeeSql.selectJson(struct,entityClass);

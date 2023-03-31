@@ -121,6 +121,14 @@ public final class SessionFactory {
 				String c = "";
 				if (isAndroid)      c = "org.teasoft.beex.android.SQLiteTransaction";
 				else if (isHarmony) c = "org.teasoft.beex.harmony.SQLiteTransaction";
+				
+				try {
+					return (Transaction) Class.forName(c).newInstance();
+				} catch (Exception e) {
+					Logger.error(e.getMessage(), e);
+				}
+			}else if (HoneyUtil.isMongoDB()) {
+				String c = "org.teasoft.beex.mongodb.MongodbTransaction";
 				try {
 					return (Transaction) Class.forName(c).newInstance();
 				} catch (Exception e) {
@@ -129,6 +137,7 @@ public final class SessionFactory {
 			}
 			
 			tran = new JdbcTransaction();  //  put into context
+			
 //			tran=HoneyContext.getCurrentTransaction();
 //			if(tran==null){
 //				tran = new JdbcTransaction();
