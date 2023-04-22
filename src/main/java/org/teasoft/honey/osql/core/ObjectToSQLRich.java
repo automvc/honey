@@ -28,6 +28,7 @@ import org.teasoft.honey.osql.dialect.sqlserver.SqlServerPagingStruct;
 import org.teasoft.honey.osql.name.NameUtil;
 import org.teasoft.honey.osql.util.AnnoUtil;
 import org.teasoft.honey.sharding.ShardingReg;
+import org.teasoft.honey.util.StringUtils;
 
 /**
  * 对象到SQL的转换(对应SuidRich).Object to SQL string for SuidRich. 
@@ -149,6 +150,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	public <T> String toSelectOrderBySQL(T entity, String orderFieldList) {
 
 		String orderFields[] = orderFieldList.split(",");
+		StringUtils.trim(orderFields);
 		int lenA = orderFields.length;
 
 		String orderBy = "";
@@ -170,6 +172,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	public <T> String toSelectOrderBySQL(T entity, String orderFieldList, OrderType[] orderTypes) {
 		
 		String orderFields[] = orderFieldList.split(",");
+		StringUtils.trim(orderFields);
 		int lenA = orderFields.length;
 
 		if (lenA != orderTypes.length) throw new ObjSQLException("ObjSQLException :The length of orderField is not equal orderTypes'.");
@@ -201,6 +204,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		} else {
 			fields = fieldList;
 		}
+		StringUtils.trim(fields);
 		return fields;
 	}
 
@@ -688,6 +692,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		PreparedValue preparedValue=null;
 
 		String idArray[]=ids.split(",");
+		StringUtils.trim(idArray);
 //		String t_ids="id=?";
 		String id0=_id(pkName,entityClass) + "=?";
 		String t_ids=id0;

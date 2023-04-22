@@ -1589,6 +1589,8 @@ public final class HoneyUtil {
 		} else {
 			selectFields = fields;
 		}
+		StringUtils.trim(selectFields);
+		
 		String newSelectFields = "";
 		boolean isFisrt = true;
 		String colName;

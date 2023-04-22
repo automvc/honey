@@ -504,7 +504,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 
 		if (sql == null || "".equals(sql)) return -2L;
 
-		initRoute(SuidType.INSERT, null, sql);
+		initRoute(SuidType.INSERT, null, sql);  //entityClass在context会设置
 
 		int num = 0;
 		long returnId = -1L;

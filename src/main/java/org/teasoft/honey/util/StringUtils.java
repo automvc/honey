@@ -218,6 +218,15 @@ public final class StringUtils {
 		return arry;
 	}
 	
+	public static void trim(String str[]) {
+		
+		if (str == null || str.length == 0) return ;
+
+		for (int i = 0; i < str.length; i++) {
+			str[i] = str[i].trim();
+		}
+	}
+	
 //	public static void main(String[] args) {
 //		String file="abcd.jpg";
 ////		String file="jpg";
