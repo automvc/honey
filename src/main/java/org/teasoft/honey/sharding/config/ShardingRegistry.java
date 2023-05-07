@@ -6,6 +6,7 @@
 
 package org.teasoft.honey.sharding.config;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -89,9 +90,9 @@ public class ShardingRegistry implements Registry {
 		int size = map.size();
 		int rand = RAND.nextInt(size);
 
-		Set<String> set = map.keySet();
+		Set<String> keySet = map.keySet();
 		int i = 0;
-		for (String ds : set) {
+		for (String ds : keySet) {
 			if (i == rand) return ds;
 			i++;
 		}
@@ -99,11 +100,21 @@ public class ShardingRegistry implements Registry {
 		return null;
 	}
 	
+	public static List<String> getAllDs(String baseTableName) {
+		Map<String, Set<String>> map = getFullNodes(baseTableName);
+		if (map == null || map.size() < 1) return null;
+
+		List<String> allDs = new ArrayList<>();
+		Set<String> keysSet = map.keySet();
+		for (String ds : keysSet) {
+			allDs.add(ds);
+		}
+		return allDs;
+	}
+	
 	public static boolean isBroadcastTab(String tabName) {
 		return ONE.equals(broadcastTabMap.get(tabName.toLowerCase()));
 	}
-	
-	
 	
 	
 	static void register(Class<?> entity, List<ShardingBean> shardingBeanList) {

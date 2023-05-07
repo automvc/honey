@@ -145,9 +145,10 @@ public class ShardingGroupbyListStringArrayEngine {
 				if (rsList.size() == 0) {
 					json = "[]";
 					rowCount = 0;
+				}else {
+				  JsonTransform jsonTransform = SpiInstanceFactory.getJsonTransform();
+				  json = jsonTransform.toJson(entityList);
 				}
-				JsonTransform jsonTransform = SpiInstanceFactory.getJsonTransform();
-				json = jsonTransform.toJson(entityList);
 				rowCount = entityList.size();
 
 				JsonResultWrap wrap = new JsonResultWrap();

@@ -703,22 +703,35 @@ public class ShardingInterceptor extends EmptyInterceptor {
 	
 	@Override
 	public Object[] beforePasreEntity(Object[] entityArray, SuidType suidType) {
+		boolean isSharding=ShardingUtil.isSharding();
+		if(! isSharding) return entityArray;
+		if(entityArray==null || entityArray.length<1 ||entityArray[0]==null ) return entityArray;
 		
-		if(! ShardingUtil.isSharding()) return entityArray;
 		
+		boolean isBroadcastTab=false;
 //		是insert,循环前将ds,tab的List清空
-		if(ShardingUtil.isSharding() && SuidType.INSERT==suidType && entityArray.length>1) {
+		if(isSharding && SuidType.INSERT==suidType && entityArray.length>1) {
 			batchInsert=true;
 			dsNameListForBatch = new ArrayList<>();
 			tabNameListForBatch = new ArrayList<>();
 			dsNameSetForBatch=new HashSet<>();
 			tabNameSetForBatch=new HashSet<>();
 		}
+		
+		String tableName = "";
+		if(isSharding) {
+			tableName = _toTableName(entityArray[0]);
+			if (ShardingRegistry.isBroadcastTab(tableName)) {
+				isBroadcastTab=true;
+			}
+		}
 
 		for (int i = 0; i < entityArray.length; i++) {
 			beforePasreEntity(entityArray[i], suidType);
 			//在每一次循环,记录ds,tab到List
 			//每一次循环,只能是一库一表,不会有多,因为插入语句不会有condition.
+			
+			if(isBroadcastTab && suidType!=SuidType.SELECT) break;
 		}
 		
 		//循环后,再进行分类统计.
@@ -729,6 +742,16 @@ public class ShardingInterceptor extends EmptyInterceptor {
 //				HoneyContext.setListLocal(StringConst.DsNameListForBatchLocal, dsNameListForBatch);
 				ShardingReg.regBatchInsert(tabNameListForBatch, dsNameListForBatch);
 			}
+		}
+		
+		//广播表,要更新所有节点
+		if(isBroadcastTab && suidType!=SuidType.SELECT) {
+			List<String> allDsList=ShardingRegistry.getAllDs(tableName);
+			List<String> tabList = new ArrayList<>();
+			for (int k = 0; k < allDsList.size(); k++) {
+				tabList.add(tableName);
+			}
+			ShardingReg.regBatchInsert(tabList, allDsList);
 		}
 
 		return entityArray;

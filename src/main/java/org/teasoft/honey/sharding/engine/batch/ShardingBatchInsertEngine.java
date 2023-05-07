@@ -21,8 +21,10 @@ import org.teasoft.bee.osql.SuidRich;
 import org.teasoft.honey.osql.core.HoneyContext;
 import org.teasoft.honey.osql.core.JdkSerializer;
 import org.teasoft.honey.osql.core.Logger;
+import org.teasoft.honey.osql.core.NameTranslateHandle;
 import org.teasoft.honey.osql.core.ShardingLogReg;
 import org.teasoft.honey.osql.core.StringConst;
+import org.teasoft.honey.osql.name.NameUtil;
 import org.teasoft.honey.sharding.ShardingReg;
 import org.teasoft.honey.sharding.config.ShardingRegistry;
 import org.teasoft.honey.sharding.engine.ResultMergeEngine;
@@ -39,59 +41,81 @@ public class ShardingBatchInsertEngine<T> {
 	@SuppressWarnings("unchecked")
 	public int batchInsert(T entity[], int batchSize, String excludeFields,
 			List<String> tabNameListForBatch, SuidRich suidRich) {
-		
+
 		ShardingReg.regShardingBatchInsertDoing();
 
-        Logger.debug(""+(tabNameListForBatch.size() == entity.length));
+//		Logger.debug("" + (tabNameListForBatch.size() == entity.length));
 
-		// 要求的数据
-		List<Object[]> newEntityArrayList = new ArrayList<>();
 		List<String> taskDs = new ArrayList<>();
 		List<String> taskTab = new ArrayList<>();
 
-		Map<String, List<Integer>> tabMap = groupElement(tabNameListForBatch);
 		List<String> dsNameListForBatch = HoneyContext.getListLocal(StringConst.DsNameListForBatchLocal);
 
-		for (Map.Entry<String, List<Integer>> entry : tabMap.entrySet()) {
-			String tabName = entry.getKey();
-			List<Integer> indexList = entry.getValue();
+		boolean isBroadcastTabBatchInsert = false;
+		String tableName = _toTableName(entity[0]);
+		if (ShardingRegistry.isBroadcastTab(tableName)) isBroadcastTabBatchInsert = true;
 
-			T newEntity[] = (T[]) new Object[indexList.size()];
-			for (int i = 0; i < indexList.size(); i++) {
-				newEntity[i] = entity[indexList.get(i)];
-			}
-			newEntityArrayList.add(newEntity);
-
-			String dsName = dsNameListForBatch.get(indexList.get(0)); // 表名一样,对应的ds也要是一样的.
-			if (StringUtils.isBlank(dsName)) {
-				dsName = ShardingRegistry.getDsByTab(tabName);
-			}
-
-			taskDs.add(dsName);
-			taskTab.add(tabName);
-		}
+		int time = 0;
 
 		ExecutorService executor = Executors.newCachedThreadPool();
-		CompletionService<Integer> completionService = new ExecutorCompletionService<>(executor);
-		final List<Callable<Integer>> tasks = new ArrayList<>(); 
+		CompletionService<Integer> completionService = new ExecutorCompletionService<>(
+				executor);
+		final List<Callable<Integer>> tasks = new ArrayList<>();
 
-		for (int i = 0; i < newEntityArrayList.size(); i++) {
-			tasks.add(new ShardingBeeSQLBatchInsertExecutorEngine(newEntityArrayList, batchSize, excludeFields,
-					taskDs, taskTab, suidRich, i));
+		if (!isBroadcastTabBatchInsert) {
+			// 要求的数据
+			List<Object[]> newEntityArrayList = new ArrayList<>();
+			Map<String, List<Integer>> tabMap = groupElement(tabNameListForBatch);
+
+			for (Map.Entry<String, List<Integer>> entry : tabMap.entrySet()) {
+				String tabName = entry.getKey();
+				List<Integer> indexList = entry.getValue();
+
+				T newEntity[] = (T[]) new Object[indexList.size()];
+				for (int i = 0; i < indexList.size(); i++) {
+					newEntity[i] = entity[indexList.get(i)];
+				}
+				newEntityArrayList.add(newEntity);
+
+				String dsName = dsNameListForBatch.get(indexList.get(0)); // 表名一样,对应的ds也要是一样的.
+				if (StringUtils.isBlank(dsName)) {
+					dsName = ShardingRegistry.getDsByTab(tabName);
+				}
+
+				taskDs.add(dsName);
+				taskTab.add(tabName);
+			}
+
+			for (int i = 0; i < newEntityArrayList.size(); i++) {
+				tasks.add(new ShardingBeeSQLBatchInsertExecutorEngine(newEntityArrayList.get(i),
+						batchSize, excludeFields, taskDs, taskTab, suidRich, i));
+			}
+
+			time = newEntityArrayList.size();
+
+		} else { // BroadcastTab insert
+
+			time = dsNameListForBatch.size();
+			
+			taskTab=HoneyContext.getListLocal(StringConst.TabNameListForBatchLocal); //广播表,一库一表
+			for (int i = 0; i < time; i++) {
+				tasks.add(new ShardingBeeSQLBatchInsertExecutorEngine(entity, batchSize,
+						excludeFields, dsNameListForBatch, taskTab, suidRich, i));
+			}
 		}
 
-		ShardingLogReg.log(newEntityArrayList.size());
-		
-		int size=tasks.size();
+		ShardingLogReg.log(time);
+
+		int size = tasks.size();
 		for (int i = 0; tasks != null && i < size; i++) {
 			completionService.submit(tasks.get(i));
 		}
 
-		//Merge Result
+		// Merge Result
 		int r = ResultMergeEngine.mergeInteger(completionService, size);
-		
+
 		executor.shutdown();
-		
+
 		return r;
 	}
 
@@ -108,6 +132,10 @@ public class ShardingBatchInsertEngine<T> {
 
 		return tabMap;
 	}
+	
+	private String _toTableName(Object entity) {
+		return NameTranslateHandle.toTableName(NameUtil.getClassFullName(entity));
+	}
 
 	private class ShardingBeeSQLBatchInsertExecutorEngine
 			extends ShardingBatchInsertTemplate<Integer> implements Callable<Integer> {
@@ -115,16 +143,18 @@ public class ShardingBatchInsertEngine<T> {
 		private int batchSize;
 		private String excludeFields;
 		private SuidRich suidRich;
-		private List<Object[]> newEntityArrayList = new ArrayList<>();
+//		private List<Object[]> newEntityArrayList = new ArrayList<>();
+		private Object[] newEntityArray;
 
-		public ShardingBeeSQLBatchInsertExecutorEngine(List<Object[]> newEntityArrayList,
+//		public ShardingBeeSQLBatchInsertExecutorEngine(List<Object[]> newEntityArrayList,
+		public ShardingBeeSQLBatchInsertExecutorEngine(Object[] newEntityArray,
 				int batchSize, String excludeFields, List<String> taskDs, List<String> taskTab,
 				SuidRich suidRich, int index) {
 
 			this.batchSize = batchSize;
 			this.excludeFields = excludeFields;
 			this.suidRich = suidRich;
-			this.newEntityArrayList = newEntityArrayList;
+			this.newEntityArray = newEntityArray;
 
 			super.taskDs = taskDs;
 			super.taskTab = taskTab;
@@ -134,7 +164,7 @@ public class ShardingBatchInsertEngine<T> {
 
 		@Override
 		public Integer shardingWork() {
-		    int b = copy(suidRich).insert(newEntityArrayList.get(index), batchSize, excludeFields);
+		    int b = copy(suidRich).insert(newEntityArray, batchSize, excludeFields);
 			return b;
 		}
 
