@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.teasoft.bee.mongodb.MongodbBeeSql;
-import org.teasoft.bee.osql.MongodbPreparedSql;
+import org.teasoft.bee.mongodb.MongodbRawSql;
 import org.teasoft.bee.osql.NameTranslate;
 import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.interccept.InterceptorChain;
@@ -18,7 +18,7 @@ import org.teasoft.bee.osql.interccept.InterceptorChain;
  * @author Kingstar
  * @since  2.1
  */
-public class MongodbPreparedSqlLib implements MongodbPreparedSql {
+public class MongodbRawSqlLib implements MongodbRawSql {
 
 	private MongodbBeeSql mongodbBeeSql;
 	private InterceptorChain interceptorChain;
@@ -29,7 +29,7 @@ public class MongodbPreparedSqlLib implements MongodbPreparedSql {
 	public <T> List<T> select(String commandStr, Class<T> returnTypeClass) {
 		doBeforePasreEntity(returnTypeClass, SuidType.SELECT);// returnType的值,虽然不用作占位参数的值,但可以用作拦截器的业务逻辑判断
 		commandStr = doAfterCompleteSql(commandStr);
-		Logger.logSQL("MongodbPreparedSql select SQL: ", commandStr);
+		Logger.logSQL("MongodbPreparedSql select SQL: \n", commandStr);
 		List<T> list = getMongodbBeeSql().select(commandStr, returnTypeClass);
 		doBeforeReturn(list);
 		return list;
@@ -39,7 +39,7 @@ public class MongodbPreparedSqlLib implements MongodbPreparedSql {
 	public String selectJson(String sql) {
 		doBeforePasreEntity();
 		sql = doAfterCompleteSql(sql);
-		Logger.logSQL("MongodbPreparedSql selectJson SQL: ", sql);
+		Logger.logSQL("MongodbPreparedSql selectJson SQL: \n", sql);
 		String r = getMongodbBeeSql().selectJson(sql);
 		doBeforeReturn();
 		return r;
@@ -50,7 +50,7 @@ public class MongodbPreparedSqlLib implements MongodbPreparedSql {
 
 		doBeforePasreEntity();
 		sql = doAfterCompleteSql(sql);
-		Logger.logSQL("MongodbPreparedSql modify SQL: ", sql);
+		Logger.logSQL("MongodbPreparedSql modify SQL: \n", sql);
 		int r = getMongodbBeeSql().modify(sql);
 		doBeforeReturn();
 		return r;
@@ -61,7 +61,7 @@ public class MongodbPreparedSqlLib implements MongodbPreparedSql {
 
 		doBeforePasreEntity();
 		sql = doAfterCompleteSql(sql);
-		Logger.logSQL("MongodbPreparedSql selectMapList SQL: ", sql);
+		Logger.logSQL("MongodbPreparedSql selectMapList SQL: \n", sql);
 		List<Map<String, Object>> list = getMongodbBeeSql().selectMapList(sql);
 		doBeforeReturn();
 		return list;
