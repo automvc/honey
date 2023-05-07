@@ -21,15 +21,13 @@ import org.teasoft.bee.osql.PreparedSql;
 import org.teasoft.bee.osql.Suid;
 import org.teasoft.bee.osql.SuidRich;
 import org.teasoft.bee.osql.chain.UnionSelect;
-import org.teasoft.bee.osql.dialect.DbFeature;
-import org.teasoft.bee.osql.dialect.DbFeatureRegistry;
+import org.teasoft.bee.osql.dialect.*;
 import org.teasoft.bee.osql.exception.NoConfigException;
 import org.teasoft.bee.osql.interccept.InterceptorChain;
 import org.teasoft.bee.osql.service.ObjSQLRichService;
 import org.teasoft.bee.osql.service.ObjSQLService;
 import org.teasoft.honey.osql.chain.UnionSelectImpl;
-import org.teasoft.honey.osql.dialect.LimitOffsetPaging;
-import org.teasoft.honey.osql.dialect.NoPagingSupported;
+import org.teasoft.honey.osql.dialect.*;
 import org.teasoft.honey.osql.dialect.mysql.MySqlFeature;
 import org.teasoft.honey.osql.dialect.oracle.OracleFeature;
 import org.teasoft.honey.osql.dialect.sqlserver.SqlServerFeature;
@@ -392,6 +390,12 @@ public class HoneyFactory {
 			return new SqlServerFeature();
 		else if (_isLimitOffsetDB())
 			return new LimitOffsetPaging(); //v1.8.15 
+		else if(_isFrontLimitDB())
+			return new HSqlDbFrontLimitPaging(); //2.1
+		else if(_isOffsetFetchDB())
+			return new OffsetFetchPaging(); //2.1
+		else if(_isLimitMN())
+			return new MySqlFeature(); //2.1
 		else if (dbName != null)
 			return new NoPagingSupported(); //v1.8.15 当没有用到分页功能时,不至于报错.
 		else { //要用setDbFeature(DbFeature dbFeature)设置自定义的实现类
@@ -404,12 +408,34 @@ public class HoneyFactory {
 		String dbName=HoneyContext.getDbDialect();
 		boolean comm = DatabaseConst.H2.equalsIgnoreCase(dbName)
 				|| DatabaseConst.SQLite.equalsIgnoreCase(dbName)
-				|| DatabaseConst.PostgreSQL.equalsIgnoreCase(dbName);
+				|| DatabaseConst.PostgreSQL.equalsIgnoreCase(dbName)
+				|| DatabaseConst.MsAccess.equalsIgnoreCase(dbName);
 		
 		if(comm) return comm;
 		
 		boolean other = HoneyConfig.getHoneyConfig().pagingWithLimitOffset;
 		return comm || other;
+	}
+	
+	private boolean _isLimitMN() {
+		String dbName = HoneyContext.getDbDialect();
+		boolean f = DatabaseConst.Cubrid.equalsIgnoreCase(dbName);
+		return f;
+	}
+	
+	
+	private boolean _isFrontLimitDB() {
+		String dbName=HoneyContext.getDbDialect();
+		boolean comm = DatabaseConst.HSQLDB.equalsIgnoreCase(dbName)
+				|| DatabaseConst.HSQL.equalsIgnoreCase(dbName);
+		return comm;
+	}
+	
+	private boolean _isOffsetFetchDB() {
+		String dbName=HoneyContext.getDbDialect();
+		boolean comm = DatabaseConst.Derby.equalsIgnoreCase(dbName)
+				|| DatabaseConst.Firebird.equalsIgnoreCase(dbName);
+		return comm;
 	}
 
 	public InterceptorChain getInterceptorChain() {
