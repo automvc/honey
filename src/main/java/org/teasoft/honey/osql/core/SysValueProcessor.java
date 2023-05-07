@@ -28,7 +28,6 @@ public class SysValueProcessor {
 		process(obj,BeeProp.getBeeProp());
 	}
 	
-	
 	public static <T> void process(T obj,Properties prop) {
 		Field[] f = obj.getClass().getDeclaredFields();
 		String value;
