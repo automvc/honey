@@ -22,7 +22,9 @@ import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
 import org.teasoft.bee.osql.exception.BeeIllegalParameterException;
 import org.teasoft.honey.osql.autogen.DdlToSql;
+import org.teasoft.honey.osql.name.NameUtil;
 import org.teasoft.honey.sharding.ShardingUtil;
+import org.teasoft.honey.sharding.config.ShardingRegistry;
 import org.teasoft.honey.sharding.engine.batch.ShardingBatchInsertEngine;
 import org.teasoft.honey.sharding.engine.batch.ShardingForkJoinBatchInsertEngine;
 import org.teasoft.honey.util.ObjectUtils;
@@ -199,12 +201,17 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 
 		int a = 0;
 		List<String> tabNameListForBatch = HoneyContext.getListLocal(StringConst.TabNameListForBatchLocal);
-		if (!ShardingUtil.isSharding() || ObjectUtils.isEmpty(tabNameListForBatch)) {
+		List<String> dsNameListForBatch = HoneyContext.getListLocal(StringConst.DsNameListForBatchLocal);
+		
+		if (!ShardingUtil.isSharding() || (ObjectUtils.isEmpty(tabNameListForBatch) && ObjectUtils.isEmpty(dsNameListForBatch)) ) {
 			a = _insert(entity, batchSize, excludeFields);
 		} else {
 			try {
+				String tableName=_toTableName(entity[0]);
+				Logger.logSQL("Batch insert, tableName:"+tableName+"  dsNameList:"+dsNameListForBatch+ "  tabNameList:"+tabNameListForBatch);
+				boolean isBroadcastTab=ShardingRegistry.isBroadcastTab(tableName);
 				boolean forkJoin = HoneyConfig.getHoneyConfig().sharding_forkJoinBatchInsert;
-				if (forkJoin)
+				if (forkJoin && !isBroadcastTab)
 					a = new ShardingForkJoinBatchInsertEngine<T>().batchInsert(entity, batchSize, excludeFields, tabNameListForBatch, this);
 				else
 					a = new ShardingBatchInsertEngine<T>().batchInsert(entity, batchSize, excludeFields, tabNameListForBatch, this);
@@ -230,6 +237,10 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 		int a= getBeeSql().batch(insertSql, batchSize);
 		
 		return a;
+	}
+	
+	private static String _toTableName(Object entity){
+		return NameTranslateHandle.toTableName(NameUtil.getClassFullName(entity));
 	}
 	
 	private <T> void checkNull(T entity[]) {

@@ -908,7 +908,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 				noId = true;
 			}
 			if (noId) {
-				pkName = HoneyUtil.getPkFieldName(entity);
+				pkName = HoneyUtil.getPkFieldName(entity[0]);
 				if("".equals(pkName) || pkName.contains(",")) return ; //just support single primary key.
 				field0 = entity[0].getClass().getDeclaredField(pkName); //fixed 1.17
 				pkAlias="("+pkName+")";
@@ -927,7 +927,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 				hasGenUUIDAnno=true;
 				useSeparatorInUUID=gen.useSeparator();
 			}else {
-				boolean needGenId = HoneyContext.isNeedGenId(entity.getClass());
+				boolean needGenId = HoneyContext.isNeedGenId(entity[0].getClass());
 				if (!needGenId) return ;
 			}
 			
@@ -992,7 +992,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 					else
 						field.set(entity[i], id);
 					if (hasValue) {
-						Logger.warn(" [ID WOULD BE REPLACED] entity["+i+"] : " + entity.getClass() + " 's id field"+pkAlias+" value is " + obj.toString()
+						Logger.warn(" [ID WOULD BE REPLACED] entity["+i+"] : " + entity[0].getClass() + " 's id field"+pkAlias+" value is " + obj.toString()
 								+ " would be replace by " + id);
 					}
 				} catch (IllegalAccessException e) {

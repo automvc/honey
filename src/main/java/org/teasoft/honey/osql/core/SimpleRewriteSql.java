@@ -71,6 +71,8 @@ public class SimpleRewriteSql {
 		List<String> dsList = new ArrayList<>();
 
 		Map<String, Set<String>> map = ShardingRegistry.getFullNodes(baseTableName);
+//		System.err.println("-----------getFullNodes");
+//		System.err.println(map);
 		String tempSql;
 
 		boolean justSomeDs = ShardingUtil.hadShardingSomeDsFullSelect();
@@ -96,6 +98,7 @@ public class SimpleRewriteSql {
 	}
 
 	private static boolean isContain(List<String> dsNameList, String check) {
+		if(dsNameList==null) return false; //v2.1.5.1
 		for (int i = 0; i < dsNameList.size(); i++) {
 			if (check.equalsIgnoreCase(dsNameList.get(i))) return true;
 		}

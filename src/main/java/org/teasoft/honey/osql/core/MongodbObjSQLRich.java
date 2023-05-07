@@ -19,7 +19,9 @@ import org.teasoft.bee.osql.SuidRich;
 import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
 import org.teasoft.bee.osql.exception.BeeIllegalParameterException;
+import org.teasoft.honey.osql.name.NameUtil;
 import org.teasoft.honey.sharding.ShardingUtil;
+import org.teasoft.honey.sharding.config.ShardingRegistry;
 import org.teasoft.honey.sharding.engine.batch.ShardingBatchInsertEngine;
 import org.teasoft.honey.sharding.engine.batch.ShardingForkJoinBatchInsertEngine;
 import org.teasoft.honey.util.ObjectUtils;
@@ -146,12 +148,17 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 
 		int a = 0;
 		List<String> tabNameListForBatch = HoneyContext.getListLocal(StringConst.TabNameListForBatchLocal);
-		if (!ShardingUtil.isSharding() || ObjectUtils.isEmpty(tabNameListForBatch)) {
+		List<String> dsNameListForBatch = HoneyContext.getListLocal(StringConst.DsNameListForBatchLocal);
+		
+		if (!ShardingUtil.isSharding() || (ObjectUtils.isEmpty(tabNameListForBatch) && ObjectUtils.isEmpty(dsNameListForBatch)) ) {
 			a = _insert(entity, batchSize, excludeFields);
 		} else {
 			try {
+				String tableName=_toTableName(entity[0]);
+				Logger.logSQL("Mongodb::batch insert, Collection:"+tableName+"  dsNameList:"+dsNameListForBatch+ "  collectionNameList:"+tabNameListForBatch);
+				boolean isBroadcastTab=ShardingRegistry.isBroadcastTab(tableName);
 				boolean forkJoin=HoneyConfig.getHoneyConfig().sharding_forkJoinBatchInsert;
-				if(forkJoin)
+				if (forkJoin && !isBroadcastTab) //BroadcastTab not use forkJoin
 			       a = new ShardingForkJoinBatchInsertEngine<T>().batchInsert(entity, batchSize, excludeFields,tabNameListForBatch, this);
 				else
 				  a = new ShardingBatchInsertEngine<T>().batchInsert(entity, batchSize, excludeFields, tabNameListForBatch, this);
@@ -172,6 +179,10 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 		
 		HoneyUtil.revertId(entity);
 		return a;
+	}
+	
+	private static String _toTableName(Object entity){
+		return NameTranslateHandle.toTableName(NameUtil.getClassFullName(entity));
 	}
 	
 	private <T> void checkNull(T entity[]) {
@@ -716,25 +727,25 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 		return f;
 	}
 	
+	private static final String MSG = "Please use the relative method of CreateIndex or MongodbSuidRichExt in org.teasoft.beex.osql.mongodb!";
 	@Override
 	public <T> void indexNormal(Class<T> entityClass, String fields, String indexName) {
-		Logger.warn("Do not support this method for Mongodb in V2.0");
+		Logger.warn(MSG);
 	}
 
 	@Override
 	public <T> void unique(Class<T> entityClass, String fields, String indexName) {
-		Logger.warn("Do not support this method for Mongodb in V2.0");
+		Logger.warn(MSG);
 	}
 
 	@Override
 	public <T> void primaryKey(Class<T> entityClass, String fields, String keyName) {
-		Logger.warn("Do not support this method for Mongodb in V2.0");
+		Logger.warn(MSG);
 	}
 
 	@Override
 	public <T> void dropIndex(Class<T> entityClass, String fields, String indexName) {
-	     //TODO
-	
+		Logger.warn(MSG);
 	}
 
 //	private void doBeforePasreEntity(Object entity[], SuidType SuidType) {  //fixed bug. no set dataSource name
