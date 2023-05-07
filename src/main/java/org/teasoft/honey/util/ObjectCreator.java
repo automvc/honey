@@ -19,12 +19,36 @@ public class ObjectCreator {
 
 	public static Long createLong(String s) {
 		if (StringUtils.isBlank(s)) return null;
-		return Long.parseLong(s);
+		try {
+			return Long.parseLong(s);
+		//V2.1
+		} catch (Exception e) {
+			if(s.endsWith(".0")) {
+				return Long.parseLong(s.substring(0,s.length()-2));
+			}else if(s.endsWith(".00")) {
+				return Long.parseLong(s.substring(0,s.length()-3));
+			}else if(s.endsWith(".000")) {
+				return Long.parseLong(s.substring(0,s.length()-4));
+			}
+		}
+		return createDouble(s).longValue();
 	}
 
 	public static Integer createInt(String s) {
 		if (StringUtils.isBlank(s)) return null;
-		return Integer.parseInt(s);
+		try {
+			return Integer.parseInt(s);
+		//V2.1
+		} catch (Exception e) {
+			if(s.endsWith(".0")) {
+				return Integer.parseInt(s.substring(0,s.length()-2));
+			}else if(s.endsWith(".00")) {
+				return Integer.parseInt(s.substring(0,s.length()-3));
+			}else if(s.endsWith(".000")) {
+				return Integer.parseInt(s.substring(0,s.length()-4));
+			}
+		}
+		return createDouble(s).intValue();
 	}
 
 	public static String createString(String s) {
