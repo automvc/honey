@@ -31,7 +31,11 @@ public class ObjectCreator {
 				return Long.parseLong(s.substring(0,s.length()-4));
 			}
 		}
-		return createDouble(s).longValue();
+		Double d = createDouble(s);
+		if (d != null)
+			return d.longValue();
+		else
+			return null;
 	}
 
 	public static Integer createInt(String s) {
@@ -48,7 +52,12 @@ public class ObjectCreator {
 				return Integer.parseInt(s.substring(0,s.length()-4));
 			}
 		}
-		return createDouble(s).intValue();
+		
+		Double d = createDouble(s);
+		if (d != null)
+			return d.intValue();
+		else
+			return null;
 	}
 
 	public static String createString(String s) {

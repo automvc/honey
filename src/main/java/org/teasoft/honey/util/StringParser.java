@@ -6,7 +6,10 @@ package org.teasoft.honey.util;
  * @since 2.1
  */
 public class StringParser {
-	//通过这个和getKeyEndPositionByStartEnd,可以很容易改写出指定动态开始关键字的查找方法
+
+	private StringParser() {}
+
+	// 通过这个和getKeyEndPositionByStartEnd,可以很容易改写出指定动态开始关键字的查找方法
 	// 查找({开头，} )结束的结束关键字开始下标的位置。两个标识之间可以有空格。
 	public static int getEndPosition(String str) {
 		str = str.trim();
@@ -34,7 +37,7 @@ public class StringParser {
 				}
 			}
 
-			if (isComm1 && (array[i] == '\n' || array[i] == '\r'   )) { // 单行注释结束
+			if (isComm1 && (array[i] == '\n' || array[i] == '\r')) { // 单行注释结束
 				isComm1 = false;
 			}
 			if (isComm2 && array[i] == '*') {
@@ -96,7 +99,7 @@ public class StringParser {
 		} // end for
 		return -1;
 	}
-   
+
 	// 从指定位置开始，可以避开开始的引号
 	public static int getKeyPosition(String str, String key, int fromIndex) {
 		if (str != null && str.length() > fromIndex) str = str.substring(fromIndex);
@@ -112,8 +115,8 @@ public class StringParser {
 	public static int getKeyPosition2(String str, String key) {
 		return _getKeyPosition(str, key, true);
 	}
- 
- //返回key结束的位置； key之间可以有空陋,所以返回的下标是key首字符的位置
+
+	// 返回key结束的位置； key之间可以有空陋,所以返回的下标是key首字符的位置
 	private static int _getKeyPosition(String str, String key, boolean isAllowSeprate) {
 		if (StringUtils.isBlank(str) || StringUtils.isBlank(key)) return -1;
 
@@ -140,8 +143,8 @@ public class StringParser {
 				if (keyChar.length == 1) return r;
 
 				for (int k = 1; k < keyChar.length; k++) {
-					if (isAllowSeprate) { //允许分隔符则跳过
-							while (i + k < len && isSeprate(array[i + k]))
+					if (isAllowSeprate) { // 允许分隔符则跳过
+						while (i + k < len && isSeprate(array[i + k]))
 							i++;
 					}
 					if (i + k < len && array[i + k] == keyChar[k]) {
@@ -155,7 +158,7 @@ public class StringParser {
 		}
 		return -1;
 	}
-   
+
 	// 找开始符号对应的结束符号的位置，支持嵌套
 	// 如:开始是{, 找对应的}; 在字符串里的不算入
 	public static int getKeyEndPositionByStartEnd(String str, char start, char end) {
@@ -191,7 +194,7 @@ public class StringParser {
 
 	public static String removeComment(String str) {
 		if (StringUtils.isBlank(str)) return str;
-		
+
 		str = str.trim();
 		char[] array = str.toCharArray();
 		int len = array.length;
@@ -215,7 +218,7 @@ public class StringParser {
 				}
 			}
 
-			if (isComm1 && (array[i] == '\n' || array[i] == '\r'   ) ) { // 单行注释结束
+			if (isComm1 && (array[i] == '\n' || array[i] == '\r')) { // 单行注释结束
 				isComm1 = false;
 				end = i;
 				break;
@@ -257,7 +260,7 @@ public class StringParser {
 			return str;
 		}
 	}
-	
+
 	private static boolean isSeprate(char ch) {
 		return (ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r');
 	}

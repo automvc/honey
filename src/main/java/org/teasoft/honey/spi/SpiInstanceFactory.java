@@ -38,6 +38,10 @@ public class SpiInstanceFactory {
 			if (jsonTransform == null)
 				jsonTransform = (JsonTransform) Class.forName("org.teasoft.beex.spi.FastJsonTransform")
 						.getDeclaredConstructor().newInstance();
+			
+			if (jsonTransform == null) {
+				Logger.warn("Can not find any json jar !");
+			}
 
 		} catch (Exception e) {
 			Logger.error(e.getMessage(), e);
