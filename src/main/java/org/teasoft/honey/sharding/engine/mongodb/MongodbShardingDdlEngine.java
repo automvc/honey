@@ -66,6 +66,7 @@ public class MongodbShardingDdlEngine {
 				f = f || completionService.take().get();
 			} catch (Exception e) {
 				Logger.error(e.getMessage(), e);
+				Thread.currentThread().interrupt();
 			}
 		}
 

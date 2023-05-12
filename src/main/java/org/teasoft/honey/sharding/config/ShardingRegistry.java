@@ -81,7 +81,7 @@ public class ShardingRegistry implements Registry {
 		return fullNodes.get(baseTableName.toLowerCase());
 	}
 	
-	private final static Random RAND=new Random();
+	private static final Random RAND=new Random();
 	
 	public static String getRandDs(String baseTableName) {
 		Map<String, Set<String>> map = getFullNodes(baseTableName);

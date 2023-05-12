@@ -121,8 +121,7 @@ public class ShardingUtil {
 			i++;
 		}
 		
-		ShardingSortStruct struct = new ShardingSortStruct(orderBy, orderFields, orderTypes);
-		return struct;
+		return new ShardingSortStruct(orderBy, orderFields, orderTypes);
 	}
 	
 	
@@ -131,7 +130,8 @@ public class ShardingUtil {
 		String dsName = HoneyContext.getAppointDS(); //用在只指定了ds,不使用反查
 		
 		if (StringUtils.isBlank(dsName)) {
-			tab2DsMap.get(tabSuffix); // 只在使用注解时, 分库与分表同属于一个分片键,才有用.
+//			tab2DsMap.get(tabSuffix); //sonar 7.8发现不了, 9.6可以
+			dsName = tab2DsMap.get(tabSuffix); // 只在使用注解时, 分库与分表同属于一个分片键,才有用. //fixed bug 2.1
 		}
 		
 		if (StringUtils.isBlank(dsName)) {
