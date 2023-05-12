@@ -6,8 +6,11 @@
 
 package org.teasoft.honey.distribution;
 
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import org.teasoft.honey.osql.core.HoneyConfig;
-import org.teasoft.honey.osql.util.DateUtil;
 
 /**
  * @author Kingstar
@@ -21,8 +24,19 @@ class Start {
 		int startYear = HoneyConfig.getHoneyConfig().genid_startYear;
 		if (startYear < 1970) return defaultStart;
 
-		long newTime = DateUtil.toTimestamp(startYear + "-01-01 00:00:00").getTime();
-		return newTime / 1000;
+		try {
+			long newTime = toTimestamp(startYear + "-01-01 00:00:00").getTime();
+			return newTime / 1000;
+		} catch (Exception e) {
+			return defaultStart;
+		}
+
+	}
+
+	private static Timestamp toTimestamp(String dateString) throws Exception {
+		SimpleDateFormat defaultFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		Date date = defaultFormat.parse(dateString);
+		return new Timestamp(date.getTime());
 	}
 
 }

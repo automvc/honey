@@ -26,6 +26,7 @@ public class LoggerFactory {
 	private static ThreadLocal<Map<String, Log>> logLocal;
 	
 	static {
+		if (logLocal != null) logLocal.remove();
 		logLocal=new ThreadLocal<>();
 		init();
 	}
@@ -162,7 +163,8 @@ public class LoggerFactory {
 	
 	private static void checkReset() {
 		if(isConfigRefresh()) {
-			logLocal.set(null);
+//			logLocal.set(null);
+			logLocal.remove();
 			logConstructor=null;
 			logNoArgConstructor=null;
 			isNoArgInConstructor=false;

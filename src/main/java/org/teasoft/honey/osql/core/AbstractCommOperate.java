@@ -102,6 +102,7 @@ public class AbstractCommOperate implements CommOperate{
 	private void _doBeforeReturn() {
 		if (this.dsName != null) HoneyContext.removeTempDS();
 		if(this.nameTranslate!=null) HoneyContext.removeCurrentNameTranslate();
+		this.nameTranslate=null; //2.1 仅允许一次有效.  因整个应用周期内,只有一个bean时,会影响到其它情况的使用(如spring整合)
 	}
 	
 	protected void regSuidType(SuidType SuidType) {

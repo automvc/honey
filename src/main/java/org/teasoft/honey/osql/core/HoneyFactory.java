@@ -5,6 +5,7 @@ import java.util.ServiceConfigurationError;
 import java.util.ServiceLoader;
 
 import org.teasoft.bee.mongodb.MongodbBeeSql;
+import org.teasoft.bee.mongodb.MongodbRawSql;
 import org.teasoft.bee.osql.BeeSql;
 import org.teasoft.bee.osql.Cache;
 import org.teasoft.bee.osql.CallableSql;
@@ -78,6 +79,7 @@ public class HoneyFactory {
 	private MongodbBeeSql mongodbBeeSql;
 	
 	//@since 2.1
+	private MongodbRawSql mongodbRawSql;
 	private ObjSQLService objSQLService;
 	private ObjSQLRichService objSQLRichService; 
 	
@@ -215,6 +217,15 @@ public class HoneyFactory {
 
 	public void setMongodbBeeSql(MongodbBeeSql mongodbBeeSql) {
 		this.mongodbBeeSql = mongodbBeeSql;
+	}
+	
+	public MongodbRawSql getMongodbRawSql() {
+		if(mongodbBeeSql==null) return new MongodbRawSqlLib();
+		return mongodbRawSql;
+	}
+
+	public void setMongodbRawSql(MongodbRawSql mongodbRawSql) {
+		this.mongodbRawSql = mongodbRawSql;
 	}
 
 	public ObjToSQL getObjToSQL() {

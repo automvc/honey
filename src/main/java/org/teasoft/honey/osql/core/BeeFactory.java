@@ -42,9 +42,10 @@ public class BeeFactory extends BeeAbstractFactory {
 
 	@Override
 	public DataSource getDataSource() {
-		if (HoneyContext.isDsMapRefresh()) {
-			setDataSourceMap(ProcessDataSourceMap.refreshDataSourceMap());
-			HoneyContext.setDsMapRefresh(false);
+		if (HoneyContext.isDsMapConfigRefresh()) {
+			Map<String, DataSource> map=ProcessDataSourceMap.refreshDataSourceMap();
+			if(map!=null && map.size()>0) setDataSourceMap(map);
+			HoneyContext.setDsMapConfigRefresh(false);
 		}
 
 		if (super.getDataSourceMap() == null) {

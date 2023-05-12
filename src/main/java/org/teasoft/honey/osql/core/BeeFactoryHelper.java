@@ -6,6 +6,8 @@
 
 package org.teasoft.honey.osql.core;
 
+import org.teasoft.bee.mongodb.MongodbBeeSql;
+import org.teasoft.bee.mongodb.MongodbRawSql;
 import org.teasoft.bee.osql.Condition;
 import org.teasoft.bee.osql.MapSql;
 import org.teasoft.bee.osql.MapSuid;
@@ -72,6 +74,15 @@ public class BeeFactoryHelper {
 	// @since 2.1
 	public ObjSQLRichService getObjSQLRichService() {
 		return BeeFactory.getHoneyFactory().getObjSQLRichService();
+	}
+	
+	// @since 2.1
+	public MongodbBeeSql getMongodbBeeSql() {
+		return BeeFactory.getHoneyFactory().getMongodbBeeSql();
+	}
+	// @since 2.1
+	public MongodbRawSql getMongodbRawSql() {
+		return BeeFactory.getHoneyFactory().getMongodbRawSql();
 	}
 
 }

@@ -90,7 +90,7 @@ public class SysValueProcessor {
 				dbsF.setAccessible(true);
 				dbsF.set(obj, gm.toList());
 				HoneyContext.setConfigRefresh(true);
-				HoneyContext.setDsMapRefresh(true);
+				HoneyContext.setDsMapConfigRefresh(true);
 			} catch (Exception e) {
 				// ignore
 			}

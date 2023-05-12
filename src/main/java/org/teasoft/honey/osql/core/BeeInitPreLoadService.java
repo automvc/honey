@@ -11,7 +11,6 @@ import java.util.Iterator;
 import java.util.ServiceConfigurationError;
 import java.util.ServiceLoader;
 
-import org.teasoft.bee.spi.BeanSort;
 import org.teasoft.bee.spi.JsonTransform;
 import org.teasoft.bee.spi.PreLoad;
 import org.teasoft.honey.spi.SpiInstanceRegister;
@@ -52,7 +51,7 @@ public class BeeInitPreLoadService {
 			
 			loadServiceInstance(PreLoad.class);
 			loadServiceInstanceAndReg(JsonTransform.class);
-			loadServiceInstanceAndReg(BeanSort.class);
+//			loadServiceInstanceAndReg(BeanSort.class);
 		}
 	}
 	

@@ -106,6 +106,15 @@ public final class HoneyContext {
 		beanCustomPKey = new ConcurrentHashMap<>();
 		customMap = new ConcurrentHashMap<>();
 
+		if(cacheLocal!=null) cacheLocal.remove();
+		if(sqlServerPaging!=null) sqlServerPaging.remove();
+		if(customMapLocal!=null) customMapLocal.remove();
+		if(sysCommStrLocal!=null) sysCommStrLocal.remove();
+		if(listLocal!=null) listLocal.remove();
+		if(sqlPreValueLocal!=null) sqlPreValueLocal.remove();
+		if(sqlIndexLocal!=null) sqlIndexLocal.remove();
+		if(conditionLocal!=null) conditionLocal.remove();
+		
 		sqlPreValueLocal = new InheritableThreadLocal<>();
 		sqlIndexLocal = new InheritableThreadLocal<>();
 		conditionLocal = new InheritableThreadLocal<>();
@@ -1082,18 +1091,32 @@ public final class HoneyContext {
 	}
 
 	private static boolean configRefresh = false;
-	private static boolean dsMapRefresh = false;
+	private static boolean dsMapConfigRefresh = false;
 
 	public static boolean isConfigRefresh() {
 		return configRefresh;
 	}
 	
-	public static boolean isDsMapRefresh() {
-		return dsMapRefresh;
-	}
 	
-	public static void setDsMapRefresh(boolean dsMapRefresh) {
-		HoneyContext.dsMapRefresh = dsMapRefresh;
+//	public static boolean isDsMapRefresh() {
+//		return dsMapConfigRefresh;
+//	}
+//	
+//	public static void setDsMapRefresh(boolean dsMapRefresh) {
+//		System.out.println("--------setDsMapRefresh-------"+dsMapRefresh);
+//		HoneyContext.dsMapConfigRefresh = dsMapRefresh;
+//	}
+
+	public static boolean isDsMapConfigRefresh() {
+		return dsMapConfigRefresh;
+	}
+
+	/**
+	 * 在配置文件配置数据源时,才需要设置为true
+	 * @param dsMapConfigRefresh
+	 */
+	public static void setDsMapConfigRefresh(boolean dsMapConfigRefresh) {
+		HoneyContext.dsMapConfigRefresh = dsMapConfigRefresh;
 	}
 
 	public static void setConfigRefresh(boolean configRefresh) {
@@ -1119,7 +1142,7 @@ public final class HoneyContext {
 		}
 
 		setConfigRefresh(true);
-		setDsMapRefresh(true);
+		setDsMapConfigRefresh(true);  //TODO ??  是否应该有数据源配置时,才设置更新??
 	}
 
 	public static boolean getModifiedFlagForCache2(String tableName) {

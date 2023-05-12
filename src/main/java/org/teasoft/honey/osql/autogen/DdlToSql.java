@@ -130,7 +130,7 @@ public class DdlToSql {
 
 	}
 
-	private static Map<String, String> getJava2DbType() {
+	private static Map<String, String> getJava2DbType() {  //可能返回null
 		return Java2DbType.getJava2DbType(HoneyContext.getDbDialect());
 	}
 	

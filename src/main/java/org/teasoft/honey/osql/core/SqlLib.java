@@ -84,7 +84,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 					int List_T = 2;
 					rsList = (List<T>) new ShardingGroupbyListStringArrayEngine().asynProcess(sql, this, entityClass, List_T);
 				} else if (jdbcStreamSelect && ! ShardingUtil.hadGroupSharding()) {
-					rsList = new ShardingSelectRsEngine().asynProcess(sql, entityClass, this); // 无结果集时,可能会报错
+					rsList = new ShardingSelectRsEngine().asynProcess(sql, entityClass, this); // 无结果集时,可能会报错   fixed V2.1
 				} else {
 					rsList = new ShardingSelectEngine().asynProcess(sql, entityClass, this); // 应该还要传suid类型
 				}

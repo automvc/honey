@@ -21,6 +21,7 @@ import org.teasoft.bee.osql.interccept.InterceptorChain;
 public class MongodbRawSqlLib implements MongodbRawSql {
 
 	private MongodbBeeSql mongodbBeeSql;
+	
 	private InterceptorChain interceptorChain;
 	private String dsName;// 用于设置当前对象使用的数据源名称
 	private NameTranslate nameTranslate; // 用于设置当前对象使用的命名转换器.使用默认的不需要设置
@@ -29,7 +30,7 @@ public class MongodbRawSqlLib implements MongodbRawSql {
 	public <T> List<T> select(String commandStr, Class<T> returnTypeClass) {
 		doBeforePasreEntity(returnTypeClass, SuidType.SELECT);// returnType的值,虽然不用作占位参数的值,但可以用作拦截器的业务逻辑判断
 		commandStr = doAfterCompleteSql(commandStr);
-		Logger.logSQL("MongodbPreparedSql select SQL: \n", commandStr);
+		Logger.logSQL("MongodbRawSql select SQL: \n", commandStr);
 		List<T> list = getMongodbBeeSql().select(commandStr, returnTypeClass);
 		doBeforeReturn(list);
 		return list;
@@ -39,7 +40,7 @@ public class MongodbRawSqlLib implements MongodbRawSql {
 	public String selectJson(String sql) {
 		doBeforePasreEntity();
 		sql = doAfterCompleteSql(sql);
-		Logger.logSQL("MongodbPreparedSql selectJson SQL: \n", sql);
+		Logger.logSQL("MongodbRawSql selectJson SQL: \n", sql);
 		String r = getMongodbBeeSql().selectJson(sql);
 		doBeforeReturn();
 		return r;
@@ -50,7 +51,7 @@ public class MongodbRawSqlLib implements MongodbRawSql {
 
 		doBeforePasreEntity();
 		sql = doAfterCompleteSql(sql);
-		Logger.logSQL("MongodbPreparedSql modify SQL: \n", sql);
+		Logger.logSQL("MongodbRawSql modify SQL: \n", sql);
 		int r = getMongodbBeeSql().modify(sql);
 		doBeforeReturn();
 		return r;
@@ -61,7 +62,7 @@ public class MongodbRawSqlLib implements MongodbRawSql {
 
 		doBeforePasreEntity();
 		sql = doAfterCompleteSql(sql);
-		Logger.logSQL("MongodbPreparedSql selectMapList SQL: \n", sql);
+		Logger.logSQL("MongodbRawSql selectMapList SQL: \n", sql);
 		List<Map<String, Object>> list = getMongodbBeeSql().selectMapList(sql);
 		doBeforeReturn();
 		return list;

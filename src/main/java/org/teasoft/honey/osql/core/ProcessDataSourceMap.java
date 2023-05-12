@@ -65,7 +65,7 @@ class ProcessDataSourceMap {
 //		} catch (Exception e) {
 //			Logger.debug(e.getMessage(), e);
 //		}
-		notifyClass("DataSourceToolRegHandler");
+		notifyClass("DataSourceToolRegHandler"); //是否需要判断再显示?? TODO   测试少加一些jar依赖,是否会有报错?
 
 		int size = dbsList.size();
 		String dsNames[] = new String[size];
