@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.teasoft.bee.osql.exception.ShardingErrorException;
 import org.teasoft.honey.sharding.ShardingUtil;
 import org.teasoft.honey.sharding.config.ShardingRegistry;
 import org.teasoft.honey.util.StringUtils;
@@ -71,13 +72,16 @@ public class SimpleRewriteSql {
 		List<String> dsList = new ArrayList<>();
 
 		Map<String, Set<String>> map = ShardingRegistry.getFullNodes(baseTableName);
-//		System.err.println("-----------getFullNodes");
+//		System.err.println("-----------getFullNodes: ");
 //		System.err.println(map);
 		String tempSql;
 
 		boolean justSomeDs = ShardingUtil.hadShardingSomeDsFullSelect();
 		List<String> dsNameList = HoneyContext.getListLocal(StringConst.DsNameListLocal);
 
+		//fixed bug
+		if(map==null || map.size()<=0) throw new ShardingErrorException("Can not find the FullNodes by baseTableName:"+baseTableName);
+			
 		for (Map.Entry<String, Set<String>> entry : map.entrySet()) {
 			String dsName = entry.getKey();
 			if (justSomeDs && !isContain(dsNameList, dsName)) continue; // 只执行部分DS

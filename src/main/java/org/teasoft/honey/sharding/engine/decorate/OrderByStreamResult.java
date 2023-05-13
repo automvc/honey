@@ -94,6 +94,7 @@ public class OrderByStreamResult<T> {
 		   }
 		}
 
+		if(onePageList==null) onePageList = new ArrayList<>(); //fixed bug
 		return onePageList;
 	}
 
