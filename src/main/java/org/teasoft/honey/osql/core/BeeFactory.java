@@ -44,7 +44,10 @@ public class BeeFactory extends BeeAbstractFactory {
 	public DataSource getDataSource() {
 		if (HoneyContext.isDsMapConfigRefresh()) {
 			Map<String, DataSource> map=ProcessDataSourceMap.refreshDataSourceMap();
-			if(map!=null && map.size()>0) setDataSourceMap(map);
+			if(map!=null && map.size()>0) {
+//				HoneyConfig.getHoneyConfig().dbName=null; //不需要,会重新解析的
+				setDataSourceMap(map);
+			}
 			HoneyContext.setDsMapConfigRefresh(false);
 		}
 

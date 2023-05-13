@@ -175,7 +175,7 @@ public class MongodbObjSQL extends AbstractCommOperate implements Suid {
 		HoneyContext.endSameConnection();
 	}
 	
-	private static <T> void checkPackage(T entity) {
+	private <T> void checkPackage(T entity) {
 		HoneyUtil.checkPackage(entity);
 	}
 	

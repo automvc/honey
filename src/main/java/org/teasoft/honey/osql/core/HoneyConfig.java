@@ -68,7 +68,7 @@ public final class HoneyConfig {
 				String msg="The value of bee.profiles.active is empty!";
 				Logger.error(msg,new ConfigWrongException(msg));
 			} else {
-				String fileName = "/bee-{active}.properties".replace("{active}", active);
+				String fileName = "bee-{active}.properties".replace("{active}", active);
 				beeActiveProp = new BeeActiveProp(fileName);
 				if(type==1) {//use the key in active override the main file.
 					SysValueProcessor.process(honeyConfig,beeActiveProp);

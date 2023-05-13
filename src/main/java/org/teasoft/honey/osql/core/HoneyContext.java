@@ -1119,6 +1119,11 @@ public final class HoneyContext {
 		HoneyContext.dsMapConfigRefresh = dsMapConfigRefresh;
 	}
 
+	/**
+	 * 涉及变更路由信息的,就要刷新.
+	 * if change the route info, need refresh.
+	 * @param configRefresh
+	 */
 	public static void setConfigRefresh(boolean configRefresh) {
 		HoneyContext.configRefresh = configRefresh;
 		HoneyConfig.setChangeDataSource(true); // 1.17
@@ -1142,7 +1147,7 @@ public final class HoneyContext {
 		}
 
 		setConfigRefresh(true);
-		setDsMapConfigRefresh(true);  //TODO ??  是否应该有数据源配置时,才设置更新??
+		setDsMapConfigRefresh(true);  //??  是否应该有数据源配置时,才设置更新??    解析时会先判断相关属性的
 	}
 
 	public static boolean getModifiedFlagForCache2(String tableName) {
@@ -1185,7 +1190,7 @@ public final class HoneyContext {
 	
 	//V2.1
 	public static void setDataSourceMap(Map<String, DataSource> dataSourceMap) {
-		BeeFactory.getInstance().setDataSourceMap(dataSourceMap);
+		BeeFactory.getInstance().setDataSourceMap(dataSourceMap); //这里设置,会重新设置dbName
 	}
 
 }

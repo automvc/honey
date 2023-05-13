@@ -20,7 +20,7 @@ public class JdbcToJavaType {
 	private static final String STRING = "String";
 	private static Map<String, Map<String, String>> dbJdbc2JavaTypeMap = new HashMap<>();
 	
-	private static PropertiesReader jdbcTypeCustomProp = new PropertiesReader("/jdbcTypeToFieldType.properties");
+	private static PropertiesReader jdbcTypeCustomProp = new PropertiesReader("jdbcTypeToFieldType.properties");
 	private static PropertiesReader jdbcTypeCustomProp_specificalDB = null;
 
 	private JdbcToJavaType() {}
@@ -71,7 +71,7 @@ public class JdbcToJavaType {
 			return;
 		}
 
-		String proFileName = "/jdbcTypeToFieldType-{DbName}.properties";
+		String proFileName = "jdbcTypeToFieldType-{DbName}.properties";
 
 		initJdbcTypeMap(dbName);
 		appendJdbcTypeCustomProp(dbName);

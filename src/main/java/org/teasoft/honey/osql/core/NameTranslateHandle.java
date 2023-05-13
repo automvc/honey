@@ -73,6 +73,7 @@ public class NameTranslateHandle {
 	 * @param columnHandler 列名命名转换处理器.column naming conversion handler
 	 */
 	public static void setColumnHandler(ColumnHandler columnHandler) {
+		HoneyContext.clearFieldNameCache();
 		NameTranslateHandle.columnHandler = columnHandler;
 	}
 	

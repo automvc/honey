@@ -18,7 +18,7 @@ public class BeeProp implements Properties{
 	private static BeeProp beeProp = null;
 
 	static {
-		beePropReader = new PropertiesReader("/bee.properties");
+		beePropReader = new PropertiesReader("bee.properties");
 		beeProp=new BeeProp();
 	}
 	

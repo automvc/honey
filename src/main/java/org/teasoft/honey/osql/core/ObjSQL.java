@@ -112,7 +112,7 @@ public class ObjSQL extends AbstractCommOperate implements Suid {
 		}
 	}
 	
-	private <T> String insertAndReturn(T entity) {
+	private <T> String _toInsertAndReturnSql(T entity) {
 		doBeforePasreEntity(entity,SuidType.INSERT);
 		_ObjectToSQLHelper.setInitIdByAuto(entity); // 更改了原来的对象  //这里会生成id,如果需要
 		String sql = getObjToSQL().toInsertSQL(entity); 
@@ -127,7 +127,7 @@ public class ObjSQL extends AbstractCommOperate implements Suid {
 		if (entity == null) return -1L;
 		checkGenPk(entity);
 		
-		String sql=insertAndReturn(entity);
+		String sql=_toInsertAndReturnSql(entity);
 
 		return _insertAndReturnId(entity, sql);
 	}

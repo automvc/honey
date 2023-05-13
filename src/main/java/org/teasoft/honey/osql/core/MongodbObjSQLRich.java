@@ -25,6 +25,7 @@ import org.teasoft.honey.sharding.config.ShardingRegistry;
 import org.teasoft.honey.sharding.engine.batch.ShardingBatchInsertEngine;
 import org.teasoft.honey.sharding.engine.batch.ShardingForkJoinBatchInsertEngine;
 import org.teasoft.honey.util.ObjectUtils;
+import org.teasoft.honey.util.StringUtils;
 import org.teasoft.honey.util.currency.CurrencyArithmetic;
 
 /**
@@ -175,13 +176,15 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 	
 	private <T> int _insert(T entity[], int batchSize, String excludeFields) {
 
+		HoneyUtil.setInitArrayIdByAuto(entity);
+		
 		int a = getMongodbBeeSql().insert(entity, batchSize, excludeFields);
 		
 		HoneyUtil.revertId(entity);
 		return a;
 	}
 	
-	private static String _toTableName(Object entity){
+	private String _toTableName(Object entity){
 		return NameTranslateHandle.toTableName(NameUtil.getClassFullName(entity));
 	}
 	
@@ -241,9 +244,10 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 		String rs = "";
 		if (FunctionType.AVG == functionType && ShardingUtil.hadSharding()
 				&& HoneyContext.getSqlIndexLocal() == null) { //avg sharding
-			String count = count(entity, condition) + "";
+			int count = count(entity, condition);
 			String sum = selectWithFun(entity, FunctionType.SUM, fieldForFun, condition);
-			rs = CurrencyArithmetic.divide(sum, count);
+			if(count==0 || StringUtils.isBlank(sum)) return ""; //fixed bug
+			rs = CurrencyArithmetic.divide(sum, count+"");
 		} else {
 			rs = getMongodbBeeSql().selectWithFun(entity, functionType, fieldForFun, condition);
 		}

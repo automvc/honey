@@ -86,7 +86,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 				} else if (jdbcStreamSelect && ! ShardingUtil.hadGroupSharding()) {
 					rsList = new ShardingSelectRsEngine().asynProcess(sql, entityClass, this); // 无结果集时,可能会报错   fixed V2.1
 				} else {
-					rsList = new ShardingSelectEngine().asynProcess(sql, entityClass, this); // 应该还要传suid类型
+					rsList = new ShardingSelectEngine().asynProcess(sql, entityClass, this); 
 				}
 //				addInCache(sql, rsList, "List<T>", SuidType.SELECT, rsList.size());  //缓存Key,是否包括了分片的DS,Tables
 				addInCache(sql, rsList, rsList.size()); // 缓存Key,是否包括了分片的DS,Tables
@@ -216,7 +216,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 					fun= ShardingAvgEngine.avgResultEngine(rsList);
 					clearContext(newSql);
 				} else {
-					fun = new ShardingSelectFunEngine().asynProcess(sql, this, entityClass); // 应该还要传suid类型
+					fun = new ShardingSelectFunEngine().asynProcess(sql, this, entityClass); 
 				}
 				
 //				addInCache(sql, fun,"String",SuidType.SELECT,1);
@@ -567,7 +567,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 				if (ShardingUtil.hadAvgSharding()) {
 					wrap= (JsonResultWrap) new ShardingGroupbyListStringArrayEngine().asynProcess(sql, this, entityClass,3);
 				} else  {
-					wrap = new ShardingSelectJsonEngine().asynProcess(sql, this,JsonType,entityClass); // 应该还要传suid类型
+					wrap = new ShardingSelectJsonEngine().asynProcess(sql, this,JsonType,entityClass); 
 				}
 				
 				logSelectRows(wrap.getRowCount());

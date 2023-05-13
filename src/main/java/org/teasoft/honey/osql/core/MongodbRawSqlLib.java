@@ -10,22 +10,16 @@ import java.util.Map;
 
 import org.teasoft.bee.mongodb.MongodbBeeSql;
 import org.teasoft.bee.mongodb.MongodbRawSql;
-import org.teasoft.bee.osql.NameTranslate;
 import org.teasoft.bee.osql.SuidType;
-import org.teasoft.bee.osql.interccept.InterceptorChain;
 
 /**
  * @author Kingstar
  * @since  2.1
  */
-public class MongodbRawSqlLib implements MongodbRawSql {
+public class MongodbRawSqlLib extends AbstractCommOperate implements MongodbRawSql {
 
 	private MongodbBeeSql mongodbBeeSql;
 	
-	private InterceptorChain interceptorChain;
-	private String dsName;// 用于设置当前对象使用的数据源名称
-	private NameTranslate nameTranslate; // 用于设置当前对象使用的命名转换器.使用默认的不需要设置
-
 	@Override
 	public <T> List<T> select(String commandStr, Class<T> returnTypeClass) {
 		doBeforePasreEntity(returnTypeClass, SuidType.SELECT);// returnType的值,虽然不用作占位参数的值,但可以用作拦截器的业务逻辑判断
@@ -49,7 +43,7 @@ public class MongodbRawSqlLib implements MongodbRawSql {
 	@Override
 	public int modify(String sql) {
 
-		doBeforePasreEntity();
+		doBeforePasreEntity2();
 		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("MongodbRawSql modify SQL: \n", sql);
 		int r = getMongodbBeeSql().modify(sql);
@@ -76,61 +70,16 @@ public class MongodbRawSqlLib implements MongodbRawSql {
 	public void setMongodbBeeSql(MongodbBeeSql mongodbBeeSql) {
 		this.mongodbBeeSql = mongodbBeeSql;
 	}
-
-	@Override
-	public InterceptorChain getInterceptorChain() {
-		if (interceptorChain == null) return BeeFactory.getHoneyFactory().getInterceptorChain();
-		return HoneyUtil.copy(interceptorChain);
-	}
-
-	public void setInterceptorChain(InterceptorChain interceptorChain) {
-		this.interceptorChain = interceptorChain;
-	}
-
-	@Override
-	public void setDataSourceName(String dsName) {
-		this.dsName = dsName;
-	}
-
-	@Override
-	public String getDataSourceName() {
-		return dsName;
-	}
-
-	@Override
-	public void setNameTranslate(NameTranslate nameTranslate) {
-		this.nameTranslate = nameTranslate;
-	}
-
+	
+	
 	private void doBeforePasreEntity() {
-		if (this.dsName != null) HoneyContext.setTempDS(dsName);
-		if (this.nameTranslate != null) HoneyContext.setCurrentNameTranslate(nameTranslate);
-		getInterceptorChain().beforePasreEntity(null, SuidType.SELECT);
+		Object entity=null;
+		super.doBeforePasreEntity(entity, SuidType.SELECT);
 	}
-
-	private void doBeforePasreEntity(Object entity, SuidType suidType) {// 都是select在用
-		if (this.dsName != null) HoneyContext.setTempDS(dsName);
-		if (this.nameTranslate != null) HoneyContext.setCurrentNameTranslate(nameTranslate);
-		getInterceptorChain().beforePasreEntity(entity, suidType);
-	}
-
-	private String doAfterCompleteSql(String sql) {
-		// if change the sql,need update the context.
-		sql = getInterceptorChain().afterCompleteSql(sql);
-		return sql;
-	}
-
-	@SuppressWarnings("rawtypes")
-	private void doBeforeReturn(List list) {
-		if (this.dsName != null) HoneyContext.removeTempDS();
-		if (this.nameTranslate != null) HoneyContext.removeCurrentNameTranslate();
-		getInterceptorChain().beforeReturn(list);
-	}
-
-	private void doBeforeReturn() {
-		if (this.dsName != null) HoneyContext.removeTempDS();
-		if (this.nameTranslate != null) HoneyContext.removeCurrentNameTranslate();
-		getInterceptorChain().beforeReturn();
+	
+	private void doBeforePasreEntity2() {
+		Object entity=null;
+		super.doBeforePasreEntity(entity, SuidType.MODIFY);
 	}
 
 }

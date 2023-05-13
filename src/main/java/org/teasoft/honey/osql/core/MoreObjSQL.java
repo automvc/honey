@@ -12,24 +12,18 @@ import org.teasoft.bee.osql.BeeSql;
 import org.teasoft.bee.osql.Condition;
 import org.teasoft.bee.osql.MoreObjToSQL;
 import org.teasoft.bee.osql.MoreTable;
-import org.teasoft.bee.osql.NameTranslate;
 import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.exception.BeeIllegalParameterException;
-import org.teasoft.bee.osql.interccept.InterceptorChain;
 
 /**
  * 多表查询,MoreTable实现类.Multi table query, moretable implementation class.
  * @author Kingstar
  * @since  1.7
  */
-public class MoreObjSQL implements MoreTable{
+public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 
 	private BeeSql beeSql;
 	private MoreObjToSQL moreObjToSQL;
-	//V1.11
-	private InterceptorChain interceptorChain;
-	private String dsName;
-	private NameTranslate nameTranslate; //用于设置当前对象使用的命名转换器.使用默认的不需要设置
 	
 	private static final String SELECT_SQL = "select SQL: ";
 
@@ -72,38 +66,17 @@ public class MoreObjSQL implements MoreTable{
 		return list;
 	}
 	
-	private void regCondition(Condition condition) {
-		HoneyContext.setConditionLocal(condition);
-	}
-	
 	@Override
 	public MoreObjSQL setDynamicParameter(String para, String value) {
 		OneTimeParameter.setAttribute(para, value);
 		return this;
 	}
-
+	
 	private void doBeforePasreEntity(Object entity) {
-		if (this.dsName != null) HoneyContext.setTempDS(dsName);
-		if(this.nameTranslate!=null) HoneyContext.setCurrentNameTranslate(nameTranslate);
-		getInterceptorChain().beforePasreEntity(entity, SuidType.SELECT);
+		super.doBeforePasreEntity(entity, SuidType.SELECT);
 		OneTimeParameter.setAttribute(StringConst.InterceptorChainForMoreTable, getInterceptorChain());//用于子表
 	}
 
-	private String doAfterCompleteSql(String sql) {
-		sql = getInterceptorChain().afterCompleteSql(sql);
-		return sql;
-	}
-
-	@SuppressWarnings("rawtypes")
-	private void doBeforeReturn(List list) {
-		if (this.dsName != null) HoneyContext.removeTempDS();
-		if(this.nameTranslate!=null) HoneyContext.removeCurrentNameTranslate();
-		getInterceptorChain().beforeReturn(list);
-	}
-	
-	
-	
-	
 	public BeeSql getBeeSql() {
 		if(this.beeSql==null) beeSql = BeeFactory.getHoneyFactory().getBeeSql();
 		return beeSql;
@@ -120,31 +93,6 @@ public class MoreObjSQL implements MoreTable{
 
 	public void setMoreObjToSQL(MoreObjToSQL moreObjToSQL) {
 		this.moreObjToSQL = moreObjToSQL;
-	}
-	
-	@Override
-	public void setNameTranslate(NameTranslate nameTranslate) {
-		this.nameTranslate=nameTranslate;
-	}
-	
-	@Override
-	public InterceptorChain getInterceptorChain() {
-		if (interceptorChain == null) return BeeFactory.getHoneyFactory().getInterceptorChain();
-		return HoneyUtil.copy(interceptorChain);
-	}
-
-	public void setInterceptorChain(InterceptorChain interceptorChain) {
-		this.interceptorChain = interceptorChain;
-	}
-	
-	@Override
-	public void setDataSourceName(String dsName) {
-		this.dsName=dsName;
-	}
-
-	@Override
-	public String getDataSourceName() {
-		return dsName;
 	}
 
 }
