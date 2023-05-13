@@ -60,7 +60,7 @@ public class ColumnUtil {
 	
 	private static boolean isKey(String col,Map<String, String> primaryKeyMap) {
         if(primaryKeyMap==null || col==null) return false;
-		return primaryKeyMap.get(col)!=null? true: false;
+		return primaryKeyMap.get(col)!=null;
 	}
 
 }

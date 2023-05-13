@@ -21,7 +21,7 @@ public final class Router {
 	private static Route route = null;
 
 	private static volatile int multiDsType;
-	private static String defaultDs;
+	private static volatile String defaultDs;
 
 	static {
 		init();
@@ -64,7 +64,7 @@ public final class Router {
 		dsName =HoneyContext.getTempDS(); //for Suid.setDataSourceName(String dsName) and so on
 		if (dsName != null) return dsName;
 		
-		if (route == null) return defaultDs;
+		if (route == null) return defaultDs;  //到这里,要是没配置有默认ds,就会返回null
 
 		return route.getDsName();
 	}

@@ -23,8 +23,9 @@ import org.teasoft.honey.osql.shortcut.BF;
  */
 public class Ddl {
 
-	private static PreparedSql preparedSql = BeeFactoryHelper.getPreparedSql();
-	private static SuidRich suidRich = BF.getSuidRich();
+	//多种数据库时,static变量,不能改变.
+//	private static PreparedSql preparedSql = BeeFactoryHelper.getPreparedSql();
+//	private static SuidRich suidRich = BF.getSuidRich();
 
 	private Ddl() {}
 	
@@ -44,6 +45,7 @@ public class Ddl {
 	 * @since 2.0
 	 */
 	public static <T> boolean createTable(Class<T> entityClass, boolean isDropExistTable) {
+		SuidRich suidRich = BF.getSuidRich();
 		return suidRich.createTable(entityClass, isDropExistTable);
 		
 	}
@@ -70,6 +72,7 @@ public class Ddl {
 	 */
 	public static <T> boolean createTable(T entity, boolean isDropExistTable) {
 		if (isDropExistTable) {
+			PreparedSql preparedSql = BeeFactoryHelper.getPreparedSql();
 			String tableName = _toTableName(entity);
 			boolean second = false;
 			try {
@@ -109,6 +112,7 @@ public class Ddl {
 	public static <T> boolean isExistTable(T entity) {
 		boolean flag = false;
 		try {
+			SuidRich suidRich = BF.getSuidRich();
 			suidRich.select(entity, 1);
 			flag = true;
 			String tableName = _toTableName(entity);
@@ -137,6 +141,7 @@ public class Ddl {
 		// V1.11 创建语句的可执行语句与占位的是一样的,无需要重复输出.
 		boolean old = HoneyConfig.getHoneyConfig().showSql_showExecutableSql;
 		if (old) HoneyConfig.getHoneyConfig().showSql_showExecutableSql = false;
+		PreparedSql preparedSql = BeeFactoryHelper.getPreparedSql();
 		preparedSql.modify(sql);
 		if (old) HoneyConfig.getHoneyConfig().showSql_showExecutableSql = old;
 	}
@@ -166,6 +171,7 @@ public class Ddl {
 	 * @param indexName  index name
 	 */
 	public static <T> void indexNormal(Class<T> entityClass, String fields, String indexName) {
+		SuidRich suidRich = BF.getSuidRich();
 		suidRich.indexNormal(entityClass, fields, indexName);
 	}
 
@@ -185,6 +191,7 @@ public class Ddl {
 	 * @param indexName  index name
 	 */
 	public static <T> void unique(Class<T> entityClass, String fields, String indexName) {
+		SuidRich suidRich = BF.getSuidRich();
 		suidRich.unique(entityClass, fields,indexName);
 	}
 
@@ -202,7 +209,7 @@ public class Ddl {
         
 //		String primaryKeySql=DdlToSql.toPrimaryKeySql(entityClass, fields, keyName);
 //		ddlModify(primaryKeySql);
-		
+		SuidRich suidRich = BF.getSuidRich();
 		suidRich.primaryKey(entityClass, fields, keyName);
 	}
 }
