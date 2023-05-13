@@ -112,7 +112,7 @@ public class ShardingForkJoinBatchInsertEngine<T> {
  */
 	private class ShardingRecursiveBatchInsert extends RecursiveTask<Integer> {
 
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 12345602L;
 
 	private int start;
 	private int end;

@@ -160,7 +160,7 @@ public class ShardingGroupbyListStringArrayEngine {
 	}
 		
 	@SuppressWarnings("rawtypes")
-	private static String _toFieldName(String columnName, Class entityClass) {
+	private String _toFieldName(String columnName, Class entityClass) {
 		return NameTranslateHandle.toFieldName(columnName, entityClass);
 	}
 

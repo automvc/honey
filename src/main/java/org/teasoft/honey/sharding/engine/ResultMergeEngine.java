@@ -70,7 +70,7 @@ public class ResultMergeEngine {
 			try {
 				Integer part = completionService.take().get();
 				if (part != null) r += part;
-			} catch (Exception e) {
+			} catch (Exception e) { //java.lang.NullPointerException
 				Logger.error(e.getMessage(), e);
 			}
 		}

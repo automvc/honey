@@ -17,7 +17,7 @@ import java.util.Set;
  */
 public class SetList<E> extends ArrayList<E>{
 
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 12345601L;
 
 	private Set<E> set;
 	

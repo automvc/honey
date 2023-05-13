@@ -52,7 +52,7 @@ public class CompareResult implements Comparable<CompareResult> {
 		}
 	}
 	
-	private static String _toColumnName(String fieldName) {
+	private String _toColumnName(String fieldName) {
 		return NameTranslateHandle.toColumnName(fieldName);
 	}
 

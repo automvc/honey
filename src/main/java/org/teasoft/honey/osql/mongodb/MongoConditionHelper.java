@@ -99,7 +99,7 @@ public class MongoConditionHelper {
 			} 
 			
 			if (GROUP_BY.equalsIgnoreCase(opType)) {
-				Logger.debug("------------------process in selectWithGroupBy...");
+//				Logger.debug("------------------process in selectWithGroupBy...");
 //				在 selectWithGroupBy 处理
 				continue;
 			}
