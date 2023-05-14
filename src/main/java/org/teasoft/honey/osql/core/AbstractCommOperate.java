@@ -21,10 +21,10 @@ import org.teasoft.bee.osql.interccept.InterceptorChain;
 public class AbstractCommOperate implements CommOperate{
 	
 	//V1.11
-	//全局的可以使用InterceptorChainRegistry配置;只是某个对象要使用,再使用对象配置
+	//全局的可以使用InterceptorChainRegistry配置;只是某个对象要使用,才使用对象配置
 	protected InterceptorChain interceptorChain;
 	protected String dsName;
-	protected NameTranslate nameTranslate; //用于设置当前对象使用的命名转换器.使用默认的不需要设置
+	protected NameTranslate nameTranslate; //用于设置当前对象使用的命名转换器(每次设置只使用一次即失效).使用默认的不需要设置
 	
 	public AbstractCommOperate() {
 	}
@@ -44,9 +44,10 @@ public class AbstractCommOperate implements CommOperate{
 	}
 	
 	@Override
-	public void setNameTranslate(NameTranslate nameTranslate) {
+	public void setNameTranslateOneTime(NameTranslate nameTranslate) {
 		this.nameTranslate=nameTranslate;
-		if(this.nameTranslate!=null) HoneyContext.setCurrentNameTranslate(nameTranslate);  //enhance V2.1
+//		V2.1.5.1 bug.   设置了,就放上下文,即使只用一次,但设置了不用,   别的对象,即使不是Suid同种类型,也会拿到上下文中的NameTranslate
+//		if (this.nameTranslate != null) HoneyContext.setCurrentNameTranslate(nameTranslate); // enhance V2.1
 	}
 
 	@Override
@@ -66,10 +67,8 @@ public class AbstractCommOperate implements CommOperate{
 	
 	void _doBeforePasreEntity(SuidType SuidType) {
 		if (SuidType != null) regSuidType(SuidType);
-		if (this.dsName != null) {
-			HoneyContext.setTempDS(dsName);
-		}
-//		if(this.nameTranslate!=null) HoneyContext.setCurrentNameTranslate(nameTranslate);
+		if (this.nameTranslate != null) HoneyContext.setCurrentNameTranslate(nameTranslate); // enhance V2.1
+		if (this.dsName != null) HoneyContext.setTempDS(dsName);
 	}
 
 	protected void doBeforePasreEntity(Object entity, SuidType SuidType) {

@@ -531,6 +531,7 @@ public final class HoneyContext {
 	}
 
 	public static void setCurrentNameTranslate(NameTranslate nameTranslate) {
+		HoneyContext.clearFieldNameCache();
 		currentNameTranslate.set(nameTranslate);
 	}
 
