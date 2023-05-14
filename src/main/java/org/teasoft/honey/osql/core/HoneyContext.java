@@ -61,7 +61,8 @@ public final class HoneyContext {
 
 	private static ThreadLocal<Connection> currentConnection; // 当前事务的Conn
 
-	private static ThreadLocal<List<Connection>> conneForSelectRs;
+//	private static ThreadLocal<List<Connection>> conneForSelectRs;
+	private static ConcurrentMap<String, Connection> conneForSelectRs;
 
 	private static ThreadLocal<Object> currentAppDB; // V1.17
 
@@ -128,9 +129,13 @@ public final class HoneyContext {
 
 		currentConnection = new ThreadLocal<>();
 
-		conneForSelectRs = new InheritableThreadLocal<>();
-		conneForSelectRs.set(new CopyOnWriteArrayList<Connection>()); // 一开始就要设值,在主线程才能处理子线程加入的元素
-
+//		conneForSelectRs = new InheritableThreadLocal<>();
+//		synchronized (HoneyContext.class) {
+//			conneForSelectRs = new InheritableThreadLocal<>();
+//			conneForSelectRs.set(new CopyOnWriteArrayList<Connection>()); // 一开始就要设值,在主线程才能处理子线程加入的元素
+//		}
+		conneForSelectRs=new ConcurrentHashMap<>();
+		
 		currentAppDB = new ThreadLocal<>();
 		currentNameTranslate = new ThreadLocal<>();
 
@@ -471,33 +476,26 @@ public final class HoneyContext {
 		currentConnection.remove();
 	}
 
-	public static void regConnForSelectRs(Connection conn) {
-		List<Connection> list = conneForSelectRs.get();
-		if(list==null) {
-			  conneForSelectRs = new InheritableThreadLocal<>();
-			  list=new CopyOnWriteArrayList<Connection>();
-		}
-		list.add(conn);
-		conneForSelectRs.set(list);
-//		Logger.info("the regConnectionForSelectRs, " + list.size());
-//		Logger.info("the regConnectionForSelectRs , hashcode: " + conn.hashCode());
+	public synchronized static void regConnForSelectRs(Connection conn) {
+		String threadFlag=HoneyContext.getSysCommStrLocal(StringConst.ShardingSelectRs_ThreadFlag);
+		Integer subThreadIndex = HoneyContext.getSqlIndexLocal();
+		String key=threadFlag+subThreadIndex;
+//		Logger.debug("-------------set ----Conns------------"+key);
+		conneForSelectRs.put(key, conn);
 	}
 
-	public static void clearConnForSelectRs() {
-//		Logger.info("the clearConnectionForSelectRs. ");
-		List<Connection> list = conneForSelectRs.get();
-		if (list != null) {
-			for (Connection conn : list) {
-				try {
-					if (conn != null) conn.close();
-				} catch (SQLException e) {
-					Logger.warn(e.getMessage(), e);
-					throw ExceptionHelper.convert(e);
-				}
+	public synchronized static void clearConnForSelectRs(String key) {
+		Connection conn=conneForSelectRs.get(key);
+		if(conn!=null) {
+			try {
+//				Logger.debug("-------------close ----Conns------------"+key);
+				conn.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}finally {
+				conneForSelectRs.remove(key);
 			}
-			list.clear();
 		}
-		conneForSelectRs.remove();
 	}
 
 	// V1.17

@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Queue;
+import java.util.Random;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutorCompletionService;
@@ -19,11 +20,13 @@ import java.util.concurrent.Executors;
 
 import org.teasoft.bee.osql.BeeSql;
 import org.teasoft.bee.sharding.ShardingSortStruct;
+import org.teasoft.honey.distribution.GenIdFactory;
 import org.teasoft.honey.osql.core.HoneyContext;
 import org.teasoft.honey.osql.core.Logger;
 import org.teasoft.honey.osql.core.OrderByPagingRewriteSql;
 import org.teasoft.honey.osql.core.ShardingLogReg;
 import org.teasoft.honey.osql.core.ShardingSortReg;
+import org.teasoft.honey.osql.core.StringConst;
 import org.teasoft.honey.sharding.ShardingUtil;
 import org.teasoft.honey.sharding.engine.decorate.CompareResult;
 import org.teasoft.honey.sharding.engine.decorate.OrderByStreamResult;
@@ -53,6 +56,10 @@ public class ShardingSelectRsEngine {
 		ExecutorService executor = Executors.newCachedThreadPool(); 
 		CompletionService<ResultSet> completionService = new ExecutorCompletionService<>(executor);
 		final List<Callable<ResultSet>> tasks = new ArrayList<>(); 
+		
+		//fixed bug
+		String threadFlag=getSelectRsThreadFlag();
+		ShardingUtil.regSelectRsThreadFlag(threadFlag);
 
 		for (int i = 0; sqls != null && i < sqls.length; i++) {
 			tasks.add(new ShardingBeeSQLExecutorEngine<T>(sqls[i], i + 1, beeSql, dsArray[i])); //获取RS
@@ -65,7 +72,7 @@ public class ShardingSelectRsEngine {
 		for (int i = 0; tasks != null && i < size; i++) {
 			completionService.submit(tasks.get(i));
 		}
-
+		
 		//Result Merge
 		ShardingSortStruct struct =null;
 		Queue<CompareResult> queue= new PriorityQueue<>(size);
@@ -86,7 +93,9 @@ public class ShardingSelectRsEngine {
 		//放入优先队列后,就转换出需要的数据.   要传入需要多少数据? 在内部处理.   有取中间几条的吗? 有
 		List<T> rsList =new OrderByStreamResult<>(queue,entityClass).getOnePageList();
 		
-		HoneyContext.clearConnForSelectRs();
+		for (int i = 0; i < size; i++) { // fixed bug
+			HoneyContext.clearConnForSelectRs(threadFlag + (i + 1));
+		}
 		
 		return rsList;
 	}
@@ -101,6 +110,13 @@ public class ShardingSelectRsEngine {
 			ShardingLogReg.regShardingSqlLog("select SQL", index, sql);
 			return beeSql.selectRs(this.sql);
 		}
+	}
+	
+	private String getSelectRsThreadFlag() {
+		long gid=GenIdFactory.get(StringConst.ShardingSelectRs_ThreadFlag, GenIdFactory.GenType_OneTimeSnowflakeId);
+		Random r = new Random();
+		String threadFlag=gid+""+r.nextDouble();
+		return threadFlag;
 	}
 
 }

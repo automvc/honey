@@ -92,6 +92,10 @@ public class ShardingUtil {
 		return HoneyContext.isTrueInSysCommStrLocal(key);
 	}
 	
+	public static void regSelectRsThreadFlag(String threadFlag) {
+		HoneyContext.setSysCommStrLocal(StringConst.ShardingSelectRs_ThreadFlag, threadFlag);
+	}
+	
 	public static boolean isShardingBatchInsertDoing() {
 		return isTrueInSysCommStrLocal(StringConst.ShardingBatchInsertDoing);
 	}

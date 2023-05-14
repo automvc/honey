@@ -78,6 +78,8 @@ public final class StringConst {
 	public static final String  Get_GroupFunStruct=PREFIX+"Get_GroupFunStruct";
 	public static final String  Return_GroupFunStruct=PREFIX+"Return_GroupFunStruct";
 	
+	public static final String  ShardingSelectRs_ThreadFlag=PREFIX+"ShardingSelectRs_ThreadID";
+	
 	//MongoDB
 	public static final String  GridFs_FileId=PREFIX+"GridFs_FileId";
 	public static final String  GridFs_FileName=PREFIX+"GridFs_FileName";

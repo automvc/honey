@@ -67,7 +67,7 @@ public class GenIdFactory {
 	/**
 	 * 
 	 * @param bizType bizType作为隔离的命名空间.bizType as namespace.
-	 * @param genType The value is one of "SerialUniqueId","OneTimeSnowflakeId" or "PearFlowerId".
+	 * @param genType The value is one of "SerialUniqueId","OneTimeSnowflakeId","PearFlowerId" or "IntSerialIdReturnLong".
 	 * @return long id num.
 	 */
 	public static long get(String bizType, String genType) {

@@ -36,7 +36,7 @@ public class OrderByStreamResult<T> {
 	public List<T> getOnePageList() {
 		List<T> onePageList = null;
 		ShardingPageStruct shardingPage = HoneyContext.getCurrentShardingPage();
-		if (shardingPage != null) {
+		if (this.orderByValuesQueue != null && shardingPage != null) {
 			int type = shardingPage.getPagingType();
 //			if (type == 2 || type == 3) {
 			if (type != 1) {
@@ -56,7 +56,7 @@ public class OrderByStreamResult<T> {
 
 				for (int i = 0; i < from; i++) { // skip
 					CompareResult cr = orderByValuesQueue.poll();
-					if (cr.hasNext()) orderByValuesQueue
+					if (cr != null && cr.hasNext()) orderByValuesQueue
 							.offer(new CompareResult(cr.getResultSet(), cr.getStruct()));
 				}
 
