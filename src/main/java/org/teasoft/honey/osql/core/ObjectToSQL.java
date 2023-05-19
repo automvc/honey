@@ -6,8 +6,8 @@
 
 package org.teasoft.honey.osql.core;
 
-import org.teasoft.bee.osql.Condition;
 import org.teasoft.bee.osql.ObjToSQL;
+import org.teasoft.bee.osql.api.Condition;
 
 /**
  * 对象到SQL的转换(对应Suid).Object to SQL string for Suid. <br>

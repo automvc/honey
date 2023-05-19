@@ -9,10 +9,10 @@ package org.teasoft.honey.osql.core;
 import java.util.List;
 
 import org.teasoft.bee.osql.BeeSql;
-import org.teasoft.bee.osql.Condition;
 import org.teasoft.bee.osql.ObjToSQL;
-import org.teasoft.bee.osql.Suid;
 import org.teasoft.bee.osql.SuidType;
+import org.teasoft.bee.osql.api.Condition;
+import org.teasoft.bee.osql.api.Suid;
 import org.teasoft.bee.osql.exception.NotSupportedException;
 
 /**

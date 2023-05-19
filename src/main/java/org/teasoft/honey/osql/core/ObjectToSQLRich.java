@@ -10,7 +10,6 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.teasoft.bee.osql.Condition;
 import org.teasoft.bee.osql.FunctionType;
 import org.teasoft.bee.osql.IncludeType;
 import org.teasoft.bee.osql.ObjSQLException;
@@ -20,6 +19,7 @@ import org.teasoft.bee.osql.OrderType;
 import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.annotation.GenId;
 import org.teasoft.bee.osql.annotation.GenUUID;
+import org.teasoft.bee.osql.api.Condition;
 import org.teasoft.bee.osql.dialect.DbFeature;
 import org.teasoft.bee.osql.exception.BeeIllegalEntityException;
 import org.teasoft.honey.distribution.GenIdFactory;

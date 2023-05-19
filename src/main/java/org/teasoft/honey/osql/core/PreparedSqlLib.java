@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.teasoft.bee.osql.BeeSql;
-import org.teasoft.bee.osql.PreparedSql;
 import org.teasoft.bee.osql.SuidType;
+import org.teasoft.bee.osql.api.PreparedSql;
 import org.teasoft.bee.osql.dialect.DbFeature;
 import org.teasoft.bee.osql.exception.BeeIllegalParameterException;
 import org.teasoft.bee.osql.exception.SqlNullException;
