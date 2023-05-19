@@ -13,9 +13,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
-import org.teasoft.bee.osql.Condition;
 import org.teasoft.bee.osql.Op;
 import org.teasoft.bee.osql.SuidType;
+import org.teasoft.bee.osql.api.Condition;
 import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
 import org.teasoft.bee.osql.exception.BeeIllegalSQLException;
 import org.teasoft.honey.osql.core.ConditionImpl;

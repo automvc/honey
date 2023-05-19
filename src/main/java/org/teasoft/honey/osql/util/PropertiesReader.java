@@ -28,7 +28,9 @@ public class PropertiesReader {
 			in = PropertiesReader.class.getResourceAsStream(fileName);
 			prop.load(in);
 		} catch (IOException | NullPointerException e) {
-			Logger.warn("  In PropertiesReader not found the file :"+fileName+" .  exception message:" + e.getMessage());
+			Logger.debug("  In PropertiesReader not found the file :"+fileName+" .  exception message:" + e.getMessage());
+			if("bee.properties".equals(fileName)) 
+				Logger.debug("Since V1.17 the jar of honey donot contain bee.properties file, if you donot create a new one , can ignore this message!");
 		    //不需要抛出异常,适合有则执行,没有则忽略的情况.
 		} finally {
 			closeStream(in);
