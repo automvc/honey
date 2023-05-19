@@ -12,6 +12,6 @@ import org.teasoft.honey.sharding.HintManager;
  * @author Kingstar
  * @since  2.0
  */
-public class HM extends HintManager{
+public class HM extends HintManager {
 
 }
