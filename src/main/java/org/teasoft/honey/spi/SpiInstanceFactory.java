@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 the original author.All rights reserved.
+ * Copyright 2016-2023 the original author.All rights reserved.
  * Kingstar(honeysoft@126.com)
  * The license,see the LICENSE file.
  */
@@ -15,32 +15,47 @@ import org.teasoft.honey.osql.core.Logger;
  */
 public class SpiInstanceFactory {
 
-//	@SuppressWarnings("deprecation")
+	private static boolean DONE = false;
+
+	//change in V2.1
 	public static JsonTransform getJsonTransform() {
 
 		JsonTransform jsonTransform = SpiInstanceRegister.getInstance(JsonTransform.class);
 		try {
-//			if (jsonTransform == null) jsonTransform = (JsonTransform) Class
-//					.forName("org.teasoft.beex.spi.JsonTransformDefault").newInstance();
-
-//			if (jsonTransform == null) jsonTransform = (JsonTransform) Class
-//					.forName("org.teasoft.beex.spi.FastJsonTransform").newInstance();
-
 			try {
 				// 1.jackson
-				if (jsonTransform == null)
-					jsonTransform = (JsonTransform) Class.forName("org.teasoft.beex.spi.JsonTransformDefault")
+				if (jsonTransform == null) {
+					Class.forName("com.fasterxml.jackson.databind.ObjectMapper");
+					if (!DONE) {
+						DONE = true;
+						Logger.info("Use the json jar is com.fasterxml.jackson!");
+					}
+					jsonTransform = (JsonTransform) Class
+							.forName("org.teasoft.beex.spi.JsonTransformDefault")
 							.getDeclaredConstructor().newInstance();
+				}
 			} catch (Exception e) {
 				Logger.debug(e.getMessage(), e);
 			}
-			// 2.fastjson
-			if (jsonTransform == null)
-				jsonTransform = (JsonTransform) Class.forName("org.teasoft.beex.spi.FastJsonTransform")
-						.getDeclaredConstructor().newInstance();
-			
+
+			try {
+				// 2.fastjson  V2.1
+				if (jsonTransform == null) {
+					Class.forName("com.alibaba.fastjson.JSON");
+					if (!DONE) {
+						DONE = true;
+						Logger.info("Use the json jar is com.alibaba.fastjson!");
+					}
+					jsonTransform = (JsonTransform) Class
+							.forName("org.teasoft.beex.spi.FastJsonTransform")
+							.getDeclaredConstructor().newInstance();
+				}
+			} catch (Exception e) {
+				Logger.debug(e.getMessage(), e);
+			}
+
 			if (jsonTransform == null) {
-				Logger.warn("Can not find any json jar !");
+				Logger.error("Can not find any json jar !");
 			}
 
 		} catch (Exception e) {

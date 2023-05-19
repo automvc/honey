@@ -224,7 +224,7 @@ public final class SuidHelper {
 					toList.add(t);
 				}
 			} catch (Exception e) {
-				e.printStackTrace();
+				Logger.warn(e.getMessage(),e);
 			}
 		}
 
