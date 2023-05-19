@@ -15,9 +15,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.teasoft.bee.osql.Condition;
 import org.teasoft.bee.osql.Op;
 import org.teasoft.bee.osql.SuidType;
+import org.teasoft.bee.osql.api.Condition;
 import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
 import org.teasoft.bee.osql.exception.ShardingErrorException;
 import org.teasoft.bee.sharding.DsTabStruct;
@@ -56,7 +56,7 @@ public class ShardingInterceptor extends EmptyInterceptor {
 	private boolean getShowShardingSQL() {
 		return HoneyConfig.getHoneyConfig().showSQL && HoneyConfig.getHoneyConfig().showShardingSQL;
 	}
-
+	
 	@Override
 	public Object beforePasreEntity(Object entity, SuidType suidType) {
 		boolean isSharding = ShardingUtil.isSharding();
@@ -185,7 +185,7 @@ public class ShardingInterceptor extends EmptyInterceptor {
 				// 设置sharding Value
 				shardingBean = ShardingRegistry.getShardingBean(entity.getClass());
 				if(shardingBean ==null) {
-					shardingBean = ShardingRegistry.getShardingBean(NameTranslateHandle.toTableName(NameUtil.getClassFullName(entity)));
+					shardingBean = ShardingRegistry.getShardingBean(_toTableName((entity)));
 				}
 
 				// 以下要检测,是会路由到一库一表,再处理; 否则,只解析出ds,tab记录到缓存,就返回.
@@ -406,10 +406,9 @@ public class ShardingInterceptor extends EmptyInterceptor {
 			// 若是下标有值,都转成具体的表名. sharding只返回Ds和Tab   下标也要返回,更方便生成新sql
 			//不要这个是否可以??     有时只转出了下标,就需要处理.
 			if (tabSuffixList.size() > 1 && tabNameList.size() < 1) {
-				String tableName = _toTableName(entity);
+				String tableName = _toTableName(entity);  //TODO 这里表名还分隔符,是否会有影响?
 				for (int i = 0; i < tabSuffixList.size(); i++) {
-					String tab = tableName.replace(StringConst.ShardingTableIndexStr,
-							tabSuffixList.get(i));
+					String tab = tableName.replace(StringConst.ShardingTableIndexStr, tabSuffixList.get(i));
 					tabNameList.add(tab);
 					tab2DsMap.put(tab, tab2DsMap.get(tabSuffixList.get(i)));
 				}
@@ -642,6 +641,7 @@ public class ShardingInterceptor extends EmptyInterceptor {
 				&& StringUtils.isBlank(dsTabStruct.getTabName())) {
 //			dsTabStruct.setTabName(_toTableName(entity) + dsTabStruct.getTabSuffix());
 			tabName=_toTableName(entity) + dsTabStruct.getTabSuffix();
+//			tabName=_toTableName(entity) +"_"+ dsTabStruct.getTabSuffix(); //tabsep
 			dsTabStruct.setTabName(tabName); //2022-09-23
 		}
 
@@ -658,10 +658,6 @@ public class ShardingInterceptor extends EmptyInterceptor {
 		}
 	}
 	
-	private String _toTableName(Object entity) {
-		return NameTranslateHandle.toTableName(NameUtil.getClassFullName(entity));
-	}
-
 	private void setValeueForSharding(DsTabStruct dsTabStruct, List<String> dsNameList,
 			List<String> tabNameList, List<String> tabSuffixList, Map<String, String> tab2DsMap) {
 
@@ -776,6 +772,21 @@ public class ShardingInterceptor extends EmptyInterceptor {
 	//2.0
 	private void clearContext() {
 		ShardingReg.clearContext();
+	}
+	
+	
+	private String _toTableName(Object entity) {
+		if (entity instanceof Class) return _toTableNameByClass((Class) entity); // fixed bug 2.1
+		if (entity instanceof String) return _toTableName2((String) entity);// fixed bug 2.1
+		return NameTranslateHandle.toTableName(NameUtil.getClassFullName(entity));
+	}
+	
+	private String _toTableName2(String entityName) {
+		return NameTranslateHandle.toTableName(entityName);
+	}
+	
+	private String _toTableNameByClass(Class c) {
+		return NameTranslateHandle.toTableName(c.getName());
 	}
 
 }
