@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveTask;
 
-import org.teasoft.bee.osql.SuidRich;
+import org.teasoft.bee.osql.api.SuidRich;
 import org.teasoft.honey.osql.core.HoneyContext;
 import org.teasoft.honey.osql.core.ShardingLogReg;
 import org.teasoft.honey.osql.core.StringConst;

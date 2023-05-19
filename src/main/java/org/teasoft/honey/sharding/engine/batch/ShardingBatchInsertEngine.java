@@ -17,7 +17,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.teasoft.bee.osql.Serializer;
-import org.teasoft.bee.osql.SuidRich;
+import org.teasoft.bee.osql.api.SuidRich;
 import org.teasoft.honey.osql.core.HoneyContext;
 import org.teasoft.honey.osql.core.JdkSerializer;
 import org.teasoft.honey.osql.core.Logger;

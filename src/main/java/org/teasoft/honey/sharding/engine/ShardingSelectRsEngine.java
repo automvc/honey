@@ -114,8 +114,7 @@ public class ShardingSelectRsEngine {
 	
 	private String getSelectRsThreadFlag() {
 		long gid=GenIdFactory.get(StringConst.ShardingSelectRs_ThreadFlag, GenIdFactory.GenType_OneTimeSnowflakeId);
-		Random r = new Random();
-		String threadFlag=gid+""+r.nextDouble();
+		String threadFlag=gid+""+new Random().nextDouble();
 		return threadFlag;
 	}
 
