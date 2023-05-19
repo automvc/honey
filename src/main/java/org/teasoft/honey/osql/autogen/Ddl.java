@@ -6,8 +6,8 @@
 
 package org.teasoft.honey.osql.autogen;
 
-import org.teasoft.bee.osql.PreparedSql;
-import org.teasoft.bee.osql.SuidRich;
+import org.teasoft.bee.osql.api.PreparedSql;
+import org.teasoft.bee.osql.api.SuidRich;
 import org.teasoft.honey.osql.core.BeeFactoryHelper;
 import org.teasoft.honey.osql.core.HoneyConfig;
 import org.teasoft.honey.osql.core.HoneyUtil;

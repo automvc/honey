@@ -21,7 +21,7 @@ public final class Router {
 	private static Route route = null;
 
 	private static volatile int multiDsType;
-	private static volatile String defaultDs;
+	private static String defaultDs;
 
 	static {
 		init();
