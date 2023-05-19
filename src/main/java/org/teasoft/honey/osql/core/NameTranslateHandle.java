@@ -114,6 +114,12 @@ public class NameTranslateHandle {
 	
 	
 	public static String toTableName(String entityName) {
+		
+		if ("java.lang.String".equals(entityName) || "java.lang.Class".equals(entityName)
+		 || "java.lang.Object".equals(entityName)) { // 2.1 fixed bug
+			throw new BeeIllegalParameterException(entityName + " is a wrong entity name.");
+		}
+		
 		String tableName = _toTableName(entityName);
 		
 		if (ShardingUtil.isSharding() && ShardingRegistry.isBroadcastTab(tableName))
@@ -121,6 +127,7 @@ public class NameTranslateHandle {
 		
 		if(ShardingUtil.hadSharding()) {
 			return tableName+StringConst.ShardingTableIndexStr;
+//			return tableName +"_"+ StringConst.ShardingTableIndexStr;
 		}
 		
 		if (tableName.indexOf('.') == -1) {
