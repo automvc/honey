@@ -9,10 +9,10 @@ package org.teasoft.honey.osql.core;
 import java.util.List;
 
 import org.teasoft.bee.osql.BeeSql;
-import org.teasoft.bee.osql.Condition;
 import org.teasoft.bee.osql.MoreObjToSQL;
-import org.teasoft.bee.osql.MoreTable;
 import org.teasoft.bee.osql.SuidType;
+import org.teasoft.bee.osql.api.Condition;
+import org.teasoft.bee.osql.api.MoreTable;
 import org.teasoft.bee.osql.exception.BeeIllegalParameterException;
 
 /**

@@ -10,13 +10,13 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 
-import org.teasoft.bee.osql.Condition;
 import org.teasoft.bee.osql.FunctionType;
 import org.teasoft.bee.osql.IncludeType;
 import org.teasoft.bee.osql.ObjSQLException;
 import org.teasoft.bee.osql.OrderType;
-import org.teasoft.bee.osql.SuidRich;
 import org.teasoft.bee.osql.SuidType;
+import org.teasoft.bee.osql.api.Condition;
+import org.teasoft.bee.osql.api.SuidRich;
 import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
 import org.teasoft.bee.osql.exception.BeeIllegalParameterException;
 import org.teasoft.honey.osql.name.NameUtil;
@@ -35,7 +35,7 @@ import org.teasoft.honey.util.currency.CurrencyArithmetic;
  */
 public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serializable {
 
-	private static final long serialVersionUID = 1596710362258L;
+	private static final long serialVersionUID = 1596710362263L;
 	
 	private static final String ID_IS_NULL = "in method selectById,id is null! ";
     private static final String START_GREAT_EQ_0 = "Parameter 'start' need great equal 0!";

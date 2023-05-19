@@ -13,10 +13,10 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.sql.DataSource;
 
-import org.teasoft.bee.osql.Condition;
 import org.teasoft.bee.osql.FunctionType;
 import org.teasoft.bee.osql.NameTranslate;
 import org.teasoft.bee.osql.SuidType;
+import org.teasoft.bee.osql.api.Condition;
 import org.teasoft.bee.osql.exception.BeeIllegalParameterException;
 import org.teasoft.bee.osql.exception.ShardingErrorException;
 import org.teasoft.bee.sharding.GroupFunStruct;
@@ -491,7 +491,7 @@ public final class HoneyContext {
 //				Logger.debug("-------------close ----Conns------------"+key);
 				conn.close();
 			} catch (Exception e) {
-				e.printStackTrace();
+				Logger.debug(e.getMessage(),e);
 			}finally {
 				conneForSelectRs.remove(key);
 			}

@@ -9,9 +9,9 @@ package org.teasoft.honey.osql.core;
 import java.util.List;
 
 import org.teasoft.bee.osql.CommOperate;
-import org.teasoft.bee.osql.Condition;
 import org.teasoft.bee.osql.NameTranslate;
 import org.teasoft.bee.osql.SuidType;
+import org.teasoft.bee.osql.api.Condition;
 import org.teasoft.bee.osql.interccept.InterceptorChain;
 
 /**
@@ -46,8 +46,8 @@ public class AbstractCommOperate implements CommOperate{
 	@Override
 	public void setNameTranslateOneTime(NameTranslate nameTranslate) {
 		this.nameTranslate=nameTranslate;
-//		V2.1.5.1 bug.   设置了,就放上下文,即使只用一次,但设置了不用,   别的对象,即使不是Suid同种类型,也会拿到上下文中的NameTranslate
-//		if (this.nameTranslate != null) HoneyContext.setCurrentNameTranslate(nameTranslate); // enhance V2.1
+//		V2.1.5.1 bug.   设置了,就放上下文,即使只用一次,但设置了不用, 别的对象,即使不是Suid同种类型,也会拿到上下文中的NameTranslate
+//		if (this.nameTranslate != null) HoneyContext.setCurrentNameTranslate(nameTranslate); 
 	}
 
 	@Override
@@ -61,12 +61,12 @@ public class AbstractCommOperate implements CommOperate{
 //		return Router.getDsName(); //不行. suid的dsName在执行时才通过拦截器设置.若提前通过线程设置,会因顺序原因,被覆盖.
 	}
 	
-	void regCondition(Condition condition) {
+	protected void regCondition(Condition condition) {
 		HoneyContext.setConditionLocal(condition);
 	}
 	
-	void _doBeforePasreEntity(SuidType SuidType) {
-		if (SuidType != null) regSuidType(SuidType);
+	void _doBeforePasreEntity(SuidType suidType) {
+		regSuidType(suidType);
 		if (this.nameTranslate != null) HoneyContext.setCurrentNameTranslate(nameTranslate); // enhance V2.1
 		if (this.dsName != null) HoneyContext.setTempDS(dsName);
 	}
@@ -104,8 +104,9 @@ public class AbstractCommOperate implements CommOperate{
 		this.nameTranslate=null; //2.1 仅允许一次有效.  因整个应用周期内,只有一个bean时,会影响到其它情况的使用(如spring整合)
 	}
 	
-	protected void regSuidType(SuidType SuidType) {
-		if (HoneyConfig.getHoneyConfig().isAndroid) HoneyContext.regSuidType(SuidType);
+	protected void regSuidType(SuidType suidType) {
+		if (suidType == null) return;
+		if (HoneyConfig.getHoneyConfig().isAndroid) HoneyContext.regSuidType(suidType);
 	}
 
 }

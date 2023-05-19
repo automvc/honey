@@ -10,9 +10,9 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.teasoft.bee.osql.MapSql;
 import org.teasoft.bee.osql.MapSqlKey;
 import org.teasoft.bee.osql.MapSqlSetting;
+import org.teasoft.bee.osql.api.MapSql;
 
 /**
  * 用Map承载SQL信息.Record SQL information with map.

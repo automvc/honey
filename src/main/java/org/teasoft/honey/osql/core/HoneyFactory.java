@@ -6,27 +6,27 @@ import java.util.ServiceLoader;
 
 import org.teasoft.bee.mongodb.MongodbBeeSql;
 import org.teasoft.bee.mongodb.MongodbRawSql;
+import org.teasoft.bee.mvc.service.ObjSQLRichService;
+import org.teasoft.bee.mvc.service.ObjSQLService;
 import org.teasoft.bee.osql.BeeSql;
 import org.teasoft.bee.osql.Cache;
-import org.teasoft.bee.osql.CallableSql;
-import org.teasoft.bee.osql.Condition;
 import org.teasoft.bee.osql.DatabaseConst;
-import org.teasoft.bee.osql.MapSql;
-import org.teasoft.bee.osql.MapSuid;
 import org.teasoft.bee.osql.MoreObjToSQL;
-import org.teasoft.bee.osql.MoreTable;
 import org.teasoft.bee.osql.NameTranslate;
 import org.teasoft.bee.osql.ObjToSQL;
 import org.teasoft.bee.osql.ObjToSQLRich;
-import org.teasoft.bee.osql.PreparedSql;
-import org.teasoft.bee.osql.Suid;
-import org.teasoft.bee.osql.SuidRich;
+import org.teasoft.bee.osql.api.CallableSql;
+import org.teasoft.bee.osql.api.Condition;
+import org.teasoft.bee.osql.api.MapSql;
+import org.teasoft.bee.osql.api.MapSuid;
+import org.teasoft.bee.osql.api.MoreTable;
+import org.teasoft.bee.osql.api.PreparedSql;
+import org.teasoft.bee.osql.api.Suid;
+import org.teasoft.bee.osql.api.SuidRich;
 import org.teasoft.bee.osql.chain.UnionSelect;
 import org.teasoft.bee.osql.dialect.*;
 import org.teasoft.bee.osql.exception.NoConfigException;
 import org.teasoft.bee.osql.interccept.InterceptorChain;
-import org.teasoft.bee.osql.service.ObjSQLRichService;
-import org.teasoft.bee.osql.service.ObjSQLService;
 import org.teasoft.honey.osql.chain.UnionSelectImpl;
 import org.teasoft.honey.osql.dialect.*;
 import org.teasoft.honey.osql.dialect.mysql.MySqlFeature;
@@ -141,10 +141,7 @@ public class HoneyFactory {
 
 	public Suid getSuid() {
 		if (suid == null) {
-			// 是多数据源,有同时使用多种不同类型DB
-			boolean enableMultiDs = HoneyConfig.getHoneyConfig().multiDS_enable;
-			boolean isDifferentDbType = HoneyConfig.getHoneyConfig().multiDS_differentDbType;
-			if (!(enableMultiDs && isDifferentDbType) && HoneyUtil.isMongoDB())
+			if (isMongodb())
 				return new MongodbObjSQL(); // 2.0
 			else
 				return new ObjSQL();
@@ -158,16 +155,20 @@ public class HoneyFactory {
 	
 	public SuidRich getSuidRich() {
 		if (suidRich == null) {
-			// 是多数据源,有同时使用多种不同类型DB
-			boolean justMongodb = HoneyConfig.getHoneyConfig().multiDS_justMongodb;
-			boolean enableMultiDs = HoneyConfig.getHoneyConfig().multiDS_enable;
-			boolean isDifferentDbType = HoneyConfig.getHoneyConfig().multiDS_differentDbType;
-			if(justMongodb || (!(enableMultiDs && isDifferentDbType) && HoneyUtil.isMongoDB()) )
+			if (isMongodb())
 				return new MongodbObjSQLRich(); // 2.0
 			else
 				return new ObjSQLRich();
 		}
 		return suidRich;
+	}
+	
+	// 是多数据源,有同时使用多种不同类型DB
+	private boolean isMongodb() {
+		boolean justMongodb = HoneyConfig.getHoneyConfig().multiDS_justMongodb; //2.1
+		boolean enableMultiDs = HoneyConfig.getHoneyConfig().multiDS_enable;
+		boolean isDifferentDbType = HoneyConfig.getHoneyConfig().multiDS_differentDbType;
+		return (justMongodb || (!(enableMultiDs && isDifferentDbType) && HoneyUtil.isMongoDB()) );
 	}
 
 	public void setSuidRich(SuidRich suidRich) {

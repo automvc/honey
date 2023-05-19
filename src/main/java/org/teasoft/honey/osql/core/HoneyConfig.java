@@ -158,7 +158,7 @@ public final class HoneyConfig {
 	public boolean notUpdateWholeRecords = true; //v1.7.2
 	
 	@SysValue("${bee.osql.notCatchModifyDuplicateException}")
-	public boolean notCatchModifyDuplicateException;
+	public boolean notCatchModifyDuplicateException=true; //#从2.1开始，默认抛出异常；防止在事务时，不正确
 	
 	@SysValue("${bee.osql.notShowModifyDuplicateException}")
 	public boolean notShowModifyDuplicateException;
@@ -279,10 +279,10 @@ public final class HoneyConfig {
 	boolean pagingWithLimitOffset;
     
     @SysValue("${bee.db.dbs}")
-    List<Map<String,String>> dbs; //V2.1 配置多个数据源, 属性值已具体工具对应
+    List<Map<String,String>> dbs; //V2.1 配置多个数据源, 属性值与具体工具对应
     
     @SysValue("${bee.db.extendFirst}")
-    boolean extendFirst;//V2.1 dbs数组,其它下标,是否从首个元素继承属性
+    boolean extendFirst;//V2.1 dbs数组的非首个下标的元素,是否从首个元素继承属性
 
 	//----------------------------- cache start
 	@SysValue("${bee.osql.cache.timeout}")
@@ -421,7 +421,7 @@ public final class HoneyConfig {
 	public boolean multiDS_differentDbType;
 	
 	@SysValue("${bee.dosql.multiDS.justMongodb}")
-	public boolean multiDS_justMongodb;
+	public boolean multiDS_justMongodb; //2.1
 	
 	
 	@SysValue("${bee.dosql.multiDS.sharding}")

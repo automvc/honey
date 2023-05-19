@@ -11,14 +11,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.teasoft.bee.osql.Condition;
 import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.annotation.JoinType;
+import org.teasoft.bee.osql.api.Condition;
 import org.teasoft.bee.osql.dialect.DbFeature;
 import org.teasoft.bee.osql.interccept.InterceptorChain;
 import org.teasoft.honey.osql.dialect.sqlserver.SqlServerPagingStruct;
 import org.teasoft.honey.osql.name.NameUtil;
-import org.teasoft.honey.osql.shortcut.BF;
 import org.teasoft.honey.osql.util.AnnoUtil;
 import org.teasoft.honey.sharding.ShardingReg;
 import org.teasoft.honey.util.StringUtils;
