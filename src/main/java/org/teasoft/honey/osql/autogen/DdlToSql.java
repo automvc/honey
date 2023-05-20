@@ -12,6 +12,7 @@ import java.util.Map;
 
 import org.teasoft.bee.osql.DatabaseConst;
 import org.teasoft.bee.osql.exception.BeeErrorNameException;
+import org.teasoft.honey.osql.core.HoneyConfig;
 import org.teasoft.honey.osql.core.HoneyContext;
 import org.teasoft.honey.osql.core.HoneyUtil;
 import org.teasoft.honey.osql.core.Logger;
@@ -491,9 +492,28 @@ public class DdlToSql {
 		
 	}
 	
-	public static <T> String toDropIndexSql(Class<T> entityClass, String fields, String indexName) {
-		
-		return "";  //TODO
+	public static <T> String toDropIndexSql(Class<T> entityClass, String indexName) {
+		String tableName = _toTableNameByClass(entityClass);
+
+		if (indexName != null) {
+			String dropSql = "";
+			if (HoneyUtil.isSqlServer()) {
+				dropSql = "DROP INDEX table_name.index_name";
+			} else if (HoneyUtil.isOracle() || HoneyUtil.isSQLite() || DatabaseConst.DB2
+					.equalsIgnoreCase(HoneyConfig.getHoneyConfig().getDbName())) {
+				dropSql = "DROP INDEX index_name";
+			} else {
+//				用于 MS Access 等的 DROP INDEX 语法：
+				dropSql = "DROP INDEX index_name ON table_name";
+			}
+
+			dropSql.replace("table_name", tableName).replace("index_name", indexName);
+			return dropSql;
+
+		} else {
+			String dropIndexAll = "drop index all on " + tableName; // sql server等
+			return dropIndexAll;
+		}
 	}
 
 }
