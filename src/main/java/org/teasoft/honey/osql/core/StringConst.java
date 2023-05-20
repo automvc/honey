@@ -84,4 +84,8 @@ public final class StringConst {
 	public static final String  GridFs_FileId=PREFIX+"GridFs_FileId";
 	public static final String  GridFs_FileName=PREFIX+"GridFs_FileName";
 	public static final String  GridFs_FileColumnName=PREFIX+"GridFs_FileColumnName";
+	
+//	OSQL
+	public static final String START_GREAT_EQ_0 = "Parameter 'start' need >=0 .";
+	public static final String SIZE_GREAT_0 = "Parameter 'size' need >0 .";
 }

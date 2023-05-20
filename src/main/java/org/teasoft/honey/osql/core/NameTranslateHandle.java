@@ -127,7 +127,6 @@ public class NameTranslateHandle {
 		
 		if(ShardingUtil.hadSharding()) {
 			return tableName+StringConst.ShardingTableIndexStr;
-//			return tableName +"_"+ StringConst.ShardingTableIndexStr;
 		}
 		
 		if (tableName.indexOf('.') == -1) {

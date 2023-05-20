@@ -58,8 +58,8 @@ public class ConditionImpl implements Condition {
 
 	private Integer start;
 	private Integer size;
-	private static final String START_GREAT_EQ_0 = "Parameter 'start' need great equal 0!";
-	private static final String SIZE_GREAT_0 = "Parameter 'size' need great than 0!";
+	private static final String START_GREAT_EQ_0 = StringConst.START_GREAT_EQ_0;
+	private static final String SIZE_GREAT_0 = StringConst.SIZE_GREAT_0;
 	
 	private Boolean hasGroupBy;
 	List<String> groupByFields;

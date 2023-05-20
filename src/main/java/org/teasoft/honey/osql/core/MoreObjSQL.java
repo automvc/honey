@@ -42,8 +42,8 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 	@Override
 	public <T> List<T> select(T entity, int start, int size) {
 		if (entity == null) return null;
-		if(size<=0) throw new BeeIllegalParameterException("Parameter 'size' need great than 0!");
-		if(start<0) throw new BeeIllegalParameterException("Parameter 'start' need great equal 0!");
+		if(size<=0) throw new BeeIllegalParameterException(StringConst.SIZE_GREAT_0);
+		if(start<0) throw new BeeIllegalParameterException(StringConst.START_GREAT_EQ_0);
 		doBeforePasreEntity(entity);  //因要解析子表,子表下放再执行
 		String sql = getMoreObjToSQL().toSelectSQL(entity,start,size);
 		sql=doAfterCompleteSql(sql);

@@ -31,8 +31,8 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 	private static final String SELECT_SOME_FIELD_SQL = "PreparedSql selectSomeField SQL: ";
 	private static final String SELECT_JSON_SQL = "PreparedSql selectJson SQL: ";
 	private static final String STRING_IS_NULL = "sql statement string is Null !";
-	private static final String START_GREAT_EQ_0 = "Parameter 'start' need great equal 0!";
-	private static final String SIZE_GREAT_0 = "Parameter 'size' need great than 0!";
+	private static final String START_GREAT_EQ_0 = StringConst.START_GREAT_EQ_0;
+	private static final String SIZE_GREAT_0 = StringConst.SIZE_GREAT_0;
 
 	public BeeSql getBeeSql() {
 		if (beeSql == null) beeSql = BeeFactory.getHoneyFactory().getBeeSql();

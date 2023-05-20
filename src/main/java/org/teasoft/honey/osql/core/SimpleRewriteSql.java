@@ -66,8 +66,7 @@ public class SimpleRewriteSql {
 		return list;
 	}
 
-	static void _createSqlsForFull(List<String[]> list, String sql,
-			List<PreparedValue> listValue, String baseTableName) {
+	static void _createSqlsForFull(List<String[]> list, String sql, List<PreparedValue> listValue, String baseTableName) {
 		List<String> sqlList = new ArrayList<>();
 		List<String> dsList = new ArrayList<>();
 

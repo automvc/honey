@@ -48,8 +48,8 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 	private static final String UPDATE_SQL_WHERE_FIELDS = "update SQL(whereFields) :";
 	private static final String UPDATE_SQL_UPDATE_FIELDS = "update SQL(updateFields) :";
 	private static final String ID_IS_NULL = "in method selectById,id is null! ";
-    private static final String START_GREAT_EQ_0 = "Parameter 'start' need great equal 0!";
-	private static final String SIZE_GREAT_0 = "Parameter 'size' need great than 0!";
+	private static final String START_GREAT_EQ_0 = StringConst.START_GREAT_EQ_0;
+	private static final String SIZE_GREAT_0 = StringConst.SIZE_GREAT_0;
 	private static final String TIP_SIZE_0 = "The size is 0, but it should be greater than 0 (>0)";
 	
 	private int defaultBatchSize = HoneyConfig.getHoneyConfig().insertBatchSize;
@@ -1031,11 +1031,11 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 	}
 	
 	@Override
-	public <T> void dropIndex(Class<T> entityClass, String fields, String indexName) {
+	public <T> void dropIndex(Class<T> entityClass,  String indexName) {
 		doBeforePasreEntity(entityClass, SuidType.DDL);
 		_regEntityClass2(entityClass);
 		
-		String dropIndexSql=DdlToSql.toDropIndexSql(entityClass, fields, indexName);
+		String dropIndexSql=DdlToSql.toDropIndexSql(entityClass, indexName); 
 		_ddlModify(entityClass, dropIndexSql);
 		
 	}
