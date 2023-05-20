@@ -217,7 +217,7 @@ public class ShardingInterceptor extends EmptyInterceptor {
 
 					if (flag == null && !isHas) isHas = true;
 //					以下肯定是注册有分片的   即以下都是type!=0;
-					dsTabStruct = new ShardingSumHandler().process(shardingBean); // 分片键的值是null,也放到算法处理类处理,因在处理类,可能会给默认ds
+					dsTabStruct = new ShardingDsTabHandler().process(shardingBean); // 分片键的值是null,也放到算法处理类处理,因在处理类,可能会给默认ds
 
 //					if(type!=0 && condition==null) { 
 					if (condition == null) {//case 4 只有来自javabean的; 肯定是一库一表
@@ -333,7 +333,7 @@ public class ShardingInterceptor extends EmptyInterceptor {
 				foundSharding=checkAndProcessShardingField(shardingBean, expression.getFieldName(),expression.getValue());
 				// 找到一个,就计算一次
 				if (foundSharding) {
-					dsTabStruct = new ShardingSumHandler().process(shardingBean);
+					dsTabStruct = new ShardingDsTabHandler().process(shardingBean);
 					if(dsTabStruct!=null) sharded=true;
 					setValeueForSharding(dsTabStruct, dsNameList, tabNameList, tabSuffixList,tab2DsMap);
 					// 将分片值置空,供下次使用
@@ -362,7 +362,7 @@ public class ShardingInterceptor extends EmptyInterceptor {
 							expression.getFieldName(), value);
 					// 找到一个,就计算一次
 					if (foundSharding) {
-						dsTabStruct = new ShardingSumHandler().process(shardingBean);
+						dsTabStruct = new ShardingDsTabHandler().process(shardingBean);
 						if (dsTabStruct != null) sharded = true;
 						setValeueForSharding(dsTabStruct, dsNameList, tabNameList,
 								tabSuffixList, tab2DsMap);
@@ -406,7 +406,7 @@ public class ShardingInterceptor extends EmptyInterceptor {
 			// 若是下标有值,都转成具体的表名. sharding只返回Ds和Tab   下标也要返回,更方便生成新sql
 			//不要这个是否可以??     有时只转出了下标,就需要处理.
 			if (tabSuffixList.size() > 1 && tabNameList.size() < 1) {
-				String tableName = _toTableName(entity);  //TODO 这里表名还分隔符,是否会有影响?
+				String tableName = _toTableName(entity); 
 				for (int i = 0; i < tabSuffixList.size(); i++) {
 					String tab = tableName.replace(StringConst.ShardingTableIndexStr, tabSuffixList.get(i));
 					tabNameList.add(tab);
@@ -600,8 +600,8 @@ public class ShardingInterceptor extends EmptyInterceptor {
 //		tabName,tabSuffix不会同时设置;当只设置tabSuffix下标时,表基本名称由实体名转化而来.
 			if (StringUtils.isNotBlank(dsTabStruct.getTabName()))
 				this.tabName = dsTabStruct.getTabName();
-			else if (StringUtils.isNotBlank(dsTabStruct.getTabSuffix())) // 是否要使用下划线间隔开??
-				this.tabSuffix = dsTabStruct.getTabSuffix(); // 建议使用后缀
+			else if (StringUtils.isNotBlank(dsTabStruct.getTabSuffix())) 
+				this.tabSuffix = dsTabStruct.getTabSuffix();
 			else {
 				if (SuidType.INSERT == suidType) {
 //				clearContext();
@@ -641,7 +641,7 @@ public class ShardingInterceptor extends EmptyInterceptor {
 				&& StringUtils.isBlank(dsTabStruct.getTabName())) {
 //			dsTabStruct.setTabName(_toTableName(entity) + dsTabStruct.getTabSuffix());
 			tabName=_toTableName(entity) + dsTabStruct.getTabSuffix();
-//			tabName=_toTableName(entity) +"_"+ dsTabStruct.getTabSuffix(); //tabsep
+//			tabName=_toTableName(entity) +"_"+ dsTabStruct.getTabSuffix();  // 分隔符在DsTabHandler实现类加
 			dsTabStruct.setTabName(tabName); //2022-09-23
 		}
 

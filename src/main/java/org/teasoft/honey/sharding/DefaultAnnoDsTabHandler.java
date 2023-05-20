@@ -12,6 +12,7 @@ import org.teasoft.bee.sharding.DsTabStruct;
 import org.teasoft.bee.sharding.ShardingSimpleStruct;
 import org.teasoft.bee.sharding.algorithm.Calculate;
 import org.teasoft.honey.sharding.algorithm.CalculateFactory;
+import org.teasoft.honey.sharding.config.ShardingRegistry;
 import org.teasoft.honey.util.ObjectUtils;
 import org.teasoft.honey.util.StringUtils;
 
@@ -19,11 +20,11 @@ import org.teasoft.honey.util.StringUtils;
  * 多租户和分片的默认处理器.
  * 用于处理MultiTenancy注解和Sharding注解
  * MultiTenancy注解,当分片值为null时不处理,调用者可使用默认数据源和表.
- * Sharding注解,当分片值为null时可能能产生全域操作.
+ * Sharding注解,当分片值为null时可能产生全域操作.
  * @author Kingstar
  * @since  1.11-E
  */
-public class DsTabDefaultHandler implements DsTabHandler {
+public class DefaultAnnoDsTabHandler implements DsTabHandler {
 
 	private static final String dsRuleConst = "${dsRule}";
 	private static final String tabRuleConst = "${tabRule}";
@@ -108,14 +109,20 @@ public class DsTabDefaultHandler implements DsTabHandler {
 	     	}
 			
 			tabSuffix =calculate2.process(tabRule, shardingValue);
+			
 			hasTabRule = true;
 		}
 //		tabName,tabSuffix不会同时设置
 		if (hasTabRule && StringUtils.isNotBlank(tabName)) {
-			if (tabName.contains(tabRuleConst)) {
+			if (tabName.contains(tabRuleConst)) { //配置时,自己加"-"
 				tabName=tabName.replace(tabRuleConst, tabSuffix);
 			} else {
+				
+				String sepTab = ShardingRegistry.getSepTab(tabName); //2.1.5.20 
+				if (StringUtils.isNotEmpty(sepTab)) tabSuffix = sepTab + tabSuffix; // 分隔符在DsTabHandler实现类加
+				
 				tabName = tabName + tabSuffix;
+//				tabName = tabName +"_"+ tabSuffix; //加分隔
 			}
 			dsTabStruct.setTabName(tabName);
 		} else if (StringUtils.isNotBlank(tabName)) {

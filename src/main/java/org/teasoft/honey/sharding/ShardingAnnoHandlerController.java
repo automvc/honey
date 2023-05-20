@@ -85,7 +85,7 @@ public class ShardingAnnoHandlerController {
 
 			if (c.equals(DsTabHandler.class)) {//只是默认的接口
 				//使用系统定义的
-				dsTabStruct = new DsTabDefaultHandler().process(sharding0);
+				dsTabStruct = new DefaultAnnoDsTabHandler().process(sharding0);
 //			} else if (c.isAssignableFrom(DsTabHandler.class)) { //是AnnotationHandler的实现类 
 		 	
 //			}  else if(Modifier.isAbstract(c.getModifiers())){//如何判断是抽象类??

@@ -24,7 +24,7 @@ import org.teasoft.honey.util.StringUtils;
  * @author AiTeaSoft
  * @since  2.0
  */
-public class ShardingSumHandler implements DsTabHandler {
+public class ShardingDsTabHandler implements DsTabHandler {
 	
 	private static final String dsRuleConst = "${dsRule}";
 	private static final String tabRuleConst = "${tabRule}";
@@ -97,13 +97,19 @@ public class ShardingSumHandler implements DsTabHandler {
 			}
 			
 			tabSuffix =calculate2.process(tabRule, tabShardingValue);
+//			tabSuffix="_"+tabSuffix;  //分隔符在DsTabHandler实现类加
 			hasTabRule = true;
 		}
 		if (hasTabRule && StringUtils.isNotBlank(tabName) && tabShardingValue!=null) {
 			if (tabName.contains(tabRuleConst)) {
 				tabName=tabName.replace(tabRuleConst, tabSuffix);
 			} else {
+				
+				String sepTab = ShardingRegistry.getSepTab(tabName); //2.1.5.20 
+				if (StringUtils.isNotEmpty(sepTab)) tabSuffix = sepTab + tabSuffix; // 分隔符在DsTabHandler实现类加
+				
 				tabName = tabName + tabSuffix;
+//				tabName = tabName +"_"+ tabSuffix; //加分隔
 			}
 			dsTabStruct.setTabName(tabName);
 		} else if (StringUtils.isNotBlank(tabName) && tabShardingValue!=null) {
