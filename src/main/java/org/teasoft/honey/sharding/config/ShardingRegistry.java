@@ -19,6 +19,7 @@ import org.teasoft.bee.osql.BeeException;
 import org.teasoft.bee.osql.Registry;
 import org.teasoft.bee.sharding.ShardingBean;
 import org.teasoft.honey.osql.core.Logger;
+import org.teasoft.honey.util.StringUtils;
 
 /**
  * @author AiTeaSoft
@@ -34,6 +35,8 @@ public class ShardingRegistry implements Registry {
 	
 	private static final Byte ONE=1;
 	private static Map<String, Byte> broadcastTabMap = new HashMap<>(); // 4
+	
+	private static Map<String, String> sepTabMap = new HashMap<>(); //since 2.1   tabBaseName:separator
 	
 	public static ShardingBean getShardingBean(Class<?> entity) {
 		return shardingMap.get(entity);
@@ -68,6 +71,10 @@ public class ShardingRegistry implements Registry {
 	
 	public static Integer getTabSize(String tabBaseName) {
 		return tabSizeMap.get(tabBaseName);
+	}
+	
+	public static String getSepTab(String tabBaseName) {
+		return sepTabMap.get(tabBaseName);
 	}
 
 	/**
@@ -157,6 +164,8 @@ public class ShardingRegistry implements Registry {
 			addFullNodes(shardingConfigMeta.getFullNodes());
 			addTabToDsMap(shardingConfigMeta.getTabToDsMap());
 			tabSizeMap.put(shardingConfigMeta.getTabBaseName(), shardingConfigMeta.getTabSize());
+			if(StringUtils.isNotEmpty(shardingConfigMeta.getSepTab()))
+				sepTabMap.put(shardingConfigMeta.getTabBaseName(), shardingConfigMeta.getSepTab());
 		} else {
 			String msg = "Can not parse the fullNodes:" + fullNodes;
 			if (entity != null) msg += "! Its entity name:" + entity.getName();

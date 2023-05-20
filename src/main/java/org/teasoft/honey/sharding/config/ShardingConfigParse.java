@@ -46,8 +46,8 @@ public class ShardingConfigParse {
 			Set<String> tabIndexSet = new TreeSet<>();
 			int n = size;
 			for (int k = size * i; n > 0 && k < tabNum; k++, n--) {
-				tabIndexSet.add(tabList.get(k));
-				tabToDsMap.put(bean.getTabBaseName() + tabList.get(k),
+				tabIndexSet.add(bean.getSepTab() +tabList.get(k)); //加分隔
+				tabToDsMap.put(bean.getTabBaseName()+bean.getSepTab() + tabList.get(k),
 						bean.getDsBaseName() + dsList.get(i));
 			}
 			ds2TabIndexSet.put(bean.getDsBaseName() + dsList.get(i), tabIndexSet);
@@ -57,12 +57,15 @@ public class ShardingConfigParse {
 
 		Logger.info("[Bee] fullNodes: " + fullNodes.toString());
 		Logger.info("[Bee] tabToDsMap: " + tabToDsMap.toString()); //只分库时,map只会保留最后一个的
+		if(StringUtils.isNotEmpty(bean.getSepTab())) Logger.info("[Bee] "+bean.getTabBaseName()+", its sepTab is: '"+bean.getSepTab()+"'");
 
 		ShardingConfigMeta shardingConfigMeta = new ShardingConfigMeta();
 		shardingConfigMeta.setFullNodes(fullNodes);
 		shardingConfigMeta.setTabToDsMap(tabToDsMap);
 		shardingConfigMeta.setTabSize(tabList.size());
 		shardingConfigMeta.setTabBaseName(bean.getTabBaseName());
+		
+		shardingConfigMeta.setSepTab(bean.getSepTab());
 
 		return shardingConfigMeta;
 	}
@@ -127,7 +130,15 @@ public class ShardingConfigParse {
 			}
 			nodes.setTabList(tabList);
 		}
-		nodes.setTabBaseName(str.substring(mid + 2, index2));
+		String temp_tabBaseName=str.substring(mid + 2, index2);
+		String sepTab="";
+		if(temp_tabBaseName!=null && (temp_tabBaseName.endsWith("_") || temp_tabBaseName.endsWith("-")) ) {
+			int len=temp_tabBaseName.length();
+			sepTab=temp_tabBaseName.substring(len-1,len);
+			nodes.setSepTab(sepTab);
+			temp_tabBaseName=temp_tabBaseName.substring(0,len-1);
+		}
+		nodes.setTabBaseName(temp_tabBaseName);
 
 		// 通过顺序号设置
 
@@ -147,6 +158,9 @@ public class ShardingConfigParse {
 
 		private String dsBaseName;
 		private String tabBaseName;
+		
+		//分隔符,只支持"_";  "-"很多数据库都不支持，不要用
+		private String sepTab="";  //separator between table and index, like orders_1;  but recommand use orders1
 
 		private int dsIndex0 = -1;
 		private int dsIndex1;
@@ -188,6 +202,24 @@ public class ShardingConfigParse {
 
 		public void setTabBaseName(String tabBaseName) {
 			this.tabBaseName = tabBaseName;
+		}
+		
+		/**
+		 * separator between table and index, like orders_1;  
+		 * but recommand donot use separator,like: orders1
+		 * @return
+		 */
+		public String getSepTab() {
+			return sepTab;
+		}
+
+		/**
+		 * separator between table and index, like orders_1;  
+		 * but recommand donot use separator,like: orders1
+		 * @param sepTab separator between table and index
+		 */
+		public void setSepTab(String sepTab) {
+			this.sepTab = sepTab;
 		}
 
 		public int getDsIndex0() {

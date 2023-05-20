@@ -19,7 +19,9 @@ public class ShardingConfigMeta {
 	private Map<String, String> tabToDsMap; // 2
 	private String tabBaseName;
 	private Integer tabSize;
-
+	//分隔符,只支持"_";  "-"很多数据库都不支持，不要用
+	private String sepTab="";  //separator between table and index, like orders_1;  but recommand use orders1
+	
 	public Map<String, Map<String, Set<String>>> getFullNodes() {
 		return fullNodes;
 	}
@@ -51,4 +53,13 @@ public class ShardingConfigMeta {
 	public void setTabSize(Integer tabSize) {
 		this.tabSize = tabSize;
 	}
+
+	public String getSepTab() {
+		return sepTab;
+	}
+
+	public void setSepTab(String sepTab) {
+		this.sepTab = sepTab;
+	}
+	
 }
