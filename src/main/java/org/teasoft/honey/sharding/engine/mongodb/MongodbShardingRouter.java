@@ -75,7 +75,7 @@ public class MongodbShardingRouter {
 			Set<String> tabIndexSet = entry.getValue();
 			for (String tabIndex : tabIndexSet) {
 				dsList.add(dsName);
-				tabList.add(baseTableName + tabIndex);
+				tabList.add(baseTableName + tabIndex);  //加分隔 ? ,不用另外加,  FullNodes的已加有
 			}
 		}
 
