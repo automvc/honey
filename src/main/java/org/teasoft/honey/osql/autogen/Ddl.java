@@ -152,7 +152,7 @@ public class Ddl {
 	}
 
 	private static String _toTableName(Object entity) {
-		return NameTranslateHandle.toTableName(NameUtil.getClassFullName(entity));
+		return HoneyUtil.toTableName(entity);
 	}
 
 	/**

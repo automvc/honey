@@ -341,10 +341,6 @@ public class DdlToSql {
 
 	}
 	
-//	private static String _toTableName(Object entity) {
-//		return NameTranslateHandle.toTableName(NameUtil.getClassFullName(entity));
-//	}
-
 	@SuppressWarnings("rawtypes")
 	private static String _toColumnName(String fieldName, Class entityClass) {
 		String name = NameTranslateHandle.toColumnName(fieldName, entityClass);

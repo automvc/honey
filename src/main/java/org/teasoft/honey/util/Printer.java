@@ -27,7 +27,6 @@ public class Printer {
 				row += a[j] + "   ";
 			}
 			Logger.info(row);
-//			System.err.println(row);
 		}
 	}
 	

@@ -156,7 +156,6 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 			} else {
 				checkClose(pst, conn);
 			}
-//			entity = null;  //???   改了的,没有传回去.
 			targetObj = null;
 		}
 		logSelectRows(rsList.size());

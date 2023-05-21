@@ -71,8 +71,6 @@ public class SimpleRewriteSql {
 		List<String> dsList = new ArrayList<>();
 
 		Map<String, Set<String>> map = ShardingRegistry.getFullNodes(baseTableName);
-//		System.err.println("-----------getFullNodes: ");
-//		System.err.println(map);
 		String tempSql;
 
 		boolean justSomeDs = ShardingUtil.hadShardingSomeDsFullSelect();

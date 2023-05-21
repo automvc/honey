@@ -65,7 +65,7 @@ class ProcessDataSourceMap {
 //		} catch (Exception e) {
 //			Logger.debug(e.getMessage(), e);
 //		}
-		notifyClass("DataSourceToolRegHandler"); //是否需要判断再显示?? TODO   测试少加一些jar依赖,是否会有报错?
+		notifyClass("DataSourceToolRegHandler"); //是否需要判断再显示??   不需要,可以一下注册多个,DataSourceToolRegHandler只是注册bee框架的包装类, 真正到使用某个builder时,没有jar才会报错.
 
 		int size = dbsList.size();
 		String dsNames[] = new String[size];
