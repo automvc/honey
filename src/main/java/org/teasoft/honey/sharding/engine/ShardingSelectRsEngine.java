@@ -6,12 +6,12 @@
 
 package org.teasoft.honey.sharding.engine;
 
+import java.security.SecureRandom;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Queue;
-import java.util.Random;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutorCompletionService;
@@ -112,9 +112,10 @@ public class ShardingSelectRsEngine {
 		}
 	}
 	
+	private SecureRandom sr = new SecureRandom();
 	private String getSelectRsThreadFlag() {
 		long gid=GenIdFactory.get(StringConst.ShardingSelectRs_ThreadFlag, GenIdFactory.GenType_OneTimeSnowflakeId);
-		String threadFlag=gid+""+new Random().nextDouble();
+		String threadFlag=gid+""+sr.nextDouble();
 		return threadFlag;
 	}
 
