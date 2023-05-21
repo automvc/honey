@@ -507,12 +507,10 @@ public class DdlToSql {
 				dropSql = "DROP INDEX index_name ON table_name";
 			}
 
-			dropSql.replace("table_name", tableName).replace("index_name", indexName);
-			return dropSql;
+			return dropSql.replace("table_name", tableName).replace("index_name", indexName);
 
 		} else {
-			String dropIndexAll = "drop index all on " + tableName; // sql server等
-			return dropIndexAll;
+			return "drop index all on " + tableName; // sql server等
 		}
 	}
 
