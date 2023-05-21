@@ -1856,12 +1856,22 @@ public final class HoneyUtil {
 	
 	public static <T> void revertId(T entity[]) {
 		Field field = null;
-		String pkName=(String)OneTimeParameter.getAttribute(StringConst.Primary_Key_Name);
+		String pkName=(String)OneTimeParameter.getAttribute(StringConst.Primary_Key_Name);  //可能为null TODO
+		if (pkName == null) {
+			for (int i = 0; i < entity.length; i++) {
+				//用掉
+				OneTimeParameter.isTrue(StringConst.OLD_ID_EXIST + i);
+				OneTimeParameter.getAttribute(StringConst.OLD_ID + i);
+			}
+			return; // pkName == null时提前返回
+		}
+		
 		for (int i = 0; i < entity.length; i++) {
 
 			if (OneTimeParameter.isTrue(StringConst.OLD_ID_EXIST+i)) {
 				try {
 					Object obj = OneTimeParameter.getAttribute(StringConst.OLD_ID+i);
+//					System.err.println("--------------in try-------------pkName: "+pkName);
 					field = entity[i].getClass().getDeclaredField(pkName);
 					field.setAccessible(true);
 					field.set(entity[i], obj);
@@ -1869,6 +1879,9 @@ public final class HoneyUtil {
 					throw new ObjSQLException("entity[] miss id field: the element in entity[] no id field!");
 				} catch (IllegalAccessException e) {
 					throw ExceptionHelper.convert(e);
+				} catch (Exception e) {
+//					e.printStackTrace();
+					Logger.error(e.getMessage(),e);
 				}
 			}
 		}
@@ -1906,7 +1919,7 @@ public final class HoneyUtil {
 					pkAlias="("+pkName+")";
 				}	
 				
-				if (field0==null) return;
+				if (field0==null) return; //没有主键,则提前返回
 				
 				boolean replaceOldValue = HoneyConfig.getHoneyConfig().genid_replaceOldId;
 				
@@ -1970,8 +1983,8 @@ public final class HoneyUtil {
 //						v = (Long) obj;
 					}
 					
-					OneTimeParameter.setTrueForKey(StringConst.OLD_ID_EXIST+i);
-					OneTimeParameter.setAttribute(StringConst.OLD_ID+i, obj);
+//					OneTimeParameter.setTrueForKey(StringConst.OLD_ID_EXIST+i);
+//					OneTimeParameter.setAttribute(StringConst.OLD_ID+i, obj);
 					
 					field.setAccessible(true);
 					try {
@@ -1987,11 +2000,16 @@ public final class HoneyUtil {
 							Logger.warn(" [ID WOULD BE REPLACED] entity["+i+"] : " + entity[0].getClass() + " 's id field"+pkAlias+" value is " + obj.toString()
 									+ " would be replace by " + id);
 						}
+						
+						//fixed bug
+						OneTimeParameter.setAttribute(StringConst.Primary_Key_Name, pkName);
+						OneTimeParameter.setTrueForKey(StringConst.OLD_ID_EXIST+i);
+						OneTimeParameter.setAttribute(StringConst.OLD_ID+i, obj);
 					} catch (IllegalAccessException e) {
 						throw ExceptionHelper.convert(e);
 					}
 				}
-				OneTimeParameter.setAttribute(StringConst.Primary_Key_Name, pkName);
+//				OneTimeParameter.setAttribute(StringConst.Primary_Key_Name, pkName); //bug,在分片批量插入时,多线程下,有可能设置不成功
 			
 			} catch (NoSuchFieldException e) {
 				//is no id field , ignore.

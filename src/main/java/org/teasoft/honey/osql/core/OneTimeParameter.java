@@ -17,7 +17,8 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 class OneTimeParameter {
 	
-	private static ThreadLocal<Map<String, Object>> local= new ThreadLocal<>();
+//	private static ThreadLocal<Map<String, Object>> local= new ThreadLocal<>();
+	private static ThreadLocal<Map<String, Object>> local= new InheritableThreadLocal<>();
 	
 	private OneTimeParameter() {}
 

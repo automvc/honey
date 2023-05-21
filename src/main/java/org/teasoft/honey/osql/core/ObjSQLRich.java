@@ -185,6 +185,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 			return _insert(entity, batchSize, excludeFields);
 		}
 		
+		HoneyUtil.setInitArrayIdByAuto(entity); //V2.1
 		doBeforePasreEntity(entity, SuidType.INSERT);
 
 		int a = 0;
@@ -210,6 +211,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 			}
 		}
 
+		HoneyUtil.revertId(entity); //2.1
 		doBeforeReturn();
 		return a;
 	}
@@ -220,7 +222,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 		_regEntityClass1(entity[0]);
 		insertSql[0] = doAfterCompleteSql(insertSql[0]);
 		
-		HoneyUtil.revertId(entity);
+//		HoneyUtil.revertId(entity); //close since V2.1
 		
 		int a= getBeeSql().batch(insertSql, batchSize);
 		

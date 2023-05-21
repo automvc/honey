@@ -145,6 +145,7 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 			return _insert(entity, batchSize, excludeFields);
 		}
 		
+		HoneyUtil.setInitArrayIdByAuto(entity);
 		doBeforePasreEntity(entity, SuidType.INSERT);
 
 		int a = 0;
@@ -170,18 +171,19 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 			}
 		}
 
+		HoneyUtil.revertId(entity);
 		doBeforeReturn();
 		return a;
 	}
 	
 	private <T> int _insert(T entity[], int batchSize, String excludeFields) {
 
-		HoneyUtil.setInitArrayIdByAuto(entity);
+//		HoneyUtil.setInitArrayIdByAuto(entity);
+//		int a = getMongodbBeeSql().insert(entity, batchSize, excludeFields);
+//		HoneyUtil.revertId(entity);
+//		return a;
 		
-		int a = getMongodbBeeSql().insert(entity, batchSize, excludeFields);
-		
-		HoneyUtil.revertId(entity);
-		return a;
+		return getMongodbBeeSql().insert(entity, batchSize, excludeFields);
 	}
 	
 	private String _toTableName(Object entity){

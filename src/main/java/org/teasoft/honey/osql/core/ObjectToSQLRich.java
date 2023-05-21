@@ -397,7 +397,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		try {
 			int len = entity.length;
 			
-			HoneyUtil.setInitArrayIdByAuto(entity);
+//			HoneyUtil.setInitArrayIdByAuto(entity);  //移到上游 2.1
 			
 			sql = new String[len];  //只用sql[0]
 			String t_sql = "";
@@ -428,7 +428,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		try {
 			int len = entity.length;
 			
-			HoneyUtil.setInitArrayIdByAuto(entity);
+//			HoneyUtil.setInitArrayIdByAuto(entity); //移到上游 2.1
 			
 			sql = new String[len];  //只用sql[0]
 			
