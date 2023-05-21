@@ -995,7 +995,7 @@ final class _ObjectToSQLHelper {
 			}
 			
 			
-			if (field==null) return ;
+			if (field==null) return ; //没有主键,则提前返回
 			
 			boolean replaceOldValue = HoneyConfig.getHoneyConfig().genid_replaceOldId;
 			
