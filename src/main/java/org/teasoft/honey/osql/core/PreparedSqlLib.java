@@ -591,7 +591,8 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 	}
 
 	private String _toTableName(Object entity) {
-		return NameTranslateHandle.toTableName(NameUtil.getClassFullName(entity));
+//		return NameTranslateHandle.toTableName(NameUtil.getClassFullName(entity));
+		return HoneyUtil.toTableName(entity);  //fixed bug 2.1
 	}
 
 	private void regPagePlaceholder() {

@@ -776,17 +776,7 @@ public class ShardingInterceptor extends EmptyInterceptor {
 	
 	
 	private String _toTableName(Object entity) {
-		if (entity instanceof Class) return _toTableNameByClass((Class) entity); // fixed bug 2.1
-		if (entity instanceof String) return _toTableName2((String) entity);// fixed bug 2.1
-		return NameTranslateHandle.toTableName(NameUtil.getClassFullName(entity));
-	}
-	
-	private String _toTableName2(String entityName) {
-		return NameTranslateHandle.toTableName(entityName);
-	}
-	
-	private String _toTableNameByClass(Class c) {
-		return NameTranslateHandle.toTableName(c.getName());
+		return HoneyUtil.toTableName(entity);
 	}
 
 }

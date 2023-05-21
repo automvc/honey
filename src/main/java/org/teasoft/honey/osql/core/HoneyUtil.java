@@ -1856,7 +1856,7 @@ public final class HoneyUtil {
 	
 	public static <T> void revertId(T entity[]) {
 		Field field = null;
-		String pkName=(String)OneTimeParameter.getAttribute(StringConst.Primary_Key_Name);  //可能为null TODO
+		String pkName=(String)OneTimeParameter.getAttribute(StringConst.Primary_Key_Name);  //可能为null 
 		if (pkName == null) {
 			for (int i = 0; i < entity.length; i++) {
 				//用掉
@@ -1871,7 +1871,6 @@ public final class HoneyUtil {
 			if (OneTimeParameter.isTrue(StringConst.OLD_ID_EXIST+i)) {
 				try {
 					Object obj = OneTimeParameter.getAttribute(StringConst.OLD_ID+i);
-//					System.err.println("--------------in try-------------pkName: "+pkName);
 					field = entity[i].getClass().getDeclaredField(pkName);
 					field.setAccessible(true);
 					field.set(entity[i], obj);
@@ -2154,6 +2153,20 @@ public final class HoneyUtil {
 		}
 		
 		return columnNames;
+	}
+	
+	public static String toTableName(Object entity) {
+		if (entity instanceof Class) return _toTableNameByClass((Class) entity); // fixed bug 2.1
+		if (entity instanceof String) return _toTableName2((String) entity);// fixed bug 2.1
+		return NameTranslateHandle.toTableName(NameUtil.getClassFullName(entity));
+	}
+	
+	private static String _toTableName2(String entityName) {
+		return NameTranslateHandle.toTableName(entityName);
+	}
+	
+	private static String _toTableNameByClass(Class c) {
+		return NameTranslateHandle.toTableName(c.getName());
 	}
 
 }
