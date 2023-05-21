@@ -212,4 +212,9 @@ public class Ddl {
 		SuidRich suidRich = BF.getSuidRich();
 		suidRich.primaryKey(entityClass, fields, keyName);
 	}
+	
+	public static <T> void dropIndex(Class<T> entityClass,  String indexName) {
+		SuidRich suidRich = BF.getSuidRich();
+		suidRich.dropIndex(entityClass, indexName);
+	}
 }

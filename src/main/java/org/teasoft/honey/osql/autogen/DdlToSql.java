@@ -492,6 +492,7 @@ public class DdlToSql {
 		
 	}
 	
+	//该方法并不能保证是准确的语句
 	public static <T> String toDropIndexSql(Class<T> entityClass, String indexName) {
 		String tableName = _toTableNameByClass(entityClass);
 
@@ -502,15 +503,19 @@ public class DdlToSql {
 			} else if (HoneyUtil.isOracle() || HoneyUtil.isSQLite() || DatabaseConst.DB2
 					.equalsIgnoreCase(HoneyConfig.getHoneyConfig().getDbName())) {
 				dropSql = "DROP INDEX index_name";
-			} else {
+			} else if (HoneyUtil.isMysql() || DatabaseConst.MsAccess
+					.equalsIgnoreCase(HoneyConfig.getHoneyConfig().getDbName())) {
 //				用于 MS Access 等的 DROP INDEX 语法：
 				dropSql = "DROP INDEX index_name ON table_name";
+			} else {
+				dropSql = "DROP INDEX index_name";
 			}
 
 			return dropSql.replace("table_name", tableName).replace("index_name", indexName);
 
 		} else {
 			return "drop index all on " + tableName; // sql server等
+			//不支持这种语法的DB有(只列举部分):mysql
 		}
 	}
 

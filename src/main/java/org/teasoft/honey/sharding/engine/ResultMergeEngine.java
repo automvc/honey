@@ -70,7 +70,7 @@ public class ResultMergeEngine {
 			try {
 				Integer part = completionService.take().get();
 				if (part != null) r += part;
-			} catch (Exception e) { //java.lang.NullPointerException
+			} catch (Exception e) { // java.lang.NullPointerException, 在分片批量插入时,多线程下,有可能pkName设置不成功(在HoneyUtil)引起.
 				Logger.error(e.getMessage(), e);
 			}
 		}
