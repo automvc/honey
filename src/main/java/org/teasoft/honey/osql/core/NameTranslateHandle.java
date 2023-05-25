@@ -112,6 +112,13 @@ public class NameTranslateHandle {
 	
 	
 	public static String toTableName(String entityName) {
+		
+		//sync from V2.1
+		if ("java.lang.String".equals(entityName) || "java.lang.Class".equals(entityName)
+				 || "java.lang.Object".equals(entityName)) { // 2.1 fixed bug
+					throw new BeeIllegalParameterException(entityName + " is a wrong entity name.");
+				}
+		
 		String tableName = _toTableName(entityName);
 		if (tableName.indexOf('.') == -1) {
 			if (StringUtils.isNotBlank(getSchemaNameLocal()))

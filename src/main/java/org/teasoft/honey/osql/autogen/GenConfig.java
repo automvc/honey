@@ -12,7 +12,8 @@ public class GenConfig {
 
 	private String baseDir = "";
 	private String packagePath = "";
-	private String dbName = ""; // 数据库类型 MySQL, Oracle等
+//	private String dbName = ""; // 
+	private String dbName; // 数据库类型 MySQL, Oracle等     fixed bug. V2.1
 	private String queryTableSql = ""; // 查询所有表名的SQL语句，MySQL,Oracle和SQL Server不用设置
 	private boolean genToString;
 	private boolean genSerializable=true; //V1.17默认值改为true
@@ -32,6 +33,14 @@ public class GenConfig {
 	private String fieldFilePrefix="";
 	private String fieldFileSuffix="_F";
 	private boolean genFieldAll=true; //V1.17
+	private boolean genSelfName=true; //V2.0  first letter is lowerCase
+	
+	private boolean genGetSet=true;  //2.1 默认生成
+	
+	//2.1 support lombok
+	private boolean lombokSetter;
+	private boolean lombokGetter;
+	private boolean lombokData;
 
 	public String getEncode() {
 		return encode;
@@ -201,5 +210,45 @@ public class GenConfig {
 	public void setGenFieldAll(boolean genFieldAll) {
 		this.genFieldAll = genFieldAll;
 	}
-	
+
+	public boolean isGenSelfName() {
+		return genSelfName;
+	}
+
+	public void setGenSelfName(boolean genSelfName) {
+		this.genSelfName = genSelfName;
+	}
+
+	public boolean isLombokSetter() {
+		return lombokSetter;
+	}
+
+	public void setLombokSetter(boolean lombokSetter) {
+		this.lombokSetter = lombokSetter;
+	}
+
+	public boolean isLombokGetter() {
+		return lombokGetter;
+	}
+
+	public void setLombokGetter(boolean lombokGetter) {
+		this.lombokGetter = lombokGetter;
+	}
+
+	public boolean isLombokData() {
+		return lombokData;
+	}
+
+	public void setLombokData(boolean lombokData) {
+		this.lombokData = lombokData;
+	}
+
+	public boolean isGenGetSet() {
+		return genGetSet;
+	}
+
+	public void setGenGetSet(boolean genGetSet) {
+		this.genGetSet = genGetSet;
+	}
+
 }

@@ -326,6 +326,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("insert SQL: ", sql);
 		int r= getBeeSql().modify(sql);
+		HoneyUtil.revertId(entity);  //fixed bug
 		doBeforeReturn();
 		return r;
 	}

@@ -1862,7 +1862,16 @@ public final class HoneyUtil {
 	
 	public static <T> void revertId(T entity[]) {
 		Field field = null;
-		String pkName=(String)OneTimeParameter.getAttribute(StringConst.Primary_Key_Name);
+		String pkName=(String)OneTimeParameter.getAttribute(StringConst.Primary_Key_Name);  //可能为null 
+		if (pkName == null) {
+			for (int i = 0; i < entity.length; i++) {
+				//用掉
+				OneTimeParameter.isTrue(StringConst.OLD_ID_EXIST + i);
+				OneTimeParameter.getAttribute(StringConst.OLD_ID + i);
+			}
+			return; // pkName == null时提前返回
+		}
+		
 		for (int i = 0; i < entity.length; i++) {
 
 			if (OneTimeParameter.isTrue(StringConst.OLD_ID_EXIST+i)) {
@@ -1875,6 +1884,9 @@ public final class HoneyUtil {
 					throw new ObjSQLException("entity[] miss id field: the element in entity[] no id field!");
 				} catch (IllegalAccessException e) {
 					throw ExceptionHelper.convert(e);
+				} catch (Exception e) {
+//					e.printStackTrace();
+					Logger.error(e.getMessage(),e);
 				}
 			}
 		}
