@@ -10,12 +10,10 @@ import java.util.List;
 
 import org.teasoft.bee.osql.BeeSql;
 import org.teasoft.bee.osql.Condition;
-import org.teasoft.bee.osql.NameTranslate;
 import org.teasoft.bee.osql.ObjToSQL;
 import org.teasoft.bee.osql.Suid;
 import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.exception.NotSupportedException;
-import org.teasoft.bee.osql.interccept.InterceptorChain;
 
 /**
  * 通过对象来操作数据库，并返回结果.
@@ -24,16 +22,12 @@ import org.teasoft.bee.osql.interccept.InterceptorChain;
  * @author Kingstar
  * Create on 2013-6-30 下午10:19:27
  * @since  1.0
+ * @since  1.17.21 add AbstractCommOperate
  */
-public class ObjSQL implements Suid {
+public class ObjSQL extends AbstractCommOperate implements Suid {
 	
 	private BeeSql beeSql;
 	private ObjToSQL objToSQL;
-	//V1.11
-	//全局的可以使用InterceptorChainRegistry配置;只是某个对象要使用,再使用对象配置
-	private InterceptorChain interceptorChain;
-	private String dsName;
-	private NameTranslate nameTranslate; //用于设置当前对象使用的命名转换器.使用默认的不需要设置
 
 	public BeeSql getBeeSql() {
 		if (beeSql == null) beeSql = BeeFactory.getHoneyFactory().getBeeSql();
@@ -53,38 +47,6 @@ public class ObjSQL implements Suid {
 		this.objToSQL = objToSQL;
 	}
 	
-	@Override
-	public InterceptorChain getInterceptorChain() {
-		if (interceptorChain == null) {
-			interceptorChain = BeeFactory.getHoneyFactory().getInterceptorChain();
-		}
-		return HoneyUtil.copy(interceptorChain);
-	}
-
-	/**
-	 * 全局的可以使用InterceptorChainRegistry配置;只是某个对象要使用,再使用对象配置
-	 * @param interceptorChain
-	 */
-	public void setInterceptorChain(InterceptorChain interceptorChain) {
-		this.interceptorChain = interceptorChain;
-	}
-	
-	@Override
-	public void setNameTranslate(NameTranslate nameTranslate) {
-		this.nameTranslate=nameTranslate;
-	}
-
-	@Override
-	public void setDataSourceName(String dsName) {
-		this.dsName = dsName;
-	}
-
-	@Override
-	public String getDataSourceName() {
-		return dsName;
-//		return Router.getDsName(); //不行. suid的dsName在执行时才通过拦截器设置.若提前通过线程设置,会因顺序原因,被覆盖.
-	}
-
 	@Override
 	public <T> List<T> select(T entity) {
 
@@ -285,33 +247,4 @@ public class ObjSQL implements Suid {
 		HoneyContext.endSameConnection();
 	}
 
-	void doBeforePasreEntity(Object entity, SuidType SuidType) {
-		regSuidType(SuidType);
-		if (this.dsName != null) HoneyContext.setTempDS(dsName);
-		if(this.nameTranslate!=null) HoneyContext.setCurrentNameTranslate(nameTranslate);
-		getInterceptorChain().beforePasreEntity(entity, SuidType);
-	}
-
-	String doAfterCompleteSql(String sql) {
-		//if change the sql,need update the context.
-		sql = getInterceptorChain().afterCompleteSql(sql);
-		return sql;
-	}
-
-	@SuppressWarnings("rawtypes")
-	void doBeforeReturn(List list) {
-		if (this.dsName != null) HoneyContext.removeTempDS();
-		if(this.nameTranslate!=null) HoneyContext.removeCurrentNameTranslate();
-		getInterceptorChain().beforeReturn(list);
-	}
-
-	void doBeforeReturn() {
-		if (this.dsName != null) HoneyContext.removeTempDS();
-		if(this.nameTranslate!=null) HoneyContext.removeCurrentNameTranslate();
-		getInterceptorChain().beforeReturn();
-	}
-	
-	protected void regSuidType(SuidType SuidType) {
-		if (HoneyConfig.getHoneyConfig().isAndroid) HoneyContext.regSuidType(SuidType);
-	}
 }

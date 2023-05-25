@@ -12,24 +12,19 @@ import org.teasoft.bee.osql.BeeSql;
 import org.teasoft.bee.osql.Condition;
 import org.teasoft.bee.osql.MoreObjToSQL;
 import org.teasoft.bee.osql.MoreTable;
-import org.teasoft.bee.osql.NameTranslate;
 import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.exception.BeeIllegalParameterException;
-import org.teasoft.bee.osql.interccept.InterceptorChain;
 
 /**
  * 多表查询,MoreTable实现类.Multi table query, moretable implementation class.
  * @author Kingstar
  * @since  1.7
+ * @since  1.17.21 add AbstractCommOperate
  */
-public class MoreObjSQL implements MoreTable{
+public class MoreObjSQL extends AbstractCommOperate implements MoreTable{
 
 	private BeeSql beeSql;
 	private MoreObjToSQL moreObjToSQL;
-	//V1.11
-	private InterceptorChain interceptorChain;
-	private String dsName;
-	private NameTranslate nameTranslate; //用于设置当前对象使用的命名转换器.使用默认的不需要设置
 	
 	private static final String SELECT_SQL = "select SQL: ";
 
@@ -52,31 +47,6 @@ public class MoreObjSQL implements MoreTable{
 	}
 	
 	@Override
-	public void setNameTranslate(NameTranslate nameTranslate) {
-		this.nameTranslate=nameTranslate;
-	}
-	
-	@Override
-	public InterceptorChain getInterceptorChain() {
-		if (interceptorChain == null) interceptorChain = BeeFactory.getHoneyFactory().getInterceptorChain();
-		return HoneyUtil.copy(interceptorChain);
-	}
-
-	public void setInterceptorChain(InterceptorChain interceptorChain) {
-		this.interceptorChain = interceptorChain;
-	}
-	
-	@Override
-	public void setDataSourceName(String dsName) {
-		this.dsName=dsName;
-	}
-
-	@Override
-	public String getDataSourceName() {
-		return dsName;
-	}
-
-	@Override
 	public <T> List<T> select(T entity) {
 		if (entity == null) return null;
 		doBeforePasreEntity(entity);  //因要解析子表,子表下放再执行
@@ -88,11 +58,13 @@ public class MoreObjSQL implements MoreTable{
 		return list;
 	}
 
+	private static final String START_GREAT_EQ_0 = StringConst.START_GREAT_EQ_0;
+	private static final String SIZE_GREAT_0 = StringConst.SIZE_GREAT_0;
 	@Override
 	public <T> List<T> select(T entity, int start, int size) {
 		if (entity == null) return null;
-		if(size<=0) throw new BeeIllegalParameterException("Parameter 'size' need great than 0!");
-		if(start<0) throw new BeeIllegalParameterException("Parameter 'start' need great equal 0!");
+		if(size<=0) throw new BeeIllegalParameterException(SIZE_GREAT_0);
+		if(start<0) throw new BeeIllegalParameterException(START_GREAT_EQ_0);
 		doBeforePasreEntity(entity);  //因要解析子表,子表下放再执行
 		String sql = getMoreObjToSQL().toSelectSQL(entity,start,size);
 		sql=doAfterCompleteSql(sql);
@@ -121,22 +93,8 @@ public class MoreObjSQL implements MoreTable{
 	}
 
 	private void doBeforePasreEntity(Object entity) {
-		if (this.dsName != null) HoneyContext.setTempDS(dsName);
-		if(this.nameTranslate!=null) HoneyContext.setCurrentNameTranslate(nameTranslate);
-		getInterceptorChain().beforePasreEntity(entity, SuidType.SELECT);
+		super.doBeforePasreEntity(entity, SuidType.SELECT);
 		OneTimeParameter.setAttribute(StringConst.InterceptorChainForMoreTable, getInterceptorChain());//用于子表
-	}
-
-	private String doAfterCompleteSql(String sql) {
-		sql = getInterceptorChain().afterCompleteSql(sql);
-		return sql;
-	}
-
-	@SuppressWarnings("rawtypes")
-	private void doBeforeReturn(List list) {
-		if (this.dsName != null) HoneyContext.removeTempDS();
-		if(this.nameTranslate!=null) HoneyContext.removeCurrentNameTranslate();
-		getInterceptorChain().beforeReturn(list);
 	}
 
 }

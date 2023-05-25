@@ -13,24 +13,18 @@ import java.util.Map;
 import org.teasoft.bee.osql.BeeSql;
 import org.teasoft.bee.osql.MapSql;
 import org.teasoft.bee.osql.MapSuid;
-import org.teasoft.bee.osql.NameTranslate;
 import org.teasoft.bee.osql.SuidType;
-import org.teasoft.bee.osql.interccept.InterceptorChain;
 import org.teasoft.honey.util.ObjectUtils;
 
 /**
  * 操作数据库不依赖javabean结构的类.The class that operation database does not depend on Javabean.
  * @author Kingstar
  * @since  1.9
+ * @since  1.17.21 add AbstractCommOperate
  */
-public class MapSuidImpl implements MapSuid {
+public class MapSuidImpl extends AbstractCommOperate implements MapSuid {
 
 	private BeeSql beeSql;
-
-	//V1.11
-	private InterceptorChain interceptorChain;
-	private String dsName;
-	private NameTranslate nameTranslate; //用于设置当前对象使用的命名转换器.使用默认的不需要设置
 
 	public BeeSql getBeeSql() {
 		if (beeSql == null) beeSql = BeeFactory.getHoneyFactory().getBeeSql();
@@ -39,32 +33,6 @@ public class MapSuidImpl implements MapSuid {
 
 	public void setBeeSql(BeeSql beeSql) {
 		this.beeSql = beeSql;
-	}
-
-	@Override
-	public InterceptorChain getInterceptorChain() {
-		if (interceptorChain == null)
-			interceptorChain = BeeFactory.getHoneyFactory().getInterceptorChain();
-		return HoneyUtil.copy(interceptorChain);
-	}
-
-	public void setInterceptorChain(InterceptorChain interceptorChain) {
-		this.interceptorChain = interceptorChain;
-	}
-
-	@Override
-	public void setDataSourceName(String dsName) {
-		this.dsName = dsName;
-	}
-
-	@Override
-	public String getDataSourceName() {
-		return dsName;
-	}
-	
-	@Override
-	public void setNameTranslate(NameTranslate nameTranslate) {
-		this.nameTranslate=nameTranslate;
 	}
 
 	@Override
@@ -202,26 +170,8 @@ public class MapSuidImpl implements MapSuid {
 	}
 
 	private void doBeforePasreEntity(SuidType suidType) {
-		regSuidType(suidType);
-		if (this.dsName != null) HoneyContext.setTempDS(dsName);
-		if(this.nameTranslate!=null) HoneyContext.setCurrentNameTranslate(nameTranslate);
-		getInterceptorChain().beforePasreEntity(null, suidType);
-	}
-
-	private String doAfterCompleteSql(String sql) {
-		//if change the sql,need update the context.
-		sql = getInterceptorChain().afterCompleteSql(sql);
-		return sql;
-	}
-
-	private void doBeforeReturn() {
-		if (this.dsName != null) HoneyContext.removeTempDS();
-		if(this.nameTranslate!=null) HoneyContext.removeCurrentNameTranslate();
-		getInterceptorChain().beforeReturn();
-	}
-	
-	protected void regSuidType(SuidType SuidType) {
-		if (HoneyConfig.getHoneyConfig().isAndroid) HoneyContext.regSuidType(SuidType);
+		Object entity=null;
+		super.doBeforePasreEntity(entity, suidType);
 	}
 
 }

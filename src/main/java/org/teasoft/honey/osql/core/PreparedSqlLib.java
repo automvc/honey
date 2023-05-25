@@ -5,13 +5,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.teasoft.bee.osql.BeeSql;
-import org.teasoft.bee.osql.NameTranslate;
 import org.teasoft.bee.osql.PreparedSql;
 import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.dialect.DbFeature;
 import org.teasoft.bee.osql.exception.BeeIllegalParameterException;
 import org.teasoft.bee.osql.exception.SqlNullException;
-import org.teasoft.bee.osql.interccept.InterceptorChain;
 import org.teasoft.honey.osql.name.NameUtil;
 import org.teasoft.honey.util.ObjectUtils;
 
@@ -23,24 +21,19 @@ import org.teasoft.honey.util.ObjectUtils;
  * @since  1.0
  * 支持如name=#{name},name like #{name%}的map参数形式
  * @since  1.2
+ * @since  1.17.21 add AbstractCommOperate
  */
-public class PreparedSqlLib implements PreparedSql {
+public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 
 	private BeeSql beeSql;
 
-	//V1.11
-	private InterceptorChain interceptorChain;
-	
-	private String dsName;//用于设置当前对象使用的数据源名称
-	private NameTranslate nameTranslate; //用于设置当前对象使用的命名转换器.使用默认的不需要设置
-	
 	private static final String SELECT_SQL = "PreparedSql select SQL: ";
 	private static final String SELECT_MoreTable_SQL = "PreparedSql select MoreTable SQL: ";
 	private static final String SELECT_SOME_FIELD_SQL = "PreparedSql selectSomeField SQL: ";
 	private static final String SELECT_JSON_SQL = "PreparedSql selectJson SQL: ";
 	private static final String STRING_IS_NULL = "sql statement string is Null !";
-	private static final String START_GREAT_EQ_0 = "Parameter 'start' need great equal 0!";
-	private static final String SIZE_GREAT_0 = "Parameter 'size' need great than 0!";
+	private static final String START_GREAT_EQ_0 = StringConst.START_GREAT_EQ_0;
+	private static final String SIZE_GREAT_0 = StringConst.SIZE_GREAT_0;
 
 	public BeeSql getBeeSql() {
 		if (beeSql == null) beeSql = BeeFactory.getHoneyFactory().getBeeSql();
@@ -54,33 +47,6 @@ public class PreparedSqlLib implements PreparedSql {
 	private DbFeature getDbFeature() {
 		return BeeFactory.getHoneyFactory().getDbFeature();
 	}
-
-	@Override
-	public InterceptorChain getInterceptorChain() {
-		if (interceptorChain == null)
-			interceptorChain = BeeFactory.getHoneyFactory().getInterceptorChain();
-		return HoneyUtil.copy(interceptorChain);
-	}
-
-	public void setInterceptorChain(InterceptorChain interceptorChain) {
-		this.interceptorChain = interceptorChain;
-	}
-
-	@Override
-	public void setDataSourceName(String dsName) {
-		this.dsName = dsName;
-	}
-
-	@Override
-	public String getDataSourceName() {
-		return dsName;
-	}
-	
-	@Override
-	public void setNameTranslate(NameTranslate nameTranslate) {
-		this.nameTranslate=nameTranslate;
-	}
-	
 
 	@Override
 	public <T> List<T> select(String sql, T returnType, Object[] preValues) {
@@ -347,7 +313,7 @@ public class PreparedSqlLib implements PreparedSql {
 	@Deprecated
 	public int modify(String sql, Object[] preValues) {
 
-		doBeforePasreEntity();
+		doBeforePasreEntity2();
 
 		initPreparedValues(sql, preValues);
 
@@ -362,7 +328,7 @@ public class PreparedSqlLib implements PreparedSql {
 	@Deprecated
 	public int modify(String sqlStr, Map<String, Object> map) {
 
-		doBeforePasreEntity();
+		doBeforePasreEntity2();
 
 		String sql = initPrepareValuesViaMap(sqlStr, map);
 
@@ -740,7 +706,7 @@ public class PreparedSqlLib implements PreparedSql {
 		
 		sqlStr = HoneyUtil.deleteLastSemicolon(sqlStr);
 
-		doBeforePasreEntity(); //TODO
+		doBeforePasreEntity2();
 
 		int size = parameterMapList.size();
 
@@ -798,36 +764,14 @@ public class PreparedSqlLib implements PreparedSql {
 		return insertBatch(sqlStr, parameterMapList, batchSize);
 	}
 	
-	
 	private void doBeforePasreEntity() {
-		if (this.dsName != null) HoneyContext.setTempDS(dsName);
-		if(this.nameTranslate!=null) HoneyContext.setCurrentNameTranslate(nameTranslate);
-		getInterceptorChain().beforePasreEntity(null, SuidType.SELECT);
+		Object entity=null;
+		super.doBeforePasreEntity(entity, SuidType.SELECT);
 	}
-
-	private void doBeforePasreEntity(Object entity, SuidType suidType) {//都是select在用
-		if (this.dsName != null) HoneyContext.setTempDS(dsName);
-		if(this.nameTranslate!=null) HoneyContext.setCurrentNameTranslate(nameTranslate);
-		getInterceptorChain().beforePasreEntity(entity, suidType);
-	}
-
-	private String doAfterCompleteSql(String sql) {
-		//if change the sql,need update the context.
-		sql = getInterceptorChain().afterCompleteSql(sql);
-		return sql;
-	}
-
-	@SuppressWarnings("rawtypes")
-	private void doBeforeReturn(List list) {
-		if (this.dsName != null) HoneyContext.removeTempDS();
-		if(this.nameTranslate!=null) HoneyContext.removeCurrentNameTranslate();
-		getInterceptorChain().beforeReturn(list);
-	}
-
-	private void doBeforeReturn() {
-		if (this.dsName != null) HoneyContext.removeTempDS();
-		if(this.nameTranslate!=null) HoneyContext.removeCurrentNameTranslate();
-		getInterceptorChain().beforeReturn();
+	
+	private void doBeforePasreEntity2() {
+		Object entity=null;
+		super.doBeforePasreEntity(entity, SuidType.MODIFY);
 	}
 
 }

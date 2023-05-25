@@ -31,6 +31,7 @@ import org.teasoft.honey.util.SuidHelper;
  * SuidRich实现类.Suidrich implementation class.
  * @author Kingstar
  * @since  1.0
+ * @since  1.17.21 add AbstractCommOperate
  */
 public class ObjSQLRich extends ObjSQL implements SuidRich {
 
@@ -43,8 +44,8 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	private static final String UPDATE_SQL_WHERE_FIELDS = "update SQL(whereFields) :";
 	private static final String UPDATE_SQL_UPDATE_FIELDS = "update SQL(updateFields) :";
 	private static final String ID_IS_NULL = "in method selectById,id is null! ";
-    private static final String START_GREAT_EQ_0 = "Parameter 'start' need great equal 0!";
-	private static final String SIZE_GREAT_0 = "Parameter 'size' need great than 0!";
+	private static final String START_GREAT_EQ_0 = StringConst.START_GREAT_EQ_0;
+	private static final String SIZE_GREAT_0 = StringConst.SIZE_GREAT_0;
 	private static final String TIP_SIZE_0 = "The size is 0, but it should be greater than 0 (>0)";
 	
     
