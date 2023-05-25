@@ -13,10 +13,6 @@ import java.util.Map;
 import org.teasoft.bee.osql.Condition;
 import org.teasoft.bee.osql.FunctionType;
 import org.teasoft.bee.osql.IncludeType;
-import org.teasoft.bee.osql.MapSql;
-import org.teasoft.bee.osql.MapSqlKey;
-import org.teasoft.bee.osql.MapSqlSetting;
-import org.teasoft.bee.osql.MapSuid;
 import org.teasoft.bee.osql.ObjSQLException;
 import org.teasoft.bee.osql.ObjToSQLRich;
 import org.teasoft.bee.osql.OrderType;
@@ -24,7 +20,6 @@ import org.teasoft.bee.osql.SuidRich;
 import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
 import org.teasoft.bee.osql.exception.BeeIllegalParameterException;
-import org.teasoft.honey.osql.name.NameUtil;
 import org.teasoft.honey.util.SuidHelper;
 
 /**
@@ -228,7 +223,11 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	}
 
 	@Override
-	public <T> int update(T entity, String updateFields) {
+	public <T> int update(T entity, String... updateFields) {
+		return _update(entity, updateFields);
+	}
+
+	private <T> int _update(T entity, String... updateFields) {
 		if (entity == null) return -1;
 		doBeforePasreEntity(entity,SuidType.UPDATE);
 		int r = 0;
@@ -801,8 +800,16 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 	public <T> int update(T oldEntity, T newEntity) {
 
 		if (oldEntity == null || newEntity == null) return -1;
+		
+		// 变长参数后, 出现混淆,需要调整
+		if (newEntity.getClass() == String.class) return _update(oldEntity, newEntity.toString());
+		
 		String oldEntityFullName = oldEntity.getClass().getName();
 		String newEntityFullName = newEntity.getClass().getName();
+		
+		Logger.debug(oldEntityFullName);
+		Logger.debug(newEntityFullName);
+		
 		if (!oldEntityFullName.equals(newEntityFullName)) {
 			throw new BeeErrorGrammarException(
 					"BeeErrorGrammarException: the oldEntity and newEntity must be same type!");
@@ -810,23 +817,38 @@ public class ObjSQLRich extends ObjSQL implements SuidRich {
 		
 		doBeforePasreEntity(newEntity,SuidType.UPDATE); //拦截器只处理新实体；  旧实体oldEntity作为条件不在拦截器处理。
 
-		Map<String, Object> oldMap = SuidHelper.entityToMap(oldEntity);
+//		Map<String, Object> oldMap = SuidHelper.entityToMap(oldEntity);
 		Map<String, Object> newMap = SuidHelper.entityToMap(newEntity);
+		
+		
 
-		MapSql updateMapSql = BeeFactoryHelper.getMapSql();
-		updateMapSql.put(MapSqlKey.Table, _toTableName(oldEntity));
-		updateMapSql.put(MapSqlSetting.IsNamingTransfer, true);
-		updateMapSql.put(oldMap);
-		updateMapSql.putNew(newMap);
-
-		Logger.logSQL("update(T oldEntity, T newEntity) with MapSuid, ", "");
-		MapSuid mapSuid = BeeFactoryHelper.getMapSuid();
-		return mapSuid.update(updateMapSql);  //it will use Interceptor
+//		MapSql updateMapSql = BeeFactoryHelper.getMapSql();
+//		updateMapSql.put(MapSqlKey.Table, _toTableName(oldEntity));
+//		updateMapSql.put(MapSqlSetting.IsNamingTransfer, true);
+//		updateMapSql.put(oldMap);
+//		updateMapSql.putNew(newMap);
+//
+//		Logger.logSQL("update(T oldEntity, T newEntity) with MapSuid, ", "");
+//		MapSuid mapSuid = BeeFactoryHelper.getMapSuid();
+//		return mapSuid.update(updateMapSql);  //it will use Interceptor
+		
+//		updateBy不行, 使用updateSet  
+		Condition condition=BeeFactoryHelper.getCondition();
+		for (Map.Entry<String, Object> entry : newMap.entrySet()) {
+			if(HoneyUtil.isNumber(entry.getValue()))
+			   condition.set(entry.getKey(), (Number)entry.getValue());
+			else
+			  condition.set(entry.getKey(), (String)entry.getValue());
+		}
+		
+		Logger.logSQL("update(T oldEntity, T newEntity), ", "");
+		return update(oldEntity, condition);
+		
 	}
 	
-	private static String _toTableName(Object entity) {
-		return NameTranslateHandle.toTableName(NameUtil.getClassFullName(entity));
-	}
+//	private static String _toTableName(Object entity) {
+//		return NameTranslateHandle.toTableName(NameUtil.getClassFullName(entity));
+//	}
 	
 	/**
 	 * 保存一个实体(一条记录).

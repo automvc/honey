@@ -27,6 +27,7 @@ import org.teasoft.honey.distribution.UUID;
 import org.teasoft.honey.osql.dialect.sqlserver.SqlServerPagingStruct;
 import org.teasoft.honey.osql.name.NameUtil;
 import org.teasoft.honey.osql.util.AnnoUtil;
+import org.teasoft.honey.util.StringUtils;
 
 /**
  * 对象到SQL的转换(对应SuidRich).Object to SQL string for SuidRich. 
@@ -204,15 +205,32 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 
 		return sql;
 	}
+	
+	private String[] adjustVariableString(String... fieldList) {
+
+		if (fieldList == null) return new String[] { "" };
+
+		String fields[];
+
+		if (fieldList.length == 1) { // 变长参数,只有一个时,才允许用逗号隔开
+			fields = fieldList[0].split(",");
+		} else {
+			fields = fieldList;
+		}
+		StringUtils.trim(fields);
+		return fields;
+	}
 
 	@Override
-	public <T> String toUpdateSQL(T entity, String updateFieldList) {
+	public <T> String toUpdateSQL(T entity, String... updateFieldList) {
 		if (updateFieldList == null) return null;
 
 		String sql = "";
-		String updateFields[] = updateFieldList.split(",");
+//		String updateFields[] = updateFieldList.split(",");
+		
+		String updateFields[]=adjustVariableString(updateFieldList);
 
-		if (updateFields.length == 0 || "".equals(updateFieldList.trim())) throw new ObjSQLException("ObjSQLException:updateFieldList at least include one field.");
+		if (updateFields.length == 0 || "".equals(updateFieldList[0].trim())) throw new ObjSQLException("ObjSQLException:updateFieldList at least include one field.");
 
 		sql = _ObjectToSQLHelper._toUpdateSQL(entity, updateFields, -1);
 		return sql;

@@ -154,17 +154,26 @@ public final class StringUtils {
 		return buf.toString();
 	}
 	
-	  public static String getUnicode(String str) {
-	        String strTemp = "";
-	        if (str != null) {
-	            for (char c : str.toCharArray()) {
-	                if (c > 255) {
-	                    strTemp += "\\u" + Integer.toHexString((int)c);
-	                } else {
-	                    strTemp += "\\u00" + Integer.toHexString((int)c);
-	                }
-	            }
-	        }
-	        return strTemp;
-	    }
+	public static String getUnicode(String str) {
+		String strTemp = "";
+		if (str != null) {
+			for (char c : str.toCharArray()) {
+				if (c > 255) {
+					strTemp += "\\u" + Integer.toHexString((int) c);
+				} else {
+					strTemp += "\\u00" + Integer.toHexString((int) c);
+				}
+			}
+		}
+		return strTemp;
+	}
+
+	public static void trim(String str[]) {
+
+		if (str == null || str.length == 0) return;
+
+		for (int i = 0; i < str.length; i++) {
+			str[i] = str[i].trim();
+		}
+	}
 }
