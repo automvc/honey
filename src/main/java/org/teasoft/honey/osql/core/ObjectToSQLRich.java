@@ -18,12 +18,8 @@ import org.teasoft.bee.osql.ObjSQLIllegalSQLStringException;
 import org.teasoft.bee.osql.ObjToSQLRich;
 import org.teasoft.bee.osql.OrderType;
 import org.teasoft.bee.osql.SuidType;
-import org.teasoft.bee.osql.annotation.GenId;
-import org.teasoft.bee.osql.annotation.GenUUID;
 import org.teasoft.bee.osql.dialect.DbFeature;
 import org.teasoft.bee.osql.exception.BeeIllegalEntityException;
-import org.teasoft.honey.distribution.GenIdFactory;
-import org.teasoft.honey.distribution.UUID;
 import org.teasoft.honey.osql.dialect.sqlserver.SqlServerPagingStruct;
 import org.teasoft.honey.osql.name.NameUtil;
 import org.teasoft.honey.osql.util.AnnoUtil;
@@ -38,40 +34,10 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 
 	private static final String ASC = K.asc;
 	
-	private int batchSize = HoneyConfig.getHoneyConfig().insertBatchSize;
-
 	private DbFeature getDbFeature() {
 		return BeeFactory.getHoneyFactory().getDbFeature();
 	}
 
-	@Override
-	public <T> String toSelectSQL(T entity, int size) {
-		
-		String tableName="";
-		if(isNeedRealTimeDb()) {
-			tableName= _toTableName(entity);  //这里,取过了参数, 到解析sql的,就不能再取
-			OneTimeParameter.setAttribute(StringConst.TABLE_NAME, tableName);
-			HoneyContext.initRouteWhenParseSql(SuidType.SELECT, entity.getClass(),tableName);
-			OneTimeParameter.setTrueForKey(StringConst.ALREADY_SET_ROUTE);
-		}
-
-		SqlValueWrap wrap = toSelectSQL_0(entity);
-		String sql = wrap.getSql();
-		regPagePlaceholder();
-		adjustSqlServerPagingPkIfNeed(sql, entity.getClass());
-		sql = getDbFeature().toPageSql(sql, size);
-		HoneyUtil.setPageNum(wrap.getList());
-		
-		if(isNeedRealTimeDb()) {
-			setContext(sql, wrap.getList(), tableName);
-		}else {
-			setContext(sql, wrap.getList(), wrap.getTableNames());
-		}
-		
-		Logger.logSQL("select SQL(entity,size): ", sql);
-		return sql;
-	}
-	
 	private void regPagePlaceholder(){
 		HoneyUtil.regPagePlaceholder();
 	}
@@ -91,7 +57,10 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		String sql = wrap.getSql();
 		regPagePlaceholder();
 		adjustSqlServerPagingPkIfNeed(sql, entity.getClass());
-		sql = getDbFeature().toPageSql(sql, start, size);
+		if (start == -1)
+		   sql = getDbFeature().toPageSql(sql, size);
+		else
+		    sql = getDbFeature().toPageSql(sql, start, size);
 		HoneyUtil.setPageNum(wrap.getList());
 		
 		if(isNeedRealTimeDb()) {
@@ -100,29 +69,15 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			setContext(sql, wrap.getList(), wrap.getTableNames());
 		}
 
-		Logger.logSQL("select(entity,start,size) SQL: ", sql);
+		if (start == -1)
+			Logger.logSQL("select SQL(entity,size): ", sql);
+		else
+		   Logger.logSQL("select(entity,start,size) SQL: ", sql);
 		return sql;
-	}
-	
-	private void adjustSqlServerPagingPkIfNeed(String sql, Class entityClass) {
-		
-		if (!HoneyUtil.isSqlServer()) return ;
-		
-		String pkName = HoneyUtil.getPkFieldNameByClass(entityClass);
-		
-		if ("".equals(pkName)) return; //自定义主键为空,则不需要替换
-		
-		pkName = pkName.split(",")[0]; // 有多个,只取第一个
-		pkName=_toColumnName(pkName, entityClass);
-		
-		SqlServerPagingStruct struct=new SqlServerPagingStruct();
-		struct.setJustChangeOrderColumn(true);
-		struct.setOrderColumn(pkName);
-		HoneyContext.setSqlServerPagingStruct(sql, struct);
 	}
 
 	@Override
-	public <T> String toSelectSQL(T entity, String selectFields, int start, int size) {
+	public <T> String toSelectSQL(T entity, int start, int size, String... selectFields) {
 
 		String tableName="";
 		if(isNeedRealTimeDb()) {
@@ -149,6 +104,23 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		return sql;
 	}
 	
+	private void adjustSqlServerPagingPkIfNeed(String sql, Class entityClass) {
+		
+		if (!HoneyUtil.isSqlServer()) return ;
+		
+		String pkName = HoneyUtil.getPkFieldNameByClass(entityClass);
+		
+		if ("".equals(pkName)) return; //自定义主键为空,则不需要替换
+		
+		pkName = pkName.split(",")[0]; // 有多个,只取第一个
+		pkName=_toColumnName(pkName, entityClass);
+		
+		SqlServerPagingStruct struct=new SqlServerPagingStruct();
+		struct.setJustChangeOrderColumn(true);
+		struct.setOrderColumn(pkName);
+		HoneyContext.setSqlServerPagingStruct(sql, struct);
+	}
+	
 	@Override
 	public <T> String toSelectSQL(T entity, String... fields) {
 		
@@ -168,6 +140,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	public <T> String toSelectOrderBySQL(T entity, String orderFieldList) {
 
 		String orderFields[] = orderFieldList.split(",");
+		StringUtils.trim(orderFields);
 		int lenA = orderFields.length;
 
 		String orderBy = "";
@@ -188,6 +161,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	public <T> String toSelectOrderBySQL(T entity, String orderFieldList, OrderType[] orderTypes) {
 		
 		String orderFields[] = orderFieldList.split(",");
+		StringUtils.trim(orderFields);
 		int lenA = orderFields.length;
 
 		if (lenA != orderTypes.length) throw new ObjSQLException("ObjSQLException :The length of orderField is not equal orderTypes'.");
@@ -225,28 +199,25 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	public <T> String toUpdateSQL(T entity, String... updateFieldList) {
 		if (updateFieldList == null) return null;
 
-		String sql = "";
 //		String updateFields[] = updateFieldList.split(",");
 		
 		String updateFields[]=adjustVariableString(updateFieldList);
 
 		if (updateFields.length == 0 || "".equals(updateFieldList[0].trim())) throw new ObjSQLException("ObjSQLException:updateFieldList at least include one field.");
 
-		sql = _ObjectToSQLHelper._toUpdateSQL(entity, updateFields, -1);
-		return sql;
+		return _ObjectToSQLHelper._toUpdateSQL(entity, updateFields, -1);
 	}
 
 	@Override
-	public <T> String toUpdateSQL(T entity, String updateFieldList, IncludeType includeType) {
+	public <T> String toUpdateSQL(T entity, IncludeType includeType, String... updateFieldList) {
 		if (updateFieldList == null) return null;
 
-		String sql = "";
-		String updateFields[] = updateFieldList.split(",");
+//		String updateFields[] = updateFieldList.split(",");
+		String updateFields[]=adjustVariableString(updateFieldList);
 
-		if (updateFields.length == 0 || "".equals(updateFieldList.trim())) throw new ObjSQLException("ObjSQLException:updateFieldList at least include one field.");
+		if (updateFields.length == 0 || "".equals(updateFieldList[0].trim())) throw new ObjSQLException("ObjSQLException:updateFieldList at least include one field.");
 
-		sql = _ObjectToSQLHelper._toUpdateSQL(entity, updateFields, includeType.getValue());
-		return sql;
+		return _ObjectToSQLHelper._toUpdateSQL(entity, updateFields, includeType.getValue());
 	}
 
 	@Override
@@ -391,19 +362,14 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		return sql;
 	}
 
-	@Override
-	public <T> String[] toInsertSQL(T entity[]) {
-		return toInsertSQL(entity, "");
-	}
+//	@Override
+//	public <T> String[] toInsertSQL(T entity[]) {
+//		return toInsertSQL(entity, "");
+//	}
 	
 	private static final String INDEX1 = "_SYS[index";
 	private static final String INDEX2 = "]_End ";
 	private static final String INDEX3 = "]";
-	
-	@Override
-	public <T> String[] toInsertSQL(T entity[], String excludeFieldList) {
-		return toInsertSQL(entity, batchSize, excludeFieldList);
-	}
 	
 	@Override
 	public <T> String[] toInsertSQL(T entity[],int batchSize, String excludeFieldList) {
@@ -414,7 +380,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		try {
 			int len = entity.length;
 			
-			setInitArrayIdByAuto(entity);
+//			HoneyUtil.setInitArrayIdByAuto(entity);  //移到上游 2.1
 			
 			sql = new String[len];  //只用sql[0]
 			String t_sql = "";
@@ -445,7 +411,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		try {
 			int len = entity.length;
 			
-			setInitArrayIdByAuto(entity);
+//			HoneyUtil.setInitArrayIdByAuto(entity); //移到上游 2.1
 			
 			sql = new String[len];  //只用sql[0]
 			
@@ -618,42 +584,44 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		return type;
 	}
 
-	@Override
-	public <T> String toSelectSQL(T entity, IncludeType includeType, Condition condition) {
-		if (includeType == null)
-			return _ObjectToSQLHelper._toSelectSQL(entity, -1, condition);
-		else
-			return _ObjectToSQLHelper._toSelectSQL(entity, includeType.getValue(), condition);
-	}
+//	@Override
+//	public <T> String toSelectSQL(T entity, IncludeType includeType, Condition condition) {
+//		if (includeType == null)
+//			return _ObjectToSQLHelper._toSelectSQL(entity, -1, condition);
+//		else
+//			return _ObjectToSQLHelper._toSelectSQL(entity, includeType.getValue(), condition);
+//	}
 	
-	private <T> String _toUpdateBySQL(T entity, String whereFieldList, int includeType) {
+	private <T> String _toUpdateBySQL(T entity, int includeType, String... whereFieldList) {
 		if (whereFieldList == null) return null;
+		if (whereFieldList.length == 0 || "".equals(whereFieldList[0].trim())) throw new ObjSQLException("ObjSQLException:whereFieldList at least include one field.");
 
 		String sql = "";
-		String whereFields[] = whereFieldList.split(",");
-
-		if (whereFields.length == 0 || "".equals(whereFieldList.trim())) throw new ObjSQLException("ObjSQLException:whereFieldList at least include one field.");
+//		String whereFields[] = whereFieldList.split(",");
+		String whereFields[] = adjustVariableString(whereFieldList);
 
 		sql = _ObjectToSQLHelper._toUpdateBySQL(entity, whereFields, includeType);
 		return sql;
 	}
 	
 	@Override
-	public <T> String toUpdateBySQL(T entity, String whereFieldList) {
-	    return _toUpdateBySQL(entity, whereFieldList, -1);
+	public <T> String toUpdateBySQL(T entity, String... whereFieldList) {
+	    return _toUpdateBySQL(entity, -1, whereFieldList);
 	}
 
 	@Override
-	public <T> String toUpdateBySQL(T entity, String whereFieldList, IncludeType includeType) {
-		return _toUpdateBySQL(entity, whereFieldList, includeType.getValue());
+	public <T> String toUpdateBySQL(T entity, IncludeType includeType, String... whereFieldList) {
+		return _toUpdateBySQL(entity, includeType.getValue(), whereFieldList);
 	}
 
 	@Override
-	public <T> String toUpdateBySQL(T entity, String whereFieldList, Condition condition) {
+	public <T> String toUpdateBySQL(T entity, Condition condition, String... whereFieldList) {
 
-		String whereFields[] = whereFieldList.split(",");
-		if (whereFields.length == 0 || "".equals(whereFieldList.trim()))
+		if (whereFieldList.length == 0 || "".equals(whereFieldList[0].trim()))
 			throw new ObjSQLException("ObjSQLException:whereFieldList at least include one field.");
+		
+//		String whereFields[] = whereFieldList.split(",");
+		String whereFields[] = adjustVariableString(whereFieldList);
 
 		if (condition == null || condition.getIncludeType() == null) {
 			return _ObjectToSQLHelper._toUpdateBySQL(entity, whereFields, -1, condition); //includeType=-1
@@ -663,10 +631,14 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	}
 
 	@Override
-	public <T> String toUpdateSQL(T entity, String updateFieldList, Condition condition) {
+	public <T> String toUpdateSQL(T entity, Condition condition, String... updateFieldList) {
 		
-		if(updateFieldList==null) updateFieldList="";
-		String updateFields[] = updateFieldList.split(","); //setColmns
+//		if(updateFieldList==null) updateFieldList="";
+//		String updateFields[] = updateFieldList.split(","); //setColmns
+		String updateFields[] = adjustVariableString(updateFieldList); //setColmns
+		
+		
+		
 //		if (updateFields.length == 0 || "".equals(updateFieldList.trim()))  //close in v1.8    because: set can define in condition
 //			throw new ObjSQLException("ObjSQLException:updateFieldList at least include one field.");
 
@@ -694,13 +666,14 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		return sqlBuffer.toString();
 	}
 	
-	private String _toSelectAndDeleteByIdSQL(SqlValueWrap wrap, String ids, String idType,String pkName,Class entityClass) {
+	private String _toSelectAndDeleteByIdSQL(SqlValueWrap wrap, String ids, String idType,String pkName,Class<?> entityClass) {
 
 		StringBuffer sqlBuffer=wrap.getValueBuffer(); //sqlBuffer
 		List<PreparedValue> list=new ArrayList<>();
 		PreparedValue preparedValue=null;
 
 		String idArray[]=ids.split(",");
+		StringUtils.trim(idArray);
 //		String t_ids="id=?";
 		String id0=_id(pkName,entityClass) + "=?";
 		String t_ids=id0;
@@ -782,7 +755,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		return toSelectSQL_0(entity,null);
 	}
 	
-	private <T> SqlValueWrap toSelectSQL_0(T entity,String selectField) {
+	private <T> SqlValueWrap toSelectSQL_0(T entity, String... selectField) {
 
 		StringBuffer sqlBuffer = new StringBuffer();
 		SqlValueWrap wrap = new SqlValueWrap();
@@ -800,7 +773,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			
 			Field fields[] = entity.getClass().getDeclaredFields(); //返回所有字段,包括公有和私有    
 			String fieldNames ="";
-			if (selectField != null && !"".equals(selectField.trim())) {
+			if (selectField != null && !"".equals(selectField[0].trim())) {
 				fieldNames = HoneyUtil.checkAndProcessSelectField(entity, selectField);
 			} else {
 				String packageAndClassName = entity.getClass().getName();
@@ -889,140 +862,6 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 //		return NameTranslateHandle.toColumnName("id");
 		return NameTranslateHandle.toColumnName(pkName,entityClass);
 	}
-
-//use entity[0], not entity, sync from V2.1
-private <T> void setInitArrayIdByAuto(T entity[]) {
-	
-	if(entity==null || entity.length<1) return ;
-	
-//	boolean needGenId = HoneyContext.isNeedGenId(entity[0].getClass());
-//	if (!needGenId) return;
-	
-	boolean hasValue = false;
-//	Long v = null;
-
-	Field field0 = null;
-	String pkName ="";	
-	String pkAlias="";
-	boolean isStringField=false;
-	boolean hasGenUUIDAnno=false;
-	boolean useSeparatorInUUID=false;
-	try {
-		//V1.11
-		boolean noId = false;
-		try {
-			field0 = entity[0].getClass().getDeclaredField("id");
-			pkName="id";
-		} catch (NoSuchFieldException e) {
-			noId = true;
-		}
-		if (noId) {
-			pkName = HoneyUtil.getPkFieldName(entity[0]);
-			if("".equals(pkName) || pkName.contains(",")) return ; //just support single primary key.
-			field0 = entity[0].getClass().getDeclaredField(pkName); //fixed 1.17
-			pkAlias="("+pkName+")";
-		}	
-		
-		if (field0==null) return; //没有主键,则提前返回
-		
-		boolean replaceOldValue = HoneyConfig.getHoneyConfig().genid_replaceOldId;
-		
-		if(field0.isAnnotationPresent(GenId.class)) {
-			GenId genId=field0.getAnnotation(GenId.class);
-			replaceOldValue=replaceOldValue || genId.override();
-		}else if(field0.isAnnotationPresent(GenUUID.class)) {
-			GenUUID gen=field0.getAnnotation(GenUUID.class);
-			replaceOldValue=replaceOldValue || gen.override();
-			hasGenUUIDAnno=true;
-			useSeparatorInUUID=gen.useSeparator();
-		}else {
-			boolean needGenId = HoneyContext.isNeedGenId(entity[0].getClass());
-			if (!needGenId) return ;
-		}
-		
-		
-		isStringField=field0.getType().equals(String.class);
-		if(hasGenUUIDAnno && !isStringField) {
-			Logger.warn("Gen UUID as id just support String type field!");
-			return ;
-		}
-		
-		
-//		if (!field0.getType().equals(Long.class)) {//just set the null Long id field
-		if (_ObjectToSQLHelper.errorType(field0)) {//set Long or Integer type id
-			Logger.warn("The id"+pkAlias+" field's "+field0.getType()+" is not Long/Integer, can not generate the Long/Integer id automatically!");
-			return; 
-		}
-		
-//		field.setAccessible(true);
-//		if (field.get(entity[0]) != null) return; //即使没值,运行一次后也会有值,下次再用就会重复.而用户又不知道.    //要提醒是被覆盖了。
-	
-//		boolean replaceOldValue = HoneyConfig.getHoneyConfig().genid_replaceOldId;
-		
-		int len = entity.length;
-		String tableKey = _toTableName(entity[0]);
-		long ids[];
-		long id =0;
-		if (_ObjectToSQLHelper.isInt(field0)) {
-			ids = GenIdFactory.getRangeId(tableKey, GenIdFactory.GenType_IntSerialIdReturnLong, len);
-			id = ids[0];
-		} else if(! hasGenUUIDAnno) {
-			ids = GenIdFactory.getRangeId(tableKey, len);
-			id = ids[0];
-		}
-		
-		Field field = null;
-		for (int i = 0; i < len; id++, i++) {
-			if(entity[i]==null) continue;
-			hasValue = false;
-//			v = null;
-			
-			field = entity[i].getClass().getDeclaredField(pkName);
-			field.setAccessible(true);
-			Object obj = field.get(entity[i]);
-			
-			if (obj != null) {
-				if (!replaceOldValue) return ;
-				hasValue = true;
-//				v = (Long) obj;
-			}
-			
-//			OneTimeParameter.setTrueForKey(StringConst.OLD_ID_EXIST+i);
-//			OneTimeParameter.setAttribute(StringConst.OLD_ID+i, obj);
-			
-			field.setAccessible(true);
-			try {
-				if (_ObjectToSQLHelper.isInt(field0))
-					field.set(entity[i], (int)id);
-				else if(!hasGenUUIDAnno && isStringField) //没有用GenUUID又是String
-					field.set(entity[i], id+"");
-				else if(hasGenUUIDAnno && isStringField) //用GenUUID
-					field.set(entity[i], UUID.getId(useSeparatorInUUID));
-				else
-					field.set(entity[i], id);
-				if (hasValue) {
-					Logger.warn(" [ID WOULD BE REPLACED] entity["+i+"] : " + entity[0].getClass() + " 's id field"+pkAlias+" value is " + obj.toString()
-							+ " would be replace by " + id);
-				}
-				
-				//fixed bug
-				OneTimeParameter.setAttribute(StringConst.Primary_Key_Name, pkName);
-				OneTimeParameter.setTrueForKey(StringConst.OLD_ID_EXIST+i);
-				OneTimeParameter.setAttribute(StringConst.OLD_ID+i, obj);
-			} catch (IllegalAccessException e) {
-				throw ExceptionHelper.convert(e);
-			}
-		}
-//		OneTimeParameter.setAttribute(StringConst.Primary_Key_Name, pkName); //bug,在分片批量插入时,多线程下,有可能设置不成功
-	
-	} catch (NoSuchFieldException e) {
-		//is no id field , ignore.
-		return;
-	} catch (Exception e) {
-		Logger.error(e.getMessage(),e);
-		return;
-	}
-}
 	
 	private boolean isNeedRealTimeDb() {
 		return HoneyContext.isNeedRealTimeDb();

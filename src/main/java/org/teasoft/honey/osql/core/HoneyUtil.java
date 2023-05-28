@@ -15,6 +15,8 @@ import org.teasoft.bee.osql.BeeException;
 import org.teasoft.bee.osql.DatabaseConst;
 import org.teasoft.bee.osql.ObjSQLException;
 import org.teasoft.bee.osql.Serializer;
+import org.teasoft.bee.osql.annotation.GenId;
+import org.teasoft.bee.osql.annotation.GenUUID;
 import org.teasoft.bee.osql.annotation.JoinTable;
 import org.teasoft.bee.osql.annotation.JoinType;
 import org.teasoft.bee.osql.annotation.JustFetch;
@@ -27,6 +29,8 @@ import org.teasoft.bee.osql.exception.JoinTableException;
 import org.teasoft.bee.osql.exception.JoinTableParameterException;
 import org.teasoft.bee.osql.interccept.InterceptorChain;
 import org.teasoft.bee.osql.type.SetParaTypeConvert;
+import org.teasoft.honey.distribution.GenIdFactory;
+import org.teasoft.honey.distribution.UUID;
 import org.teasoft.honey.osql.constant.NullEmpty;
 import org.teasoft.honey.osql.name.NameUtil;
 import org.teasoft.honey.osql.type.*;
@@ -1896,6 +1900,141 @@ public final class HoneyUtil {
 	static <T> String getPkFieldName(T entity) {
 		if (entity == null) return null;
 		return getPkFieldNameByClass(entity.getClass());
+	}
+	
+	
+	//use entity[0], not entity, sync from V2.1
+	static <T> void setInitArrayIdByAuto(T entity[]) {
+		
+		if(entity==null || entity.length<1) return ;
+		
+//		boolean needGenId = HoneyContext.isNeedGenId(entity[0].getClass());
+//		if (!needGenId) return;
+		
+		boolean hasValue = false;
+//		Long v = null;
+
+		Field field0 = null;
+		String pkName ="";	
+		String pkAlias="";
+		boolean isStringField=false;
+		boolean hasGenUUIDAnno=false;
+		boolean useSeparatorInUUID=false;
+		try {
+			//V1.11
+			boolean noId = false;
+			try {
+				field0 = entity[0].getClass().getDeclaredField("id");
+				pkName="id";
+			} catch (NoSuchFieldException e) {
+				noId = true;
+			}
+			if (noId) {
+				pkName = HoneyUtil.getPkFieldName(entity[0]);
+				if("".equals(pkName) || pkName.contains(",")) return ; //just support single primary key.
+				field0 = entity[0].getClass().getDeclaredField(pkName); //fixed 1.17
+				pkAlias="("+pkName+")";
+			}	
+			
+			if (field0==null) return; //没有主键,则提前返回
+			
+			boolean replaceOldValue = HoneyConfig.getHoneyConfig().genid_replaceOldId;
+			
+			if(field0.isAnnotationPresent(GenId.class)) {
+				GenId genId=field0.getAnnotation(GenId.class);
+				replaceOldValue=replaceOldValue || genId.override();
+			}else if(field0.isAnnotationPresent(GenUUID.class)) {
+				GenUUID gen=field0.getAnnotation(GenUUID.class);
+				replaceOldValue=replaceOldValue || gen.override();
+				hasGenUUIDAnno=true;
+				useSeparatorInUUID=gen.useSeparator();
+			}else {
+				boolean needGenId = HoneyContext.isNeedGenId(entity[0].getClass());
+				if (!needGenId) return ;
+			}
+			
+			
+			isStringField=field0.getType().equals(String.class);
+			if(hasGenUUIDAnno && !isStringField) {
+				Logger.warn("Gen UUID as id just support String type field!");
+				return ;
+			}
+			
+			
+//			if (!field0.getType().equals(Long.class)) {//just set the null Long id field
+			if (_ObjectToSQLHelper.errorType(field0)) {//set Long or Integer type id
+				Logger.warn("The id"+pkAlias+" field's "+field0.getType()+" is not Long/Integer, can not generate the Long/Integer id automatically!");
+				return; 
+			}
+			
+//			field.setAccessible(true);
+//			if (field.get(entity[0]) != null) return; //即使没值,运行一次后也会有值,下次再用就会重复.而用户又不知道.    //要提醒是被覆盖了。
+		
+//			boolean replaceOldValue = HoneyConfig.getHoneyConfig().genid_replaceOldId;
+			
+			int len = entity.length;
+			String tableKey = _toTableName(entity[0]);
+			long ids[];
+			long id =0;
+			if (_ObjectToSQLHelper.isInt(field0)) {
+				ids = GenIdFactory.getRangeId(tableKey, GenIdFactory.GenType_IntSerialIdReturnLong, len);
+				id = ids[0];
+			} else if(! hasGenUUIDAnno) {
+				ids = GenIdFactory.getRangeId(tableKey, len);
+				id = ids[0];
+			}
+			
+			Field field = null;
+			for (int i = 0; i < len; id++, i++) {
+				if(entity[i]==null) continue;
+				hasValue = false;
+//				v = null;
+				
+				field = entity[i].getClass().getDeclaredField(pkName);
+				field.setAccessible(true);
+				Object obj = field.get(entity[i]);
+				
+				if (obj != null) {
+					if (!replaceOldValue) return ;
+					hasValue = true;
+//					v = (Long) obj;
+				}
+				
+//				OneTimeParameter.setTrueForKey(StringConst.OLD_ID_EXIST+i);
+//				OneTimeParameter.setAttribute(StringConst.OLD_ID+i, obj);
+				
+				field.setAccessible(true);
+				try {
+					if (_ObjectToSQLHelper.isInt(field0))
+						field.set(entity[i], (int)id);
+					else if(!hasGenUUIDAnno && isStringField) //没有用GenUUID又是String
+						field.set(entity[i], id+"");
+					else if(hasGenUUIDAnno && isStringField) //用GenUUID
+						field.set(entity[i], UUID.getId(useSeparatorInUUID));
+					else
+						field.set(entity[i], id);
+					if (hasValue) {
+						Logger.warn(" [ID WOULD BE REPLACED] entity["+i+"] : " + entity[0].getClass() + " 's id field"+pkAlias+" value is " + obj.toString()
+								+ " would be replace by " + id);
+					}
+					
+					//fixed bug
+					OneTimeParameter.setAttribute(StringConst.Primary_Key_Name, pkName);
+					OneTimeParameter.setTrueForKey(StringConst.OLD_ID_EXIST+i);
+					OneTimeParameter.setAttribute(StringConst.OLD_ID+i, obj);
+				} catch (IllegalAccessException e) {
+					throw ExceptionHelper.convert(e);
+				}
+			}
+//			OneTimeParameter.setAttribute(StringConst.Primary_Key_Name, pkName); //bug,在分片批量插入时,多线程下,有可能设置不成功
+		
+		} catch (NoSuchFieldException e) {
+			//is no id field , ignore.
+			return;
+		} catch (Exception e) {
+			Logger.error(e.getMessage(),e);
+			return;
+		}
 	}
 	
 	/**
