@@ -76,7 +76,7 @@ public class SimpleRewriteSql {
 		boolean justSomeDs = ShardingUtil.hadShardingSomeDsFullSelect();
 		List<String> dsNameList = HoneyContext.getListLocal(StringConst.DsNameListLocal);
 
-		//fixed bug
+		//fixed bug 2.1
 		if(map==null || map.size()<=0) throw new ShardingErrorException("Can not find the FullNodes by baseTableName:"+baseTableName);
 			
 		for (Map.Entry<String, Set<String>> entry : map.entrySet()) {
