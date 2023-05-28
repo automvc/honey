@@ -85,7 +85,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 
 		String tableName="";
 		if(isNeedRealTimeDb()) {
-			tableName= _toTableName(entity);  //这里,取过了参数, 到解析sql的,就不能再取
+			tableName= _toTableName(entity);  //这里,取过了参数, 到解析sql的,就不能再取 
 			OneTimeParameter.setAttribute(StringConst.TABLE_NAME, tableName);
 			HoneyContext.initRouteWhenParseSql(SuidType.SELECT, entity.getClass(),tableName);
 			OneTimeParameter.setTrueForKey(StringConst.ALREADY_SET_ROUTE);
