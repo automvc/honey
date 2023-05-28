@@ -76,7 +76,7 @@ public class SqlLibForApp extends SqlLib {
 
 		if (sql == null || "".equals(sql.trim())) return Collections.emptyList();
 
-		boolean isReg = updateInfoInCache(sql, "List<T>", SuidType.SELECT);
+		boolean isReg = updateInfoInCache(sql, "List<T>", SuidType.SELECT, entity.getClass());
 		if (isReg) {
 			initRoute(SuidType.SELECT, entity.getClass(), sql);
 			Object cacheObj = getCache().get(sql); //这里的sql还没带有值
@@ -123,10 +123,10 @@ public class SqlLibForApp extends SqlLib {
 	@Override
 	public String selectFun(String sql) {
 		if(sql==null || "".equals(sql.trim())) return null;
-		
-		boolean isReg = updateInfoInCache(sql, "String", SuidType.SELECT);
+		Class entityClass = (Class) OneTimeParameter.getAttribute(StringConst.Route_EC);
+		boolean isReg = updateInfoInCache(sql, "String", SuidType.SELECT,entityClass);
 		if (isReg) {
-			initRoute(SuidType.SELECT, null, sql);
+			initRoute(SuidType.SELECT, entityClass, sql);
 			Object cacheObj = getCache().get(sql); //这里的sql还没带有值
 			if (cacheObj != null) {
 				clearContext(sql);
@@ -165,10 +165,10 @@ public class SqlLibForApp extends SqlLib {
 	public List<String[]> select(String sql) {
 		
 		if(sql==null || "".equals(sql.trim())) return Collections.emptyList();
-		
-		boolean isReg = updateInfoInCache(sql, "List<String[]>", SuidType.SELECT);
+		Class entityClass = (Class) OneTimeParameter.getAttribute(StringConst.Route_EC);
+		boolean isReg = updateInfoInCache(sql, "List<String[]>", SuidType.SELECT,entityClass);
 		if (isReg) {
-			initRoute(SuidType.SELECT, null, sql);
+			initRoute(SuidType.SELECT, entityClass, sql);
 			Object cacheObj = getCache().get(sql); //这里的sql还没带有值
 			if (cacheObj != null) {
 				clearContext(sql);
@@ -220,7 +220,7 @@ public class SqlLibForApp extends SqlLib {
 		
 	if(sql==null || "".equals(sql.trim())) return Collections.emptyList();
 		
-		boolean isReg = updateInfoInCache(sql, "List<Map<String,Object>>", SuidType.SELECT);
+		boolean isReg = updateInfoInCache(sql, "List<Map<String,Object>>", SuidType.SELECT,null);
 		if (isReg) { 
 			initRoute(SuidType.SELECT, null, sql);
 			Object cacheObj = getCache().get(sql); //这里的sql还没带有值
@@ -275,8 +275,8 @@ public class SqlLibForApp extends SqlLib {
 		
 		if(sql==null || "".equals(sql.trim())) return null;
 		
-		boolean isReg = updateInfoInCache(sql, "StringJson", SuidType.SELECT);
 		Class entityClass = (Class) OneTimeParameter.getAttribute(StringConst.Route_EC);
+		boolean isReg = updateInfoInCache(sql, "StringJson", SuidType.SELECT,entityClass);
 		if (isReg) {
 			initRoute(SuidType.SELECT, entityClass, sql);
 			Object cacheObj = getCache().get(sql); //这里的sql还没带有值
@@ -471,7 +471,7 @@ public class SqlLibForApp extends SqlLib {
 		boolean subOneIsList1=moreTableStruct[0].subOneIsList;
 		boolean subTwoIsList2=moreTableStruct[0].subTwoIsList;
 		String listFieldType=""+subOneIsList1+subTwoIsList2+moreTableStruct[0].oneHasOne;
-		boolean isReg = updateInfoInCache(sql, "List<T>"+listFieldType, SuidType.SELECT);
+		boolean isReg = updateInfoInCache(sql, "List<T>"+listFieldType, SuidType.SELECT, entity.getClass());
 		if (isReg) {
 			initRoute(SuidType.SELECT, entity.getClass(), sql); //多表查询的多个表要在同一个数据源.
 			Object cacheObj = getCache().get(sql); //这里的sql还没带有值

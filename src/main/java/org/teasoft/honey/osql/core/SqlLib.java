@@ -75,7 +75,7 @@ public class SqlLib implements BeeSql {
 
 		if (sql == null || "".equals(sql.trim())) return Collections.emptyList();
 
-		boolean isReg = updateInfoInCache(sql, "List<T>", SuidType.SELECT);
+		boolean isReg = updateInfoInCache(sql, "List<T>", SuidType.SELECT, entity.getClass());
 		if (isReg) {
 			initRoute(SuidType.SELECT, entity.getClass(), sql);
 			Object cacheObj = getCache().get(sql); //这里的sql还没带有值
@@ -236,10 +236,10 @@ public class SqlLib implements BeeSql {
 	public String selectFun(String sql) {
 		
 		if(sql==null || "".equals(sql.trim())) return null;
-		
-		boolean isReg = updateInfoInCache(sql, "String", SuidType.SELECT);
+		Class entityClass = (Class) OneTimeParameter.getAttribute(StringConst.Route_EC);
+		boolean isReg = updateInfoInCache(sql, "String", SuidType.SELECT,entityClass);
 		if (isReg) {
-			initRoute(SuidType.SELECT, null, sql);
+			initRoute(SuidType.SELECT, entityClass, sql);
 			Object cacheObj = getCache().get(sql); //这里的sql还没带有值
 			if (cacheObj != null) {
 				clearContext(sql);
@@ -302,10 +302,10 @@ public class SqlLib implements BeeSql {
 		
 //		if(sql==null || "".equals(sql.trim())) return null;
 		if(sql==null || "".equals(sql.trim())) return Collections.emptyList();
-		
-		boolean isReg = updateInfoInCache(sql, "List<String[]>", SuidType.SELECT);
+		Class entityClass = (Class) OneTimeParameter.getAttribute(StringConst.Route_EC);
+		boolean isReg = updateInfoInCache(sql, "List<String[]>", SuidType.SELECT, entityClass);
 		if (isReg) {
-			initRoute(SuidType.SELECT, null, sql);
+			initRoute(SuidType.SELECT, entityClass, sql);
 			Object cacheObj = getCache().get(sql); //这里的sql还没带有值
 			if (cacheObj != null) {
 				clearContext(sql);
@@ -354,7 +354,7 @@ public class SqlLib implements BeeSql {
 		
 		if(sql==null || "".equals(sql.trim())) return Collections.emptyList();
 		
-		boolean isReg = updateInfoInCache(sql, "List<Map<String,Object>>", SuidType.SELECT);
+		boolean isReg = updateInfoInCache(sql, "List<Map<String,Object>>", SuidType.SELECT,null);
 		if (isReg) { //V1.9还未使用
 			initRoute(SuidType.SELECT, null, sql);
 			Object cacheObj = getCache().get(sql); //这里的sql还没带有值
@@ -500,8 +500,8 @@ public class SqlLib implements BeeSql {
 		
 		if(sql==null || "".equals(sql.trim())) return null;
 		
-		boolean isReg = updateInfoInCache(sql, "StringJson", SuidType.SELECT);
 		Class entityClass = (Class) OneTimeParameter.getAttribute(StringConst.Route_EC);
+		boolean isReg = updateInfoInCache(sql, "StringJson", SuidType.SELECT,entityClass);
 		if (isReg) {
 			initRoute(SuidType.SELECT, entityClass, sql);
 			Object cacheObj = getCache().get(sql); //这里的sql还没带有值
@@ -905,7 +905,7 @@ public class SqlLib implements BeeSql {
 		boolean subOneIsList1=moreTableStruct[0].subOneIsList;
 		boolean subTwoIsList2=moreTableStruct[0].subTwoIsList;
 		String listFieldType=""+subOneIsList1+subTwoIsList2+moreTableStruct[0].oneHasOne;
-		boolean isReg = updateInfoInCache(sql, "List<T>"+listFieldType, SuidType.SELECT);
+		boolean isReg = updateInfoInCache(sql, "List<T>"+listFieldType, SuidType.SELECT, entity.getClass());
 		if (isReg) {
 			initRoute(SuidType.SELECT, entity.getClass(), sql); //多表查询的多个表要在同一个数据源.
 			Object cacheObj = getCache().get(sql); //这里的sql还没带有值
@@ -1464,8 +1464,8 @@ public class SqlLib implements BeeSql {
 	}
 	
 //	查缓存前需要先更新缓存信息,才能去查看是否在缓存
-	protected boolean updateInfoInCache(String sql, String returnType, SuidType suidType) {
-		return HoneyContext.updateInfoInCache(sql, returnType, suidType);
+	protected boolean updateInfoInCache(String sql, String returnType, SuidType suidType, Class entityClass) {
+		return HoneyContext.updateInfoInCache(sql, returnType, suidType, entityClass);
 	}
 	
 	protected void clearInCache(String sql, String returnType, SuidType suidType, int affectRow) {

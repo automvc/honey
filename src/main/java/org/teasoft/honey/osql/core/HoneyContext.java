@@ -797,11 +797,12 @@ public final class HoneyContext {
 	}
 
 	//for SqlLib
-	static boolean updateInfoInCache(String sql, String returnType, SuidType suidType) {
+	static boolean updateInfoInCache(String sql, String returnType, SuidType suidType,Class entityClass) {
 		CacheSuidStruct struct = getCacheInfo(sql);
 		if (struct != null) {
 			struct.setReturnType(returnType);
 			struct.setSuidType(suidType.getType());
+			struct.setEntityClass(entityClass);
 			setCacheInfo(sql, struct);
 			return true;
 		}

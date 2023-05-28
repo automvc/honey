@@ -388,7 +388,7 @@ final class _ObjectToSQLHelper {
 		StringBuffer sqlBuffer = new StringBuffer();
 		boolean firstSet = true;
 		boolean firstWhere = true;
-		boolean isExistWhere = false;
+//		boolean isExistWhere = false;
 		StringBuffer whereStament = new StringBuffer();
 		List<PreparedValue> list = new ArrayList<>();
 		String tableName = _toTableName(entity);
@@ -490,7 +490,7 @@ final class _ObjectToSQLHelper {
 							if (AnnoUtil.isJson(fields[i])) preparedValue.setField(fields[i]);
 							whereList.add(preparedValue);
 						}
-						isExistWhere = true;
+//						isExistWhere = true;
 					}
 				}//end else
 			}//end for
@@ -554,7 +554,7 @@ final class _ObjectToSQLHelper {
 		StringBuffer sqlBuffer = new StringBuffer();
 		boolean firstSet = true;
 		boolean firstWhere = true;
-		boolean isExistWhere = false;
+//		boolean isExistWhere = false;
 		StringBuffer whereStament = new StringBuffer();
 		String tableName = _toTableName(entity);
 		List<PreparedValue> list = new ArrayList<>();
@@ -663,7 +663,7 @@ final class _ObjectToSQLHelper {
 						if (AnnoUtil.isJson(fields[i])) preparedValue.setField(fields[i]);
 						whereList.add(preparedValue);
 					}
-					isExistWhere = true;
+//					isExistWhere = true;
 //				}
 			}//end else
 		}//end for
