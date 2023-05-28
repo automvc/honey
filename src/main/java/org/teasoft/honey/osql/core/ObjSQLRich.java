@@ -498,7 +498,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 		
 		doBeforePasreEntity(entity,SuidType.SELECT);
 		String sql = getObjToSQLRich().toSelectSQL(entity,start,size, selectFields);
-		_regEntityClass1(entity);
+		_regEntityClass1(entity); 
 		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("selectJson(T entity, String selectField, int start, int size) SQL: ", sql);
 		String json= getBeeSql().selectJson(sql);
