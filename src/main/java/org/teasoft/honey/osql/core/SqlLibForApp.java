@@ -1,12 +1,14 @@
 /*
- * Copyright 2016-2022 the original author.All rights reserved.
+ * Copyright 2016-2023 the original author.All rights reserved.
  * Kingstar(honeysoft@126.com)
  * The license,see the LICENSE file.
  */
 
 package org.teasoft.honey.osql.core;
 
+import java.io.Serializable;
 import java.lang.reflect.Field;
+import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -14,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.teasoft.bee.app.BeeSqlForApp;
+import org.teasoft.bee.osql.BeeSql;
 import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.annotation.JoinTable;
 import org.teasoft.bee.osql.annotation.customizable.Json;
@@ -27,7 +30,9 @@ import org.teasoft.honey.util.ObjectCreatorFactory;
  * @author Kingstar
  * @since  1.17
  */
-public class SqlLibForApp extends SqlLib {
+public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
+	
+	private static final long serialVersionUID = 1596710362262L;
 	
 	private static boolean  showSQL=HoneyConfig.getHoneyConfig().showSQL;
 	
@@ -35,6 +40,13 @@ public class SqlLibForApp extends SqlLib {
 	
 	private static boolean isFirst = true;
 	private static String SUCCESS_MSG = "[Bee] ==========Load BeeSqlForApp implement class successfully!";
+
+	
+	@Override
+	public ResultSet selectRs(String sql) {
+		
+		return null;
+	}
 
 	public BeeSqlForApp getBeeSqlForApp() {
 		if(beeSqlForApp!=null) return beeSqlForApp; 
@@ -66,19 +78,19 @@ public class SqlLibForApp extends SqlLib {
 	}
 
 	@Override
-	public <T> List<T> select(String sql, T entity) {
-		return selectSomeField(sql, entity);
+	public <T> List<T> select(String sql, Class<T> entityClass) {
+		return selectSomeField(sql, entityClass);
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public <T> List<T> selectSomeField(String sql, T entity) {
+	public <T> List<T> selectSomeField(String sql, Class<T> entityClass) {
 
 		if (sql == null || "".equals(sql.trim())) return Collections.emptyList();
 
-		boolean isReg = updateInfoInCache(sql, "List<T>", SuidType.SELECT);
+		boolean isReg = updateInfoInCache(sql, "List<T>", SuidType.SELECT, entityClass);
 		if (isReg) {
-			initRoute(SuidType.SELECT, entity.getClass(), sql);
+			initRoute(SuidType.SELECT, entityClass, sql);
 			Object cacheObj = getCache().get(sql); //这里的sql还没带有值
 			if (cacheObj != null) {
 				clearContext(sql);
@@ -88,32 +100,14 @@ public class SqlLibForApp extends SqlLib {
 			}
 		}
 		List<T> rsList = null;
-//		boolean hasException = false;
 		try {
-			rsList=getBeeSqlForApp().select(sql, entity, toStringArray(sql));
-			addInCache(sql, rsList, "List<T>", SuidType.SELECT, rsList.size());
+			rsList=getBeeSqlForApp().select(sql, entityClass, toStringArray(sql));
+			addInCache(sql, rsList, rsList.size());
 
 		} catch (Exception e) {
-//			hasException = true;
 			throw ExceptionHelper.convert(e);
-//		} catch (IllegalAccessException e) {
-//			hasException = true;
-//			throw ExceptionHelper.convert(e);
-//		} catch (InstantiationException e) {
-//			hasException = true;
-//			throw ExceptionHelper.convert(e);
 		} finally {
-//			closeRs(rs);  //关闭资源
 			clearContext(sql);
-//			if (hasException) {
-//				checkClose(pst, null);
-//				closeConn(conn);
-//			} else {
-//				checkClose(pst, conn);
-//			}
-//			entity = null;
-//			targetObj = null;
-//			map = null;
 		}
 		logSelectRows(rsList.size());
 
@@ -121,10 +115,12 @@ public class SqlLibForApp extends SqlLib {
 	}
 	
 	@Override
+	@SuppressWarnings("rawtypes")
 	public String selectFun(String sql) {
+		Class entityClass = (Class) OneTimeParameter.getAttribute(StringConst.Route_EC);
 		if(sql==null || "".equals(sql.trim())) return null;
 		
-		boolean isReg = updateInfoInCache(sql, "String", SuidType.SELECT);
+		boolean isReg = updateInfoInCache(sql, "String", SuidType.SELECT, entityClass);
 		if (isReg) {
 			initRoute(SuidType.SELECT, null, sql);
 			Object cacheObj = getCache().get(sql); //这里的sql还没带有值
@@ -135,38 +131,26 @@ public class SqlLibForApp extends SqlLib {
 		}
 		
 		String result = null;
-//		Connection conn = null;
-//		PreparedStatement pst = null;
-//		ResultSet rs = null;
-//		boolean hasException = false;
 		try {
 			result=getBeeSqlForApp().selectFun(sql, toStringArray(sql));
 			
-			addInCache(sql, result,"String",SuidType.SELECT,1);
-
+			addInCache(sql, result, 1);
 		} catch (Exception e) {
-//			hasException=true;
 			throw ExceptionHelper.convert(e);
 		} finally {
-//			closeRs(rs);
 			clearContext(sql);
-//			if (hasException) {
-//				checkClose(pst, null);
-//				closeConn(conn);
-//			} else {
-//				checkClose(pst, conn);
-//			}
 		}
 
 		return result;
 	}
 
 	@Override
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public List<String[]> select(String sql) {
 		
+		Class entityClass = (Class) OneTimeParameter.getAttribute(StringConst.Route_EC);
 		if(sql==null || "".equals(sql.trim())) return Collections.emptyList();
-		
-		boolean isReg = updateInfoInCache(sql, "List<String[]>", SuidType.SELECT);
+		boolean isReg = updateInfoInCache(sql, "List<String[]>", SuidType.SELECT, entityClass);
 		if (isReg) {
 			initRoute(SuidType.SELECT, null, sql);
 			Object cacheObj = getCache().get(sql); //这里的sql还没带有值
@@ -179,36 +163,16 @@ public class SqlLibForApp extends SqlLib {
 		}
 		
 		List<String[]> list = new ArrayList<>();
-		
-//		Connection conn = null;
-//		PreparedStatement pst = null;
-//		ResultSet rs = null;
-//		boolean hasException = false;
 		try {
-//			conn = getConn();
-//			String exe_sql=HoneyUtil.deleteLastSemicolon(sql);
-//			pst = conn.prepareStatement(exe_sql);
-//			setPreparedValues(pst, sql);
-//			rs = pst.executeQuery();
-//			list=TransformResultSet.toStringsList(rs);
-			
 			list=getBeeSqlForApp().select(sql, toStringArray(sql));
 			
 			logSelectRows(list.size());
-			addInCache(sql, list,"List<String[]>",SuidType.SELECT,list.size());
+			addInCache(sql, list, list.size());
 			
 		} catch (Exception e) {
-//			hasException=true;
 			throw ExceptionHelper.convert(e);
 		} finally {
-//			closeRs(rs);
 			clearContext(sql);
-//			if (hasException) {
-//				checkClose(pst, null);
-//				closeConn(conn);
-//			} else {
-//				checkClose(pst, conn);
-//			}
 		}
 
 		return list;
@@ -218,9 +182,8 @@ public class SqlLibForApp extends SqlLib {
 	@SuppressWarnings("unchecked")
 	public List<Map<String, Object>> selectMapList(String sql) {
 		
-	if(sql==null || "".equals(sql.trim())) return Collections.emptyList();
-		
-		boolean isReg = updateInfoInCache(sql, "List<Map<String,Object>>", SuidType.SELECT);
+	    if(sql==null || "".equals(sql.trim())) return Collections.emptyList();
+		boolean isReg = updateInfoInCache(sql, "List<Map<String,Object>>", SuidType.SELECT, null);
 		if (isReg) { 
 			initRoute(SuidType.SELECT, null, sql);
 			Object cacheObj = getCache().get(sql); //这里的sql还没带有值
@@ -233,37 +196,18 @@ public class SqlLibForApp extends SqlLib {
 		}
 		
 		List<Map<String,Object>> list = new ArrayList<>();
-//		Connection conn = null;
-//		PreparedStatement pst = null;
-//		ResultSet rs = null;
-//		boolean hasException = false;
 		try {
-//			conn = getConn();
 			String exe_sql=HoneyUtil.deleteLastSemicolon(sql);
-//			pst = conn.prepareStatement(exe_sql);
-//			setPreparedValues(pst, sql);
-//			rs = pst.executeQuery();
-
-//			list=TransformResultSet.toMapList(rs);
-			
 			list = getBeeSqlForApp().selectMapList(exe_sql, toStringArray(sql));
 			
 			logSelectRows(list.size());
 			
-			addInCache(sql, list,"List<Map<String,Object>>",SuidType.SELECT,list.size());
+			addInCache(sql, list, list.size());
 			
 		} catch (Exception e) {
-//			hasException=true;
 			throw ExceptionHelper.convert(e);
 		} finally {
-//			closeRs(rs);
 			clearContext(sql);
-//			if (hasException) {
-//				checkClose(pst, null);
-//				closeConn(conn);
-//			} else {
-//				checkClose(pst, conn);
-//			}
 		}
 
 		return list;
@@ -273,10 +217,10 @@ public class SqlLibForApp extends SqlLib {
 	@SuppressWarnings("rawtypes")
 	public String selectJson(String sql) {
 		
+		Class entityClass = (Class) OneTimeParameter.getAttribute(StringConst.Route_EC);
 		if(sql==null || "".equals(sql.trim())) return null;
 		
-		boolean isReg = updateInfoInCache(sql, "StringJson", SuidType.SELECT);
-		Class entityClass = (Class) OneTimeParameter.getAttribute(StringConst.Route_EC);
+		boolean isReg = updateInfoInCache(sql, "StringJson", SuidType.SELECT, entityClass);
 		if (isReg) {
 			initRoute(SuidType.SELECT, entityClass, sql);
 			Object cacheObj = getCache().get(sql); //这里的sql还没带有值
@@ -287,74 +231,37 @@ public class SqlLibForApp extends SqlLib {
 		}
 		
 		String json="";
-		
-//		StringBuffer json=new StringBuffer("");
-//		Connection conn = null;
-//		PreparedStatement pst = null;
-//		ResultSet rs = null;
-//		boolean hasException = false;
 		try {
 			String exe_sql=HoneyUtil.deleteLastSemicolon(sql);
 			
-//			conn = getConn();
-//			pst = conn.prepareStatement(exe_sql);
-//			setPreparedValues(pst, sql);
-//			rs = pst.executeQuery();
-//			json = TransformResultSet.toJson(rs,entityClass);
-			
 			json = getBeeSqlForApp().selectJson(exe_sql, toStringArray(sql), entityClass);
 			
-			addInCache(sql, json,"StringJson",SuidType.SELECT,-1);  //没有作最大结果集判断
+			addInCache(sql, json, -1); // 没有作最大结果集判断
 
 		} catch (Exception e) {
-//			hasException = true;  //fixbug  2021-05-01
 			throw ExceptionHelper.convert(e);
 		} finally {
-//			closeRs(rs);
 			clearContext(sql);
-//			if (hasException) {
-//				checkClose(pst, null);
-//				closeConn(conn);
-//			} else {
-//				checkClose(pst, conn);
-//			}
 		}
 
 		return json;
 	}
 
 	@Override
+	@SuppressWarnings("rawtypes")
 	public int modify(String sql) {
+		Class entityClass = (Class) OneTimeParameter.getAttribute(StringConst.Route_EC);
 		if(sql==null || "".equals(sql)) return -2;
 		
-		initRoute(SuidType.MODIFY,null,sql);
+		initRoute(SuidType.MODIFY, entityClass, sql);
 		
 		int num = 0;
-//		boolean hasException = false;
 		try {
 			String exe_sql=HoneyUtil.deleteLastSemicolon(sql);
 			num = getBeeSqlForApp().modify(exe_sql, toObjArray(sql));
-			
-//		} catch (SQLException e) {
-//			boolean notCatch=HoneyConfig.getHoneyConfig().notCatchModifyDuplicateException;
-//			if (!notCatch && isConstraint(e)) { //内部捕获并且是重复异常,则由Bee框架处理 
-//				boolean notShow=HoneyConfig.getHoneyConfig().notShowModifyDuplicateException;
-//				if(! notShow) Logger.warn(e.getMessage());
-//				return num;
-//			}
-//			
-//			hasException=true;
-//			throw ExceptionHelper.convert(e);
 		} finally {
 			clearInCache(sql, "int",SuidType.MODIFY,num); //has clearContext(sql)
-//			if (hasException) {
-//				checkClose(pst, null);
-//				closeConn(conn);
-//			} else {
-//				checkClose(pst, conn);
-//			}
 		}
-		
 		Logger.logSQL(" | <--  Affected rows: ", num+"");
 		
 		return num;
@@ -375,7 +282,6 @@ public class SqlLibForApp extends SqlLib {
 		} finally {
 			clearInCache(sql, "int", SuidType.INSERT, num); 
 		}
-
 		Logger.logSQL(" | <--  Affected rows: ", num + "");
 
 		return returnId;
@@ -453,7 +359,6 @@ public class SqlLibForApp extends SqlLib {
 		return a;
 	}
 	
-	
 	@Override
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public <T> List<T> moreTableSelect(String sql, T entity) {
@@ -471,7 +376,7 @@ public class SqlLibForApp extends SqlLib {
 		boolean subOneIsList1=moreTableStruct[0].subOneIsList;
 		boolean subTwoIsList2=moreTableStruct[0].subTwoIsList;
 		String listFieldType=""+subOneIsList1+subTwoIsList2+moreTableStruct[0].oneHasOne;
-		boolean isReg = updateInfoInCache(sql, "List<T>"+listFieldType, SuidType.SELECT);
+		boolean isReg = updateInfoInCache(sql, "List<T>"+listFieldType, SuidType.SELECT, entity.getClass());
 		if (isReg) {
 			initRoute(SuidType.SELECT, entity.getClass(), sql); //多表查询的多个表要在同一个数据源.
 			Object cacheObj = getCache().get(sql); //这里的sql还没带有值
@@ -492,12 +397,8 @@ public class SqlLibForApp extends SqlLib {
 			String exe_sql=HoneyUtil.deleteLastSemicolon(sql);
 			
 			List<Map<String, String>> rsMapList=getBeeSqlForApp().selectMapListWithColumnName(exe_sql, toStringArray(sql));
-			
 			rsList = new ArrayList<>();
-
 			Field field[] = entity.getClass().getDeclaredFields();
-//			int columnCount = field.length;
-			
 			boolean oneHasOne=moreTableStruct[0].oneHasOne;
 			
 			Field subField[] = new Field[2];
@@ -616,48 +517,7 @@ public class SqlLibForApp extends SqlLib {
 							
 						} catch (IllegalArgumentException e) {
 							Logger.error(e.getMessage(),e);
-						
-//							//get v2
-//							if(isConfuseDuplicateFieldDB()){
-//								v2=_getObjectForMoreTable_ConfuseField(rs,fields2[i],isDul,dulField,subEntityFieldClass[1]);  //todo
-//							}else{
-//								v2=_getObjectForMoreTable_NoConfuse(rs,subUseTable[1],fields2[i],subEntityFieldClass[1]);
-//							}
-//							
-//							boolean alreadyProcess = false;
-//							try {
-//								if (openFieldTypeHandler) {//process v2 by handler
-//									Class type = fields2[i].getType();
-//									TypeHandler handler = TypeHandlerRegistry.getHandler(type);
-//									if (handler != null) {
-//										Object newV2 = handler.process(type, v2);//process v2 by handler
-//										if (newV2 != null) {
-//											if (sub2_first) {
-//												subObj2 = createObject(subEntityFieldClass[1]);
-//												sub2_first = false;
-//											}
-//											fields2[i].set(subObj2, newV2);
-//											alreadyProcess = true;
-//										}
-//									}
-//								}
-//							} catch (Exception e2) {
-//								alreadyProcess = false;
-//							}
-//							
-//							if (!alreadyProcess && v2 != null) {
-//								if (sub2_first) {
-//									subObj2 = createObject(subEntityFieldClass[1]);
-//									sub2_first = false;
-//								}
-//								fields2[i].set(subObj2, v2);
-//							}
-							
-//						}catch (SQLException e) {// for after use condition selectField method
-////							fields2[i].set(subObj2,null);
-//							Logger.error(e.getMessage(),e);
 						}
-							
 					}
 				}
 				
@@ -685,7 +545,6 @@ public class SqlLibForApp extends SqlLib {
 					isDul = false;
 					dulField = "";
 					try {
-
 						if (oneHasOne && fields1[i] != null && fields1[i].isAnnotationPresent(JoinTable.class)) {
 							if (subField[1] != null && fields1[i].getName().equals(variableName[1]) && subObj2 != null) {
 								fields1[i].setAccessible(true);
@@ -720,7 +579,6 @@ public class SqlLibForApp extends SqlLib {
 							tempCName1=subUseTable[0] + "." + columnName;
 						}
 						
-						//v1=     ;  TODO 2  
 //						v1 = rsMap.get(tempCName1);
 						v1 =ObjectCreatorFactory.create(rsMap.get(tempCName1), fields1[i].getType());
 						
@@ -746,44 +604,6 @@ public class SqlLibForApp extends SqlLib {
 						}
 					} catch (IllegalArgumentException e) {
 						Logger.error(e.getMessage(),e);
-					
-//						if(isConfuseDuplicateFieldDB()){
-//							v1=_getObjectForMoreTable_ConfuseField(rs,fields1[i],isDul,dulField,subEntityFieldClass[0]);
-//						}else{
-//							v1=_getObjectForMoreTable_NoConfuse(rs,subUseTable[0],fields1[i],subEntityFieldClass[0]);
-//						}
-//						
-//						
-//						boolean alreadyProcess = false;
-//						try {
-//							if (openFieldTypeHandler) {//process v1 by handler
-//								Class type = fields1[i].getType();
-//								TypeHandler handler = TypeHandlerRegistry.getHandler(type);
-//								if (handler != null) {
-//									Object newV1 = handler.process(type, v1);//process v1 by handler
-//									if (newV1 != null) {
-//										if (sub1_first) {
-//											sub1_first = false;
-//										}
-//										fields1[i].set(subObj1, newV1);
-//										alreadyProcess=true;
-//									}
-//								}
-//							}
-//						} catch (Exception e2) {
-//							alreadyProcess = false;
-//						}
-//						
-//						if (!alreadyProcess && v1 != null) {
-//							if (sub1_first) {
-//								sub1_first = false;
-//							}
-//							fields1[i].set(subObj1, v1);
-//						}
-						
-//					}catch (SQLException e) {// for after use condition selectField method
-////						fields1[i].set(subObj1,null);
-//						Logger.error(e.getMessage(),e);
 					}
 					
 					if(oneHasOne) checkKey2ForOneHasOne.append(v1);
@@ -855,31 +675,10 @@ public class SqlLibForApp extends SqlLib {
 						checkKey.append(v);
 					} catch (IllegalArgumentException e) {
 						Logger.error(e.getMessage(),e);
-					
-//						v = _getObjectForMoreTable(rs, tableName, field[i], entity.getClass());
-
-//						boolean alreadyProcess = false;
-//						try {
-//							if (openFieldTypeHandler) {//process v by handler
-//								Class type = field[i].getType();
-//								TypeHandler handler = TypeHandlerRegistry.getHandler(type);
-//								if (handler != null) {
-//									Object newV = handler.process(type, v);//process v by handler
-//									field[i].set(targetObj, newV);
-//									alreadyProcess = true;
-//								}
-//							}
-//						} catch (Exception e2) {
-//							alreadyProcess = false;
-//						}
-//						if (!alreadyProcess) field[i].set(targetObj, v);
-						
 					} catch (Exception e) { // for after use condition selectField method
 						field[i].set(targetObj, null);
 					}
-					
 				} //end for
-				
 				
 				if(oneHasOne) checkKey2ForOneHasOne.insert(0, checkKey); //主表+从表1
 				if(subTwoIsList2 && oneHasOne && subObj1!=null && subField2InOneHasOne!=null) { //for oneHasOne List   oneHasOne 或者 两个都在主表,只会存在其中一种
@@ -889,8 +688,6 @@ public class SqlLibForApp extends SqlLib {
 						subTwoList.add(subObj2);
 						subField2InOneHasOne.set(subObj1, subTwoList);  //subObj1
 						subTwoMap.put(checkKey2ForOneHasOne.toString(), subTwoList);
-						
-//						rsList.add(targetObj);
 					} else {
 						subTwoList.add(subObj2);
 					}
@@ -927,15 +724,10 @@ public class SqlLibForApp extends SqlLib {
 				}else {
 					rsList.add(targetObj);
 				}
-				
-				
 			   } // end while (rs.next())
-		
-			addInCache(sql, rsList,"List<T>"+listFieldType,SuidType.SELECT,rsList.size());
 			
-//		} catch (SQLException e) {
-//			hasException=true;
-//			throw ExceptionHelper.convert(e);
+			addInCache(sql, rsList, rsList.size());
+			
 		} catch (IllegalAccessException e) {
 			hasException=true;
 			throw ExceptionHelper.convert(e);
@@ -943,15 +735,7 @@ public class SqlLibForApp extends SqlLib {
 			hasException=true;
 			throw ExceptionHelper.convert(e);
 		} finally {
-//			closeRs(rs);
 			clearContext(sql);
-			
-//			if (hasException) {
-//				checkClose(pst, null);
-//				closeConn(conn);
-//			} else {
-//				checkClose(pst, conn);
-//			}
 		}
 
 		entity = null;
@@ -965,7 +749,6 @@ public class SqlLibForApp extends SqlLib {
 		return rsList;
 	}
 	
-	
 	private static final String[] EMPTY_ARRAY = new String[0];
 	
 	private String[] toStringArray(String sql) {
@@ -973,8 +756,6 @@ public class SqlLibForApp extends SqlLib {
 		if (list == null) {
 			return EMPTY_ARRAY;
 		} else {
-//			return list.toArray(new String[list.size()]);
-			
 			String str[]=new String[list.size()];
 			Object ob;
 			for (int i = 0; i < list.size(); i++) {
@@ -1001,18 +782,8 @@ public class SqlLibForApp extends SqlLib {
 		if (list == null) {
 			return EMPTY_ARRAY;
 		} else {
-//			return list.toArray(new Object[list.size()]);
-			
 			Object obj[]=new Object[list.size()];
-//			int typeIndexArray[]=new int[list.size()];
 			for (int i = 0; i < list.size(); i++) {
-				
-//				Field f=list.get(i).getField();  //只处理得insert的情形.  update的不能处理.
-//				if(f!=null && f.isAnnotationPresent(Json.class)) {
-//					typeIndexArray[i]=26; //标识是Json
-//				}
-				
-				
 				obj[i]=list.get(i).getValue();
 				
 				// 提前将Json字段转成Json 字符串????
@@ -1024,7 +795,6 @@ public class SqlLibForApp extends SqlLib {
 					}
 				}
 			}
-			
 			return obj;
 		}
 	}

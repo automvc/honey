@@ -2,6 +2,8 @@ package org.teasoft.honey.osql.core;
 
 import java.io.InputStream;
 import java.sql.Connection;
+import java.util.List;
+import java.util.Map;
 
 import org.teasoft.bee.osql.BeeVersion;
 import org.teasoft.bee.osql.DatabaseConst;
@@ -37,7 +39,6 @@ public final class HoneyConfig {
 	}
 	
 //	{   //放在这,会报异常.
-//		System.err.println("--------in HoneyConfig block");
 //		honeyConfig.init(); // just run one time
 //	}
 	
@@ -67,7 +68,7 @@ public final class HoneyConfig {
 				String msg="The value of bee.profiles.active is empty!";
 				Logger.error(msg,new ConfigWrongException(msg));
 			} else {
-				String fileName = "/bee-{active}.properties".replace("{active}", active);
+				String fileName = "bee-{active}.properties".replace("{active}", active);
 				beeActiveProp = new BeeActiveProp(fileName);
 				if(type==1) {//use the key in active override the main file.
 					SysValueProcessor.process(honeyConfig,beeActiveProp);
@@ -151,13 +152,13 @@ public final class HoneyConfig {
 	public String sqlKeyWordCase;
 	
 	@SysValue("${bee.osql.notDeleteWholeRecords}")
-	boolean notDeleteWholeRecords = true; //v1.7.2
+	public boolean notDeleteWholeRecords = true; //v1.7.2
 
 	@SysValue("${bee.osql.notUpdateWholeRecords}")
-	boolean notUpdateWholeRecords = true; //v1.7.2
+	public boolean notUpdateWholeRecords = true; //v1.7.2
 	
 	@SysValue("${bee.osql.notCatchModifyDuplicateException}")
-	public boolean notCatchModifyDuplicateException;
+	public boolean notCatchModifyDuplicateException=true; //#从2.1开始，默认抛出异常；防止在事务时，不正确
 	
 	@SysValue("${bee.osql.notShowModifyDuplicateException}")
 	public boolean notShowModifyDuplicateException;
@@ -177,6 +178,9 @@ public final class HoneyConfig {
 	
 	@SysValue("${bee.osql.showSQL}")   //属于 bee.osql
 	public boolean showSQL = false;
+	
+	@SysValue("${bee.osql.showShardingSQL}")   //属于 bee.osql
+	public boolean showShardingSQL = false;
 	//----------------------------- showSql start
 
 	@SysValue("${bee.osql.showSql.showType}")
@@ -214,16 +218,16 @@ public final class HoneyConfig {
 	@SysValue("${bee.osql.selectJson.ignoreNull}")
 	public boolean selectJson_ignoreNull = true;
 	@SysValue("${bee.osql.selectJson.timestampWithMillisecond}")
-	boolean selectJson_timestampWithMillisecond;
+	public boolean selectJson_timestampWithMillisecond;
 
 	@SysValue("${bee.osql.selectJson.dateWithMillisecond}")
-	boolean selectJson_dateWithMillisecond;
+	public boolean selectJson_dateWithMillisecond;
 
 	@SysValue("${bee.osql.selectJson.timeWithMillisecond}")
-	boolean selectJson_timeWithMillisecond;
+	public boolean selectJson_timeWithMillisecond;
 
 	@SysValue("${bee.osql.selectJson.longToString}")
-	boolean selectJson_longToString = true;
+	public boolean selectJson_longToString = true;
 	//----------------------------- selectJson end
 
 	@SysValue("${bee.osql.returnStringList.nullToEmptyString}")
@@ -273,6 +277,12 @@ public final class HoneyConfig {
     
     @SysValue("${bee.db.pagingWithLimitOffset}")
 	boolean pagingWithLimitOffset;
+    
+    @SysValue("${bee.db.dbs}")
+    List<Map<String,String>> dbs; //V2.1 配置多个数据源, 属性值与具体工具对应
+    
+    @SysValue("${bee.db.extendFirst}")
+    boolean extendFirst;//V2.1 dbs数组的非首个下标的元素,是否从首个元素继承属性
 
 	//----------------------------- cache start
 	@SysValue("${bee.osql.cache.timeout}")
@@ -409,9 +419,32 @@ public final class HoneyConfig {
 	//	支持同时使用多种类型数据库的数据源.support different type muli-Ds at same time.
 	@SysValue("${bee.dosql.multiDS.differentDbType}")
 	public boolean multiDS_differentDbType;
+	
+	@SysValue("${bee.dosql.multiDS.justMongodb}")
+	public boolean multiDS_justMongodb; //2.1
+	
+	
+	@SysValue("${bee.dosql.multiDS.sharding}")
+	public boolean multiDS_sharding; //用于分库分表的分片
+	
 	//----------------------------- multiDs  end
+	
+	
+	//----------------------------- sharding start
+	@SysValue("${bee.dosql.sharding.forkJoinBatchInsert}")
+	public boolean sharding_forkJoinBatchInsert;
+	
+	@SysValue("${bee.dosql.sharding.jdbcStreamSelect}")
+	public boolean sharding_jdbcStreamSelect=true;
+	
+	@SysValue("${bee.dosql.sharding.notSupportUnionQuery}")
+	public boolean notSupportUnionQuery; //2.0
+	
+	//----------------------------- sharding end
+	
 
 	public String getDbName() {
+		
 		checkAndRefreshDbNameForSingleDs(); //单个DS
 		//多DS时,在BeeFactory解析parseDbNameByDsMap时设置
 		
@@ -448,12 +481,11 @@ public final class HoneyConfig {
 	private static boolean alreadyPrintDbName = false;
 	private static boolean changeDataSource = false;
 
-	
 	private static void checkAndRefreshDbNameForSingleDs() {
 		//单库时, dbName是null或有更改Ds才要重新设置
 		if ( !HoneyConfig.getHoneyConfig().multiDS_enable
 				&& (HoneyConfig.getHoneyConfig().dbName == null || changeDataSource)) {
-			
+
 			Connection conn = null;
 			try {
 				conn = SessionFactory.getConnection();
@@ -467,6 +499,9 @@ public final class HoneyConfig {
 						if(majorVersion>=11) {
 							DbFeatureRegistry.register(DatabaseConst.SQLSERVER, new SqlServerFeature2012());
 						}
+					}else if(newDbName.contains("Microsoft Access")) {
+						Logger.debug("Transform the dbName:'"+newDbName+"' to '"+DatabaseConst.MsAccess+"'");
+						newDbName=DatabaseConst.MsAccess;
 					}
 
 					if (changeDataSource) {
@@ -527,6 +562,10 @@ public final class HoneyConfig {
 	}
 
 	public String getUrl() {
+		//Ms Access
+		if(StringUtils.isNotBlank(this.password) && url!=null && url.startsWith("jdbc:ucanaccess:") && !url.contains("jackcessOpener=")) {
+			return url+=";jackcessOpener=org.teasoft.beex.access.BeeAccessCryptOpener";
+		}
 		return url;
 	}
 
@@ -554,15 +593,13 @@ public final class HoneyConfig {
 		this.loggerType = loggerType;
 		LoggerFactory.setConfigRefresh(true);
 	}
-	
-	//动态刷新ds
-//	public void setDataSourceMap(Map<String, DataSource> dataSourceMap) {
-//		BeeFactory.getInstance().setDataSourceMap(dataSourceMap);
-//	}
-	
-//	context有:
-//	public static void setDsName2DbName(Map<String, String> dsName2DbName) {
-//		HoneyContext.dsName2DbName = dsName2DbName;
-//	}
+
+	public List<Map<String, String>> getDbs() {
+		return dbs;
+	}
+
+	public void setDbs(List<Map<String, String>> dbs) {
+		this.dbs = dbs;
+	}
 
 }

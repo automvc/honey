@@ -68,6 +68,63 @@ public class DateUtil {
 		return null;
 	}
 	
+	public static Timestamp toTimestamp(Date date) {
+		try {
+			return new Timestamp(date.getTime());
+		} catch (Exception e) {
+			Logger.error(e.getMessage(), e);
+		}
+
+		return null;
+	}
+	
+//	/**
+//	 * 
+//	 * @param dateString
+//	 * @return
+//	 * @since 2.1
+//	 */
+//	public static Date toDate(String dateString) {
+//		try {
+//			return getSimpleDateFormat().parse(dateString);
+//		} catch (Exception e) {
+//			Logger.error(e.getMessage(), e);
+//		}
+//		return null;
+//	}
+	
+	/**
+	 * 
+	 * @param date
+	 * @return
+	 * @since 2.1
+	 */
+	public static String toDateStr(Date date) {
+		try {
+			return getSimpleDateFormat().format(date);
+		} catch (Exception e) {
+			Logger.error(e.getMessage(), e);
+		}
+		return null;
+	}
+	
+//	/**
+//	 * 
+//	 * @return
+//	 * @since 2.1
+//	 */
+//	public static Date currentDate2() {
+//		try {
+//			System.out.println(currentDate());
+//			return getSimpleDateFormat().parse(currentDate());
+//		} catch (Exception e) {
+//			Logger.error(e.getMessage(), e);
+//		}
+//		return null;
+//	}
+	
+	
+	
 	/**
 	 * 往前或往后指定天数
 	 * @param days

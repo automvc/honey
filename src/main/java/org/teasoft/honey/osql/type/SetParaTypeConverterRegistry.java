@@ -21,9 +21,7 @@ import org.teasoft.honey.osql.core.HoneyConfig;
  */
 public final class SetParaTypeConverterRegistry implements Registry{
 
-//	private static final String PRIORITY = "1";
 	private static final Map<Class<?>, SetParaTypeConvert<?>> convertersMap = new HashMap<>();
-//	private static final Map<Class<?>, String> priorityMap = new HashMap<>();
 	
 	private static final Map<String,Map<Class<?>, SetParaTypeConvert<?>>> convertersMapForSpecialDB = new HashMap<>();
 
@@ -43,26 +41,6 @@ public final class SetParaTypeConverterRegistry implements Registry{
 		map.put(fieldType, converter);
 		convertersMapForSpecialDB.put(database, map);
 	}
-
-	/**
-	 * register SetParaTypeConvert
-	 * @param fieldType Javabean field type.
-	 * @param converter converter for Javabean field type.
-	 * @param isPriority whether use custom converter before default one.
-	 */
-//	public static <T> void register(Class<T> fieldType, SetParaTypeConvert<? extends T> converter, boolean isPriority) {
-//		convertersMap.put(fieldType, converter);
-//		if (isPriority) priorityMap.put(fieldType, PRIORITY);
-//	}
-
-	/**
-	 * return the priority of the fieldType.
-	 * @param fieldType Javabean field type.
-	 * @return boolean value of priority
-	 */
-//	public static <T> boolean isPriorityType(Class<T> fieldType) {
-//		return priorityMap.get(fieldType) == null ? false : true;
-//	}
 
 	/**
 	 * return the register Converter of fieldType.
@@ -90,7 +68,7 @@ public final class SetParaTypeConverterRegistry implements Registry{
 	 * @param value  result get from ResultSet.
 	 * @return the result processed by SetParaTypeConvert.
 	 */
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static Object converterProcess(Class<?> fieldType, Object value) {
 		SetParaTypeConvert converter = getConverter(fieldType);
 		if (converter != null) value = converter.convert(value);

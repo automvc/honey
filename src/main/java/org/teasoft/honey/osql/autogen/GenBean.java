@@ -15,7 +15,11 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Queue;
+import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import org.teasoft.bee.osql.BeeException;
 import org.teasoft.bee.osql.DatabaseConst;
@@ -28,6 +32,8 @@ import org.teasoft.honey.osql.core.HoneyUtil;
 import org.teasoft.honey.osql.core.Logger;
 import org.teasoft.honey.osql.core.NameTranslateHandle;
 import org.teasoft.honey.osql.core.SessionFactory;
+import org.teasoft.honey.osql.mongodb.MongodbComm;
+import org.teasoft.honey.osql.mongodb.MongodbCommRegister;
 import org.teasoft.honey.osql.name.NameUtil;
 import org.teasoft.honey.osql.util.DateUtil;
 import org.teasoft.honey.osql.util.NameCheckUtil;
@@ -38,6 +44,7 @@ import org.teasoft.honey.util.StringUtils;
  * @author Kingstar
  * @since 1.0
  */
+@SuppressWarnings({"unchecked","rawtypes","deprecation"})
 public class GenBean {
 
 	private GenConfig config;
@@ -171,13 +178,13 @@ public class GenBean {
 				importSet.add("import java.util.Map;");
 				mapFlag = false;
 			} else if ("NCLOB".equals(javaType) && nClobFlag) {
-				importSet.add("java.sql.NClob");
+				importSet.add("import java.sql.NClob;");
 				nClobFlag = false;
 			} else if ("ROWID".equals(javaType) && rowIdFlag) {
-				importSet.add("java.sql.RowId");
+				importSet.add("import java.sql.RowId;");
 				rowIdFlag = false;
 			} else if ("SQLXML".equals(javaType) && sqlxmlFlag) {
-				importSet.add("java.sql.SQLXML");
+				importSet.add("import java.sql.SQLXML;");
 				sqlxmlFlag = false;
 				
 			}else if(javaType.startsWith("[UNKNOWN TYPE]")) {
@@ -214,6 +221,12 @@ public class GenBean {
 			}
 		} //end for
 		
+		if (config.isLombokSetter()) importSet.add("import lombok.Setter;");
+		if (config.isLombokGetter()) importSet.add("import lombok.Getter;");
+		if (config.isLombokData())   importSet.add("import lombok.Data;");
+		if (config.isLombokSetter() || config.isLombokGetter() || config.isLombokData())
+			config.setGenGetSet(false);
+		
 		for (String s: importSet) {
 			importStr += s + LINE_SEPARATOR;
 		}
@@ -245,6 +258,13 @@ public class GenBean {
 			if (!"".equals(importStr)) bw.write(importStr + LINE_SEPARATOR);
 			bw.write(authorComment + LINE_SEPARATOR);
 			if(HoneyUtil.isCassandra()) bw.write("//@Table(\""+table.getSchema()+"."+tableName+"\")" + LINE_SEPARATOR);
+			
+			//support lombok
+			if (config.isLombokSetter()) bw.write("@Setter" + LINE_SEPARATOR);
+			if (config.isLombokGetter()) bw.write("@Getter" + LINE_SEPARATOR);
+			if (config.isLombokData())   bw.write("@Data"   + LINE_SEPARATOR);
+			
+			
 			bw.write("public class " + entityName);
 			if (config.isGenSerializable()) {
 				bw.write(" implements Serializable");
@@ -255,13 +275,8 @@ public class GenBean {
 				bw.write(LINE_SEPARATOR);
 			}
 			bw.write(propertiesStr);
-//			bw.write(LINE_SEPARATOR);
-//			bw.write(constructorStr);
 			bw.write(LINE_SEPARATOR);
-//			bw.write(toStringStr);
-//			bw.write(LINE_SEPARATOR);
-			bw.write(getsetStr);
-//			bw.write(LINE_SEPARATOR);
+			if (config.isGenGetSet()) bw.write(getsetStr);
 
 			if (config.isGenToString()) { //toString()
 				tostr.deleteCharAt(tostr.indexOf(","));
@@ -291,7 +306,7 @@ public class GenBean {
 			Logger.info("The Honey gen the JavaBean: " + config.getPackagePath() + "." + entityName);
 			
 		} catch (Exception e) {
-			Logger.error(e.getMessage());
+//			Logger.error(e.getMessage());
 			throw ExceptionHelper.convert(e);
 		}
 		
@@ -315,6 +330,7 @@ public class GenBean {
 		// 表名对应的实体类名
 		String entityName = "";
 		entityName = NameTranslateHandle.toEntityName(tableName);
+//		String selfName=entityName;
 
 		entityName = NameUtil.firstLetterToUpperCase(entityName);// 确保类名首字母大写.
 
@@ -379,6 +395,8 @@ public class GenBean {
             String columnName="";
             String allFieldName="";
             boolean genFieldAll=config.isGenFieldAll();
+            boolean genSelfName=config.isGenSelfName();
+            
 			for (int i = 0; i < columnNames.size(); i++) {
 				columnName=columnNames.get(i);
 				fieldName = NameTranslateHandle.toFieldName(columnName);
@@ -403,6 +421,14 @@ public class GenBean {
 				}
 			}
 
+			if(genSelfName) {
+				bw.write("	public static final String ENTITY_NAME = \"" + entityName + "\";");
+				bw.write(LINE_SEPARATOR);	
+				
+				bw.write("	public static final String TABLE_NAME = \"" + tableName + "\";");
+				bw.write(LINE_SEPARATOR);	
+			}
+			
 			if (genFieldAll) {
 				bw.write("	public static final String ALL_NAMES = \"" + allFieldName + "\";");
 				bw.write(LINE_SEPARATOR);
@@ -415,14 +441,99 @@ public class GenBean {
 					+ fieldFileName);
 			
 		} catch (Exception e) {
-			Logger.error(e.getMessage());
+//			Logger.error(e.getMessage());
 			throw ExceptionHelper.convert(e);
+		}
+	}
+	
+	private Queue<Set> setQueue = new LinkedBlockingQueue<>();
+	private Queue<Integer> layerQueue = new LinkedBlockingQueue<>();
+	private Queue<String> nameQueue = new LinkedBlockingQueue<>();
+
+	private boolean isMongodb() {
+		return DatabaseConst.MongoDB.equalsIgnoreCase(HoneyConfig.getHoneyConfig().getDbName());
+	}
+
+	private void _genBeanFileForMongodb(String[] tableNames) {
+		for (String tab : tableNames) {
+			_genBeanForMongodb(tab);
+		}
+	}
+
+	private boolean some_mongodb=false;
+	private boolean all_mongodb=true;
+	private boolean f1_mongodb;
+
+	private void _genBeanForMongodb(String tableName) {
+		MongodbComm mongodbComm = MongodbCommRegister.getInstance();
+		Set<Map.Entry<String, Object>> set = mongodbComm.getCollectStrcut(tableName);
+		if (set == null || set.size() < 1) {
+			Logger.warn(
+					"Generate Javabean via Mongodb,the collection(table) must have one document(row) at least!!!  collection(table):"
+							+ tableName);
+			return;
+		}
+
+		_genBeanForMongodb(set, 1, tableName);
+	}
+
+	private void _genBeanForMongodb(Set<Map.Entry<String, Object>> set, int layer,
+			String tableNameOrPropertyName) {
+		Table table = new Table();
+		table.setTableName(tableNameOrPropertyName);
+		String key = "";
+		Logger.debug("The layer is: " + layer);
+		for (Entry<String, Object> entry : set) {
+			key = entry.getKey();
+			if ("_id".equals(key)) key = "id";
+			table.getColumnNames().add(key);
+//			table.getColumnTypes().add(entry.getValue().getClass().getName());
+
+//			多层Json结构当String处理,不会生成多个Javabean
+			String className=entry.getValue().getClass().getName();
+			if ("org.bson.Document".equals(className)
+					&& !"String".equals(HoneyUtil.getFieldType("org.bson.Document"))) {
+				Map d2 = (Map) entry.getValue();
+				setQueue.add(d2.entrySet());
+				layerQueue.add(layer + 1);
+//				nameQueue.add(entry.getValue().getClass().getSimpleName());
+				nameQueue.add(key);
+				table.getColumnTypes().add(key);
+			} else {
+				table.getColumnTypes().add(entry.getValue().getClass().getName());
+			}
+		}
+
+		f1_mongodb=genBeanFile(table);
+		if(config.isGenFieldFile()) genFieldFile(table);
+		some_mongodb=some_mongodb || f1_mongodb;
+		all_mongodb=all_mongodb && f1_mongodb;
+
+		if (!setQueue.isEmpty()) {
+			_genBeanForMongodb(setQueue.poll(), layerQueue.poll(), nameQueue.poll());
+		}else {
+			if (all_mongodb) Logger.info("Generate Success!");
+			else if (some_mongodb) Logger.info("Generate some file Success!");
+			
+			printCheck(all_mongodb || some_mongodb);
 		}
 	}
 
 	public void genAllBeanFile() {
+
+		if (isMongodb()) {
+			MongodbComm mongodbComm = MongodbCommRegister.getInstance();
+			_genBeanFileForMongodb(mongodbComm.getAllCollectionNames());
+			return;
+		}
+
+		List<Table> tableList = getAllTables();
+		_genBeanFiles(tableList);
+	}
+
+	private void _genBeanFiles(List<Table> tables) {
 		Logger.info("Generating...");
-		List<Table> tables = getAllTables();
+//		List<Table> tables = getAllTables();
 		Table table = null;
 		boolean some=false;
 		boolean all=true;
@@ -448,25 +559,22 @@ public class GenBean {
 		if(isNeed) Logger.info("Please check folder: " + config.getBaseDir() + config.getPackagePath().replace(".", "\\"));
 	}
 	
-	public void genSomeBeanFile(String tableList) {// throws IOException {
-		String[] tables = tableList.split(",");
+	public void genSomeBeanFile(String tableNameList) {
+		String[] tableNames = tableNameList.split(",");
+		if (isMongodb()) {
+			_genBeanFileForMongodb(tableNames);
+			return;
+		}
+
 		Connection con = null;
-		boolean some=false;
-		boolean all=true;
-		boolean f1;
-		
+		List<Table> tablesList = new ArrayList<>();
 		try {
 			con = SessionFactory.getConnection();
 			Table table = null;
-			for (int i = 0; i < tables.length; i++) {
-				table = getTable(tables[i], con);
-				// 生成实体类
-				f1=genBeanFile(table);
-				if(config.isGenFieldFile()) genFieldFile(table);
-				
-				some=some || f1;
-				all=all && f1;
-				
+
+			for (int i = 0; i < tableNames.length; i++) {
+				table = getTable(tableNames[i], con);
+				tablesList.add(table);
 			}
 		} catch (Exception e) {
 			Logger.warn(e.getMessage(),e);
@@ -479,18 +587,18 @@ public class GenBean {
 			try {
 				if (con != null) con.close();
 			} catch (Exception e2) {
-				//ignore
+				// ignore
 			}
 		}
-		if (all) Logger.info("Generate Success!");
-		else if (some) Logger.info("Generate some file Success!");
-		
-		printCheck(all || some);
+		_genBeanFiles(tablesList);
 	}
 
 	// 获取所有表信息
 	private List<Table> getAllTables() {
-		List<Table> tables = new ArrayList<>();
+//		List<Table> tables = new ArrayList<>();
+
+		boolean isCommDb = true;
+
 		// 获取所有表名
 		String showTablesSql = "";
 		if (!"".equals(config.getQueryTableSql().trim())) {
@@ -502,22 +610,76 @@ public class GenBean {
 		} else if (config.getDbName().equalsIgnoreCase(DatabaseConst.SQLSERVER)) {
 			showTablesSql = "select table_name from edp.information_schema.tables where table_type='base table'"; // SQLServer查询所有表格名称命令
 		} else {
+//			throw new BeeException(
+//					"There are not default sql, please check the bee.db.dbName in bee.properties is right or not, or define queryTableSql in GenConfig!");
+			isCommDb = false;
+		}
+
+		if (isCommDb)
+			return _mainDbTables(showTablesSql);
+		else
+			return _otherDbTables();
+	}
+	
+	private List<Table> _mainDbTables(String showTablesSql) {
+		List<Table> tables = new ArrayList<>();
+		try (Connection conn = SessionFactory.getConnection();
+				PreparedStatement ps = conn.prepareStatement(showTablesSql);
+				ResultSet rs = ps.executeQuery();) {
+
+			List<String> tabList = new ArrayList<>();
+			while (rs.next()) {
+				if (rs.getString(1) == null) continue;
+				tabList.add(rs.getString(1).trim());
+//				tables.add(getTable(rs.getString(1).trim(), con));
+			}
+
+			for (String tab : tabList) {
+				tables.add(getTable(tab, conn));
+			}
+		} catch (SQLException e) {
+//			Logger.error(e.getMessage());
+			throw ExceptionHelper.convert(e);
+		}
+
+		return tables;
+	}
+	
+	private List<Table> _otherDbTables() {
+		List<Table> tables = new ArrayList<>();
+		Connection conn = SessionFactory.getConnection();
+		boolean has = false;
+		try {
+			DatabaseMetaData dbmd = conn.getMetaData();
+			String schemaPattern=null;
+			String types[]=null;
+			if (config.getDbName().equalsIgnoreCase(DatabaseConst.H2)) schemaPattern="PUBLIC";
+			if (config.getDbName().equalsIgnoreCase(DatabaseConst.PostgreSQL)) {
+				schemaPattern="public";
+				types= new String[] {"TABLE"};
+			}
+			
+			ResultSet rs = dbmd.getTables(null, schemaPattern, "%", types);
+			List<String> tabList = new ArrayList<>();
+			while (rs.next()) {
+				if (rs.getString(3) == null) continue;
+				tabList.add(rs.getString(3).trim());
+				has = true;
+			}
+			for (String tab : tabList) {
+				tables.add(getTable(tab, conn));
+			}
+
+		} catch (Exception e) {
+			Logger.error(e.getMessage());
+			has = false;
+		}
+
+		if (!has) {
 			throw new BeeException(
 					"There are not default sql, please check the bee.db.dbName in bee.properties is right or not, or define queryTableSql in GenConfig!");
 		}
-		//			con = getConnection();
-		try (Connection con = SessionFactory.getConnection();
-				PreparedStatement ps = con.prepareStatement(showTablesSql);
-				ResultSet rs = ps.executeQuery();) {
 
-			while (rs.next()) {
-				if (rs.getString(1) == null) continue;
-				tables.add(getTable(rs.getString(1).trim(), con));
-			}
-		} catch (SQLException e) {
-			Logger.error(e.getMessage());
-			throw ExceptionHelper.convert(e);
-		}
 		return tables;
 	}
 

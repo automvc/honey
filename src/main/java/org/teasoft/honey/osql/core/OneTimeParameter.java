@@ -11,12 +11,14 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 内部使用的一次性参数设置类.OneTime Parameter class.
+ * 设置后,一定要使用,否则可能被其它地方获取产生错误.
  * @author Kingstar
  * @since  1.8
  */
 class OneTimeParameter {
 	
-	private static ThreadLocal<Map<String, Object>> local= new ThreadLocal<>();
+//	private static ThreadLocal<Map<String, Object>> local= new ThreadLocal<>();
+	private static ThreadLocal<Map<String, Object>> local= new InheritableThreadLocal<>();
 	
 	private OneTimeParameter() {}
 
@@ -30,7 +32,7 @@ class OneTimeParameter {
 		return obj;
 	}
 
-	public static void setAttribute(String key, Object obj) {
+	static void setAttribute(String key, Object obj) {
 		if (obj == null) return;
 		Map<String, Object> map = local.get();
 		if (null == map) map = new ConcurrentHashMap<>();
@@ -38,7 +40,7 @@ class OneTimeParameter {
 		local.set(map);
 	}
 	
-	public static void setTrueForKey(String key) {
+	static void setTrueForKey(String key) {
 		setAttribute(key, StringConst.tRue);
 	}
 	

@@ -30,7 +30,7 @@ public class DefaultInterceptor implements Interceptor {
 	@Override
 	public Object beforePasreEntity(Object entity, SuidType suidType) {
 
-//		if(entity==null) return entity;  //自定义sql,MapSuid会用到.  放在chain
+		if (entity == null) return entity;  //自定义sql,MapSuid会用到.  放在chain
 
 		if (entity.getClass().equals(Class.class)) {
 //			.println("是Class类型,默认不处理."); //deleteById

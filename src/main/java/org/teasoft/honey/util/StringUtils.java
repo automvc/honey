@@ -6,6 +6,7 @@
 
 package org.teasoft.honey.util;
 
+import java.util.List;
 import java.util.regex.Pattern;
 
 /**
@@ -76,7 +77,7 @@ public final class StringUtils {
 		String idsStr = "";
 		for (int i = 0; i < stringArray.length; i++) {
 			if (i != 0) idsStr += ",";
-			idsStr += stringArray[i];
+			idsStr += stringArray[i].trim();
 		}
 
 		return idsStr;
@@ -154,17 +155,85 @@ public final class StringUtils {
 		return buf.toString();
 	}
 	
-	  public static String getUnicode(String str) {
-	        String strTemp = "";
-	        if (str != null) {
-	            for (char c : str.toCharArray()) {
-	                if (c > 255) {
-	                    strTemp += "\\u" + Integer.toHexString((int)c);
-	                } else {
-	                    strTemp += "\\u00" + Integer.toHexString((int)c);
-	                }
-	            }
-	        }
-	        return strTemp;
-	    }
+	public static String escapeMatch(String value) {
+		if(value==null) return value;
+		
+		StringBuffer buf = new StringBuffer(value);
+		char temp;
+		for (int i = 0; i < buf.length(); i++) {
+			temp=buf.charAt(i);
+//			if (temp=='\\') {
+//				i++;
+//			}else if (temp=='*' || temp=='?' || temp=='$' || temp=='+' || temp=='^' || temp=='.') {
+//			}else {
+				switch (temp) {
+					case '\\':
+//						if(i+1< buf.length()  && buf.charAt(i+1)=='u') 
+//							break;
+		            case '*':
+		            case '+':
+		            case '?':
+		            case '{':
+		            case '$':
+		            case '.':
+		            case '^':
+		            case '(':
+		            case '[':
+		            case '|':
+		            case ')':
+				       buf.insert(i++, '\\'); break;
+				    default : break;
+			}
+//		}
+		}
+		return buf.toString();
+	}
+	
+	public static String getUnicode(String str) {
+		String strTemp = "";
+		if (str != null) {
+			for (char c : str.toCharArray()) {
+				if (c > 255) {
+					strTemp += "\\u" + Integer.toHexString((int) c);
+				} else {
+					strTemp += "\\u00" + Integer.toHexString((int) c);
+				}
+			}
+		}
+		return strTemp;
+	}
+	  
+	public static String subRight(String str, int len) {
+		if (str == null || "".equals(str) || str.length() <= len) return str;
+
+		return str.substring(str.length() - len);
+	}
+	
+	public static String[] listToArray(List<String> list) {
+		if (list == null) return null;
+		String[] arry = new String[list.size()];
+		for (int i = 0; i < arry.length; i++) {
+			arry[i] = list.get(i);
+		}
+		return arry;
+	}
+	
+	public static void trim(String str[]) {
+		
+		if (str == null || str.length == 0) return ;
+
+		for (int i = 0; i < str.length; i++) {
+			str[i] = str[i].trim();
+		}
+	}
+	
+//	public static void main(String[] args) {
+//		String file="abcd.jpg";
+////		String file="jpg";
+////		String file="pg";
+////		String file="";
+////		String file=null;
+//		String ext=subRight(file, 3);
+//		System.out.println(ext);
+//	}
 }

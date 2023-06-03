@@ -45,4 +45,47 @@ public final class StringConst {
 	
 	public static final String SchemaName="_SYS_Bee_SchemaName";
 	public static final String SuidType="_SYS_Bee_SuidType"; //V1.17
+
+	
+	public static final String HadSharding=PREFIX+"HadSharding";
+	
+//	public static final String ShardingTableIndexStr="##(index)##";
+	public static final String ShardingTableIndexStr="[$#(index)#$]";
+	
+	public static final String DsNameListLocal=PREFIX+"DsNameListLocal";
+	public static final String TabNameListLocal=PREFIX+"TabNameListLocal";
+	public static final String TabSuffixListLocal=PREFIX+"TabSuffixListLocal";
+	
+	
+	public static final String ShardingFullSelect=PREFIX+"ShardingFullSelect";
+	public static final String ShardingSomeDsFullSelect=PREFIX+"ShardingSomeDsFullSelect";
+	public static final String ShardingTab2DsMap=PREFIX+"ShardingTab2DsMap";
+	
+	public static final String HintDs=PREFIX+"HintDs";
+	public static final String HintTab=PREFIX+"HintTab";
+	public static final String FunType=PREFIX+"FunType";
+	
+	public static final String DsNameListForBatchLocal=PREFIX+"DsNameListForBatchLocal";
+	public static final String TabNameListForBatchLocal=PREFIX+"TabNameListForBatchLocal";
+	
+	public static final String MoreTableQuery=PREFIX+"MoreTableQuery";
+	
+	public static final String InterceptorSubEntity=PREFIX+"InterceptorSubEntity";
+	
+	public static final String ShardingBatchInsertDoing=PREFIX+"ShardingBatchInsertDoing";
+	
+	public static final String  Check_Group_ForSharding=PREFIX+"Check_Group_ForSharding";
+	public static final String  Get_GroupFunStruct=PREFIX+"Get_GroupFunStruct";
+	public static final String  Return_GroupFunStruct=PREFIX+"Return_GroupFunStruct";
+	
+	public static final String  ShardingSelectRs_ThreadFlag=PREFIX+"ShardingSelectRs_ThreadID";
+	
+	//MongoDB
+	public static final String  GridFs_FileId=PREFIX+"GridFs_FileId";
+	public static final String  GridFs_FileName=PREFIX+"GridFs_FileName";
+	public static final String  GridFs_FileColumnName=PREFIX+"GridFs_FileColumnName";
+	
+//	OSQL
+	public static final String START_GREAT_EQ_0 = "Parameter 'start' need >=0 .";
+	public static final String SIZE_GREAT_0 = "Parameter 'size' need >0 .";
 }

@@ -6,11 +6,14 @@
 
 package org.teasoft.honey.osql.core;
 
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.ServiceConfigurationError;
 import java.util.ServiceLoader;
 
+import org.teasoft.bee.spi.JsonTransform;
 import org.teasoft.bee.spi.PreLoad;
+import org.teasoft.honey.spi.SpiInstanceRegister;
 
 /**
  * @author Kingstar
@@ -27,16 +30,52 @@ public class BeeInitPreLoadService {
 	static void initLoad() {
 		if (notStart) {
 			notStart = false;
-
+			
 			Logger.info("[Bee] ========= BeeInitPreLoadService initLoad..."); 
-			ServiceLoader<PreLoad> loads = ServiceLoader.load(PreLoad.class);
-			Iterator<PreLoad> loadIterator = loads.iterator();
-			while (loadIterator.hasNext()) {
-				try {
-					loadIterator.next();
-				} catch (ServiceConfigurationError e) {
-					Logger.error(e.getMessage(), e);
-				}
+			
+//			ServiceLoader<PreLoad> loads = ServiceLoader.load(PreLoad.class);
+//			Iterator<PreLoad> loadIterator = loads.iterator();
+//			while (loadIterator.hasNext()) {
+//				try {
+//					loadIterator.next();
+//				} catch (ServiceConfigurationError e) {
+//					Logger.error(e.getMessage(), e);
+//				}
+//			}
+			
+//			Class<PreLoad> clazz0=PreLoad.class;
+//			loadClass(clazz0);
+			
+//			Class<JsonTransform> clazz1=JsonTransform.class;
+//			loadClassAndReg(clazz1);
+			
+			loadServiceInstance(PreLoad.class);
+			loadServiceInstanceAndReg(JsonTransform.class);
+//			loadServiceInstanceAndReg(BeanSort.class);
+		}
+	}
+	
+	private static <T> void loadServiceInstance(Class<T> clazz) {
+		ServiceLoader<T> loads = ServiceLoader.load(clazz);
+		Iterator<T> loadIterator = loads.iterator();
+		while (loadIterator.hasNext()) {
+			try {
+				loadIterator.next();
+			} catch (ServiceConfigurationError e) {
+				Logger.error(e.getMessage(), e);
+			}
+		}
+	}
+	
+	private static <T extends Serializable> void loadServiceInstanceAndReg(Class<T> clazz) {
+		ServiceLoader<T> loads = ServiceLoader.load(clazz);
+		Iterator<T> loadIterator = loads.iterator();
+		while (loadIterator.hasNext()) {
+			try {
+				T obj=loadIterator.next();
+				SpiInstanceRegister.register(clazz, obj);
+			} catch (ServiceConfigurationError e) {
+				Logger.error(e.getMessage(), e);
 			}
 		}
 	}

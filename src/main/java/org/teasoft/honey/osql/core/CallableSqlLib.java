@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.teasoft.bee.osql.CallableSql;
+import org.teasoft.bee.osql.api.CallableSql;
 
 /**
  * 存储过程方式Sql操作DB的接口CallableSql的实现类.Procedure sql operate the DB.
@@ -174,7 +174,8 @@ public class CallableSqlLib implements CallableSql {
 	@Override
 	public String selectJson(String callSql, Object[] preValues) {
 		
-		StringBuffer json = new StringBuffer("");
+//		StringBuffer json = new StringBuffer("");
+		String json="";
 		
 		Connection conn = null;
 		ResultSet rs = null;
@@ -189,7 +190,10 @@ public class CallableSqlLib implements CallableSql {
 			Logger.logSQL(CALLABLE_SQL, callSql + VALUES + values);
 			rs = cstmt.executeQuery();
 
-			json = TransformResultSet.toJson(rs,null);
+			JsonResultWrap wrap = TransformResultSet.toJson(rs,null);
+			json = wrap.getResultJson();
+			int rowCount=wrap.getRowCount();
+			logSelectRows(rowCount);
 
 		} catch (SQLException e) {
 			throw ExceptionHelper.convert(e);
@@ -197,7 +201,11 @@ public class CallableSqlLib implements CallableSql {
 			checkClose(cstmt, conn);
 		}
 
-		return json.toString();
+		return json;
+	}
+	
+	private void logSelectRows(int size) {
+		Logger.logSQL(" | <--  select rows: ", size + "");
 	}
 	
 	private String getCallSql(String callSql) {

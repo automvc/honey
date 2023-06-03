@@ -19,7 +19,7 @@ import org.teasoft.honey.util.StringUtils;
 
 /**
  * @author Kingstar
- * @since  1.11
+ * @since  1.11-E
  */
 public class DatetimeHandler {
 	

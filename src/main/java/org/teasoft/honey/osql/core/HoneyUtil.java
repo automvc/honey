@@ -1,7 +1,9 @@
 package org.teasoft.honey.osql.core;
 
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,6 +16,8 @@ import org.teasoft.bee.osql.BeeException;
 import org.teasoft.bee.osql.DatabaseConst;
 import org.teasoft.bee.osql.ObjSQLException;
 import org.teasoft.bee.osql.Serializer;
+import org.teasoft.bee.osql.annotation.GenId;
+import org.teasoft.bee.osql.annotation.GenUUID;
 import org.teasoft.bee.osql.annotation.JoinTable;
 import org.teasoft.bee.osql.annotation.JoinType;
 import org.teasoft.bee.osql.annotation.JustFetch;
@@ -26,11 +30,14 @@ import org.teasoft.bee.osql.exception.JoinTableException;
 import org.teasoft.bee.osql.exception.JoinTableParameterException;
 import org.teasoft.bee.osql.interccept.InterceptorChain;
 import org.teasoft.bee.osql.type.SetParaTypeConvert;
+import org.teasoft.honey.distribution.GenIdFactory;
+import org.teasoft.honey.distribution.UUID;
 import org.teasoft.honey.osql.constant.NullEmpty;
 import org.teasoft.honey.osql.name.NameUtil;
 import org.teasoft.honey.osql.type.*;
 import org.teasoft.honey.osql.util.AnnoUtil;
 import org.teasoft.honey.osql.util.NameCheckUtil;
+import org.teasoft.honey.sharding.ShardingUtil;
 import org.teasoft.honey.util.ObjectUtils;
 import org.teasoft.honey.util.StringUtils;
 
@@ -41,13 +48,8 @@ import org.teasoft.honey.util.StringUtils;
  */
 public final class HoneyUtil {
 
-//	private static final String STRING = "String";
-//	private static Map<String, String> jdbc2JavaTypeMap = new HashMap<>(); 
 	private static Map<String, Integer> javaTypeMap = new HashMap<>();
 
-//	private static PropertiesReader jdbcTypeCustomProp = new PropertiesReader("/jdbcTypeToFieldType.properties");
-//	private static PropertiesReader jdbcTypeCustomProp_specificalDB = null;
-	
 	static {
 		initJavaTypeMap();
 		initSetParaAndResultTypeHandlerRegistry();
@@ -62,31 +64,12 @@ public final class HoneyUtil {
 	//初始化  SQL设置参数转换注册器 和 查询结果类型转换注册器
 	private static void initSetParaAndResultTypeHandlerRegistry() {
 		
-/*		String proFileName = "/jdbcTypeToFieldType-{DbName}.properties";
-		
-		initJdbcTypeMap();
-		appendJdbcTypeCustomProp();
-		
-		String dbName = HoneyConfig.getHoneyConfig().getDbName();
-		if (dbName != null) {
-			jdbcTypeCustomProp_specificalDB = new PropertiesReader(proFileName.replace("{DbName}", dbName));
-			appendJdbcTypeCustomProp_specificalDB();
-		}*/
-		
-
-//		initJavaTypeMap();
-		
-//		SetParaTypeConverterRegistry.register(java.util.Date.class, new UtilDotDateTypeToTimestampConvert<java.util.Date>(), DatabaseConst.ORACLE); //close in 1.17
 		SetParaTypeConverterRegistry.register(java.util.Date.class, new UtilDotDateTypeToTimestampConvert<java.util.Date>(), DatabaseConst.PostgreSQL);
 		SetParaTypeConverterRegistry.register(java.util.Date.class, new UtilDotDateTypeToTimestampConvert<java.util.Date>(), DatabaseConst.H2);
-//		SetParaTypeConverterRegistry.register(java.util.Date.class, new UtilDotDateTypeToTimestampConvert<java.util.Date>(), DatabaseConst.MYSQL); //close in 1.17
 		SetParaTypeConverterRegistry.register(java.util.Date.class, new UtilDotDateTypeConvert<java.util.Date>());
 		
 		TypeHandlerRegistry.register(char.class, new CharTypeHandler<Character>(),true);
 		
-//		if (isSQLite() || HoneyContext.isNeedRealTimeDb()) { //不能只用isSQLite(),否则动态切换时,不一定能运行到.   这样,也还是可能运行不到
-//		if(isSQLite() || (HoneyContext.isNeedRealTimeDb() && HoneyContext.getDsName2DbName().containsValue(DatabaseConst.SQLite))) {
-	
 		//单DS  或者  DsMap中包含有   才执行.   触发时间,应该是在被更改配置时,调用一次
 		if ((!HoneyConfig.getHoneyConfig().multiDS_enable)
 		  || (HoneyContext.getDsName2DbName() != null && HoneyContext.getDsName2DbName().containsValue(DatabaseConst.SQLite))) {
@@ -488,7 +471,7 @@ public final class HoneyUtil {
 						else
 							moreTableStruct[1 + j].subObject = subField[j].get(moreTableStruct[1].subObject);
 					} else {
-						moreTableStruct[1 + j].subObject = subField[j].get(entity);
+						moreTableStruct[1 + j].subObject = subField[j].get(entity); //need entity , not class
 					}
 				} catch (IllegalAccessException e) {
 					throw ExceptionHelper.convert(e);
@@ -694,7 +677,11 @@ public final class HoneyUtil {
 				}
 			}
 			
-			javaType = "[UNKNOWN TYPE]" + jdbcType;
+			if (HoneyUtil.isMongoDB()) {
+				javaType = NameTranslateHandle.toEntityName(jdbcType);
+			} else {
+				javaType = "[UNKNOWN TYPE]" + jdbcType;
+			}
 			Logger.debug(javaType); //V1.17
 		}
 
@@ -771,7 +758,7 @@ public final class HoneyUtil {
 			jdbc2JavaTypeMap.put("TINYBLOB", "Blob");
 			jdbc2JavaTypeMap.put("MEDIUMBLOB", "Blob");
 			jdbc2JavaTypeMap.put("LONGBLOB", "Blob");
-			jdbc2JavaTypeMap.put("YEAR", "Integer"); //todo 
+			jdbc2JavaTypeMap.put("YEAR", "Integer"); // 
 			
 			jdbc2JavaTypeMap.put("TINYINT", "Byte");
 			jdbc2JavaTypeMap.put("SMALLINT", "Short");
@@ -786,7 +773,7 @@ public final class HoneyUtil {
 			jdbc2JavaTypeMap.put("LONG", STRING);
 			jdbc2JavaTypeMap.put("VARCHAR2", STRING);
 			jdbc2JavaTypeMap.put("NVARCHAR2", STRING);
-			jdbc2JavaTypeMap.put("NUMBER", "BigDecimal"); //oracle todo
+			jdbc2JavaTypeMap.put("NUMBER", "BigDecimal"); //oracle 
 			jdbc2JavaTypeMap.put("RAW", "byte[]");
 
 			jdbc2JavaTypeMap.put("INTERVALYM", STRING); //11g 
@@ -1060,7 +1047,7 @@ public final class HoneyUtil {
 		
 		javaTypeMap.put("java.net.URL", 27);
 		
-//		javaTypeMap.put("java.util.UUID", 28);  //1 todo
+//		javaTypeMap.put("java.util.UUID", 28);  //1 
 			
 	}
 
@@ -1075,7 +1062,7 @@ public final class HoneyUtil {
 		return NameUtil.firstLetterToUpperCase(str);
 	}
 
-	static boolean isContinue(int includeType, Object object, Field field) {
+	public static boolean isContinue(int includeType, Object object, Field field) {
 		//		object字段上对应的值
 		if (field != null) {
 			if(isSkipField(field)) return true;
@@ -1239,7 +1226,7 @@ public final class HoneyUtil {
 				
 //				pst.setUnicodeStream(parameterIndex, x, length);
 			
-//			case 28:   //2 todo
+//			case 28:   //2 
 //				UUID u=(UUID)value;
 //				pst.setObject(i + 1, u.toString());
 //				pst.setString(i + 1, u.toString());
@@ -1583,7 +1570,7 @@ public final class HoneyUtil {
 		return checkAndProcessSelectFieldViaString(columnsdNames, null, fieldList);
 	}
 	 
-	 static String checkAndProcessSelectFieldViaString(String columnsdNames,Map<String,String> subDulFieldMap,String ...fields){
+	public static String checkAndProcessSelectFieldViaString(String columnsdNames,Map<String,String> subDulFieldMap,String ...fields){
 			
 		if (fields == null) return null;
 		 
@@ -1606,6 +1593,8 @@ public final class HoneyUtil {
 		} else {
 			selectFields = fields;
 		}
+		StringUtils.trim(selectFields);
+		
 		String newSelectFields = "";
 		boolean isFisrt = true;
 		String colName;
@@ -1780,6 +1769,7 @@ public final class HoneyUtil {
 
 	public static void regPagePlaceholder() {
 	    if(isSqlServer()) return ;
+	    if(ShardingUtil.hadSharding()) return ; //2.0 有分片则不用
 		OneTimeParameter.setTrueForKey("_SYS_Bee_Paing_Placeholder");
 	}
 
@@ -1793,18 +1783,22 @@ public final class HoneyUtil {
 	}
 	
 	public static <T> Field getPkField(T entity) {
+		return getPkField(entity.getClass());
+	}
+	
+	public static <T> Field getPkField(Class<T> entityClass) {
 		Field field = null;
 		try {
-			field = entity.getClass().getDeclaredField("id");
+			field = entityClass.getDeclaredField("id");
 		} catch (NoSuchFieldException e) {
-			String pkName = getPkFieldName(entity);
+			String pkName = getPkFieldNameByClass(entityClass);
 
 			boolean hasException = false;
 			if ("".equals(pkName)) {
 				hasException = true;
 			} else if (pkName != null && !pkName.contains(",")) {
 				try {
-					field = entity.getClass().getDeclaredField(pkName);
+					field = entityClass.getDeclaredField(pkName);
 				} catch (NoSuchFieldException e2) {
 					hasException = true;
 				}
@@ -1862,7 +1856,16 @@ public final class HoneyUtil {
 	
 	public static <T> void revertId(T entity[]) {
 		Field field = null;
-		String pkName=(String)OneTimeParameter.getAttribute(StringConst.Primary_Key_Name);
+		String pkName=(String)OneTimeParameter.getAttribute(StringConst.Primary_Key_Name);  //可能为null 
+		if (pkName == null) {
+			for (int i = 0; i < entity.length; i++) {
+				//用掉
+				OneTimeParameter.isTrue(StringConst.OLD_ID_EXIST + i);
+				OneTimeParameter.getAttribute(StringConst.OLD_ID + i);
+			}
+			return; // pkName == null时提前返回
+		}
+		
 		for (int i = 0; i < entity.length; i++) {
 
 			if (OneTimeParameter.isTrue(StringConst.OLD_ID_EXIST+i)) {
@@ -1875,12 +1878,148 @@ public final class HoneyUtil {
 					throw new ObjSQLException("entity[] miss id field: the element in entity[] no id field!");
 				} catch (IllegalAccessException e) {
 					throw ExceptionHelper.convert(e);
+				} catch (Exception e) {
+//					e.printStackTrace();
+					Logger.error(e.getMessage(),e);
 				}
 			}
 		}
 	}
 	
-	static <T> String getPkFieldName(T entity) {
+	public static <T> void setInitArrayIdByAuto(T entity[]) {
+			
+			if(entity==null || entity.length<1) return ;
+			
+//			boolean needGenId = HoneyContext.isNeedGenId(entity[0].getClass());
+//			if (!needGenId) return;
+			
+			boolean hasValue = false;
+//			Long v = null;
+
+			Field field0 = null;
+			String pkName ="";	
+			String pkAlias="";
+			boolean isStringField=false;
+			boolean hasGenUUIDAnno=false;
+			boolean useSeparatorInUUID=false;
+			try {
+				//V1.11
+				boolean noId = false;
+				try {
+					field0 = entity[0].getClass().getDeclaredField("id");
+					pkName="id";
+				} catch (NoSuchFieldException e) {
+					noId = true;
+				}
+				if (noId) {
+					pkName = HoneyUtil.getPkFieldName(entity[0]);
+					if("".equals(pkName) || pkName.contains(",")) return ; //just support single primary key.
+					field0 = entity[0].getClass().getDeclaredField(pkName); //fixed 1.17
+					pkAlias="("+pkName+")";
+				}	
+				
+				if (field0==null) return; //没有主键,则提前返回
+				
+				boolean replaceOldValue = HoneyConfig.getHoneyConfig().genid_replaceOldId;
+				
+				if(field0.isAnnotationPresent(GenId.class)) {
+					GenId genId=field0.getAnnotation(GenId.class);
+					replaceOldValue=replaceOldValue || genId.override();
+				}else if(field0.isAnnotationPresent(GenUUID.class)) {
+					GenUUID gen=field0.getAnnotation(GenUUID.class);
+					replaceOldValue=replaceOldValue || gen.override();
+					hasGenUUIDAnno=true;
+					useSeparatorInUUID=gen.useSeparator();
+				}else {
+					boolean needGenId = HoneyContext.isNeedGenId(entity[0].getClass());
+					if (!needGenId) return ;
+				}
+				
+				
+				isStringField=field0.getType().equals(String.class);
+				if(hasGenUUIDAnno && !isStringField) {
+					Logger.warn("Gen UUID as id just support String type field!");
+					return ;
+				}
+				
+				
+//				if (!field0.getType().equals(Long.class)) {//just set the null Long id field
+				if (_ObjectToSQLHelper.errorType(field0)) {//set Long or Integer type id
+					Logger.warn("The id"+pkAlias+" field's "+field0.getType()+" is not Long/Integer, can not generate the Long/Integer id automatically!");
+					return; 
+				}
+				
+//				field.setAccessible(true);
+//				if (field.get(entity[0]) != null) return; //即使没值,运行一次后也会有值,下次再用就会重复.而用户又不知道.    //要提醒是被覆盖了。
+			
+//				boolean replaceOldValue = HoneyConfig.getHoneyConfig().genid_replaceOldId;
+				
+				int len = entity.length;
+				String tableKey = _toTableName(entity[0]);
+				long ids[];
+				long id =0;
+				if (_ObjectToSQLHelper.isInt(field0)) {
+					ids = GenIdFactory.getRangeId(tableKey, GenIdFactory.GenType_IntSerialIdReturnLong, len);
+					id = ids[0];
+				} else if(! hasGenUUIDAnno) {
+					ids = GenIdFactory.getRangeId(tableKey, len);
+					id = ids[0];
+				}
+				
+				Field field = null;
+				for (int i = 0; i < len; id++, i++) {
+					if(entity[i]==null) continue;
+					hasValue = false;
+//					v = null;
+					
+					field = entity[i].getClass().getDeclaredField(pkName);
+					field.setAccessible(true);
+					Object obj = field.get(entity[i]);
+					
+					if (obj != null) {
+						if (!replaceOldValue) return ;
+						hasValue = true;
+//						v = (Long) obj;
+					}
+					
+//					OneTimeParameter.setTrueForKey(StringConst.OLD_ID_EXIST+i);
+//					OneTimeParameter.setAttribute(StringConst.OLD_ID+i, obj);
+					
+					field.setAccessible(true);
+					try {
+						if (_ObjectToSQLHelper.isInt(field0))
+							field.set(entity[i], (int)id);
+						else if(!hasGenUUIDAnno && isStringField) //没有用GenUUID又是String
+							field.set(entity[i], id+"");
+						else if(hasGenUUIDAnno && isStringField) //用GenUUID
+							field.set(entity[i], UUID.getId(useSeparatorInUUID));
+						else
+							field.set(entity[i], id);
+						if (hasValue) {
+							Logger.warn(" [ID WOULD BE REPLACED] entity["+i+"] : " + entity[0].getClass() + " 's id field"+pkAlias+" value is " + obj.toString()
+									+ " would be replace by " + id);
+						}
+						
+						//fixed bug
+						OneTimeParameter.setAttribute(StringConst.Primary_Key_Name, pkName);
+						OneTimeParameter.setTrueForKey(StringConst.OLD_ID_EXIST+i);
+						OneTimeParameter.setAttribute(StringConst.OLD_ID+i, obj);
+					} catch (IllegalAccessException e) {
+						throw ExceptionHelper.convert(e);
+					}
+				}
+//				OneTimeParameter.setAttribute(StringConst.Primary_Key_Name, pkName); //bug,在分片批量插入时,多线程下,有可能设置不成功
+			
+			} catch (NoSuchFieldException e) {
+				//is no id field , ignore.
+				return;
+			} catch (Exception e) {
+				Logger.error(e.getMessage(),e);
+				return;
+			}
+	}
+	
+	public static <T> String getPkFieldName(T entity) {
 		if (entity == null) return null;
 		return getPkFieldNameByClass(entity.getClass());
 	}
@@ -1891,7 +2030,7 @@ public final class HoneyUtil {
 	 * @return
 	 */
 	@SuppressWarnings("rawtypes")
-	static String getPkFieldNameByClass(Class c) {
+	public static String getPkFieldNameByClass(Class c) {
 
 		if (c == null) return null;
 		String classFullName = c.getName();
@@ -1945,6 +2084,26 @@ public final class HoneyUtil {
 		return false;
 	}
 	
+	  /**
+     * 判断参数是否为数字
+     * @param obj
+     * @return 是数字返回true
+     */
+    public static boolean isNumber(Object obj){
+        if(obj instanceof Integer ||
+                obj instanceof Long ||
+                obj instanceof Short ||
+                obj instanceof Byte ||
+                obj instanceof Double ||
+                obj instanceof Float ||
+                obj instanceof BigInteger ||
+                obj instanceof BigDecimal
+        		){
+            return true;
+        }
+        return false;
+    }
+	
 	/**
 	 * 只判断MySQL,MariaDB,Oracle,H2,SQLite,PostgreSQL,SQL Server,Cassandra
 	 * @return
@@ -1958,14 +2117,56 @@ public final class HoneyUtil {
 		return false;
 	}
 	
-	public static InterceptorChain copy(InterceptorChain ojb) {
+	public static InterceptorChain copy(InterceptorChain obj) {
 		try {
 			Serializer jdks = new JdkSerializer();
-			return (InterceptorChain) jdks.unserialize(jdks.serialize(ojb));
+			return (InterceptorChain) jdks.unserialize(jdks.serialize(obj));
 		} catch (Exception e) {
 			Logger.debug(e.getMessage(), e);
 		}
 		return null;
+	}
+	
+	public static <T extends Serializable> Object copyObject(T obj) {
+		try {
+			Serializer jdks = new JdkSerializer();
+			return jdks.unserialize(jdks.serialize(obj));
+		} catch (Exception e) {
+			Logger.debug(e.getMessage(), e);
+		}
+		return null;
+	}
+	
+	//include union,union all
+	public static boolean isNotSupportUnionQuery() {
+		return HoneyConfig.getHoneyConfig().notSupportUnionQuery || HoneyUtil.isSQLite();
+	}
+	
+	public static <T> String getColumnNames(T entity) {
+		Field fields[] = entity.getClass().getDeclaredFields(); 
+		String columnNames;
+		String packageAndClassName = entity.getClass().getName();
+		columnNames = HoneyContext.getBeanField(packageAndClassName);
+		if (columnNames == null) {
+			columnNames = HoneyUtil.getBeanField(fields,entity.getClass());
+			HoneyContext.addBeanField(packageAndClassName, columnNames);
+		}
+		
+		return columnNames;
+	}
+	
+	public static String toTableName(Object entity) {
+		if (entity instanceof Class) return _toTableNameByClass((Class) entity); // fixed bug 2.1
+		if (entity instanceof String) return _toTableName2((String) entity);// fixed bug 2.1
+		return NameTranslateHandle.toTableName(NameUtil.getClassFullName(entity));
+	}
+	
+	private static String _toTableName2(String entityName) {
+		return NameTranslateHandle.toTableName(entityName);
+	}
+	
+	private static String _toTableNameByClass(Class c) {
+		return NameTranslateHandle.toTableName(c.getName());
 	}
 
 }

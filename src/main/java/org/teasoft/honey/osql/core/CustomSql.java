@@ -13,7 +13,7 @@ public class CustomSql {
 	private static PropertiesReader customSqlProp;
 
 	static {
-		customSqlProp = new PropertiesReader("/bee.sql.properties");
+		customSqlProp = new PropertiesReader("bee.sql.properties");
 	}
 	
 	private CustomSql() {}

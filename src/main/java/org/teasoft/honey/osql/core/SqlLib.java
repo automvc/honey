@@ -1,36 +1,42 @@
 /*
- * Copyright 2013-2022 the original author.All rights reserved.
+ * Copyright 2013-2023 the original author.All rights reserved.
  * Kingstar(honeysoft@126.com)
  * The license,see the LICENSE file.
  */
 
 package org.teasoft.honey.osql.core;
 
+import java.io.Serializable;
 import java.lang.reflect.Field;
-import java.sql.BatchUpdateException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
 import org.teasoft.bee.osql.BeeSql;
-import org.teasoft.bee.osql.Cache;
+import org.teasoft.bee.osql.FunctionType;
 import org.teasoft.bee.osql.ObjSQLException;
 import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.annotation.JoinTable;
 import org.teasoft.bee.osql.annotation.customizable.Json;
 import org.teasoft.bee.osql.type.TypeHandler;
 import org.teasoft.honey.osql.type.TypeHandlerRegistry;
-import org.teasoft.honey.osql.util.AnnoUtil;
+import org.teasoft.honey.sharding.ShardingUtil;
+import org.teasoft.honey.sharding.engine.ShardingAvgEngine;
+import org.teasoft.honey.sharding.engine.ShardingGroupbyListStringArrayEngine;
+import org.teasoft.honey.sharding.engine.ShardingModifyEngine;
+import org.teasoft.honey.sharding.engine.ShardingMoreTableSelectEngine;
+import org.teasoft.honey.sharding.engine.ShardingSelectEngine;
+import org.teasoft.honey.sharding.engine.ShardingSelectFunEngine;
+import org.teasoft.honey.sharding.engine.ShardingSelectJsonEngine;
+import org.teasoft.honey.sharding.engine.ShardingSelectListStringArrayEngine;
+import org.teasoft.honey.sharding.engine.ShardingSelectRsEngine;
 import org.teasoft.honey.util.StringUtils;
 
 /**
@@ -41,43 +47,65 @@ import org.teasoft.honey.util.StringUtils;
  * Create on 2013-6-30 下午10:32:53
  * @since  1.0
  */
-public class SqlLib implements BeeSql {
+public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 	
-	private Cache cache;
-	
-	private int cacheWorkResultSetSize=HoneyConfig.getHoneyConfig().cache_workResultSetSize;
-	private static boolean  showSQL=HoneyConfig.getHoneyConfig().showSQL;
-	protected static boolean openFieldTypeHandler = HoneyConfig.getHoneyConfig().openFieldTypeHandler;
+	private static final long serialVersionUID = 1596710362259L;
+	private boolean showSQL = getShowSQL();
 
 	private Connection getConn() throws SQLException {
 		return HoneyContext.getConn();
 	}
 	
-	public Cache getCache() {
-		if(cache==null) {
-			cache=BeeFactory.getHoneyFactory().getCache();
-		}
-		return cache;
-	}
-
-	public void setCache(Cache cache) {
-		this.cache = cache;
+	@Override
+	public <T> List<T> select(String sql, Class<T> entityClass) {
+		return selectSomeField(sql, entityClass);
 	}
 
 	@Override
-	public <T> List<T> select(String sql, T entity) {
-		return selectSomeField(sql, entity);
-	}
-
-	@Override
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public <T> List<T> selectSomeField(String sql, T entity) {
+	@SuppressWarnings("unchecked")
+	public <T> List<T> selectSomeField(String sql, Class<T> entityClass) {
 
 		if (sql == null || "".equals(sql.trim())) return Collections.emptyList();
+		
+		if (!ShardingUtil.hadSharding()) {
+			return _selectSomeField(sql, entityClass); // 1.x版本及不用分片走的分支
+		} else {
+			if (HoneyContext.getSqlIndexLocal() == null) {
+//				List<T> list = getCache(sql, entity); // 总sql不能去查询,只能检测是否有缓存. 没有的话,要分开来查询.
+				List<T> list =_selectSomeField(sql, entityClass); //检测缓存的
+				if (list != null) {// 若缓存是null,就无法区分了,所以没有数据,最好是返回空List,而不是null
+					logDsTab();
+					return list; 
+				}
+				List<T> rsList;
+				boolean jdbcStreamSelect =HoneyConfig.getHoneyConfig().sharding_jdbcStreamSelect;
+				
+				if (ShardingUtil.hadAvgSharding()) {
+					int List_T = 2;
+					rsList = (List<T>) new ShardingGroupbyListStringArrayEngine().asynProcess(sql, this, entityClass, List_T);
+				} else if (jdbcStreamSelect && ! ShardingUtil.hadGroupSharding()) {
+					rsList = new ShardingSelectRsEngine().asynProcess(sql, entityClass, this); // 无结果集时,可能会报错   fixed V2.1
+				} else {
+					rsList = new ShardingSelectEngine().asynProcess(sql, entityClass, this); 
+				}
+//				addInCache(sql, rsList, "List<T>", SuidType.SELECT, rsList.size());  //缓存Key,是否包括了分片的DS,Tables
+				addInCache(sql, rsList, rsList.size()); // 缓存Key,是否包括了分片的DS,Tables
+				logSelectRows(rsList.size());
+				return rsList;
+				
+			} else { // 子线程执行
+				return _selectSomeField(sql, entityClass);
+			}
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	private <T> List<T> _selectSomeField(String sql, Class<T> entityClass) {
+//		if (sql == null || "".equals(sql.trim())) return Collections.emptyList();
 
-		boolean isReg = updateInfoInCache(sql, "List<T>", SuidType.SELECT);
+		boolean isReg = updateInfoInCache(sql, "List<T>", SuidType.SELECT, entityClass);
 		if (isReg) {
-			initRoute(SuidType.SELECT, entity.getClass(), sql);
+			initRoute(SuidType.SELECT, entityClass, sql);
 			Object cacheObj = getCache().get(sql); //这里的sql还没带有值
 			if (cacheObj != null) {
 				clearContext(sql);
@@ -86,13 +114,13 @@ public class SqlLib implements BeeSql {
 				return list;
 			}
 		}
+		if(isShardingMain()) return null; //sharding时,主线程没有缓存就返回.
 
 		Connection conn = null;
 		PreparedStatement pst = null;
 		ResultSet rs = null;
 		T targetObj = null;
 		List<T> rsList = null;
-		Map<String, Field> map = null;
 		boolean hasException = false;
 		
 		try {
@@ -103,87 +131,13 @@ public class SqlLib implements BeeSql {
 			setPreparedValues(pst, sql);
 
 			rs = pst.executeQuery();
-			ResultSetMetaData rmeta = rs.getMetaData();
-			int columnCount = rmeta.getColumnCount();
 			rsList = new ArrayList<>();
-			map = new Hashtable<>();
-			Field field = null;
-			String name = null;
-			boolean isFirst = true;
-			
 			while (rs.next()) {
-
-				targetObj = (T) entity.getClass().newInstance();
-				for (int i = 0; i < columnCount; i++) {
-					try {
-						name = _toFieldName(rmeta.getColumnName(i + 1), entity.getClass());
-						if (isFirst) {
-							field = entity.getClass().getDeclaredField(name);//可能会找不到Javabean的字段
-							map.put(name, field);
-						} else {
-							field = map.get(name);
-							if (field == null) continue;
-						}
-					} catch (NoSuchFieldException e) {
-						continue;
-					}
-					field.setAccessible(true);
-					Object obj =null;
-					boolean isRegHandlerPriority = false;
-					
-					try {
-						boolean processAsJson=false;
-						if (isJoson(field)) {							
-							obj = rs.getString(i + 1);
-							TypeHandler jsonHandler =TypeHandlerRegistry.getHandler(Json.class);
-							if (jsonHandler != null) {
-								obj = jsonHandlerProcess(field, obj, jsonHandler);
-								processAsJson = true;
-							}
-						}else {
-							if (openFieldTypeHandler) {
-								isRegHandlerPriority = TypeHandlerRegistry.isPriorityType(field.getType());
-							}
-						}
-						
-						if (! processAsJson) obj = rs.getObject(i + 1);
-						
-						if (isRegHandlerPriority) {
-							obj=TypeHandlerRegistry.handlerProcess(field.getType(), obj);
-							field.set(targetObj, obj); //对相应Field设置
-						} else {
-							field.set(targetObj, obj); //对相应Field设置
-						}
-					} catch (IllegalArgumentException e) {
-//						e.printStackTrace();
-						boolean alreadyProcess = false;
-						obj=_getObjectByindex(rs, field, i + 1);
-//						obj = rs.getObject(i + 1,field.getType()); //oracle do not support
-						if (openFieldTypeHandler) {
-							Class type = field.getType();
-							TypeHandler handler = TypeHandlerRegistry.getHandler(type);
-							if (handler != null) {
-								try {
-									Object newObj = handler.process(type, obj);
-									field.set(targetObj, newObj);
-									alreadyProcess = true;
-								} catch (Exception e2) {
-									alreadyProcess = false;
-								}
-							}
-						}
-						if (!alreadyProcess) {
-							field.set(targetObj, obj);
-						}
-					}
-
-				}
+				targetObj=TransformResultSet.rowToEntity(rs, entityClass);
 				rsList.add(targetObj);
-				isFirst = false;
 			}
-
-			addInCache(sql, rsList, "List<T>", SuidType.SELECT, rsList.size());
-
+//			addInCache(sql, rsList, "List<T>", SuidType.SELECT, rsList.size());
+			addInCache(sql, rsList, rsList.size());
 		} catch (SQLException e) {
 			hasException = true;
 			throw ExceptionHelper.convert(e);
@@ -202,50 +156,94 @@ public class SqlLib implements BeeSql {
 			} else {
 				checkClose(pst, conn);
 			}
-			entity = null;  //???   改了的,没有传回去.
 			targetObj = null;
-			map = null;
 		}
 		logSelectRows(rsList.size());
 
 		return rsList;
 	}
 	
-	//检测是否有Json注解
-	protected boolean isJoson(Field field) {
-		return AnnoUtil.isJson(field);
+	
+	@Override
+	public ResultSet selectRs(String sql) {
+
+		Connection conn = null;
+		PreparedStatement pst = null;
+		ResultSet rs = null;
+		try {
+			conn = getConn();
+			String exe_sql = HoneyUtil.deleteLastSemicolon(sql);
+			pst = conn.prepareStatement(exe_sql);
+
+			setPreparedValues(pst, sql);
+
+			rs = pst.executeQuery();
+			return rs;
+		} catch (SQLException e) {
+			throw ExceptionHelper.convert(e);
+		} finally {
+			clearContext(sql);
+			if (conn != null) HoneyContext.regConnForSelectRs(conn);
+		}
 	}
 	
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	protected Object jsonHandlerProcess(Field field, Object obj, TypeHandler jsonHandler) {
-		if (List.class.isAssignableFrom(field.getType())) {
-			Object newOjb[] = new Object[2];
-			newOjb[0] = obj;
-			newOjb[1] = field;
-			obj = jsonHandler.process(field.getType(), newOjb);
-		} else {
-			obj = jsonHandler.process(field.getType(), obj);
-		}
-		return obj;
-	}
-
+	
 	/**
 	 * SQL function: max,min,avg,sum,count. 如果统计的结果集为空,除了count返回0,其它都返回空字符.
 	 */
 	@Override
+	@SuppressWarnings("rawtypes")
 	public String selectFun(String sql) {
+		Class entityClass = (Class) OneTimeParameter.getAttribute(StringConst.Route_EC);
+		if(sql==null || "".equals(sql.trim())) return null; 
+		if (!ShardingUtil.hadSharding()) {
+			return _selectFun(sql,entityClass);
+		} else {
+			if (HoneyContext.getSqlIndexLocal() == null) {
+				
+				String cacheValue=_selectFun(sql,entityClass);  //检测缓存的
+				if(cacheValue!=null) {
+					logDsTab();
+					return cacheValue;
+				}
+				String fun = "";
+				String funType = HoneyContext.getSysCommStrLocal(StringConst.FunType);
+				if (FunctionType.AVG.getName().equalsIgnoreCase(funType)) { //avg need change sql
+					String newSql=ShardingAvgEngine.rewriteAvgSql(sql);
+					HoneyContext.setPreparedValue(newSql,  HoneyContext.justGetPreparedValue(sql));
+					List<String[]> rsList =new ShardingSelectListStringArrayEngine().asynProcess(newSql, this,entityClass);
+					fun= ShardingAvgEngine.avgResultEngine(rsList);
+					clearContext(newSql);
+				} else {
+					fun = new ShardingSelectFunEngine().asynProcess(sql, this, entityClass); 
+				}
+				
+//				addInCache(sql, fun,"String",SuidType.SELECT,1);
+				addInCache(sql, fun, 1);
+				
+				return fun;
+				
+			} else { // 子线程执行
+				return _selectFun(sql,entityClass);
+			}
+		}
+	}
+	
+	@SuppressWarnings("rawtypes")	
+	private String _selectFun(String sql,Class entityClass) {
 		
-		if(sql==null || "".equals(sql.trim())) return null;
+//		if(sql==null || "".equals(sql.trim())) return null; //往前放了
 		
-		boolean isReg = updateInfoInCache(sql, "String", SuidType.SELECT);
+		boolean isReg = updateInfoInCache(sql, "String", SuidType.SELECT, entityClass);
 		if (isReg) {
-			initRoute(SuidType.SELECT, null, sql);
+			initRoute(SuidType.SELECT, entityClass, sql);
 			Object cacheObj = getCache().get(sql); //这里的sql还没带有值
 			if (cacheObj != null) {
 				clearContext(sql);
 				return (String) cacheObj;
 			}
 		}
+		if(isShardingMain()) return null; //sharding时,主线程没有缓存就返回.
 		
 		String result = null;
 		Connection conn = null;
@@ -277,7 +275,8 @@ public class SqlLib implements BeeSql {
 				throw new ObjSQLException("ObjSQLException:The size of ResultSet more than 1.");
 			}
 			
-			addInCache(sql, result,"String",SuidType.SELECT,1);
+//			addInCache(sql, result,"String",SuidType.SELECT,1);
+			addInCache(sql, result, 1);
 
 		} catch (SQLException e) {
 			hasException=true;
@@ -295,17 +294,50 @@ public class SqlLib implements BeeSql {
 
 		return result;
 	}
-
-	@SuppressWarnings("unchecked")
+	
 	@Override
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public List<String[]> select(String sql) {
+		Class entityClass = (Class) OneTimeParameter.getAttribute(StringConst.Route_EC);
+		if (sql == null || "".equals(sql.trim())) return Collections.emptyList();
+
+		if (!ShardingUtil.hadSharding()) {
+			return _select(sql, entityClass); // 1.x版本及不用分片走的分支
+		} else {
+			if (HoneyContext.getSqlIndexLocal() == null) {
+				List<String[]> list = _select(sql, entityClass); // 检测缓存的
+				if (list != null) {
+					logDsTab();
+					return list;
+				}
+				
+				List<String[]> rsList;
+				if (ShardingUtil.hadGroupSharding()) {
+					int List_String_Array = 1;
+					rsList = (List<String[]>) new ShardingGroupbyListStringArrayEngine().asynProcess(sql, this, entityClass, List_String_Array);
+				} else {
+					rsList = new ShardingSelectListStringArrayEngine().asynProcess(sql, this, entityClass);
+				}
+				
+//				addInCache(sql, rsList, "List<String[]>", SuidType.SELECT, rsList.size());
+				addInCache(sql, rsList, rsList.size());
+
+				return rsList;
+				
+			} else { // 子线程执行
+				return _select(sql, entityClass);
+			}
+		}
+	}
 		
-//		if(sql==null || "".equals(sql.trim())) return null;
-		if(sql==null || "".equals(sql.trim())) return Collections.emptyList();
 		
-		boolean isReg = updateInfoInCache(sql, "List<String[]>", SuidType.SELECT);
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private List<String[]> _select(String sql,Class entityClass) {	
+//		if(sql==null || "".equals(sql.trim())) return Collections.emptyList();
+		
+		boolean isReg = updateInfoInCache(sql, "List<String[]>", SuidType.SELECT, entityClass);
 		if (isReg) {
-			initRoute(SuidType.SELECT, null, sql);
+			initRoute(SuidType.SELECT, entityClass, sql);
 			Object cacheObj = getCache().get(sql); //这里的sql还没带有值
 			if (cacheObj != null) {
 				clearContext(sql);
@@ -314,6 +346,7 @@ public class SqlLib implements BeeSql {
 				return list;
 			}
 		}
+		if(isShardingMain()) return null; //sharding时,主线程没有缓存就返回.
 		
 		List<String[]> list = new ArrayList<>();
 		Connection conn = null;
@@ -329,7 +362,8 @@ public class SqlLib implements BeeSql {
 			list=TransformResultSet.toStringsList(rs);
 			
 			logSelectRows(list.size());
-			addInCache(sql, list,"List<String[]>",SuidType.SELECT,list.size());
+//			addInCache(sql, list,"List<String[]>",SuidType.SELECT,list.size());
+			addInCache(sql, list, list.size());
 			
 		} catch (SQLException e) {
 			hasException=true;
@@ -348,13 +382,12 @@ public class SqlLib implements BeeSql {
 		return list;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
+	@SuppressWarnings("unchecked")
 	public List<Map<String,Object>> selectMapList(String sql) {
-		
 		if(sql==null || "".equals(sql.trim())) return Collections.emptyList();
 		
-		boolean isReg = updateInfoInCache(sql, "List<Map<String,Object>>", SuidType.SELECT);
+		boolean isReg = updateInfoInCache(sql, "List<Map<String,Object>>", SuidType.SELECT, null);
 		if (isReg) { //V1.9还未使用
 			initRoute(SuidType.SELECT, null, sql);
 			Object cacheObj = getCache().get(sql); //这里的sql还没带有值
@@ -382,7 +415,8 @@ public class SqlLib implements BeeSql {
 			
 			logSelectRows(list.size());
 			
-			addInCache(sql, list,"List<Map<String,Object>>",SuidType.SELECT,list.size());
+//			addInCache(sql, list,"List<Map<String,Object>>",SuidType.SELECT,list.size());
+			addInCache(sql, list, list.size());
 			
 		} catch (SQLException e) {
 			hasException=true;
@@ -406,11 +440,28 @@ public class SqlLib implements BeeSql {
 	 * modify include insert,delete and update.
 	 */
 	@Override
+	@SuppressWarnings("rawtypes")
 	public int modify(String sql) {
+		Class entityClass = (Class) OneTimeParameter.getAttribute(StringConst.Route_EC);
+		if (sql == null || "".equals(sql)) return -2;
+		if (!ShardingUtil.hadSharding()) {
+			return _modify(sql, entityClass); // 1.x版本及不用分片走的分支
+		} else {
+			if (HoneyContext.getSqlIndexLocal() == null) {// 拦截到的要分片的主线程
+				int a = new ShardingModifyEngine().asynProcess(sql, entityClass, this);
+				return a;
+			} else { // 子线程执行
+				return _modify(sql, entityClass);
+			}
+		}
+	}
+	
+	@SuppressWarnings("rawtypes")
+	private int _modify(String sql, Class entityClass) {
 		
-		if(sql==null || "".equals(sql)) return -2;
+//		if(sql==null || "".equals(sql)) return -2;
 		
-		initRoute(SuidType.MODIFY,null,sql);
+		initRoute(SuidType.MODIFY, entityClass, sql);
 		
 		int num = 0;
 		Connection conn = null;
@@ -426,14 +477,18 @@ public class SqlLib implements BeeSql {
 			boolean notCatch=HoneyConfig.getHoneyConfig().notCatchModifyDuplicateException;
 			if (!notCatch && isConstraint(e)) { //内部捕获并且是重复异常,则由Bee框架处理 
 				boolean notShow=HoneyConfig.getHoneyConfig().notShowModifyDuplicateException;
-				if(! notShow) Logger.warn(e.getMessage());
+				if(! notShow) {
+					Logger.warn(e.getMessage());
+				}else {
+					Logger.debug(e.getMessage());
+				}
 				return num;
 			}
 			
 			hasException=true;
 			throw ExceptionHelper.convert(e);
 		} finally {
-			clearInCache(sql, "int",SuidType.MODIFY,num); //has clearContext(sql)
+			clearInCache(sql, "int", SuidType.MODIFY, num); // has clearContext(sql)
 			if (hasException) {
 				checkClose(pst, null);
 				closeConn(conn);
@@ -442,8 +497,8 @@ public class SqlLib implements BeeSql {
 			}
 		}
 		
-		Logger.logSQL(" | <--  Affected rows: ", num+"");
-		
+		logAffectRow(num);
+
 		return num;
 	}
 	
@@ -452,7 +507,7 @@ public class SqlLib implements BeeSql {
 
 		if (sql == null || "".equals(sql)) return -2L;
 
-		initRoute(SuidType.INSERT, null, sql);
+		initRoute(SuidType.INSERT, null, sql);  //entityClass在context会设置
 
 		int num = 0;
 		long returnId = -1L;
@@ -491,17 +546,50 @@ public class SqlLib implements BeeSql {
 		return returnId; //id
 	}
 
+	private static final int JsonType=2;
 	/**
 	 * @since  1.1
 	 */
 	@Override
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public String selectJson(String sql) {
-		
+		Class entityClass = (Class) OneTimeParameter.getAttribute(StringConst.Route_EC);
 		if(sql==null || "".equals(sql.trim())) return null;
 		
-		boolean isReg = updateInfoInCache(sql, "StringJson", SuidType.SELECT);
-		Class entityClass = (Class) OneTimeParameter.getAttribute(StringConst.Route_EC);
+		if (!ShardingUtil.hadSharding()) { //无分片
+			return _selectJson(sql,entityClass);
+		} else { //有分片
+			if (HoneyContext.getSqlIndexLocal() == null) { //有分片的主线程
+				
+				String cacheValue=_selectJson(sql,entityClass);  //检测缓存的
+				if(cacheValue!=null) {
+					logDsTab();
+					return cacheValue;
+				}
+				JsonResultWrap wrap;
+				if (ShardingUtil.hadAvgSharding()) {
+					wrap= (JsonResultWrap) new ShardingGroupbyListStringArrayEngine().asynProcess(sql, this, entityClass,3);
+				} else  {
+					wrap = new ShardingSelectJsonEngine().asynProcess(sql, this,JsonType,entityClass); 
+				}
+				
+				logSelectRows(wrap.getRowCount());
+				String json =wrap.getResultJson();
+//				addInCache(sql, json, "StringJson", SuidType.SELECT, -1); // 没有作最大结果集判断
+				addInCache(sql, json, -1); // 没有作最大结果集判断
+				
+				return json;
+			}else { // 子线程执行
+				return _selectJson(sql,entityClass);
+			}
+		}
+	}	
+	
+	@SuppressWarnings("rawtypes")
+	private String _selectJson(String sql,Class entityClass) {
+//		if(sql==null || "".equals(sql.trim())) return null;
+		
+		boolean isReg = updateInfoInCache(sql, "StringJson", SuidType.SELECT, entityClass);
 		if (isReg) {
 			initRoute(SuidType.SELECT, entityClass, sql);
 			Object cacheObj = getCache().get(sql); //这里的sql还没带有值
@@ -510,8 +598,10 @@ public class SqlLib implements BeeSql {
 				return (String) cacheObj;
 			}
 		}
+		if(isShardingMain()) return null; //sharding时,主线程没有缓存就返回.
 		
-		StringBuffer json=new StringBuffer("");
+//		StringBuffer json=new StringBuffer("");
+		String json="";
 		Connection conn = null;
 		PreparedStatement pst = null;
 		ResultSet rs = null;
@@ -522,11 +612,14 @@ public class SqlLib implements BeeSql {
 			pst = conn.prepareStatement(exe_sql);
 
 			setPreparedValues(pst, sql);
-
 			rs = pst.executeQuery();
-			json = TransformResultSet.toJson(rs,entityClass);
 			
-			addInCache(sql, json.toString(),"StringJson",SuidType.SELECT,-1);  //没有作最大结果集判断
+			JsonResultWrap wrap = TransformResultSet.toJson(rs, entityClass);
+			json = wrap.getResultJson();
+			logSelectRows(wrap.getRowCount());  // 这里的日志,是容易输出,但从缓存取,则计算不了,是多少行.
+			
+//			addInCache(sql, json,"StringJson",SuidType.SELECT,-1);  //没有作最大结果集判断
+			addInCache(sql, json, -1); // 没有作最大结果集判断
 
 		} catch (SQLException e) {
 			hasException = true;  //fixbug  2021-05-01
@@ -542,7 +635,7 @@ public class SqlLib implements BeeSql {
 			}
 		}
 
-		return json.toString();
+		return json;
 	}
 
 	@Override
@@ -625,49 +718,40 @@ public class SqlLib implements BeeSql {
 			//更改操作需要清除缓存
 			clearInCache(sql[0], "int[]",SuidType.INSERT,total);
 		}
-
+		logAffectRow(total);
 		return total;
 	}
 
-	private static final String INDEX1 = "_SYS[index";
-	private static final String INDEX2 = "]_End ";
 	private static final String INDEX3 = "]";
 	private static final String INSERT_ARRAY_SQL = " insert[] SQL : ";
 
-	private int batch(String sql, int start, int end, Connection conn,PreparedStatement pst) throws SQLException {
-		int a=0;
-		for (int i = start; i < end; i++) { //start... (end-1)
-			
+	private int batch(String sql, int start, int end, Connection conn, PreparedStatement pst)
+			throws SQLException {
+		int a = 0;
+		for (int i = start; i < end; i++) { // start... (end-1)
+
 			if (showSQL) {
-				if(i==0) Logger.logSQL(INSERT_ARRAY_SQL, sql);
-				
+				if (i == 0) Logger.logSQL(INSERT_ARRAY_SQL, sql);
 				OneTimeParameter.setAttribute("_SYS_Bee_BatchInsert", i + "");
 				String sql_i;
-//				if (i == 0)
-//					sql_i = sql;
-//				else
-					sql_i = INDEX1 + i + INDEX2 + sql;
-
+				sql_i = INDEX1 + i + INDEX2 + sql;
 				Logger.logSQL(INSERT_ARRAY_SQL, sql_i);
 			}
-			
-//			if (i == 0)
-//				setAndClearPreparedValues(pst, sql);
-//			else
-				setAndClearPreparedValues(pst, INDEX1 + i + INDEX2 + sql);
+			setAndClearPreparedValues(pst, INDEX1 + i + INDEX2 + sql);
 			pst.addBatch();
 		}
-		int array[]=pst.executeBatch();    //oracle will return [-2,-2,...,-2]
-		
-		if(HoneyUtil.isOracle()){
+		int array[] = pst.executeBatch(); // oracle will return [-2,-2,...,-2]
+
+		if (HoneyUtil.isOracle()) {
 //			int array[]=pst.executeBatch();  //不能放在此处.executeBatch()是都要运行的
-			a=pst.getUpdateCount();//oracle is ok. but mysql will return 1 alway.So mysql use special branch.
-		}else{
-			a=countFromArray(array);
+			a = pst.getUpdateCount();// oracle is ok. but mysql will return 1 alway.So mysql use special branch.
+		} else {
+			a = countFromArray(array);
 		}
 		conn.commit();
-		
-		Logger.logSQL(" | <-- index["+ (start) +"~"+(end-1)+ INDEX3+" Affected rows: ", a+"");
+
+		Logger.logSQL(" | <-- index[" + (start) + "~" + (end - 1) + INDEX3 + " Affected rows: ",
+				a + "" + shardingIndex());
 
 		return a;
 	}
@@ -681,7 +765,6 @@ public class SqlLib implements BeeSql {
 		return a;
 	}
 	
-//	@Override
 	private int batchForMysql(String sql[], int batchSize) {
 
 		if (sql == null || sql.length < 1) return -1;
@@ -731,6 +814,7 @@ public class SqlLib implements BeeSql {
 			}
 //			conn.setAutoCommit(oldAutoCommit);
 		} catch (SQLException e) {
+			logAffectRow(total);
 			hasException=true;
 			clearContextForMysql(sql[0],batchSize,len);
 			if (isConstraint(e)) {
@@ -761,15 +845,8 @@ public class SqlLib implements BeeSql {
 			//更改操作需要清除缓存
 			clearInCache(sql[0], "int[]", SuidType.INSERT,total);
 		}
-
+		logAffectRow(total);
 		return total;
-	}
-	
-	protected void clearContext(String sql_0, int batchSize, int len) {
-		for (int i = 0; i < len; i++) {
-			String sql_i = INDEX1 + i + INDEX2 + sql_0;
-			clearContext(sql_i);
-		}
 	}
 	
 	private void clearContextForMysql(String sql_0, int batchSize, int len) {
@@ -782,22 +859,6 @@ public class SqlLib implements BeeSql {
 		}
 	}
 	
-	private boolean isConstraint(SQLException e) {
-		String className=e.getClass().getSimpleName();
-		String fullClassName=e.getClass().getName();
-		return ("MySQLIntegrityConstraintViolationException".equals(className) //mysql
-				|| e.getMessage().startsWith("Duplicate entry ") //mysql  
-				|| (e instanceof SQLIntegrityConstraintViolationException) 
-				|| e.getMessage().contains("ORA-00001:")    //Oracle 
-				|| (e instanceof BatchUpdateException) //PostgreSQL,...
-				|| e.getMessage().contains("duplicate key") || e.getMessage().contains("DUPLICATE KEY")  //PostgreSQL
-				|| e.getMessage().contains("primary key violation") || "org.h2.jdbc.JdbcBatchUpdateException".equals(fullClassName) //h2
-				|| e.getMessage().contains("SQLITE_CONSTRAINT_PRIMARYKEY") || e.getMessage().contains("PRIMARY KEY constraint") //SQLite
-				|| e.getMessage().contains("Duplicate entry")|| e.getMessage().contains("Duplicate Entry")
-				|| e.getMessage().contains("Duplicate key") || e.getMessage().contains("Duplicate Key")
-				);
-	}
-
 	private int _batchForMysql(String sql, int start, int end, Connection conn, PreparedStatement pst,int batchSize,String batchSqlForPrint) throws SQLException {
 //		sql用于获取转换成获取占位的sqlKey和打印log. 
 //		v1.8  打印的sql是单行打印；执行的是批的形式.
@@ -826,7 +887,7 @@ public class SqlLib implements BeeSql {
 		a = pst.executeUpdate();  // not executeBatch
 		conn.commit();
 		
-		Logger.logSQL(" | <-- [Batch:"+ (start/batchSize) + INDEX3+" Affected rows: ", a+"");
+		Logger.logSQL(" | <-- [Batch:"+ (start/batchSize) + INDEX3+" Affected rows: ", a+""+shardingIndex());
 
 		return a;
 	}
@@ -874,24 +935,42 @@ public class SqlLib implements BeeSql {
 		}
 	}
 	
-//	protected void checkClose(ResultSet rs, Statement stmt, Connection conn) {
-//		HoneyContext.checkClose(rs, stmt, conn);
-//	}
-	
 	protected void closeConn(Connection conn) {
 		HoneyContext.closeConn(conn);
 	}
 	
-	@SuppressWarnings("rawtypes")
-	protected Object createObject(Class c) throws IllegalAccessException,InstantiationException{
-		return c.newInstance();
+	@Override
+	public <T> List<T> moreTableSelect(String sql, T entity) {
+		if(sql==null || "".equals(sql.trim())) return Collections.emptyList();
+		
+		if (!ShardingUtil.hadSharding()) {
+			return _moreTableSelect(sql, entity); // 1.x版本及不用分片走的分支
+		} else {
+			if (HoneyContext.getSqlIndexLocal() == null) {
+				List<T> list =_moreTableSelect(sql, entity); //检测缓存的
+				if (list != null) {
+					logDsTab();
+					return list; 
+				}
+				//rsList还要排序
+				List<T> rsList =new ShardingMoreTableSelectEngine().asynProcess(sql, entity, this);
+				
+//				addInCache(sql, rsList, "List<T>", SuidType.SELECT, rsList.size());
+//				addInCache(sql, rsList,"List<T>"+listFieldTypeForMoreTable,SuidType.SELECT,rsList.size());
+				addInCache(sql, rsList, rsList.size());
+//				listFieldTypeForMoreTable=null;
+				return rsList;
+				
+			} else { // 子线程执行
+				return _moreTableSelect(sql, entity);
+			}
+		}
 	}
 	
-	@Override
+//	private String listFieldTypeForMoreTable=null;
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public <T> List<T> moreTableSelect(String sql, T entity) {
+	public <T> List<T> _moreTableSelect(String sql, T entity) {
 		
-//		if(sql==null || "".equals(sql.trim())) return null;
 		if(sql==null || "".equals(sql.trim())) return Collections.emptyList();
 		
 		MoreTableStruct moreTableStruct[]=HoneyUtil.getMoreTableStructAndCheckBefore(entity);
@@ -905,8 +984,9 @@ public class SqlLib implements BeeSql {
 		boolean subOneIsList1=moreTableStruct[0].subOneIsList;
 		boolean subTwoIsList2=moreTableStruct[0].subTwoIsList;
 		String listFieldType=""+subOneIsList1+subTwoIsList2+moreTableStruct[0].oneHasOne;
-		boolean isReg = updateInfoInCache(sql, "List<T>"+listFieldType, SuidType.SELECT);
+		boolean isReg = updateInfoInCache(sql, "List<T>" + listFieldType, SuidType.SELECT, entity.getClass());
 		if (isReg) {
+//			listFieldTypeForMoreTable=listFieldType; //for sharding. 主线程才会注册
 			initRoute(SuidType.SELECT, entity.getClass(), sql); //多表查询的多个表要在同一个数据源.
 			Object cacheObj = getCache().get(sql); //这里的sql还没带有值
 			if (cacheObj != null) {
@@ -917,6 +997,7 @@ public class SqlLib implements BeeSql {
 				return list;
 			}
 		}
+		if(isShardingMain()) return null; //sharding时,主线程没有缓存就返回.
 		
 		Connection conn=null;
 		PreparedStatement pst=null;
@@ -1346,7 +1427,8 @@ public class SqlLib implements BeeSql {
 				
 			} //end  while (rs.next())
 		
-			addInCache(sql, rsList,"List<T>"+listFieldType,SuidType.SELECT,rsList.size());
+//			addInCache(sql, rsList,"List<T>"+listFieldType,SuidType.SELECT,rsList.size());
+			addInCache(sql, rsList, rsList.size());
 			
 		} catch (SQLException e) {
 			hasException=true;
@@ -1431,80 +1513,8 @@ public class SqlLib implements BeeSql {
 		return HoneyUtil.getResultObject(rs, field.getType().getName(), _toColumnName(field.getName(),entityClass));
 	}
 	
-	private Object _getObjectByindex(ResultSet rs,Field field, int index) throws SQLException{
-		return HoneyUtil.getResultObjectByIndex(rs, field.getType().getName(),index);
-	}
-	
-	@SuppressWarnings("rawtypes")
-	protected static String _toColumnName(String fieldName, Class entityClass) {
-		return NameTranslateHandle.toColumnName(fieldName, entityClass);
-	}
-
-	@SuppressWarnings("rawtypes")
-	private static String _toFieldName(String columnName,Class entityClass) {
-		return NameTranslateHandle.toFieldName(columnName,entityClass);
-	}
-	
-	//add on 2019-10-01
-	protected void addInCache(String sql, Object rs, String returnType, SuidType suidType,int resultSetSize) {
-		
-//		如果结果集超过一定的值则不放缓存
-		if(resultSetSize>cacheWorkResultSetSize){
-		   HoneyContext.deleteCacheInfo(sql);
-		   return;
-		}
-		
-		CacheSuidStruct struct = HoneyContext.getCacheInfo(sql);
-		if (struct != null) { //之前已定义有表结构,才放缓存.否则放入缓存,可能会产生脏数据.  不判断的话,自定义的查询也可以放缓存
-//			struct.setReturnType(returnType);  //因一进来updateInfoInCache时,已添加有
-//			struct.setSuidType(suidType.getType());
-//			HoneyContext.setCacheInfo(sql, struct);
-			getCache().add(sql, rs);
-		}
-	}
-	
-//	查缓存前需要先更新缓存信息,才能去查看是否在缓存
-	protected boolean updateInfoInCache(String sql, String returnType, SuidType suidType) {
-		return HoneyContext.updateInfoInCache(sql, returnType, suidType);
-	}
-	
-	protected void clearInCache(String sql, String returnType, SuidType suidType, int affectRow) {
-		CacheSuidStruct struct = HoneyContext.getCacheInfo(sql);
-		if (struct != null) {
-			struct.setReturnType(returnType);
-			struct.setSuidType(suidType.getType());
-			HoneyContext.setCacheInfo(sql, struct);
-		}
-		clearContext(sql);
-		if (affectRow > 0) { //INSERT、UPDATE 或 DELETE成功,才清除结果缓存
-			getCache().clear(sql);
-		}
-	}
-	
-	protected void clearContext(String sql) {
-		HoneyContext.clearPreparedValue(sql);
-//		if(HoneyContext.isNeedRealTimeDb() && HoneyContext.isAlreadySetRoute()) { //当可以从缓存拿时，需要清除为分页已设置的路由
-//			HoneyContext.removeCurrentRoute(); //放到拦截器中
-//		}
-		
-	}
-	
-	@SuppressWarnings("rawtypes")
-	protected void initRoute(SuidType suidType, Class clazz, String sql) {
-		boolean enableMultiDs=HoneyConfig.getHoneyConfig().multiDS_enable;
-//		if (!enableMultiDs) return;  //close in 1.17
-		if (!enableMultiDs && !HoneyContext.useStructForLevel2()) return; //1.17 fixed
-		if(HoneyContext.isNeedRealTimeDb() && HoneyContext.isAlreadySetRoute()) return; // already set in parse entity to sql.
-		//enableMultiDs=true,且还没设置的,都要设置   因此,清除时,也是这样清除.
-		HoneyContext.initRoute(suidType, clazz, sql);
-	}
-	
-	protected boolean isConfuseDuplicateFieldDB(){
-		return HoneyUtil.isConfuseDuplicateFieldDB();
-	}
-	
-	protected void logSelectRows(int size) {
-		Logger.logSQL(" | <--  select rows: ", size + "");
+	private boolean isShardingMain() {//有分片(多个)
+		return   HoneyContext.getSqlIndexLocal() == null && ShardingUtil.hadSharding(); //前提要是HoneyContext.hadSharding()
 	}
 	
 }

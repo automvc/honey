@@ -18,7 +18,7 @@ import org.teasoft.honey.osql.core.HoneyUtil;
  */
 public class SqlKeyCheck {
 
-	private static final String VALUE = "1";
+	private static final String ONE = "1";
 	private static Map<String, String> keyMap = new TreeMap<>();
 	private static final String keyStr = "table,column,key," 
 	        + "Explain,comment,"
@@ -42,7 +42,7 @@ public class SqlKeyCheck {
 	private static void initKeyMap(String keyStr) {
 		String keys[] = keyStr.split(",");
 		for (int i = 0; i < keys.length; i++) {
-			keyMap.put(keys[i].toLowerCase(), VALUE);
+			keyMap.put(keys[i].toLowerCase(), ONE);
 		}
 	}
 
@@ -51,7 +51,7 @@ public class SqlKeyCheck {
 		String keys[] = keyStr.split(",");
 		for (int i = 0; i < keys.length; i++) {
 			if (!StringUtils.isContainUpperCase(keys[i])) 
-				keyMap.put(keys[i].toLowerCase(), VALUE);
+				keyMap.put(keys[i].toLowerCase(), ONE);
 		}
 	}
 

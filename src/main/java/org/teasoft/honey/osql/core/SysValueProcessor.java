@@ -7,9 +7,11 @@
 package org.teasoft.honey.osql.core;
 
 import java.lang.reflect.Field;
+import java.util.Set;
 
 import org.teasoft.bee.osql.Properties;
 import org.teasoft.bee.osql.annotation.SysValue;
+import org.teasoft.honey.util.GroupMap;
 import org.teasoft.honey.util.ObjectCreatorFactory;
 import org.teasoft.honey.util.StringUtils;
 
@@ -25,7 +27,6 @@ public class SysValueProcessor {
 	public static <T> void process(T obj) {
 		process(obj,BeeProp.getBeeProp());
 	}
-	
 	
 	public static <T> void process(T obj,Properties prop) {
 		Field[] f = obj.getClass().getDeclaredFields();
@@ -64,6 +65,34 @@ public class SysValueProcessor {
 						throw ExceptionHelper.convert(e);
 					}
 				}
+			}
+		}//end for
+		
+		Set<String> keySet = prop.getKeys();
+		GroupMap gm = null;
+//			gm.add("0", "name", "name0");
+		boolean has = false;
+		for (String k : keySet) {
+			if (k.startsWith("bee.db.dbs[")) {
+//		       System.out.println("-------------------bee.db.dbs配置信息: "  +t);
+				if (!has) {
+					has = true;
+					gm = new GroupMap();
+				}
+				int end = k.indexOf(']', 11);
+				String tag = k.substring(11, end);
+				gm.add(tag, k.substring(end+2), prop.getProp(k));
+			}
+		}
+		if (has) {
+			try {
+				Field dbsF = obj.getClass().getDeclaredField("dbs");
+				dbsF.setAccessible(true);
+				dbsF.set(obj, gm.toList());
+				HoneyContext.setConfigRefresh(true);
+				HoneyContext.setDsMapConfigRefresh(true);
+			} catch (Exception e) {
+				// ignore
 			}
 		}
 	}

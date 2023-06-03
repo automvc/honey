@@ -153,20 +153,4 @@ public final class EntityUtil {
 		);
 	}
 	
-//	/**
-//	 * String数组转为由逗号分隔的字符串.
-//	 * String array transfer to one string separate by comma.
-//	 * @param array String array
-//	 * @return one string separate by comma
-//	 */
-//	public static String arrayToString(String array[]) {
-//		if(array==null) return null;
-//		String str="";
-//		for (int i = 0; i < array.length; i++) {
-//			if(i!=0)str+=",";
-//			str+=array[i];
-//		}
-//		return str;
-//	}
-	
 }

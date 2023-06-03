@@ -1,3 +1,9 @@
+/*
+ * Copyright 2013-2023 the original author.All rights reserved.
+ * Kingstar(honeysoft@126.com)
+ * The license,see the LICENSE file.
+ */
+
 package org.teasoft.honey.osql.core;
 
 import java.sql.Connection;
@@ -6,8 +12,12 @@ import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
+import org.teasoft.bee.osql.DatabaseConst;
 import org.teasoft.bee.osql.exception.NoConfigException;
 import org.teasoft.bee.osql.transaction.Transaction;
+import org.teasoft.honey.database.ClientDataSource;
+import org.teasoft.honey.database.DatabaseClientConnection;
+import org.teasoft.honey.mongodb.MongodbConnection;
 import org.teasoft.honey.osql.constant.DbConfigConst;
 import org.teasoft.honey.osql.transaction.JdbcTransaction;
 import org.teasoft.honey.util.StringUtils;
@@ -25,25 +35,45 @@ public final class SessionFactory {
 
 	public static BeeFactory getBeeFactory() {
 		if (beeFactory == null) {
-//			beeFactory = new BeeFactory();
 			beeFactory = BeeFactory.getInstance();
 		}
 		return beeFactory;
 	}
 	
 	public void setBeeFactory(BeeFactory beeFactory) {
-//		SessionFactory.beeFactory = beeFactory;
 		_setBeeFactory(beeFactory);
 	}
 	
-	private static void _setBeeFactory(BeeFactory beeFactory) {
-		SessionFactory.beeFactory = beeFactory;
+	private static void _setBeeFactory(BeeFactory beeFactory0) {
+		SessionFactory.beeFactory = beeFactory0;
 	}
 
 	public SessionFactory() {
 		//empty
 	}
+	
+	public static DatabaseClientConnection getDatabaseConnection() {
+		DatabaseClientConnection dbConnection = null;
+		try {
+			DataSource ds = getBeeFactory().getDataSource();
+			if (ds != null) {
+				try (Connection conn = ds.getConnection()) {
+					String dbName = conn.getMetaData().getDatabaseProductName();
+					if (DatabaseConst.MongoDB.equalsIgnoreCase(dbName)) {
+						dbConnection = new DatabaseClientConnection((ClientDataSource) ds);
+					}
+				}
+			}
+		} catch (SQLException e) {
+			Logger.debug(e.getMessage());
+			throw ExceptionHelper.convert(e);
+		} catch (Exception e) {
+			throw ExceptionHelper.convert(e);
+		}
 
+		return dbConnection;
+	}
+	
 	public static Connection getConnection() {
 		Connection conn = null;
 		try {
@@ -75,7 +105,7 @@ public final class SessionFactory {
 			Logger.error("Can not find the Database driver!  " + e.getMessage());
 			throw new NoConfigException("Can not find the Database driver(maybe miss the jar file).");
 		} catch (Exception e) {
-//			Logger.error("Have Exception when getConnection: " + e.getMessage());
+			Logger.error("Have Exception when getConnection: " + e.getMessage());
 			throw ExceptionHelper.convert(e);
 		}
 
@@ -91,6 +121,14 @@ public final class SessionFactory {
 				String c = "";
 				if (isAndroid)      c = "org.teasoft.beex.android.SQLiteTransaction";
 				else if (isHarmony) c = "org.teasoft.beex.harmony.SQLiteTransaction";
+				
+				try {
+					return (Transaction) Class.forName(c).newInstance();
+				} catch (Exception e) {
+					Logger.error(e.getMessage(), e);
+				}
+			}else if (HoneyUtil.isMongoDB()) {
+				String c = "org.teasoft.beex.mongodb.MongodbTransaction";
 				try {
 					return (Transaction) Class.forName(c).newInstance();
 				} catch (Exception e) {
@@ -99,6 +137,7 @@ public final class SessionFactory {
 			}
 			
 			tran = new JdbcTransaction();  //  put into context
+			
 //			tran=HoneyContext.getCurrentTransaction();
 //			if(tran==null){
 //				tran = new JdbcTransaction();
@@ -112,12 +151,18 @@ public final class SessionFactory {
 		return tran;
 	}
 
-	private static Connection getOriginalConn() throws ClassNotFoundException, SQLException,Exception {
+	private static Connection getOriginalConn() throws ClassNotFoundException, SQLException, Exception {
 
 		String driverName = HoneyConfig.getHoneyConfig().getDriverName();
 		String url = HoneyConfig.getHoneyConfig().getUrl();
 		String username = HoneyConfig.getHoneyConfig().getUsername();
 		String password = HoneyConfig.getHoneyConfig().getPassword();
+
+		return getOriginalConnForIntra(url, username, password, driverName);
+	}
+	
+	
+	public static Connection getOriginalConnForIntra(String url,String username,String password,String driverName) throws ClassNotFoundException, SQLException,Exception {
 
 		String nullInfo = "";
 		final String DO_NOT_CONFIG = " do not config; ";
@@ -125,9 +170,7 @@ public final class SessionFactory {
 		if (url == null) nullInfo += DbConfigConst.DB_URL + DO_NOT_CONFIG;
 		
 		if (url == null) {
-//			Logger.error("The url can not be null when get the Connection directly from DriverManager!  "+nullInfo);
-//			Logger.warn("The system will be exit!......");
-//			System.exit(0);
+			if(HoneyConfig.getHoneyConfig().multiDS_enable) Logger.warn("Now is multi-DataSource model, please confirm whether set the config !!!");
 			throw new Exception("The url can not be null when get the Connection directly from DriverManager!  ("+nullInfo+")");
 		}
 		
@@ -135,7 +178,6 @@ public final class SessionFactory {
 		if (password == null) nullInfo += DbConfigConst.DB_PWORD + DO_NOT_CONFIG;
 
 		if (!"".equals(nullInfo)) {
-//			throw new NoConfigException("NoConfigException,Do not set the database info: " + nullInfo);
 			if(isFirst){
 			  Logger.warn("Do not set the database info: " + nullInfo); 
 			  isFirst=false;
@@ -144,11 +186,13 @@ public final class SessionFactory {
 		Connection conn = null;
 		if (StringUtils.isNotBlank(driverName)) Class.forName(driverName);  //some db,no need set the driverName //v1.8.15
 
-		if (StringUtils.isNotBlank(username) && password != null)
+		if (username!=null && password != null) {
+			if(url.trim().startsWith("mongodb:")) return new MongodbConnection();
 			conn = DriverManager.getConnection(url, username, password);
-		else
+		}else {
+			if(url.trim().startsWith("mongodb:")) return new MongodbConnection();
 			conn = DriverManager.getConnection(url);  //v1.8.15
-
+		}
 		return conn;
 	}
 }

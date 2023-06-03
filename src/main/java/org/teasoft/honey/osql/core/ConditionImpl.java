@@ -13,14 +13,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.teasoft.bee.osql.Condition;
 import org.teasoft.bee.osql.FunctionType;
 import org.teasoft.bee.osql.IncludeType;
 import org.teasoft.bee.osql.Op;
 import org.teasoft.bee.osql.OrderType;
 import org.teasoft.bee.osql.SuidType;
+import org.teasoft.bee.osql.api.Condition;
 import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
 import org.teasoft.bee.osql.exception.BeeErrorNameException;
+import org.teasoft.bee.osql.exception.BeeIllegalParameterException;
 import org.teasoft.honey.osql.util.NameCheckUtil;
 import org.teasoft.honey.util.StringUtils;
 
@@ -46,7 +47,7 @@ public class ConditionImpl implements Condition {
 	
 	private List<Expression> onExpList = new ArrayList<>();
 	
-	private Map<String,String> orderByMap=new LinkedHashMap<>();//V1.17 用于sql server分页
+	private Map<String,String> orderByMap=new LinkedHashMap<>();//V1.17 用于sql server分页 ;  2.0 用于 分片后排序
 	
 	private boolean isStartGroupBy = true;
 	private boolean isStartHaving = true;
@@ -57,15 +58,23 @@ public class ConditionImpl implements Condition {
 
 	private Integer start;
 	private Integer size;
+	private static final String START_GREAT_EQ_0 = StringConst.START_GREAT_EQ_0;
+	private static final String SIZE_GREAT_0 = StringConst.SIZE_GREAT_0;
+	
+	private Boolean hasGroupBy;
+	List<String> groupByFields;
 
 	@Override
 	public Condition start(Integer start) {
+		if (start == null || (start < 0 && start != -1))
+			throw new BeeIllegalParameterException(START_GREAT_EQ_0);
 		this.start = start;
 		return this;
 	}
 
 	@Override
 	public Condition size(Integer size) {
+		if (size == null || size < 0) throw new BeeIllegalParameterException(SIZE_GREAT_0);
 		this.size = size;
 		return this;
 	}
@@ -123,7 +132,9 @@ public class ConditionImpl implements Condition {
 	
 	@Override
 	public Set<String> getWhereFields() {
-		return whereField;
+//		return whereField;
+		final Set<String> set = new HashSet<>(whereField);
+		return set;
 	}
 
 	@Override
@@ -173,13 +184,20 @@ public class ConditionImpl implements Condition {
 		exp.fieldName = field;
 		exp.opType = "groupBy";
 		
+		hasGroupBy=true; //for mongodb
+		
 		if (isStartGroupBy) {
 			isStartGroupBy = false;
 //			exp.value =" group by ";
 			exp.value =" "+K.groupBy+" ";
+			groupByFields=new ArrayList<>();
 		} else {
 			//exp.fieldName=","+field; //不能这样写,field需要转换
 			exp.value = COMMA;
+		}
+		String strArray[] = field.split(",");
+		for (String f : strArray) {
+			groupByFields.add(f);
 		}
 		list.add(exp);
 		return this;
@@ -361,11 +379,17 @@ public class ConditionImpl implements Condition {
 
 	public List<Expression> getExpList() {
 		//todo 若要自动调整顺序,可以在这改.  group by,having, order by另外定义,在这才添加到list.
-		return list;
+//		return list;
+		
+		final List<Expression> list0 = new ArrayList<>(this.list);
+		return list0;
 	}
 	
 	public List<Expression> getOnExpList() {
-		return onExpList;
+//		return onExpList;
+		
+		final List<Expression> onExpList0 = new ArrayList<>(this.onExpList);
+		return onExpList0;
 	}
 
 	public Integer getStart() {
@@ -420,6 +444,11 @@ public class ConditionImpl implements Condition {
 	}
 	
 	@Override
+	public Condition setNull(String fieldNmae) {
+		return _forUpdateSet2(fieldNmae, null);
+	}
+	
+	@Override
 	public Condition selectField(String... fieldList) {
 		if (fieldList != null && fieldList.length == 1)
 			checkField(fieldList[0]);
@@ -445,16 +474,25 @@ public class ConditionImpl implements Condition {
 	}
 
 	@Override
-	public String[] getSelectField(){
-		return this.selectField;
+	public String[] getSelectField() {
+//		return this.selectField;
+
+		final String[] selectField0 = this.selectField;
+		return selectField0;
 	}
 
 	public List<Expression> getUpdateExpList() {
-		return updateSetList;
+//		return updateSetList;
+		
+		final List<Expression> updateSetList0 = new ArrayList<>(this.updateSetList);
+		return updateSetList0;
 	}
 	
 	public List<FunExpress> getFunExpList() {
-		return funExpList;
+//		return funExpList;
+		
+		final List<FunExpress> funExpList0=new ArrayList<>(this.funExpList);
+		return funExpList0;
 	}
 	
 	private Condition forUpdateSet(String field, String otherFieldName,String opType){
@@ -466,12 +504,12 @@ public class ConditionImpl implements Condition {
 		return _forUpdateSet(field, num, opType);
 	}
 	
-	private Condition _forUpdateSet(String field, Object ojb,String opType){
+	private Condition _forUpdateSet(String field, Object obj,String opType){
 		checkField(field);
 		Expression exp = new Expression();
 		exp.fieldName = field;
 		exp.opType =opType; //"setAdd" or "setMultiply";  setAddField; setMultiplyField; setWithField
-		exp.value=ojb;
+		exp.value=obj;
 		exp.opNum=1;  
 		
 		this.updatefields.add(field);
@@ -481,12 +519,12 @@ public class ConditionImpl implements Condition {
 	}
 	
 	//set field=value
-	private Condition _forUpdateSet2(String field, Object ojb) {
+	private Condition _forUpdateSet2(String field, Object obj) {
 		checkField(field);
 		Expression exp = new Expression();
 		exp.fieldName = field;
 	  //exp.opType =opType; 
-		exp.value = ojb;
+		exp.value = obj;
 		exp.opNum = 1;
 
 		this.updatefields.add(field);
@@ -497,7 +535,10 @@ public class ConditionImpl implements Condition {
 	
 	@Override
 	public Set<String> getUpdatefields() {
-		return updatefields;
+//		return updatefields;
+		
+		final Set<String> updatefields0 = new HashSet<>(this.updatefields);
+		return updatefields0;
 	}
 
 	@Override
@@ -508,7 +549,14 @@ public class ConditionImpl implements Condition {
 
 	@Override
 	public Boolean getForUpdate() {
-		return isForUpdate;
+//		return isForUpdate;
+		final Boolean f=isForUpdate;
+		return f;
+	}
+	
+	@Override
+	public Boolean hasGroupBy() {
+		return hasGroupBy;
 	}
 	
 	//v1.9
@@ -526,6 +574,19 @@ public class ConditionImpl implements Condition {
 		funExpList.add(new FunExpress(functionType, fieldForFun, alias));
 		return this;
 	}
+	
+
+	@Override
+	public List<String> getGroupByFields() {
+//		return groupByFields;
+		
+		final List<String> list;
+		if (groupByFields == null)
+			list = null;
+		else
+			list = new ArrayList<>(groupByFields);
+		return list;
+	}
 
 	private void checkField(String fields){
 		NameCheckUtil.checkName(fields);
@@ -538,7 +599,8 @@ public class ConditionImpl implements Condition {
 	}
 	
 	//1.17
-	public Map<String, String> getOrderByMap() {
+	@Override //2.0
+	public Map<String, String> getOrderBy() {
 		return orderByMap;
 	}
 	
@@ -546,7 +608,7 @@ public class ConditionImpl implements Condition {
 		return NameTranslateHandle.toColumnName(fieldName);
 	}
 
-	final class FunExpress{
+public final class FunExpress{
 //		private FunctionType functionType;
 		private String functionType;
 		private String field;

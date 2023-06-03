@@ -11,6 +11,7 @@ import java.util.List;
 
 import org.teasoft.honey.distribution.ds.Router;
 import org.teasoft.honey.osql.util.MD5;
+import org.teasoft.honey.sharding.ShardingUtil;
 
 /**
  * Cache Key.
@@ -32,10 +33,12 @@ public final class CacheKey {
 		return str;
 	}
 	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private static String fullSql(String sql) {
 		
 		String value ="";
 		String returnType ="";
+		Class entityClass=null; 
 				
 //		CacheSuidStruct struct = HoneyContext.getCacheInfo(sql,true);
 		CacheSuidStruct struct = HoneyContext.getCacheInfo(sql);
@@ -45,17 +48,11 @@ public final class CacheKey {
 			List list=HoneyContext.justGetPreparedValue(sql);
 			value=HoneyUtil.list2Value(list,true); 
 			returnType=struct.getReturnType();
+			entityClass=struct.getEntityClass(); //V2.0
 		}
 		
 		StringBuffer strBuf=new StringBuffer();
 		
-//		v1.8
-//		boolean enableMultiDs = HoneyConfig.getHoneyConfig().multiDS_enable;
-//		int multiDsType = HoneyConfig.getHoneyConfig().multiDS_type;
-//		boolean differentDbType=HoneyConfig.getHoneyConfig().multiDS_differentDbType;
-////	if (enableMultiDs && multiDsType == 2) {//仅分库,有多个数据源时
-////	if (enableMultiDs && (multiDsType == 2 || (multiDsType ==1 && differentDbType ))) {
-//		if (enableMultiDs && ( !(multiDsType ==1 && !differentDbType ))) { //多个数据源,且不是同种类型DB的只读模式
 		if(HoneyContext.isNeedDs()) {
 			String ds=Router.getDsName();
 			strBuf.append("DataSourceName:");
@@ -63,8 +60,17 @@ public final class CacheKey {
 			strBuf.append(SEPARATOR);
 		}
 		
+		//确定DataSourceName:null (@separator#) Sharding_tabNameList:null时,是否可以表示查所有??
+//		DataSourceName:null (@separator#) Sharding_tabNameList:null (@separator#) select id,userid,orderid,name,total,createtime,remark,sequence,abc,updatetime from orders##(index)## where remark=? (@separator#) [values]: Bee(ORM Framework)(String) (@separator#) [returnType]: List<T>
 		
-		if(HoneyConfig.getHoneyConfig().naming_useMoreTranslateType) {
+		if(ShardingUtil.hadSharding() && HoneyContext.getSqlIndexLocal()==null) { //用于分片的总查询; 每个子线程都有一个具体表名,不需要.
+			strBuf.append("Sharding_tabNameList:");
+//			strBuf.append(HoneyContext.getTabNameListLocal());
+			strBuf.append(HoneyContext.getListLocal(StringConst.TabNameListLocal)+"");
+			strBuf.append(SEPARATOR);
+		}
+		
+		if(HoneyConfig.getHoneyConfig().naming_useMoreTranslateType) { //使用多种命名转换类型
 			strBuf.append("TranslateType:");
 			strBuf.append(NameTranslateHandle.getNameTranslate().getClass().getName());
 			strBuf.append(SEPARATOR);
@@ -84,22 +90,15 @@ public final class CacheKey {
 		strBuf.append("[returnType]: ");
 		strBuf.append(returnType);
 		
-		return strBuf.toString();
+		if (entityClass != null) { //V2.0
+			strBuf.append(SEPARATOR);
+			strBuf.append("[entity class]: ");
+			strBuf.append(entityClass.getName());
+		}
 		
-//		if (value == null || "".equals(value.trim())){
-//			return sql;
-//		}else{
-////			return sql + "   [values]: " + value;
-//			return sql + "(@#)[values]: " + value + "(@#)[returnType]: "+returnType;	
-//		}
-
+		return strBuf.toString();
 	}
-	
-//	public String toMD5(String str){
-//		
-//	}
 
-	
 //	//用于清除缓存时,找到sql相关的table
 //	public static List<String> genTabKeyList(String sql){
 //		return genTabKeyList(sql,false);

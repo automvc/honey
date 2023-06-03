@@ -9,6 +9,7 @@ package org.teasoft.honey.distribution.ds;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.teasoft.bee.distribution.ds.Route;
 import org.teasoft.bee.osql.SuidType;
@@ -27,8 +28,9 @@ public class RwDs implements Route{
 	private String writeDd;
 	private List<String> readDsList;
 
-	private static int count = 0;
-	private static int max_cout = Integer.MAX_VALUE - 1000000;
+	private static volatile int count = 1;
+	private static AtomicInteger count0 = new AtomicInteger(1);
+	private static volatile int max_cout = Integer.MAX_VALUE - 1000000;
 	private static Random r = new Random();
 	private byte lock[] = new byte[0];
 	
@@ -67,7 +69,7 @@ public class RwDs implements Route{
 		RouteStruct routeStruct = HoneyContext.getCurrentRoute();
 		
 		//V1.11 同一连接,默认走写库.  (前面有指定会用指定的)
-		if (StringConst.tRue.equals(HoneyContext.getSameConnctionDoing())
+		if (StringConst.tRue.equals(HoneyContext.getSameConnectionDoing())
 		 || StringConst.tRue.equals(HoneyContext.getJdbcTranWriterDs())) {
 			return getWriteDs();
 		}
@@ -108,11 +110,15 @@ public class RwDs implements Route{
 		int size = readDsList.size();
 		if (count > max_cout) {
 			synchronized (lock) {
-				if (count > max_cout) count = 0;
+				if (count > max_cout) {
+//					count = 1;
+					 count0 = new AtomicInteger(1);
+				}
 			}
 		}
+		count=count0.incrementAndGet();
 		int index = count % size;
-		count++;
+//		count++;
 
 		return index;
 	}

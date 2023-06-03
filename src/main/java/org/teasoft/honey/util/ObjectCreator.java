@@ -6,6 +6,9 @@
 
 package org.teasoft.honey.util;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
 /**
  * @author Kingstar
  * @since  1.9
@@ -16,12 +19,45 @@ public class ObjectCreator {
 
 	public static Long createLong(String s) {
 		if (StringUtils.isBlank(s)) return null;
-		return Long.parseLong(s);
+		try {
+			return Long.parseLong(s);
+		//V2.1
+		} catch (Exception e) {
+			if(s.endsWith(".0")) {
+				return Long.parseLong(s.substring(0,s.length()-2));
+			}else if(s.endsWith(".00")) {
+				return Long.parseLong(s.substring(0,s.length()-3));
+			}else if(s.endsWith(".000")) {
+				return Long.parseLong(s.substring(0,s.length()-4));
+			}
+		}
+		Double d = createDouble(s);
+		if (d != null)
+			return d.longValue();
+		else
+			return null;
 	}
 
 	public static Integer createInt(String s) {
 		if (StringUtils.isBlank(s)) return null;
-		return Integer.parseInt(s);
+		try {
+			return Integer.parseInt(s);
+		//V2.1
+		} catch (Exception e) {
+			if(s.endsWith(".0")) {
+				return Integer.parseInt(s.substring(0,s.length()-2));
+			}else if(s.endsWith(".00")) {
+				return Integer.parseInt(s.substring(0,s.length()-3));
+			}else if(s.endsWith(".000")) {
+				return Integer.parseInt(s.substring(0,s.length()-4));
+			}
+		}
+		
+		Double d = createDouble(s);
+		if (d != null)
+			return d.intValue();
+		else
+			return null;
 	}
 
 	public static String createString(String s) {
@@ -51,6 +87,26 @@ public class ObjectCreator {
 	public static Float createFloat(String s) {
 		if (StringUtils.isBlank(s)) return null;
 		return Float.parseFloat(s);
+	}
+	
+	/**
+	 * create BigDecimal value
+	 * @param v
+	 * @return BigDecimal value
+	 * @since 2.0
+	 */
+	public static BigDecimal createBigDecimal(String v) {
+		return new BigDecimal(v);
+	}
+	
+	/**
+	 * create BigInteger value
+	 * @param v
+	 * @return BigInteger value
+	 * @since 2.0
+	 */
+	public static BigInteger createBigInteger(String v) {
+		return new BigInteger(v);
 	}
 
 }

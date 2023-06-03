@@ -4,35 +4,42 @@ import java.util.Iterator;
 import java.util.ServiceConfigurationError;
 import java.util.ServiceLoader;
 
+import org.teasoft.bee.mongodb.MongodbBeeSql;
+import org.teasoft.bee.mongodb.MongodbRawSql;
+import org.teasoft.bee.mvc.service.ObjSQLRichService;
+import org.teasoft.bee.mvc.service.ObjSQLService;
 import org.teasoft.bee.osql.BeeSql;
 import org.teasoft.bee.osql.Cache;
-import org.teasoft.bee.osql.CallableSql;
-import org.teasoft.bee.osql.Condition;
 import org.teasoft.bee.osql.DatabaseConst;
-import org.teasoft.bee.osql.MapSql;
-import org.teasoft.bee.osql.MapSuid;
 import org.teasoft.bee.osql.MoreObjToSQL;
-import org.teasoft.bee.osql.MoreTable;
 import org.teasoft.bee.osql.NameTranslate;
 import org.teasoft.bee.osql.ObjToSQL;
 import org.teasoft.bee.osql.ObjToSQLRich;
-import org.teasoft.bee.osql.PreparedSql;
-import org.teasoft.bee.osql.Suid;
-import org.teasoft.bee.osql.SuidRich;
-import org.teasoft.bee.osql.dialect.DbFeature;
-import org.teasoft.bee.osql.dialect.DbFeatureRegistry;
+import org.teasoft.bee.osql.api.CallableSql;
+import org.teasoft.bee.osql.api.Condition;
+import org.teasoft.bee.osql.api.MapSql;
+import org.teasoft.bee.osql.api.MapSuid;
+import org.teasoft.bee.osql.api.MoreTable;
+import org.teasoft.bee.osql.api.PreparedSql;
+import org.teasoft.bee.osql.api.Suid;
+import org.teasoft.bee.osql.api.SuidRich;
+import org.teasoft.bee.osql.chain.UnionSelect;
+import org.teasoft.bee.osql.dialect.*;
 import org.teasoft.bee.osql.exception.NoConfigException;
 import org.teasoft.bee.osql.interccept.InterceptorChain;
-import org.teasoft.honey.osql.dialect.LimitOffsetPaging;
-import org.teasoft.honey.osql.dialect.NoPagingSupported;
+import org.teasoft.honey.osql.chain.UnionSelectImpl;
+import org.teasoft.honey.osql.dialect.*;
 import org.teasoft.honey.osql.dialect.mysql.MySqlFeature;
 import org.teasoft.honey.osql.dialect.oracle.OracleFeature;
 import org.teasoft.honey.osql.dialect.sqlserver.SqlServerFeature;
 import org.teasoft.honey.osql.interccept.InterceptorChainRegistry;
+import org.teasoft.honey.osql.mongodb.MongodbBeeSqlRegister;
 import org.teasoft.honey.osql.name.DbUpperAndJavaLower;
 import org.teasoft.honey.osql.name.OriginalName;
 import org.teasoft.honey.osql.name.UnderScoreAndCamelName;
 import org.teasoft.honey.osql.name.UpperCaseUnderScoreAndCamelName;
+import org.teasoft.honey.osql.serviceimpl.ObjSQLRichServiceImpl;
+import org.teasoft.honey.osql.serviceimpl.ObjSQLServiceImpl;
 
 /**
  * Honey工厂类.Honey Factory class.
@@ -62,7 +69,19 @@ public class HoneyFactory {
 	private NameTranslate nameTranslate;
 	private static Cache cache;
 	
+	
+	//@since 2.0
+	private UnionSelect unionSelect;
+	
 	private InterceptorChain interceptorChain;
+	
+	//@since 2.0
+	private MongodbBeeSql mongodbBeeSql;
+	
+	//@since 2.1
+	private MongodbRawSql mongodbRawSql;
+	private ObjSQLService objSQLService;
+	private ObjSQLRichService objSQLRichService; 
 	
 	static {
        cache=initCache();
@@ -78,7 +97,7 @@ public class HoneyFactory {
 		boolean nocache = HoneyConfig.getHoneyConfig().cache_nocache;
 		boolean useLevelTwo=getUseLevelTwo();
 		if (nocache) {
-			Logger.warn("[Bee]==========Now the Cache type is: nocache.");
+			Logger.warn("[Bee] ==========Now the Cache type is: nocache.");
 			cache= new NoCache(); //v1.7.2
 		}else if(useLevelTwo) {//V1.11
 			ServiceLoader<Cache> caches = ServiceLoader.load(Cache.class);
@@ -121,21 +140,48 @@ public class HoneyFactory {
 	}
 
 	public Suid getSuid() {
-		if(suid==null) return new ObjSQL();
-		return suid; //可以通过配置spring bean的方式注入
+		if (suid == null) {
+			if (isMongodb())
+				return new MongodbObjSQL(); // 2.0
+			else
+				return new ObjSQL();
+		}
+		return suid; // 可以通过配置spring bean的方式注入
 	}
-
+	
 	public void setSuid(Suid suid) {
 		this.suid = suid;
 	}
 	
 	public SuidRich getSuidRich() {
-		if(suidRich==null) return new ObjSQLRich();
+		if (suidRich == null) {
+			if (isMongodb())
+				return new MongodbObjSQLRich(); // 2.0
+			else
+				return new ObjSQLRich();
+		}
 		return suidRich;
+	}
+	
+	// 是多数据源,有同时使用多种不同类型DB
+	private boolean isMongodb() {
+		boolean justMongodb = HoneyConfig.getHoneyConfig().multiDS_justMongodb; //2.1
+		boolean enableMultiDs = HoneyConfig.getHoneyConfig().multiDS_enable;
+		boolean isDifferentDbType = HoneyConfig.getHoneyConfig().multiDS_differentDbType;
+		return (justMongodb || (!(enableMultiDs && isDifferentDbType) && HoneyUtil.isMongoDB()) );
 	}
 
 	public void setSuidRich(SuidRich suidRich) {
 		this.suidRich = suidRich;
+	}
+	
+	//同时使用多种类型的DB,在为Mongodb获取时,需要用声明是获取给Mongodb用的方法
+	public Suid getSuidForMongodb() {//2.0
+		return new MongodbObjSQL(); 
+	}
+	//同时使用多种类型的DB,在为Mongodb获取时,需要用声明是获取给Mongodb用的方法
+	public SuidRich getSuidRichForMongodb() { //2.0
+		return new MongodbObjSQLRich(); 
 	}
 	
 	public MoreTable getMoreTable() {
@@ -163,6 +209,24 @@ public class HoneyFactory {
 
 	public void setBeeSql(BeeSql beeSql) {
 		this.beeSql = beeSql;
+	}
+	
+	public MongodbBeeSql getMongodbBeeSql() {
+		if(mongodbBeeSql==null) return MongodbBeeSqlRegister.getInstance();
+		return mongodbBeeSql;
+	}
+
+	public void setMongodbBeeSql(MongodbBeeSql mongodbBeeSql) {
+		this.mongodbBeeSql = mongodbBeeSql;
+	}
+	
+	public MongodbRawSql getMongodbRawSql() {
+		if(mongodbBeeSql==null) return new MongodbRawSqlLib();
+		return mongodbRawSql;
+	}
+
+	public void setMongodbRawSql(MongodbRawSql mongodbRawSql) {
+		this.mongodbRawSql = mongodbRawSql;
 	}
 
 	public ObjToSQL getObjToSQL() {
@@ -237,14 +301,39 @@ public class HoneyFactory {
 		this.mapSuid = mapSuid;
 	}
 	
+	public UnionSelect getUnionSelect() {
+		if(unionSelect==null) return new UnionSelectImpl();
+		return unionSelect;
+	}
+
+	public void setUnionSelect(UnionSelect unionSelect) {
+		this.unionSelect = unionSelect;
+	}
+	
+	public ObjSQLService getObjSQLService() {
+		if (objSQLService == null) return new ObjSQLServiceImpl();
+		return objSQLService;
+	}
+
+	public void setObjSQLService(ObjSQLService objSQLService) {
+		this.objSQLService = objSQLService;
+	}
+
+	public ObjSQLRichService getObjSQLRichService() {
+		if (objSQLRichService == null) return new ObjSQLRichServiceImpl();
+		return objSQLRichService;
+	}
+
+	public void setObjSQLRichService(ObjSQLRichService objSQLRichService) {
+		this.objSQLRichService = objSQLRichService;
+	}
+
 	public Cache getCache() {
 		if (cache == null) cache = initCache();
 		return cache;
 	}
 
 	public void setCache(Cache cache) {
-//		this.cache = cache;
-//		HoneyFactory.cache = cache; //not ok
 		_setCache(cache);
 	}
 	
@@ -313,6 +402,12 @@ public class HoneyFactory {
 			return new SqlServerFeature();
 		else if (_isLimitOffsetDB())
 			return new LimitOffsetPaging(); //v1.8.15 
+		else if(_isFrontLimitDB())
+			return new HSqlDbFrontLimitPaging(); //2.1
+		else if(_isOffsetFetchDB())
+			return new OffsetFetchPaging(); //2.1
+		else if(_isLimitMN())
+			return new MySqlFeature(); //2.1
 		else if (dbName != null)
 			return new NoPagingSupported(); //v1.8.15 当没有用到分页功能时,不至于报错.
 		else { //要用setDbFeature(DbFeature dbFeature)设置自定义的实现类
@@ -325,12 +420,34 @@ public class HoneyFactory {
 		String dbName=HoneyContext.getDbDialect();
 		boolean comm = DatabaseConst.H2.equalsIgnoreCase(dbName)
 				|| DatabaseConst.SQLite.equalsIgnoreCase(dbName)
-				|| DatabaseConst.PostgreSQL.equalsIgnoreCase(dbName);
+				|| DatabaseConst.PostgreSQL.equalsIgnoreCase(dbName)
+				|| DatabaseConst.MsAccess.equalsIgnoreCase(dbName);
 		
 		if(comm) return comm;
 		
 		boolean other = HoneyConfig.getHoneyConfig().pagingWithLimitOffset;
 		return comm || other;
+	}
+	
+	private boolean _isLimitMN() {
+		String dbName = HoneyContext.getDbDialect();
+		boolean f = DatabaseConst.Cubrid.equalsIgnoreCase(dbName);
+		return f;
+	}
+	
+	
+	private boolean _isFrontLimitDB() {
+		String dbName=HoneyContext.getDbDialect();
+		boolean comm = DatabaseConst.HSQLDB.equalsIgnoreCase(dbName)
+				|| DatabaseConst.HSQL.equalsIgnoreCase(dbName);
+		return comm;
+	}
+	
+	private boolean _isOffsetFetchDB() {
+		String dbName=HoneyContext.getDbDialect();
+		boolean comm = DatabaseConst.Derby.equalsIgnoreCase(dbName)
+				|| DatabaseConst.Firebird.equalsIgnoreCase(dbName);
+		return comm;
 	}
 
 	public InterceptorChain getInterceptorChain() {

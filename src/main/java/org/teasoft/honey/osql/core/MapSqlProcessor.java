@@ -11,9 +11,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.teasoft.bee.osql.BeeException;
-import org.teasoft.bee.osql.MapSql;
 import org.teasoft.bee.osql.MapSqlKey;
 import org.teasoft.bee.osql.MapSqlSetting;
+import org.teasoft.bee.osql.api.MapSql;
 import org.teasoft.bee.osql.dialect.DbFeature;
 import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
 import org.teasoft.bee.osql.exception.BeeIllegalBusinessException;

@@ -9,6 +9,8 @@ package org.teasoft.honey.distribution.ds;
 import org.teasoft.bee.distribution.ds.Route;
 import org.teasoft.honey.osql.core.HoneyConfig;
 import org.teasoft.honey.osql.core.HoneyContext;
+import org.teasoft.honey.osql.core.StringConst;
+import org.teasoft.honey.sharding.ShardingUtil;
 
 /**
  * @author Kingstar
@@ -18,7 +20,7 @@ public final class Router {
 
 	private static Route route = null;
 
-	private static int multiDsType;
+	private static volatile int multiDsType;
 	private static String defaultDs;
 
 	static {
@@ -42,17 +44,27 @@ public final class Router {
 
 	//order:1.appointDS -> 2.tempDS(suid.getDataSourceName()) -> 3.route.getDsName()
 	public static String getDsName() {
+//		return "ds1";
 		if (HoneyContext.isConfigRefresh()) {
 			refresh();
 			HoneyContext.setConfigRefresh(false);
 		}
+		
+		if(ShardingUtil.hadSharding() && HoneyContext.getSqlIndexLocal()==null
+//				&&  !HoneyContext.hadShardingFullSelect()
+				) { //需要分片,且涉及要拆分sql 的主线程
+			
+			return HoneyContext.getListLocal(StringConst.DsNameListLocal)+"";
+		}
+		
+//		Logger.info(" getDsName 当前线程id:  " + Thread.currentThread().getId());
 		String dsName =HoneyContext.getAppointDS();
 		if (dsName != null) return dsName;
 		
 		dsName =HoneyContext.getTempDS(); //for Suid.setDataSourceName(String dsName) and so on
 		if (dsName != null) return dsName;
 		
-		if (route == null) return defaultDs;
+		if (route == null) return defaultDs;  //到这里,要是没配置有默认ds,就会返回null
 
 		return route.getDsName();
 	}

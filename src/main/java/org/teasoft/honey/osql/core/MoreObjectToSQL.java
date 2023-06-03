@@ -6,8 +6,8 @@
 
 package org.teasoft.honey.osql.core;
 
-import org.teasoft.bee.osql.Condition;
 import org.teasoft.bee.osql.MoreObjToSQL;
+import org.teasoft.bee.osql.api.Condition;
 
 /**
  * 将多表查询的实体转成SQL语句.Select of More Objects to SQL.

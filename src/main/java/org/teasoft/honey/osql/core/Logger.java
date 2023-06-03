@@ -34,6 +34,11 @@ public class Logger {
 	private static Log log = null;
 
 	//专门用于Bee框架输出SQL日志.
+	static void logSQL(String hardStr) {
+		logSQL(hardStr, "");
+	}
+	 
+	//专门用于Bee框架输出SQL日志.
 	 static void logSQL(String hardStr, String sql) {
 
 		if (!isShowSQL()) return;
@@ -95,7 +100,7 @@ public class Logger {
 					String executableSql = HoneyUtil.getExecutableSql(sql, list);
 					if (insertIndex != null ) {
 						int endIndex = executableSql.indexOf("]_End ");
-						_println("[Bee] " + hardStr + " ( ExecutableSql " + executableSql.substring(4, endIndex + 1) + " )", executableSql.substring(endIndex + 6) + " ;");
+						_println("[Bee] " + hardStr + " ( ExecutableSql " + executableSql.substring(4, endIndex + 1) + " )", executableSql.substring(endIndex + 6) );
 //					    if(OneTimeParameter.isTrue("saveSqlString")) print(executableSql.substring(endIndex + 6));
 					} else {
 //						if ("0".equals(insertIndex))

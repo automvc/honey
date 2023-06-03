@@ -1,7 +1,7 @@
 package org.teasoft.honey.osql.serviceimpl;
 
-import org.teasoft.bee.osql.Suid;
-import org.teasoft.bee.osql.service.ObjSQLAbstractServiceImpl;
+import org.teasoft.bee.mvc.service.ObjSQLAbstractServiceImpl;
+import org.teasoft.bee.osql.api.Suid;
 import org.teasoft.honey.osql.core.BeeFactory;
 
 /**

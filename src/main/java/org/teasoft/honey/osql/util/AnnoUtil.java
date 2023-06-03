@@ -11,20 +11,10 @@ import java.util.Iterator;
 import java.util.ServiceConfigurationError;
 import java.util.ServiceLoader;
 
-import org.teasoft.bee.osql.annotation.Createtime;
-import org.teasoft.bee.osql.annotation.Datetime;
-import org.teasoft.bee.osql.annotation.Dict;
-import org.teasoft.bee.osql.annotation.GenId;
-import org.teasoft.bee.osql.annotation.GenUUID;
-import org.teasoft.bee.osql.annotation.ReplaceInto;
-import org.teasoft.bee.osql.annotation.Updatetime;
-import org.teasoft.bee.osql.annotation.customizable.AutoSetString;
-import org.teasoft.bee.osql.annotation.customizable.Desensitize;
-import org.teasoft.bee.osql.annotation.customizable.DictI18n;
+import org.teasoft.bee.osql.annotation.*;
 import org.teasoft.bee.osql.annotation.customizable.Json;
-import org.teasoft.bee.osql.annotation.customizable.MultiTenancy;
 import org.teasoft.bee.spi.AnnoAdapter;
-import org.teasoft.bee.spi.AnnoAdapterBeeDefault;
+import org.teasoft.bee.spi.defaultimpl.AnnoAdapterBeeDefault;
 import org.teasoft.honey.osql.core.DefaultColumnHandler;
 import org.teasoft.honey.osql.core.Logger;
 import org.teasoft.honey.osql.name.NameRegistry;
@@ -65,8 +55,12 @@ public class AnnoUtil {
 		return field.isAnnotationPresent(Desensitize.class);
 	}
 
-	public static boolean isMultiTenancy(Field field) {
+	public static boolean isMultiTenancyAnno(Field field) {
 		return field.isAnnotationPresent(MultiTenancy.class);
+	}
+	
+	public static boolean isShardingAnno(Field field) {
+		return field.isAnnotationPresent(Sharding.class);
 	}
 
 	public static boolean isDict(Field field) {

@@ -210,5 +210,25 @@ public final class SuidHelper {
 		}
 		return map;
 	}
+	
+	public static <T> List<T> copyListEntity(List<?> fromList, Class<T> toClassType) {
+		List<T> toList = null;
+
+		if (fromList != null && fromList.size() > 0) {
+			int size0 = fromList.size();
+			toList = new ArrayList<>(size0);
+			try {
+				for (int i = 0; i < size0; i++) {
+					T t = toClassType.newInstance();
+					t = SuidHelper.copyEntity(fromList.get(i), t);
+					toList.add(t);
+				}
+			} catch (Exception e) {
+				Logger.warn(e.getMessage(),e);
+			}
+		}
+
+		return toList;
+	}
 
 }

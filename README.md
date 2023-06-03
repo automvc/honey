@@ -9,8 +9,12 @@ Bee
 **Good Feature:**  AI, Timesaving/Tasteful, Easy, Automatic (**AiTeaSoft Style**)   
 
 ## **Good News:**  
-1)**V1.17 add support Android and HarmonyOS ORM function**  
-2)In **Android and HarmonyOS** environment can use the **same ORM code with Bee**  
+**Bee V2.0 Sharding is coming !**  
+[2.0-sharding-dev branch](../../../bee/tree/2.0-sharding-dev)  
+
+Sharding target: It is mainly transparent to business development and coding, with only a little sharding config.  
+#### [Quick Start:Shardign better example](guide/Quick-start-Sharding.md) 
+
 
 **Bee** see:  
 https://github.com/automvc/bee  
@@ -21,11 +25,12 @@ https://github.com/automvc/bee-ext
 [点击链接可查看中文介绍](../../../bee/blob/master/README_CN.md)  
 
 ## Requirement  
-#### jdk1.7+
+#### Bee jdk1.7+
+#### Bee-Ext(V2.0) jdk1.8+
 
 ## Feature & Function: 
 
-**Support many Database**(MySQL,MariaDB,Oracle,H2,SQLite,PostgreSQL,SQL Server,Cassandra and so on) and easily extend.  
+**Support many Database**(MySQL,MariaDB,Oracle,H2,SQLite,PostgreSQL,SQL Server,Access,Cassandra,Mongodb and so on) and easily extend.  
 **Good performance, close to the speed of JDBC; Small files：Bee V1.8 jar 217k**, **V1.9.5 jar,315k, V1.9.8 jar 310k**.  
 In addition to **JDBC, Android and HarmonyOS** are also supported.  
 
@@ -41,7 +46,7 @@ In addition to **JDBC, Android and HarmonyOS** are also supported.
 * 10.more tables select oriented object support(has not the n+1 problem,one to one,one to many,many to one,many to many).sub-field type support Javabean or List.  
 * 11.L1 cache, simple in concept and powerful in function; L1 cache can also be fine tuned like the JVM; Support updatable long-term cache list and update configuration table without restart. Inherently resistant to cache penetration. L2 cache extension support; Redis L2 cache support.  
 * 12.Support java_db naming translation and support customize,default implement.  
-* 13.Many DB supports easy extension(MySQL,MariaDB,Oracle,H2,SQLite,PostgreSQL,SQL Server,Cassandra,etc. are directly available),In theory, can support all DB which support JDBC.  
+* 13.Many DB supports easy extension(MySQL,MariaDB,Oracle,H2,SQLite,PostgreSQL,SQL Server,Access,Cassandra,Mongodb,etc. are directly available),In theory, can support all DB which support JDBC.  
 * 14.Add multi-DataSource support(Write/Read, only Split Database);support Jndi DataSource.  
 * 15.Support use many type database at the same time(eg: use Mysql,Oracle,SQL Server at the same).  
 * 16.Support distributed primary key(global unique id,Serial distributed unique id in one workid).  
@@ -61,6 +66,91 @@ In addition to **JDBC, Android and HarmonyOS** are also supported.
 * 29.can automatically generate entity_F for referenced to the entity field name.  
 
 ## Newest Function
+### **V2.1**  
+
+**V2.1.2.21(Dragon Fly)**  
+1)Bee+SpringBoot support application file config multi-dataSource  
+2)when do not use Mongodb,no need the dependency  
+3)fixed bug:ObjSQLRichService+Spring generate more one error instance  
+4)suppress the check Log implement msg  
+5)Search expression redundant bracket compatibility
+
+### **V2.1.2.28(Eleven)**  
+6)bee.properties support config multi-dataSource(this type no need xml,java code config)  
+7)fixed bug:Batch insert cannot set data source name  
+8)Mongodb query result date type conversion  
+9)multi dataSource is only Mongodb,can set bee.dosql.multiDS.justMongodb=true  
+then BF.getSuid() can return Mongodb type Suid instance  
+10)Support spring generation of Mongodb corresponding implementation class objects  
+//  Mongodb  
+//	@Resource(name = "mongodbObjSQLRichService")  
+//	ObjSQLRichService objSQLRichService;  
+//  use mongodb  type1  
+//	@Autowired  
+//	@Qualifier(value = "mongoSuidRich")  
+//	SuidRich suidRich; // ok  
+//	use mongodb  type2  
+//	@Resource(name = "mongoSuidRich")  
+//	SuidRich suidRich; // ok  
+11)Mongodb GridFS file store  
+
+### **V2.0 Sharding(Mother Love)** 
+**The use of more dataSources is as convenient as the use of single database; Using MongoDB is as easy as using MySQL**  
+1)add support object-oriented Sharding,JDBC Sharding  
+2)add support Mongodb ORM(use like JDBC)  
+3)add Mongodb Sharding  
+4)add support MS Access  
+5)add annotation default implementation(org.teasoft.bee.osql.annotation)  
+6)enhance:entities of different packages cannot share the cache even if the same table is specified  
+enhance:Json String type query result conversion enhance  
+7)fixed bug:PreparedSql interface's method insertBatch null pointer and placeholder bug 
+
+**V2.0.x.x detail as below.**  
+
+**V2.0.0.1001(2022·National Day) **  
+Add Sharding Function  
+1)object-oriented Sharding  
+2)Suid,SuidRich,select,modify Sharding  
+3)MoreTable select Sharding  
+4)batch insert Sharding  
+5)MAX,MIN,COUNT,SUM,AVG select Sharding  
+6)paging/sort select Sharding  
+7)support Sharding type:Separate databases and tables,separate databases only,separate tables only  
+8)support route Sharding type:One database and one table, one database and multiple tables, multiple databases and multiple tables, all databases and all tables, only specifying tables, only specifying databases  
+9)Forcibly specify the partition route for the current operation through Hint(appoint ds and table)  
+10)Sharding broadcast table support  
+11)easy Sharding config support   
+12)stream select,reduce query memory usage  
+
+**V2.0.1.1(2023·New Year)**  
+13)**mongodb ORM function**  
+14)**mongodb Sharding function**  
+15)SuidRich,adjust the parameter position of the specified query field in some methods and change it to a variable-length parameter  
+16)SuidRich add method select first record:selectFirst(T entity, Condition condition)  
+
+**V2.0.1.22(2023·Spring Festival)**  
+17)add support sharding for groupBy(including JDBC,Mongodb)  
+18)add support MS Access  
+19)support Mongodb generate Javabean,including multi-layer embedded document structure  
+20)add SuidRichExt,support non-hardcode point out the entity field  
+21)broadcast table query (randomly selected one dataSource), broadcast table modify (executed in all nodes)  
+22)DDL:createTable for sharding  
+
+**V2.0.2.5(2023·the Lantern Festival)**  
+23)update(T,T) change internal implementation  
+24)Desensitize support does not need to know the end position @Desensitize(start=0, size=-1, mask="*")  
+   0123456789 -> *********  
+25)Partitioning support:=, in, between; Where in supports Number, List and Set  
+Do not participate in fragmentation: not in, not between,>=,<=.  
+26)To improve HintManager, only dataSourceName or tableName can be specified  
+It is recommended to specify both or at least tableName  
+27)HintManager can use the shortcut HM  
+
+**V2.0.2.14(2023·Valentine's Day)**  
+enhance Mongodb ORM log  
+enhance Json String result transfer  
+fixed bug about insertBatch in PreparedSql  
+
 
 ### **V1.17(2022·Mid-Autumn Day)**  
 
@@ -391,18 +481,18 @@ Quick Start:
 		<dependency>
 			<groupId>org.teasoft</groupId>
 			<artifactId>bee</artifactId>
-			<version>1.17</version>
+			<version>2.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.teasoft</groupId>
 			<artifactId>honey</artifactId>
-			<version>1.17</version>
+			<version>2.0</version>
 		</dependency>
 		<!--for log framework,Excel(poi),Redis cache,Android,HarmonyOS,Json,Tran Annotation -->
 		<dependency>
 			<groupId>org.teasoft</groupId>
 			<artifactId>bee-ext</artifactId>
-			<version>1.17</version>
+			<version>2.0</version>
 		</dependency>
 ```
 
@@ -610,8 +700,8 @@ Operate 10000 records, and the use time comparison is as follows.
 ### [Bee+Spring-boot Demo](../../../bee-starter-demo/)	
 
 ## Bee Architecture  
-**V1.17**  
-<img src="illustration/Bee-architecture-EN-V1.17.png"  width="520" height="640">  
+**V2.1**  
+<img src="illustration/Bee-architecture-EN-V2.0.png"  width="520" height="640">  
 
 ## Bee Common Interface  
 <img src="illustration/common-interface_en.jpg">  
@@ -676,12 +766,6 @@ USD 49.00
 **The use of Enterprise Edition, professional technical support and solution consultation are provided by the following companies:**  
 **[Shenzhen Caifeng software](http://www.aiteasoft.com)**  
 (Enterprises willing to join in, please contact us!)  
-
-### Discount(2022)
-Before June:    40% discount  
-Before July:    30% discount  
-Before August:  20% discount  
-Before October: 10% discount  
 
 Contact & Welcome:
 =========	

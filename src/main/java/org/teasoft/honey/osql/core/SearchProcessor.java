@@ -6,10 +6,10 @@
 
 package org.teasoft.honey.osql.core;
 
-import org.teasoft.bee.osql.Condition;
 import org.teasoft.bee.osql.FunctionType;
 import org.teasoft.bee.osql.Op;
 import org.teasoft.bee.osql.OrderType;
+import org.teasoft.bee.osql.api.Condition;
 import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
 import org.teasoft.bee.osql.search.Operator;
 import org.teasoft.bee.osql.search.Search;

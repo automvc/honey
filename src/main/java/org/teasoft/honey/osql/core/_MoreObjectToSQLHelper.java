@@ -11,14 +11,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.teasoft.bee.osql.Condition;
 import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.annotation.JoinType;
+import org.teasoft.bee.osql.api.Condition;
 import org.teasoft.bee.osql.dialect.DbFeature;
 import org.teasoft.bee.osql.interccept.InterceptorChain;
 import org.teasoft.honey.osql.dialect.sqlserver.SqlServerPagingStruct;
 import org.teasoft.honey.osql.name.NameUtil;
 import org.teasoft.honey.osql.util.AnnoUtil;
+import org.teasoft.honey.sharding.ShardingReg;
 import org.teasoft.honey.util.StringUtils;
 
 /**
@@ -55,6 +56,11 @@ public class _MoreObjectToSQLHelper {
 		return _toSelectSQL(entity, includeType, condition,-1,-1);
 	}
 	
+	private static void regInterceptorSubEntity() {
+		OneTimeParameter.setTrueForKey(StringConst.InterceptorSubEntity);
+		ShardingReg.regMoreTableQuery();
+	}
+	
 	private static <T> String _toSelectSQL(T entity, int includeType,Condition condition, int start, int size) {
 			
 		checkPackage(entity);
@@ -80,14 +86,20 @@ public class _MoreObjectToSQLHelper {
 			
 			MoreTableStruct moreTableStruct[]=HoneyUtil.getMoreTableStructAndCheckBefore(entity);
 			
+			//拦截器处理  2.0
 			InterceptorChain chain=null;
-			//获取到子实体对象后,就要先进行拦截器处理.
 			for (int index = 1; index <= 2; index++) { // 从表在数组下标是1和2. 0是主表   sub table index is :1 ,2 
 				if(index==1) chain=(InterceptorChain)OneTimeParameter.getAttribute(StringConst.InterceptorChainForMoreTable);
 				if (moreTableStruct[index] != null) {
-					doBeforePasreSubEntity(moreTableStruct[index].subObject, chain);//V1.11
+//				   //2.0从表对应的从实体,不用来计算分片. 从表分片的下标与主表的一致
+					doBeforePasreSubEntity(moreTableStruct[index].subObject, chain);//V1.11    应该要放到这,要先拦截处理,再解析. 2022-09-05
 				}
 			}
+			
+//			如何多表查询没有声明表别名，可以使用逻辑表作为别名？？
+//			if(moreTableStruct[1].hasSubAlias) moreTableStruct[1].subAlias="ordersdetail";
+			//没用,解析MoreTableStruct时,已生成了字段等.
+			
 			
 //			if (moreTableStruct[1] == null) { //v1.9
 //				throw new BeeErrorGrammarException(
@@ -123,7 +135,6 @@ public class _MoreObjectToSQLHelper {
 				}else if(start!=-1 && size!=-1 && condition==null && moreTableStruct[1].subObject==null){ 
 					
 //					若condition!=null, 要判断不包括从表的字段.  todo
-					
 //					主表id不为空的,也不用.  因主表最多能查一条记录
 					
 					parseMainObject(entity, tableName, sqlBuffer0, mainList, firstWhere, includeType); //因顺序原因,调整时,需要多解析一次
@@ -148,7 +159,7 @@ public class _MoreObjectToSQLHelper {
 						sqlStrForList=getDbFeature().toPageSql(sqlForList.toString(), start, size);
 //						HoneyUtil.setPageNum(list);
 						
-					    //后面不用再分页.
+					    //后面不用再分页.  Condition里的分页参数呢????
 					    start = -1;
 					    size = -1;
 				
@@ -244,7 +255,7 @@ public class _MoreObjectToSQLHelper {
 			  for (int s = 1; s <= 2; s++) { // 从表在数组下标是1和2. 0是主表
 				if (moreTableStruct[s] != null) {
 					
-					useSubTableNames[s-1]=moreTableStruct[s].useSubTableName; //for conditon parse
+					useSubTableNames[s-1]=moreTableStruct[s].useSubTableName; //for conditon parse    todo ??????
 					
 					sqlBuffer.append(COMMA);
 					sqlBuffer.append(moreTableStruct[s].tableName);
@@ -285,16 +296,14 @@ public class _MoreObjectToSQLHelper {
 ////					parseSubObject(sqlBuffer, valueBuffer, list, conditionFieldSet, firstWhere, includeType, moreTableStruct, index);
 ////					bug: firstWhere需要返回,传给condition才是最新的
 ////					firstWhere=parseSubObject(sqlBuffer, valueBuffer, list, conditionFieldSet, firstWhere, includeType, moreTableStruct, index);
-//					doBeforePasreSubEntity(moreTableStruct[index].subObject, chain);//V1.11
+//					doBeforePasreSubEntity(moreTableStruct[index].subObject, chain);//V1.11    bug??应该要移到前面,要先拦截处理,再解析. 2022-09-05
 //					firstWhere=parseSubObject(sqlBuffer, list, whereFields, firstWhere, includeType, moreTableStruct, index);
 //				}
 //			}
 			
 			//处理子表相应字段到where条件
-			for (int index = 1; index <= 2; index++) { // 从表在数组下标是1和2. 0是主表   sub table index is :1 ,2 
+			for (int index = 1; index <= 2; index++) {
 				if (moreTableStruct[index] != null) {
-//					parseSubObject(sqlBuffer, valueBuffer, list, conditionFieldSet, firstWhere, includeType, moreTableStruct, index);
-//					bug: firstWhere需要返回,传给condition才是最新的
 					firstWhere=parseSubObject(sqlBuffer, list, whereFields, firstWhere, includeType, moreTableStruct, index);
 				}
 			}
@@ -304,23 +313,33 @@ public class _MoreObjectToSQLHelper {
 				OneTimeParameter.setTrueForKey(StringConst.ALREADY_SET_ROUTE);
 			}
 			
+			//V2.0 将分页统一放到condition再处理.
+			if (start != -1 && size != -1 && condition == null) { //多表查询,不会只传一个size    MoreTable不会同时传condition和分页的原生参数.
+				//只是传分页参数,不用将condition记录到sharding上下文.
+				condition=BeeFactoryHelper.getCondition();
+				condition.start(start);
+				condition.size(size);
+			}
+				
+			
 			if(condition!=null){
 				 condition.setSuidType(SuidType.SELECT);
 				 useSubTableNames[2]=tableName;   //v1.9.8 useSubTableNames[2] add main tableName 放主表实际表名
 				 
 				 OneTimeParameter.setAttribute(StringConst.Column_EC, entity.getClass());
-//			     ConditionHelper.processCondition(sqlBuffer, valueBuffer, list, condition, firstWhere,useSubTableNames);
-			     ConditionHelper.processCondition(sqlBuffer, list, condition, firstWhere,useSubTableNames);
+			     ConditionHelper.processCondition(sqlBuffer, list, condition, firstWhere,useSubTableNames); //这句会有分页. 
 			}
 			
-			if(start!=-1 && size!=-1){ //若传参及Condition都有分页,转出来的sql可能语法不对.
-				HoneyUtil.regPagePlaceholder();
-				adjustSqlServerPagingPkIfNeed(sqlBuffer.toString(), entity.getClass(),tableName);
-				sql=getDbFeature().toPageSql(sqlBuffer.toString(), start, size);
-				HoneyUtil.setPageNum(list);
-			}else{
-				sql=sqlBuffer.toString();
-			}
+//			if(start!=-1 && size!=-1){ //若传参及Condition都有分页,转出来的sql可能语法不对.   //应该合并.    MoreTable不会同时传两样过来.
+//				HoneyUtil.regPagePlaceholder();
+//				adjustSqlServerPagingPkIfNeed(sqlBuffer.toString(), entity.getClass(),tableName);
+//				sql=getDbFeature().toPageSql(sqlBuffer.toString(), start, size);
+//				HoneyUtil.setPageNum(list);
+//			}else{
+//				sql=sqlBuffer.toString();
+//			}
+			
+			sql=sqlBuffer.toString();
 			
 			HoneyContext.setPreparedValue(sql, list);
 			addInContextForCache(sql, tableNamesForCache.toString());//tableName还要加上多表的.
@@ -330,8 +349,12 @@ public class _MoreObjectToSQLHelper {
 
 		return sql;
 	}
-	private static void doBeforePasreSubEntity(Object entity,InterceptorChain chain) {
-		if(entity!=null && chain!=null) chain.beforePasreEntity(entity, SuidType.SELECT);
+	private static void doBeforePasreSubEntity(Object subEntity,InterceptorChain chain) {
+		if(subEntity!=null && chain!=null) {
+			regInterceptorSubEntity();  //2.0从表对应的从实体,不用来计算分片. 从表分片的下标与主表的一致
+			chain.beforePasreEntity(subEntity, SuidType.SELECT);
+		}
+		
 	}
 	
 	private static void adjustSqlServerPagingPkIfNeed(String sql, Class entityClass,String tableName) {

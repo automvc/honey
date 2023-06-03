@@ -20,7 +20,7 @@ public class JdbcToJavaType {
 	private static final String STRING = "String";
 	private static Map<String, Map<String, String>> dbJdbc2JavaTypeMap = new HashMap<>();
 	
-	private static PropertiesReader jdbcTypeCustomProp = new PropertiesReader("/jdbcTypeToFieldType.properties");
+	private static PropertiesReader jdbcTypeCustomProp = new PropertiesReader("jdbcTypeToFieldType.properties");
 	private static PropertiesReader jdbcTypeCustomProp_specificalDB = null;
 
 	private JdbcToJavaType() {}
@@ -35,6 +35,10 @@ public class JdbcToJavaType {
 		if (map == null) {
 			initTypeMapConfig(dbName);
 			map = dbJdbc2JavaTypeMap.get(dbName.toLowerCase());
+			if (map == null) {
+				map=getCommon();
+				dbJdbc2JavaTypeMap.put(dbName.toLowerCase(), map);
+			}
 		}
 
 		return map;
@@ -51,7 +55,8 @@ public class JdbcToJavaType {
 
 	
 	public static void appendJdbcToJavaType(String databaseName,Map<String, String> oneDb_Java2DbTypeMap) {
-		Map<String, String> map = dbJdbc2JavaTypeMap.get(databaseName);
+//		Map<String, String> map = dbJdbc2JavaTypeMap.get(databaseName);
+		Map<String, String> map = dbJdbc2JavaTypeMap.get(databaseName.toLowerCase());
 		if (map == null) {
 			setJdbcToJavaType(databaseName.toLowerCase(), oneDb_Java2DbTypeMap);
 		} else {
@@ -61,32 +66,38 @@ public class JdbcToJavaType {
 	
 	public static void initTypeMapConfig(String dbName) {
 
-		String proFileName = "/jdbcTypeToFieldType-{DbName}.properties";
+		if (dbName == null) {
+			Logger.warn("The dbName is null");
+			return;
+		}
+
+		String proFileName = "jdbcTypeToFieldType-{DbName}.properties";
 
 		initJdbcTypeMap(dbName);
 		appendJdbcTypeCustomProp(dbName);
 
-		if (dbName != null) {
-			jdbcTypeCustomProp_specificalDB = new PropertiesReader(
-					proFileName.replace("{DbName}", dbName));
+		jdbcTypeCustomProp_specificalDB = new PropertiesReader(
+				proFileName.replace("{DbName}", dbName));
+		if (jdbcTypeCustomProp_specificalDB != null) {
 			appendJdbcTypeCustomProp_specificalDB(dbName);
 		}
 	}
 	
 	private static void appendJdbcTypeCustomProp(String dbName) {
-		Map<String, String> map = dbJdbc2JavaTypeMap.get(dbName);
+//		Map<String, String> map = dbJdbc2JavaTypeMap.get(dbName);
+		Map<String, String> map = dbJdbc2JavaTypeMap.get(dbName.toLowerCase());
 		if (map == null) {
 			map= new HashMap<>(); 
 		}
 		for (String s : jdbcTypeCustomProp.getKeys()) {
 			map.put(s, jdbcTypeCustomProp.getValue(s));
 		}
-		
 		setJdbcToJavaType(dbName, map);
 	}
 
 	private static void appendJdbcTypeCustomProp_specificalDB(String dbName) {
-		Map<String, String> map = dbJdbc2JavaTypeMap.get(dbName);
+//		Map<String, String> map = dbJdbc2JavaTypeMap.get(dbName);
+		Map<String, String> map = dbJdbc2JavaTypeMap.get(dbName.toLowerCase());
 		if (map == null) {
 			map= new HashMap<>(); 
 		}
@@ -116,7 +127,10 @@ public class JdbcToJavaType {
 			setJdbcToJavaType(DatabaseConst.SQLSERVER.toLowerCase(), forSQLSERVER());
 		else if (DatabaseConst.Cassandra.equalsIgnoreCase(dbName))
 			setJdbcToJavaType(DatabaseConst.Cassandra.toLowerCase(), forCassandra());
-		
+		else if (DatabaseConst.MongoDB.equalsIgnoreCase(dbName))
+			setJdbcToJavaType(DatabaseConst.MongoDB.toLowerCase(), forMongoDB());
+		else 
+			setJdbcToJavaType(dbName.toLowerCase(), getCommon());
 	}
 
 	
@@ -129,6 +143,7 @@ public class JdbcToJavaType {
 		jdbc2JavaType.put("CHAR", STRING);
 		jdbc2JavaType.put("VARCHAR", STRING);
 		jdbc2JavaType.put("LONGVARCHAR", STRING);
+		jdbc2JavaType.put("CHARACTER", STRING);
 
 		jdbc2JavaType.put("NVARCHAR", STRING);
 		jdbc2JavaType.put("NCHAR", STRING);
@@ -137,6 +152,7 @@ public class JdbcToJavaType {
 		jdbc2JavaType.put("DECIMAL", "BigDecimal");
 
 		jdbc2JavaType.put("BIT", "Boolean");
+		jdbc2JavaType.put("BOOLEAN", "Boolean");
 
 		//rs.getObject(int index)  bug   
 		//pst.setByte(i+1,(Byte)value); break;设置查询没问题,结果也能返回,用rs.getObject拿结果时才报错
@@ -309,7 +325,7 @@ public class JdbcToJavaType {
 		jdbc2JavaTypeMap.put("UUID", "java.util.UUID");
 //		jdbcTypeMap.put("YEAR", "Time");
 		jdbc2JavaTypeMap.put("TIME", "Object");
-		jdbc2JavaTypeMap.put("OTHER", "bbb");
+//		jdbc2JavaTypeMap.put("OTHER", "bbb");
 		jdbc2JavaTypeMap.put("ENUM", "Integer");
 		jdbc2JavaTypeMap.put("ARRAY", "Object[]");
 		jdbc2JavaTypeMap.put("GEOMETRY", STRING);
@@ -457,6 +473,27 @@ public class JdbcToJavaType {
 		jdbc2JavaTypeMap.put("list", "List");
 		jdbc2JavaTypeMap.put("set", "Set");
 		jdbc2JavaTypeMap.put("map", "Map");
+		
+		return jdbc2JavaTypeMap;
+	}
+	
+	private static Map<String, String> forMongoDB() {
+		Map<String, String> jdbc2JavaTypeMap = getCommon();
+	
+//		jdbc2JavaTypeMap.put("org.bson.types.ObjectId", "org.bson.types.ObjectId");
+		jdbc2JavaTypeMap.put("org.bson.types.ObjectId", "String");
+		jdbc2JavaTypeMap.put("java.lang.String", "String");
+//		jdbc2JavaTypeMap.put("java.util.ArrayList", "java.util.ArrayList");
+		jdbc2JavaTypeMap.put("java.util.ArrayList", "List");
+		jdbc2JavaTypeMap.put("java.lang.Integer", "Integer");
+		jdbc2JavaTypeMap.put("java.lang.Long", "Long");
+		jdbc2JavaTypeMap.put("java.lang.Double", "Double");
+		jdbc2JavaTypeMap.put("java.lang.Boolean", "Boolean");
+		jdbc2JavaTypeMap.put("java.util.Date", "java.util.Date");
+		
+		jdbc2JavaTypeMap.put("org.bson.types.decimal128", "BigDecimal");
+		
+		jdbc2JavaTypeMap.put("org.bson.Document", "org.bson.Document");
 		
 		return jdbc2JavaTypeMap;
 	}

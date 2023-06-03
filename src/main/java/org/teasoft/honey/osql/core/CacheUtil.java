@@ -7,7 +7,6 @@
 package org.teasoft.honey.osql.core;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -15,6 +14,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -95,7 +95,6 @@ public final class CacheUtil {
 	 * @return 从缓存获取的结果.the result get from cache.
 	 */
 	public static Object get(String sql) {
-		
 		String key = CacheKey.genKey(sql);
 		if (key == null) return null;
 		
@@ -241,7 +240,7 @@ public final class CacheUtil {
 	 * @param rs 结果集.result
 	 * @return 返回是否已放缓存.whether it has been put in cache.
 	 */
-	public static boolean add(String sql,Object rs){
+	static boolean add(String sql,Object rs){
 		return addInCache(sql,rs);
 	}
 	
@@ -275,6 +274,7 @@ public final class CacheUtil {
 		}
 	
 		 String key=CacheKey.genKey(sql);
+		
 		 List<String> tableNameList=CacheKey.genTableNameList(sql);  //支持多表的情况
 		 
 		 //never 列表的不用放缓存       暂时只是用表名标识
@@ -477,8 +477,10 @@ public final class CacheUtil {
 			 tableNameList.add(tableName);
 		 }else{
 //			 tableNameList= new ArrayList<>(3);  //一般一条语句最多三个表  
-			 tableNameList= new ArrayList<>();  // 但多线程,不同线程但一样的语句,都会放进来, 会超过3个.  已改为同步
-			 tableNameList.add(tableName);         //多个线程都添加数据, 可能导致越界  ,但删除时,可以删完. 
+//			 tableNameList= new ArrayList<>();  // 但多线程,不同线程但一样的语句,都会放进来, 会超过3个.  已改为同步
+//			 tableNameList.add(tableName);         //多个线程都添加数据, 可能导致越界  ,但删除时,可以删完. 
+			 tableNameList= new Vector<>(); 
+			 tableNameList.add(tableName);
 			 map_tableNameList.put(key, tableNameList);
 		 }
 	 }

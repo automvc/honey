@@ -6,6 +6,8 @@
 
 package org.teasoft.honey.util;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,8 +24,7 @@ public class ObjectCreatorFactory {
 	@SuppressWarnings("rawtypes")
 	public static Object create(String s, Class c) {
 
-		if (c == null) return null;
-		if(s==null) return null; //fix bug 2021-05-24
+		if (c == null || s==null) return null;
 		
 		if (c.equals(String.class))
 			return ObjectCreator.createString(s);
@@ -43,6 +44,10 @@ public class ObjectCreatorFactory {
 			return ObjectCreator.createBoolean(s);
 		} else if (c.equals(float.class) || c.equals(Float.class)) {
 			return ObjectCreator.createFloat(s);
+		} else if (c.equals(BigDecimal.class)) {//2.0
+			return ObjectCreator.createBigDecimal(s);
+		} else if (c.equals(BigInteger.class)) {//2.0
+			return ObjectCreator.createBigInteger(s);
 		} else {
 			Logger.warn("when create Object, do not support this type :"+c.getName());
 			return null;
@@ -60,6 +65,7 @@ public class ObjectCreatorFactory {
 		classMap.put("float", float.class);
 		classMap.put("long", long.class);
 		classMap.put("boolean", boolean.class);
+		classMap.put("char", char.class); 
 		
 		classMap.put("java.lang.Integer", Integer.class);
 		classMap.put("java.lang.Short", Short.class);
@@ -68,6 +74,9 @@ public class ObjectCreatorFactory {
 		classMap.put("java.lang.Float", Float.class);
 		classMap.put("java.lang.Long", Long.class);
 		classMap.put("java.lang.Boolean", Boolean.class);
+		classMap.put("java.lang.Character", Character.class);
+		classMap.put("java.math.BigDecimal", BigDecimal.class);
+		classMap.put("java.math.BigInteger", BigInteger.class);
 		
 		classMap.put("java.lang.String", String.class);
 	}

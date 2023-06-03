@@ -24,7 +24,9 @@ public class DefaultBeeExtCache implements BeeExtCache {
 
 //	private static boolean useLevelTwo = HoneyConfig.getHoneyConfig().cache_useLevelTwo;
 	
-	private static boolean levelOneTolevelTwo = HoneyConfig.getHoneyConfig().cache_levelOneTolevelTwo;
+	private static final long serialVersionUID = 1596710362358L;
+
+	private static volatile boolean levelOneTolevelTwo = HoneyConfig.getHoneyConfig().cache_levelOneTolevelTwo;
 
 	private static String logCache2Msg = "==========get from Level 2 Cache.";
 	private static boolean isShowSql = false;
@@ -60,7 +62,6 @@ public class DefaultBeeExtCache implements BeeExtCache {
 					boolean f2 = HoneyContext.isConfigLevelTwoCache(routeStruct.getEntityClass());
 					if (f2) canGetInLevelTow = true;
 				}
-				
 				if (canGetInLevelTow) {
 					//才到二级缓存查.
 					String key = CacheKey.genKey(sql);
