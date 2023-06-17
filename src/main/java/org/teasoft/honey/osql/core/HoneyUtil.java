@@ -1903,7 +1903,7 @@ public final class HoneyUtil {
 	}
 	
 	
-	//use entity[0], not entity, sync from V2.1
+	//use entity[0], not entity, sync from V2.1   修复:批量插入不能自动生成主键值
 	static <T> void setInitArrayIdByAuto(T entity[]) {
 		
 		if(entity==null || entity.length<1) return ;

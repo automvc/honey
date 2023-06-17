@@ -226,10 +226,10 @@ public class LoggerFactory {
 			clazz = Thread.currentThread().getContextClassLoader().loadClass(className);
 		} catch (Exception e) {
 			//ignore
-			Logger.warn(e.getMessage(),e);
+//			Logger.warn(e.getMessage(),e);//close v1.7.2
 		}catch (Error e) {
 			//ignore
-			Logger.warn(e.getMessage(),e);
+//			Logger.warn(e.getMessage(),e); //close v1.7.2
 		}
 		
 		if (clazz == null) {
