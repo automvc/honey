@@ -41,12 +41,12 @@ public class Ddl {
 	private static final String CREATE_TABLE = "CREATE TABLE ";
 	// private static Map<String, String> java2DbType = Java2DbType.getJava2DbType(HoneyContext.getDbDialect());
 	private static String LINE_SEPARATOR = System.getProperty("line.separator"); // 换行符
-	private static PreparedSql preparedSql = BeeFactoryHelper.getPreparedSql();
+//	private static PreparedSql preparedSql = BeeFactoryHelper.getPreparedSql();
 	private static Map<String, String> pkStatement = new HashMap<>();
 	private static Map<String, String> pkStringStatement = new HashMap<>();
 	private static String java_lang_String = "java.lang.String";
 
-	private static SuidRich suidRich = BF.getSuidRich();
+//	private static SuidRich suidRich = BF.getSuidRich();
 
 	static {
 		initPkStatement();
@@ -61,6 +61,7 @@ public class Ddl {
 
 	@SuppressWarnings("deprecation")
 	public static <T> boolean createTable(T entity, boolean isDropExistTable) {
+		PreparedSql preparedSql = BeeFactoryHelper.getPreparedSql();
 		if (isDropExistTable) {
 			String tableName = _toTableName(entity);
 			boolean second = false;
@@ -101,6 +102,7 @@ public class Ddl {
 	public static <T> boolean isExistTable(T entity) {
 		boolean flag = false;
 		try {
+			SuidRich suidRich = BF.getSuidRich();
 			suidRich.select(entity, 1);
 			flag = true;
 			String tableName = _toTableName(entity);
@@ -141,6 +143,7 @@ public class Ddl {
 		// V1.11 创建语句的可执行语句与占位的是一样的,无需要重复输出.
 		boolean old = HoneyConfig.getHoneyConfig().showSql_showExecutableSql;
 		if (old) HoneyConfig.getHoneyConfig().showSql_showExecutableSql = false;
+		PreparedSql preparedSql = BeeFactoryHelper.getPreparedSql();
 		preparedSql.modify(sql);
 		if (old) HoneyConfig.getHoneyConfig().showSql_showExecutableSql = old;
 	}

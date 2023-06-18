@@ -426,7 +426,11 @@ public class SqlLib implements BeeSql {
 			boolean notCatch=HoneyConfig.getHoneyConfig().notCatchModifyDuplicateException;
 			if (!notCatch && isConstraint(e)) { //内部捕获并且是重复异常,则由Bee框架处理 
 				boolean notShow=HoneyConfig.getHoneyConfig().notShowModifyDuplicateException;
-				if(! notShow) Logger.warn(e.getMessage());
+				if(! notShow) {
+					Logger.warn(e.getMessage());
+				}else {
+					Logger.debug(e.getMessage());
+				}
 				return num;
 			}
 			
