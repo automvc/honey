@@ -67,7 +67,7 @@ public final class HoneyConfig {
 				String msg="The value of bee.profiles.active is empty!";
 				Logger.error(msg,new ConfigWrongException(msg));
 			} else {
-				String fileName = "/bee-{active}.properties".replace("{active}", active);
+				String fileName = "bee-{active}.properties".replace("{active}", active);
 				beeActiveProp = new BeeActiveProp(fileName);
 				if(type==1) {//use the key in active override the main file.
 					SysValueProcessor.process(honeyConfig,beeActiveProp);
@@ -151,13 +151,13 @@ public final class HoneyConfig {
 	public String sqlKeyWordCase;
 	
 	@SysValue("${bee.osql.notDeleteWholeRecords}")
-	boolean notDeleteWholeRecords = true; //v1.7.2
+	public boolean notDeleteWholeRecords = true; //v1.7.2
 
 	@SysValue("${bee.osql.notUpdateWholeRecords}")
-	boolean notUpdateWholeRecords = true; //v1.7.2
+	public boolean notUpdateWholeRecords = true; //v1.7.2
 	
 	@SysValue("${bee.osql.notCatchModifyDuplicateException}")
-	public boolean notCatchModifyDuplicateException;
+	public boolean notCatchModifyDuplicateException=true; //#从1.17.21开始，默认抛出异常；防止在事务时，不正确
 	
 	@SysValue("${bee.osql.notShowModifyDuplicateException}")
 	public boolean notShowModifyDuplicateException;
@@ -169,10 +169,13 @@ public final class HoneyConfig {
 	public String lang="CN";
 	
 	@SysValue("${bee.osql.openDefineColumn}")
-	public boolean openDefineColumn;
+	public boolean openDefineColumn=true; //1.17.21默认打开
 	
 	@SysValue("${bee.osql.openFieldTypeHandler}")
-	public boolean openFieldTypeHandler;
+	public boolean openFieldTypeHandler=true; //从1.17默认打开
+	
+	@SysValue("${bee.osql.closeDefaultParaResultRegistry}")
+	public boolean closeDefaultParaResultRegistry; //1.17.21
 	
 	
 	@SysValue("${bee.osql.showSQL}")   //属于 bee.osql
@@ -214,16 +217,16 @@ public final class HoneyConfig {
 	@SysValue("${bee.osql.selectJson.ignoreNull}")
 	public boolean selectJson_ignoreNull = true;
 	@SysValue("${bee.osql.selectJson.timestampWithMillisecond}")
-	boolean selectJson_timestampWithMillisecond;
+	public boolean selectJson_timestampWithMillisecond;
 
 	@SysValue("${bee.osql.selectJson.dateWithMillisecond}")
-	boolean selectJson_dateWithMillisecond;
+	public boolean selectJson_dateWithMillisecond;
 
 	@SysValue("${bee.osql.selectJson.timeWithMillisecond}")
-	boolean selectJson_timeWithMillisecond;
+	public boolean selectJson_timeWithMillisecond;
 
 	@SysValue("${bee.osql.selectJson.longToString}")
-	boolean selectJson_longToString = true;
+	public boolean selectJson_longToString = true;
 	//----------------------------- selectJson end
 
 	@SysValue("${bee.osql.returnStringList.nullToEmptyString}")
@@ -555,14 +558,6 @@ public final class HoneyConfig {
 		LoggerFactory.setConfigRefresh(true);
 	}
 	
-	//动态刷新ds
-//	public void setDataSourceMap(Map<String, DataSource> dataSourceMap) {
-//		BeeFactory.getInstance().setDataSourceMap(dataSourceMap);
-//	}
-	
-//	context有:
-//	public static void setDsName2DbName(Map<String, String> dsName2DbName) {
-//		HoneyContext.dsName2DbName = dsName2DbName;
-//	}
+
 
 }

@@ -67,25 +67,12 @@ public final class HoneyUtil {
 	//初始化  SQL设置参数转换注册器 和 查询结果类型转换注册器
 	private static void initSetParaAndResultTypeHandlerRegistry() {
 		
-/*		String proFileName = "/jdbcTypeToFieldType-{DbName}.properties";
+		//V1.17.21 若设置了关闭,则不再进行默认设置
+		boolean closeDefaultParaResultRegistry = HoneyConfig.getHoneyConfig().closeDefaultParaResultRegistry;
+		if (closeDefaultParaResultRegistry) return;
 		
-		initJdbcTypeMap();
-		appendJdbcTypeCustomProp();
-		
-		String dbName = HoneyConfig.getHoneyConfig().getDbName();
-		if (dbName != null) {
-			jdbcTypeCustomProp_specificalDB = new PropertiesReader(proFileName.replace("{DbName}", dbName));
-			appendJdbcTypeCustomProp_specificalDB();
-		}*/
-		
-
-//		initJavaTypeMap();
-		
-//		SetParaTypeConverterRegistry.register(java.util.Date.class, new UtilDotDateTypeToTimestampConvert<java.util.Date>(), DatabaseConst.ORACLE); //close in 1.17
 		SetParaTypeConverterRegistry.register(java.util.Date.class, new UtilDotDateTypeToTimestampConvert<java.util.Date>(), DatabaseConst.PostgreSQL);
 		SetParaTypeConverterRegistry.register(java.util.Date.class, new UtilDotDateTypeToTimestampConvert<java.util.Date>(), DatabaseConst.H2);
-//		SetParaTypeConverterRegistry.register(java.util.Date.class, new UtilDotDateTypeToTimestampConvert<java.util.Date>(), DatabaseConst.MYSQL); //close in 1.17
-		SetParaTypeConverterRegistry.register(java.util.Date.class, new UtilDotDateTypeConvert<java.util.Date>());
 		
 		TypeHandlerRegistry.register(char.class, new CharTypeHandler<Character>(),true);
 		
