@@ -170,11 +170,13 @@ public final class HoneyConfig {
 	public String lang="CN";
 	
 	@SysValue("${bee.osql.openDefineColumn}")
-	public boolean openDefineColumn;
+	public boolean openDefineColumn=true; //2.1.6才设置
 	
 	@SysValue("${bee.osql.openFieldTypeHandler}")
-	public boolean openFieldTypeHandler;
+	public boolean openFieldTypeHandler=true; //从1.17默认打开
 	
+	@SysValue("${bee.osql.closeDefaultParaResultRegistry}")
+	public boolean closeDefaultParaResultRegistry; //V1.17.21,V2.1.6
 	
 	@SysValue("${bee.osql.showSQL}")   //属于 bee.osql
 	public boolean showSQL = false;
