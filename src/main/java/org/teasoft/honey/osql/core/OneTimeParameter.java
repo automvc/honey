@@ -17,8 +17,9 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 class OneTimeParameter {
 	
-//	private static ThreadLocal<Map<String, Object>> local= new ThreadLocal<>();
-	private static ThreadLocal<Map<String, Object>> local= new InheritableThreadLocal<>();
+	private static ThreadLocal<Map<String, Object>> local= new ThreadLocal<>();
+	//会引起Sharding批量插入,有时少了参数.  线程问题
+//	private static ThreadLocal<Map<String, Object>> local= new InheritableThreadLocal<>(); // closed. fixed bug v2.1.6
 	
 	private OneTimeParameter() {}
 
