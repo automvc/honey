@@ -129,17 +129,27 @@ public class AnnoUtil {
 	}
 
 	private static void initAnnoAdapterInstance2() {
+
 		try {
-			Class.forName("javax.persistence.Table"); //check
+			Class.forName("jakarta.persistence.Table"); // check
 		} catch (Exception e) {
 //			Logger.debug(e.getMessage(), e);
 			// maybe donot add the bee-ext.
 			annoAdapter = new AnnoAdapterBeeDefault();
-			return ;
+			return;
 		}
-		
-	try {
-			annoAdapter = (AnnoAdapter) Class.forName("org.teasoft.beex.spi.AnnoAdapterDefault").newInstance();
+
+		try {
+			Class.forName("javax.persistence.Table"); // check
+		} catch (Exception e) {
+			// maybe donot add the bee-ext.
+			annoAdapter = new AnnoAdapterBeeDefault();
+			return;
+		}
+
+		try {
+			annoAdapter = (AnnoAdapter) Class.forName("org.teasoft.beex.spi.AnnoAdapterDefault")
+					.newInstance();
 		} catch (Exception e) {
 			Logger.debug(e.getMessage(), e);
 			// maybe donot add the bee-ext.
