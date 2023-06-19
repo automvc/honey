@@ -156,16 +156,5 @@ public class CurrencyArithmetic {
 			return remainder(a, b);
 		return null;
 	}
-	
-//	public static void main(String[] args) {
-////		CurrencyArithmetic t=new CurrencyArithmetic();
-//		.out.println(remainder("-1","2"));
-//		
-//		int a=-1;
-//		int b=2;
-//		int c=a%b;
-//		
-//		.out.println(c);
-//	}
 
 }
