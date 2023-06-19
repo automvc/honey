@@ -64,9 +64,13 @@ public final class HoneyUtil {
 	//初始化  SQL设置参数转换注册器 和 查询结果类型转换注册器
 	private static void initSetParaAndResultTypeHandlerRegistry() {
 		
+		//V2.1.6 若设置了关闭,则不再进行默认设置
+		boolean closeDefaultParaResultRegistry = HoneyConfig.getHoneyConfig().closeDefaultParaResultRegistry;
+		if (closeDefaultParaResultRegistry) return;
+		
 		SetParaTypeConverterRegistry.register(java.util.Date.class, new UtilDotDateTypeToTimestampConvert<java.util.Date>(), DatabaseConst.PostgreSQL);
 		SetParaTypeConverterRegistry.register(java.util.Date.class, new UtilDotDateTypeToTimestampConvert<java.util.Date>(), DatabaseConst.H2);
-		SetParaTypeConverterRegistry.register(java.util.Date.class, new UtilDotDateTypeConvert<java.util.Date>());
+//		SetParaTypeConverterRegistry.register(java.util.Date.class, new UtilDotDateTypeConvert<java.util.Date>()); //bug 会少了时分秒  v2.1.8  
 		
 		TypeHandlerRegistry.register(char.class, new CharTypeHandler<Character>(),true);
 		
