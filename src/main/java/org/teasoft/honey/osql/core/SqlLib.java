@@ -692,8 +692,13 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 						hasException = true; // finally要用到
 						if (catchModifyDuplicateException(e)) {
 							//do not return in batch loop
-							Logger.logSQL(" | <-- index[" + (start) + "~" + (end - 1) + INDEX3 + " Affected rows: ?  , this batch have exception !","" + shardingIndex());
-						    if(HoneyUtil.isH2()) Logger.logSQL("the number of affected rows is not 准确!");
+							String affectNum="?";
+							if(HoneyUtil.isOracle() || HoneyUtil.isSQLite() || HoneyUtil.isSqlServer()) affectNum="0";
+							Logger.logSQL(
+									" | <-- index[" + (start) + "~" + (end - 1) + INDEX3
+											+ " Affected rows: " + affectNum + "  , this batch have exception !",
+									"" + shardingIndex());
+						    if(HoneyUtil.isH2()) Logger.logSQL("the number of affected rows is inaccurate !");
 						} else {//不捕获,则重新抛出异常
 							throw new SQLException(e);
 						}
@@ -718,8 +723,12 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 					if(first) flag="first";
 					int start=len - (len % batchSize);
 					int end=len;
-					Logger.logSQL(" | <-- index[" + (start) + "~" + (end - 1) + INDEX3 + " Affected rows: ?  , the "+flag+" batch have exception !","" + shardingIndex());
-					if(HoneyUtil.isH2()) Logger.logSQL("the number of affected rows is not 准确!");
+					String affectNum="?";
+					if(HoneyUtil.isOracle() || HoneyUtil.isSQLite() || HoneyUtil.isSqlServer()) affectNum="0";
+					Logger.logSQL(" | <-- index[" + (start) + "~" + (end - 1) + INDEX3
+							+ " Affected rows: "+ affectNum + "  , the " + flag + " batch have exception !",
+							"" + shardingIndex());
+					if(HoneyUtil.isH2()) Logger.logSQL("the number of affected rows is inaccurate!");
 				}
 				return total;  //外层try,处理异常后就会返回
 			} else {
