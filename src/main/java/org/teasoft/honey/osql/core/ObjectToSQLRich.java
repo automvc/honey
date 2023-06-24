@@ -406,7 +406,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 				String sql_i=INDEX1 + i + INDEX2+sql[0];
 				if (i == 0) {
 					HoneyContext.setPreparedValue(sql_i, HoneyContext.getAndClearPreparedValue(sql[0]));   //i=0
-					HoneyContext.deleteCacheInfo(sql[0]);
+//					HoneyContext.deleteCacheInfo(sql[0]); //fixed bug. V2.1.6
 				}else {
 				  _ObjectToSQLHelper._toInsertSQL_for_ValueList(sql_i,entity[i], excludeFieldList); // i 默认包含null和空字符串.因为要用统一的sql作批处理
 //				  t_sql = wrap.getSql(); //  每个sql不一定一样,因为设值不一样,有些字段不用转换. 不采用;因为不利于批处理
@@ -457,7 +457,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 				if (i == 0) {
 					oneRecoreList = HoneyContext.getAndClearPreparedValue(sql[0]);
 					HoneyContext.setPreparedValue(sql_i, oneRecoreList);   //i=0
-					HoneyContext.deleteCacheInfo(sql[0]);
+//					HoneyContext.deleteCacheInfo(sql[0]); //fixed bug. V2.1.6
 				} else {
 					//不需要打印时,不会放上下文,在方法内判断
 					oneRecoreList = _ObjectToSQLHelper._toInsertSQL_for_ValueList(sql_i, entity[i],excludeFieldList); // i 默认包含null和空字符串.因为要用统一的sql作批处理
