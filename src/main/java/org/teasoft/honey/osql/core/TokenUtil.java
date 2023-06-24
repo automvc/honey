@@ -176,7 +176,10 @@ public class TokenUtil {
 					if (key.contains("%")) { //since 1.17 , add escape the like parameter value.
 						Object v = processPecent(key, map);
 						preparedValue.setValue(v);
-						preparedValue.setType(v.getClass().getName());
+						if (v != null)
+							preparedValue.setType(v.getClass().getName());
+						else
+							preparedValue.setType(Object.class.getName()); //V2.1.6
 						list.add(preparedValue);
 					} else if (key.endsWith(CustomAutoSqlToken.atIn)) {
 //						Object objIn = map.get(key.substring(0, key.length() - 3));
@@ -238,7 +241,11 @@ public class TokenUtil {
 	private static void setPreValue(List<PreparedValue> list, Object value) {
 		PreparedValue preparedValue = new PreparedValue();
 		preparedValue.setValue(value);
-		preparedValue.setType(value.getClass().getName());
+		if (value != null) {
+			preparedValue.setType(value.getClass().getName());
+		} else {
+			preparedValue.setType(Object.class.getName());
+		}
 		list.add(preparedValue);
 	}
 
@@ -253,18 +260,21 @@ public class TokenUtil {
 				key = key.substring(1, len - 1);
 				v=(String)map.get(key);
 				logNullTip(v);
-				value = "%" + escapeLikeForCustomSql(v) + "%";
+				if(v==null) value=v; //V2.1.6
+				else value = "%" + escapeLikeForCustomSql(v) + "%";
 			} else { //   %para
 				key = key.substring(1, len);
 				v=(String)map.get(key);
 				logNullTip(v);
-				value = "%" + escapeLikeForCustomSql(v);
+				if(v==null) value=v; //V2.1.6
+				else value = "%" + escapeLikeForCustomSql(v);
 			}
 		} else if (key.endsWith("%")) { //  para%
 			key = key.substring(0, len - 1);
 			v=(String)map.get(key);
 			logNullTip(v);
-			value = escapeLikeForCustomSql(v) + "%";
+			if(v==null) value=v; //V2.1.6
+			else value = escapeLikeForCustomSql(v) + "%";
 		} else {
 			value = map.get(key);
 			checkLike((String)value);
