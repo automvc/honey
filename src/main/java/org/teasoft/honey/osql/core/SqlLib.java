@@ -474,19 +474,9 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 			setPreparedValues(pst, sql);
 			num = pst.executeUpdate();
 		} catch (SQLException e) {
-			boolean notCatch=HoneyConfig.getHoneyConfig().notCatchModifyDuplicateException;
-			if (!notCatch && isConstraint(e)) { //内部捕获并且是重复异常,则由Bee框架处理 
-				boolean notShow=HoneyConfig.getHoneyConfig().notShowModifyDuplicateException;
-				if(! notShow) {
-					Logger.warn(e.getMessage());
-				}else {
-					Logger.debug(e.getMessage());
-				}
-				return num;
-			}
-			
-			hasException=true;
-			throw ExceptionHelper.convert(e);
+			hasException=true; //finally要用到
+			if(catchModifyDuplicateException(e)) return num;
+			else throw ExceptionHelper.convert(e);
 		} finally {
 			clearInCache(sql, "int", SuidType.MODIFY, num); // has clearContext(sql)
 			if (hasException) {
@@ -500,6 +490,20 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 		logAffectRow(num);
 
 		return num;
+	}
+	
+	private boolean catchModifyDuplicateException(SQLException e) {
+		boolean notCatch=HoneyConfig.getHoneyConfig().notCatchModifyDuplicateException;
+		if (!notCatch && isConstraint(e)) { //内部捕获并且是重复异常,则由Bee框架处理 
+			boolean notShow=HoneyConfig.getHoneyConfig().notShowModifyDuplicateException;
+			if(! notShow) {
+				Logger.warn(e.getMessage());
+			}else {
+				Logger.debug(e.getMessage());
+			}
+			return true;
+		}
+		return false;
 	}
 	
 	@Override
@@ -648,55 +652,79 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 	
 	@Override
 	public int batch(String sql[], int batchSize) {
-		
-		if(sql==null || sql.length<1) return -1;
-		
-		if(HoneyUtil.isMysql()) return batchForMysql(sql, batchSize);
-		
-		initRoute(SuidType.INSERT,null,sql[0]);
-		
+
+		if (sql == null || sql.length < 1) return -1;
+
+		if (HoneyUtil.isMysql()) return batchForMysql(sql, batchSize);
+
+		initRoute(SuidType.INSERT, null, sql[0]);
+
 		int len = sql.length;
 		int total = 0;
-		int temp=0;
-		
+		int temp = 0;
+
 		Connection conn = null;
 		PreparedStatement pst = null;
-		boolean oldAutoCommit=false;
+		boolean oldAutoCommit = false;
 		boolean hasException = false;
+		boolean first=false;
+		boolean last=false;
 		
 		try {
 			conn = getConn();
 			oldAutoCommit = conn.getAutoCommit();
 			conn.setAutoCommit(false);
-			String exe_sql=HoneyUtil.deleteLastSemicolon(sql[0]);
+			String exe_sql = HoneyUtil.deleteLastSemicolon(sql[0]);
 			pst = conn.prepareStatement(exe_sql);
-		
-		if (len <= batchSize){
-			total=batch(sql[0],0,len,conn,pst);
-		}else {
-			for (int i = 0; i < len / batchSize; i++) {
-				temp = batch(sql[0], i * batchSize, (i + 1) * batchSize,conn,pst);
-				total+=temp;
-				pst.clearBatch();  //clear Batch
-				pst.clearParameters();
-			}
 			
-			if (len % batchSize != 0) { //尾数不成批
-				temp = batch(sql[0], len - (len % batchSize), len,conn,pst);
-				total+=temp;
+
+			if (len <= batchSize) {
+				first=true;
+				total = batch(sql[0], 0, len, conn, pst);
+			} else {
+				for (int i = 0; i < len / batchSize; i++) {
+					int start=i * batchSize;
+					int end=(i + 1) * batchSize;
+					try {
+						temp = batch(sql[0], start, end, conn, pst);
+						total += temp;
+					} catch (SQLException e) {
+						hasException = true; // finally要用到
+						if (catchModifyDuplicateException(e)) {
+							//do not return in batch loop
+							Logger.logSQL(" | <-- index[" + (start) + "~" + (end - 1) + INDEX3 + " Affected rows: ?  , this batch have exception !","" + shardingIndex());
+						    if(HoneyUtil.isH2()) Logger.logSQL("the number of affected rows is not 准确!");
+						} else {//不捕获,则重新抛出异常
+							throw new SQLException(e);
+						}
+					} finally {
+						pst.clearBatch(); // clear Batch
+						pst.clearParameters();
+					}
+				} //end for
+
+				if (len % batchSize != 0) { // 尾数不成批
+					last=true;
+					temp = batch(sql[0], len - (len % batchSize), len, conn, pst);
+					total += temp;
+				}
 			}
-		}
 //		conn.setAutoCommit(oldAutoCommit);
 		} catch (SQLException e) {
 			hasException=true;
-			clearContext(sql[0],batchSize,len);
-			if (isConstraint(e)) {
-				Logger.warn(e.getMessage());
-//				Logger.error(e.getMessage());
-				return total;
+			if(catchModifyDuplicateException(e)) {
+				if(first || last) {
+					String flag="last";
+					if(first) flag="first";
+					int start=len - (len % batchSize);
+					int end=len;
+					Logger.logSQL(" | <-- index[" + (start) + "~" + (end - 1) + INDEX3 + " Affected rows: ?  , the "+flag+" batch have exception !","" + shardingIndex());
+					if(HoneyUtil.isH2()) Logger.logSQL("the number of affected rows is not 准确!");
+				}
+				return total;  //外层try,处理异常后就会返回
+			} else {
+				throw ExceptionHelper.convert(e);
 			}
-			Logger.warn(e.getMessage());
-			throw ExceptionHelper.convert(e);
 		} finally {
 //			bug :Lock wait timeout exceeded; 
 //			如果分批处理时有异常,如主键冲突,则又没有提交,就关不了连接.
@@ -705,7 +733,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 			try {
 				if (conn != null) conn.setAutoCommit(oldAutoCommit);
 			} catch (Exception e3) {
-				//ignore
+				// ignore
 				Logger.debug(e3.getMessage());
 			}
 			if (hasException) {
@@ -714,9 +742,10 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 			} else {
 				checkClose(pst, conn);
 			}
-				
-			//更改操作需要清除缓存
-			clearInCache(sql[0], "int[]",SuidType.INSERT,total);
+
+			clearContext(sql[0],batchSize,len);
+			// 更改操作需要清除缓存
+			clearInCache(sql[0], "int[]", SuidType.INSERT, total);
 		}
 		logAffectRow(total);
 		return total;
@@ -740,6 +769,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 			setAndClearPreparedValues(pst, INDEX1 + i + INDEX2 + sql);
 			pst.addBatch();
 		}
+		//同一批次的,有部分记录有像主键重复之类的,就会在此句抛异常. 同一批次的,H2 可以部分插入成功,MySQL却不可以
 		int array[] = pst.executeBatch(); // oracle will return [-2,-2,...,-2]
 
 		if (HoneyUtil.isOracle()) {
@@ -781,6 +811,9 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 		PreparedStatement pst = null;
 		boolean oldAutoCommit=false;
 		boolean hasException = false;
+		boolean last=false;
+		boolean first=false;
+		
 		try {
 			conn = getConn();
 			oldAutoCommit = conn.getAutoCommit();
@@ -790,6 +823,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 			String batchExeSql[];
 
 			if (len <= batchSize) {
+				first=true;
 				batchExeSql = getBatchExeSql(exe_sql, len, placeholderValue); //batchExeSql[1] : ForPrint
 				pst = conn.prepareStatement(batchExeSql[0]);
 
@@ -799,13 +833,24 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 				pst = conn.prepareStatement(batchExeSql[0]);
 				
 				for (int i = 0; i < len / batchSize; i++) {
-					temp = _batchForMysql(sql[0], i * batchSize, (i + 1) * batchSize, conn, pst, batchSize, batchExeSql[1]);
-					total += temp;
-//					pst.clearBatch();  //clear Batch
-//					pst.clearParameters();     //todo
-				}
+					int start=i * batchSize;
+					int end=(i + 1) * batchSize;
+					try {
+						temp = _batchForMysql(sql[0], start, end, conn, pst, batchSize, batchExeSql[1]); //not executeBatch
+						total += temp;
+					} catch (SQLException e) {
+						hasException = true; // finally要用到
+						if (catchModifyDuplicateException(e)) {
+							//do not return in batch loop
+							Logger.logSQL(" | <-- index[" + (start) + "~" + (end - 1) + INDEX3 + " Affected rows: 0  , this batch have exception !","" + shardingIndex());
+						} else {
+							throw new SQLException(e);
+						}
+					}
+				}//end for
 
 				if (len % batchSize != 0) { //尾数不成批
+					last=true;
 					batchExeSql = getBatchExeSql(exe_sql, (len % batchSize), placeholderValue);  //最后一批,getBatchExeSql返回的语句可能不一样
 					pst = conn.prepareStatement(batchExeSql[0]);   //fixed bug
 					temp = _batchForMysql(sql[0], len - (len % batchSize), len, conn, pst, batchSize, batchExeSql[1]);
@@ -814,15 +859,21 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 			}
 //			conn.setAutoCommit(oldAutoCommit);
 		} catch (SQLException e) {
-			logAffectRow(total);
 			hasException=true;
-			clearContextForMysql(sql[0],batchSize,len);
-			if (isConstraint(e)) {
-				Logger.warn(e.getMessage());
-				return total;
+			logAffectRow(total);
+			
+			if(catchModifyDuplicateException(e)) {
+				if(first || last) {
+					String flag="last";
+					if(first) flag="first";
+					int start=len - (len % batchSize);
+					int end=len;
+					Logger.logSQL(" | <-- index[" + (start) + "~" + (end - 1) + INDEX3 + " Affected rows: 0  , the "+flag+" batch have exception !","" + shardingIndex());
+				}
+				return total; //外层try,处理异常后就会返回
+			} else {
+				throw ExceptionHelper.convert(e);
 			}
-			Logger.warn(e.getMessage());
-			throw ExceptionHelper.convert(e);
 		} finally {
 //			bug :Lock wait timeout exceeded; 
 //			如果分批处理时有异常,如主键冲突,则又没有提交,就关不了连接.
@@ -842,6 +893,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 				checkClose(pst, conn);
 			}
 			
+			clearContextForMysql(sql[0],batchSize,len);
 			//更改操作需要清除缓存
 			clearInCache(sql[0], "int[]", SuidType.INSERT,total);
 		}
