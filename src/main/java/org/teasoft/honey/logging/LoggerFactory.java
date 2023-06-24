@@ -228,11 +228,8 @@ public class LoggerFactory {
 		} catch (Exception e) {
 			//ignore
 //			Logger.debug(e.getMessage(),e); //可能循环依赖
-//			System.err.println(e.getMessage());
 		}catch (Error e) {
 			//ignore
-//			Logger.debug(e.getMessage(),e);
-//			System.err.println(e.getMessage());
 		}
 		
 		if (clazz == null) {

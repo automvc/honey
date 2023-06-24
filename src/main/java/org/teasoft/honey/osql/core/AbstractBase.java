@@ -178,6 +178,7 @@ public abstract class AbstractBase {
 	
 	//JDBC,主要是SQLException
 	protected boolean isConstraint(Exception e) {
+		if(e==null) return false;
 		String className=e.getClass().getSimpleName();
 		String fullClassName=e.getClass().getName();
 		return ("MySQLIntegrityConstraintViolationException".equals(className) //mysql

@@ -158,7 +158,7 @@ public final class HoneyConfig {
 	public boolean notUpdateWholeRecords = true; //v1.7.2
 	
 	@SysValue("${bee.osql.notCatchModifyDuplicateException}")
-	public boolean notCatchModifyDuplicateException=true; //#从2.1开始，默认抛出异常；防止在事务时，不正确
+	public boolean notCatchModifyDuplicateException=true; //#从2.1开始，默认不捕获(抛出)异常；防止在事务时，不正确
 	
 	@SysValue("${bee.osql.notShowModifyDuplicateException}")
 	public boolean notShowModifyDuplicateException;

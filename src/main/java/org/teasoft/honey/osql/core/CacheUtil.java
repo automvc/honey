@@ -403,7 +403,7 @@ public final class CacheUtil {
 	}
 	
 	private static void _clearMoreTabCache(String sql){
-	    List<String> tableNameList=CacheKey.genTableNameList(sql); 
+	    List<String> tableNameList=CacheKey.genTableNameList(sql);
 	    HoneyContext.deleteCacheInfo(sql);//要清除cacheStruct
 		for (int j = 0; tableNameList!=null && j < tableNameList.size(); j++) {  // NULL tableNameList
 			_clearOneTabCache(tableNameList.get(j));
