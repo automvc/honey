@@ -506,6 +506,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 		return false;
 	}
 	
+	//支持Sharding
 	@Override
 	public long insertAndReturnId(String sql) {
 
@@ -730,6 +731,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 							"" + shardingIndex());
 					if(HoneyUtil.isH2()) Logger.logSQL("the number of affected rows is inaccurate!");
 				}
+				logAffectRow(total);
 				return total;  //外层try,处理异常后就会返回
 			} else {
 				throw ExceptionHelper.convert(e);
@@ -869,7 +871,6 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 //			conn.setAutoCommit(oldAutoCommit);
 		} catch (SQLException e) {
 			hasException=true;
-			logAffectRow(total);
 			
 			if(catchModifyDuplicateException(e)) {
 				if(first || last) {
@@ -879,6 +880,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 					int end=len;
 					Logger.logSQL(" | <-- index[" + (start) + "~" + (end - 1) + INDEX3 + " Affected rows: 0  , the "+flag+" batch have exception !","" + shardingIndex());
 				}
+				logAffectRow(total);
 				return total; //外层try,处理异常后就会返回
 			} else {
 				throw ExceptionHelper.convert(e);
@@ -1030,7 +1032,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 	
 //	private String listFieldTypeForMoreTable=null;
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public <T> List<T> _moreTableSelect(String sql, T entity) {
+	private <T> List<T> _moreTableSelect(String sql, T entity) {
 		
 		if(sql==null || "".equals(sql.trim())) return Collections.emptyList();
 		
