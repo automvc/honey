@@ -106,7 +106,7 @@ public class ShardingSelectEngine {
 
 		public List<T> shardingWork() {
 			ShardingLogReg.regShardingSqlLog("select SQL", index, sql);
-			return beeSql.selectSomeField(this.sql, entityClass); // 都是传同一个beeSql,是否会有线程问题?????
+			return beeSql.selectSomeField(this.sql, entityClass); 
 		}
 
 	}

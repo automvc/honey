@@ -13,6 +13,7 @@ import java.util.ServiceLoader;
 
 import org.teasoft.bee.spi.JsonTransform;
 import org.teasoft.bee.spi.PreLoad;
+import org.teasoft.bee.spi.SqlFormat;
 import org.teasoft.honey.spi.SpiInstanceRegister;
 
 /**
@@ -33,25 +34,9 @@ public class BeeInitPreLoadService {
 			
 			Logger.info("[Bee] ========= BeeInitPreLoadService initLoad..."); 
 			
-//			ServiceLoader<PreLoad> loads = ServiceLoader.load(PreLoad.class);
-//			Iterator<PreLoad> loadIterator = loads.iterator();
-//			while (loadIterator.hasNext()) {
-//				try {
-//					loadIterator.next();
-//				} catch (ServiceConfigurationError e) {
-//					Logger.error(e.getMessage(), e);
-//				}
-//			}
-			
-//			Class<PreLoad> clazz0=PreLoad.class;
-//			loadClass(clazz0);
-			
-//			Class<JsonTransform> clazz1=JsonTransform.class;
-//			loadClassAndReg(clazz1);
-			
 			loadServiceInstance(PreLoad.class);
 			loadServiceInstanceAndReg(JsonTransform.class);
-//			loadServiceInstanceAndReg(BeanSort.class);
+			loadServiceInstanceAndReg(SqlFormat.class);
 		}
 	}
 	

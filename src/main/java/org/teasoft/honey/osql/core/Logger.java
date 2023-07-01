@@ -100,14 +100,9 @@ public class Logger {
 					String executableSql = HoneyUtil.getExecutableSql(sql, list);
 					if (insertIndex != null ) {
 						int endIndex = executableSql.indexOf("]_End ");
-						_println("[Bee] " + hardStr + " ( ExecutableSql " + executableSql.substring(4, endIndex + 1) + " )", executableSql.substring(endIndex + 6) );
-//					    if(OneTimeParameter.isTrue("saveSqlString")) print(executableSql.substring(endIndex + 6));
+						_println("[Bee] " + hardStr + " ( ExecutableSql " + executableSql.substring(4, endIndex + 1) + " )", HoneyUtil.sqlFormat(executableSql.substring(endIndex + 6)) );
 					} else {
-//						if ("0".equals(insertIndex))
-//							_println("[Bee] " + hardStr + " ( ExecutableSql [index0])", executableSql);
-//						else
-							_println("[Bee] " + hardStr + " ( ExecutableSql )", executableSql);
-//							if(OneTimeParameter.isTrue("saveSqlString")) print(executableSql);
+						_println("[Bee] " + hardStr + " ( ExecutableSql )", HoneyUtil.sqlFormat(executableSql));
 					}
 				}
 			}

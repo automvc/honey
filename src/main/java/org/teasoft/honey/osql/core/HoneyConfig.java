@@ -190,6 +190,9 @@ public final class HoneyConfig {
 
 	@SysValue("${bee.osql.showSql.showExecutableSql}")
 	public boolean showSql_showExecutableSql;//v1.8
+	
+	@SysValue("${bee.osql.showSql.sqlFormat}")
+	public boolean showSql_sqlFormat;//v2.1.7
 
 	@SysValue("${bee.osql.showSql.donotPrintCurrentDate}")
 	public boolean showSql_donotPrintCurrentDate; //v1.7.0

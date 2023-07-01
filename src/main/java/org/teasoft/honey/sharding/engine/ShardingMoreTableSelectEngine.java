@@ -99,7 +99,7 @@ public class ShardingMoreTableSelectEngine {
 
 		public List<T> shardingWork() {
 			ShardingLogReg.regShardingSqlLog("select SQL", index, sql);
-			return beeSql.moreTableSelect(this.sql, this.entity); // 都是传同一个beeSql,是否会有线程问题?????
+			return beeSql.moreTableSelect(this.sql, this.entity);
 		}
 	}
 

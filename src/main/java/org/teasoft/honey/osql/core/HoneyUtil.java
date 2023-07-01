@@ -30,6 +30,7 @@ import org.teasoft.bee.osql.exception.JoinTableException;
 import org.teasoft.bee.osql.exception.JoinTableParameterException;
 import org.teasoft.bee.osql.interccept.InterceptorChain;
 import org.teasoft.bee.osql.type.SetParaTypeConvert;
+import org.teasoft.bee.spi.SqlFormat;
 import org.teasoft.honey.distribution.GenIdFactory;
 import org.teasoft.honey.distribution.UUID;
 import org.teasoft.honey.osql.constant.NullEmpty;
@@ -38,6 +39,7 @@ import org.teasoft.honey.osql.type.*;
 import org.teasoft.honey.osql.util.AnnoUtil;
 import org.teasoft.honey.osql.util.NameCheckUtil;
 import org.teasoft.honey.sharding.ShardingUtil;
+import org.teasoft.honey.spi.SpiInstanceRegister;
 import org.teasoft.honey.util.ObjectUtils;
 import org.teasoft.honey.util.StringUtils;
 
@@ -1256,6 +1258,22 @@ public final class HoneyUtil {
 			}
 		}
 		sql+=" ;"; //V1.17 添加分号
+		return sql;
+	}
+	
+	// V2.1.7
+	public static String sqlFormat(String sql) {
+		boolean sqlFormatFlag = HoneyConfig.getHoneyConfig().showSql_sqlFormat;
+		if (sqlFormatFlag) {
+			SqlFormat sqlFormat = SpiInstanceRegister.getInstance(SqlFormat.class);
+			if (sqlFormat != null) {
+				try {
+					sql = sqlFormat.format(sql);
+				} catch (Exception e) {
+					// ignore
+				}
+			}
+		}
 		return sql;
 	}
 	

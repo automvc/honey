@@ -12,6 +12,7 @@ import java.util.Map;
 
 import org.teasoft.bee.osql.Registry;
 import org.teasoft.honey.osql.core.HoneyUtil;
+import org.teasoft.honey.osql.core.Logger;
 
 /**
  * @author AiTeaSoft
@@ -23,7 +24,15 @@ public class SpiInstanceRegister implements Registry {
 	
 	@SuppressWarnings("unchecked")
 	public static <T> T getInstance(Class<T> clazz) {
-		return (T)HoneyUtil.copyObject(spiInstanceMap.get(clazz));
+		T t = null;
+		try {
+			Serializable s=spiInstanceMap.get(clazz);
+			if(s==null) return t;
+			t = (T) HoneyUtil.copyObject(s);
+		} catch (Exception e) {
+			Logger.debug(e.getMessage());
+		}
+		return t;
 	}
 
 	public static void register(Class<?> clazz,Serializable instance) {
