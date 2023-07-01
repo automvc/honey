@@ -335,6 +335,10 @@ public final class HoneyConfig {
 	public boolean cache_levelOneTolevelTwo; 
 	@SysValue("${bee.osql.cache.levelTwoTimeout}")
 	public int cache_levelTwoTimeout=180; //二级缓存保存时间(秒 second)
+	@SysValue("${bee.osql.cache.randTimeoutRate}") //二级缓存随机时间因子
+	public Double cache_randTimeoutRate = 0.2; //V2.1.7
+	@SysValue("${bee.osql.cache.randTimeoutAutoRefresh}")
+	public boolean cache_randTimeoutAutoRefresh; //V2.1.7  自动刷新时,每次都会重新获取配置的值
 	
 	@SysValue("${bee.osql.cache.levelTwoEntityList}")
 	public String cache_levelTwoEntityList;
