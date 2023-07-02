@@ -5,6 +5,8 @@ import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
 
+import javax.sql.DataSource;
+
 import org.teasoft.bee.osql.BeeVersion;
 import org.teasoft.bee.osql.DatabaseConst;
 import org.teasoft.bee.osql.Properties;
@@ -449,6 +451,9 @@ public final class HoneyConfig {
 	@SysValue("${bee.dosql.sharding.notSupportUnionQuery}")
 	public boolean notSupportUnionQuery; //2.0
 	
+	@SysValue("${bee.dosql.sharding.executorSize}") //2.1.7
+	public int executorSize=0;
+	
 	//----------------------------- sharding end
 	
 
@@ -497,10 +502,14 @@ public final class HoneyConfig {
 
 			Connection conn = null;
 			try {
-				conn = SessionFactory.getConnection();
+				String newDbName = null;
+				newDbName = getDbNameByUrl(); //V2.1.7  先使用url判断
+
+				if (newDbName == null) conn = SessionFactory.getConnection();
 				if (conn != null) {
-					String newDbName=conn.getMetaData().getDatabaseProductName();
-			
+					newDbName = conn.getMetaData().getDatabaseProductName();
+				}
+				if(newDbName!=null) {
 					HoneyConfig.getHoneyConfig().setDatabaseMajorVersion(0); //clear
 					if(DatabaseConst.SQLSERVER.equalsIgnoreCase(newDbName)) { //V1.17 for SQL SERVER
 						int majorVersion=conn.getMetaData().getDatabaseMajorVersion();
@@ -518,8 +527,9 @@ public final class HoneyConfig {
 					} else {
 						HoneyConfig.getHoneyConfig().dbName = newDbName;
 					}
-					
-					String logMsg="[Bee] ========= get the dbName from the Connection is :" + HoneyConfig.getHoneyConfig().dbName;
+					String logMsg;
+					if (conn != null) logMsg="[Bee] ========= get the dbName from the Connection is :" + HoneyConfig.getHoneyConfig().dbName;
+					else              logMsg="[Bee] ========= get the dbName via url is :" + HoneyConfig.getHoneyConfig().dbName;
 					Logger.info(logMsg);
 					alreadyPrintDbName = true;
 				}
@@ -543,6 +553,27 @@ public final class HoneyConfig {
 				alreadyPrintDbName = true;
 			}
 		}
+	}
+	
+	//V2.1.7 
+	private static String getDbNameByUrl() {
+		String dbName=null;
+		DataSource ds = BeeFactory.getInstance().getDataSource();
+		if(ds==null) {
+			String t_url=getHoneyConfig().getUrl();
+			if(StringUtils.isNotBlank(t_url)) {
+				t_url=t_url.trim();
+				if(t_url.startsWith("jdbc:mysql:")) dbName=DatabaseConst.MYSQL;
+				else if(t_url.startsWith("jdbc:sqlite:")) dbName=DatabaseConst.SQLite;
+				else if(t_url.startsWith("mongodb://")) dbName=DatabaseConst.MongoDB;
+				else if(t_url.startsWith("jdbc:oracle:")) dbName=DatabaseConst.ORACLE;
+				else if(t_url.startsWith("jdbc:h2:")) dbName=DatabaseConst.H2;
+				else if(t_url.startsWith("jdbc:postgresql:")) dbName=DatabaseConst.PostgreSQL;
+				else if(t_url.startsWith("jdbc:sqlserver:")) dbName=DatabaseConst.SQLSERVER;
+				else if(t_url.startsWith("jdbc:cassandra:")) dbName=DatabaseConst.Cassandra;
+			}
+		}
+		return dbName;
 	}
 
 	public void setDriverName(String driverName) {
