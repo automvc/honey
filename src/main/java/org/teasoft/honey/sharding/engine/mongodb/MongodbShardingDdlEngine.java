@@ -12,12 +12,12 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import org.teasoft.bee.mongodb.MongodbBeeSql;
 import org.teasoft.honey.osql.core.Logger;
 import org.teasoft.honey.osql.core.ShardingLogReg;
 import org.teasoft.honey.sharding.ShardingUtil;
+import org.teasoft.honey.sharding.engine.ThreadPoolUtil;
 
 /**
  * DDL创建表
@@ -41,9 +41,6 @@ public class MongodbShardingDdlEngine {
 		dsArray = list.get(0);
 		tabArray = list.get(1);
 
-		ExecutorService executor = Executors.newCachedThreadPool();
-		CompletionService<Boolean> completionService = new ExecutorCompletionService<>(
-				executor);
 		final List<Callable<Boolean>> tasks = new ArrayList<>();
 
 		for (int i = 0; dsArray != null && i < dsArray.length; i++) {
@@ -52,9 +49,13 @@ public class MongodbShardingDdlEngine {
 		}
 
 		if (dsArray != null) ShardingLogReg.log(dsArray.length);
-
-//		Bee SQL Executor Engine
+		
 		int size = tasks.size();
+		if(size==0) return false;
+		
+//		Bee SQL Executor Engine
+		ExecutorService executor = ThreadPoolUtil.getThreadPool(dsArray.length);
+		CompletionService<Boolean> completionService = new ExecutorCompletionService<>(executor);
 		for (int i = 0; tasks != null && i < size; i++) {
 			completionService.submit(tasks.get(i));
 		}

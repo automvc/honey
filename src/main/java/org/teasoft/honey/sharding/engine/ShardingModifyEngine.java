@@ -12,7 +12,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import org.teasoft.bee.osql.BeeSql;
 import org.teasoft.honey.osql.core.ShardingLogReg;
@@ -41,9 +40,9 @@ public class ShardingModifyEngine {
 		sqls = list.get(0);
 		dsArray = list.get(1);
 
-		ExecutorService executor = Executors.newCachedThreadPool();
-		CompletionService<Integer> completionService = new ExecutorCompletionService<>(
-				executor);
+		if(sqls==null || sqls.length==0) return 0;
+		ExecutorService executor = ThreadPoolUtil.getThreadPool(sqls.length);
+		CompletionService<Integer> completionService = new ExecutorCompletionService<>(executor);
 		final List<Callable<Integer>> tasks = new ArrayList<>(); 
 
 		for (int i = 0; sqls != null && i < sqls.length; i++) {

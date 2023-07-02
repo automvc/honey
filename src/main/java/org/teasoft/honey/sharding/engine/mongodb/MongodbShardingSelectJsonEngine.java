@@ -12,7 +12,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import org.teasoft.bee.mongodb.MongoSqlStruct;
 import org.teasoft.bee.mongodb.MongodbBeeSql;
@@ -21,6 +20,7 @@ import org.teasoft.honey.osql.core.JsonResultWrap;
 import org.teasoft.honey.osql.core.ShardingLogReg;
 import org.teasoft.honey.sharding.ShardingUtil;
 import org.teasoft.honey.sharding.engine.ResultMergeEngine;
+import org.teasoft.honey.sharding.engine.ThreadPoolUtil;
 import org.teasoft.honey.sharding.engine.decorate.ResultPagingDecorator;
 import org.teasoft.honey.sharding.engine.decorate.SortListDecorator;
 import org.teasoft.honey.spi.SpiInstanceFactory;
@@ -55,8 +55,6 @@ public class MongodbShardingSelectJsonEngine {
 		dsArray = list.get(0);
 		tabArray = list.get(1);
 
-		ExecutorService executor = Executors.newCachedThreadPool();
-		CompletionService<String> completionService = new ExecutorCompletionService<>(executor);
 		final List<Callable<String>> tasks = new ArrayList<>(); 
 
 		for (int i = 0; dsArray != null && i < dsArray.length; i++) {
@@ -67,6 +65,10 @@ public class MongodbShardingSelectJsonEngine {
 		if (dsArray != null) ShardingLogReg.log(dsArray.length);
 
 		int size=tasks.size();
+		if(size==0) return null;
+		
+		ExecutorService executor = ThreadPoolUtil.getThreadPool(size);
+		CompletionService<String> completionService = new ExecutorCompletionService<>(executor);
 		for (int i = 0; tasks != null && i < size; i++) {
 			completionService.submit(tasks.get(i));
 		}

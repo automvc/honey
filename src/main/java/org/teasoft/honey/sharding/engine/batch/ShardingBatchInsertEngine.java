@@ -14,7 +14,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import org.teasoft.bee.osql.Serializer;
 import org.teasoft.bee.osql.api.SuidRich;
@@ -28,6 +27,7 @@ import org.teasoft.honey.osql.name.NameUtil;
 import org.teasoft.honey.sharding.ShardingReg;
 import org.teasoft.honey.sharding.config.ShardingRegistry;
 import org.teasoft.honey.sharding.engine.ResultMergeEngine;
+import org.teasoft.honey.sharding.engine.ThreadPoolUtil;
 import org.teasoft.honey.util.StringUtils;
 
 /**
@@ -57,9 +57,6 @@ public class ShardingBatchInsertEngine<T> {
 
 		int time = 0;
 
-		ExecutorService executor = Executors.newCachedThreadPool();
-		CompletionService<Integer> completionService = new ExecutorCompletionService<>(
-				executor);
 		final List<Callable<Integer>> tasks = new ArrayList<>();
 
 		if (!isBroadcastTabBatchInsert) {
@@ -107,6 +104,10 @@ public class ShardingBatchInsertEngine<T> {
 		ShardingLogReg.log(time);
 
 		int size = tasks.size();
+		if(size==0) return 0;
+		
+		ExecutorService executor = ThreadPoolUtil.getThreadPool(size);
+		CompletionService<Integer> completionService = new ExecutorCompletionService<>(executor);
 		for (int i = 0; tasks != null && i < size; i++) {
 			completionService.submit(tasks.get(i));
 		}

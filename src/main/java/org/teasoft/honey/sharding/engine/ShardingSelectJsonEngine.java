@@ -12,7 +12,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import org.teasoft.bee.osql.BeeSql;
 import org.teasoft.bee.spi.JsonTransform;
@@ -57,7 +56,8 @@ public class ShardingSelectJsonEngine {
 		sqls = list.get(0);
 		dsArray = list.get(1);
 
-		ExecutorService executor = Executors.newCachedThreadPool();
+		if(sqls==null || sqls.length==0) return null;
+		ExecutorService executor = ThreadPoolUtil.getThreadPool(sqls.length);
 		CompletionService<String> completionService = new ExecutorCompletionService<>(executor);
 		final List<Callable<String>> tasks = new ArrayList<>();
 

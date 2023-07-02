@@ -12,7 +12,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import org.teasoft.bee.mongodb.MongoSqlStruct;
 import org.teasoft.bee.mongodb.MongodbBeeSql;
@@ -21,6 +20,7 @@ import org.teasoft.honey.osql.core.Logger;
 import org.teasoft.honey.osql.core.ShardingLogReg;
 import org.teasoft.honey.sharding.ShardingUtil;
 import org.teasoft.honey.sharding.engine.ResultMergeEngine;
+import org.teasoft.honey.sharding.engine.ThreadPoolUtil;
 import org.teasoft.honey.sharding.engine.decorate.ResultPagingDecorator;
 import org.teasoft.honey.sharding.engine.decorate.SortListDecorator;
 
@@ -56,9 +56,6 @@ public class MongodbShardingSelectEngine {
 		// 分页
 		// ShardingSortStruct 收集排序的信息
 
-		ExecutorService executor = Executors.newCachedThreadPool();
-		CompletionService<List<T>> completionService = new ExecutorCompletionService<>(
-				executor);
 		final List<Callable<List<T>>> tasks = new ArrayList<>();
 
 		for (int i = 0; dsArray != null && i < dsArray.length; i++) {
@@ -68,8 +65,12 @@ public class MongodbShardingSelectEngine {
 
 		if (dsArray != null) ShardingLogReg.log(dsArray.length);
 
+		int size=tasks.size();
+		if(size==0) return null;
+		
 //		Bee SQL Executor Engine
-		int size = tasks.size();
+		ExecutorService executor = ThreadPoolUtil.getThreadPool(size);
+		CompletionService<List<T>> completionService = new ExecutorCompletionService<>(executor);
 		for (int i = 0; tasks != null && i < size; i++) {
 			completionService.submit(tasks.get(i));
 		}
