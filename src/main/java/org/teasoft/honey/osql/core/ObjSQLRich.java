@@ -917,10 +917,10 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 	public <T> boolean createTable(Class<T> entityClass, boolean isDropExistTable) {
 
 		if (entityClass == null) return false;
-		doBeforePasreEntity(entityClass, SuidType.DDL);
-		_regEntityClass2(entityClass);
 
 		if (isDropExistTable) {
+			doBeforePasreEntity(entityClass, SuidType.DDL);
+			_regEntityClass2(entityClass);
 			String dropSql = DdlToSql.toDropTableSql(entityClass);
 			try {
 				dropSql = doAfterCompleteSql(dropSql);
@@ -931,6 +931,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 				if (!(HoneyUtil.isOracle() || HoneyUtil.isSqlServer())) {
 					try {
 						doBeforePasreEntity(entityClass, SuidType.DDL);
+						_regEntityClass2(entityClass);
 						dropSql = DdlToSql.toDropTableSimpleSql(entityClass);
 						dropSql = doAfterCompleteSql(dropSql);
 						Logger.logSQL("Drop SQL:", dropSql);
@@ -953,6 +954,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 			}
 		}
 		doBeforePasreEntity(entityClass, SuidType.DDL); //fixed bug 2.1
+		_regEntityClass2(entityClass);
 		String sql = DdlToSql.toCreateTableSQL(entityClass);
 		return _ddlModify(entityClass, sql);
 	}

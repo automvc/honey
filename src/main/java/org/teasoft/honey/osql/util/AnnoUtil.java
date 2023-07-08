@@ -129,27 +129,35 @@ public class AnnoUtil {
 	}
 
 	private static void initAnnoAdapterInstance2() {
+		boolean f1=false;
+		boolean f2=false;
 
 		try {
 			Class.forName("jakarta.persistence.Table"); // check
 		} catch (Exception e) {
 //			Logger.debug(e.getMessage(), e);
 			// maybe donot add the bee-ext.
-			annoAdapter = new AnnoAdapterBeeDefault();
-			return;
+//			annoAdapter = new AnnoAdapterBeeDefault();
+//			return;
+			f1=true;
 		}
 
 		try {
 			Class.forName("javax.persistence.Table"); // check
 		} catch (Exception e) {
 			// maybe donot add the bee-ext.
+//			annoAdapter = new AnnoAdapterBeeDefault();
+//			return;
+			f2=true;
+		}
+		
+		if (f1 && f2) { //没有用JPA
 			annoAdapter = new AnnoAdapterBeeDefault();
 			return;
 		}
 
 		try {
-			annoAdapter = (AnnoAdapter) Class.forName("org.teasoft.beex.spi.AnnoAdapterDefault")
-					.newInstance();
+			annoAdapter = (AnnoAdapter) Class.forName("org.teasoft.beex.spi.AnnoAdapterDefault").newInstance();
 		} catch (Exception e) {
 			Logger.debug(e.getMessage(), e);
 			// maybe donot add the bee-ext.
