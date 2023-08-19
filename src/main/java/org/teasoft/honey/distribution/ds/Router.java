@@ -23,13 +23,14 @@ public final class Router {
 	private static volatile int multiDsType;
 	private static String defaultDs;
 
-	static {
-		init();
-	}
+//	static {  // 首次也通过设置标识后执行
+//		init();
+//	}
 	
 	private Router() {}
 	
 	private static void init(){
+//		System.out.println("----------router init----------------");
 		multiDsType = HoneyConfig.getHoneyConfig().multiDS_type;
 		defaultDs = HoneyConfig.getHoneyConfig().multiDS_defalutDS;
 
@@ -44,7 +45,6 @@ public final class Router {
 
 	//order:1.appointDS -> 2.tempDS(suid.getDataSourceName()) -> 3.route.getDsName()
 	public static String getDsName() {
-//		return "ds1";
 		if (HoneyContext.isConfigRefresh()) {
 			refresh();
 			HoneyContext.setConfigRefresh(false);
