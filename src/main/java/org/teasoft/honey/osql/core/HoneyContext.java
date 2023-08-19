@@ -27,6 +27,7 @@ import org.teasoft.honey.distribution.ds.RouteStruct;
 import org.teasoft.honey.osql.dialect.sqlserver.SqlServerPagingStruct;
 import org.teasoft.honey.sharding.ShardingUtil;
 import org.teasoft.honey.util.ObjectUtils;
+import org.teasoft.honey.util.StringUtils;
 
 /**
  * Bee框架上下文.Context for Bee.
@@ -103,6 +104,8 @@ public final class HoneyContext {
 	private static ConcurrentMap<String, Boolean> customFlagMap;
 
 	static {
+		HoneyConfig.getHoneyConfig(); //V2.1.8   与config相互引用时,这句不一定保险
+
 		beanMap = new ConcurrentHashMap<>();
 		beanCustomPKey = new ConcurrentHashMap<>();
 		customMap = new ConcurrentHashMap<>();
@@ -1091,6 +1094,7 @@ public final class HoneyContext {
 
 	private static boolean configRefresh = false;
 	private static boolean dsMapConfigRefresh = false;
+//	private volatile static boolean dsMapConfigRefresh = false;
 
 	public static boolean isConfigRefresh() {
 		return configRefresh;
@@ -1131,6 +1135,20 @@ public final class HoneyContext {
 	public static void updateConfig(Map<String, Object> map) {
 
 		if (ObjectUtils.isEmpty(map)) return;
+		
+		//------V2.1.8----start--
+		String activeKey="bee.profiles.active";
+		String typeKey="bee.profiles.type";
+		String active=(String)map.get(activeKey);
+		Integer type=(Integer)map.get(typeKey);
+		if(StringUtils.isNotBlank(active)) {
+			if("1".equals(type)) {
+				HoneyConfig.getHoneyConfig().overrideByActive(active);
+			} 
+		}
+		//不需要删除active和type两个key; 因不会触发新刷新, 更新后,也可以从HoneyConfig知道当前是什么值.
+		//------V2.1.8----end--
+		
 		Object obj = HoneyConfig.getHoneyConfig();
 		Class clazz = obj.getClass();
 		for (Map.Entry<String, Object> entry : map.entrySet()) {

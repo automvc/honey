@@ -74,7 +74,6 @@ public class SysValueProcessor {
 		boolean has = false;
 		for (String k : keySet) {
 			if (k.startsWith("bee.db.dbs[")) {
-//		       System.out.println("-------------------bee.db.dbs配置信息: "  +t);
 				if (!has) {
 					has = true;
 					gm = new GroupMap();
@@ -89,8 +88,6 @@ public class SysValueProcessor {
 				Field dbsF = obj.getClass().getDeclaredField("dbs");
 				dbsF.setAccessible(true);
 				dbsF.set(obj, gm.toList());
-				HoneyContext.setConfigRefresh(true);
-				HoneyContext.setDsMapConfigRefresh(true);
 			} catch (Exception e) {
 				// ignore
 			}

@@ -64,22 +64,19 @@ public final class HoneyConfig {
 		
 //		#1.base main and Override with active, 2.rebase to active(other file)
 //		#1 : main file + other file; 2 : just active file(other file);    if do not set , will use mail file.
-		Properties beeActiveProp=null;
 		if (type == 1 || type == 2) {
 			if (StringUtils.isBlank(active)) {
 				String msg="The value of bee.profiles.active is empty!";
 				Logger.error(msg,new ConfigWrongException(msg));
 			} else {
-				String fileName = "bee-{active}.properties".replace("{active}", active);
-				beeActiveProp = new BeeActiveProp(fileName);
-				if(type==1) {//use the key in active override the main file.
-					SysValueProcessor.process(honeyConfig,beeActiveProp);
-				}else if(type==2) {
-					_setHoneyConfig();//rebase
-					SysValueProcessor.process(honeyConfig,beeActiveProp);
-				}
+				if(type==2) _setHoneyConfig();//rebase
+				overrideByActive(active);
+				//use the key in active override the main file.
 			}
 		}
+		
+		HoneyContext.setConfigRefresh(true);
+		HoneyContext.setDsMapConfigRefresh(true); //直接设置,  因解析时会判断相应属性后才进行相应解析
 		
 		if(isAndroid || isHarmony) {//V1.17
 			dbName=DatabaseConst.SQLite;
@@ -87,6 +84,17 @@ public final class HoneyConfig {
 		}
 		
 		HoneyContext.initLoad();
+	}
+	
+	/**
+	 * override by Active file
+	 * @param active
+	 * @since 2.1.8
+	 */
+	public void overrideByActive(String active) {
+		String fileName = "bee-{active}.properties".replace("{active}", active);
+		Properties beeActiveProp = new BeeActiveProp(fileName);
+		SysValueProcessor.process(honeyConfig,beeActiveProp);
 	}
 	
 	/**
@@ -128,7 +136,7 @@ public final class HoneyConfig {
 	
 	//----------------------------- bee.profiles
 	@SysValue("${bee.profiles.type}")
-	public int type;
+	int type;
 	
 	@SysValue("${bee.profiles.active}")
 	public String active;
@@ -564,13 +572,14 @@ public final class HoneyConfig {
 			if(StringUtils.isNotBlank(t_url)) {
 				t_url=t_url.trim();
 				if(t_url.startsWith("jdbc:mysql:")) dbName=DatabaseConst.MYSQL;
+				else if(t_url.startsWith("jdbc:oracle:")) dbName=DatabaseConst.ORACLE;
+				else if(t_url.startsWith("jdbc:sqlserver:")) dbName=DatabaseConst.SQLSERVER;
 				else if(t_url.startsWith("jdbc:sqlite:")) dbName=DatabaseConst.SQLite;
 				else if(t_url.startsWith("mongodb://")) dbName=DatabaseConst.MongoDB;
-				else if(t_url.startsWith("jdbc:oracle:")) dbName=DatabaseConst.ORACLE;
 				else if(t_url.startsWith("jdbc:h2:")) dbName=DatabaseConst.H2;
 				else if(t_url.startsWith("jdbc:postgresql:")) dbName=DatabaseConst.PostgreSQL;
-				else if(t_url.startsWith("jdbc:sqlserver:")) dbName=DatabaseConst.SQLSERVER;
 				else if(t_url.startsWith("jdbc:cassandra:")) dbName=DatabaseConst.Cassandra;
+				else if(t_url.startsWith("jdbc:ucanaccess:")) dbName=DatabaseConst.MsAccess;
 			}
 		}
 		return dbName;

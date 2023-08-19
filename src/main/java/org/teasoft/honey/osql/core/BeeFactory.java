@@ -19,6 +19,7 @@ public class BeeFactory extends BeeAbstractFactory {
 	private static HoneyFactory honeyFactory = null;
 
 	static {
+		HoneyConfig.getHoneyConfig(); //V2.1.8 先加载config,  多数据源时用到
 		HoneyContext.initLoad();
 	}
 
