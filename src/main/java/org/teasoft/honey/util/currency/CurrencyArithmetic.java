@@ -151,7 +151,7 @@ public class CurrencyArithmetic {
 		else if ("*".equals(op))
 			return multiply(a, b);
 		else if ("/".equals(op)) 
-			return divide(a, b, scale, DEFAULT_ROUND_MODE);
+			return divide(a, b, scale, roundingMode); //V2.1.8
 		else if ("%".equals(op))
 			return remainder(a, b);
 		return null;

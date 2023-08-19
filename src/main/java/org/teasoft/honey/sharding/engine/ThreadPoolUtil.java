@@ -25,10 +25,10 @@ public class ThreadPoolUtil {
 //			return Executors.newFixedThreadPool(executorSize);
 //	}
 	
-	public static ExecutorService getThreadPool(int hopSize) {
+	public static ExecutorService getThreadPool(int hopeSize) {
 		int executorSize = HoneyConfig.getHoneyConfig().executorSize;
-		if (hopSize > 0 && executorSize>0 && hopSize < executorSize) //实际需要的少于设置的,用少的
-			return Executors.newFixedThreadPool(hopSize);
+		if (hopeSize > 0 && executorSize>0 && hopeSize < executorSize) //实际需要的少于设置的,用少的
+			return Executors.newFixedThreadPool(hopeSize);
 		else if (executorSize <= 0) //没有设置
 			return Executors.newCachedThreadPool();
 		else

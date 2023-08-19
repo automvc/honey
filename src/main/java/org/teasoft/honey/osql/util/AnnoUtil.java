@@ -84,6 +84,11 @@ public class AnnoUtil {
 				|| field.isAnnotationPresent(GenUUID.class);
 	}
 	
+	//2.1.8
+	public static boolean isFK(Field field) {
+		return field.isAnnotationPresent(FK.class);
+	}
+	
 	
 	//----------support SPI-------start--<<<<<<<-
 	public static boolean isColumn(Field field) {
