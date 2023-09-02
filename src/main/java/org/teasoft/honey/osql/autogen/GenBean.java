@@ -78,7 +78,7 @@ public class GenBean {
 		if (config.getEntityNamePre() != null) entityName = config.getEntityNamePre() + entityName;
 
 		String tableComment = "";
-		if (config.isGenComment() && commentMap!=null) tableComment = commentMap.get(table.getTableName());
+		if ((config.isGenComment() || config.isGenSwagger()) && commentMap!=null) tableComment = commentMap.get(table.getTableName());
 
 		String authorComment = "/**" + LINE_SEPARATOR;
 		if (config.isGenComment() && StringUtils.isNotBlank(tableComment)) authorComment += " * " + tableComment + LINE_SEPARATOR;
@@ -125,6 +125,8 @@ public class GenBean {
 		if (config.isGenSerializable()) {
 			importSet.add("import java.io.Serializable;");
 		}
+		List<Boolean> ynNulls = table.getYnNulls();
+	
 
 		for (int i = 0; i < columnNames.size(); i++) {
 			String columnName = columnNames.get(i);
@@ -192,16 +194,27 @@ public class GenBean {
 			}else if ("boolean".equals(javaType)) {
 				getOrIs = "is";
 			}
-			
 
-			if (config.isGenComment() && commentMap != null) {
+			if (commentMap != null && (config.isGenComment() || config.isGenSwagger())) {
 				comment = commentMap.get(columnName);
+				boolean ynNull = ynNulls.get(i) == null ? true : ynNulls.get(i);
+//				String requiredStr=", required = true";
+				String requiredStr="";
+				String descValue=comment;
+				if(StringUtils.isBlank(comment)) descValue=propertyName;
+				if(! ynNull && !"id".equalsIgnoreCase(propertyName)) requiredStr=", required = true";
 				if (config.getCommentPlace() == 2) {
 					if (StringUtils.isNotBlank(comment)) propertiesStr += "\t" + "// " + comment + LINE_SEPARATOR;
+					if(config.isGenSwagger()) propertiesStr += "\t" +"@ApiModelProperty(value = \"#VALUE#\"##required##)".replace("#VALUE#", descValue).replace("##required##", requiredStr)+ LINE_SEPARATOR;
 					propertiesStr += "\t" + "private " + javaType + " " + propertyName + ";" + unknownTypeTip + LINE_SEPARATOR;
-				} else {
+				}else if (config.isGenComment() && (config.getCommentPlace() == 0 || config.getCommentPlace()==1)) {	 //不设置,默认是0; //0, 1:after field name at the same line;
+					if(config.isGenSwagger()) propertiesStr += "\t" +"@ApiModelProperty(value = \"#VALUE#\"##required##)".replace("#VALUE#", descValue).replace("##required##", requiredStr)+ LINE_SEPARATOR;
 					propertiesStr += "\t" + "private " + javaType + " " + propertyName + ";" + unknownTypeTip ;
 					if (StringUtils.isNotBlank(comment)) propertiesStr += "//" + comment;
+					propertiesStr += LINE_SEPARATOR;
+				}else if(config.isGenSwagger()){ //just have swagger, no comment
+					propertiesStr += "\t" +"@ApiModelProperty(value = \"#VALUE#\"##required##)".replace("#VALUE#", descValue).replace("##required##", requiredStr)+ LINE_SEPARATOR;
+					propertiesStr += "\t" + "private " + javaType + " " + propertyName + ";" + unknownTypeTip ;	
 					propertiesStr += LINE_SEPARATOR;
 				}
 			} else {
@@ -226,6 +239,11 @@ public class GenBean {
 		if (config.isLombokData())   importSet.add("import lombok.Data;");
 		if (config.isLombokSetter() || config.isLombokGetter() || config.isLombokData())
 			config.setGenGetSet(false);
+		
+		if(config.isGenSwagger()) {
+			importSet.add("import io.swagger.annotations.ApiModel;");
+			importSet.add("import io.swagger.annotations.ApiModelProperty;");
+		}
 		
 		for (String s: importSet) {
 			importStr += s + LINE_SEPARATOR;
@@ -264,6 +282,7 @@ public class GenBean {
 			if (config.isLombokGetter()) bw.write("@Getter" + LINE_SEPARATOR);
 			if (config.isLombokData())   bw.write("@Data"   + LINE_SEPARATOR);
 			
+			if (config.isGenSwagger())   bw.write("@ApiModel(description = \"#VALUE#\") ".replace("#VALUE#", tableComment)   + LINE_SEPARATOR);
 			
 			bw.write("public class " + entityName);
 			if (config.isGenSerializable()) {
@@ -727,7 +746,7 @@ public class GenBean {
 		} finally {
 			HoneyContext.checkClose(rs, ps, null);
 		}
-		if (config==null || config.isGenComment()) { //v1.8.15
+		if (config==null || config.isGenComment() || config.isGenSwagger()) { //v1.8.15, V2.1.8
 			//set comment
 			initComment(table, con);
 		}

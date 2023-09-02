@@ -41,7 +41,10 @@ public class GenConfig {
 	private boolean lombokSetter;
 	private boolean lombokGetter;
 	private boolean lombokData;
-
+	
+	//2.1.8
+	private boolean genSwagger;
+	
 	public String getEncode() {
 		return encode;
 	}
@@ -249,6 +252,14 @@ public class GenConfig {
 
 	public void setGenGetSet(boolean genGetSet) {
 		this.genGetSet = genGetSet;
+	}
+
+	public boolean isGenSwagger() {
+		return genSwagger;
+	}
+
+	public void setGenSwagger(boolean genSwagger) {
+		this.genSwagger = genSwagger;
 	}
 
 }
