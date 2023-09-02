@@ -353,9 +353,15 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 
 		if(condition==null) condition = BeeFactoryHelper.getCondition();
 				
-		if(condition.getSelectField()==null) condition.selectField(HoneyUtil.getColumnNames(entity));
+		if(condition.getSelectField()==null) {
+			condition.selectField(HoneyUtil.getColumnNames(entity));
+			//V2.1.8
+			HoneyContext.setTrueInSysCommStrLocal(StringConst.MongoDB_SelectAllFields);
+		}
 		
 		list = getMongodbBeeSql().selectString(entity, condition);
+		
+		HoneyContext.removeSysCommStrLocal(StringConst.MongoDB_SelectAllFields);
 
 		doBeforeReturn();
 		return list;
@@ -551,6 +557,11 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 			pkName = "id";
 		} catch (NoSuchFieldException e) {
 			pkName = HoneyUtil.getPkFieldName(entity);
+		}
+		
+		if (StringUtils.isBlank(pkName)) {
+			throw new BeeErrorGrammarException(
+					"id(primary key) field can not empty!");
 		}
 		
 		return updateBy(entity, condition, pkName);

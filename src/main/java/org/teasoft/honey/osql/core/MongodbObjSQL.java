@@ -128,12 +128,17 @@ public class MongodbObjSQL extends AbstractCommOperate implements Suid {
 					&& StringUtils.isNotBlank(selectFields[0])) {
 				selectFields = selectFields[0].split(",");
 			} else {
-				if (condition.getSelectField() == null)
+				if (condition.getSelectField() == null) {
 					condition.selectField(HoneyUtil.getColumnNames(entity));
+					//V2.1.8
+					HoneyContext.setTrueInSysCommStrLocal(StringConst.MongoDB_SelectAllFields);
+				}
 			}
 		}
 
 		list = getMongodbBeeSql().select(entity, condition);
+		
+		HoneyContext.removeSysCommStrLocal(StringConst.MongoDB_SelectAllFields);
 
 		doBeforeReturn(list);
 		return list;
