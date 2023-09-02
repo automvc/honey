@@ -173,6 +173,9 @@ public final class HoneyConfig {
 	@SysValue("${bee.osql.notShowModifyDuplicateException}")
 	public boolean notShowModifyDuplicateException;
 	
+	@SysValue("${bee.osql.showMongoSelectAllFields}")
+	public boolean showMongoSelectAllFields;
+	
 	@SysValue("${bee.osql.insertBatchSize}")
 	int insertBatchSize = 10000; //不设置,默认10000
 	
@@ -519,7 +522,7 @@ public final class HoneyConfig {
 				}
 				if(newDbName!=null) {
 					HoneyConfig.getHoneyConfig().setDatabaseMajorVersion(0); //clear
-					if(DatabaseConst.SQLSERVER.equalsIgnoreCase(newDbName)) { //V1.17 for SQL SERVER
+					if(DatabaseConst.SQLSERVER.equalsIgnoreCase(newDbName) && conn!=null) { //V1.17 for SQL SERVER
 						int majorVersion=conn.getMetaData().getDatabaseMajorVersion();
 						HoneyConfig.getHoneyConfig().setDatabaseMajorVersion(majorVersion);
 						if(majorVersion>=11) {
@@ -569,7 +572,8 @@ public final class HoneyConfig {
 		DataSource ds = BeeFactory.getInstance().getDataSource();
 		if(ds==null) {
 			String t_url=getHoneyConfig().getUrl();
-			if(StringUtils.isNotBlank(t_url)) {
+//			if(StringUtils.isNotBlank(t_url)) {
+			if(t_url != null && !"".equals(t_url.trim())) { //sonar problem
 				t_url=t_url.trim();
 				if(t_url.startsWith("jdbc:mysql:")) dbName=DatabaseConst.MYSQL;
 				else if(t_url.startsWith("jdbc:oracle:")) dbName=DatabaseConst.ORACLE;
