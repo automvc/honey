@@ -367,12 +367,14 @@ public class DdlToSql {
 		return AnnoUtil.isPrimaryKey(field);
 	}
 	
-	private static String getPrimaryKeyStatement(String databaseName) {
-		return pkStatement.get(databaseName.toLowerCase());
+	public static String getPrimaryKeyStatement(String databaseName) {
+		if (databaseName != null) databaseName = databaseName.toLowerCase();
+		return pkStatement.get(databaseName);
 	}
 
-	private static String getStringPrimaryKeyStatement(String databaseName) {
-		return pkStringStatement.get(databaseName.toLowerCase());
+	public static String getStringPrimaryKeyStatement(String databaseName) {
+		if (databaseName != null) databaseName = databaseName.toLowerCase();
+		return pkStringStatement.get(databaseName);
 	}
 	
 	private static void initStringPkStatement() {
@@ -382,16 +384,20 @@ public class DdlToSql {
 				" VARCHAR2(255) PRIMARY KEY NOT NULL");
 		pkStringStatement.put(DatabaseConst.PostgreSQL.toLowerCase(),
 				"varchar(255) PRIMARY KEY NOT NULL");
-		pkStringStatement.put("", "");
-		pkStringStatement.put(null, "");
+//		pkStringStatement.put("", "");
+//		pkStringStatement.put(null,"");
+		pkStringStatement.put("", "varchar(255) PRIMARY KEY NOT NULL");   //V2.1.8 默认
+		pkStringStatement.put(null, "varchar(255) PRIMARY KEY NOT NULL"); //V2.1.8 默认
 	}
 	
 	private static void initPkStatement() {
 		pkStatement.put(DatabaseConst.H2.toLowerCase(), "bigint PRIMARY KEY NOT NULL");
 		pkStatement.put(DatabaseConst.SQLite.toLowerCase(), " INTEGER PRIMARY KEY NOT NULL");
 		pkStatement.put(DatabaseConst.PostgreSQL.toLowerCase(), "bigserial NOT NULL");
-		pkStatement.put("", "");
-		pkStatement.put(null, "");
+//		pkStatement.put("", "");
+//		pkStatement.put(null, "");
+		pkStatement.put("", "bigint PRIMARY KEY NOT NULL");   //V2.1.8 默认
+		pkStatement.put(null, "bigint PRIMARY KEY NOT NULL"); //V2.1.8 默认
 	}
 
 	@SuppressWarnings("rawtypes")
