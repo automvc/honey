@@ -1132,6 +1132,7 @@ public final class HoneyContext {
 		HoneyConfig.setChangeDataSource(true); // 1.17
 	}
 
+	private static final Integer ONE=1;
 	public static void updateConfig(Map<String, Object> map) {
 
 		if (ObjectUtils.isEmpty(map)) return;
@@ -1142,7 +1143,7 @@ public final class HoneyContext {
 		String active=(String)map.get(activeKey);
 		Integer type=(Integer)map.get(typeKey);
 		if(StringUtils.isNotBlank(active)) {
-			if("1".equals(type)) {
+			if(ONE.equals(type)) {
 				HoneyConfig.getHoneyConfig().overrideByActive(active);
 			} 
 		}

@@ -74,18 +74,20 @@ public class MoreInsertUtils {
 
 		if (subEntityFieldNum > 2) { // 只支持一个实体里最多关联两个实体
 			String entityFullName = entity.getClass().getName();
-			throw new BeeException("One entity only supports two Annotation at most! "
+			throw new BeeException("One entity only supports two FK Annotation at most! "
 					+ entityFullName + " has " + subEntityFieldNum + " now !");
 		} else if (isOneHasOneCheck && subEntityFieldNum == 2) {
-			throw new BeeException("子表不允许有两个字段使用FK注解!");
+			throw new BeeException("The sub entity does not allow two fields to use FK Annotation!");
 		}
 
 		if (!isOneHasOneCheck && subEntityFieldNum == 1) { // 首次检测，isOneHasOneCheck=false,且第一层子表只有一个注解才会深入检测子表的属性
 			if (!subOneIsList) { // 子表1不是List的情况才会检测。
 				Object subEntity = null;
 				try {
-					subField0.setAccessible(true);
-					subEntity = subField0.get(entity);
+					if (subField0 != null) {
+						subField0.setAccessible(true);
+						subEntity = subField0.get(entity);
+					}
 				} catch (IllegalAccessException e) {
 					Logger.debug(e.getMessage(), e);
 				}

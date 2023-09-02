@@ -84,6 +84,8 @@ public final class StringConst {
 	public static final String  GridFs_FileId=PREFIX+"GridFs_FileId";
 	public static final String  GridFs_FileName=PREFIX+"GridFs_FileName";
 	public static final String  GridFs_FileColumnName=PREFIX+"GridFs_FileColumnName";
+	public static final String  MongoDB_SelectAllFields=PREFIX+"MongoDB_select_all_fields"; //V2.1.8
+	
 	
 //	OSQL
 	public static final String START_GREAT_EQ_0 = "Parameter 'start' need >=0 .";

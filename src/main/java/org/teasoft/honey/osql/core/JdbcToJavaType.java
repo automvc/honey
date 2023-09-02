@@ -31,13 +31,14 @@ public class JdbcToJavaType {
 	}
 	
 	public static Map<String, String> getJdbcToJavaType(String dbName) {
-		Map<String, String> map = dbJdbc2JavaTypeMap.get(dbName.toLowerCase());
+		String t_dbName = (dbName == null ? dbName : dbName.toLowerCase());
+		Map<String, String> map = dbJdbc2JavaTypeMap.get(t_dbName);
 		if (map == null) {
 			initTypeMapConfig(dbName);
-			map = dbJdbc2JavaTypeMap.get(dbName.toLowerCase());
+			map = dbJdbc2JavaTypeMap.get(t_dbName);
 			if (map == null) {
 				map=getCommon();
-				dbJdbc2JavaTypeMap.put(dbName.toLowerCase(), map);
+				dbJdbc2JavaTypeMap.put(t_dbName, map);
 			}
 		}
 

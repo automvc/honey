@@ -28,6 +28,7 @@ import org.teasoft.honey.sharding.config.ShardingRegistry;
 import org.teasoft.honey.sharding.engine.batch.ShardingBatchInsertEngine;
 import org.teasoft.honey.sharding.engine.batch.ShardingForkJoinBatchInsertEngine;
 import org.teasoft.honey.util.ObjectUtils;
+import org.teasoft.honey.util.StringUtils;
 import org.teasoft.honey.util.SuidHelper;
 
 /**
@@ -724,6 +725,11 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 			pkName="id";
 		} catch (NoSuchFieldException e) {
 			pkName = HoneyUtil.getPkFieldName(entity);
+		}
+		
+		if (StringUtils.isBlank(pkName)) {
+			throw new BeeErrorGrammarException(
+					"id(primary key) field can not empty!");
 		}
 		
 	   //支持联合主键

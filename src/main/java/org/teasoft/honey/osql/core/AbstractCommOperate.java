@@ -93,7 +93,7 @@ public class AbstractCommOperate implements CommOperate{
 		getInterceptorChain().beforeReturn(list);
 	}
 	
-	void doBeforeReturn() {
+	protected void doBeforeReturn() {
 		_doBeforeReturn();
 		getInterceptorChain().beforeReturn();
 	}

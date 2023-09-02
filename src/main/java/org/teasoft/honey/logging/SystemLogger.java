@@ -153,7 +153,7 @@ public class SystemLogger implements Log{
 	}
 	
 	private void _printStackTrace(Throwable t) {
-		if (t != null) {  //没问题的,这方法仅用于本地方法时使用.
+		if (t != null) {  //没问题的,这方法仅用于本地开发时使用.
 			t.printStackTrace(); //No problem.Just use in dev(local). SystemLogger print the error message to console.
 		}
 	}

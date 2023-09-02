@@ -608,7 +608,7 @@ public class ConditionImpl implements Condition {
 		return NameTranslateHandle.toColumnName(fieldName);
 	}
 
-public final class FunExpress{
+   public final class FunExpress{
 //		private FunctionType functionType;
 		private String functionType;
 		private String field;
