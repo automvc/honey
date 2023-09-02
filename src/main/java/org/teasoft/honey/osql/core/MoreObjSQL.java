@@ -123,9 +123,25 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 
 	@Override
 	public <T> int insert(T entity) {
+		return modify(entity,SuidType.INSERT);
+	}
+	
+	
+	@Override
+	public <T> int update(T entity) {
+		return modify(entity,SuidType.UPDATE);
+	}
+
+	@Override
+	public <T> int delete(T entity) {
+		return modify(entity,SuidType.DELETE);
+	}
+
+	private <T> int modify(T entity,SuidType suidType) {	
 		// 是否需要事务？？ 由上一层负责
-		long returnId = getSuidRich().insertAndReturnId(entity);
-		if (returnId <= 0) return (int) returnId;
+		long returnId=modifyOneEntity(entity, suidType);
+		
+		if (returnId <= 0) return (int) returnId;   //等于0时, 子表是否还要处理??   不需要,既然是关联操作,父表都没有操作到,则无关联可言
 		
 		MoreTableInsertStruct struct = MoreInsertUtils._getMoreTableInsertStruct(entity);
 
@@ -134,13 +150,15 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 			try {
 				for (int k = 0; k < len; k++) {
 					if (k == 0 && struct.oneHasOne) {
-						OneHasOne t = moreInsert(struct, k, returnId, entity);
+						OneHasOne t = moreInsert(struct, k, returnId, entity, suidType);
 						if (t != null) {
 							k++;
-							moreInsert(struct, 1, t.returnId1, t.subEntity);
-						}
-					} else { //不是OneHasOne(子表又有子表) 的情形
-						moreInsert(struct, k, returnId, entity);
+							moreInsert(struct, 1, t.returnId1, t.subEntity, suidType);
+						}else {
+							if(SuidType.DELETE==suidType || SuidType.UPDATE==suidType) k++; //若是这两种类型,当第一个子表没有设置外键值时,子表的子表将不再处理
+						} 
+					} else { // 不是OneHasOne(子表又有子表) 的情形
+						moreInsert(struct, k, returnId, entity, suidType);
 					}
 				}
 			} catch (IllegalAccessException e) {
@@ -153,64 +171,63 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 //		         问题是,实体t的 List 属性有一个属性是bookId,
 //		         如何给它设置值
 		}
-		
-		return 1;
+		if (SuidType.INSERT == suidType)
+			return 1;   //主表只插入一行
+		else
+			return (int)returnId; //主表受影响的行数
 	}
-
+	
 	private OneHasOne moreInsert(MoreTableInsertStruct struct, int i, long returnId,
-			Object currentEntity) throws IllegalAccessException, NoSuchFieldException {
+			Object currentEntity,SuidType suidType) throws IllegalAccessException, NoSuchFieldException {
 		if (struct.subIsList[i]) {
 			struct.subField[i].setAccessible(true);
 			List listSubI = (List) struct.subField[i].get(currentEntity);
+			boolean setFlag=false;
 			// 设置外键的值
 			for (Object item : listSubI) {
 				for (int propIndex = 0; propIndex < struct.foreignKey[i].length; propIndex++) {
 					Field fkField = item.getClass().getDeclaredField(struct.foreignKey[i][propIndex]);
-					setPkField(struct, i, returnId, currentEntity, item, fkField, propIndex);
+					
+					if (SuidType.INSERT == suidType)
+						setFlag=setPkField(struct, i, returnId, currentEntity, item, fkField, propIndex);
+					else
+						setFlag=setPkField2(struct,i, returnId, currentEntity, item, fkField, propIndex);
 				}
-				
 //				fkField.setAccessible(true); 
 //				fkField.set(item, returnId); 
+				if(setFlag) {
+					if(SuidType.DELETE==suidType)  getSuidRich().delete(listSubI.get(i));
+					else if(SuidType.UPDATE==suidType) getSuidRich().update(listSubI.get(i));
+				}
 			}
-			getSuidRich().insert(listSubI);
+			
+			if (SuidType.INSERT == suidType) getSuidRich().insert(listSubI);
+//			modifyListSubEntity(listSubI, suidType);
 		} else { // 单个实体
+			if (struct.subField[i] == null) return null;
 			struct.subField[i].setAccessible(true);
 			Object subEntity = struct.subField[i].get(currentEntity);
 			if (subEntity == null) return null;
 			for (int propIndex = 0; propIndex < struct.foreignKey[i].length; propIndex++) {
 				Field f = subEntity.getClass().getDeclaredField(struct.foreignKey[i][propIndex]);
+				boolean setFlag;
 				// eg: 同步 id,name
-				setPkField(struct, i, returnId, currentEntity, subEntity, f, propIndex);
+				if (SuidType.INSERT == suidType)
+					setFlag = setPkField(struct, i, returnId, currentEntity, subEntity, f, propIndex);
+				else
+					setFlag = setPkField2(struct,i, returnId, currentEntity, subEntity, f, propIndex);
+				
+				//update,delete,如果子实体没有用上FK声明的字段则不执行,防止更新到多余记录
+				if(!setFlag && SuidType.INSERT != suidType) return null;  
 			}
 
 			// 如果是id,或使用了主键注解，才使用返回值。
 			// 如何不是，要从主表中获取相应字段的值； 或该字段为blank，则报错
-			
 //			struct.ref[i]; //这个不是主键值的话,  要使用实体的
 			
 			
-
-			
-//			boolean useReturnId=false;
-//			if ("id".equalsIgnoreCase(struct.ref[i])) {
-//				useReturnId=true;
-//			}else {
-//				Field k = subEntity.getClass().getDeclaredField(struct.ref[i]);
-//				if (AnnoUtil.isPrimaryKey(k)) {
-//					useReturnId = true;
-//				} else {
-//					f.setAccessible(true);
-//					f.set(subEntity, f.get(currentEntity));
-//				}
-//			}
-//
-//			if (useReturnId) {
-//				f.setAccessible(true);
-//				f.set(subEntity, returnId);
-//			}
-
-			long returnId1 = getSuidRich().insertAndReturnId(subEntity); // OneHasOne 这里要将返回值存起
-
+			long returnId1=modifyOneEntity(subEntity, suidType);
+//			long returnId1 = getSuidRich().insertAndReturnId(subEntity); // OneHasOne 这里要将返回值存起
 			if (i == 0 && struct.oneHasOne) {
 				OneHasOne t = new OneHasOne();
 				t.returnId1 = returnId1;
@@ -221,7 +238,7 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 		return null;
 	}
 	
-	private void setPkField(MoreTableInsertStruct struct, int i, long returnId,
+	private boolean setPkField(MoreTableInsertStruct struct, int i, long returnId,
 			Object currentEntity, Object subEntity, Field fkField,int propIndex)
 			throws IllegalAccessException, NoSuchFieldException {
 		boolean useReturnId = false;
@@ -242,7 +259,62 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 			fkField.setAccessible(true);
 			fkField.set(subEntity, returnId);
 		}
+		
+		return true;
 	}
+	
+	// Update,Delete no return id
+	//setPkFieldForUpdateOrDelete
+	//如果子实体没有用上FK声明的字段则不执行,防止更新到多余记录
+	private boolean setPkField2(MoreTableInsertStruct struct, int i, long returnId,
+			Object currentEntity, Object subEntity, Field fkField, int propIndex)
+			throws IllegalAccessException, NoSuchFieldException {
+
+		Field refField = currentEntity.getClass().getDeclaredField(struct.ref[i][propIndex]); // 获取 被引用的字段
+
+		fkField.setAccessible(true);
+		refField.setAccessible(true);
+		Object v = refField.get(currentEntity);
+		if (v == null) {
+//			Field refField2 = subEntity.getClass().getDeclaredField(struct.foreignKey[i][propIndex]); //子表的外键字段
+			Object v2 = fkField.get(subEntity);// 子表的外键字段
+			if (v2 == null) return false; // 父表没有设置, 子表也没有设置才返回null
+			// 若设置了id,name; 其实name没有值,也是可以的.如何处理??? TODO
+		} else {
+			fkField.set(subEntity, v);
+		}
+
+		return true;
+	}
+	
+	private <T> long modifyOneEntity(T entity,SuidType suidType) {
+		long returnId=0;
+		if (SuidType.INSERT == suidType)
+			returnId = getSuidRich().insertAndReturnId(entity);
+		else if (SuidType.UPDATE == suidType)
+			returnId = getSuidRich().update(entity);  //TODO 是否需要加codition?
+		else if (SuidType.DELETE == suidType)
+			returnId = getSuidRich().delete(entity);
+		
+		return  returnId;
+	}
+	
+	
+//	private void modifyListSubEntity(List listSubI, SuidType suidType) {
+//
+//		if (SuidType.INSERT == suidType) {
+//			getSuidRich().insert(listSubI);
+//		} else if (SuidType.UPDATE == suidType) {
+//			for (int i = 0; listSubI != null && i < listSubI.size(); i++) {
+//				getSuidRich().update(listSubI.get(i));
+//			}
+//		} else if (SuidType.DELETE == suidType) {
+//			for (int i = 0; listSubI != null && i < listSubI.size(); i++) {
+//				getSuidRich().delete(listSubI.get(i));
+//			}
+//		}
+//	}
+		
 
 	private class OneHasOne {
 		long returnId1;
