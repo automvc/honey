@@ -89,6 +89,12 @@ public class AnnoUtil {
 		return field.isAnnotationPresent(FK.class);
 	}
 	
+	//2.1.8
+	public static boolean isGridFs(Field field) {
+		return field.isAnnotationPresent(GridFs.class);
+	}
+	
+	
 	
 	//----------support SPI-------start--<<<<<<<-
 	public static boolean isColumn(Field field) {
