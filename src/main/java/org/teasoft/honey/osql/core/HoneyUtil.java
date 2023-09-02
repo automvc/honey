@@ -792,6 +792,7 @@ public final class HoneyUtil {
 			if (field.isAnnotationPresent(JoinTable.class)) return true;
 			if (field.isSynthetic()) return true;
 			if(AnnoUtil.isFK(field)) return true; //2.1.8
+			if(AnnoUtil.isGridFs(field)) return true; //2.1.8
 		}
 		return false;
 	}
@@ -1769,7 +1770,7 @@ public final class HoneyUtil {
 		pkey = "";
 		for (int i = 0; i < len; i++) {
 //			if (isSkipFieldForMoreTable(field[i])) continue; //JoinTable可以与PrimaryKey合用? 实际不会同时用
-			if(isSkipField(field[i])) continue;
+			if(isSkipField(field[i]) && !AnnoUtil.isFK(field[i])) continue;  //V2.1.8 是FK,也有可能是Primary
 			if (AnnoUtil.isPrimaryKey(field[i])) {
 				if (isFirst)
 					isFirst = false;
@@ -1862,7 +1863,7 @@ public final class HoneyUtil {
 		return null;
 	}
 	
-	//include union,union all
+	//exclude union,union all
 	public static boolean isNotSupportUnionQuery() {
 		return HoneyConfig.getHoneyConfig().notSupportUnionQuery || HoneyUtil.isSQLite();
 	}
