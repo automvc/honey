@@ -168,7 +168,8 @@ public class HoneyFactory {
 		boolean justMongodb = HoneyConfig.getHoneyConfig().multiDS_justMongodb; //2.1
 		boolean enableMultiDs = HoneyConfig.getHoneyConfig().multiDS_enable;
 		boolean isDifferentDbType = HoneyConfig.getHoneyConfig().multiDS_differentDbType;
-		return (justMongodb || (!(enableMultiDs && isDifferentDbType) && HoneyUtil.isMongoDB()) );
+//		return (justMongodb || (!(enableMultiDs && isDifferentDbType) && HoneyUtil.isMongoDB()) );
+		return (justMongodb || ((enableMultiDs && isDifferentDbType) && HoneyUtil.isMongoDB()) ); //V2.1.8
 	}
 
 	public void setSuidRich(SuidRich suidRich) {
