@@ -7,6 +7,9 @@
 package org.teasoft.honey.util;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Map;
@@ -92,4 +95,42 @@ public class StreamUtil {
 		return line;
 	}
 
+	/**
+	 * byte array to InputStream
+	 * @param data
+	 * @return
+	 * @since 2.1.8 
+	 */
+	public static InputStream byteArray2Stream(byte[] data) {
+		return new ByteArrayInputStream(data);
+	}
+	
+	/**
+	 * InputStream to byte array
+	 * @param inputStream
+	 * @return
+	 * @throws IOException
+	 * @since 2.1.8 
+	 */
+	public static byte[] stream2ByteArray(InputStream inputStream) {
+		ByteArrayOutputStream byteArrayOs = new ByteArrayOutputStream();
+		byte[] buffer = new byte[4096];
+		int bytesRead;
+		try {
+			while ((bytesRead = inputStream.read(buffer)) != -1) {
+				byteArrayOs.write(buffer, 0, bytesRead);
+			}
+		} catch (Exception e) {
+			throw ExceptionHelper.convert(e);
+		}
+//		return byteArrayOs.toByteArray();
+		byte[] a = byteArrayOs.toByteArray();
+
+		try {
+			if (byteArrayOs != null) byteArrayOs.close();
+		} catch (Exception e) {
+			// ignore
+		}
+		return a;
+	}
 }
