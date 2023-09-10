@@ -1210,5 +1210,17 @@ public final class HoneyContext {
 	public static void setDataSourceMap(Map<String, DataSource> dataSourceMap) {
 		BeeFactory.getInstance().setDataSourceMap(dataSourceMap); //这里设置,会重新设置dbName
 	}
+	
+	//V2.1.8
+	public static void refreshDataSourceMap() {
+		if (HoneyContext.isDsMapConfigRefresh()) {
+			Map<String, DataSource> map = ProcessDataSourceMap.refreshDataSourceMap();
+			if (map != null && map.size() > 0) {
+//			HoneyConfig.getHoneyConfig().dbName=null; //不需要,会重新解析的
+				setDataSourceMap(map);
+			}
+			HoneyContext.setDsMapConfigRefresh(false);
+		}
+	}
 
 }
