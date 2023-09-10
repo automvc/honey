@@ -52,7 +52,7 @@ public class SimpleDataSource extends EmptyDataSource {
 	public Connection getConnection() throws SQLException {
 
 		try {
-			if (!inited) Logger.warn("Do not config the connection info!");
+//			if (!inited) Logger.warn("Do not config the connection info!");
 			// have not ds pool, will gen conn every time.
 			this.conn = SessionFactory.getOriginalConnForIntra(getUrl(), getUsername(), getPassword(), getDriverName());
 			inited = true;
