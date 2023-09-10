@@ -178,16 +178,21 @@ public abstract class AbstractBase {
 	
 	//JDBC,主要是SQLException
 	protected boolean isConstraint(Exception e) {
-		if(e==null) return false;
-		String className=e.getClass().getSimpleName();
-		String fullClassName=e.getClass().getName();
-		return ("MySQLIntegrityConstraintViolationException".equals(className) //mysql
-				|| e.getMessage().startsWith("Duplicate entry ") //mysql  
-				|| (e instanceof SQLIntegrityConstraintViolationException) 
+		if (e == null) return false;
+		String className = e.getClass().getSimpleName();
+		String fullClassName = e.getClass().getName();
+		
+		boolean f = "MySQLIntegrityConstraintViolationException".equals(className) // mysql
+				|| (e instanceof SQLIntegrityConstraintViolationException)
+				|| (e instanceof BatchUpdateException) // PostgreSQL,...
+				|| "org.h2.jdbc.JdbcBatchUpdateException".equals(fullClassName) // h2
+		;
+		if (f) return true;
+		if (e.getMessage() == null) return false;
+		return ( e.getMessage().startsWith("Duplicate entry ") //mysql   
 				|| e.getMessage().contains("ORA-00001:")    //Oracle 
-				|| (e instanceof BatchUpdateException) //PostgreSQL,...
 				|| e.getMessage().contains("duplicate key") || e.getMessage().contains("DUPLICATE KEY")  //PostgreSQL
-				|| e.getMessage().contains("primary key violation") || "org.h2.jdbc.JdbcBatchUpdateException".equals(fullClassName) //h2
+				|| e.getMessage().contains("primary key violation")  //h2
 				|| e.getMessage().contains("SQLITE_CONSTRAINT_PRIMARYKEY") || e.getMessage().contains("PRIMARY KEY constraint") //SQLite
 				|| e.getMessage().contains("Duplicate entry")|| e.getMessage().contains("Duplicate Entry")
 				|| e.getMessage().contains("Duplicate key") || e.getMessage().contains("Duplicate Key")
