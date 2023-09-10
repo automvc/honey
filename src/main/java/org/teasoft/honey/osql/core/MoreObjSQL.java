@@ -292,7 +292,7 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 		if (SuidType.INSERT == suidType)
 			returnId = getSuidRich().insertAndReturnId(entity);
 		else if (SuidType.UPDATE == suidType)
-			returnId = getSuidRich().update(entity);  //TODO 是否需要加codition?
+			returnId = getSuidRich().update(entity);  //todo 是否需要加codition?
 		else if (SuidType.DELETE == suidType)
 			returnId = getSuidRich().delete(entity);
 		
