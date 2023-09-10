@@ -279,7 +279,7 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 //			Field refField2 = subEntity.getClass().getDeclaredField(struct.foreignKey[i][propIndex]); //子表的外键字段
 			Object v2 = fkField.get(subEntity);// 子表的外键字段
 			if (v2 == null) return false; // 父表没有设置, 子表也没有设置才返回null
-			// 若设置了id,name; 其实name没有值,也是可以的.如何处理??? TODO
+			// 若设置了id,name; 其实name没有值,也是可以的.如何处理??? todo
 		} else {
 			fkField.set(subEntity, v);
 		}

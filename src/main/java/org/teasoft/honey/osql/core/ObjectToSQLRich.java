@@ -767,7 +767,8 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	}
 
 	private <T> SqlValueWrap toSelectSQL_0(T entity) {
-		return toSelectSQL_0(entity,null);
+		String[] arg=null;
+		return toSelectSQL_0(entity,arg);
 	}
 	
 	private <T> SqlValueWrap toSelectSQL_0(T entity, String... selectField) {

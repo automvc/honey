@@ -793,6 +793,7 @@ public final class HoneyUtil {
 			if (field.isSynthetic()) return true;
 			if(AnnoUtil.isFK(field)) return true; //2.1.8
 			if(AnnoUtil.isGridFs(field)) return true; //2.1.8
+			if(AnnoUtil.isGridFsMetadata(field)) return true; //2.1.8
 		}
 		return false;
 	}

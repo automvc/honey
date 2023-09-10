@@ -157,6 +157,16 @@ public final class SessionFactory {
 		String url = HoneyConfig.getHoneyConfig().getUrl();
 		String username = HoneyConfig.getHoneyConfig().getUsername();
 		String password = HoneyConfig.getHoneyConfig().getPassword();
+		
+		if (StringUtils.isBlank(url)) {// if null, use spring boot application.properties; easy for main class type
+			BootApplicationProp prop = new BootApplicationProp();
+			url = prop.getPropText(BootApplicationProp.DATASOURCE_URL);
+			username = prop.getPropText(BootApplicationProp.DATASOURCE_USERNAME);
+			password = prop.getPropText(BootApplicationProp.DATASOURCE_PASSWORD);
+			String driverClass1 = prop.getPropText(BootApplicationProp.DATASOURCE_DRIVER_CLASS_NAME);
+			String driverClass2 = prop.getPropText(BootApplicationProp.DATASOURCE_DRIVER_CLASS_NAME2);
+			driverName = (driverClass1 != null ? driverClass1 : driverClass2);
+		}
 
 		return getOriginalConnForIntra(url, username, password, driverName);
 	}
@@ -177,7 +187,7 @@ public final class SessionFactory {
 		if (username == null) nullInfo += DbConfigConst.DB_USERNAM + DO_NOT_CONFIG;
 		if (password == null) nullInfo += DbConfigConst.DB_PWORD + DO_NOT_CONFIG;
 
-		if (!"".equals(nullInfo)) {
+		if (!"".equals(nullInfo) && HoneyConfig.getHoneyConfig().getDbs()==null) {  //V2.1.8 add && getDbs
 			if(isFirst){
 			  Logger.warn("Do not set the database info: " + nullInfo); 
 			  isFirst=false;
