@@ -78,6 +78,8 @@ public final class HoneyConfig {
 		HoneyContext.setConfigRefresh(true);
 		HoneyContext.setDsMapConfigRefresh(true); //直接设置,  因解析时会判断相应属性后才进行相应解析
 		
+		HoneyContext.refreshDataSourceMap(); //V2.1.8
+		
 		if(isAndroid || isHarmony) {//V1.17
 			dbName=DatabaseConst.SQLite;
 			DbFeatureRegistry.register(DatabaseConst.SQLite, new LimitOffsetPaging());
