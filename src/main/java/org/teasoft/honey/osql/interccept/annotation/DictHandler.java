@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.teasoft.bee.osql.annotation.Dict;
+import org.teasoft.honey.osql.core.HoneyUtil;
 import org.teasoft.honey.osql.core.Logger;
 import org.teasoft.honey.util.StringUtils;
 
@@ -59,13 +60,14 @@ public class DictHandler {
 			for (int i = 0; i < list.size(); i++) {
 				Object obj = list.get(i);
 				Field f = obj.getClass().getDeclaredField(field.getName());
-				f.setAccessible(true);
+//				f.setAccessible(true);
+				HoneyUtil.setAccessibleTrue(f);
 				Object value = f.get(obj);
 				if (value == null) {
-					if (isReplaceNull) f.set(obj, nullToValue);
+					if (isReplaceNull) HoneyUtil.setFieldValue(f, obj, nullToValue);
 				} else {
 					String v = dictMap.get((String) value); // 没有映射则不替换
-					if (v != null) f.set(obj, v);
+					if (v != null) HoneyUtil.setFieldValue(f, obj, v);
 				}
 			}
 

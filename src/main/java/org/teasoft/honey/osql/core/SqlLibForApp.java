@@ -469,7 +469,8 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 						}
 						
 						v2=null;
-						fields2[i].setAccessible(true);
+//						fields2[i].setAccessible(true);
+						HoneyUtil.setAccessibleTrue(fields2[i]);
 						isDul=false;
 						dulField="";
 						try {
@@ -512,7 +513,7 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 									subObj2 = createObject(subEntityFieldClass[1]);
 									sub2_first = false;
 								}
-								fields2[i].set(subObj2, v2);
+								HoneyUtil.setFieldValue(fields2[i], subObj2, v2);
 							}
 							
 						} catch (IllegalArgumentException e) {
@@ -541,17 +542,21 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 						isRegHandlerPriority1 = TypeHandlerRegistry.isPriorityType(fields1[i].getType());
 					}
 					v1 = null;
-					fields1[i].setAccessible(true);
+//					fields1[i].setAccessible(true);
+					HoneyUtil.setAccessibleTrue(fields1[i]);
+
 					isDul = false;
 					dulField = "";
 					try {
 						if (oneHasOne && fields1[i] != null && fields1[i].isAnnotationPresent(JoinTable.class)) {
 							if (subField[1] != null && fields1[i].getName().equals(variableName[1]) && subObj2 != null) {
-								fields1[i].setAccessible(true);
+//								fields1[i].setAccessible(true);
+								HoneyUtil.setAccessibleTrue(fields1[i]);
 								if (subTwoIsList2) {
 									subField2InOneHasOne = fields1[i];
 								} else {
-									fields1[i].set(subObj1, subObj2); //设置子表2的对象     要考虑List. 
+//									fields1[i].set(subObj1, subObj2); //设置子表2的对象     要考虑List. 
+									HoneyUtil.setFieldValue(fields1[i], subObj1, subObj2); //设置子表2的对象     要考虑List. 
 								}
 
 								if (sub1_first) {
@@ -600,7 +605,7 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 							if (sub1_first) {
 								sub1_first = false;
 							}
-							fields1[i].set(subObj1, v1);
+							HoneyUtil.setFieldValue(fields1[i], subObj1, v1);
 						}
 					} catch (IllegalArgumentException e) {
 						Logger.error(e.getMessage(),e);
@@ -624,14 +629,15 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 //					if("serialVersionUID".equals(field[i].getName()) || field[i].isSynthetic()) continue;
 					if(HoneyUtil.isSkipFieldForMoreTable(field[i])) continue;  //有Ignore注释,将不再处理JoinTable
 					if (field[i]!= null && field[i].isAnnotationPresent(JoinTable.class)) {
-						field[i].setAccessible(true);
+//						field[i].setAccessible(true);
+						HoneyUtil.setAccessibleTrue(field[i]);
 						if(field[i].getName().equals(variableName[0])){
 							if(subOneIsList1) subOneListField=field[i];  //子表1字段是List
-							else field[i].set(targetObj,subObj1); //设置子表1的对象
+							else HoneyUtil.setFieldValue(field[i], targetObj,subObj1); //设置子表1的对象
 						}else if(!oneHasOne && subField[1]!=null && field[i].getName().equals(variableName[1])){
 							//oneHasOne在遍历子表1时设置
 							if(subTwoIsList2) subTwoListField=field[i];  
-							else field[i].set(targetObj,subObj2); //设置子表2的对象
+							else HoneyUtil.setFieldValue(field[i], targetObj,subObj2); //设置子表2的对象
 						}
 						continue;  // go back
 					}
@@ -641,7 +647,8 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 						isRegHandlerPriority = TypeHandlerRegistry.isPriorityType(field[i].getType());
 					}
 
-					field[i].setAccessible(true);
+//					field[i].setAccessible(true);
+					HoneyUtil.setAccessibleTrue(field[i]);
 					Object v = null;
 
 					try {
@@ -671,12 +678,12 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 							v = TypeHandlerRegistry.handlerProcess(field[i].getType(), v);
 						}
 
-						field[i].set(targetObj, v);
+						HoneyUtil.setFieldValue(field[i], targetObj, v);
 						checkKey.append(v);
 					} catch (IllegalArgumentException e) {
 						Logger.error(e.getMessage(),e);
 					} catch (Exception e) { // for after use condition selectField method
-						field[i].set(targetObj, null);
+						HoneyUtil.setFieldValue(field[i], targetObj, null);
 					}
 				} //end for
 				
@@ -686,7 +693,8 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 					if (subTwoList == null) { //表示,还没有添加该行记录
 						subTwoList=new ArrayList();
 						subTwoList.add(subObj2);
-						subField2InOneHasOne.set(subObj1, subTwoList);  //subObj1
+//						subField2InOneHasOne.set(subObj1, subTwoList);  //subObj1
+						HoneyUtil.setFieldValue(subField2InOneHasOne, subObj1, subTwoList);  //subObj1
 						subTwoMap.put(checkKey2ForOneHasOne.toString(), subTwoList);
 					} else {
 						subTwoList.add(subObj2);
@@ -699,7 +707,7 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 					if (subOneList == null) { //表示主表,还没有添加该行记录
 						subOneList=new ArrayList();
 						subOneList.add(subObj1);
-						subOneListField.set(targetObj, subOneList);
+						HoneyUtil.setFieldValue(subOneListField, targetObj, subOneList);
 						subOneMap.put(checkKey.toString(), subOneList);
 						
 						rsList.add(targetObj);
@@ -714,7 +722,7 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 					if (subTwoList == null) { //表示主表,还没有添加该行记录
 						subTwoList=new ArrayList();
 						subTwoList.add(subObj2);
-						subTwoListField.set(targetObj, subTwoList);
+						HoneyUtil.setFieldValue(subTwoListField, targetObj, subTwoList);
 						subTwoMap.put(checkKey.toString(), subTwoList);
 						
 						rsList.add(targetObj);

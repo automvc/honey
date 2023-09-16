@@ -60,6 +60,17 @@ public class DateUtil {
 		return new java.sql.Date(System.currentTimeMillis());
 	}
 	
+
+	/**
+	 * java.util.Date transfer to  java.sql.Date.
+	 * java.sql.Date 会丢失时分秒.
+	 * @param date
+	 * @return
+	 */
+	public static java.sql.Date toSqlDate(Date date) {
+		return new java.sql.Date(date.getTime()); //会丢失时分秒
+	}
+	
 	public static Timestamp toTimestamp(String dateString) {
 		try {
 			Date date = getSimpleDateFormat().parse(dateString);

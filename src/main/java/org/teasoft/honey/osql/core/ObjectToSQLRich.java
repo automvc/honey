@@ -266,7 +266,9 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			List<PreparedValue> list = new ArrayList<>();
 			PreparedValue preparedValue = null;
 			for (int i = 0; i < len; i++) {
-			  fields[i].setAccessible(true);
+//			  fields[i].setAccessible(true);
+			  HoneyUtil.setAccessibleTrue(fields[i]);
+				
 //			  if (fields[i]!= null && fields[i].isAnnotationPresent(JoinTable.class)){//v1.7.0 排除多表的实体字段
 //				continue;
 //			  }
@@ -807,7 +809,9 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			List<PreparedValue> list = new ArrayList<>();
 			PreparedValue preparedValue = null;
 			for (int i = 0; i < len; i++) {
-				fields[i].setAccessible(true);
+//				fields[i].setAccessible(true);
+				HoneyUtil.setAccessibleTrue(fields[i]);
+				
 				if (HoneyUtil.isContinue(-1, fields[i].get(entity),fields[i])) {
 					continue;	
 				}else {

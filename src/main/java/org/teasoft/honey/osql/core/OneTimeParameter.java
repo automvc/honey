@@ -24,12 +24,16 @@ class OneTimeParameter {
 	private OneTimeParameter() {}
 
 	static Object getAttribute(String key) {
-		
+
 		Map<String, Object> map = local.get();
 		if (null == map) return null;
-
+		if (map.size() == 0) {
+			remove();
+			return null;
+		}
 		Object obj = map.get(key);
-		map.remove(key);  //取后即删
+		map.remove(key); // 取后即删
+		if (map.size() == 0) remove();
 		return obj;
 	}
 
@@ -48,6 +52,10 @@ class OneTimeParameter {
 	public static boolean isTrue(String key) {
 		Object value = getAttribute(key);
 		return StringConst.tRue.equals(value) ? true : false;
+	}
+	
+	private static void remove() {
+		local.remove();
 	}
 	
 }

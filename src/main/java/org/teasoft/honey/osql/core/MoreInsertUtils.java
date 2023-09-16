@@ -85,7 +85,8 @@ public class MoreInsertUtils {
 				Object subEntity = null;
 				try {
 					if (subField0 != null) {
-						subField0.setAccessible(true);
+//						subField0.setAccessible(true);
+						HoneyUtil.setAccessibleTrue(subField0);
 						subEntity = subField0.get(entity);
 					}
 				} catch (IllegalAccessException e) {

@@ -14,6 +14,7 @@ import org.teasoft.bee.osql.annotation.DsTabHandler;
 import org.teasoft.bee.osql.annotation.MultiTenancy;
 import org.teasoft.bee.sharding.DsTabStruct;
 import org.teasoft.bee.sharding.ShardingSimpleStruct;
+import org.teasoft.honey.osql.core.HoneyUtil;
 import org.teasoft.honey.osql.core.Logger;
 import org.teasoft.honey.util.StringUtils;
 
@@ -51,7 +52,8 @@ public class MultiTenancyHandlerController {
 			//只指明了一个,另一个还要计算吗???　bug??
 			if (isAppoint) return dsTabStruct;
 
-			field.setAccessible(true);
+//			field.setAccessible(true);
+			HoneyUtil.setAccessibleTrue(field);
 			Object tenancyValue = field.get(entity); //可能是null,如何处理???
 			
 			// 分库分表时,分片字段的值是null是,要查所有库表,怎么知道所有的库和表?

@@ -162,7 +162,7 @@ public final class SessionFactory {
 			BootApplicationProp prop = new BootApplicationProp();
 			url = prop.getPropText(BootApplicationProp.DATASOURCE_URL);
 			username = prop.getPropText(BootApplicationProp.DATASOURCE_USERNAME);
-			password = prop.getPropText(BootApplicationProp.DATASOURCE_PASSWORD);
+			password = prop.getPropText(BootApplicationProp.DATASOURCE_PW);
 			String driverClass1 = prop.getPropText(BootApplicationProp.DATASOURCE_DRIVER_CLASS_NAME);
 			String driverClass2 = prop.getPropText(BootApplicationProp.DATASOURCE_DRIVER_CLASS_NAME2);
 			driverName = (driverClass1 != null ? driverClass1 : driverClass2);

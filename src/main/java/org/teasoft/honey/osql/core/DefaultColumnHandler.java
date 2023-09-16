@@ -74,7 +74,8 @@ public class DefaultColumnHandler implements ColumnHandler {
 			boolean has = false;
 			for (int i = 0; i < len; i++) {
 				if (HoneyUtil.isSkipField(fields[i])) continue;
-				fields[i].setAccessible(true);
+//				fields[i].setAccessible(true);
+				HoneyUtil.setAccessibleTrue(fields[i]);
 				if (AnnoUtil.isColumn(fields[i])) {
 //					Column column = fields[i].getAnnotation(Column.class);
 //					defineColumn = column.value();

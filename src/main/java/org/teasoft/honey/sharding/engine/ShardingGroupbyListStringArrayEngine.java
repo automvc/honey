@@ -19,6 +19,7 @@ import org.teasoft.bee.osql.BeeSql;
 import org.teasoft.bee.sharding.GroupFunStruct;
 import org.teasoft.bee.spi.JsonTransform;
 import org.teasoft.honey.osql.core.HoneyContext;
+import org.teasoft.honey.osql.core.HoneyUtil;
 import org.teasoft.honey.osql.core.JsonResultWrap;
 import org.teasoft.honey.osql.core.Logger;
 import org.teasoft.honey.osql.core.NameTranslateHandle;
@@ -124,8 +125,9 @@ public class ShardingGroupbyListStringArrayEngine {
 							continue;
 						}
 						Object obj = ObjectCreatorFactory.create(value, field.getType());
-						field.setAccessible(true);
-						field.set(targetObj, obj);
+//						field.setAccessible(true);
+						HoneyUtil.setAccessibleTrue(field);
+						HoneyUtil.setFieldValue(field, targetObj, obj);
 					}//处理一行记录结束
 					entityList.add(targetObj);
 				}

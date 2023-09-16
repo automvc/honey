@@ -682,7 +682,8 @@ public class ShardingInterceptor extends EmptyInterceptor {
 		if (fieldName == null) return null; // 没设置有分片键时
 		try {
 			Field field = entity.getClass().getDeclaredField(fieldName);
-			field.setAccessible(true);
+//			field.setAccessible(true);
+			HoneyUtil.setAccessibleTrue(field);
 			return field.get(entity);
 		} catch (Exception e) {
 			Logger.debug(e.getMessage(), e);

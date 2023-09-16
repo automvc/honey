@@ -1156,8 +1156,10 @@ public final class HoneyContext {
 			try {
 
 				Field field = clazz.getDeclaredField(entry.getKey());
-				field.setAccessible(true);
-				field.set(obj, entry.getValue());
+//				field.setAccessible(true);
+//				field.set(obj, entry.getValue());
+				HoneyUtil.setAccessibleTrue(field);
+				HoneyUtil.setFieldValue(field, obj, entry.getValue());
 
 			} catch (Exception e) {
 				throw ExceptionHelper.convert(e);

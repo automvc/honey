@@ -10,6 +10,7 @@ import java.lang.reflect.Field;
 import java.util.List;
 
 import org.teasoft.bee.osql.annotation.Desensitize;
+import org.teasoft.honey.osql.core.HoneyUtil;
 import org.teasoft.honey.osql.core.Logger;
 import org.teasoft.honey.util.StringUtils;
 
@@ -40,9 +41,10 @@ public class DesensitizeHandler {
 			for (int i = 0; i < list.size(); i++) {
 				Object obj = list.get(i);
 				Field f = obj.getClass().getDeclaredField(field.getName());
-				f.setAccessible(true);
+//				f.setAccessible(true);
+				HoneyUtil.setAccessibleTrue(f);
 				String targetStr = (String) f.get(obj);
-				f.set(obj, replace(targetStr, start, end, s));
+				HoneyUtil.setFieldValue(f, obj, replace(targetStr, start, end, s));
 			}
 
 		} catch (Exception e) {

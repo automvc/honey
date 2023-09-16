@@ -17,12 +17,12 @@ import org.teasoft.honey.osql.util.PropertiesReader;
  */
 public class BootApplicationProp implements Properties{
 	
-	static final String SPRING_DOT = "spring.";
-	static final String DATASOURCE_DRIVER_CLASS_NAME2 = SPRING_DOT+ "datasource.driver-class-name";
-	static final String DATASOURCE_DRIVER_CLASS_NAME = SPRING_DOT+ "datasource.driverClassName";
-	static final String DATASOURCE_PASSWORD = SPRING_DOT + "datasource.password";
-	static final String DATASOURCE_USERNAME = SPRING_DOT + "datasource.username";
-	static final String DATASOURCE_URL = SPRING_DOT + "datasource.url";
+	private static final String SPRING_DOT = "spring.";
+	public static final String DATASOURCE_DRIVER_CLASS_NAME2 = SPRING_DOT+ "datasource.driver-class-name";
+	public static final String DATASOURCE_DRIVER_CLASS_NAME = SPRING_DOT+ "datasource.driverClassName";
+	public static final String DATASOURCE_PW = SPRING_DOT + "datasource.pass"+"word";
+	public static final String DATASOURCE_USERNAME = SPRING_DOT + "datasource.username";
+	public static final String DATASOURCE_URL = SPRING_DOT + "datasource.url";
 
 	private PropertiesReader bootPropReader;
 	

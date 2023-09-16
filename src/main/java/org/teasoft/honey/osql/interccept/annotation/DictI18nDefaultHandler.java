@@ -13,6 +13,7 @@ import java.util.Map;
 
 import org.teasoft.bee.osql.annotation.AbstractDictI18nDefaultHandler;
 import org.teasoft.honey.osql.core.HoneyConfig;
+import org.teasoft.honey.osql.core.HoneyUtil;
 import org.teasoft.honey.osql.core.Logger;
 import org.teasoft.honey.osql.core.NameTranslateHandle;
 import org.teasoft.honey.osql.name.NameUtil;
@@ -97,17 +98,18 @@ public class DictI18nDefaultHandler extends AbstractDictI18nDefaultHandler {
 					Map<String, String> commPairMap = null;
 					Object obj = list.get(i);
 					Field f = obj.getClass().getDeclaredField(field.getName());
-					f.setAccessible(true);
+//					f.setAccessible(true);
+					HoneyUtil.setAccessibleTrue(f);
 					Object value = f.get(obj);
 
 					String v = pairMap.get((String) value); //没有映射则不替换  //值为null也可以转化
 					if (v != null)
-						f.set(obj, v);
+						HoneyUtil.setFieldValue(f, obj, v);
 					else { //支持一个字段的字典值一部分自己配,一部分用公共的
 						if (useCommTabl) commPairMap = (Map<String, String>) langMap.get(CommTableName + ":" + columnName);
 						if (commPairMap != null) { //再从公共找,可以为null
 							v = commPairMap.get((String) value);
-							if (v != null) f.set(obj, v);
+							if (v != null) HoneyUtil.setFieldValue(f, obj, v);
 						}
 					}
 				}

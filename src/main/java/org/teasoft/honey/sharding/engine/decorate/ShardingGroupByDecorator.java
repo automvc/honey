@@ -17,6 +17,7 @@ import org.teasoft.bee.osql.FunctionType;
 import org.teasoft.bee.sharding.FunStruct;
 import org.teasoft.bee.sharding.GroupFunStruct;
 import org.teasoft.honey.osql.core.HoneyContext;
+import org.teasoft.honey.osql.core.HoneyUtil;
 import org.teasoft.honey.osql.core.Logger;
 import org.teasoft.honey.osql.core.NameTranslateHandle;
 import org.teasoft.honey.util.ObjectCreatorFactory;
@@ -84,7 +85,8 @@ public class ShardingGroupByDecorator {
 				for (int j = 0; j < groupFields.size(); j++) {
 					String fieldName0=_toFieldName(groupFields.get(j),elementClass);
 					field = currentEntity.getClass().getDeclaredField(fieldName0);
-					field.setAccessible(true);
+//					field.setAccessible(true);
+					HoneyUtil.setAccessibleTrue(field);
 					groupKey += field.get(currentEntity) + ",";
 				}
 				T old = groupEntityMap.get(groupKey);
@@ -95,7 +97,8 @@ public class ShardingGroupByDecorator {
 					for (int k = 0; k < funStructs.size(); k++) {
 						String fieldName=_toFieldName(funStructs.get(k).getFieldName(),elementClass);
 						field = currentEntity.getClass().getDeclaredField(fieldName);
-						field.setAccessible(true);
+//						field.setAccessible(true);
+						HoneyUtil.setAccessibleTrue(field);
 						Object fun = field.get(currentEntity);
 
 						Object oldFun;
@@ -110,7 +113,8 @@ public class ShardingGroupByDecorator {
 
 						if (oldFun == null) { //第二条,    此处,取第一条的值
 							oldField = old.getClass().getDeclaredField(fieldName);
-							oldField.setAccessible(true);
+//							oldField.setAccessible(true);
+							HoneyUtil.setAccessibleTrue(oldField);
 							oldFun = oldField.get(old);
 						}
 
@@ -169,11 +173,12 @@ public class ShardingGroupByDecorator {
 					try {
 						String fieldName2=_toFieldName(entry.getKey(),elementClass);
 						Field funField = tempEntity.getClass().getDeclaredField(fieldName2);
-						funField.setAccessible(true);
+//						funField.setAccessible(true);
+						HoneyUtil.setAccessibleTrue(funField);
 						Object v = entry.getValue();
 						if (v != null)
 							v = ObjectCreatorFactory.create(v.toString(), funField.getType());
-						funField.set(tempEntity, v);
+						HoneyUtil.setFieldValue(funField, tempEntity, v);
 
 					} catch (Exception e) {
 //						throw ExceptionHelper.convert(e);

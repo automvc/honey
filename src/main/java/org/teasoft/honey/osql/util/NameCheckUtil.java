@@ -13,6 +13,7 @@ import java.util.regex.Pattern;
 
 import org.teasoft.bee.osql.LowerKey;
 import org.teasoft.bee.osql.exception.BeeErrorNameException;
+import org.teasoft.honey.osql.core.HoneyUtil;
 import org.teasoft.honey.osql.core.Logger;
 
 /**
@@ -44,7 +45,8 @@ public class NameCheckUtil {
 		Set<String> set = new HashSet<>();
 		try {
 			for (int i = 0; i < len; i++) {
-				fields[i].setAccessible(true);
+//				fields[i].setAccessible(true);
+				HoneyUtil.setAccessibleTrue(fields[i]);
 				set.add(fields[i].get(entity).toString());
 			}
 		} catch (Exception e) {
@@ -92,7 +94,8 @@ public class NameCheckUtil {
 			if (isIllegal(name)) {
 				throw new BeeErrorNameException("The name: '" + name + "' is illegal!");
 			} else {
-				Logger.debug("The name is '" + name + "' , does not conform to naming conventions!",new Exception()); 
+//				Logger.debug("The name is '" + name + "' , does not conform to naming conventions!",new Exception()); 
+				Logger.debug("The name is '" + name + "' , does not conform to naming conventions!"); 
 			}
 		}
 

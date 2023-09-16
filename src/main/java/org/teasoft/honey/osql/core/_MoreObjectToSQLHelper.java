@@ -404,7 +404,9 @@ public class _MoreObjectToSQLHelper {
 		int len = fields.length;
 //		for (int i = 0, k = 0; i < len; i++) { //bug
 		for (int i = 0; i < len; i++) {
-			fields[i].setAccessible(true);
+//			fields[i].setAccessible(true);
+			HoneyUtil.setAccessibleTrue(fields[i]);
+			
 //			if (fields[i].isAnnotationPresent(JoinTable.class)) {
 //				continue;  //JoinTable已在上面另外处理
 //			}
@@ -539,7 +541,9 @@ public class _MoreObjectToSQLHelper {
 		
 		int len = fields.length;
 		for (int i = 0; i < len; i++) {
-			fields[i].setAccessible(true);
+//			fields[i].setAccessible(true);
+            HoneyUtil.setAccessibleTrue(fields[i]);
+
 //			if (fields[i].isAnnotationPresent(JoinTable.class)) {
 //				continue;  //JoinTable已在上面另外处理
 //			}

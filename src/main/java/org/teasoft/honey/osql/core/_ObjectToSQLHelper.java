@@ -52,7 +52,8 @@ final class _ObjectToSQLHelper {
 			List<PreparedValue> list = new ArrayList<>();
 			PreparedValue preparedValue = null;
 			for (int i = 0; i < len; i++) {
-				fields[i].setAccessible(true);
+//				fields[i].setAccessible(true);
+				HoneyUtil.setAccessibleTrue(fields[i]);
 				if (HoneyUtil.isContinue(-1, fields[i].get(entity),fields[i])) {
 					continue;	
 				}else {
@@ -199,7 +200,8 @@ final class _ObjectToSQLHelper {
 			int len = fields.length;
 			PreparedValue preparedValue = null;
 			for (int i = 0; i < len; i++) {
-				fields[i].setAccessible(true);
+//				fields[i].setAccessible(true);
+				HoneyUtil.setAccessibleTrue(fields[i]);
 				if (HoneyUtil.isContinue(includeType, fields[i].get(entity),fields[i])) {
 					continue;
 				} else {
@@ -288,7 +290,8 @@ final class _ObjectToSQLHelper {
 		
 		try {
 			if (field != null) {
-			  field.setAccessible(true);
+//			  field.setAccessible(true);
+			  HoneyUtil.setAccessibleTrue(field);
 			  //是联合主键时不检测值是否为null
 			  if(field.get(entity) == null) {
 				 throw new ObjSQLException(
@@ -363,7 +366,8 @@ final class _ObjectToSQLHelper {
 
 			PreparedValue preparedValue = null;
 			for (int i = 0; i < len; i++) {
-				fields[i].setAccessible(true);
+//				fields[i].setAccessible(true);
+				HoneyUtil.setAccessibleTrue(fields[i]);
 				
 ////				if (isContainField(setColmns, fields[i].getName())) { //set value.setColmn不受includeType影响,都会转换
 //				if (isContainField(setColmns, fields[i].getName())     
@@ -528,7 +532,8 @@ final class _ObjectToSQLHelper {
 
 		PreparedValue preparedValue = null;
 		for (int i = 0; i < len; i++) {
-			fields[i].setAccessible(true);
+//			fields[i].setAccessible(true);
+			HoneyUtil.setAccessibleTrue(fields[i]);
 			if (! isContainField(whereColumns, fields[i].getName())) { //set value.  不属于whereColumn的,将考虑转为set.  同一个实体的某个属性的值,若用于WHERE部分了,再用于UPDATE SET部分就没有意义
 				
 				//set 字段根据includeType过滤
@@ -748,7 +753,8 @@ final class _ObjectToSQLHelper {
 		List<PreparedValue> list = new ArrayList<>();
 		PreparedValue preparedValue = null;
 		for (int i = 0; i < len; i++) {
-			fields[i].setAccessible(true);
+//			fields[i].setAccessible(true);
+			HoneyUtil.setAccessibleTrue(fields[i]);
 			if (HoneyUtil.isContinue(includeType, fields[i].get(entity),fields[i])) {
 				continue;
 			} else {
@@ -796,7 +802,8 @@ final class _ObjectToSQLHelper {
 		List<PreparedValue> list = new ArrayList<>();
 		PreparedValue preparedValue = null;
 		for (int i = 0; i < len; i++) {
-			fields[i].setAccessible(true);
+//			fields[i].setAccessible(true);
+			HoneyUtil.setAccessibleTrue(fields[i]);
 
 //			if ("serialVersionUID".equals(fields[i].getName()) || fields[i].isSynthetic()) {
 //				continue;
@@ -848,7 +855,8 @@ final class _ObjectToSQLHelper {
 			List<PreparedValue> list = new ArrayList<>();
 			PreparedValue preparedValue = null;
 			for (int i = 0; i < len; i++) {
-				fields[i].setAccessible(true);
+//				fields[i].setAccessible(true);
+				HoneyUtil.setAccessibleTrue(fields[i]);
 
 				if (HoneyUtil.isContinue(includeType, fields[i].get(entity),fields[i])) {
 					continue;
@@ -1025,7 +1033,8 @@ final class _ObjectToSQLHelper {
 				return ; //just set the Long/Integer id field
 			}
 		
-			field.setAccessible(true);
+//			field.setAccessible(true);
+			HoneyUtil.setAccessibleTrue(field);
 			obj = field.get(entity);
 			if (obj != null) {
 				if (!replaceOldValue) return ;
@@ -1056,9 +1065,11 @@ final class _ObjectToSQLHelper {
 			long longId = GenIdFactory.get(tableKey);
 			id = longId;
 		}
-		field.setAccessible(true);
+//		field.setAccessible(true);
+		HoneyUtil.setAccessibleTrue(field);
 		try {
-			field.set(entity, id);
+//			field.set(entity, id);
+			HoneyUtil.setFieldValue(field, entity, id);
 			if (hasValue) {
 				Logger.warn(" [ID WOULD BE REPLACED] " + entity.getClass() + " 's id field"+pkAlias+" value is " + obj.toString() + " would be replace by "+ id);
 			}

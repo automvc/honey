@@ -15,6 +15,8 @@ import org.teasoft.honey.osql.core.Logger;
  * @since  2.0
  */
 public class Printer {
+	
+	private Printer() {}
 
 	public static void print(List<String[]> list) {
 		if (ObjectUtils.isEmpty(list)) return;

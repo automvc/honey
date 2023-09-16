@@ -13,6 +13,7 @@ import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.annotation.Createtime;
 import org.teasoft.bee.osql.annotation.Datetime;
 import org.teasoft.bee.osql.annotation.Updatetime;
+import org.teasoft.honey.osql.core.HoneyUtil;
 import org.teasoft.honey.osql.core.Logger;
 import org.teasoft.honey.osql.util.DateUtil;
 import org.teasoft.honey.util.StringUtils;
@@ -65,23 +66,24 @@ public class DatetimeHandler {
 							|| sqlSuidType == SuidType.INSERT || sqlSuidType == SuidType.DELETE))))
 				return; //操作类型不对,则返回
 			
-			field.setAccessible(true);
+//			field.setAccessible(true);
+			HoneyUtil.setAccessibleTrue(field);
 			if (!override) { //不允许覆盖,原来有值则返回
 				if (field.get(entity) != null) return;
 			}
 
 //			if (field.getType() == Timestamp.class) {
 			if(field.getType().equals(Timestamp.class)) {
-				field.set(entity, DateUtil.currentTimestamp());
+				HoneyUtil.setFieldValue(field, entity, DateUtil.currentTimestamp());
 			}else if(field.getType().equals(java.sql.Date.class)) {
-				field.set(entity, DateUtil.currentSqlDate());
+				HoneyUtil.setFieldValue(field, entity, DateUtil.currentSqlDate());
 			}else if(field.getType().equals(java.util.Date.class)) {
-				field.set(entity, new java.util.Date());
+				HoneyUtil.setFieldValue(field, entity, new java.util.Date());
 			}else {
 				if (StringUtils.isNotBlank(formatter))
-					field.set(entity, DateUtil.currentDate(formatter));
+					HoneyUtil.setFieldValue(field, entity, DateUtil.currentDate(formatter));
 				else
-					field.set(entity, DateUtil.currentDate());
+					HoneyUtil.setFieldValue(field, entity, DateUtil.currentDate());
 			}
 		} catch (Exception e) {
 			Logger.error(e.getMessage(), e);

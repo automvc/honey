@@ -13,6 +13,7 @@ import java.util.List;
 
 import org.teasoft.bee.sharding.ShardingSortStruct;
 import org.teasoft.honey.osql.core.HoneyContext;
+import org.teasoft.honey.osql.core.HoneyUtil;
 
 /**
  * @author AiTeaSoft
@@ -76,7 +77,8 @@ public class SortListDecorator {
 		if (t == null) return null;
 		try {
 			Field field = t.getClass().getDeclaredField(fieldName);
-			field.setAccessible(true);
+//			field.setAccessible(true);
+			HoneyUtil.setAccessibleTrue(field);
 			Object obj = field.get(t);
 			if (obj != null) {
 				return obj.toString();

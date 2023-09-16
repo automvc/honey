@@ -14,6 +14,7 @@ import org.teasoft.bee.osql.annotation.DsTabHandler;
 import org.teasoft.bee.osql.annotation.Sharding;
 import org.teasoft.bee.sharding.DsTabStruct;
 import org.teasoft.bee.sharding.ShardingSimpleStruct;
+import org.teasoft.honey.osql.core.HoneyUtil;
 import org.teasoft.honey.osql.core.Logger;
 import org.teasoft.honey.util.StringUtils;
 
@@ -59,7 +60,8 @@ public class ShardingAnnoHandlerController {
 //			只指定了ds,则运算时,不再计算
 //			if(!isAppointDs) sharding.setDsName(anno.dsName()); //指定了,就不设置,下一层就不会再计算
 
-			field.setAccessible(true);
+//			field.setAccessible(true);
+			HoneyUtil.setAccessibleTrue(field);
 			Object shardingValue = field.get(entity); //可能是null,如何处理???
 			
 			// 分库分表时,分片字段的值是null是,要查所有库表,怎么知道所有的库和表?

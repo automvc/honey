@@ -15,6 +15,8 @@ import java.util.Properties;
  * @since  2.1
  */
 public class Converter {
+	
+	private Converter() {}
 
 	/**
 	 * Map to Properties
@@ -67,9 +69,5 @@ public class Converter {
 		}
 		return buf.toString();
 	}
-	
-//	public static void main(String[] args) {
-//		.err.println(transfer("driver-class-name")); //driverClassName
-//	}
 
 }

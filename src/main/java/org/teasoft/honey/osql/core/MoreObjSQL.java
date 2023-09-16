@@ -180,7 +180,8 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 	private OneHasOne moreInsert(MoreTableInsertStruct struct, int i, long returnId,
 			Object currentEntity,SuidType suidType) throws IllegalAccessException, NoSuchFieldException {
 		if (struct.subIsList[i]) {
-			struct.subField[i].setAccessible(true);
+//			struct.subField[i].setAccessible(true);
+			HoneyUtil.setAccessibleTrue(struct.subField[i]);
 			List listSubI = (List) struct.subField[i].get(currentEntity);
 			boolean setFlag=false;
 			// 设置外键的值
@@ -205,7 +206,8 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 //			modifyListSubEntity(listSubI, suidType);
 		} else { // 单个实体
 			if (struct.subField[i] == null) return null;
-			struct.subField[i].setAccessible(true);
+//			struct.subField[i].setAccessible(true);
+			HoneyUtil.setAccessibleTrue(struct.subField[i]);
 			Object subEntity = struct.subField[i].get(currentEntity);
 			if (subEntity == null) return null;
 			for (int propIndex = 0; propIndex < struct.foreignKey[i].length; propIndex++) {
@@ -249,15 +251,19 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 			if (AnnoUtil.isPrimaryKey(refField)) {
 				useReturnId = true;
 			} else {
-				fkField.setAccessible(true);
-				refField.setAccessible(true);
-				fkField.set(subEntity, refField.get(currentEntity));
+//				fkField.setAccessible(true);
+//				refField.setAccessible(true);
+				HoneyUtil.setAccessibleTrue(fkField);
+				HoneyUtil.setAccessibleTrue(refField);
+//				fkField.set(subEntity, refField.get(currentEntity));
+				HoneyUtil.setFieldValue(fkField, subEntity, refField.get(currentEntity));
 			}
 		}
 
 		if (useReturnId) {
-			fkField.setAccessible(true);
-			fkField.set(subEntity, returnId);
+//			fkField.setAccessible(true);
+			HoneyUtil.setAccessibleTrue(fkField);
+			HoneyUtil.setFieldValue(fkField, subEntity, returnId);
 		}
 		
 		return true;
@@ -272,8 +278,10 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 
 		Field refField = currentEntity.getClass().getDeclaredField(struct.ref[i][propIndex]); // 获取 被引用的字段
 
-		fkField.setAccessible(true);
-		refField.setAccessible(true);
+//		fkField.setAccessible(true);
+//		refField.setAccessible(true);
+		HoneyUtil.setAccessibleTrue(fkField);
+		HoneyUtil.setAccessibleTrue(refField);
 		Object v = refField.get(currentEntity);
 		if (v == null) {
 //			Field refField2 = subEntity.getClass().getDeclaredField(struct.foreignKey[i][propIndex]); //子表的外键字段
@@ -281,7 +289,7 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 			if (v2 == null) return false; // 父表没有设置, 子表也没有设置才返回null
 			// 若设置了id,name; 其实name没有值,也是可以的.如何处理??? todo
 		} else {
-			fkField.set(subEntity, v);
+			HoneyUtil.setFieldValue(fkField, subEntity, v);
 		}
 
 		return true;

@@ -120,9 +120,10 @@ public final class SuidHelper {
 						if (i == startRow) Logger.warn("Can not find the field name : " + fieldName[j]);
 						continue;
 					}
-					field.setAccessible(true);
+//					field.setAccessible(true);
+					HoneyUtil.setAccessibleTrue(field);
 					try {
-						field.set(targetObj, ObjectCreatorFactory.create(col[j], field.getType())); //对相应Field设置
+						HoneyUtil.setFieldValue(field, targetObj, ObjectCreatorFactory.create(col[j], field.getType())); //对相应Field设置
 					} catch (IllegalArgumentException e) {
 						Logger.error(e.getMessage());
 					}
@@ -163,7 +164,9 @@ public final class SuidHelper {
 				continue; //static,final,private static final
 			}
 			
-			fields[i].setAccessible(true);
+//			fields[i].setAccessible(true);
+			HoneyUtil.setAccessibleTrue(fields[i]);
+			
 			try {
 				field = from.getClass().getDeclaredField(fields[i].getName());
 			} catch (NoSuchFieldException e) {
@@ -171,8 +174,9 @@ public final class SuidHelper {
 			}
 
 			try {
-				field.setAccessible(true);
-				fields[i].set(to, field.get(from));
+//				field.setAccessible(true);
+				HoneyUtil.setAccessibleTrue(field);
+				HoneyUtil.setFieldValue(fields[i], to, field.get(from));
 			} catch (IllegalAccessException e) {
 				throw ExceptionHelper.convert(e);
 			}
@@ -198,7 +202,9 @@ public final class SuidHelper {
 
 		for (int i = 0; i < fields.length; i++) {
 			if (i == 0) map = new LinkedHashMap<>();
-			fields[i].setAccessible(true);
+//			fields[i].setAccessible(true);
+			HoneyUtil.setAccessibleTrue(fields[i]);
+			
 			try {
 				v = fields[i].get(entity);
 				if (v == null) continue;

@@ -59,8 +59,9 @@ public class SysValueProcessor {
 					}
 					try {
 						Class c = f[i].getType();
-						f[i].setAccessible(true);
-						f[i].set(obj, ObjectCreatorFactory.create(value, c));
+//						f[i].setAccessible(true);
+						HoneyUtil.setAccessibleTrue(f[i]);
+						HoneyUtil.setFieldValue(f[i], obj, ObjectCreatorFactory.create(value, c));
 					} catch (IllegalAccessException e) {
 						throw ExceptionHelper.convert(e);
 					}
@@ -86,8 +87,10 @@ public class SysValueProcessor {
 		if (has) {
 			try {
 				Field dbsF = obj.getClass().getDeclaredField("dbs");
-				dbsF.setAccessible(true);
-				dbsF.set(obj, gm.toList());
+//				dbsF.setAccessible(true);
+				HoneyUtil.setAccessibleTrue(dbsF);
+//				dbsF.set(obj, gm.toList());
+				HoneyUtil.setFieldValue(dbsF, obj, gm.toList());
 			} catch (Exception e) {
 				// ignore
 			}
