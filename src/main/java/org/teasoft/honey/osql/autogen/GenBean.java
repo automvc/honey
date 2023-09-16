@@ -735,7 +735,8 @@ public class GenBean {
 //			.println(rmeta.getSchemaName(1));
 			int columCount = rmeta.getColumnCount();
 			for (int i = 1; i <= columCount; i++) {
-				table.getColumnNames().add(rmeta.getColumnName(i).trim());
+//				table.getColumnNames().add(rmeta.getColumnName(i).trim());
+				table.getColumnNames().add(rmeta.getColumnLabel(i).trim()); //V2.1.8
 				table.getColumnTypes().add(rmeta.getColumnTypeName(i).trim());
 //				.println("--------------------------------");
 //				.println(rmeta.getColumnName(i).trim()+ "     :    " +rmeta.getColumnTypeName(i).trim());

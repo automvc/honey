@@ -72,6 +72,8 @@ public final class HoneyUtil {
 		
 		SetParaTypeConverterRegistry.register(java.util.Date.class, new UtilDotDateTypeToTimestampConvert<java.util.Date>(), DatabaseConst.PostgreSQL);
 		SetParaTypeConverterRegistry.register(java.util.Date.class, new UtilDotDateTypeToTimestampConvert<java.util.Date>(), DatabaseConst.H2);
+		SetParaTypeConverterRegistry.register(java.util.Date.class, new UtilDotDateTypeToTimestampConvert<java.util.Date>(), DatabaseConst.SQLSERVER); // v2.1.8  
+		SetParaTypeConverterRegistry.register(java.util.Date.class, new UtilDotDateTypeToTimestampConvert<java.util.Date>(), DatabaseConst.ORACLE); // v2.1.8  
 //		SetParaTypeConverterRegistry.register(java.util.Date.class, new UtilDotDateTypeConvert<java.util.Date>()); //bug 会少了时分秒  v2.1.8  
 		
 		TypeHandlerRegistry.register(char.class, new CharTypeHandler<Character>(),true);
@@ -95,15 +97,21 @@ public final class HoneyUtil {
 
 		for (int i = 0; i < len; i++) {
 			if(isSkipField(field[i])) continue;
-			if (isFirst) {
-				isFirst = false;
-			} else {
-				s.append(",");
-			}
 
 			if(field[i].isAnnotationPresent(JustFetch.class)) {
+				if(StringUtils.isBlank(getJustFetchDefineName(field[i]))) continue; //V2.1.8  只用@JustFetch()时,该字段不转换到select列表中,用于像count(*) as para变量的接收
+				if (isFirst) {
+					isFirst = false;
+				} else {
+					s.append(",");
+				}
 				s.append(getJustFetchColumn(field[i]));
 			}else {
+				if (isFirst) {
+					isFirst = false;
+				} else {
+					s.append(",");
+				}
 			   s.append(NameTranslateHandle.toColumnName(field[i].getName(),entityClass));
 			}
 			
@@ -220,7 +228,8 @@ public final class HoneyUtil {
 //				if(field[i].getType().isAssignableFrom(List.class)) {
 				if(List.class.isAssignableFrom(field[i].getType())) {
 					try {
-					field[i].setAccessible(true);
+//					field[i].setAccessible(true);
+					HoneyUtil.setAccessibleTrue(field[i]);
 						if (subEntityFieldNum == 1) {
 							subOneIsList = true;
 							moreTableStruct[0].subOneIsList = true; //moreTableStruct[0]
@@ -381,7 +390,8 @@ public final class HoneyUtil {
 					//处理是List oneHasOne字段  
 					if (oneHasOne && subTwoIsList) {
 						try {
-							subField[1].setAccessible(true);
+//							subField[1].setAccessible(true);
+							HoneyUtil.setAccessibleTrue(subField[1]);
 //							subTwoIsList = true;
 							moreTableStruct[0].subTwoIsList = true;
 //							List list = (List) subField[1].get(entity);
@@ -465,7 +475,8 @@ public final class HoneyUtil {
 				}
 				moreTableStruct[1 + j].useSubTableName = useSubTableName;
 				try {
-					subField[j].setAccessible(true);
+//					subField[j].setAccessible(true);
+					HoneyUtil.setAccessibleTrue(subField[j]);
 					if (j == 0 && subOneIsList) {
 						if (ObjectUtils.isNotEmpty(listOne))
 							moreTableStruct[1 + j].subObject = listOne.get(0);
@@ -1169,7 +1180,8 @@ public final class HoneyUtil {
 		int len = fields.length;
 		try {
 			for (int i = 0; i < len; i++) {
-				fields[i].setAccessible(true);
+//				fields[i].setAccessible(true);
+				HoneyUtil.setAccessibleTrue(fields[i]);
 //				if (fields[i].get(entity) == null || "serialVersionUID".equals(fields[i].getName()) || fields[i].isSynthetic() || fields[i].isAnnotationPresent(JoinTable.class)) {
 				if (fields[i].get(entity) == null || isSkipField(fields[i])) {
 					continue;
@@ -1546,7 +1558,8 @@ public final class HoneyUtil {
 		Object obj = null;
 		try {
 			if (field != null) {
-				field.setAccessible(true);
+//				field.setAccessible(true);
+				HoneyUtil.setAccessibleTrue(field);
 				obj = field.get(entity);
 			}
 		} catch (IllegalAccessException e) {
@@ -1571,8 +1584,10 @@ public final class HoneyUtil {
 				Object obj = OneTimeParameter.getAttribute(StringConst.OLD_ID);
 				String pkName=(String)OneTimeParameter.getAttribute(StringConst.Primary_Key_Name);
 				field = entity.getClass().getDeclaredField(pkName);
-				field.setAccessible(true);
-				field.set(entity, obj);
+//				field.setAccessible(true);
+				HoneyUtil.setAccessibleTrue(field);
+//				field.set(entity, obj);
+				HoneyUtil.setFieldValue(field, entity, obj);
 			} catch (NoSuchFieldException e) {
 				throw new ObjSQLException("Miss id field: the entity no id field!");
 			} catch (IllegalAccessException e) {
@@ -1599,8 +1614,10 @@ public final class HoneyUtil {
 				try {
 					Object obj = OneTimeParameter.getAttribute(StringConst.OLD_ID+i);
 					field = entity[i].getClass().getDeclaredField(pkName);
-					field.setAccessible(true);
-					field.set(entity[i], obj);
+//					field.setAccessible(true);
+					HoneyUtil.setAccessibleTrue(field);
+//					field.set(entity[i], obj);
+					HoneyUtil.setFieldValue(field, entity[i], obj);
 				} catch (NoSuchFieldException e) {
 					throw new ObjSQLException("entity[] miss id field: the element in entity[] no id field!");
 				} catch (IllegalAccessException e) {
@@ -1700,7 +1717,8 @@ public final class HoneyUtil {
 //					v = null;
 					
 					field = entity[i].getClass().getDeclaredField(pkName);
-					field.setAccessible(true);
+//					field.setAccessible(true);
+					HoneyUtil.setAccessibleTrue(field);
 					Object obj = field.get(entity[i]);
 					
 					if (obj != null) {
@@ -1712,16 +1730,18 @@ public final class HoneyUtil {
 //					OneTimeParameter.setTrueForKey(StringConst.OLD_ID_EXIST+i);
 //					OneTimeParameter.setAttribute(StringConst.OLD_ID+i, obj);
 					
-					field.setAccessible(true);
+//					field.setAccessible(true);
+					HoneyUtil.setAccessibleTrue(field);
 					try {
 						if (_ObjectToSQLHelper.isInt(field0))
-							field.set(entity[i], (int)id);
+//							field.set(entity[i], (int)id);
+							HoneyUtil.setFieldValue(field, entity[i], (int)id);
 						else if(!hasGenUUIDAnno && isStringField) //没有用GenUUID又是String
-							field.set(entity[i], id+"");
+							HoneyUtil.setFieldValue(field, entity[i], id+"");
 						else if(hasGenUUIDAnno && isStringField) //用GenUUID
-							field.set(entity[i], UUID.getId(useSeparatorInUUID));
+							HoneyUtil.setFieldValue(field, entity[i], UUID.getId(useSeparatorInUUID));
 						else
-							field.set(entity[i], id);
+							HoneyUtil.setFieldValue(field, entity[i], id);
 						if (hasValue) {
 							Logger.warn(" [ID WOULD BE REPLACED] entity["+i+"] : " + entity[0].getClass() + " 's id field"+pkAlias+" value is " + obj.toString()
 									+ " would be replace by " + id);
@@ -1895,5 +1915,14 @@ public final class HoneyUtil {
 	private static String _toTableNameByClass(Class c) {
 		return NameTranslateHandle.toTableName(c.getName());
 	}
+	
+	public static void setFieldValue(Field field, Object targetObj, Object value)
+			throws IllegalAccessException {
+		field.set(targetObj, value); // NOSONAR
+	}
 
+	public static void setAccessibleTrue(Field field) {
+		field.setAccessible(true); // NOSONAR
+	}
+	
 }

@@ -1157,7 +1157,8 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 						}
 						
 						v2=null;
-						fields2[i].setAccessible(true);
+//						fields2[i].setAccessible(true);
+						HoneyUtil.setAccessibleTrue(fields2[i]);
 						isDul=false;
 						dulField="";
 						try {
@@ -1194,7 +1195,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 									subObj2 = createObject(subEntityFieldClass[1]);
 									sub2_first = false;
 								}
-								fields2[i].set(subObj2, v2);
+								HoneyUtil.setFieldValue(fields2[i], subObj2, v2);
 							}
 							
 						} catch (IllegalArgumentException e) {
@@ -1217,7 +1218,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 												subObj2 = createObject(subEntityFieldClass[1]);
 												sub2_first = false;
 											}
-											fields2[i].set(subObj2, newV2);
+											HoneyUtil.setFieldValue(fields2[i], subObj2, newV2);
 											alreadyProcess = true;
 										}
 									}
@@ -1231,7 +1232,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 									subObj2 = createObject(subEntityFieldClass[1]);
 									sub2_first = false;
 								}
-								fields2[i].set(subObj2, v2);
+								HoneyUtil.setFieldValue(fields2[i], subObj2, v2);
 							}
 						}catch (SQLException e) {// for after use condition selectField method
 //							fields2[i].set(subObj2,null);
@@ -1259,18 +1260,21 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 						isRegHandlerPriority1 = TypeHandlerRegistry.isPriorityType(fields1[i].getType());
 					}
 					v1 = null;
-					fields1[i].setAccessible(true);
+//					fields1[i].setAccessible(true);
+					HoneyUtil.setAccessibleTrue(fields1[i]);
 					isDul = false;
 					dulField = "";
 					try {
 
 						if (oneHasOne && fields1[i] != null && fields1[i].isAnnotationPresent(JoinTable.class)) {
 							if (subField[1] != null && fields1[i].getName().equals(variableName[1]) && subObj2 != null) {
-								fields1[i].setAccessible(true);
+//								fields1[i].setAccessible(true);
+								HoneyUtil.setAccessibleTrue(fields1[i]);
 								if (subTwoIsList2) {
 									subField2InOneHasOne = fields1[i];
 								} else {
-									fields1[i].set(subObj1, subObj2); //设置子表2的对象     要考虑List. 
+//									fields1[i].set(subObj1, subObj2); //设置子表2的对象     要考虑List. 
+									HoneyUtil.setFieldValue(fields1[i], subObj1, subObj2); //设置子表2的对象     要考虑List. 
 								}
 
 								if (sub1_first) {
@@ -1312,7 +1316,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 							if (sub1_first) {
 								sub1_first = false;
 							}
-							fields1[i].set(subObj1, v1);
+							HoneyUtil.setFieldValue(fields1[i], subObj1, v1);
 						}
 					} catch (IllegalArgumentException e) {
 						if(isConfuseDuplicateFieldDB()){
@@ -1333,7 +1337,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 										if (sub1_first) {
 											sub1_first = false;
 										}
-										fields1[i].set(subObj1, newV1);
+										HoneyUtil.setFieldValue(fields1[i], subObj1, newV1);
 										alreadyProcess=true;
 									}
 								}
@@ -1346,7 +1350,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 							if (sub1_first) {
 								sub1_first = false;
 							}
-							fields1[i].set(subObj1, v1);
+							HoneyUtil.setFieldValue(fields1[i], subObj1, v1);
 						}
 					}catch (SQLException e) {// for after use condition selectField method
 //						fields1[i].set(subObj1,null);
@@ -1371,14 +1375,15 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 //					if("serialVersionUID".equals(field[i].getName()) || field[i].isSynthetic()) continue;
 					if(HoneyUtil.isSkipFieldForMoreTable(field[i])) continue;  //有Ignore注释,将不再处理JoinTable
 					if (field[i]!= null && field[i].isAnnotationPresent(JoinTable.class)) {
-						field[i].setAccessible(true);
+//						field[i].setAccessible(true);
+						HoneyUtil.setAccessibleTrue(field[i]);
 						if(field[i].getName().equals(variableName[0])){
 							if(subOneIsList1) subOneListField=field[i];  //子表1字段是List
-							else field[i].set(targetObj,subObj1); //设置子表1的对象
+							else HoneyUtil.setFieldValue(field[i], targetObj,subObj1); //设置子表1的对象
 						}else if(!oneHasOne && subField[1]!=null && field[i].getName().equals(variableName[1])){
 							//oneHasOne在遍历子表1时设置
 							if(subTwoIsList2) subTwoListField=field[i];  
-							else field[i].set(targetObj,subObj2); //设置子表2的对象
+							else HoneyUtil.setFieldValue(field[i], targetObj,subObj2); //设置子表2的对象
 						}
 						continue;  // go back
 					}
@@ -1388,7 +1393,8 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 						isRegHandlerPriority = TypeHandlerRegistry.isPriorityType(field[i].getType());
 					}
 
-					field[i].setAccessible(true);
+//					field[i].setAccessible(true);
+					HoneyUtil.setAccessibleTrue(field[i]);
 					Object v = null;
 
 					try {
@@ -1396,7 +1402,11 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 						if (isConfuseDuplicateFieldDB()) {
 							v = rs.getObject(_toColumnName(field[i].getName(), entity.getClass()));
 						} else {
-							v = rs.getObject(tableName + "."+ _toColumnName(field[i].getName(), entity.getClass()));
+							try {
+							    v = rs.getObject(tableName + "."+ _toColumnName(field[i].getName(), entity.getClass()));
+							} catch (SQLException e) {
+								v = rs.getObject( _toColumnName(field[i].getName(), entity.getClass()));//condition.selectFun(FunctionType.COUNT, "*", "count1"); //像这种不带表名
+							}
 						}
 						
 						boolean processAsJson = false;
@@ -1413,7 +1423,8 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 							v = TypeHandlerRegistry.handlerProcess(field[i].getType(), v);
 						}
 
-						field[i].set(targetObj, v);
+//						field[i].setAccessible(true);
+						HoneyUtil.setFieldValue(field[i], targetObj, v);
 						checkKey.append(v);
 					} catch (IllegalArgumentException e) {
 						v = _getObjectForMoreTable(rs, tableName, field[i], entity.getClass());
@@ -1425,16 +1436,19 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 								TypeHandler handler = TypeHandlerRegistry.getHandler(type);
 								if (handler != null) {
 									Object newV = handler.process(type, v);//process v by handler
-									field[i].set(targetObj, newV);
+									HoneyUtil.setFieldValue(field[i], targetObj, newV);
 									alreadyProcess = true;
 								}
 							}
 						} catch (Exception e2) {
 							alreadyProcess = false;
 						}
-						if (!alreadyProcess) field[i].set(targetObj, v);
+						
+						if (!alreadyProcess) HoneyUtil.setFieldValue(field[i], targetObj, v);
+						
 					} catch (SQLException e) { // for after use condition selectField method
-						field[i].set(targetObj, null);
+//						e.printStackTrace();
+						HoneyUtil.setFieldValue(field[i], targetObj, null);
 					}
 					
 				} //end for
@@ -1446,7 +1460,8 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 					if (subTwoList == null) { //表示,还没有添加该行记录
 						subTwoList=new ArrayList();
 						subTwoList.add(subObj2);
-						subField2InOneHasOne.set(subObj1, subTwoList);  //subObj1
+//						subField2InOneHasOne.set(subObj1, subTwoList);  //subObj1
+						HoneyUtil.setFieldValue(subField2InOneHasOne, subObj1, subTwoList);  //subObj1
 						subTwoMap.put(checkKey2ForOneHasOne.toString(), subTwoList);
 						
 //						rsList.add(targetObj);
@@ -1461,7 +1476,8 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 					if (subOneList == null) { //表示主表,还没有添加该行记录
 						subOneList=new ArrayList();
 						subOneList.add(subObj1);
-						subOneListField.set(targetObj, subOneList);
+//						subOneListField.set(targetObj, subOneList);
+						HoneyUtil.setFieldValue(subOneListField, targetObj, subOneList);
 						subOneMap.put(checkKey.toString(), subOneList);
 						
 						rsList.add(targetObj);
@@ -1476,7 +1492,8 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 					if (subTwoList == null) { //表示主表,还没有添加该行记录
 						subTwoList=new ArrayList();
 						subTwoList.add(subObj2);
-						subTwoListField.set(targetObj, subTwoList);
+//						subTwoListField.set(targetObj, subTwoList);
+						HoneyUtil.setFieldValue(subTwoListField, targetObj, subTwoList);
 						subTwoMap.put(checkKey.toString(), subTwoList);
 						
 						rsList.add(targetObj);
@@ -1553,18 +1570,28 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 	}
 	
 	@SuppressWarnings("rawtypes")
-	private Object _getObjectForMoreTable(ResultSet rs, String tableName, Field field,Class entityClass) throws SQLException {
-		if (isConfuseDuplicateFieldDB()) {//主表时会用到
-			return HoneyUtil.getResultObject(rs, field.getType().getName(), _toColumnName(field.getName(),entityClass));
+	private Object _getObjectForMoreTable(ResultSet rs, String tableName, Field field,
+			Class entityClass) throws SQLException {
+		if (isConfuseDuplicateFieldDB()) {// 主表时会用到
+			return HoneyUtil.getResultObject(rs, field.getType().getName(), _toColumnName(field.getName(), entityClass));
 		} else {
-			return HoneyUtil.getResultObject(rs, field.getType().getName(), tableName + "." + _toColumnName(field.getName(),entityClass));
+			try {
+				return HoneyUtil.getResultObject(rs, field.getType().getName(), tableName + "." + _toColumnName(field.getName(), entityClass));
+			} catch (SQLException e) {
+				return HoneyUtil.getResultObject(rs, field.getType().getName(), _toColumnName(field.getName(), entityClass)); // no table name, 不带表名
+			}
 		}
 	}
 	
 	// not  oracle,SQLite
 	@SuppressWarnings("rawtypes")
-	private Object _getObjectForMoreTable_NoConfuse(ResultSet rs, String tableName, Field field,Class entityClass) throws SQLException {
-		return HoneyUtil.getResultObject(rs, field.getType().getName(), tableName + "." + _toColumnName(field.getName(),entityClass));
+	private Object _getObjectForMoreTable_NoConfuse(ResultSet rs, String tableName, Field field,
+			Class entityClass) throws SQLException {
+		try {
+			return HoneyUtil.getResultObject(rs, field.getType().getName(), tableName + "." + _toColumnName(field.getName(), entityClass));
+		} catch (SQLException e) {
+			return HoneyUtil.getResultObject(rs, field.getType().getName(),  _toColumnName(field.getName(), entityClass));  // no table name, 不带表名
+		}
 	}
 	
 	//oracle,SQLite

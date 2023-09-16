@@ -58,7 +58,8 @@ public class TransformResultSet {
 				}
 				
 				isJsonString=false;
-				fieldName=_toFieldName(rmeta.getColumnName(i),entityClass);
+//				fieldName=_toFieldName(rmeta.getColumnName(i),entityClass);
+				fieldName=_toFieldName(rmeta.getColumnLabel(i),entityClass);//V2.1.8
 				fieldTypeName=HoneyUtil.getFieldType(rmeta.getColumnTypeName(i));
 				
 				json.append("\"");
@@ -214,7 +215,8 @@ public class TransformResultSet {
 			int k = 0;
 			int columnCount = rmeta.getColumnCount();
 			for (int i = 0; i < columnCount; i++) {
-				fieldName = _toFieldName(rmeta.getColumnName(i + 1), null);
+//				fieldName = _toFieldName(rmeta.getColumnName(i + 1), null);
+				fieldName = _toFieldName(rmeta.getColumnLabel(i + 1), null); //V2.1.8
 //				if (!isOrderField(orderFields, fieldName)) continue;
 				for (int j = 0; j < orderFieldsLen; j++) {
 					if (fieldName.equals(orderFields[j])) {
@@ -246,7 +248,9 @@ public class TransformResultSet {
 //			rowMap=new HashMap<>();
 			rowMap=new LinkedHashMap<>(); //2021-06-13
 			for (int i = 1; i <= columnCount; i++) {
-				rowMap.put(_toFieldName(rmeta.getColumnName(i),null), rs.getObject(i)); //ignore Column annotation
+//				rowMap.put(_toFieldName(rmeta.getColumnName(i),null), rs.getObject(i)); //ignore Column annotation
+				//V2.1.8
+				rowMap.put(_toFieldName(rmeta.getColumnLabel(i),null), rs.getObject(i)); //ignore Column annotation
 			}
 			list.add(rowMap);
 		}
@@ -294,7 +298,8 @@ public class TransformResultSet {
 		boolean firstRow=true;
 		for (int i = 0; i < columnCount; i++) {
 			try {
-				name = _toFieldName(rmeta.getColumnName(i + 1), clazz);
+//				name = _toFieldName(rmeta.getColumnName(i + 1), clazz);
+				name = _toFieldName(rmeta.getColumnLabel(i + 1), clazz); //fixed bug,V2.1.8. 获取用于打印输出和显示的指定列的建议标题。建议标题通常由 SQL AS 子句来指定。如果未指定 SQL AS，则从 getColumnLabel 返回的值将和 getColumnName 方法返回的值相同。 
 				field = clazz.getDeclaredField(name);// 可能会找不到Javabean的字段
 			} catch (NoSuchFieldException e) {
 				continue;
@@ -303,7 +308,8 @@ public class TransformResultSet {
 				firstRow=false;
 				regSort(rmeta);
 			}
-			field.setAccessible(true);
+//			field.setAccessible(true);
+			HoneyUtil.setAccessibleTrue(field);
 			Object obj = null;
 			boolean isRegHandlerPriority = false;
 			try {
@@ -328,7 +334,8 @@ public class TransformResultSet {
 					obj = TypeHandlerRegistry.handlerProcess(field.getType(), obj);
 				}
 				
-				field.set(targetObj, obj); // 对相应Field设置
+//				field.set(targetObj, obj); // 对相应Field设置
+				HoneyUtil.setFieldValue(field, targetObj, obj);
 				
 			} catch (IllegalArgumentException e) {
 //				e.printStackTrace();
@@ -341,7 +348,8 @@ public class TransformResultSet {
 					if (handler != null) {
 						try {
 							Object newObj = handler.process(type, obj);
-							field.set(targetObj, newObj);
+//							field.set(targetObj, newObj);
+							HoneyUtil.setFieldValue(field, targetObj, newObj);
 							alreadyProcess = true;
 						} catch (Exception e2) {
 							alreadyProcess = false;
@@ -349,7 +357,8 @@ public class TransformResultSet {
 					}
 				}
 				if (!alreadyProcess) {
-					field.set(targetObj, obj);
+//					field.set(targetObj, obj);
+					HoneyUtil.setFieldValue(field, targetObj, obj);
 				}
 			}
 		}
