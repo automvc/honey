@@ -141,6 +141,9 @@ public class OneTimeSnowflakeId implements GenId {
 		try {
 			wait(10);
 			testSpeedLimit();
+		} catch (InterruptedException e) {
+			Logger.error(e.getMessage(), e);
+			Thread.currentThread().interrupt();
 		} catch (Exception e) {
 			Logger.error(e.getMessage());
 		}

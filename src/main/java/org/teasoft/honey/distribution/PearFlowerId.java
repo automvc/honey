@@ -145,6 +145,10 @@ public class PearFlowerId implements GenId {
 							return -1L;
 						}// 否则 走分支2或3
 					} // 否则 走分支2或3
+				} catch (InterruptedException e) {
+					Logger.warn(e.getMessage(), e);
+					Thread.currentThread().interrupt();
+					return -2;
 				} catch (Exception e) {
 					Logger.warn(e.getMessage());
 					return -2;
@@ -165,6 +169,10 @@ public class PearFlowerId implements GenId {
 						if (timestamp < lastTimestamp) {
 							return -3L;  //回拨太大
 						}// 否则 走分支2或3
+					} catch (InterruptedException e) {
+						Logger.warn(e.getMessage(), e);
+						Thread.currentThread().interrupt();
+						return -2;
 					} catch (Exception e) {
 						Logger.warn(e.getMessage());
 						return -2;
@@ -183,6 +191,10 @@ public class PearFlowerId implements GenId {
 				if (segment >= maxSegment) { // 已用完，不能再派号
 					try {
 						wait(100);
+					} catch (InterruptedException e) {
+						Logger.warn(e.getMessage(), e);
+						Thread.currentThread().interrupt();
+						return -2;
 					} catch (Exception e) {
 						Logger.warn(e.getMessage());
 						return -2;
