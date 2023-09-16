@@ -84,6 +84,9 @@ public class ShardingSelectRsEngine {
 					struct = HoneyContext.getCurrentShardingSort();
 				}
 				queue.offer(new CompareResult(rs,struct));
+			} catch (InterruptedException e) {
+				Logger.error(e.getMessage(), e);
+				Thread.currentThread().interrupt();
 			} catch (Exception e) {
 				Logger.error(e.getMessage(), e);
 			}
