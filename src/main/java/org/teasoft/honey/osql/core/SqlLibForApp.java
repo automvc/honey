@@ -653,16 +653,20 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 
 					try {
 						//get v
-						String tempCName="";
+						String tempCName = "";
+						String tempValue = null;
 						if (isConfuseDuplicateFieldDB()) {
 //							v = rs.getObject(_toColumnName(field[i].getName(), entity.getClass()));
-							tempCName=_toColumnName(field[i].getName(), entity.getClass());
+							tempCName = _toColumnName(field[i].getName(), entity.getClass());
+							tempValue = rsMap.get(tempCName);
 						} else {
 //							v = rs.getObject(tableName + "."+ _toColumnName(field[i].getName(), entity.getClass()));
-							tempCName=tableName + "."+ _toColumnName(field[i].getName(), entity.getClass());
+							tempCName = tableName + "." + _toColumnName(field[i].getName(), entity.getClass());
+							tempValue = rsMap.get(tempCName);
+							if (tempValue == null) tempValue = _toColumnName(field[i].getName(),entity.getClass()); // V2.1.8 避免自定义count(*) para时,没有带表名
 						}
 //						v=rsMap.get(tempCName);
-						v = ObjectCreatorFactory.create(rsMap.get(tempCName), field[i].getType());
+						v = ObjectCreatorFactory.create(tempValue, field[i].getType());
 						
 						boolean processAsJson = false;
 						if (isJoson(field[i])) {
