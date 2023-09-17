@@ -125,7 +125,7 @@ public final class HoneyUtil {
 		String c = "";
 		String fName = NameTranslateHandle.toColumnName(field.getName());
 		if (isSQLite()) {
-			c = expression + K.as + fName;
+			c = expression + " "+ K.as + " "+fName; //fixed bug V2.1.8
 		} else {
 			c = expression + " " + fName;
 		}
