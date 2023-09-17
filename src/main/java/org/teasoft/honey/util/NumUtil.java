@@ -16,6 +16,7 @@ public class NumUtil {
 	
 	private static final String n = "0123456789";
 	private static final char[] num = n.toCharArray();
+	private static Random random = new Random();
 	
 	private NumUtil() {}
 	
@@ -25,10 +26,9 @@ public class NumUtil {
 	 * @return random number,the amount is size.
 	 */
 	public static String getRandomNum(int size) {
-		Random random = new Random();
 		StringBuilder s = new StringBuilder();
 		for (int i = 0; i < size; i++) {
-			s.append(getOneNum(random));
+			s.append(getOneNum());
 		}
 		return s.toString();
 	}
@@ -41,7 +41,7 @@ public class NumUtil {
 		return getRandomNum(6);
 	}
 
-	private static char getOneNum(Random random) {
+	private static char getOneNum() {
 		int a = random.nextInt(num.length);
 		return num[a];
 	}
