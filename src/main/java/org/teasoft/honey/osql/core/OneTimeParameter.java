@@ -27,13 +27,13 @@ class OneTimeParameter {
 
 		Map<String, Object> map = local.get();
 		if (null == map) return null;
-		if (map.size() == 0) {
-			remove();
-			return null;
-		}
+//		if (map.size() == 0) {
+//			remove();
+//			return null;
+//		}
 		Object obj = map.get(key);
 		map.remove(key); // 取后即删
-		if (map.size() == 0) remove();
+//		if (map.size() == 0) remove();
 		return obj;
 	}
 
@@ -54,7 +54,7 @@ class OneTimeParameter {
 		return StringConst.tRue.equals(value) ? true : false;
 	}
 	
-	private static void remove() {
+	static void remove() {
 		local.remove();
 	}
 	
