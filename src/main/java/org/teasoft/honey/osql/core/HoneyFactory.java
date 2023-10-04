@@ -83,6 +83,8 @@ public class HoneyFactory {
 	private ObjSQLService objSQLService;
 	private ObjSQLRichService objSQLRichService; 
 	
+	private boolean isOceanBasePrintFirst=true;
+	
 	static {
        cache=initCache();
 	}
@@ -409,7 +411,18 @@ public class HoneyFactory {
 			return new OffsetFetchPaging(); //2.1
 		else if(_isLimitMN())
 			return new MySqlFeature(); //2.1
-		else if (dbName != null)
+		else if (DatabaseConst.OceanBase.equalsIgnoreCase((dbName))) { // 2.1.10
+			String oceanbaseMode = HoneyConfig.getHoneyConfig().oceanbaseMode;
+			boolean isDifferentDbType = HoneyConfig.getHoneyConfig().multiDS_differentDbType;
+			if(isDifferentDbType || isOceanBasePrintFirst) {
+				isOceanBasePrintFirst=false;
+				Logger.logSQL("Using OceanBase,the Mode is : "+oceanbaseMode,"");
+			}
+			if (DatabaseConst.ORACLE.equalsIgnoreCase(oceanbaseMode))
+				return new OracleFeature();
+			else
+				return new MySqlFeature();
+		}else if (dbName != null)
 			return new NoPagingSupported(); //v1.8.15 当没有用到分页功能时,不至于报错.
 		else { //要用setDbFeature(DbFeature dbFeature)设置自定义的实现类
 			throw new NoConfigException("Error: Do not set the DbFeature implements class or do not set the database name. "); //v1.8.15

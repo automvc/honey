@@ -271,6 +271,8 @@ public final class HoneyConfig {
 	@SysValue("${bee.db.harmonyDbReadonly}")
 	public boolean harmonyDbReadonly;
 	
+	@SysValue("${bee.db.oceanbaseMode}")
+	public String oceanbaseMode="MySQL"; //V2.1.10  当是oceanbase时,会用来判断
 	
 	@SysValue("${bee.db.dbName}")
 	String dbName;
@@ -541,9 +543,11 @@ public final class HoneyConfig {
 						HoneyConfig.getHoneyConfig().dbName = newDbName;
 					}
 					String logMsg;
-					if (conn != null) logMsg="[Bee] ========= get the dbName from the Connection is :" + HoneyConfig.getHoneyConfig().dbName;
-					else              logMsg="[Bee] ========= get the dbName via url is :" + HoneyConfig.getHoneyConfig().dbName;
+					String dbName=HoneyConfig.getHoneyConfig().dbName;
+					if (conn != null) logMsg="[Bee] ========= get the dbName from the Connection is: " + dbName;
+					else              logMsg="[Bee] ========= get the dbName via url is: " + dbName;
 					Logger.info(logMsg);
+					printOceanbaseMode(dbName);
 					alreadyPrintDbName = true;
 				}
 			} catch (Exception e) {
@@ -562,11 +566,19 @@ public final class HoneyConfig {
 			}
 		} else {
 			if (!alreadyPrintDbName) {
-				Logger.info("[Bee] ========= get the dbName from HoneyConfig is :" + HoneyConfig.getHoneyConfig().dbName);
+				String dbName=HoneyConfig.getHoneyConfig().dbName;
+				Logger.info("[Bee] ========= get the dbName from HoneyConfig is: " + dbName);
+				printOceanbaseMode(dbName);
 				alreadyPrintDbName = true;
 			}
 		}
 	}
+	
+	private static void printOceanbaseMode(String dbName) {
+		if(DatabaseConst.OceanBase.equalsIgnoreCase(dbName))
+			Logger.info("[Bee] ========= the OceanBase mode is: "+HoneyConfig.getHoneyConfig().oceanbaseMode);
+	}
+	
 	
 	//V2.1.7 
 	private static String getDbNameByUrl() {
