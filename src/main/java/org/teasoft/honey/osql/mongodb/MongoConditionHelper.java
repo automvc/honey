@@ -83,7 +83,7 @@ public class MongoConditionHelper {
 				isNeedAnd = true;
 				continue;
 
-			} else if (expression.getOpNum() == 1) { // or || and operation
+			} else if (expression.getOpNum() == 1) { // or || and operation, 还有:  not (2.1.10) 
 				stack.push(expression.getValue().toString().toLowerCase());
 				isNeedAnd = false;
 				continue;

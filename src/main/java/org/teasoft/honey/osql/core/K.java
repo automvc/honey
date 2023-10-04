@@ -32,6 +32,7 @@ public class K {
 	public static final String values=k.values();
 	public static final String and=k.and();
 	public static final String or=k.or();
+	public static final String not=k.not();
 	public static final String Null=k.Null();
 	public static final String isNull=k.isNull();
 	public static final String isNotNull=k.isNotNull();

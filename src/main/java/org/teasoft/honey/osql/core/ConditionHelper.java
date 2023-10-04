@@ -400,10 +400,15 @@ public class ConditionHelper {
 				isNeedAnd = true;
 				continue;
 
-			} else if (expression.getOpNum() == 1) { // or || and operation 
-				sqlBuffer.append(" ");
-				sqlBuffer.append(expression.getValue());
-				sqlBuffer.append(" ");
+			} else if (expression.getOpNum() == 1) { // or || and operation, 还有:  not (2.1.10) 
+				if ("!".equals(expression.getValue())) { //V2.1.10
+					isNeedAnd=adjustAnd(sqlBuffer,isNeedAnd);
+					sqlBuffer.append(expression.getValue());
+				}else {
+					sqlBuffer.append(" ");
+					sqlBuffer.append(expression.getValue());
+					sqlBuffer.append(" ");
+				}
 				isNeedAnd = false;
 				continue;
 			}

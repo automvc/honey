@@ -156,6 +156,16 @@ public class ConditionImpl implements Condition {
 
 		return this;
 	}
+	
+	@Override
+	public Condition not() {
+		Expression exp = new Expression();
+		exp.setOpNum(1);
+		exp.value = K.not;
+		list.add(exp);
+
+		return this;
+	}
 
 	@Override
 	public Condition lParentheses() {
