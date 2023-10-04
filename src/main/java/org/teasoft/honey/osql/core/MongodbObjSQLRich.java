@@ -110,13 +110,14 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 	public <T> List<T> selectOrderBy(T entity, String orderFields, OrderType[] orderTypes) {
 		if (entity == null) return null;
 		
-		doBeforePasreEntity(entity, SuidType.SELECT);
 		List<T> list = null;
+		try {
+		doBeforePasreEntity(entity, SuidType.SELECT);
 
 		list = getMongodbBeeSql().selectOrderBy(entity, orderFields, orderTypes);
-
+		}finally {
 		doBeforeReturn(list);
-
+		}
 		return list;
 	}
 
@@ -144,11 +145,11 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 		if (ShardingUtil.isShardingBatchInsertDoing()) { // 正在执行分片的,不再走以下判断 // 防止重复解析
 			return _insert(entity, batchSize, excludeFields);
 		}
-		
+		int a = 0;
+		try {
 		HoneyUtil.setInitArrayIdByAuto(entity);
 		doBeforePasreEntity(entity, SuidType.INSERT);
-
-		int a = 0;
+	
 		List<String> tabNameListForBatch = HoneyContext.getListLocal(StringConst.TabNameListForBatchLocal);
 		List<String> dsNameListForBatch = HoneyContext.getListLocal(StringConst.DsNameListForBatchLocal);
 		
@@ -172,7 +173,9 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 		}
 
 		HoneyUtil.revertId(entity);
-		doBeforeReturn();
+		}finally {
+		 doBeforeReturn();
+		}
 		return a;
 	}
 	
@@ -236,7 +239,7 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 		if (entity == null) return null;
 		
 		if(FunctionType.COUNT==functionType) return count(entity, condition)+"";
-		
+		try {
 		regCondition(condition);
 		doBeforePasreEntity(entity,SuidType.SELECT);
 		
@@ -253,9 +256,10 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 		} else {
 			rs = getMongodbBeeSql().selectWithFun(entity, functionType, fieldForFun, condition);
 		}
-
-		doBeforeReturn();
 		return rs;
+		}finally {
+		 doBeforeReturn();
+		}
 	}
 
 	@Override
@@ -267,14 +271,17 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 	public <T> int count(T entity, Condition condition) {
 
 		if (entity == null) return 0;
+		try {
 		regCondition(condition);
 		_regFunType(FunctionType.COUNT);
 		doBeforePasreEntity(entity, SuidType.SELECT);
 		if (condition != null) condition.setSuidType(SuidType.SELECT);
 		int c = getMongodbBeeSql().count(entity, condition);
-		doBeforeReturn();
 
 		return c;
+		}finally {
+		 doBeforeReturn();
+		}
 	}
 
 	@Override
@@ -311,6 +318,7 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 	@Override
 	public <T> long insertAndReturnId(T entity, IncludeType includeType) {
 		if (entity == null) return -1;
+		try {
 		doBeforePasreEntity(entity, SuidType.INSERT);
 		_ObjectToSQLHelper.setInitIdByAuto(entity); // 更改了原来的对象
 
@@ -318,9 +326,10 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 		
 		HoneyUtil.revertId(entity);
 
-		doBeforeReturn();
-
 		return returnId;
+		}finally {
+		 doBeforeReturn();
+		}
 	}
 
 	@Override
@@ -347,6 +356,7 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 	@Override
 	public <T> List<String[]> selectString(T entity, Condition condition) {
 		if (entity == null) return null;
+		try {
 		regCondition(condition);
 		doBeforePasreEntity(entity, SuidType.SELECT);
 		List<String[]> list = null;
@@ -363,8 +373,10 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 		
 		HoneyContext.removeSysCommStrLocal(StringConst.MongoDB_SelectAllFields);
 
-		doBeforeReturn();
 		return list;
+		}finally {
+		 doBeforeReturn();
+		}
 	}
 	
 	@Override
@@ -401,24 +413,27 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 	
 	
 	private <T> T selectByIdObject(Class<T> entityClass, Object id) {
-		
-		doBeforePasreEntity(entityClass, SuidType.SELECT);
-		
-		List<T> list = getMongodbBeeSql().selectById(entityClass, id);
 
-		return getIdEntity(list);
+		doBeforePasreEntity(entityClass, SuidType.SELECT);
+		List<T> list = null;
+		T t = null;
+		try {
+			list = getMongodbBeeSql().selectById(entityClass, id);
+			if (list == null || list.size() < 1) {
+				t = null;
+			} else {
+				t = list.get(0);
+			}
+		} finally {
+			if (list == null || list.size() < 1) {
+				doBeforeReturn();
+			} else {
+				doBeforeReturn(list);
+			}
+		}
+		return t;
 	}
 	
-	private <T> T getIdEntity(List<T> list) {
-		if(list==null || list.size()<1) {
-			doBeforeReturn();
-			return null;
-		}else {
-			doBeforeReturn(list);
-			return list.get(0);
-		}
-	}
-
 	@Override
 	public <T> T selectById(Class<T> entityClass, Integer id) {
 		if (entityClass == null) return null;
@@ -455,7 +470,6 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 			throw new BeeIllegalParameterException("The parameter 'id' of method selectById does not allow to contain comma!");
 		}
 		
-		
 		return selectByIdObject(entityClass, id);
 	}
 	
@@ -467,24 +481,28 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 			Logger.warn("in method selectByIds,ids is null! ");
 			return null;
 		}
-		
+		List<T> list =null;
+		try {
 		doBeforePasreEntity(entityClass,SuidType.SELECT);
 		
-		List<T> list = getMongodbBeeSql().selectById(entityClass, ids);
-		
+		list = getMongodbBeeSql().selectById(entityClass, ids);
+		}finally {
 		doBeforeReturn(list);
+		}
 		return list;
 	}
 	
 	@SuppressWarnings("rawtypes")
 	public int deleteByIdObject(Class c, Object id) {
-		
+		try {
 		doBeforePasreEntity(c,SuidType.DELETE);
 		
 		int a=getMongodbBeeSql().deleteById(c, id);
 		
-		doBeforeReturn();
 		return a;
+	    }finally {
+		 doBeforeReturn();
+		}
 	}
 
 	@Override
@@ -531,15 +549,17 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 	@Override
 	public <T> String selectJson(T entity, Condition condition) {
 		if (entity == null) return null;
+		try {
 		regCondition(condition);
 		doBeforePasreEntity(entity,SuidType.SELECT);
 		_regEntityClass1(entity);
 		
 		String json=getMongodbBeeSql().selectJson(entity, condition);
 		
-		doBeforeReturn();
-		
 		return json;
+		}finally {
+		 doBeforeReturn();
+		}
 	}
 
 	@Override
@@ -576,28 +596,31 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 	@Override
 	public <T> int updateBy(T entity, Condition condition, String... whereFields) {
 		if (entity == null) return 0;
-
+        try {
 		doBeforePasreEntity(entity, SuidType.UPDATE);
 
 		int updateNum = getMongodbBeeSql().updateBy(entity, condition, whereFields);
 
-		doBeforeReturn();
-
 		return updateNum;
+		}finally {
+		 doBeforeReturn();
+		}
 	}
 
 	// v1.7.2
 	@Override
 	public <T> int update(T entity, Condition condition, String... updateFields) {
 		if (entity == null) return 0;
-
+        try {
 		doBeforePasreEntity(entity, SuidType.UPDATE);
 
 		int updateNum = getMongodbBeeSql().update(entity, condition, updateFields);
 
-		doBeforeReturn();
-
 		return updateNum;
+		
+		}finally {
+		 doBeforeReturn();
+		}
 	}
 	
 	//v1.8
@@ -688,30 +711,15 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 			throw new BeeErrorGrammarException(
 					"BeeErrorGrammarException: the oldEntity and newEntity must be same type!");
 		}
-		
+		try {
 		doBeforePasreEntity(newEntity,SuidType.UPDATE); //拦截器只处理新实体；  旧实体oldEntity作为条件不在拦截器处理。
-
-		 
-//		Map<String, Object> oldMap = SuidHelper.entityToMap(oldEntity);
-//		Map<String, Object> newMap = SuidHelper.entityToMap(newEntity);
-//
-//		MapSql updateMapSql = BeeFactoryHelper.getMapSql();
-//		updateMapSql.put(MapSqlKey.Table, _toTableName(oldEntity));
-//		updateMapSql.put(MapSqlSetting.IsNamingTransfer, true);
-//		updateMapSql.put(oldMap);
-//		updateMapSql.putNew(newMap);
-//
-//		Logger.logSQL("update(T oldEntity, T newEntity) with MapSuid, ", "");
-//		MapSuid mapSuid = BeeFactoryHelper.getMapSuid();
-		
-//		return mapSuid.update(updateMapSql);  //it will use Interceptor
-		
 		
 		int updateNum =getMongodbBeeSql().update(oldEntity, newEntity);
 		
-		doBeforeReturn();
-		
 		return updateNum;
+		}finally {
+			 doBeforeReturn();
+		}
 		
 	}
 	
@@ -738,10 +746,13 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 	@Override
 	public <T> boolean createTable(Class<T> entityClass, boolean isDropExistTable) {
 		if (entityClass == null) return false;
+		try {
 		doBeforePasreEntity(entityClass, SuidType.DDL);
 		boolean f=getMongodbBeeSql().createTable(entityClass,isDropExistTable);
-		doBeforeReturn();
 		return f;
+		}finally {
+		 doBeforeReturn();
+		}
 	}
 	
 	private static final String MSG = "Please use the relative method of CreateIndex or MongodbSuidRichExt in org.teasoft.beex.osql.mongodb!";
@@ -768,6 +779,5 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 //	private void doBeforePasreEntity(Object entity[], SuidType SuidType) {  //fixed bug. no set dataSource name
 //		getInterceptorChain().beforePasreEntity(entity, SuidType);
 //	}
-	
 
 }

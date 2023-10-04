@@ -33,17 +33,19 @@ public class ObjSQL extends AbstractCommOperate implements Suid {
 
 		if (entity == null) return null;
 		
+		List<T> list = null;
+		try {
 		doBeforePasreEntity(entity,SuidType.SELECT);
 
-		List<T> list = null;
 		String sql = getObjToSQL().toSelectSQL(entity);
 		
 		sql=doAfterCompleteSql(sql);
 		
 		Logger.logSQL("select SQL: ", sql);
 		list = getBeeSql().select(sql, toClassT(entity)); // 返回值用到泛型
-		
+		}finally {
 		doBeforeReturn(list);
+		}
 		
 		return list;
 	}
@@ -58,7 +60,7 @@ public class ObjSQL extends AbstractCommOperate implements Suid {
 		// 当id为null时抛出异常  在转sql时抛出
 
 		if (entity == null) return -1;
-		
+		try{
 		doBeforePasreEntity(entity,SuidType.UPDATE);
 		
 		String sql = "";
@@ -70,15 +72,17 @@ public class ObjSQL extends AbstractCommOperate implements Suid {
 		Logger.logSQL("update SQL: ", sql);
 		updateNum = getBeeSql().modify(sql);
 		
-		doBeforeReturn();
-		
 		return updateNum;
+		}finally {
+		 doBeforeReturn();
+		}
 	}
 
 	@Override
 	public <T> int insert(T entity){
 
 		if (entity == null) return -1;
+		try{
 		doBeforePasreEntity(entity,SuidType.INSERT);
 		_ObjectToSQLHelper.setInitIdByAuto(entity); // 更改了原来的对象
 		String sql = getObjToSQL().toInsertSQL(entity);
@@ -90,9 +94,10 @@ public class ObjSQL extends AbstractCommOperate implements Suid {
 		HoneyUtil.revertId(entity); //v1.9
 		insertNum = getBeeSql().modify(sql);
 		
-		doBeforeReturn();
-		
 		return insertNum;
+		}finally {
+		 doBeforeReturn();
+		}
 	}
 	
 	private <T> void checkGenPk(T entity) {
@@ -126,10 +131,13 @@ public class ObjSQL extends AbstractCommOperate implements Suid {
 	public <T> long insertAndReturnId(T entity) {
 		if (entity == null) return -1L;
 		checkGenPk(entity);
-		
+		try {
 		String sql=_toInsertAndReturnSql(entity);
 
 		return _insertAndReturnId(entity, sql);
+		}finally {
+		 doBeforeReturn();
+		}
 	}
 	
 	 <T> long _insertAndReturnId(T entity,String sql) {
@@ -163,7 +171,7 @@ public class ObjSQL extends AbstractCommOperate implements Suid {
 		OneTimeParameter.setAttribute(StringConst.PK_Name_For_ReturnId, pkName);
 		//id will gen by db
 		returnId = getBeeSql().insertAndReturnId(sql);
-		doBeforeReturn();
+//		doBeforeReturn();
 		return returnId;
 	}
 	
@@ -172,6 +180,7 @@ public class ObjSQL extends AbstractCommOperate implements Suid {
 	public int delete(Object entity) {
 
 		if (entity == null) return -1;
+		try {
 		doBeforePasreEntity(entity,SuidType.DELETE);
 		String sql = getObjToSQL().toDeleteSQL(entity);
 		_regEntityClass(entity);
@@ -179,29 +188,35 @@ public class ObjSQL extends AbstractCommOperate implements Suid {
 		int deleteNum = -1;
 		Logger.logSQL("delete SQL: ", sql);
 		deleteNum = getBeeSql().modify(sql);
-		doBeforeReturn();
 		return deleteNum;
+		}finally {
+		 doBeforeReturn();
+		}
 	}
 
 	@Override
 	public <T> List<T> select(T entity, Condition condition) {
 		if (entity == null) return null;
+		List<T> list = null;
+		try {
 		regCondition(condition);
 		doBeforePasreEntity(entity,SuidType.SELECT);
 		//传递要判断是否有group
 		OneTimeParameter.setTrueForKey(StringConst.Check_Group_ForSharding); 
-		List<T> list = null;
 		String sql = getObjToSQL().toSelectSQL(entity,condition);
 		sql=doAfterCompleteSql(sql);
 		Logger.logSQL("select SQL: ", sql);
 		list = getBeeSql().select(sql, toClassT(entity));
-		doBeforeReturn(list);
+		}finally {
+		 doBeforeReturn(list);
+		}
 		return list;
 	}
 
 	@Override
 	public <T> int delete(T entity, Condition condition) {
 		if (entity == null) return -1;
+		try {
 		regCondition(condition);
 		doBeforePasreEntity(entity,SuidType.DELETE);
 		String sql = getObjToSQL().toDeleteSQL(entity,condition);
@@ -212,8 +227,10 @@ public class ObjSQL extends AbstractCommOperate implements Suid {
 			Logger.logSQL("delete SQL: ", sql);
 		}
 		deleteNum = getBeeSql().modify(sql);
-		doBeforeReturn();
 		return deleteNum;
+		}finally {
+		 doBeforeReturn();
+		}
 	}
 
 	@Override

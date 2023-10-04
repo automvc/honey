@@ -25,14 +25,15 @@ public class MongodbObjSQL extends AbstractCommOperate implements Suid {
 	@Override
 	public <T> List<T> select(T entity) {
 		if (entity == null) return null;
-		
+		List<T> list =null;
+		try {
 		checkPackage(entity);
 		doBeforePasreEntity(entity,SuidType.SELECT);
 
-		List<T> list =getMongodbBeeSql().select(entity);
-		
-		doBeforeReturn(list);
-		
+		list =getMongodbBeeSql().select(entity);
+		}finally {
+		 doBeforeReturn(list);
+		}
 		return list;
 	}
 
@@ -41,7 +42,7 @@ public class MongodbObjSQL extends AbstractCommOperate implements Suid {
 		// 当id为null时抛出异常  在转sql时抛出
 
 		if (entity == null) return 0;
-		
+		try {
 		doBeforePasreEntity(entity,SuidType.UPDATE);
 		
 		
@@ -56,15 +57,17 @@ public class MongodbObjSQL extends AbstractCommOperate implements Suid {
 		
 		int updateNum =getMongodbBeeSql().update(entity);
 		
-		doBeforeReturn();
-		
 		return updateNum;
+		}finally {
+		 doBeforeReturn();
+		}
 	}
 
 	@Override
 	public <T> int insert(T entity){
 
 		if (entity == null) return -1;
+		try {
 		doBeforePasreEntity(entity,SuidType.INSERT);
 		_ObjectToSQLHelper.setInitIdByAuto(entity); // 更改了原来的对象
 		
@@ -72,16 +75,17 @@ public class MongodbObjSQL extends AbstractCommOperate implements Suid {
 		insertNum=getMongodbBeeSql().insert(entity);
 		HoneyUtil.revertId(entity); //v1.9
 		
-		doBeforeReturn();
-		
 		return insertNum;
+		}finally {
+		 doBeforeReturn();
+		}
+		
 	}
-	
-	
 
 	@Override
 	public <T> long insertAndReturnId(T entity) {
 		if (entity == null) return -1;
+		try {
 		doBeforePasreEntity(entity,SuidType.INSERT);
 		_ObjectToSQLHelper.setInitIdByAuto(entity); // 更改了原来的对象
 		
@@ -91,35 +95,37 @@ public class MongodbObjSQL extends AbstractCommOperate implements Suid {
 		
 		HoneyUtil.revertId(entity); 
 		
-		doBeforeReturn();
-		
 		return insertNum;
+		}finally {
+		 doBeforeReturn();
+		}
 	}
 
 	@Override
 	public int delete(Object entity) {
 
 		if (entity == null) return -1;
-		
+		try {
 		doBeforePasreEntity(entity,SuidType.DELETE);
 		
 		int deleteNum =0;
 		
 		deleteNum=getMongodbBeeSql().delete(entity);
 		
-		doBeforeReturn();
-		
 		return deleteNum;
+		}finally {
+		 doBeforeReturn();
+		}
 	}
 
 	@Override
 	public <T> List<T> select(T entity, Condition condition) {
 		if (entity == null) return null;
+		List<T> list = null;
+		try {
 		regCondition(condition);
 		doBeforePasreEntity(entity, SuidType.SELECT);
 		if (condition != null) condition.setSuidType(SuidType.SELECT);
-
-		List<T> list = null;
 
 		if (condition != null) {
 			ConditionImpl conditionImpl = (ConditionImpl) condition;
@@ -137,24 +143,28 @@ public class MongodbObjSQL extends AbstractCommOperate implements Suid {
 		}
 
 		list = getMongodbBeeSql().select(entity, condition);
-		
+		}finally {
 		HoneyContext.removeSysCommStrLocal(StringConst.MongoDB_SelectAllFields);
-
+        
 		doBeforeReturn(list);
+		}
 		return list;
 	}
 
 	@Override
 	public <T> int delete(T entity, Condition condition) {
 		if (entity == null) return -1;
+		try {
 		regCondition(condition);
 		doBeforePasreEntity(entity,SuidType.DELETE);
 		int deleteNum =0;
 		
 		deleteNum=getMongodbBeeSql().delete(entity);
 		
-		doBeforeReturn();
 		return deleteNum;
+		}finally {
+		 doBeforeReturn();	
+		}
 	}
 
 	@Override
