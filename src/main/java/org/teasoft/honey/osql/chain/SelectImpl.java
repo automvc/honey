@@ -388,6 +388,15 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 		return this;
 	}
 	
+	
+	@Override
+	public Select not() {
+		sql.append(SPACE).append(K.not);
+		isAddAnd = false;
+		return this;
+	}
+	
+	
 	@Override
 	public Select in(String field, Number... valueList) {
 		checkField(field);
