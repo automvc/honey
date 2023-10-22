@@ -784,6 +784,11 @@ final class _ObjectToSQLHelper {
 		sqlBuffer.append(sqlValue);
 		sql=sqlBuffer.toString();
 		
+//		"insert into orders() values ()"  //empty value
+		if (isFirst) {
+			OneTimeParameter.setTrueForKey("_SYS_Bee_NullObjectInsert");
+		}
+		
 		if(OneTimeParameter.isTrue("_SYS_Bee_Return_PlaceholderValue")){
 			OneTimeParameter.setAttribute("_SYS_Bee_PlaceholderValue", sqlValue.toString());
 		}

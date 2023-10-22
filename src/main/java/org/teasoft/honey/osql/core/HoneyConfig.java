@@ -2,7 +2,6 @@ package org.teasoft.honey.osql.core;
 
 import java.io.InputStream;
 import java.sql.Connection;
-import java.util.List;
 import java.util.Map;
 
 import javax.sql.DataSource;
@@ -70,7 +69,7 @@ public final class HoneyConfig {
 				Logger.error(msg,new ConfigWrongException(msg));
 			} else {
 				if(type==2) _setHoneyConfig();//rebase
-				overrideByActive(active);
+				_overrideByActive(active);
 				//use the key in active override the main file.
 			}
 		}
@@ -78,7 +77,7 @@ public final class HoneyConfig {
 		HoneyContext.setConfigRefresh(true);
 		HoneyContext.setDsMapConfigRefresh(true); //直接设置,  因解析时会判断相应属性后才进行相应解析
 		
-		HoneyContext.refreshDataSourceMap(); //V2.1.8
+//		HoneyContext.refreshDataSourceMap(); //V2.1.8  立即刷新         V2.1.10 要是有部分配置在如bee-dev(如密码在那),则会因配置信息不全而报错;   首次加载时,还没有拿完所有信息
 		
 		if(isAndroid || isHarmony) {//V1.17
 			dbName=DatabaseConst.SQLite;
@@ -88,15 +87,26 @@ public final class HoneyConfig {
 		HoneyContext.initLoad();
 	}
 	
+	private void _overrideByActive(String active) {
+		
+		OneTimeParameter.setTrueForKey(StringConst.PREFIX+"need_override_properties");
+		
+		String fileName = "bee-{active}.properties".replace("{active}", active);
+		Properties beeActiveProp = new BeeActiveProp(fileName);
+		SysValueProcessor.process(honeyConfig,beeActiveProp);
+	}
+	
 	/**
 	 * override by Active file
 	 * @param active
 	 * @since 2.1.8
 	 */
 	public void overrideByActive(String active) {
-		String fileName = "bee-{active}.properties".replace("{active}", active);
-		Properties beeActiveProp = new BeeActiveProp(fileName);
-		SysValueProcessor.process(honeyConfig,beeActiveProp);
+		_overrideByActive(active);
+		
+		//V2.1.10
+		HoneyContext.setConfigRefresh(true);
+		HoneyContext.setDsMapConfigRefresh(true); //直接设置,  因解析时会判断相应属性后才进行相应解析
 	}
 	
 	/**
@@ -301,7 +311,9 @@ public final class HoneyConfig {
 	boolean pagingWithLimitOffset;
     
     @SysValue("${bee.db.dbs}")
-    List<Map<String,String>> dbs; //V2.1 配置多个数据源, 属性值与具体工具对应
+//    private List<Map<String,String>> dbs; //V2.1 配置多个数据源, 属性值与具体工具对应
+    private Map<String,Map<String,String>> dbs; //V2.1 配置多个数据源, 属性值与具体工具对应 ;   Map<String,Map<String,String>>这种结构可以在active中只写不同的部分
+//    {0={password=123, dsName=ds0, driverClassName=com.mysql.jdbc.Driver, jdbcUrl=jdbc:mysql://localhost:3306/bee?characterEncoding=UTF-8&useSSL=false, username=root}, 1={password=123, dsName=ds1, driver-class-name=com.mysql.jdbc.Driver, jdbcUrl=jdbc:mysql://localhost:3306/pro?characterEncoding=UTF-8&useSSL=false, username=root}}
     
     @SysValue("${bee.db.extendFirst}")
     boolean extendFirst;//V2.1 dbs数组的非首个下标的元素,是否从首个元素继承属性
@@ -463,11 +475,13 @@ public final class HoneyConfig {
 	@SysValue("${bee.dosql.sharding.jdbcStreamSelect}")
 	public boolean sharding_jdbcStreamSelect=true;
 	
-	@SysValue("${bee.dosql.sharding.notSupportUnionQuery}")
-	public boolean notSupportUnionQuery; //2.0
+	@SysValue("${bee.dosql.sharding.notSupportUnionQuery}")//2.0
+//	public boolean notSupportUnionQuery; //  bug
+	public boolean sharding_notSupportUnionQuery;  // fixed V2.1.10
 	
 	@SysValue("${bee.dosql.sharding.executorSize}") //2.1.7
-	public int executorSize=0;
+//	public int executorSize=0;
+	public int sharding_executorSize=0; //fixed V2.1.10
 	
 	//----------------------------- sharding end
 	
@@ -661,12 +675,20 @@ public final class HoneyConfig {
 		LoggerFactory.setConfigRefresh(true);
 	}
 
-	public List<Map<String, String>> getDbs() {
+//	public List<Map<String, String>> getDbs() {
+//		return dbs;
+//	}
+//
+//	public void setDbs(List<Map<String, String>> dbs) {
+//		this.dbs = dbs;
+//	}
+	
+	public Map<String, Map<String, String>> getDbs() {
 		return dbs;
 	}
 
-	public void setDbs(List<Map<String, String>> dbs) {
+	public void setDbs(Map<String, Map<String, String>> dbs) {
 		this.dbs = dbs;
 	}
-
+	
 }

@@ -1886,7 +1886,7 @@ public final class HoneyUtil {
 	
 	//exclude union,union all
 	public static boolean isNotSupportUnionQuery() {
-		return HoneyConfig.getHoneyConfig().notSupportUnionQuery || HoneyUtil.isSQLite();
+		return HoneyConfig.getHoneyConfig().sharding_notSupportUnionQuery || HoneyUtil.isSQLite();
 	}
 	
 	public static <T> String getColumnNames(T entity) {
@@ -1903,7 +1903,7 @@ public final class HoneyUtil {
 	}
 	
 	public static String toTableName(Object entity) {
-		if (entity instanceof Class) return _toTableNameByClass((Class) entity); // fixed bug 2.1
+		if (entity instanceof Class) return _toTableNameByClass((Class<?>) entity); // fixed bug 2.1
 		if (entity instanceof String) return _toTableName2((String) entity);// fixed bug 2.1
 		return NameTranslateHandle.toTableName(NameUtil.getClassFullName(entity));
 	}
@@ -1912,7 +1912,7 @@ public final class HoneyUtil {
 		return NameTranslateHandle.toTableName(entityName);
 	}
 	
-	private static String _toTableNameByClass(Class c) {
+	private static String _toTableNameByClass(Class<?> c) {
 		return NameTranslateHandle.toTableName(c.getName());
 	}
 	

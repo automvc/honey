@@ -7,6 +7,7 @@
 package org.teasoft.honey.osql.core;
 
 import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -56,7 +57,18 @@ class ProcessDataSourceMap {
 
 	static Map<String, DataSource> refreshDataSourceMap() {
 
-		List<Map<String, String>> dbsList = HoneyConfig.getHoneyConfig().getDbs();
+//		List<Map<String, String>> dbsList = HoneyConfig.getHoneyConfig().getDbs();
+		Map<String, Map<String, String>> dsMap = HoneyConfig.getHoneyConfig().getDbs();
+		if (dsMap == null || dsMap.size() == 0) return null;
+		
+		List<Map<String, String>> dbsList=new ArrayList<>();
+		for (Map.Entry<String, Map<String, String>> entry : dsMap.entrySet()) {
+//		    Map<String, String> innerMap = entry.getValue();
+//		    dbsList.add(innerMap);
+			dbsList.add(entry.getValue());
+		}
+		
+		
 		if (dbsList == null || dbsList.size() == 0) return null;
 
 		boolean extendFirst = HoneyConfig.getHoneyConfig().extendFirst;

@@ -399,7 +399,12 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 		_regEntityClass1(entity);
 		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("insert SQL: ", sql);
-		r= getBeeSql().modify(sql);
+		if(OneTimeParameter.isTrue("_SYS_Bee_NullObjectInsert")){
+			Logger.warn("All fields in object is null,would ignroe it!");
+			r=0;
+		}else {
+		    r= getBeeSql().modify(sql);
+		}
 		HoneyUtil.revertId(entity);  //fixed bug
 		}finally {
 		doBeforeReturn();
@@ -415,6 +420,11 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 		String sql = getObjToSQLRich().toInsertSQL(entity, includeType);
 		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("insert SQL: ", sql);
+		
+		if(OneTimeParameter.isTrue("_SYS_Bee_NullObjectInsert")){
+			Logger.warn("All fields in object is null,would ignroe it!");
+			return -1;
+		}
 		
 		return _insertAndReturnId(entity, sql);
 		} finally {

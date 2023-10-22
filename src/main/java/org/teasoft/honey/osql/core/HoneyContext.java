@@ -1044,6 +1044,7 @@ public final class HoneyContext {
 		boolean enableMultiDs = HoneyConfig.getHoneyConfig().multiDS_enable;
 		boolean isDifferentDbType = HoneyConfig.getHoneyConfig().multiDS_differentDbType;
 		if (enableMultiDs && isDifferentDbType) {
+			if(getDsName2DbName()==null || getDsName2DbName().size()<=1) return false; //V2.1.10 只有一个数据源时,返回false
 			return true;
 		} else {
 			if (useStructForLevel2()) return true;// 1.17 fixed
@@ -1134,40 +1135,45 @@ public final class HoneyContext {
 
 	private static final Integer ONE=1;
 	public static void updateConfig(Map<String, Object> map) {
+		
+		System.out.println("----------------------updateConfig-----------------");
 
 		if (ObjectUtils.isEmpty(map)) return;
 		
 		//------V2.1.8----start--
-		String activeKey="bee.profiles.active";
-		String typeKey="bee.profiles.type";
+//		String activeKey="bee.profiles.active"; //bug
+//		String typeKey="bee.profiles.type";//bug
+		
+		String activeKey="active"; //V2.1.10 fixed bug     使用的是HoneyConfig的属性名
+		String typeKey="type"; //V2.1.10 fixed bug
+		
 		String active=(String)map.get(activeKey);
 		Integer type=(Integer)map.get(typeKey);
 		if(StringUtils.isNotBlank(active)) {
 			if(ONE.equals(type)) {
-				HoneyConfig.getHoneyConfig().overrideByActive(active);
+				HoneyConfig.getHoneyConfig().overrideByActive(active); //先处理bee-{active}.properties; 后面再处理bee-spring-boot框架里的其它配置
 			} 
 		}
 		//不需要删除active和type两个key; 因不会触发新刷新, 更新后,也可以从HoneyConfig知道当前是什么值.
 		//------V2.1.8----end--
 		
 		Object obj = HoneyConfig.getHoneyConfig();
-		Class clazz = obj.getClass();
+		Class<?> clazz = obj.getClass();
 		for (Map.Entry<String, Object> entry : map.entrySet()) {
 			try {
 
 				Field field = clazz.getDeclaredField(entry.getKey());
-//				field.setAccessible(true);
-//				field.set(obj, entry.getValue());
-				HoneyUtil.setAccessibleTrue(field);
-				HoneyUtil.setFieldValue(field, obj, entry.getValue());
-
+				if (field != null) {
+					HoneyUtil.setAccessibleTrue(field);
+					HoneyUtil.setFieldValue(field, obj, entry.getValue());
+				}
 			} catch (Exception e) {
 				throw ExceptionHelper.convert(e);
 			}
 		}
 
 		setConfigRefresh(true);
-		setDsMapConfigRefresh(true);  //??  是否应该有数据源配置时,才设置更新??    解析时会先判断相关属性的
+		setDsMapConfigRefresh(true);  //是否应该有数据源配置时,才设置更新?    解析时会先判断相关属性的
 	}
 
 	public static boolean getModifiedFlagForCache2(String tableName) {

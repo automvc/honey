@@ -24,15 +24,13 @@ public class JdkSerializer implements Serializer {
 	@Override
 	public byte[] serialize(Object obj) throws IOException {
 		byte b[] = null;
-		if (obj == null) return b; //V2.1.8
-		
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		ObjectOutputStream objOut = new ObjectOutputStream(out);
-		objOut.writeObject(obj);
-		b = out.toByteArray();
-		out.close();
-		objOut.close();
-		return b;
+		if (obj == null) return b; // V2.1.8
+		try (ByteArrayOutputStream out = new ByteArrayOutputStream();
+				ObjectOutputStream objOut = new ObjectOutputStream(out)) {//V2.1.10
+			objOut.writeObject(obj);
+			b = out.toByteArray();
+			return b;
+		}
 	}
 
 	@Override

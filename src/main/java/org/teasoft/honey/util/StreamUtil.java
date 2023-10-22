@@ -9,9 +9,12 @@ package org.teasoft.honey.util;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.util.Map;
 
 import org.teasoft.honey.osql.core.ExceptionHelper;
@@ -105,6 +108,10 @@ public class StreamUtil {
 		return new ByteArrayInputStream(data);
 	}
 	
+	public static String byteArray2String(byte[] data) {
+		return new String(data);
+	}
+	
 	/**
 	 * InputStream to byte array
 	 * @param inputStream
@@ -132,5 +139,19 @@ public class StreamUtil {
 			// ignore
 		}
 		return a;
+	}
+	
+	public static void inputStream2File(InputStream inputStream, String fileName) {
+		File file = new File(fileName);
+
+		try (OutputStream outputStream = new FileOutputStream(file)) {
+			byte[] buffer = new byte[4096];
+			int bytesRead;
+			while ((bytesRead = inputStream.read(buffer)) != -1) {
+				outputStream.write(buffer, 0, bytesRead);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }
