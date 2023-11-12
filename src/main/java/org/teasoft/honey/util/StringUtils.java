@@ -223,7 +223,7 @@ public final class StringUtils {
 		if (str == null || str.length == 0) return ;
 
 		for (int i = 0; i < str.length; i++) {
-			str[i] = str[i].trim();
+			if (str[i] != null) str[i] = str[i].trim(); //V2.1.10
 		}
 	}
 	
