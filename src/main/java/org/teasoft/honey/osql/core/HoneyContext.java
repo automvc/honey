@@ -1226,6 +1226,8 @@ public final class HoneyContext {
 			if (map != null && map.size() > 0) {
 //			HoneyConfig.getHoneyConfig().dbName=null; //不需要,会重新解析的
 				setDataSourceMap(map);
+				
+				CacheUtil.clear(); //V2.1.10
 			}
 			HoneyContext.setDsMapConfigRefresh(false);
 		}

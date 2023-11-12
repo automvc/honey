@@ -63,6 +63,20 @@ public final class CacheUtil {
 	static {
 		MAX_SIZE=HoneyConfig.getHoneyConfig().cache_mapSize;
 		isShowSql=HoneyConfig.getHoneyConfig().showSQL;
+		timeout=HoneyConfig.getHoneyConfig().cache_timeout;
+		
+		init();
+	}
+	
+	static void clear() {
+		map.clear();
+		map_tableIndexSet.clear();
+		map_tableNameList.clear();
+		
+		init();
+	}
+	
+	private static void init() {
 		
 		map=new ConcurrentHashMap<>();
 		
@@ -72,8 +86,6 @@ public final class CacheUtil {
 		
 		map_tableIndexSet=new ConcurrentHashMap<>();
 		map_tableNameList=new ConcurrentHashMap<>();
-		
-		timeout=HoneyConfig.getHoneyConfig().cache_timeout;
 		
 		arrayIndex=new CacheArrayIndex();
 		
