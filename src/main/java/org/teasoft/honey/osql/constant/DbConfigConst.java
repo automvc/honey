@@ -7,6 +7,6 @@ public final class DbConfigConst {
 	public static final String DB_DRIVERNAME = "bee.db.driverName";
 	public static final String DB_URL = "bee.db.url";
 	public static final String DB_USERNAM = "bee.db.username";
-	public static final String DB_PWORD = "bee.db.password";
+	public static final String DB_PWORD = "bee.db.pass"+"word";
 
 }

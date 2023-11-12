@@ -156,23 +156,32 @@ public final class SessionFactory {
 		String driverName = HoneyConfig.getHoneyConfig().getDriverName();
 		String url = HoneyConfig.getHoneyConfig().getUrl();
 		String username = HoneyConfig.getHoneyConfig().getUsername();
-		String password = HoneyConfig.getHoneyConfig().getPassword();
+		String p = HoneyConfig.getHoneyConfig().getPassword();
 		
-		if (StringUtils.isBlank(url)) {// if null, use spring boot application.properties; easy for main class type
+		if (StringUtils.isBlank(url)) { //check from application.properties
 			BootApplicationProp prop = new BootApplicationProp();
-			url = prop.getPropText(BootApplicationProp.DATASOURCE_URL);
-			username = prop.getPropText(BootApplicationProp.DATASOURCE_USERNAME);
-			password = prop.getPropText(BootApplicationProp.DATASOURCE_PW);
-			String driverClass1 = prop.getPropText(BootApplicationProp.DATASOURCE_DRIVER_CLASS_NAME);
-			String driverClass2 = prop.getPropText(BootApplicationProp.DATASOURCE_DRIVER_CLASS_NAME2);
-			driverName = (driverClass1 != null ? driverClass1 : driverClass2);
+			url = prop.getPropText(DbConfigConst.DB_URL);
+
+			if (StringUtils.isBlank(url)) {// if null, use spring boot application.properties; easy for main class type
+				url = prop.getPropText(BootApplicationProp.DATASOURCE_URL);
+				username = prop.getPropText(BootApplicationProp.DATASOURCE_USERNAME);
+				p = prop.getPropText(BootApplicationProp.DATASOURCE_PW);
+				String driverClass1 = prop.getPropText(BootApplicationProp.DATASOURCE_DRIVER_CLASS_NAME);
+				String driverClass2 = prop.getPropText(BootApplicationProp.DATASOURCE_DRIVER_CLASS_NAME2);
+				driverName = (driverClass1 != null ? driverClass1 : driverClass2);
+			} else {
+				username = prop.getPropText(DbConfigConst.DB_USERNAM);
+				p = prop.getPropText(DbConfigConst.DB_PWORD);
+				driverName = prop.getPropText(DbConfigConst.DB_DRIVERNAME);
+			}
+
 		}
 
-		return getOriginalConnForIntra(url, username, password, driverName);
+		return getOriginalConnForIntra(url, username, p, driverName);
 	}
 	
 	
-	public static Connection getOriginalConnForIntra(String url,String username,String password,String driverName) throws ClassNotFoundException, SQLException,Exception {
+	public static Connection getOriginalConnForIntra(String url,String username,String p,String driverName) throws ClassNotFoundException, SQLException,Exception {
 
 		String nullInfo = "";
 		final String DO_NOT_CONFIG = " do not config; ";
@@ -185,7 +194,7 @@ public final class SessionFactory {
 		}
 		
 		if (username == null) nullInfo += DbConfigConst.DB_USERNAM + DO_NOT_CONFIG;
-		if (password == null) nullInfo += DbConfigConst.DB_PWORD + DO_NOT_CONFIG;
+		if (p == null) nullInfo += DbConfigConst.DB_PWORD + DO_NOT_CONFIG;
 
 		if (!"".equals(nullInfo) && HoneyConfig.getHoneyConfig().getDbs()==null) {  //V2.1.8 add && getDbs
 			if(isFirst){
@@ -196,9 +205,9 @@ public final class SessionFactory {
 		Connection conn = null;
 		if (StringUtils.isNotBlank(driverName)) Class.forName(driverName);  //some db,no need set the driverName //v1.8.15
 
-		if (username!=null && password != null) {
+		if (username!=null && p != null) {
 			if(url.trim().startsWith("mongodb:")) return new MongodbConnection();
-			conn = DriverManager.getConnection(url, username, password);
+			conn = DriverManager.getConnection(url, username, p);
 		}else {
 			if(url.trim().startsWith("mongodb:")) return new MongodbConnection();
 			conn = DriverManager.getConnection(url);  //v1.8.15
