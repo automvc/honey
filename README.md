@@ -9,8 +9,7 @@ Bee
 **Good Feature:**  AI, Timesaving/Tasteful, Easy, Automatic (**AiTeaSoft Style**)   
 
 ## **Good News:**  
-**Bee V2.0 Sharding is coming !**  
-[2.0-sharding-dev branch](../../../bee/tree/2.0-sharding-dev)  
+Newest version is:**Bee V2.1.8 LTS**  
 
 Sharding target: It is mainly transparent to business development and coding, with only a little sharding config.  
 #### [Quick Start:Shardign better example](guide/Quick-start-Sharding.md) 
@@ -25,278 +24,104 @@ https://github.com/automvc/bee-ext
 [点击链接可查看中文介绍](../../../bee/blob/master/README_CN.md)  
 
 ## Requirement  
-#### Bee jdk1.7+
-#### Bee-Ext(V2.0) jdk1.8+
+#### Bee jdk1.8+
 
 ## Feature & Function: 
 
-**Support many Database**(MySQL,MariaDB,Oracle,H2,SQLite,PostgreSQL,SQL Server,Access,Cassandra,Mongodb and so on) and easily extend.  
-**Good performance, close to the speed of JDBC; Small files：Bee V1.8 jar 217k**, **V1.9.5 jar,315k, V1.9.8 jar 310k**.  
-In addition to **JDBC, Android and HarmonyOS** are also supported.  
+**Easy to use**:  
+* 1.Simple interface, convenient to use. The Suid interface provides four object-oriented methods corresponding to the SQL language's select, update, insert, and delete operations.  
+* 2.By using Bee, you no longer need to write separate DAO code. You can directly call Bee's API to perform operations on the database.  
+* 3.Convention-over-configuration: Javabean can no annotation, no xml.  
+* 4.Intelligent automatic filtering of null and empty string properties in entities eliminates the need for writing code to check for non-null values.  
+* 5.Easily implement partial field queries and native statement pagination.  
+* 6.Supports returning query results in JSON format; supports chaining.  
+* 7.Supports Sharding, both database and table Sharding; database-only Sharding; table-only Sharding; and read-write separation. This functionality is transparent to existing code and does not require additional coding.  
+* 8.Easily extendable with multiple database support (MySQL, MariaDB, Oracle, H2, SQLite, PostgreSQL, SQL Server, Access, Kingbase, Dameng, etc.), and theoretically supports any database supported by JDBC. Additionally, supports Android and Harmony.  
+* 9.Additional database pagination support for: MsAccess, Cubrid, HSQL, Derby, Firebird, etc.
+* 10.Multiple databases can be used simultaneously (e.g., MySQL, Oracle, SQL Server).  
 
-* 1.The interface is simple and easy to use, **Suid (select,update,insert,delete)** object-oriented operation.
-* 2.All Suid(select,update,insert,delete) operation use the same Bee interface,no longer need  new dao interface.  
-* 3.Convention-over-configuration:Javabean can no annotation,no xml.  
-* 4.Automatic filter the null and empty field for default.  
-* 5.Select some fields easily.  
-* 6.Dynamic & random combination of query conditions,no need to prepare the interface in advance; new query requirements, no need to change the query interface.  
-* 7.Native SQL sort support,native paging support(do not need select all records before).  
-* 8.Support return the JSON format query results directly; Chain programming.  
-* 9.Support:transaction ,same connection,for update，batch insert,procedure.  
-* 10.more tables select oriented object support(has not the n+1 problem,one to one,one to many,many to one,many to many).sub-field type support Javabean or List.  
-* 11.L1 cache, simple in concept and powerful in function; L1 cache can also be fine tuned like the JVM; Support updatable long-term cache list and update configuration table without restart. Inherently resistant to cache penetration. L2 cache extension support; Redis L2 cache support.  
-* 12.Support java_db naming translation and support customize,default implement.  
-* 13.Many DB supports easy extension(MySQL,MariaDB,Oracle,H2,SQLite,PostgreSQL,SQL Server,Access,Cassandra,Mongodb,etc. are directly available),In theory, can support all DB which support JDBC.  
-* 14.Add multi-DataSource support(Write/Read, only Split Database);support Jndi DataSource.  
-* 15.Support use many type database at the same time(eg: use Mysql,Oracle,SQL Server at the same).  
-* 16.Support distributed primary key(global unique id,Serial distributed unique id in one workid).  
-* 17.The same database sub table support, dynamic table name mapping support.  
-* 18.Support interceptor、multi-tenant,convert PreparedStatement parameter,custom TypeHandler and process the ResultSet.  
-* 19.Suid,SuidRich,PreparedSql,MapSuid,MoreTable support set the dataSource name.  
-* 20.MapSuid:opertate(suid) the database no need Javabean.  
-* 21.No third-party plug-in dependency; It can be used in zero configuration.  
-* 22.**Good performance, close to the speed of JDBC**; Small files：Bee V1.8 jar 217k, **V1.9.5 jar,315k, V1.9.8 jar 310k**.  
+**Automatic, powerful**:  
+* 11.Dynamic/arbitrary combination of query conditions without the need to prepare DAO interfaces in advance. New query requirements can be handled without modifying or adding interfaces.  
+* 12.Supports transactions, using the same connection for multiple ORM operations, FOR UPDATE, batch processing, executing native SQL statements, and stored procedures.  
+* 13.Supports object-oriented complex queries, multi-table queries (no N+1 problem), and supports one-to-one, one-to-many, many-to-one, and many-to-many relationships. The result structure can differ based on whether the sub-table uses List;multi-table association update, insert, and delete(2.1.8).  
+* 14.MongoDB ORM and support for MongoDB Sharding.  
+* 15.Supports register, interceptor, multi-tenancy, and custom TypeHandlers for handling ResultSet results in queries. SetParaTypeConvert converts PreparedStatement parameter types.  
+* 16.Custom dynamic SQL tags, such as @in, @toIsNULL1, @toIsNULL2, <if isNotNull>, <if isNotBlank>. Allows dynamic SQL, converting lists into statements like in (1,2,3) without requiring foreach loops. Batch insertion also does not require foreach.  
+* 17.Complex query can be automatically parsed by the frontend and backend.  
+* 18. L1 cache, simple in concept and powerful in function; L1 cache can also be fine tuned like the JVM; Support updatable long-term cache list and update configuration table without restart. Inherently resistant to cache penetration. L2 cache extension support; Redis L2 cache support.  
+* 19.No third-party plugin dependencies; can be used with zero configuration.  
+* 20.High performance: close to the speed of JDBC; small file size: Bee V1.17 is only 502k, V2.1 is only 827k.  
 **Assist function**:  
-* 23.Automatically generate the Javabean via DB table or view.Automatically create table via the Javabean,JavaWeb back-end code;Can print non placeholder executable SQL statements to facilitate debugging; support generate JSON format SQL scripts.  
-* 24.Support reading excel and importing data from Excel to DB easily.  
-* 25.Stream tool class streamutil.  
-* 26.The front and back ends of complex queries can be automatically parsed.  
-* 27.Annotation support:PrimaryKey,Column,Datetime,Createtime,Updatetime;JustFetch,ReplaceInto(MySQL).  
-* 28.Extensible annotation: multi tenant, fuzzy processing of sensitive information, automatic setting of field values, dictionary conversion, dicti18n multilingual International Dictionary conversion.  
-* 29.can automatically generate entity_F for referenced to the entity field name.  
+* 21.Additional features: 21. Provides a naturally simple solution for generating distributed primary keys: generates globally unique, monotonically increasing (within a worker ID) numeric IDs in a distributed environment.  
+* 22.Supports automatic generation of Javabean corresponding to tables(support Swagger), creating tables based on Javabean, and automatically generating backend Javaweb code based on templates. Can print executable SQL statements without placeholders for easy debugging. Supports generating SQL scripts in JSON format.  
+* 23.Supports reading Excel files and importing data into the database; simple operations. Supports generating database tables from Excel configurations.  
+* 24.Stream tool class StreamUtil;DateUtil date conversion, judge date format, calculate age.  
+* 25.Rich annotation support: PrimaryKey, Column, Datetime, Createtime, Updatetime; JustFetch, ReplaceInto (MySQL), Dict, DictI18n,GridFs, etc.  
+* 26.Use entity name _F (automatically generated) to reference entity field names, e.g., Users_F.name or in SuidRichExt interface using the format Users::getName.  
 
-## Newest Function
-### **V2.1**  
+## Newest main Function
 
-**V2.1.2.21(Dragon Fly)**  
-1)Bee+SpringBoot support application file config multi-dataSource  
-2)when do not use Mongodb,no need the dependency  
-3)fixed bug:ObjSQLRichService+Spring generate more one error instance  
-4)suppress the check Log implement msg  
-5)Search expression redundant bracket compatibility
+### **V2.1.10(2023.10·LTS)**  
+1.support SQL not ("!")  
+2.support OceanBase  
+3.doBeforeReturn with finally  
+4.clear cache when change dataSource map  
+5.multiple data source configurations, dbs supports multiple environment coverage configurations  
+6.support read bee.db.url and other information from application.properties of springboot when use in main method  
+7.fixed bug:two properties item(notSupportUnionQuery,executorSize)have not prefix "sharding_"  
 
-### **V2.1.2.28(Eleven)**  
-6)bee.properties support config multi-dataSource(this type no need xml,java code config)  
-7)fixed bug:Batch insert cannot set data source name  
-8)Mongodb query result date type conversion  
-9)multi dataSource is only Mongodb,can set bee.dosql.multiDS.justMongodb=true  
-then BF.getSuid() can return Mongodb type Suid instance  
-10)Support spring generation of Mongodb corresponding implementation class objects  
-//  Mongodb  
-//	@Resource(name = "mongodbObjSQLRichService")  
-//	ObjSQLRichService objSQLRichService;  
-//  use mongodb  type1  
-//	@Autowired  
-//	@Qualifier(value = "mongoSuidRich")  
-//	SuidRich suidRich; // ok  
-//	use mongodb  type2  
-//	@Resource(name = "mongoSuidRich")  
-//	SuidRich suidRich; // ok  
-11)Mongodb GridFS file store  
+**V2.1.8(2023.Mid-Autumn Festival & National Day)**  
+1.  
+1.1 Make the spring boot command line compatible with active profile selection, for example: java -jar springbootDemo.jar --spring.profiles.active=dev, which will trigger bee-dev.properties.  
+1.2 Make the spring boot data source configuration compatible, such as spring.datasource.url.  
+1.3 When not starting the application directly running the main method, if bee.properties does not have a data source configuration, it should be able to use the single data source configuration in application.properties of spring boot.  
+2. Perform insert, update, and delete operations on multiple table associations.  
+3. Add date format validation and calculate age in DateUtil.  
+4. Fix the bug in the CurrencyArithmetic variable.  
+5. Make the table name in CacheSuidStruct case-insensitive.  
+6. Improve the interceptor and context information management in MongodbObjSQLRichExt.  
+7. Support creating tables through Excel for more Database.  
+8. In Mongodb logging, when querying all fields, by default, the fields to be queried are not displayed. This can be controlled by the bee.osql.showMongoSelectAllFields configuration.  
+9. Provide a default BeeSimpleDataSource that supports configuring multiple data sources in bee.properties (even without using spring boot). When using Bee alone, the DataSourceBuilderFactory can also start automatically.  
+10. Support generating Swagger annotations for Javabean.  
+11. GridFs annotation support select type for MongoDB, GridFs file type support byte[] 
 
-### **V2.0 Sharding(Mother Love)** 
-**The use of more dataSources is as convenient as the use of single database; Using MongoDB is as easy as using MySQL**  
-1)add support object-oriented Sharding,JDBC Sharding  
-2)add support Mongodb ORM(use like JDBC)  
-3)add Mongodb Sharding  
-4)add support MS Access  
-5)add annotation default implementation(org.teasoft.bee.osql.annotation)  
-6)enhance:entities of different packages cannot share the cache even if the same table is specified  
-enhance:Json String type query result conversion enhance  
-7)fixed bug:PreparedSql interface's method insertBatch null pointer and placeholder bug 
+**V2.1.7** 
+1.support showExecutableSql sql format(requires configuration: bee.osql.showSql.sqlFormat=true)  
+2. Support random expiration time for second-level cache to solve cache avalanche issue.  
+3. DdlViaExcel.createTable allows creating database tables using information from an Excel file, with the option to create only specific tables.  
+4. Support for Spring Boot 3.0.8  
+5. Enhance Sharding ThreadPool to allow custom configuration of the size of threads for Sharding operations.  
+6. Improve handling of multi-threaded operations for obtaining SQLiteDatabase in Android.  
 
-**V2.0.x.x detail as below.**  
-
-**V2.0.0.1001(2022·National Day) **  
-Add Sharding Function  
-1)object-oriented Sharding  
-2)Suid,SuidRich,select,modify Sharding  
-3)MoreTable select Sharding  
-4)batch insert Sharding  
-5)MAX,MIN,COUNT,SUM,AVG select Sharding  
-6)paging/sort select Sharding  
-7)support Sharding type:Separate databases and tables,separate databases only,separate tables only  
-8)support route Sharding type:One database and one table, one database and multiple tables, multiple databases and multiple tables, all databases and all tables, only specifying tables, only specifying databases  
-9)Forcibly specify the partition route for the current operation through Hint(appoint ds and table)  
-10)Sharding broadcast table support  
-11)easy Sharding config support   
-12)stream select,reduce query memory usage  
-
-**V2.0.1.1(2023·New Year)**  
-13)**mongodb ORM function**  
-14)**mongodb Sharding function**  
-15)SuidRich,adjust the parameter position of the specified query field in some methods and change it to a variable-length parameter  
-16)SuidRich add method select first record:selectFirst(T entity, Condition condition)  
-
-**V2.0.1.22(2023·Spring Festival)**  
-17)add support sharding for groupBy(including JDBC,Mongodb)  
-18)add support MS Access  
-19)support Mongodb generate Javabean,including multi-layer embedded document structure  
-20)add SuidRichExt,support non-hardcode point out the entity field  
-21)broadcast table query (randomly selected one dataSource), broadcast table modify (executed in all nodes)  
-22)DDL:createTable for sharding  
-
-**V2.0.2.5(2023·the Lantern Festival)**  
-23)update(T,T) change internal implementation  
-24)Desensitize support does not need to know the end position @Desensitize(start=0, size=-1, mask="*")  
-   0123456789 -> *********  
-25)Partitioning support:=, in, between; Where in supports Number, List and Set  
-Do not participate in fragmentation: not in, not between,>=,<=.  
-26)To improve HintManager, only dataSourceName or tableName can be specified  
-It is recommended to specify both or at least tableName  
-27)HintManager can use the shortcut HM  
-
-**V2.0.2.14(2023·Valentine's Day)**  
-enhance Mongodb ORM log  
-enhance Json String result transfer  
-fixed bug about insertBatch in PreparedSql  
-
-
-### **V1.17(2022·Mid-Autumn Day)**  
-
-**V1.17.0.10**  
-fixed bug:
-1)prototype InterceptorChain  
-2)if Android SQLiteDatabase instance is not open,get a new one  
-
-**V1.17.0.9(Good,Better·Seventh Evening)**  
-1)Transaction annotation @tran, which can be used at the class level  
-2)the ref field class {Entity}_F,add ALL_NAMES field,can get the field list of the Entity  
-3)Ddl.java support create index(normal,unique),combine Primary key  
-4)auto get JdbcToJavaType  
-5)bee.osql.naming.translateType add type 4(DbUpperAndJavaLower):Db Upper And Java Lower,ignore case,the name is same.  
-6)When multiple DB naming are used, the translatetype part is added to the cache  
-7)@Ignore(@Transient) compatible with JPA(interface AnnoAdapter)  
-8)condition.op(fieldName, Op.in, Value) add support List,Set,Number Array,one Number element  
-9)condition.opOn(fieldName, Op.in, Value) Value can just use Number and String  
-10)Enhance:like;Op add likeLeft,likeRight,likeLeftRight(the value of the parameter will be escaped by the framework)  
-11)Enhance:dynamic calculation of the number of ExcelReader data columns  
-12)Enhance: SQLite date type transfer support  
-13)Enhance:GenBean generate Javabean,when id type is BigDecimal,will be set to Long  
-14)fixed bug:level 2 cache;TypeHandlerRegistry return value  
-
-
-**V1.17.0.8**  
-1)Primary key support the field is not "id",except the Long, the type can be Integer or String    
-2)Support the automatic generation of the primary key by annotation(GenId,GenUUID)  
-3)@Column support default implement(Strongly recommend: do not use this Annotation in new system)  
-4)@Table,@Column,@PrimaryKey(@Id) compatible with JPA(interface AnnoAdapter)  
-5)Distributed id generator supports setting the starting year:bee.distribution.genid.startYear  
-6)Chain programming SelectImpl,UpdateImpl adjust check rule for field  
-
-**V1.17.0.7**  
-1)**add support HarmonyOS ORM function**  
-2)In **HarmonyOS and Android** environment can use the same ORM code with Bee  
-3)support HarmonyOS Log:ohos.hiviewdfx.HiLog  
-
-**V1.17.0.6**  
-1)**add support Android ORM function,you can use Bee for SQLite DB in Android environment.**  
-2)support android.util.Log  
-3)Ddl: optimize process if the table is exist  
-4)add log tip the dsName(dataSource name) when multi-dataSource  
-5)when paging , the size is 0, return emptyList  
-
-V1.17.0.5  
-1)Sql Server support (start,size) paging  
-2)@Tran transaction annotation  
-
-**V1.11**(**International Labour Day**)  
-**Detail:**  
-V1.11.0.1.1(**2022 New Year**)  
-SuidRich add method:  
-  public <T> long insertAndReturnId(T entity,IncludeType includeType);  
-PreparedSql add method:  
-  public <T> List<T> select(String sql,T returnType);  
-add annotation PrimaryKey  
-MapSqlKey support PrimaryKey  
-BF is shortcut for BeeFactoryHelper  
-Enhance:config info add trim() about multi-DataSource Write/Read  
-fix a bug for naming transfer  
-
-V1.11.0.2.1(**2022 Spring Festival**)  
-add function: Interceptor、multi-tenant  
-add Interceptor,InterceptorChain  
-add DefaultInterceptor,CommInterceptorChain,DefaultInterceptorChain  
-
-V1.11.0.2.4(**2022 Beijing Winter Olympics**)  
-level tow ext cache support  
-Redis cache support  
-add BeeExtCache,DefaultBeeExtCache  
-add BeeExtRedisCache  
-
-V1.11.0.2.15(**2022 the Lantern Festival**)  
-add annotation:Datetime,Createtime,Updatetime;JustFetch  
-add support Jndi DataSource  
-check MapSqlKey value 
- 
-V1.11.0.2.20(**Honor**)  
-Optimize use different Database Type at same time(multi-Ds)  
-Support use differnt type Database at the same time(eg:use Mysql,Oracle,SQL Server at same time)  
-PreparedSql,MapSuid support Interceptor  
-Suid,PreparedSql,MapSuid support get DataSource,get InterceptorChain  
-Suid,PreparedSql,MapSuid,MoreTable add method:setDataSourceName,getDataSourceName,getInterceptorChain  
-add Annotation:  
-AnnotationHandler,AutoSetString  
-Desensitize    
-ReplaceInto,MySQL replace into  
-MultiTenancy  
-BeforeReturnAnnotationHandler,AbstractDictI18nDefaultHandler  
-Dict  
-DictI18n  
-
-V1.11.0.2.28  (**Special Day**)  
-add ShardingStruct prepare for sharding.  
-add Column annotation support to extend mapping column and Javabean field name.  
-support custom TypeHandler,and process the ResultSet.  
-PreparedSql custom sql support more table select,and return more table struct Javabean.  
-fixed bug:  
-More table self association query of the same entity forbid multi-self-cycles  
-
-V1.11.0.3.8  (**Lady First**)  
-add SetParaTypeConvert for convert PreparedStatement parameter.  
-Javabean use java.util.Date type for SUID compatibility processing.  
-SQLite get the timestamp result for conversion.  
-The Json field of DB is automatically converted to the attribute marked with Json annotation of Javabean(Javabean structure corresponding to Json). 
-
-V1.11.0.3.12  (**Tree Planting Day**)  
-Ddl.java uses Javabean to create tables, supports the mapping between Java and DB field types, and supports the setting java_dbtype mapping.  
-Ddl.java is compatible with raw char type and java.util.Date.  
-PreparedSql support batch insert.  
-Support Suid instance set NameTranslate.  
-Add DbFeature Registry,it is easy for setting custom database dialect.  
-Support Cassandra.  
-
-V1.11.0.3.20  (**Spring Equinox**)  
-add Custom dynamic SQL token,@in,@toIsNULL1,@toIsNULL2,&lt;if isNotNull>,&lt;if isNotBlank>.  
-dynamic SQL list transfer list to SQL in eg:in (1,2,3),no need foreach;batch insert also no need foreach.  
-Separate CN and EN API.  
-
-V1.11.0.4.22 (**The World Earth Day**)  
-Add registry interface; Add nameregistry.  
-Change serializer throws exceptions type.  
-Mapsuid and mapsql support parsing string to boolean type.  
-Genbean, which does not support JDBC type, reminds you which file to set;  
-Genbean support config where override the old file;  
-Genbean support gen javabean's field file;  
-SuidRich's method selectString support variable-length arguments:  
- public <T> List<String[]> selectString(T entity,String... selectFields);  
-CommInterceptorChain check whether add same class.
-SystemLogger supports setting log level to facilitate development and debugging.  
-The logger add method: public static void debug (string MSG, throwable T) (convenient for development and debugging).  
-Nocache add log prompt.  
-Improve cache security.  
-Add preload SPI interface Preload.  
-Add InterceptorChainRegistry, an interceptor registrar for global use.  
-Add configuration item:  
-pagingWithLimitOffset    
-notCatchModifyDuplicateException    
-notShowModifyDuplicateException    
-fixed bug for type converter.  
-fixed bug about @PrimaryKey in Suid update(entity).  
-
-V1.11.0.4.29  
-The configuration file supports multi-environment differentiated configuration.  
-SuidRich,public <T> int update(T oldEntity, T newEntity) Interceptors only handle newEntity.  
+**V2.1.6** 
+1.add switch closeDefaultParaResultRegistry  
+2.support JAP new API package jakarta.persistence.*  
+3.catchModifyDuplicateException for batch insert  
+4.close UtilDotDateTypeConvert because it miss HH:mm:ss  
+5.fixed bug update the defalut value for cofig item  
+  fixed bug NullPointerException for PreparedSql preparedValue  
+  fixed bug for StringUtils  
+  
+### **V2.1(2023.05.20)** main features:  
+1. Move major commonly used interfaces such as Suid, SuidRich, MoreTable, PreparedSql, MapSuid, etc. to the org.teasoft.bee.osql.api package.  
+2. Better support for MVC programming and Spring RestFul programming.  
+3. Support configuration of multiple data sources in bee.properties (no need for XML or Java code configuration).  
+4. GenBean supports Lombok annotations: @Setter, @Getter, @Data.  
+5. Built-in json tool fastjson support, with the option to use a custom JSON tool.  
+6. Generate all Java bean files for the entire database with a single line of code: new GenBean().genAllBeanFile();  
+7. Bulk insert for broadcast table.  
+8. Improved sharding functionality.  
+9. Full support for MongoDB ORM.  
+9.1. Support for insertion and querying of geospatial information in MongoDB (including sharded queries).  
+9.2. Various operations on GridFs files, with support for annotations.  
+9.3. Direct execution of native statements (MongodbRawSql).  
+9.4. Logging of native statements for object-oriented operations in MongoDB.  
+9.5. Support for MongoDB transactions.  
+9.6. Support for creating and deleting indexes in MongoDB.  
+9.7. MongoDB beans defined as pluggable components.  
+10. Default support for pagination in more databases: MsAccess, Cubrid, HSQL, Derby, Firebird, etc.  
+  
 
 ## [Function Detail](../../../bee/blob/master/Changed_Log.md)  
 [click for:  Function Detail](../../../bee/blob/master/Changed_Log.md)  
@@ -478,21 +303,18 @@ Quick Start:
 #### 1.1 if it is a maven project,add the following dependency  
 
 ```xml
+       <dependency>
+	      <groupId>org.teasoft</groupId>
+	      <artifactId>bee-all</artifactId>
+	      <version>2.1.8</version>
+        </dependency>
+		
+	    <!-- Mysql config.You need change it to the real database config. -->
 		<dependency>
-			<groupId>org.teasoft</groupId>
-			<artifactId>bee</artifactId>
-			<version>2.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.teasoft</groupId>
-			<artifactId>honey</artifactId>
-			<version>2.0</version>
-		</dependency>
-		<!--for log framework,Excel(poi),Redis cache,Android,HarmonyOS,Json,Tran Annotation -->
-		<dependency>
-			<groupId>org.teasoft</groupId>
-			<artifactId>bee-ext</artifactId>
-			<version>2.0</version>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>5.1.47</version>
+			<scope>runtime</scope>
 		</dependency>
 ```
 
@@ -514,6 +336,16 @@ bee.db.driverName = com.mysql.jdbc.Driver
 bee.db.url =jdbc:mysql://127.0.0.1:3306/bee?characterEncoding=UTF-8&useSSL=false  
 bee.db.username = root  
 bee.db.password =  
+
+\#print log  
+bee.osql.showSQL=true  
+bee.osql.showSql.showType=true  
+bee.osql.showSql.showExecutableSql=true  
+\# since 2.1.7 sqlFormat=true,will format the executable sql
+bee.osql.showSql.sqlFormat=false
+
+\#log4j>slf4j>log4j2>androidLog>harmonyLog>systemLogger>fileLogger>noLogging>jdkLog>commonsLog  
+bee.osql.loggerType=systemLogger  
 
 ## 4. The Javabean Orders reference as below:  
 [Orders(Javabean)](../../../bee-exam/blob/master/src/main/java/org/teasoft/exam/bee/osql/entity/Orders.java)  
@@ -568,10 +400,10 @@ public class SuidExamEN {
 			Logger.info("delete record:" + deleteNum);
 		} catch (BeeException e) {
 			Logger.error("In SuidExamEN (BeeException):" + e.getMessage());
-			e.printStackTrace();
+			//e.printStackTrace();
 		} catch (Exception e) {
 			Logger.error("In SuidExamEN (Exception):" + e.getMessage());
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 	}
 
@@ -719,6 +551,8 @@ Rapid application development:
 ## KmCoding
 [Rapid Application Code Generation Platform](http://www.kmcoding.com)--AiTea Soft made in China!  
 
+[Generate code automatically](../../../gencode)  
+
 ...  
 
 App Demo:
@@ -752,6 +586,7 @@ Automatically insert values for tenants
 * 7.@Column when Javabean attribute is inconsistent with the table column name, define the mapping relationship (not recommended for new system, mainly for compatibility with old system)  
 * 8.@Json Entity properties are Javabean and the JSON type column of DB table are converted automatically during parameter setting and query results  
 * 9.Support the automatic generation of EDI XML electronic message  
+**Cheer** !  Except for 1, 5, and 9, other items has been added to the V2.1 LTS version
 
 ### Price
 **Enterprise** users:  
