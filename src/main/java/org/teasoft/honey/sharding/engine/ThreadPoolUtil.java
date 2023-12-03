@@ -25,6 +25,8 @@ public class ThreadPoolUtil {
 //			return Executors.newFixedThreadPool(executorSize);
 //	}
 	
+	private ThreadPoolUtil() {}
+	
 	public static ExecutorService getThreadPool(int hopeSize) {
 //		int executorSize = HoneyConfig.getHoneyConfig().executorSize; //bug
 		int executorSize = HoneyConfig.getHoneyConfig().sharding_executorSize; //fixed bug 2.1.10

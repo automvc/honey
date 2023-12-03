@@ -30,7 +30,6 @@ public final class Router {
 	private Router() {}
 	
 	private static void init(){
-//		System.out.println("----------router init----------------");
 		multiDsType = HoneyConfig.getHoneyConfig().multiDS_type;
 		defaultDs = HoneyConfig.getHoneyConfig().multiDS_defalutDS;
 

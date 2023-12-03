@@ -127,7 +127,7 @@ public class SysValueProcessor {
 		return gm;
 	}
 	
-	public static void main(String[] args) {
-		HoneyConfig.getHoneyConfig();
-	}
+//	public static void main(String[] args) {
+//		HoneyConfig.getHoneyConfig();
+//	}
 }

@@ -15,6 +15,8 @@ import java.util.Map;
  */
 public class EasyMapUtil{
 	
+	private EasyMapUtil() {}
+	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static Map createMap(Object key,Object value) {
 		Map map=new LinkedHashMap();

@@ -151,7 +151,7 @@ public class StreamUtil {
 				outputStream.write(buffer, 0, bytesRead);
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw ExceptionHelper.convert(e);
 		}
 	}
 }

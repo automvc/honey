@@ -32,7 +32,7 @@ public class ShardingForkJoinBatchInsertEngine<T> {
 			List<String> tabNameListForBatch, SuidRich suidRich) {
 
 //	           集合大小一致
-//		System.out.println(tabNameListForBatch.size() == entity.length);
+//		.println(tabNameListForBatch.size() == entity.length);
 
 		// 要求的数据
 		List<Object[]> newEntityArrayList = new ArrayList<>();

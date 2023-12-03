@@ -12,7 +12,6 @@ import org.teasoft.honey.osql.core.BeeFactoryHelper;
 import org.teasoft.honey.osql.core.HoneyConfig;
 import org.teasoft.honey.osql.core.HoneyUtil;
 import org.teasoft.honey.osql.core.Logger;
-import org.teasoft.honey.osql.shortcut.BF;
 
 /**
  * 根据Javabean创建表.Create table according to Javabean
@@ -23,7 +22,7 @@ public class Ddl {
 
 	//多种数据库时,static变量,不能改变.
 //	private static PreparedSql preparedSql = BeeFactoryHelper.getPreparedSql();
-//	private static SuidRich suidRich = BF.getSuidRich();
+//	private static SuidRich suidRich = BeeFactoryHelper.getSuidRich();
 
 	private Ddl() {}
 	
@@ -43,7 +42,7 @@ public class Ddl {
 	 * @since 2.0
 	 */
 	public static <T> boolean createTable(Class<T> entityClass, boolean isDropExistTable) {
-		SuidRich suidRich = BF.getSuidRich();
+		SuidRich suidRich = BeeFactoryHelper.getSuidRich();
 		return suidRich.createTable(entityClass, isDropExistTable);
 		
 	}
@@ -110,7 +109,7 @@ public class Ddl {
 	public static <T> boolean isExistTable(T entity) {
 		boolean flag = false;
 		try {
-			SuidRich suidRich = BF.getSuidRich();
+			SuidRich suidRich = BeeFactoryHelper.getSuidRich();
 			suidRich.select(entity, 1);
 			flag = true;
 			String tableName = _toTableName(entity);
@@ -169,7 +168,7 @@ public class Ddl {
 	 * @param indexName  index name
 	 */
 	public static <T> void indexNormal(Class<T> entityClass, String fields, String indexName) {
-		SuidRich suidRich = BF.getSuidRich();
+		SuidRich suidRich = BeeFactoryHelper.getSuidRich();
 		suidRich.indexNormal(entityClass, fields, indexName);
 	}
 
@@ -189,7 +188,7 @@ public class Ddl {
 	 * @param indexName  index name
 	 */
 	public static <T> void unique(Class<T> entityClass, String fields, String indexName) {
-		SuidRich suidRich = BF.getSuidRich();
+		SuidRich suidRich = BeeFactoryHelper.getSuidRich();
 		suidRich.unique(entityClass, fields,indexName);
 	}
 
@@ -207,12 +206,12 @@ public class Ddl {
         
 //		String primaryKeySql=DdlToSql.toPrimaryKeySql(entityClass, fields, keyName);
 //		ddlModify(primaryKeySql);
-		SuidRich suidRich = BF.getSuidRich();
+		SuidRich suidRich = BeeFactoryHelper.getSuidRich();
 		suidRich.primaryKey(entityClass, fields, keyName);
 	}
 	
 	public static <T> void dropIndex(Class<T> entityClass,  String indexName) {
-		SuidRich suidRich = BF.getSuidRich();
+		SuidRich suidRich = BeeFactoryHelper.getSuidRich();
 		suidRich.dropIndex(entityClass, indexName);
 	}
 }

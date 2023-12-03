@@ -1107,7 +1107,6 @@ public final class HoneyContext {
 //	}
 //	
 //	public static void setDsMapRefresh(boolean dsMapRefresh) {
-//		System.out.println("--------setDsMapRefresh-------"+dsMapRefresh);
 //		HoneyContext.dsMapConfigRefresh = dsMapRefresh;
 //	}
 
@@ -1136,8 +1135,6 @@ public final class HoneyContext {
 	private static final Integer ONE=1;
 	public static void updateConfig(Map<String, Object> map) {
 		
-		System.out.println("----------------------updateConfig-----------------");
-
 		if (ObjectUtils.isEmpty(map)) return;
 		
 		//------V2.1.8----start--

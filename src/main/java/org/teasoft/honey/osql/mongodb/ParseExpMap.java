@@ -23,6 +23,8 @@ public class ParseExpMap {
 
 	private static final String OR = "or";
 	private static final String AND = "and";
+	
+	private ParseExpMap() {}
 
 	public static Map parse(Stack s) {
 		Stack helper=new Stack<>();

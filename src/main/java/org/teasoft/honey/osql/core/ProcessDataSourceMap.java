@@ -28,6 +28,8 @@ import org.teasoft.honey.util.StringUtils;
  * @since  2.1
  */
 class ProcessDataSourceMap {
+	
+	private ProcessDataSourceMap() {}
 
 	static void parseDbNameByDsMap(Map<String, DataSource> dsMap) {
 

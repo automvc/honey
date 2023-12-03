@@ -36,6 +36,8 @@ public class ShardingUtil {
 		firstIndexMap.put(DatabaseConst.MariaDB.toLowerCase(), ZERO);
 		firstIndexMap.put(DatabaseConst.ORACLE.toLowerCase(), ONE);
 	}
+	
+	private ShardingUtil() {}
 
 	public static int firstRecordIndex() {
 		String dbName = HoneyConfig.getHoneyConfig().getDbName();

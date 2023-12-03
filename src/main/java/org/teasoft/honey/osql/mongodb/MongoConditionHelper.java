@@ -35,6 +35,8 @@ public class MongoConditionHelper {
 	private static final String AND = "and";
 	private static final String GROUP_BY = "groupBy";
 	private static final String HAVING = "having";
+	
+	private MongoConditionHelper() {}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static Map<String, Object> processCondition(Condition condition) throws Exception {
