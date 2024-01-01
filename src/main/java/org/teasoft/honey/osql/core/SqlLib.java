@@ -774,10 +774,10 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 				if (i == 0) Logger.logSQL(INSERT_ARRAY_SQL, sql);
 				OneTimeParameter.setAttribute("_SYS_Bee_BatchInsert", i + "");
 				String sql_i;
-				sql_i = INDEX1 + i + INDEX2 + sql;
+				sql_i = INDEX1 + i + INDEX2 +shardingIndex()+ sql;//V2.2
 				Logger.logSQL(INSERT_ARRAY_SQL, sql_i);
 			}
-			setAndClearPreparedValues(pst, INDEX1 + i + INDEX2 + sql);
+			setAndClearPreparedValues(pst, INDEX1 + i + INDEX2 +shardingIndex()+ sql);//V2.2
 			pst.addBatch();
 		}
 		//同一批次的,有部分记录有像主键重复之类的,就会在此句抛异常. 同一批次的,H2 可以部分插入成功,MySQL却不可以
