@@ -97,7 +97,8 @@ public class DictI18nDefaultHandler extends AbstractDictI18nDefaultHandler {
 				for (int i = 0; i < list.size(); i++) {
 					Map<String, String> commPairMap = null;
 					Object obj = list.get(i);
-					Field f = obj.getClass().getDeclaredField(field.getName());
+//					Field f = obj.getClass().getDeclaredField(field.getName());
+					Field f = HoneyUtil.getField(obj.getClass(),field.getName());
 //					f.setAccessible(true);
 					HoneyUtil.setAccessibleTrue(f);
 					Object value = f.get(obj);

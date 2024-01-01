@@ -11,6 +11,7 @@ import java.util.List;
 
 import org.teasoft.bee.osql.SuidType;
 import org.teasoft.honey.osql.core.HoneyContext;
+import org.teasoft.honey.osql.core.HoneyUtil;
 import org.teasoft.honey.osql.core.StringConst;
 import org.teasoft.honey.osql.interccept.EmptyInterceptor;
 import org.teasoft.honey.osql.util.AnnoUtil;
@@ -55,7 +56,8 @@ public class CustomInterceptor extends EmptyInterceptor {
 			return;
 		}
 
-		Field fields[] = entity.getClass().getDeclaredFields();
+//		Field fields[] = entity.getClass().getDeclaredFields();
+		Field fields[] = HoneyUtil.getFields(entity.getClass());
 		int len = fields.length;
 		boolean isHas = false;
 		Field field;

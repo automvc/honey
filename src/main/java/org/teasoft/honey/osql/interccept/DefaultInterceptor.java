@@ -12,6 +12,7 @@ import java.util.List;
 import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.interccept.Interceptor;
 import org.teasoft.honey.osql.core.HoneyContext;
+import org.teasoft.honey.osql.core.HoneyUtil;
 import org.teasoft.honey.osql.interccept.annotation.DatetimeHandler;
 import org.teasoft.honey.osql.util.AnnoUtil;
 
@@ -40,7 +41,8 @@ public class DefaultInterceptor implements Interceptor {
 		Boolean f = HoneyContext.getEntityInterceptorFlag(entity.getClass().getName());
 		if (Boolean.FALSE.equals(f)) return entity;
 
-		Field fields[] = entity.getClass().getDeclaredFields();
+//		Field fields[] = entity.getClass().getDeclaredFields();
+		Field fields[] = HoneyUtil.getFields(entity.getClass());
 		int len = fields.length;
 		boolean isHas = false;
 		for (int i = 0; i < len; i++) {

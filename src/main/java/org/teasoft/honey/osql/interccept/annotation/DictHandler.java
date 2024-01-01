@@ -59,7 +59,8 @@ public class DictHandler {
 
 			for (int i = 0; i < list.size(); i++) {
 				Object obj = list.get(i);
-				Field f = obj.getClass().getDeclaredField(field.getName());
+//				Field f = obj.getClass().getDeclaredField(field.getName());
+				Field f = HoneyUtil.getField(obj.getClass(),field.getName());
 //				f.setAccessible(true);
 				HoneyUtil.setAccessibleTrue(f);
 				Object value = f.get(obj);
