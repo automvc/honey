@@ -261,7 +261,8 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			sqlBuffer.append(selectAndFun);
 			sqlBuffer.append(tableName);
 			boolean firstWhere = true;
-			Field fields[] = entity.getClass().getDeclaredFields();
+//			Field fields[] = entity.getClass().getDeclaredFields();
+			Field fields[] = HoneyUtil.getFields(entity.getClass());
 			int len = fields.length;
 			List<PreparedValue> list = new ArrayList<>();
 			PreparedValue preparedValue = null;
@@ -309,7 +310,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 					preparedValue = new PreparedValue();
 					preparedValue.setType(fields[i].getType().getName());
 					preparedValue.setValue(fields[i].get(entity));
-					if (AnnoUtil.isJson(fields[i])) preparedValue.setField(fields[i]);
+					if (AnnoUtil.isJson(fields[i])) preparedValue.setField(fields[i]);  //检测是否有影响？
 					list.add(preparedValue);
 				}
 			}
@@ -403,9 +404,11 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			t_sql = _ObjectToSQLHelper._toInsertSQL0(entity[0], 2, excludeFieldList); // i 默认包含null和空字符串.因为要用统一的sql作批处理
 			sql[0] = t_sql;
 //			t_sql = t_sql + "[index0]";  //index0 不带,与单条共用.
-
+			
+			t_sql=shardingIndex() +t_sql; //fixed bug V2.2
+			
 			for (int i = 0; i < len; i++) { // i=1
-				String sql_i=INDEX1 + i + INDEX2+sql[0];
+				String sql_i=INDEX1 + i + INDEX2+t_sql;
 				if (i == 0) {
 					HoneyContext.setPreparedValue(sql_i, HoneyContext.getAndClearPreparedValue(sql[0]));   //i=0
 //					HoneyContext.deleteCacheInfo(sql[0]); //fixed bug. V2.1.6  cache还会用到
@@ -419,6 +422,15 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		}
 
 		return sql;
+	}
+	
+	private String shardingIndex() {
+		Integer subThreadIndex = HoneyContext.getSqlIndexLocal();
+		String index = "";
+		if (subThreadIndex != null) {
+			index = " (sharding " + subThreadIndex + ")";
+		}
+		return index;
 	}
 
 	private <T> String[] toInsertSQLForMysql(T entity[],int batchSize, String excludeFieldList) {
@@ -453,8 +465,9 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 ////				HoneyContext.clearPreparedValue(sql[0]);
 //			}
 			List<PreparedValue> oneRecoreList;
+			t_sql=shardingIndex() +t_sql; //fixed bug V2.2
 			for (int i = 0; i < len; i++) { // i=1
-				String sql_i=INDEX1 + i + INDEX2+sql[0]; //mysql批操作时,仅用于打印日志
+				String sql_i=INDEX1 + i + INDEX2+t_sql; //mysql批操作时,仅用于打印日志
 				
 				if (i == 0) {
 					oneRecoreList = HoneyContext.getAndClearPreparedValue(sql[0]);
@@ -537,7 +550,8 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	@SuppressWarnings("rawtypes")
 	private String getPkName(Class c) {
 		try {
-			c.getDeclaredField("id");  //V1.11 因主键可以不是默认id,多了此步检测
+//			c.getDeclaredField("id");  //V1.11 因主键可以不是默认id,多了此步检测
+			HoneyUtil.getField(c, "id"); //V1.11 因主键可以不是默认id,多了此步检测
 			return "id";
 		} catch (NoSuchFieldException e) {
 			String pkName = HoneyUtil.getPkFieldNameByClass(c);
@@ -577,7 +591,8 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		Field field = null;
 		String type=null;
 		try {
-			field = entityClazz.getDeclaredField(pkName);
+//			field = entityClazz.getDeclaredField(pkName);
+			field = HoneyUtil.getField(entityClazz, pkName);
 			type=field.getType().getSimpleName();
 		} catch (Exception e) {
 			//ignore
@@ -591,7 +606,8 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		Field field = null;
 		String type=null;
 		try {
-			field = c.getDeclaredField(pkName);
+//			field = c.getDeclaredField(pkName);
+			field = HoneyUtil.getField(c, pkName);
 			type=field.getType().getSimpleName();
 		} catch (Exception e) {
 			//ignore
@@ -753,7 +769,8 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		String packageAndClassName = entityClazz.getName();
 		String columnNames = HoneyContext.getBeanField(packageAndClassName);
 		if (columnNames == null) {
-			Field fields[] = entityClazz.getDeclaredFields();
+//			Field fields[] = entityClazz.getDeclaredFields();
+			Field fields[] = HoneyUtil.getFields(entityClazz);
 			columnNames = HoneyUtil.getBeanField(fields,entityClazz);
 			HoneyContext.addBeanField(packageAndClassName, columnNames);
 		}
@@ -789,20 +806,22 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 				tableName = _toTableName(entity);
 			}
 			
-			Field fields[] = entity.getClass().getDeclaredFields(); //返回所有字段,包括公有和私有    
-			String fieldNames ="";
+//			Field fields[] = entity.getClass().getDeclaredFields(); //返回所有字段,包括公有和私有   
+			Field fields[] = HoneyUtil.getFields(entity.getClass()); //返回所有字段,包括公有和私有   
+			
+			String columnNames ="";
 			if (selectField != null && !"".equals(selectField[0].trim())) {
-				fieldNames = HoneyUtil.checkAndProcessSelectField(entity, selectField);
+				columnNames = HoneyUtil.checkAndProcessSelectField(entity, selectField);
 			} else {
 				String packageAndClassName = entity.getClass().getName();
-				fieldNames = HoneyContext.getBeanField(packageAndClassName);
-				if (fieldNames == null) {
-					fieldNames = HoneyUtil.getBeanField(fields,entity.getClass());
-					HoneyContext.addBeanField(packageAndClassName, fieldNames);
+				columnNames = HoneyContext.getBeanField(packageAndClassName);
+				if (columnNames == null) {
+					columnNames = HoneyUtil.getBeanField(fields,entity.getClass());
+					HoneyContext.addBeanField(packageAndClassName, columnNames);
 				}
 			}
 //			sqlBuffer.append("select " + fieldNames + " from ");
-			sqlBuffer.append(K.select).append(" ").append(fieldNames).append(" ").append(K.from).append(" ");
+			sqlBuffer.append(K.select).append(" ").append(columnNames).append(" ").append(K.from).append(" ");
 			sqlBuffer.append(tableName);
 			boolean firstWhere = true;
 			int len = fields.length;

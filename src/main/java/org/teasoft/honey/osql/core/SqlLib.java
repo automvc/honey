@@ -913,11 +913,12 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 	}
 	
 	private void clearContextForMysql(String sql_0, int batchSize, int len) {
+		
 		clearContext(sql_0, batchSize, len);
 
 		int num = (len - 1) / batchSize;
 		for (int i = 0; i <= num; i++) {
-			String sqlForGetValue = sql_0 + "  [Batch:" + i + INDEX3;
+			String sqlForGetValue = shardingIndex() + sql_0 + "  [Batch:" + i + INDEX3; //fixed bug V2.2
 			clearContext(sqlForGetValue);
 		}
 	}
@@ -938,14 +939,14 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 //				if (i == 0)
 //					sql_i = sql;
 //				else
-					sql_i = INDEX1 + i + INDEX2 + sql;
+					sql_i = INDEX1 + i + INDEX2 +shardingIndex() + sql;
 
 				Logger.logSQL(INSERT_ARRAY_SQL, sql_i);
 			}
 		}
 		
 		int a = 0;
-		String sqlForGetValue=sql+ "  [Batch:"+ (start/batchSize) + INDEX3;
+		String sqlForGetValue=shardingIndex() +sql+ "  [Batch:"+ (start/batchSize) + INDEX3; //V2.2
 		setAndClearPreparedValues(pst, sqlForGetValue);
 		a = pst.executeUpdate();  // not executeBatch
 		conn.commit();
@@ -1079,7 +1080,8 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 			rs = pst.executeQuery();
 			rsList = new ArrayList<>();
 
-			Field field[] = entity.getClass().getDeclaredFields();
+//			Field field[] = entity.getClass().getDeclaredFields();
+			Field field[] = HoneyUtil.getFields(entity.getClass());
 			int columnCount = field.length;
 			
 //			MoreTableStruct moreTableStruct[]=HoneyUtil.getMoreTableStructAndCheckBefore(entity);
@@ -1109,11 +1111,13 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 				}
 			}
 			
-			Field fields1[] = subEntityFieldClass[0].getDeclaredFields();
+//			Field fields1[] = subEntityFieldClass[0].getDeclaredFields();
+			Field fields1[] = HoneyUtil.getFields(subEntityFieldClass[0]);
 			Field fields2[] =null;
 			
             if(subField[1]!=null){
-            	fields2=subEntityFieldClass[1].getDeclaredFields();
+//            	fields2=subEntityFieldClass[1].getDeclaredFields();
+            	fields2=HoneyUtil.getFields(subEntityFieldClass[1]);
             }
             
             Map<String,String> dulSubFieldMap=moreTableStruct[0].subDulFieldMap;

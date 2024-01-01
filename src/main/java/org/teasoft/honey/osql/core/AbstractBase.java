@@ -130,8 +130,9 @@ public abstract class AbstractBase {
 	protected static final String INDEX2 = "]_End ";
 	
 	protected void clearContext(String sql_0, int batchSize, int len) {
+		
 		for (int i = 0; i < len; i++) {
-			String sql_i = INDEX1 + i + INDEX2 + sql_0;
+			String sql_i = INDEX1 + i + INDEX2 +shardingIndex()+ sql_0; //fixed bug V2.2
 			clearContext(sql_i);
 		}
 	}
