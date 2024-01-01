@@ -200,6 +200,9 @@ public final class HoneyConfig {
 	@SysValue("${bee.osql.openFieldTypeHandler}")
 	public boolean openFieldTypeHandler=true; //从1.17默认打开
 	
+	@SysValue("${bee.osql.openEntityCanExtend}")
+	public boolean openEntityCanExtend=false; //2.2
+	
 	@SysValue("${bee.osql.closeDefaultParaResultRegistry}")
 	public boolean closeDefaultParaResultRegistry; //V1.17.21,V2.1.6
 	

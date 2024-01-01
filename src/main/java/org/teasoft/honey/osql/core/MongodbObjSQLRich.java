@@ -573,7 +573,8 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 	public <T> int updateById(T entity, Condition condition) {
 		String pkName = "";
 		try {
-			entity.getClass().getDeclaredField("id");
+//			entity.getClass().getDeclaredField("id");
+			HoneyUtil.getField(entity.getClass(),"id");
 			pkName = "id";
 		} catch (NoSuchFieldException e) {
 			pkName = HoneyUtil.getPkFieldName(entity);

@@ -75,7 +75,8 @@ public class TransformResultSet {
 						isJsonString=true;
 					}else if(entityClass!=null){
 						try {
-							currField = entityClass.getDeclaredField(fieldName);
+//							currField = entityClass.getDeclaredField(fieldName);
+							currField = HoneyUtil.getField(entityClass, fieldName);
 							isJsonString=isJoson(currField);
 						} catch (NoSuchFieldException e) {
 							//ignore
@@ -299,8 +300,10 @@ public class TransformResultSet {
 		for (int i = 0; i < columnCount; i++) {
 			try {
 //				name = _toFieldName(rmeta.getColumnName(i + 1), clazz);
+//				 支持父类时，是否有影响？
 				name = _toFieldName(rmeta.getColumnLabel(i + 1), clazz); //fixed bug,V2.1.8. 获取用于打印输出和显示的指定列的建议标题。建议标题通常由 SQL AS 子句来指定。如果未指定 SQL AS，则从 getColumnLabel 返回的值将和 getColumnName 方法返回的值相同。 
-				field = clazz.getDeclaredField(name);// 可能会找不到Javabean的字段
+//				field = clazz.getDeclaredField(name);// 可能会找不到Javabean的字段
+				field = HoneyUtil.getField(clazz, name);// 可能会找不到Javabean的字段    
 			} catch (NoSuchFieldException e) {
 				continue;
 			}

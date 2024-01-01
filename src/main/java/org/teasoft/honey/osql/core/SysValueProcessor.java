@@ -96,7 +96,7 @@ public class SysValueProcessor {
 				HoneyUtil.setFieldValue(dbsF, obj, gm.getMap());
 			} catch (Exception e) {
 				// ignore
-				System.err.println(e.getMessage());
+//				System.err.println(e.getMessage());
 			}
 		}
 	}

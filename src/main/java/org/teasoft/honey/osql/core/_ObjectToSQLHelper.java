@@ -43,7 +43,8 @@ final class _ObjectToSQLHelper {
 		StringBuffer sqlBuffer = new StringBuffer();
 		try {
 			String tableName = _toTableName(entity);
-			Field fields[] = entity.getClass().getDeclaredFields();
+//			Field fields[] = entity.getClass().getDeclaredFields();
+			Field fields[] = HoneyUtil.getFields(entity.getClass());
 
 			sqlBuffer.append(K.select).append(" ").append(fieldNameList).append(" ").append(K.from).append(" ");
 			sqlBuffer.append(tableName);
@@ -101,7 +102,7 @@ final class _ObjectToSQLHelper {
 		boolean firstWhere = true;
 //		boolean isFun=false;
 		try {
-			Field fields[] = entity.getClass().getDeclaredFields(); 
+			Field fields[] = HoneyUtil.getFields(entity.getClass());
 			String columnNames;
 			
 			String packageAndClassName = entity.getClass().getName();
@@ -267,7 +268,8 @@ final class _ObjectToSQLHelper {
 		String pkName=""; //primary key
 		String alias="";
 		try {
-			field = entity.getClass().getDeclaredField("id");
+//			field = entity.getClass().getDeclaredField("id");
+			field = HoneyUtil.getField(entity.getClass(), "id");
 			pkName="id";
 		} catch (NoSuchFieldException e) {
 			pkName = HoneyUtil.getPkFieldName(entity);
@@ -282,7 +284,8 @@ final class _ObjectToSQLHelper {
 		
 		if (field == null && !pkName.contains(",")) {//名称不为id的单主键,需要重新获取field,以检测其值是否为null
 			try {
-				field = entity.getClass().getDeclaredField(pkName);
+//				field = entity.getClass().getDeclaredField(pkName);
+				field = HoneyUtil.getField(entity.getClass(), pkName);
 			} catch (NoSuchFieldException e) {
                   //ignore
 			}
@@ -359,7 +362,7 @@ final class _ObjectToSQLHelper {
 				firstSet = ConditionHelper.processConditionForUpdateSet(sqlBuffer, list, condition);
 			}
 
-			Field fields[] = entity.getClass().getDeclaredFields();
+			Field fields[] = HoneyUtil.getFields(entity.getClass());
 			int len = fields.length;
 
 			List<PreparedValue> whereList = new ArrayList<>();
@@ -525,7 +528,7 @@ final class _ObjectToSQLHelper {
 			firstSet = ConditionHelper.processConditionForUpdateSet(sqlBuffer, list, condition);
 		}
 
-		Field fields[] = entity.getClass().getDeclaredFields();
+		Field fields[] = HoneyUtil.getFields(entity.getClass());
 		int len = fields.length;
 		
 		List<PreparedValue> whereList = new ArrayList<>();
@@ -748,7 +751,7 @@ final class _ObjectToSQLHelper {
 		sqlBuffer.append(tableName);
 		sqlBuffer.append("(");
 
-		Field fields[] = entity.getClass().getDeclaredFields();
+		Field fields[] = HoneyUtil.getFields(entity.getClass());
 		int len = fields.length;
 		List<PreparedValue> list = new ArrayList<>();
 		PreparedValue preparedValue = null;
@@ -802,7 +805,7 @@ final class _ObjectToSQLHelper {
 	static <T> List<PreparedValue> _toInsertSQL_for_ValueList(String sql_i, T entity, String excludeFieldList) throws IllegalAccessException {
 		checkPackage(entity);
 
-		Field fields[] = entity.getClass().getDeclaredFields();
+		Field fields[] = HoneyUtil.getFields(entity.getClass());
 		int len = fields.length;
 		List<PreparedValue> list = new ArrayList<>();
 		PreparedValue preparedValue = null;
@@ -855,7 +858,7 @@ final class _ObjectToSQLHelper {
 			sqlBuffer.append(K.delete).append(" ").append(K.from).append(" ");
 			sqlBuffer.append(tableName);
 
-			Field fields[] = entity.getClass().getDeclaredFields();
+			Field fields[] = HoneyUtil.getFields(entity.getClass());
 			int len = fields.length;
 			List<PreparedValue> list = new ArrayList<>();
 			PreparedValue preparedValue = null;
@@ -995,7 +998,9 @@ final class _ObjectToSQLHelper {
 			//V1.11
 			boolean noId = false;
 			try {
-				field = entity.getClass().getDeclaredField("id");
+//				field = entity.getClass().getDeclaredField("id");
+				field = HoneyUtil.getField(entity.getClass(), "id");
+				
 				pkName="id";
 			} catch (NoSuchFieldException e) {
 				noId = true;
@@ -1003,7 +1008,8 @@ final class _ObjectToSQLHelper {
 			if (noId) {
 				pkName = HoneyUtil.getPkFieldName(entity);
 				if("".equals(pkName) || pkName.contains(",")) return ; //just support single primary key.
-				field = entity.getClass().getDeclaredField(pkName);
+//				field = entity.getClass().getDeclaredField(pkName);
+				field = HoneyUtil.getField(entity.getClass(), pkName);
 				pkAlias="("+pkName+")";
 			}
 			

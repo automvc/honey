@@ -187,8 +187,8 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 			// 设置外键的值
 			for (Object item : listSubI) {
 				for (int propIndex = 0; propIndex < struct.foreignKey[i].length; propIndex++) {
-					Field fkField = item.getClass().getDeclaredField(struct.foreignKey[i][propIndex]);
-					
+//					Field fkField = item.getClass().getDeclaredField(struct.foreignKey[i][propIndex]);
+					Field fkField = HoneyUtil.getField(item.getClass(), struct.foreignKey[i][propIndex]);
 					if (SuidType.INSERT == suidType)
 						setFlag=setPkField(struct, i, returnId, currentEntity, item, fkField, propIndex);
 					else
@@ -211,7 +211,8 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 			Object subEntity = struct.subField[i].get(currentEntity);
 			if (subEntity == null) return null;
 			for (int propIndex = 0; propIndex < struct.foreignKey[i].length; propIndex++) {
-				Field f = subEntity.getClass().getDeclaredField(struct.foreignKey[i][propIndex]);
+//				Field f = subEntity.getClass().getDeclaredField(struct.foreignKey[i][propIndex]);
+				Field f = HoneyUtil.getField(subEntity.getClass(),struct.foreignKey[i][propIndex]);
 				boolean setFlag;
 				// eg: 同步 id,name
 				if (SuidType.INSERT == suidType)
@@ -247,7 +248,8 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 		if ("id".equalsIgnoreCase(struct.ref[i][propIndex])) {
 			useReturnId = true;
 		} else {
-			Field refField = currentEntity.getClass().getDeclaredField(struct.ref[i][propIndex]); //获取 被引用的字段
+//			Field refField = currentEntity.getClass().getDeclaredField(struct.ref[i][propIndex]); //获取 被引用的字段
+			Field refField = HoneyUtil.getField(currentEntity.getClass(),struct.ref[i][propIndex]); //获取 被引用的字段
 			if (AnnoUtil.isPrimaryKey(refField)) {
 				useReturnId = true;
 			} else {
@@ -276,7 +278,8 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 			Object currentEntity, Object subEntity, Field fkField, int propIndex)
 			throws IllegalAccessException, NoSuchFieldException {
 
-		Field refField = currentEntity.getClass().getDeclaredField(struct.ref[i][propIndex]); // 获取 被引用的字段
+//		Field refField = currentEntity.getClass().getDeclaredField(struct.ref[i][propIndex]); // 获取 被引用的字段
+		Field refField = HoneyUtil.getField(currentEntity.getClass(),struct.ref[i][propIndex]); // 获取 被引用的字段
 
 //		fkField.setAccessible(true);
 //		refField.setAccessible(true);
@@ -284,7 +287,6 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 		HoneyUtil.setAccessibleTrue(refField);
 		Object v = refField.get(currentEntity);
 		if (v == null) {
-//			Field refField2 = subEntity.getClass().getDeclaredField(struct.foreignKey[i][propIndex]); //子表的外键字段
 			Object v2 = fkField.get(subEntity);// 子表的外键字段
 			if (v2 == null) return false; // 父表没有设置, 子表也没有设置才返回null
 			// 若设置了id,name; 其实name没有值,也是可以的.如何处理??? todo

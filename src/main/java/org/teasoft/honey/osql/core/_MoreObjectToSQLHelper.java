@@ -393,11 +393,14 @@ public class _MoreObjectToSQLHelper {
 		
 		Field fields[] = null;
 		if (index == 1 && moreTableStruct[0].subOneIsList) {
-			fields = moreTableStruct[index].subClass.getDeclaredFields();
+//			fields = moreTableStruct[index].subClass.getDeclaredFields();
+			fields = HoneyUtil.getFields(moreTableStruct[index].subClass);
 		} else if (index == 2 && moreTableStruct[0].subTwoIsList) {
-			fields = moreTableStruct[index].subClass.getDeclaredFields();
+//			fields = moreTableStruct[index].subClass.getDeclaredFields();
+			fields = HoneyUtil.getFields(moreTableStruct[index].subClass);
 		} else {
-			fields = moreTableStruct[index].subEntityField.getType().getDeclaredFields();
+//			fields = moreTableStruct[index].subEntityField.getType().getDeclaredFields();
+			fields = HoneyUtil.getFields(moreTableStruct[index].subEntityField.getType());
 		}
 		
 		
@@ -536,7 +539,8 @@ public class _MoreObjectToSQLHelper {
 	private static <T> boolean parseMainObject(T entity,String tableName,StringBuffer sqlBuffer0, 
 				List<PreparedValue> list, boolean firstWhere, int includeType) throws IllegalAccessException{
 		
-		Field fields[] = entity.getClass().getDeclaredFields(); 
+//		Field fields[] = entity.getClass().getDeclaredFields(); 
+		Field fields[] = HoneyUtil.getFields(entity.getClass()); 
 		PreparedValue preparedValue=null;
 		
 		int len = fields.length;

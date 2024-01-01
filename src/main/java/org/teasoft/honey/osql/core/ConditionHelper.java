@@ -220,16 +220,21 @@ public class ConditionHelper {
 				sqlBuffer.append(" (");
 				sqlBuffer.append("?");
 				int len=1;
+				boolean needSetNull=false;
 				if (v == null) {
+					needSetNull=true;
+				}else {
+					List<PreparedValue> inList=processIn(v);
+					len=inList.size();
+					if(len>0) list.addAll(inList);
+					else if(len==0) needSetNull=true;
+				}
+				
+				if(needSetNull) {
 					PreparedValue p = new PreparedValue();
 					p.setValue(null);
 					p.setType(Object.class.getName());
 					list.add(p);
-				} 
-				else {
-					List<PreparedValue> inList=processIn(v);
-					len=inList.size();
-					if(len>0) list.addAll(inList);
 				}
 				
 				for (int i = 1; i < len; i++) { //start 1
@@ -528,7 +533,8 @@ public class ConditionHelper {
 			for (Number number : n) {
 				setPreValue(inList, number);
 			}
-		} else if (String.class.equals(v.getClass())) { // String 逗号(,)为分隔符
+//		} else if (String.class.equals(v.getClass())) { // String 逗号(,)为分隔符
+		} else if (v instanceof String) { // String 逗号(,)为分隔符
 			Object values[] = v.toString().trim().split(",");
 //			len = values.length;
 			for (Object e : values) {

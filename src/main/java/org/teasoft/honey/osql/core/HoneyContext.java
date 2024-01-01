@@ -120,6 +120,7 @@ public final class HoneyContext {
 		if(conditionLocal!=null) conditionLocal.remove();
 		
 		sqlPreValueLocal = new InheritableThreadLocal<>();
+//		sqlPreValueLocal = new ThreadLocal<>();
 		sqlIndexLocal = new InheritableThreadLocal<>();
 		conditionLocal = new InheritableThreadLocal<>();
 //		tabNameListLocal = new ThreadLocal<>(); //每个子线程都有一个具体表名,不需要.
@@ -381,15 +382,27 @@ public final class HoneyContext {
 		Map<String, List<PreparedValue>> map = sqlPreValueLocal.get();
 		// if (null == map) map = new HashMap<>();
 		if (null == map) map = new ConcurrentHashMap<>();
+//		sqlStr = shardingIndex() + sqlStr;
 		map.put(sqlStr, list);
 		sqlPreValueLocal.set(map);
 	}
+	
+//	private static String shardingIndex() {
+//		Integer subThreadIndex = HoneyContext.getSqlIndexLocal();
+//		String index = "";
+//		if (subThreadIndex != null) {
+//			index = " (sharding " + subThreadIndex + ")";
+//		}
+//		return index;
+//	}
 
 	static List<PreparedValue> justGetPreparedValue(String sqlStr) {
 		Map<String, List<PreparedValue>> map = sqlPreValueLocal.get();
 		if (null == map || sqlStr == null) return null;
 
 //		if(getSqlIndexLocal()!=null) sqlStr+=getSqlIndexLocal();
+		
+//		sqlStr = shardingIndex() + sqlStr;
 		return map.get(sqlStr);
 	}
 
@@ -399,12 +412,16 @@ public final class HoneyContext {
 //		if (map.get(sqlStr) != null) map.remove(sqlStr);
 
 //		if(getSqlIndexLocal()!=null) sqlStr+=getSqlIndexLocal();
+		
+//		sqlStr = shardingIndex() + sqlStr;
 		if (map.containsKey(sqlStr)) map.remove(sqlStr);
 	}
 
 	static List<PreparedValue> getAndClearPreparedValue(String sqlStr) {
 		Map<String, List<PreparedValue>> map = sqlPreValueLocal.get();
 		if (null == map || sqlStr == null) return null;
+		
+//		sqlStr = shardingIndex() + sqlStr;
 		List<PreparedValue> list = map.get(sqlStr);
 //		if (list != null) map.remove(sqlStr);
 		if (map.containsKey(sqlStr)) map.remove(sqlStr);
@@ -1158,7 +1175,6 @@ public final class HoneyContext {
 		Class<?> clazz = obj.getClass();
 		for (Map.Entry<String, Object> entry : map.entrySet()) {
 			try {
-
 				Field field = clazz.getDeclaredField(entry.getKey());
 				if (field != null) {
 					HoneyUtil.setAccessibleTrue(field);

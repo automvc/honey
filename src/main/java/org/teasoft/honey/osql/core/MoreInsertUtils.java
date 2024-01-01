@@ -28,7 +28,8 @@ public class MoreInsertUtils {
 			boolean isOneHasOneCheck) {
 		if (entity == null) return null;
 
-		Field field[] = entity.getClass().getDeclaredFields();
+//		Field field[] = entity.getClass().getDeclaredFields();
+		Field field[] = HoneyUtil.getFields(entity.getClass());
 
 		MoreTableInsertStruct moreTableStruct = null;
 		int subEntityFieldNum = 0;

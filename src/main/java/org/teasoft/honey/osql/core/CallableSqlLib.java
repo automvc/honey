@@ -45,7 +45,8 @@ public class CallableSqlLib implements CallableSql {
 
 			rsList = new ArrayList<>();
 
-			Field field[] = returnType.getClass().getDeclaredFields();
+			Field field[] = HoneyUtil.getFields(returnType.getClass());
+			
 			int columnCount = field.length;
 
 			while (rs.next()) {

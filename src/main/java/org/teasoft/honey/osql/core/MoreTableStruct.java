@@ -45,7 +45,7 @@ class MoreTableStruct {
 	 
 	 //v1.9.8
 	 String onExpression="";  //eg: permit.valid = '1'  of (LEFT JOIN permit ON resource.id = permit.resource_id and permit.valid = '1') 
-	 Class subClass; //for listField   是list里的实体class类型.
+	 Class<?> subClass; //for listField   是list里的实体class类型.
 	 boolean subOneIsList=false;   //子表1是否是List类型
 	 boolean subTwoIsList=false;
 //	 String mainColumnsForListType; //仅用于从表1是List类型

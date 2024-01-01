@@ -398,7 +398,8 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 			
 			List<Map<String, String>> rsMapList=getBeeSqlForApp().selectMapListWithColumnName(exe_sql, toStringArray(sql));
 			rsList = new ArrayList<>();
-			Field field[] = entity.getClass().getDeclaredFields();
+//			Field field[] = entity.getClass().getDeclaredFields();
+			Field field[] = HoneyUtil.getFields(entity.getClass());
 			boolean oneHasOne=moreTableStruct[0].oneHasOne;
 			
 			Field subField[] = new Field[2];
@@ -420,11 +421,13 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 				}
 			}
 			
-			Field fields1[] = subEntityFieldClass[0].getDeclaredFields();
+//			Field fields1[] = subEntityFieldClass[0].getDeclaredFields();
+			Field fields1[] = HoneyUtil.getFields(subEntityFieldClass[0]);
 			Field fields2[] =null;
 			
             if(subField[1]!=null){
-            	fields2=subEntityFieldClass[1].getDeclaredFields();
+//            	fields2=subEntityFieldClass[1].getDeclaredFields();
+            	fields2=HoneyUtil.getFields(subEntityFieldClass[1]);
             }
             
             Map<String,String> dulSubFieldMap=moreTableStruct[0].subDulFieldMap;

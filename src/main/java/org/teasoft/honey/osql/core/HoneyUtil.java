@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -89,7 +90,7 @@ public final class HoneyUtil {
 	}
 
 	@SuppressWarnings("rawtypes")
-	static String getBeanField(Field field[],Class entityClass) {
+	static String getBeanField(Field field[],Class entityClass) {  //是否通过class获取？  TODO
 		if (field == null) return "";
 		StringBuffer s = new StringBuffer();
 		int len = field.length;
@@ -184,7 +185,8 @@ public final class HoneyUtil {
 
 		String entityFullName = entity.getClass().getName();
 		
-		Field field[] = entity.getClass().getDeclaredFields();
+//		Field field[] = entity.getClass().getDeclaredFields();
+		Field field[] = HoneyUtil.getFields(entity.getClass());
 
 		MoreTableStruct moreTableStruct[] = new MoreTableStruct[3];
 		moreTableStruct[0] = new MoreTableStruct();
@@ -929,7 +931,7 @@ public final class HoneyUtil {
 				pst.setRef(i + 1, (Ref)value);
 				break;
 				
-			case 26:  //Json Annotation
+			case 26:  //Json Annotation  //NOSONAR
 			{
 				SetParaTypeConvert converter = SetParaTypeConverterRegistry.getConverter(Json.class);
 				if (converter != null) {
@@ -1172,11 +1174,18 @@ public final class HoneyUtil {
 			throw new BeeIllegalEntityException("BeeIllegalEntityException: Illegal Entity, " + entity.getClass().getName());
 		}
 	}
+	
+	public static boolean isJavaPackage(Class<?> entityClass) {
+		if (entityClass == null) return false;
+		String classFullName = entityClass.getName();
+		return (classFullName.startsWith("java.") || classFullName.startsWith("javax."));
+	}
 
 	//将非null的字段值以Map形式返回
 	public static <T> Map<String, Object> getColumnMapByEntity(T entity) {
 		Map<String, Object> map = new HashMap<>();
-		Field fields[] = entity.getClass().getDeclaredFields();
+//		Field fields[] = entity.getClass().getDeclaredFields();
+		Field fields[] = HoneyUtil.getFields(entity.getClass());
 		int len = fields.length;
 		try {
 			for (int i = 0; i < len; i++) {
@@ -1297,7 +1306,7 @@ public final class HoneyUtil {
 		String packageAndClassName=entity.getClass().getName();
 		String columnsdNames=HoneyContext.getBeanField(packageAndClassName);
 		if (columnsdNames == null) {
-			Field fields[]=entity.getClass().getDeclaredFields();
+			Field fields[]=HoneyUtil.getFields(entity.getClass());
 			columnsdNames=HoneyUtil.getBeanField(fields,entity.getClass());//获取属性名对应的DB字段名
 			HoneyContext.addBeanField(packageAndClassName, columnsdNames);
 		}
@@ -1528,7 +1537,8 @@ public final class HoneyUtil {
 	public static <T> Field getPkField(Class<T> entityClass) {
 		Field field = null;
 		try {
-			field = entityClass.getDeclaredField("id");
+//			field = entityClass.getDeclaredField("id");
+			field = HoneyUtil.getField(entityClass, "id");
 		} catch (NoSuchFieldException e) {
 			String pkName = getPkFieldNameByClass(entityClass);
 
@@ -1537,7 +1547,8 @@ public final class HoneyUtil {
 				hasException = true;
 			} else if (pkName != null && !pkName.contains(",")) {
 				try {
-					field = entityClass.getDeclaredField(pkName);
+//					field = entityClass.getDeclaredField(pkName);
+					field = HoneyUtil.getField(entityClass, pkName);
 				} catch (NoSuchFieldException e2) {
 					hasException = true;
 				}
@@ -1583,7 +1594,9 @@ public final class HoneyUtil {
 			try {
 				Object obj = OneTimeParameter.getAttribute(StringConst.OLD_ID);
 				String pkName=(String)OneTimeParameter.getAttribute(StringConst.Primary_Key_Name);
-				field = entity.getClass().getDeclaredField(pkName);
+//				field = entity.getClass().getDeclaredField(pkName);
+				field = HoneyUtil.getField(entity.getClass(), pkName);
+				
 //				field.setAccessible(true);
 				HoneyUtil.setAccessibleTrue(field);
 //				field.set(entity, obj);
@@ -1613,7 +1626,8 @@ public final class HoneyUtil {
 			if (OneTimeParameter.isTrue(StringConst.OLD_ID_EXIST+i)) {
 				try {
 					Object obj = OneTimeParameter.getAttribute(StringConst.OLD_ID+i);
-					field = entity[i].getClass().getDeclaredField(pkName);
+//					field = entity[i].getClass().getDeclaredField(pkName);
+					field = HoneyUtil.getField(entity[i].getClass(), pkName);
 //					field.setAccessible(true);
 					HoneyUtil.setAccessibleTrue(field);
 //					field.set(entity[i], obj);
@@ -1650,7 +1664,8 @@ public final class HoneyUtil {
 				//V1.11
 				boolean noId = false;
 				try {
-					field0 = entity[0].getClass().getDeclaredField("id");
+//					field0 = entity[0].getClass().getDeclaredField("id");
+					field0 = HoneyUtil.getField(entity[0].getClass(),"id");
 					pkName="id";
 				} catch (NoSuchFieldException e) {
 					noId = true;
@@ -1658,7 +1673,8 @@ public final class HoneyUtil {
 				if (noId) {
 					pkName = HoneyUtil.getPkFieldName(entity[0]);
 					if("".equals(pkName) || pkName.contains(",")) return ; //just support single primary key.
-					field0 = entity[0].getClass().getDeclaredField(pkName); //fixed 1.17
+//					field0 = entity[0].getClass().getDeclaredField(pkName); //fixed 1.17
+					field0 = HoneyUtil.getField(entity[0].getClass(),pkName);//fixed 1.17
 					pkAlias="("+pkName+")";
 				}	
 				
@@ -1716,7 +1732,9 @@ public final class HoneyUtil {
 					hasValue = false;
 //					v = null;
 					
-					field = entity[i].getClass().getDeclaredField(pkName);
+//					field = entity[i].getClass().getDeclaredField(pkName);
+					field = HoneyUtil.getField(entity[i].getClass(),pkName);
+					
 //					field.setAccessible(true);
 					HoneyUtil.setAccessibleTrue(field);
 					Object obj = field.get(entity[i]);
@@ -1776,15 +1794,16 @@ public final class HoneyUtil {
 	 * @param c
 	 * @return
 	 */
-	@SuppressWarnings("rawtypes")
-	public static String getPkFieldNameByClass(Class c) {
+//	@SuppressWarnings("rawtypes")
+	public static String getPkFieldNameByClass(Class<?> c) {
 
 		if (c == null) return null;
 		String classFullName = c.getName();
 		String pkey = HoneyContext.getBeanCustomPKey(classFullName);
 		if (pkey != null) return pkey;
 
-		Field field[] = c.getDeclaredFields();
+//		Field field[] = c.getDeclaredFields();
+		Field field[] = HoneyUtil.getFields(c);
 		int len = field.length;
 		boolean isFirst = true;
 
@@ -1890,7 +1909,8 @@ public final class HoneyUtil {
 	}
 	
 	public static <T> String getColumnNames(T entity) {
-		Field fields[] = entity.getClass().getDeclaredFields(); 
+//		Field fields[] = entity.getClass().getDeclaredFields(); 
+		Field fields[] = HoneyUtil.getFields(entity.getClass()); //可以改通过class直接得到 TODO?
 		String columnNames;
 		String packageAndClassName = entity.getClass().getName();
 		columnNames = HoneyContext.getBeanField(packageAndClassName);
@@ -1923,6 +1943,63 @@ public final class HoneyUtil {
 
 	public static void setAccessibleTrue(Field field) {
 		field.setAccessible(true); // NOSONAR
+	}
+	
+	public static <T> Field[] getFields(Class<T> entityClass) {
+		Field fields[] = entityClass.getDeclaredFields();
+		
+		if (isOpenEntityCanExtend()) {//entity支持父类时,再添加
+			Class<?> superClass = null;
+			Class<?> currentClass = entityClass;
+			do {
+				superClass = currentClass.getSuperclass(); // 拿的是父类，而不是字段的值
+				if (HoneyUtil.isSuperEntity(superClass)) {
+					currentClass=superClass;
+					fields=mergeSuperFields(fields, currentClass);
+				} else {
+					break;
+				}
+			} while (fields != null);
+		}
+		
+		if(fields==null) fields=new Field[0];
+		
+		return fields;
+	}
+	
+	private static <T> Field[] mergeSuperFields(Field oldFields[], Class<T> superClass) {
+		Field superFields[] = superClass.getDeclaredFields();
+		if (superFields == null || superFields.length == 0) return oldFields;
+
+		int oldFieldsLength = oldFields.length;
+		int superFieldsLength = superFields.length;
+		Field[] mergedFields = Arrays.copyOf(oldFields, oldFieldsLength + superFieldsLength);
+		System.arraycopy(superFields, 0, mergedFields, oldFieldsLength, superFieldsLength);
+
+		return mergedFields;
+	}
+	
+	public static Field getField(Class<?> clazz, String fieldName) throws NoSuchFieldException {
+		try {
+			return clazz.getDeclaredField(fieldName);
+		} catch (NoSuchFieldException e) {
+			if (isOpenEntityCanExtend()) {
+				Class<?> superClass = clazz.getSuperclass(); // 拿的是父类，而不是字段的值
+				if (isSuperEntity(superClass)) {
+					return getField(superClass, fieldName);
+				}
+			}
+			throw e;
+		}
+	}
+
+	public static boolean isSuperEntity(Class<?> superClass) {
+		return superClass != null && superClass != Object.class
+				&& (!superClass.getName().startsWith("java.") && !superClass.getName().startsWith("javax."));
+	}
+	
+	private static boolean isOpenEntityCanExtend() {
+		return HoneyConfig.getHoneyConfig().openEntityCanExtend;
 	}
 	
 }

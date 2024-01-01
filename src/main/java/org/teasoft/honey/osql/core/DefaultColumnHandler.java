@@ -23,9 +23,33 @@ import org.teasoft.honey.util.ObjectUtils;
 public class DefaultColumnHandler implements ColumnHandler {
 	
 	private final String field2Column=StringConst.PREFIX+"Field2Column";
-
+	
 	@Override
 	public String toColumnName(String fieldName, Class entityClass) {
+		String s1 = toColumnName0(fieldName, entityClass);
+
+		if (s1 == null && isOpenEntityCanExtend()) {
+			Class<?> superClass = null;
+			Class<?> currentClass = entityClass;
+			do {
+				superClass = currentClass.getSuperclass(); // 拿的是父类，而不是字段的值
+				if (HoneyUtil.isSuperEntity(superClass)) {
+					s1 = toColumnName0(fieldName, superClass);
+					currentClass=superClass;
+				} else {
+					break;
+				}
+			} while (s1 == null);
+		}
+
+		return s1;
+	}
+
+	private String toColumnName0(String fieldName, Class entityClass) {
+		if (HoneyUtil.isJavaPackage(entityClass)) {
+			Logger.debug("传入的类是java库的");
+			return null;
+		}
 		if (entityClass != null) {
 			String entityFullName=entityClass.getName();
 			Boolean flag = HoneyContext.getCustomFlagMap(field2Column + entityFullName);
@@ -46,6 +70,30 @@ public class DefaultColumnHandler implements ColumnHandler {
 
 	@Override
 	public String toFieldName(String columnName, Class entityClass) {
+		String s1 = toFieldName0(columnName, entityClass);
+
+		if (s1 == null && isOpenEntityCanExtend()) {
+			Class<?> superClass = null;
+			Class<?> currentClass = entityClass;
+			do {
+				superClass = currentClass.getSuperclass(); // 拿的是父类，而不是字段的值
+				if (HoneyUtil.isSuperEntity(superClass)) {
+					s1 = toFieldName0(columnName, superClass);
+					currentClass=superClass;
+				} else {
+					break;
+				}
+			} while (s1 == null);
+		}
+
+		return s1;
+	}
+	
+	private String toFieldName0(String columnName, Class entityClass) {
+		if (HoneyUtil.isJavaPackage(entityClass)) {
+			Logger.debug("传入的类是java库的");
+			return null;
+		}
 		if (entityClass != null) {
 			String entityFullName=entityClass.getName();
 			Boolean flag = HoneyContext.getCustomFlagMap(field2Column + entityFullName);
@@ -64,7 +112,16 @@ public class DefaultColumnHandler implements ColumnHandler {
 			//看下直接传entity是否方便????
 //			Field fields[] = entity.getClass().getDeclaredFields();
 			
-			Field fields[] = entityClass.getDeclaredFields();
+//			Field fields[] = entityClass.getDeclaredFields();
+//			Field fields[] = HoneyUtil.getFields(entityClass.getClass());
+			
+			if (entityClass == null) return;
+			if (HoneyUtil.isJavaPackage(entityClass)) {
+				Logger.debug("传入的类是java库的");
+				return;
+			}
+			
+			Field fields[] = HoneyUtil.getFields(entityClass);
 			String entityFullName=entityClass.getName();
 			String defineColumn = "";
 			String fiName = "";
@@ -104,6 +161,10 @@ public class DefaultColumnHandler implements ColumnHandler {
 			Logger.debug(e.getMessage(), e);
 			//ignore
 		}
+	}
+	
+	private static boolean isOpenEntityCanExtend() {
+		return HoneyConfig.getHoneyConfig().openEntityCanExtend;
 	}
 
 }
