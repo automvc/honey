@@ -105,7 +105,10 @@ public class ShardingInterceptor extends EmptyInterceptor {
 		Boolean flag = HoneyContext.getCustomFlagMap(key);
 		if (Boolean.FALSE.equals(flag)) return entity;
 
-		Field fields[] = entity.getClass().getDeclaredFields();
+//		Field fields[] = entity.getClass().getDeclaredFields();
+		Field fields[] = HoneyUtil.getFields(entity.getClass());
+		
+		
 		int len = fields.length;
 		boolean isHas = false;
 		int annoCounter = 0;
@@ -530,7 +533,8 @@ public class ShardingInterceptor extends EmptyInterceptor {
 //				setPreValue(inList, number);
 				inList.add(number);
 			}
-		} else if (String.class.equals(v.getClass())) { // String 逗号(,)为分隔符
+//		} else if (String.class.equals(v.getClass())) { // String 逗号(,)为分隔符
+		} else if (v instanceof String) { // String 逗号(,)为分隔符
 			Object values[] = v.toString().trim().split(",");
 //			len = values.length;
 			for (Object e : values) {
@@ -678,10 +682,11 @@ public class ShardingInterceptor extends EmptyInterceptor {
 
 	}
 
-	private Object getFieldValue(Object entity, String fieldName) {
+	private Object getFieldValue(Object entity, String fieldName) {  //检测有多少个？ TODO
 		if (fieldName == null) return null; // 没设置有分片键时
 		try {
-			Field field = entity.getClass().getDeclaredField(fieldName);
+//			Field field = entity.getClass().getDeclaredField(fieldName);
+			Field field = HoneyUtil.getField(entity.getClass(),fieldName);
 //			field.setAccessible(true);
 			HoneyUtil.setAccessibleTrue(field);
 			return field.get(entity);

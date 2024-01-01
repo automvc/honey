@@ -254,7 +254,8 @@ public class MongoConditionHelper {
 			for (Number number : n) {
 				inList.add(number);
 			}
-		} else if (String.class.equals(v.getClass())) { // String 逗号(,)为分隔符
+//		} else if (String.class.equals(v.getClass())) { // String 逗号(,)为分隔符
+		} else if (v instanceof String) { // String 逗号(,)为分隔符
 			Object values[] = v.toString().trim().split(",");
 			for (Object e : values) {
 				inList.add(e);
