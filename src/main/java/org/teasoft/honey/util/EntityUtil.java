@@ -32,8 +32,8 @@ public final class EntityUtil {
 	 * @param entity 实体对象
 	 * @return 实体的字段名称
 	 */
-	public static String getFieldNames(Object entity) {
-		return getFieldNames(entity, false);
+	public static String getColumnNames(Object entity) {
+		return getColumnNames(entity, false);
 	}
 
 	/**
@@ -43,9 +43,11 @@ public final class EntityUtil {
 	 * @param isTransform 是否命名转换标识
 	 * @return 实体的字段名称
 	 */
-	public static String getFieldNames(Object entity, boolean isTransform) {
+//	public static String getFieldNames(Object entity, boolean isTransform) {
+	public static String getColumnNames(Object entity, boolean isTransform) {
 		if (entity == null) return "";
-		Field fields[] = entity.getClass().getDeclaredFields();
+//		Field fields[] = entity.getClass().getDeclaredFields();
+		Field fields[] = HoneyUtil.getFields(entity.getClass());
 
 		if (fields == null) return "";
 

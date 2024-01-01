@@ -33,7 +33,7 @@ public class SqlKeyCheck {
 			initKeyMap(oracleKey);
 		}
 
-		String fs = EntityUtil.getFieldNames(new LowerKey());
+		String fs = EntityUtil.getColumnNames(new LowerKey());
 		initKeyMap2(fs);
 	}
 	

@@ -115,7 +115,8 @@ public final class SuidHelper {
 				for (int j = 0; j < fieldName.length; j++) {
 					if(StringUtils.isBlank(fieldName[j])) continue;
 					try {
-						field = entity.getClass().getDeclaredField(fieldName[j]);//可能会找不到Javabean的字段
+//						field = entity.getClass().getDeclaredField(fieldName[j]);//可能会找不到Javabean的字段
+						field = HoneyUtil.getField(entity.getClass(),fieldName[j]);//可能会找不到Javabean的字段
 					} catch (NoSuchFieldException e) {
 						if (i == startRow) Logger.warn("Can not find the field name : " + fieldName[j]);
 						continue;
@@ -153,7 +154,9 @@ public final class SuidHelper {
 		if (from == null || to == null) return to;
 
 		Field field = null;
-		Field fields[] = to.getClass().getDeclaredFields();
+//		Field fields[] = to.getClass().getDeclaredFields();
+		Field fields[] = HoneyUtil.getFields(to.getClass()); 
+		
 		int len = fields.length;
 
 		for (int i = 0; i < len; i++) {
@@ -168,7 +171,8 @@ public final class SuidHelper {
 			HoneyUtil.setAccessibleTrue(fields[i]);
 			
 			try {
-				field = from.getClass().getDeclaredField(fields[i].getName());
+//				field = from.getClass().getDeclaredField(fields[i].getName());
+				field = HoneyUtil.getField(from.getClass(),fields[i].getName());
 			} catch (NoSuchFieldException e) {
 				continue;
 			}
@@ -198,7 +202,8 @@ public final class SuidHelper {
 
 		Map<String, Object> map = null;
 		Object v = null;
-		Field fields[] = entity.getClass().getDeclaredFields();
+//		Field fields[] = entity.getClass().getDeclaredFields();
+		Field fields[] = HoneyUtil.getFields(entity.getClass());
 
 		for (int i = 0; i < fields.length; i++) {
 			if (i == 0) map = new LinkedHashMap<>();
