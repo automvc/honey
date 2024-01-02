@@ -191,6 +191,9 @@ public final class HoneyConfig {
 	@SysValue("${bee.osql.insertBatchSize}")
 	int insertBatchSize = 10000; //不设置,默认10000
 	
+	@SysValue("${bee.osql.eachBatchCommit}")
+	public boolean eachBatchCommit; //2.2
+	
 	@SysValue("${bee.osql.lang}")
 	public String lang="CN";
 	

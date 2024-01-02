@@ -715,7 +715,9 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 					total += temp;
 				}
 			}
-//		conn.setAutoCommit(oldAutoCommit);
+			
+			allCommitIfNeed(conn);
+			
 		} catch (SQLException e) {
 			hasException=true;
 			if(catchModifyDuplicateException(e)) {
@@ -789,13 +791,34 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 		} else {
 			a = countFromArray(array);
 		}
-		conn.commit();
+//		if(! HoneyContext.isTransactionConn()) {
+//			conn.commit();
+//		}
+		eachBatchCommitIfNeed(conn); //if need
 
 		Logger.logSQL(" | <-- index[" + (start) + "~" + (end - 1) + INDEX3 + " Affected rows: ",
 				a + "" + shardingIndex());
 
 		return a;
 	}
+	
+	private void eachBatchCommitIfNeed(Connection conn) throws SQLException {
+		boolean eachBatchCommit = HoneyConfig.getHoneyConfig().eachBatchCommit;
+		if (eachBatchCommit && !HoneyContext.isTransactionConn()) {
+//			System.err.println("-----在方法内部每个批次提交一次----");
+			conn.commit();
+		}
+	}
+	
+	
+	private void allCommitIfNeed(Connection conn) throws SQLException {
+		boolean eachBatchCommit = HoneyConfig.getHoneyConfig().eachBatchCommit;
+		if (!eachBatchCommit && !HoneyContext.isTransactionConn()) {
+//			System.err.println("-----在方法内部所有批次一起提交----");
+			conn.commit();
+		}
+	}
+	
 	
 	private int countFromArray(int array[]){
 		int a=0;
@@ -868,6 +891,9 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 					total += temp;
 				}
 			}
+			
+			allCommitIfNeed(conn);
+			
 //			conn.setAutoCommit(oldAutoCommit);
 		} catch (SQLException e) {
 			hasException=true;
@@ -949,7 +975,10 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 		String sqlForGetValue=shardingIndex() +sql+ "  [Batch:"+ (start/batchSize) + INDEX3; //V2.2
 		setAndClearPreparedValues(pst, sqlForGetValue);
 		a = pst.executeUpdate();  // not executeBatch
-		conn.commit();
+//		if(! HoneyContext.isTransactionConn()) {
+//			conn.commit();
+//		}
+		eachBatchCommitIfNeed(conn); //if need
 		
 		Logger.logSQL(" | <-- [Batch:"+ (start/batchSize) + INDEX3+" Affected rows: ", a+""+shardingIndex());
 

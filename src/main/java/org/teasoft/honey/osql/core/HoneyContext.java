@@ -843,8 +843,12 @@ public final class HoneyContext {
 		} catch (SQLException e) {
 			throw ExceptionHelper.convert(e);
 		} finally {
-			removeCurrentConnection(); // 事务结束时要删除;在事务中间报异常也要删除;同一conn也要删除
+//			"在事务中间报异常也要删除;"? 不在这里删   应该由程序在事务中调用rollback
+//			"事务结束时要删除;"   在事务直接调用，不在这里
+			
+//			removeCurrentConnection(); // 同一conn也要删除  已移到以下括号内;   closed 2.2
 			if (StringConst.tRue.equals(getSameConnectionDoing())) {
+				removeCurrentConnection(); //2.2
 				removesameConnectionDoing(); // 同一conn
 				OneTimeParameter.setTrueForKey("_SYS_Bee_SAME_CONN_EXCEPTION");
 			}
@@ -859,6 +863,10 @@ public final class HoneyContext {
 //				removeCurrentRoute();
 //			}
 		}
+	}
+	
+	public static boolean isTransactionConn() { //正在处理事务： 有当前Conn且不是同一连接
+		return getCurrentConnection() != null && !StringConst.tRue.equals(getSameConnectionDoing());
 	}
 
 	public static void checkClose(Statement stmt, Connection conn) {
