@@ -119,16 +119,15 @@ public final class HoneyContext {
 		if(sqlIndexLocal!=null) sqlIndexLocal.remove();
 		if(conditionLocal!=null) conditionLocal.remove();
 		
-		sqlPreValueLocal = new InheritableThreadLocal<>();
-//		sqlPreValueLocal = new ThreadLocal<>();
+		
+		initTL();
+		
 		sqlIndexLocal = new InheritableThreadLocal<>();
 		conditionLocal = new InheritableThreadLocal<>();
 //		tabNameListLocal = new ThreadLocal<>(); //每个子线程都有一个具体表名,不需要.
 
-		cacheLocal = new InheritableThreadLocal<>();
 		sqlServerPaging = new ThreadLocal<>();
 		customMapLocal = new ThreadLocal<>();
-		sysCommStrLocal = new InheritableThreadLocal<>();
 		listLocal = new ThreadLocal<>(); // 子线程没有用到.
 
 		currentConnection = new ThreadLocal<>();
@@ -145,14 +144,12 @@ public final class HoneyContext {
 
 		sameConnectionDoing = new ThreadLocal<>();
 		jdbcTranWriterDs = new ThreadLocal<>();
-		appointDS = new InheritableThreadLocal<>();
 		tempDS = new ThreadLocal<>();
 		appointTab = new ThreadLocal<>();
 		tabSuffix = new ThreadLocal<>();
 
 		tempLang = new ThreadLocal<>();
 
-		currentRoute = new InheritableThreadLocal<>();
 		currentShardingPage = new ThreadLocal<>();
 		currentShardingSort = new InheritableThreadLocal<>();
 		currentGroupFunStruct = new InheritableThreadLocal<>();
@@ -173,6 +170,38 @@ public final class HoneyContext {
 
 	static void initLoad() {
 		BeeInitPreLoadService.initLoad();
+	}
+	
+	static void initTL() {
+		if (HoneyConfig.getHoneyConfig().multiDS_sharding) { //当使用分片模式,某些表又没有实行分片时,不宜使用parallelStream()并行操作
+			sqlPreValueLocal = new InheritableThreadLocal<>();
+			
+			currentRoute = new InheritableThreadLocal<>();
+			cacheLocal = new InheritableThreadLocal<>();
+			sysCommStrLocal = new InheritableThreadLocal<>();
+			appointDS = new InheritableThreadLocal<>();
+		}else {//2.2
+//			https://blog.csdn.net/abckingaa/article/details/135408582
+			sqlPreValueLocal = new ThreadLocal<>();  //2.2 fixed bug:  parallelStream().map + InheritableThreadLocal 才会出现   No value specified for parameter 1
+			
+			currentRoute = new ThreadLocal<>();
+			cacheLocal = new ThreadLocal<>();
+			sysCommStrLocal = new ThreadLocal<>();
+			appointDS = new ThreadLocal<>();
+		}
+	}
+	
+	static void initTLRefresh() { //initTL 默认时,走else;  当在代码设置了multiDS_sharding,才要刷新.
+		if (HoneyConfig.getHoneyConfig().multiDS_sharding) { //当使用分片模式,某些表又没有实行分片时,不宜使用parallelStream()并行操作
+			//因parallelStream()+InheritableThreadLocal会有问题,但分片又必要要用InheritableThreadLocal,所以分片时,不支持parallelStream并行操作
+			sqlPreValueLocal = new InheritableThreadLocal<>();
+			
+			currentRoute = new InheritableThreadLocal<>();
+			cacheLocal = new InheritableThreadLocal<>();
+			sysCommStrLocal = new InheritableThreadLocal<>();
+			appointDS = new InheritableThreadLocal<>();
+		}
+		
 	}
 
 	static ConcurrentMap<String, String> getEntity2tableMap() {
@@ -382,27 +411,15 @@ public final class HoneyContext {
 		Map<String, List<PreparedValue>> map = sqlPreValueLocal.get();
 		// if (null == map) map = new HashMap<>();
 		if (null == map) map = new ConcurrentHashMap<>();
-//		sqlStr = shardingIndex() + sqlStr;
 		map.put(sqlStr, list);
 		sqlPreValueLocal.set(map);
 	}
 	
-//	private static String shardingIndex() {
-//		Integer subThreadIndex = HoneyContext.getSqlIndexLocal();
-//		String index = "";
-//		if (subThreadIndex != null) {
-//			index = " (sharding " + subThreadIndex + ")";
-//		}
-//		return index;
-//	}
-
+//	public static List<PreparedValue> justGetPreparedValue(String sqlStr) {
 	static List<PreparedValue> justGetPreparedValue(String sqlStr) {
 		Map<String, List<PreparedValue>> map = sqlPreValueLocal.get();
 		if (null == map || sqlStr == null) return null;
 
-//		if(getSqlIndexLocal()!=null) sqlStr+=getSqlIndexLocal();
-		
-//		sqlStr = shardingIndex() + sqlStr;
 		return map.get(sqlStr);
 	}
 
@@ -411,9 +428,6 @@ public final class HoneyContext {
 		if (null == map || sqlStr == null) return;
 //		if (map.get(sqlStr) != null) map.remove(sqlStr);
 
-//		if(getSqlIndexLocal()!=null) sqlStr+=getSqlIndexLocal();
-		
-//		sqlStr = shardingIndex() + sqlStr;
 		if (map.containsKey(sqlStr)) map.remove(sqlStr);
 	}
 
@@ -421,7 +435,6 @@ public final class HoneyContext {
 		Map<String, List<PreparedValue>> map = sqlPreValueLocal.get();
 		if (null == map || sqlStr == null) return null;
 		
-//		sqlStr = shardingIndex() + sqlStr;
 		List<PreparedValue> list = map.get(sqlStr);
 //		if (list != null) map.remove(sqlStr);
 		if (map.containsKey(sqlStr)) map.remove(sqlStr);
@@ -1155,6 +1168,8 @@ public final class HoneyContext {
 	public static void setConfigRefresh(boolean configRefresh) {
 		HoneyContext.configRefresh = configRefresh;
 		HoneyConfig.setChangeDataSource(true); // 1.17
+		
+		if(configRefresh) initTLRefresh(); //2.2
 	}
 
 	private static final Integer ONE=1;
