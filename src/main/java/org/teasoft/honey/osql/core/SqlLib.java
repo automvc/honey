@@ -77,6 +77,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 					logDsTab();
 					return list; 
 				}
+				try {
 				List<T> rsList;
 				boolean jdbcStreamSelect =HoneyConfig.getHoneyConfig().sharding_jdbcStreamSelect;
 				
@@ -91,7 +92,11 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 //				addInCache(sql, rsList, "List<T>", SuidType.SELECT, rsList.size());  //缓存Key,是否包括了分片的DS,Tables
 				addInCache(sql, rsList, rsList.size()); // 缓存Key,是否包括了分片的DS,Tables
 				logSelectRows(rsList.size());
+				
 				return rsList;
+				}finally {
+				   clearContext(sql); //2.2 分片的主线程都要清主线程的上下文 
+				}
 				
 			} else { // 子线程执行
 				return _selectSomeField(sql, entityClass);
@@ -206,6 +211,8 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 					logDsTab();
 					return cacheValue;
 				}
+				
+				try {
 				String fun = "";
 				String funType = HoneyContext.getSysCommStrLocal(StringConst.FunType);
 				if (FunctionType.AVG.getName().equalsIgnoreCase(funType)) { //avg need change sql
@@ -222,6 +229,9 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 				addInCache(sql, fun, 1);
 				
 				return fun;
+				}finally {
+				   clearContext(sql); //2.2 分片的主线程都要清主线程的上下文 
+				}
 				
 			} else { // 子线程执行
 				return _selectFun(sql,entityClass);
@@ -311,6 +321,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 					return list;
 				}
 				
+				try {
 				List<String[]> rsList;
 				if (ShardingUtil.hadGroupSharding()) {
 					int List_String_Array = 1;
@@ -323,6 +334,10 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 				addInCache(sql, rsList, rsList.size());
 
 				return rsList;
+				
+				}finally {
+				 clearContext(sql); //2.2 分片的主线程都要清主线程的上下文 
+				}
 				
 			} else { // 子线程执行
 				return _select(sql, entityClass);
@@ -448,8 +463,12 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 			return _modify(sql, entityClass); // 1.x版本及不用分片走的分支
 		} else {
 			if (HoneyContext.getSqlIndexLocal() == null) {// 拦截到的要分片的主线程
-				int a = new ShardingModifyEngine().asynProcess(sql, entityClass, this);
-				return a;
+				try {
+					int a = new ShardingModifyEngine().asynProcess(sql, entityClass, this);
+					return a;
+				} finally {
+					clearContext(sql); // 2.2 分片的主线程都要清主线程的上下文
+				}
 			} else { // 子线程执行
 				return _modify(sql, entityClass);
 			}
@@ -571,6 +590,8 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 					logDsTab();
 					return cacheValue;
 				}
+				
+				try {
 				JsonResultWrap wrap;
 				if (ShardingUtil.hadAvgSharding()) {
 					wrap= (JsonResultWrap) new ShardingGroupbyListStringArrayEngine().asynProcess(sql, this, entityClass,3);
@@ -584,6 +605,10 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 				addInCache(sql, json, -1); // 没有作最大结果集判断
 				
 				return json;
+				
+				}finally {
+				   clearContext(sql); //2.2 分片的主线程都要清主线程的上下文 
+				}
 			}else { // 子线程执行
 				return _selectJson(sql,entityClass);
 			}
@@ -791,9 +816,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 		} else {
 			a = countFromArray(array);
 		}
-//		if(! HoneyContext.isTransactionConn()) {
-//			conn.commit();
-//		}
+		
 		eachBatchCommitIfNeed(conn); //if need
 
 		Logger.logSQL(" | <-- index[" + (start) + "~" + (end - 1) + INDEX3 + " Affected rows: ",
@@ -975,9 +998,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 		String sqlForGetValue=shardingIndex() +sql+ "  [Batch:"+ (start/batchSize) + INDEX3; //V2.2
 		setAndClearPreparedValues(pst, sqlForGetValue);
 		a = pst.executeUpdate();  // not executeBatch
-//		if(! HoneyContext.isTransactionConn()) {
-//			conn.commit();
-//		}
+		
 		eachBatchCommitIfNeed(conn); //if need
 		
 		Logger.logSQL(" | <-- [Batch:"+ (start/batchSize) + INDEX3+" Affected rows: ", a+""+shardingIndex());
@@ -1045,6 +1066,8 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 					logDsTab();
 					return list; 
 				}
+				
+				try {
 				//rsList还要排序
 				List<T> rsList =new ShardingMoreTableSelectEngine().asynProcess(sql, entity, this);
 				
@@ -1053,6 +1076,10 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 				addInCache(sql, rsList, rsList.size());
 //				listFieldTypeForMoreTable=null;
 				return rsList;
+				
+				}finally {
+				   clearContext(sql); //2.2 分片的主线程都要清主线程的上下文 
+				}
 				
 			} else { // 子线程执行
 				return _moreTableSelect(sql, entity);
