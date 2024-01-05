@@ -78,7 +78,7 @@ public class OrderByPagingRewriteSql {
 				}
 				HoneyContext.setPreparedValue(newSql, newListValue);
 				
-				list.add(new String[] { newSql });
+				list.add(new String[] { newSql }); //合成一条sql了， sql也不用加随机前缀 V2.2
 				list.add(new String[] { dsNameList.get(0) });
 			}else {
 				Logger.warn("Involved many dataSource or not supported union all!! ");

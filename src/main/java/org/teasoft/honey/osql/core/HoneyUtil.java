@@ -1157,10 +1157,26 @@ public final class HoneyUtil {
 	}
 
 	public static String deleteLastSemicolon(String sql) {
+		if(sql==null) return sql;
 		String new_sql = sql.trim();
 		if (new_sql.endsWith(";")) return new_sql.substring(0, new_sql.length() - 1); //fix oracle ORA-00911 bug.oracle用jdbc不能有分号
+		
+		sql=_deletePrefix(new_sql); //2.2
+		
 		return sql;
 	}
+	
+	public static String deletePrefix(String sql) { //2.2
+		if(sql==null) return sql;
+		String new_sql = sql.trim();
+		
+		return _deletePrefix(new_sql);
+	}
+	private static String _deletePrefix(String new_sql) {
+		if(new_sql.startsWith(START_MARK)) return new_sql.substring(20,new_sql.length()); //2.2
+		return new_sql;
+	}
+
 
 	public static <T> void checkPackage(T entity) {
 		if (entity == null) return;
@@ -2000,6 +2016,30 @@ public final class HoneyUtil {
 	
 	private static boolean isOpenEntityCanExtend() {
 		return HoneyConfig.getHoneyConfig().openEntityCanExtend;
+	}
+	
+//	public static String getRandomPrefix() {
+//		String s = Math.random() + "";
+//		return "[$#("+s.substring(0,8)+")#$]";
+//	}
+	
+	private static char ch[]="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789XY".toCharArray();//64
+	private static final String START_MARK = "[$#(";
+	private static final String END_MARK= ")#$]";
+	private static int index=0;
+	private static int MAX=1<<30;
+	
+	public static String getRandomPrefix() {
+		String s = Math.random() + "";
+		if (index > MAX)
+			index = 0;
+		index++;
+		try {
+			return START_MARK+s.substring(2, 13) + ch[index % 64]+END_MARK; //len 20
+		} catch (StringIndexOutOfBoundsException e) { //Exception in thread "main" java.lang.StringIndexOutOfBoundsException: String index out of range: 13
+//			System.out.println(s);
+			return getRandomPrefix();
+		}
 	}
 	
 }

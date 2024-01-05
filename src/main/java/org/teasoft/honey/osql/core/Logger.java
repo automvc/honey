@@ -73,11 +73,13 @@ public class Logger {
 				//				mysql批处理,在v1.8开始,不会用于占位设值. 需要清除
 				list = HoneyContext.getAndClearPreparedValue(sql);
 			} else {
-				list = HoneyContext.justGetPreparedValue(sql);
+				list = HoneyContext.justGetPreparedValue(sql); //enhance  数字也来到这   可能是影响行数?
 			}
 //			list = HoneyContext._justGetPreparedValue(sql); //统一用这个.  bug,只用于打印的,没有删
 
 			String value = HoneyUtil.list2Value(list, isShowSQLShowType());
+			
+			sql = HoneyUtil.deletePrefix(sql); //2.2
 
 //			if (value == null || "".equals(value.trim())) {
 			if (value == null) {

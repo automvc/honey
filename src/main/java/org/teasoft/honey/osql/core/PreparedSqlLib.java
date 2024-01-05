@@ -10,7 +10,6 @@ import org.teasoft.bee.osql.api.PreparedSql;
 import org.teasoft.bee.osql.dialect.DbFeature;
 import org.teasoft.bee.osql.exception.BeeIllegalParameterException;
 import org.teasoft.bee.osql.exception.SqlNullException;
-import org.teasoft.honey.osql.name.NameUtil;
 import org.teasoft.honey.util.ObjectUtils;
 
 /**
@@ -461,6 +460,8 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private void initPreparedValues(String sql, Object[] preValues) {
+		if(preValues==null || preValues.length==0) return ;
+		
 		List list = _initPreparedValues(sql, preValues);
 		// pre page 不放缓存 5,7
 		HoneyUtil.setPageNum(list);
@@ -541,8 +542,9 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 			throw new SqlNullException(STRING_IS_NULL);
 		}
 
+		if (ObjectUtils.isEmpty(map)) return sqlStr;
 		SqlValueWrap wrap = processSql2(sqlStr,map); //bug.  wrap maybe null
-		if (wrap == null || ObjectUtils.isEmpty(map)) return sqlStr; //fix null bug
+		if (wrap == null ) return sqlStr; //fix null bug
 		String sql = wrap.getSql();
 //		String mapKeys = wrap.getValueBuffer().toString(); //wrap.getValueBuffer() is :map's key , get from like: #{name}
 //		List list = _initPreparedValues(mapKeys, map);

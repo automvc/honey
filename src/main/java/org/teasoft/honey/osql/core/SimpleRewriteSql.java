@@ -39,8 +39,9 @@ public class SimpleRewriteSql {
 			Map<String, String> tab2DsMap) {
 		String sqls[] = new String[tabSuffixList.size()];
 		String dsArray[] = new String[tabSuffixList.size()];
-		for (int i = 0; i < tabSuffixList.size(); i++) {
+		for (int i = 0; i < tabSuffixList.size(); i++) { //有tabSuffixList， sql可以不用加前缀 2.2; 但用并行流parallelStream()会出问题,还是加上前缀好; 
 			sqls[i] = sql.replace(StringConst.ShardingTableIndexStr, tabSuffixList.get(i)); // eg: [$#(index)#$]替换成下标等
+			sqls[i]=HoneyUtil.getRandomPrefix()+sqls[i]; //2.2  //因parallelStream()+InheritableThreadLocal会有问题,但分片又必要要用InheritableThreadLocal,所以分片时,不支持parallelStream并行操作
 			HoneyContext.setPreparedValue(sqls[i], listValue);
 //			String dsName = tab2DsMap.get(tabSuffixList.get(i)); // 只在使用注解时, 分库与分表同属于一个分片键,才有用.
 //			if (StringUtils.isBlank(dsName)) {
@@ -86,6 +87,7 @@ public class SimpleRewriteSql {
 			for (String tabIndex : tabIndexSet) {
 //			    tempSql = sql.replace(tableName, tab); // eg: orders##(index)##替换成orders1等
 				tempSql = sql.replace(StringConst.ShardingTableIndexStr, tabIndex); // 将下标占位符改为具体下标
+				tempSql=HoneyUtil.getRandomPrefix()+tempSql; //2.2
 				sqlList.add(tempSql);
 				dsList.add(dsName);
 				HoneyContext.setPreparedValue(tempSql, listValue);
