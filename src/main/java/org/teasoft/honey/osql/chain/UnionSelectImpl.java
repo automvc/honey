@@ -6,15 +6,20 @@
 
 package org.teasoft.honey.osql.chain;
 
+import java.util.List;
+
 import org.teasoft.bee.osql.chain.Select;
 import org.teasoft.bee.osql.chain.UnionSelect;
+import org.teasoft.honey.osql.core.AbstractToSql;
+//import org.teasoft.honey.osql.core.HoneyContext;
 import org.teasoft.honey.osql.core.K;
 
 /**
  * @author Kingstar
  * @since  1.3
+ * @since  2.4.0
  */
-public class UnionSelectImpl implements UnionSelect {
+public class UnionSelectImpl extends AbstractToSql implements UnionSelect {
 
 	private static final String L_PARENTHESES = "(";
 	private static final String R_PARENTHESES = ")";
@@ -42,6 +47,9 @@ public class UnionSelectImpl implements UnionSelect {
 
 	@Override
 	public UnionSelect union(Select subSelect1, Select subSelect2) {
+//		pvList = new ArrayList<>();//??
+		getPvList().addAll((List)subSelect1.getPvList());   //接口要加Select
+		getPvList().addAll((List)subSelect2.getPvList());   //接口要加Select
 		return union(subSelect1.toSQL(), subSelect2.toSQL());
 	}
 
@@ -52,6 +60,9 @@ public class UnionSelectImpl implements UnionSelect {
 
 	@Override
 	public UnionSelect unionAll(Select subSelect1, Select subSelect2) {
+//		pvList = new ArrayList<>();//??
+		getPvList().addAll((List)subSelect1.getPvList());   //接口要加Select
+		getPvList().addAll((List)subSelect2.getPvList());   //接口要加Select
 		return unionAll(subSelect1.toSQL(), subSelect2.toSQL());
 	}
 
@@ -61,25 +72,9 @@ public class UnionSelectImpl implements UnionSelect {
 	}
 	
 	@Override
-	public UnionSelect unionAll(String[] subSelects) {
+	public UnionSelect unionAll(String[] subSelects) { //无法使用占位符
 		return useUnionSelect(K.unionAll, subSelects);
 	}
-	
-	public String toSQL() {
-		return toSQL(true);
-	}
-
-	public String toSQL(boolean noSemicolon) {
-		String sqlStr;
-		if (noSemicolon){
-			sqlStr=sql.toString();
-		}else{
-			sqlStr= sql.toString()+";";
-		}
-		sql = new StringBuffer();
-		return sqlStr;
-	}
-	
 	
 	private UnionSelect useUnionSelect(String keyword, String[] subSelects) {
         if(subSelects==null || subSelects.length==0) {
@@ -103,4 +98,5 @@ public class UnionSelectImpl implements UnionSelect {
 		}
 		return this;
 	}
+	
 }

@@ -6,19 +6,17 @@
 
 package org.teasoft.honey.osql.chain;
 
-import org.teasoft.bee.osql.Op;
+import java.util.List;
+
 import org.teasoft.bee.osql.OrderType;
 import org.teasoft.bee.osql.chain.Select;
-import org.teasoft.bee.osql.exception.BeeErrorNameException;
-import org.teasoft.bee.osql.exception.BeeIllegalSQLException;
-import org.teasoft.honey.osql.core.Check;
 import org.teasoft.honey.osql.core.FunAndOrderTypeMap;
 import org.teasoft.honey.osql.core.K;
-import org.teasoft.honey.osql.util.NameCheckUtil;
 
 /**
  * @author Kingstar
  * @since  1.3
+ * @since  2.4.0
  */
 public class SelectImpl extends AbstractSelectToSql implements Select {
 
@@ -34,10 +32,10 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 	
 
 	private boolean isStartField = true;
-	private boolean isStartWhere = true;
+//	private boolean isStartWhere = true;
 	private boolean isStartOn = true;
 
-	private boolean isAddAnd = false;
+//	private boolean isAddAnd = false;
 	private boolean isStartGroupBy = true;
 	private boolean isStartHaving = true;
 	private boolean isStartOrderBy = true;
@@ -51,7 +49,7 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 	public Select select() {
 		if (isStartField) {
 			sql.append(K.select).append(SPACE);
-			sql.append(STAR); //*
+			sql.append(STAR); // *
 			isStartField = false;
 		}
 		return this;
@@ -72,10 +70,15 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 
 		return this;
 	}
+	
+
+	@Override
+	public Select distinct(String fieldName, String alias) {
+		return select(K.distinct+L_PARENTHESES+fieldName+R_PARENTHESES+K.space+K.as+alias);
+	}
 
 	@Override
 	public Select distinct(String field) {
-//		checkField(field);
 		checkFieldOrExpression(field);
 		return select(DISTINCT + L_PARENTHESES + field + R_PARENTHESES); // DISTINCT(field)
 	}
@@ -89,6 +92,7 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 	@Override
 	public Select from(String table) {
 		checkExpression(table);
+		_appendTable(table);
 		sql.append(SPACE).append(K.from).append(SPACE);
 		sql.append(table);
 		return this;
@@ -97,6 +101,7 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 	@Override
 	public Select join(String anotherTable) {
 		checkExpression(anotherTable);
+		_appendTable(anotherTable);
 		sql.append(SPACE).append(K.join).append(SPACE);
 		sql.append(anotherTable);
 		return this;
@@ -105,6 +110,7 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 	@Override
 	public Select innerJoin(String anotherTable) {
 		checkExpression(anotherTable);
+		_appendTable(anotherTable);
 //		sql.append(" inner join ");
 		sql.append(SPACE).append(K.innerJoin).append(SPACE);
 		sql.append(anotherTable);
@@ -114,6 +120,7 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 	@Override
 	public Select leftJoin(String anotherTable) {
 		checkExpression(anotherTable);
+		_appendTable(anotherTable);
 //		sql.append(" left join ");
 		sql.append(SPACE).append(K.leftJoin).append(SPACE);
 		sql.append(anotherTable);
@@ -123,12 +130,13 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 	@Override
 	public Select rightJoin(String anotherTable) {
 		checkExpression(anotherTable);
+		_appendTable(anotherTable);
 //		sql.append(" right join ");
 		sql.append(SPACE).append(K.rightJoin).append(SPACE);
 		sql.append(anotherTable);
 		return this;
 	}
-
+	
 	@Override
 	public Select on() {
 		sql.append(SPACE).append(K.on).append(SPACE);
@@ -152,8 +160,6 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 
 		return this;
 	}
-
-
 
 	@Override
 	public Select groupBy(String field) {
@@ -246,33 +252,28 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 
 	@Override
 	public Select exists(Select subSelect) {
+		updatePvList(subSelect);
 		return useSubSelect(K.exists, subSelect.toSQL());
 	}
 
-//	public Select exists(String subSelect) {
-//		return useSubSelect("exists", subSelect);
-//	}
-
 	@Override
 	public Select notExists(Select subSelect) {
+		updatePvList(subSelect);
 		return useSubSelect(K.notExists, subSelect.toSQL());
 	}
 
-//	@Override
-//	public Select notExists(String subSelect) {
-//		return useSubSelect("not exists", subSelect);
-//	}
-
 	@Override
 	public Select in(String field, Select subSelect) {
+		updatePvList(subSelect);
 		return useSubSelect(field, K.in, subSelect.toSQL());
 	}
 
 	@Override
 	public Select notIn(String field, Select subSelect) {
-		return useSubSelect(field, K.notIn, subSelect.toSQL());
+		updatePvList(subSelect);
+		return useSubSelect(field, K.notIn, subSelect.toSQL());  //subSelect.toSQL() 不需要加缓存 ？？？
 	}
-
+	
 	@Override
 	public Select start(int start) {
 		this.start=start;
@@ -285,225 +286,271 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 		return this;
 	}
 	
-//select , update also need use	
- //Condition<<============= 
-	@Override
-	public Select lParentheses() {
-		if (isAddAnd) sql.append(AND);
-		isAddAnd = false;
-		sql.append(L_PARENTHESES);
-		return this;
-	}
-
-	@Override
-	public Select rParentheses() {
-		sql.append(R_PARENTHESES);
-		isAddAnd = true;
-		return this;
-	}
-	
-	@Override
-	public Select where() {
-		sql.append(SPACE).append(K.where).append(SPACE);
-		isStartWhere = false;
-
-		return this;
-	}
-
-	@Override
-	public Select where(String expression) {
-		checkExpression(expression);
-		if (isStartWhere) {
-			sql.append(SPACE).append(K.where).append(SPACE);
-			sql.append(expression);
-			isStartWhere = false;
-			isAddAnd = true; //fix on 2020-01-13
-		} else {
-			if (isAddAnd) sql.append(AND);
-			sql.append(expression);
-			isAddAnd = true;
-		}
-
-		return this;
-	}
-
-	@Override
-	public Select op(String field, Op opType, String value) {
-		checkField(field);
-		if (opType == Op.in) return in(field, value);
-		if (opType == Op.notIn) return notIn(field, value);
-
-		if (isAddAnd) sql.append(AND);
-
-		sql.append(field);
-		sql.append(opType.getOperator());
-		sql.append("'");
-		sql.append(value);
-		sql.append("'");
-		isAddAnd = true;
-		return this;
-	}
-
-	@Override
-	public Select op(String field, Op opType, Number value) {
-		checkField(field);
-		if (opType == Op.in) return in(field, value);
-		if (opType == Op.notIn) return notIn(field, value);
-
-		if (isAddAnd) sql.append(AND);
-		sql.append(field);
-		sql.append(opType.getOperator());
-		sql.append(value);
-		isAddAnd = true;
-		return this;
-	}
-	
-	@Override
-	public Select op(String field, String value) {
-		checkField(field);
-		return op(field, Op.eq, value);
-	}
-	
-	@Override
-	public Select op(String field, Number value) {
-		checkField(field);
-		return op(field, Op.eq, value);
-	}
-
-	/**
-	 * 默认自动加and.default will automatically add and.
-	 * @return a reference to this object.
-	 */
-	@Override
-	public Select and() {
-		sql.append(AND);
-		isAddAnd = false;
-		return this;
-	}
-
-	@Override
-	public Select or() {
-		sql.append(SPACE).append(K.or).append(SPACE);
-		isAddAnd = false;
-		return this;
-	}
-	
-	
-	@Override
-	public Select not() {
-		sql.append(SPACE).append(K.not);
-		isAddAnd = false;
-		return this;
-	}
-	
-	
-	@Override
-	public Select in(String field, Number... valueList) {
-		checkField(field);
-		return inOrNotIn(field, K.in, valueList);
-	}
-
-	public Select notIn(String field, Number... valueList) {
-		checkField(field);
-		return inOrNotIn(field, K.notIn, valueList);
-	}
-
-	private Select inOrNotIn(String field, String op, Number... valueList) {
-		checkFieldOrExpression(field);
-		if (isAddAnd) sql.append(AND);
-		String value = "";
-		for (int i = 0; i < valueList.length; i++) {
-			if (i == 0)
-				value += valueList[i];
-			else
-				value += "," + valueList[i];
-		}
-		sql.append(field + " " + op + " (" + value + ")"); // eg: in (99,18)
-		return this;
-	}
-
-	@Override
-	public Select in(String field, String valueList) {
-		return inOrNotIn(field, K.in, valueList);
-	}
-
-	@Override
-	public Select notIn(String field, String valueList) {
-		return inOrNotIn(field, K.notIn, valueList);
-	}
-
-	private Select inOrNotIn(String field, String op, String valueList) {
-		checkField(field);
-		if (isAddAnd) sql.append(AND);
-		valueList = valueList.replace(",", "','");
-		sql.append(field + " " + op + " ('" + valueList + "')"); // in ('client01','bee')
-		return this;
-	}
-	
-	@Override
-	public Select between(String field, Number low, Number high) {
-		checkField(field);
-		if (isAddAnd) sql.append(AND);
-		sql.append(field);
-		sql.append(SPACE).append(K.between).append(SPACE);
-		sql.append(low);
-		sql.append(AND);
-		sql.append(high);
-		isAddAnd = true;
-
-		return this;
-	}
-
-	@Override
-	public Select notBetween(String field, Number low, Number high) {
-		checkField(field);
-		if (isAddAnd) sql.append(AND);
-		sql.append(field);
-		sql.append(SPACE).append(K.notBetween).append(SPACE);
-		sql.append(low);
-		sql.append(AND);
-		sql.append(high);
-		isAddAnd = true;
-
-		return this;
-	}
-
-	@Override
-	public Select isNull(String field) {
-		checkField(field);
-		if (isAddAnd) sql.append(AND);
-//		sql.append(field + " is null ");
-		sql.append(field);
-		sql.append(SPACE).append(K.isNull).append(SPACE);
-		return this;
-	}
-
-	@Override
-	public Select isNotNull(String field) {
-		checkField(field);
-		if (isAddAnd) sql.append(AND);
-//		sql.append(field + " is not null ");
-		sql.append(field);
-		sql.append(SPACE).append(K.isNotNull).append(SPACE);
-		return this;
-	}
-	
-	private void checkFieldOrExpression(String field){
+////select , update also need use	
+// //Condition<<============= 
+//	@Override
+//	public Select lParentheses() {
+//		if (isAddAnd) sql.append(AND);
+//		isAddAnd = false;
+//		sql.append(L_PARENTHESES);
+//		return this;
+//	}
+//
+//	@Override
+//	public Select rParentheses() {
+//		sql.append(R_PARENTHESES);
+//		isAddAnd = true;
+//		return this;
+//	}
+//	
+//	@Override
+//	public Select where() {
+//		sql.append(SPACE).append(K.where).append(SPACE);
+//		isStartWhere = false;
+//
+//		return this;
+//	}
+//
+//	@Override
+//	public Select where(String expression) {
+//		checkExpression(expression);
+//		if (isStartWhere) {
+//			sql.append(SPACE).append(K.where).append(SPACE);
+//			sql.append(expression);
+//			isStartWhere = false;
+//			isAddAnd = true; //fix on 2020-01-13
+//		} else {
+//			if (isAddAnd) sql.append(AND);
+//			sql.append(expression);
+//			isAddAnd = true;
+//		}
+//
+//		return this;
+//	}
+//
+//	@Override
+//	public Select op(String field, Op opType, String value) {
+//		checkField(field);
+//		if (opType == Op.in) return in(field, value);
+//		if (opType == Op.notIn) return notIn(field, value);
+//		
+//		if (Op.like == opType || Op.notLike == opType || Op.likeLeft == opType || Op.likeRight == opType
+//				|| Op.likeLeftRight == opType)
+//			value=processLike(opType, value);
+//
+//		if (isAddAnd) sql.append(AND);
+//
+//		sql.append(field);
+//		sql.append(opType.getOperator());
+//		if (isUsePlaceholder()) {
+//			sql.append("?");
+//		    addValue(value);
+//		}else {
+//			sql.append("'");
+//			sql.append(value);
+//			sql.append("'");
+//		}
+//		isAddAnd = true;
+//		return this;
+//	}
+//
+//	@Override
+//	public Select op(String field, Op opType, Number value) {
+//		checkField(field);
+//		if (opType == Op.in) return in(field, value);
+//		if (opType == Op.notIn) return notIn(field, value);
+//
+//		if (isAddAnd) sql.append(AND);
+//		sql.append(field);
+//		sql.append(opType.getOperator());
+//		if (isUsePlaceholder()) {
+//			sql.append("?");
+//		    addValue(value);
+//		}else
+//			sql.append(value);
+//		isAddAnd = true;
+//		return this;
+//	}
+//	
+//	@Override
+//	public Select op(String field, String value) {
+//		checkField(field);
+//		return op(field, Op.eq, value);
+//	}
+//	
+//	@Override
+//	public Select op(String field, Number value) {
+//		checkField(field);
+//		return op(field, Op.eq, value);
+//	}
+//
+//	/**
+//	 * 默认自动加and.default will automatically add and.
+//	 * @return a reference to this object.
+//	 */
+//	@Override
+//	public Select and() {
+//		sql.append(AND);
+//		isAddAnd = false;
+//		return this;
+//	}
+//
+//	@Override
+//	public Select or() {
+//		sql.append(SPACE).append(K.or).append(SPACE);
+//		isAddAnd = false;
+//		return this;
+//	}
+//	
+//	@Override
+//	public Select in(String field, Number... valueList) {
+//		checkField(field);
+//		return inOrNotIn(field, K.in, valueList);
+//	}
+//
+//	public Select notIn(String field, Number... valueList) {
+//		checkField(field);
+//		return inOrNotIn(field, K.notIn, valueList);
+//	}
+//
+////	如何增加list支持？？
+//	private Select inOrNotIn(String field, String op, Number... valueList) {
+//		checkFieldOrExpression(field);
+//		if (isAddAnd) sql.append(AND);
+//		sql.append(field + " " + op);
+//		
+//		if(isUsePlaceholder()) return inOrNotInUsePlaceholder(field, op, valueList); //2.x
+//		
+//		String value = "";
+//		for (int i = 0; i < valueList.length; i++) {
+//			if (i == 0)
+//				value += valueList[i];
+//			else
+//				value += "," + valueList[i];
+//		}
+//		sql.append( " (" + value + ")"); // eg: in (99,18)
+//		return this;
+//	}
+//	
+//	@Override
+//	public Select in(String field, String valueList) {
+//		return inOrNotIn(field, K.in, valueList);
+//	}
+//
+//	@Override
+//	public Select notIn(String field, String valueList) {
+//		return inOrNotIn(field, K.notIn, valueList);
+//	}
+//
+//	private Select inOrNotIn(String field, String op, String valueList) {
+//		checkField(field);
+//		if (isAddAnd) sql.append(AND);
+//		sql.append(field + " " + op);
+//		if(isUsePlaceholder()) return inOrNotInUsePlaceholder(field, op, valueList); //2.x
+//		
+//		valueList = valueList.replace(",", "','");
+//		sql.append(" ('" + valueList + "')"); //eg: in ('client01','bee')
+//		return this;
+//	}
+//	
+//	@Override
+//	public Select between(String field, Number low, Number high) {
+//		checkField(field);
+//		if (isAddAnd)
+//			sql.append(AND);
+//		sql.append(field);
+//		sql.append(SPACE).append(K.between).append(SPACE);
+//		if (isUsePlaceholder()) {
+//			sql.append("?");
+//		    addValue(low);
+//		}else
+//			sql.append(low);
+//		sql.append(AND);
+//		if (isUsePlaceholder()) {
+//			sql.append("?");
+//		    addValue(high);
+//		}else
+//			sql.append(high);
+//		isAddAnd = true;
+//
+//		return this;
+//	}
+//
+//	@Override
+//	public Select notBetween(String field, Number low, Number high) {
+//		checkField(field);
+//		if (isAddAnd) sql.append(AND);
+//		sql.append(field);
+//		sql.append(SPACE).append(K.notBetween).append(SPACE);
+//		if (isUsePlaceholder()) {
+//			sql.append("?");
+//		    addValue(low);
+//		}else
+//			sql.append(low);
+//		sql.append(AND);
+//		if (isUsePlaceholder()) {
+//			sql.append("?");
+//		    addValue(high);
+//		}else
+//			sql.append(high);
+//		isAddAnd = true;
+//
+//		return this;
+//	}
+//
+//	@Override
+//	public Select isNull(String field) {
+//		checkField(field);
+//		if (isAddAnd) sql.append(AND);
+////		sql.append(field + " is null ");
+//		sql.append(field);
+//		sql.append(SPACE).append(K.isNull).append(SPACE);
+//		return this;
+//	}
+//
+//	@Override
+//	public Select isNotNull(String field) {
+//		checkField(field);
+//		if (isAddAnd) sql.append(AND);
+////		sql.append(field + " is not null ");
+//		sql.append(field);
+//		sql.append(SPACE).append(K.isNotNull).append(SPACE);
+//		return this;
+//	}
+//	
+//	private void checkFieldOrExpression(String field){
+////		NameCheckUtil.checkName(field);
+//		if(NameCheckUtil.isIllegal(field)) {
+//			throw new BeeErrorNameException("The field: '" + field + "' is illegal!");
+//		}
+//	}
+//	
+//	private void checkField(String field){
 //		NameCheckUtil.checkName(field);
-		if(NameCheckUtil.isIllegal(field)) {
-			throw new BeeErrorNameException("The field: '" + field + "' is illegal!");
-		}
+//	}
+//	
+//	private void checkExpression(String expression){
+//		if(Check.isNotValidExpression(expression)) {
+//			throw new BeeIllegalSQLException("The expression: '"+expression+ "' is invalid!");
+//		}
+//	}
+	
+	//=============>>
+	
+	
+	@Override
+	public Select forUpdate() {
+		sql.append(SPACE).append(K.forUpdate);
+		return this;
 	}
 	
-	private void checkField(String field){
-		NameCheckUtil.checkName(field);
+	private void updatePvList(Select subSelect) {
+		super.getPvList().addAll((List)subSelect.getPvList()); //TODO
 	}
 	
-	private void checkExpression(String expression){
-		if(Check.isNotValidExpression(expression)) {
-			throw new BeeIllegalSQLException("The expression: '"+expression+ "' is invalid!");
-		}
+	private void _appendTable(String table) {
+		super.appendTable(table);
 	}
 	
-	 //=============>>
+	
 }
