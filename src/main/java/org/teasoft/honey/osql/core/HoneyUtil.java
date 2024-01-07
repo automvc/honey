@@ -1512,7 +1512,7 @@ public final class HoneyUtil {
 	}
 	
 	
-	public static void setPageNum(List<PreparedValue> list) {
+	public static boolean setPageNum(List<PreparedValue> list) {
 		int array[] = (int[]) OneTimeParameter.getAttribute("_SYS_Bee_Paing_NumArray");
 		for (int i = 0; array != null && i < array.length; i++) {
 			PreparedValue p = new PreparedValue();
@@ -1525,6 +1525,8 @@ public final class HoneyUtil {
 				list.add(p);
 			}
 		}
+		
+		return array != null ? true : false;
 	}
 
 	public static boolean isRegPagePlaceholder() {
@@ -1855,16 +1857,39 @@ public final class HoneyUtil {
 	
 	private final static String NumberArrayTypes[] = { "[Ljava.lang.Long;",
 			"[Ljava.lang.Integer;", "[Ljava.lang.Short;", "[Ljava.lang.Byte;",
-			"[Ljava.lang.Double;", "[Ljava.lang.Float;", "[Ljava.math.BigInteger;",
-			"[Ljava.math.BigDecimal;" };
+			"[Ljava.lang.Number;",
+			"[Ljava.lang.Double;", "[Ljava.lang.Float;", 
+			"[Ljava.math.BigInteger;","[Ljava.math.BigDecimal;" };
 	
 	public static boolean isNumberArray(Class<?> c) {
+		return isNumberArray0(c);
+	}
+	
+	private static boolean isNumberArray0(Class<?> c) {
 		if (c == null) return false;
 		for (String type : NumberArrayTypes) {
 			if (type.equals(c.getName())) return true;
 		}
 		return false;
 	}
+
+	public static boolean isNumberArray(Object v) {
+		if(v==null) return false;
+//		if (v ==Class.class) return isNumberArray0((Class<?>)v);
+		if (v instanceof Class) isNumberArray0((Class<?>)v);
+		
+		if (v instanceof Integer[] || v instanceof Long[] 
+		 || v instanceof Double[] || v instanceof Float[]
+		 || v instanceof Number[] 
+		 || v instanceof Short[] || v instanceof Byte[] 
+		 || v instanceof BigInteger[] || v instanceof BigDecimal[]
+		) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 	
 	  /**
      * 判断参数是否为数字
