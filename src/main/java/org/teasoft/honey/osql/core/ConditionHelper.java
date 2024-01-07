@@ -217,31 +217,36 @@ public class ConditionHelper {
 //				sqlBuffer.append(expression.getOpType());
 				if(HoneyUtil.isSqlKeyWordUpper()) sqlBuffer.append(expression.getOpType().toUpperCase());
 				else sqlBuffer.append(expression.getOpType());
-				sqlBuffer.append(" (");
-				sqlBuffer.append("?");
-				int len=1;
-				boolean needSetNull=false;
-				if (v == null) {
-					needSetNull=true;
-				}else {
-					List<PreparedValue> inList=processIn(v);
-					len=inList.size();
-					if(len>0) list.addAll(inList);
-					else if(len==0) needSetNull=true;
-				}
 				
-				if(needSetNull) {
-					PreparedValue p = new PreparedValue();
-					p.setValue(null);
-					p.setType(Object.class.getName());
-					list.add(p);
-				}
 				
-				for (int i = 1; i < len; i++) { //start 1
-					sqlBuffer.append(",?");
-				}
-
-				sqlBuffer.append(")");
+//				sqlBuffer.append(" (");
+//				sqlBuffer.append("?");
+//				int len=1;
+//				boolean needSetNull=false;
+//				if (v == null) {
+//					needSetNull=true;
+//				}else {
+//					List<PreparedValue> inList=processIn(v);
+//					len=inList.size();
+//					if(len>0) list.addAll(inList);
+//					else if(len==0) needSetNull=true;
+//				}
+//				
+//				if(needSetNull) {
+//					PreparedValue p = new PreparedValue();
+//					p.setValue(null);
+//					p.setType(Object.class.getName());
+//					list.add(p);
+//				}
+//				
+//				for (int i = 1; i < len; i++) { //start 1
+//					sqlBuffer.append(",?");
+//				}
+//
+//				sqlBuffer.append(")");
+				
+	            processIn(sqlBuffer, list, v); //2.4.0
+				
 
 				isNeedAnd = true;
 				continue;
@@ -257,25 +262,27 @@ public class ConditionHelper {
 				sqlBuffer.append("?");
 
 				String v = (String) expression.getValue();
-				if (v != null) {
-					Op op = expression.getOp();
-					if (Op.likeLeft == op) {
-						checkLikeEmptyException(v);
-						v = "%" + StringUtils.escapeLike(v);
-					} else if (Op.likeRight == op) {
-						checkLikeEmptyException(v);
-						v = StringUtils.escapeLike(v) + "%";
-					} else if (Op.likeLeftRight == op) {
-						checkLikeEmptyException(v);
-						v = "%" + StringUtils.escapeLike(v) + "%";
-					} else { // Op.like
-						if (StringUtils.justLikeChar(v)) {
-							throw new BeeIllegalSQLException("Like has SQL injection risk! " + columnName + " like '" + v+"'");
-						}
-					}
-				} else {
-                  Logger.warn("the parameter value in like is null !",new BeeIllegalSQLException());
-				}
+                v=processLike(expression.getOp(), v); //V2.4.0
+                
+//				if (v != null) {
+//					Op op = expression.getOp();
+//					if (Op.likeLeft == op) {
+//						checkLikeEmptyException(v);
+//						v = "%" + StringUtils.escapeLike(v);
+//					} else if (Op.likeRight == op) {
+//						checkLikeEmptyException(v);
+//						v = StringUtils.escapeLike(v) + "%";
+//					} else if (Op.likeLeftRight == op) {
+//						checkLikeEmptyException(v);
+//						v = "%" + StringUtils.escapeLike(v) + "%";
+//					} else { // Op.like
+//						if (StringUtils.justLikeChar(v)) {
+//							throw new BeeIllegalSQLException("Like has SQL injection risk! " + columnName + " like '" + v+"'");
+//						}
+//					}
+//				} else {
+//                  Logger.warn("the parameter value in like is null !",new BeeIllegalSQLException());
+//				}
 				
 				preparedValue = new PreparedValue();
 				if(v==null) preparedValue.setType(Object.class.getName());
@@ -518,7 +525,7 @@ public class ConditionHelper {
 		return isFirstWhere;
 	}
 	
-	private static List<PreparedValue> processIn(Object v) {
+	public static List<PreparedValue> processIn(Object v) {
 		List<PreparedValue> inList =new ArrayList<>();
 		if (List.class.isAssignableFrom(v.getClass())
 				|| Set.class.isAssignableFrom(v.getClass())) { // List,Set
@@ -527,7 +534,8 @@ public class ConditionHelper {
 			for (Object e : c) {
 				setPreValue(inList, e);
 			}
-		} else if (HoneyUtil.isNumberArray(v.getClass())) { // Number Array
+//		} else if (HoneyUtil.isNumberArray(v.getClass())) { // Number Array
+		} else if (HoneyUtil.isNumberArray(v)) { // Number Array
 			Number n[] = (Number[]) v;
 //			len = n.length;
 			for (Number number : n) {
@@ -859,5 +867,61 @@ public class ConditionHelper {
 		if(condition==null) return null;
 		ConditionImpl conditionImpl = (ConditionImpl) condition;
 		return conditionImpl.getSize();
+	}
+	
+	public static void processIn(StringBuffer sqlBuffer, List<PreparedValue> list, Object v) {
+
+		sqlBuffer.append(" (");
+		sqlBuffer.append("?");
+		int len = 1;
+		boolean needSetNull = false;
+		if (v == null) {
+			needSetNull = true;
+		} else {
+			List<PreparedValue> inList = processIn(v);
+			len = inList.size();
+			if (len > 0)
+				list.addAll(inList);
+			else if (len == 0) needSetNull = true;
+		}
+
+		if (needSetNull) {
+			PreparedValue p = new PreparedValue();
+			p.setValue(null);
+			p.setType(Object.class.getName());
+			list.add(p);
+		}
+
+		for (int i = 1; i < len; i++) { // start 1
+			sqlBuffer.append(",?");
+		}
+
+		sqlBuffer.append(")");
+
+	}
+	
+	public static String processLike(Op op, String v) {
+		if (v != null) {
+//			Op op = expression.getOp();
+			if (Op.likeLeft == op) {
+				checkLikeEmptyException(v);
+				v = "%" + StringUtils.escapeLike(v);
+			} else if (Op.likeRight == op) {
+				checkLikeEmptyException(v);
+				v = StringUtils.escapeLike(v) + "%";
+			} else if (Op.likeLeftRight == op) {
+				checkLikeEmptyException(v);
+				v = "%" + StringUtils.escapeLike(v) + "%";
+			} else { // Op.like
+				if (StringUtils.justLikeChar(v)) {
+//					throw new BeeIllegalSQLException("Like has SQL injection risk! " + columnName + " like '" + v+"'");
+					throw new BeeIllegalSQLException("Like has SQL injection risk! "+ " like '" + v+"'");
+				}
+			}
+		} else {
+          Logger.warn("the parameter value in like is null !",new BeeIllegalSQLException());
+		}
+		
+		return v;
 	}
 }
