@@ -71,6 +71,12 @@ public class K {
 	public static final String union=k.union();
 	public static final String unionAll=k.unionAll();
 	
+    //2.4.0	
+	public static final String truncate=k.truncate();
+	public static final String table=k.table();
+	public static final String drop=k.drop();
+	public static final String If=k.If();
+	
 	private static SqlKeyWord getSqlKeyWord() {
 		if (HoneyUtil.isSqlKeyWordUpper())
 			return new UpperKey();
