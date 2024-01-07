@@ -131,7 +131,7 @@ public class TokenUtil {
 	static SqlValueWrap process2(String text, String startToken, String endToken, String replaceStr,
 			Map map) {
 
-		if (StringUtils.isEmpty(text)) {
+		if (StringUtils.isBlank(text)) {
 			return null;
 		}
 		int start = text.indexOf(startToken);
