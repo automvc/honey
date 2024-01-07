@@ -11,6 +11,7 @@ import org.teasoft.bee.osql.dialect.DbFeature;
 import org.teasoft.bee.osql.exception.BeeIllegalParameterException;
 import org.teasoft.bee.osql.exception.SqlNullException;
 import org.teasoft.honey.util.ObjectUtils;
+import org.teasoft.honey.util.StringUtils;
 
 /**
  * 支持带占位符(?)的sql操作.sql语句是DB能识别的SQL,非面向对象的sql.
@@ -460,12 +461,16 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private void initPreparedValues(String sql, Object[] preValues) {
-//		if(preValues==null || preValues.length==0) return ; //加了分页的,要使用setPageNum
+//		if(preValues==null || preValues.length==0) return ; //如果加了分页的,要使用setPageNum
 		
 		List list = _initPreparedValues(sql, preValues);
 		// pre page 不放缓存 5,7
-		HoneyUtil.setPageNum(list);
-		HoneyContext.setPreparedValue(sql, list); //没有entity,不放缓存.
+		boolean isSet=HoneyUtil.setPageNum(list);
+		
+		if ((preValues == null || preValues.length == 0) && !isSet)
+			return; // 参数为空,且没有设置分页参数,则不设置 setPreparedValue
+		else
+			HoneyContext.setPreparedValue(sql, list); // 没有entity,不放缓存.
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -521,11 +526,11 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 			reSql = sqlStr;
 			list = new ArrayList();
 		} else {
-			String sql = wrap.getSql();
+//			String sql = wrap.getSql();
 //			String mapKeys = wrap.getValueBuffer().toString(); //wrap.getValueBuffer() is :map's key , get from like: #{name}
 //			list = _initPreparedValues(mapKeys, parameterMap);
 			list=wrap.getList();
-			reSql = sql;
+			reSql = wrap.getSql();
 		}
 
 		HoneyUtil.setPageNum(list);
@@ -538,26 +543,44 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private String initPrepareValuesViaMap(String sqlStr, Map<String, Object> map) {
 
-		if (sqlStr == null || "".equals(sqlStr.trim())) {
+		if (StringUtils.isBlank(sqlStr))  {
 			throw new SqlNullException(STRING_IS_NULL);
 		}
-
-		SqlValueWrap wrap = processSql2(sqlStr,map); //bug.  wrap maybe null
-		if (wrap == null || ObjectUtils.isEmpty(map)) return sqlStr; //fix null bug
-		String sql = wrap.getSql();
-//		String mapKeys = wrap.getValueBuffer().toString(); //wrap.getValueBuffer() is :map's key , get from like: #{name}
-//		List list = _initPreparedValues(mapKeys, map);
-		List list =wrap.getList();
+		
+//       //if (ObjectUtils.isEmpty(map)) return sqlStr;  //TODO 2.4
+//		SqlValueWrap wrap = processSql2(sqlStr,map); //bug.  wrap maybe null
+//		if (wrap == null || ObjectUtils.isEmpty(map)) return sqlStr; //fix null bug     //map为空也有可能是要设置分页,不能提前返回 
+//		String sql = wrap.getSql();
+////		String mapKeys = wrap.getValueBuffer().toString(); //wrap.getValueBuffer() is :map's key , get from like: #{name}
+////		List list = _initPreparedValues(mapKeys, map);
+		
+		
+		//V2.4.0
+		SqlValueWrap wrap = processSql2(sqlStr,map);
+//		if (wrap == null) return sqlStr;  //bug  没有起止标签,返回null,但可能是要加分页参数
+		
+		String sql;
+		List list = null;
+		
+		if (wrap == null) {//map为空也有可能是要设置分页,不能提前返回
+			sql = sqlStr;
+			list = new ArrayList();
+		} else {
+ 			list = wrap.getList();
+			sql = wrap.getSql();
+		}
+		
 		//6,8  map,page 不放缓存
-		HoneyUtil.setPageNum(list);
-		HoneyContext.setPreparedValue(sql, list);
+		boolean isSet=HoneyUtil.setPageNum(list); //设置分页参数
+		
+		if (ObjectUtils.isEmpty(map) && !isSet) {
+			// 参数为空,且没有设置分页参数,则不设置 setPreparedValue
+		} else {
+			HoneyContext.setPreparedValue(sql, list);
+		}
+		
 		return sql;
 	}
-	
-//	private List _initPreparedValues(String mapKeys, Map<String, Object> map) {
-//		String keys[] = mapKeys.split(","); //map's key
-//		return _initPreparedValues(keys, map,false);
-//	}
 	
 	@SuppressWarnings("rawtypes")
 	private List _initPreparedValues(String keys[], Map<String, Object> map) {
