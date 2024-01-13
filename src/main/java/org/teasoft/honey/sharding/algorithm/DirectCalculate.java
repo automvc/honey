@@ -20,15 +20,4 @@ public class DirectCalculate implements Calculate{
 		return LongCalculator.calculate(rule, oneValue);
 	}
 
-//	@Override
-//	public Long process(Long id) {
-//		return null;
-//	}
-//
-//	@Override
-//	public String process(String str) {
-//		return null;
-//	}
-	
-
 }
