@@ -42,6 +42,17 @@ public class SimpleDataSource extends EmptyDataSource {
 
 		init();
 	}
+	
+	/**
+	 * @param url
+	 * @since 2.4.0
+	 */
+	public SimpleDataSource(String url) {
+		counter = 0;
+		this.url = url;
+
+		init();
+	}
 
 	public void init() {
 		if (inited) return;
@@ -68,7 +79,7 @@ public class SimpleDataSource extends EmptyDataSource {
 	public String getUrl() {
 		//Ms Access
 		if(StringUtils.isNotBlank(this.password) && url!=null && url.startsWith("jdbc:ucanaccess:") && !url.contains("jackcessOpener=")) {
-			return url+=";jackcessOpener=org.teasoft.beex.access.BeeAccessCryptOpener";
+			return url+";jackcessOpener=org.teasoft.beex.access.BeeAccessCryptOpener";
 		}
 		return url;
 	}
