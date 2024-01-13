@@ -12,11 +12,13 @@ import org.teasoft.bee.osql.Properties;
 import org.teasoft.bee.osql.annotation.SysValue;
 import org.teasoft.bee.osql.dialect.DbFeatureRegistry;
 import org.teasoft.bee.osql.exception.ConfigWrongException;
+import org.teasoft.bee.sharding.algorithm.CalculateRegistry;
 import org.teasoft.honey.distribution.ds.Router;
 import org.teasoft.honey.logging.LoggerFactory;
 import org.teasoft.honey.osql.constant.DbConfigConst;
 import org.teasoft.honey.osql.dialect.LimitOffsetPaging;
 import org.teasoft.honey.osql.dialect.sqlserver.SqlServerFeature2012;
+import org.teasoft.honey.sharding.algorithm.DateCalculate;
 import org.teasoft.honey.util.HoneyVersion;
 import org.teasoft.honey.util.StringUtils;
 
@@ -73,19 +75,26 @@ public final class HoneyConfig {
 				//use the key in active override the main file.
 			}
 		}
-		
-		HoneyContext.setConfigRefresh(true);
-		HoneyContext.setDsMapConfigRefresh(true); //直接设置,  因解析时会判断相应属性后才进行相应解析
-		
-//		HoneyContext.refreshDataSourceMap(); //V2.1.8  立即刷新         V2.1.10 要是有部分配置在如bee-dev(如密码在那),则会因配置信息不全而报错;   首次加载时,还没有拿完所有信息
-		
+	
 		if(isAndroid || isHarmony) {//V1.17
 			dbName=DatabaseConst.SQLite;
 			DbFeatureRegistry.register(DatabaseConst.SQLite, new LimitOffsetPaging());
 		}
 		
+		initHoneyContext();
+		
+		CalculateRegistry.register(1,new DateCalculate());  //2.4.0  用户可以覆盖
+	}
+	
+	private void initHoneyContext() {
+		HoneyContext.setConfigRefresh(true);
+		HoneyContext.setDsMapConfigRefresh(true); //直接设置,  因解析时会判断相应属性后才进行相应解析
+		
+//		HoneyContext.refreshDataSourceMap(); //V2.1.8  立即刷新         V2.1.10 要是有部分配置在如bee-dev(如密码在那),则会因配置信息不全而报错;   首次加载时,还没有拿完所有信息
+	
 		HoneyContext.initLoad();
 	}
+	
 	
 	private void _overrideByActive(String active) {
 		
