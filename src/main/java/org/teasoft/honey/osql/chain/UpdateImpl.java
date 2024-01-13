@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2019 the original author.All rights reserved.
+ * Copyright 2020-2024 the original author.All rights reserved.
  * Kingstar(honeysoft@126.com)
  * The license,see the LICENSE file.
  */

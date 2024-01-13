@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2023 the original author.All rights reserved.
+ * Copyright 2020-2024 the original author.All rights reserved.
  * Kingstar(honeysoft@126.com)
  * The license,see the LICENSE file.
  */
@@ -25,7 +25,6 @@ public class WhereImpl<T> extends AbstractToSql implements Where<T>{
 	//for where condition
 	private static final String L_PARENTHESES = "(";
 	private static final String R_PARENTHESES = ")";
-//	private static final String COMMA = ",";
 	private static final String SPACE = " ";
 	private static final String AND = " "+K.and+" ";
 	

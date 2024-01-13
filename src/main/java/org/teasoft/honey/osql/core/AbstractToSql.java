@@ -27,7 +27,7 @@ public abstract class AbstractToSql implements ToSql{
 //		return toSQL(true); //oracle用jdbc不允许有分号
 		
 		String sql0=toSQL(true);
-		if(isUsePlaceholder()) setContext(sql0);  //但是使用pre的时候，会把它冲了; 无参数时，已不会。
+		if(isUsePlaceholder()) setContext(sql0);  //但是使用pre的时候，会把它冲了; V2.4.0 使用pre无参数时，已不会。
 		return sql0;
 	}
 
@@ -40,6 +40,7 @@ public abstract class AbstractToSql implements ToSql{
 		}
 	}
 	
+	//2.4.0
 	private List<PreparedValue>  pvList = new ArrayList<>();
 	private boolean isUsePlaceholder=true;
 	private String table;

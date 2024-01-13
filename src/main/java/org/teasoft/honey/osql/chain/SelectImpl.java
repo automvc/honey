@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2019 the original author.All rights reserved.
+ * Copyright 2013-2024 the original author.All rights reserved.
  * Kingstar(honeysoft@126.com)
  * The license,see the LICENSE file.
  */
@@ -93,6 +93,13 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 	public Select from(String table) {
 		checkExpression(table);
 		_appendTable(table);
+		
+		if (isStartField) { //2.4.0 //select *
+			sql.append(K.select).append(SPACE);
+			sql.append(STAR); // *
+			isStartField = false;
+		}
+		
 		sql.append(SPACE).append(K.from).append(SPACE);
 		sql.append(table);
 		return this;
