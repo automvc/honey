@@ -20,6 +20,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import org.teasoft.bee.osql.Serializer;
 import org.teasoft.honey.distribution.ds.Router;
+import org.teasoft.honey.util.ObjectUtils;
 
 /**
  * 缓存工具.Cache Util.
@@ -259,6 +260,10 @@ public final class CacheUtil {
 	// 添加缓存是否可以另起一个线程执行,不用影响到原来的.   但一次只能添加一个元素,作用不是很大.要考虑起线程的开销
 	static boolean addInCache(String sql,Object rs){
 		
+		List<String> tableNameList=CacheKey.genTableNameList(sql);  //支持多表的情况
+//		 tableNameList 假如为空时，不放入缓存？      是可以放缓存且能用上缓存，但有更改时，没有表关联，清除不了，会有脏数据的风险；
+		if(ObjectUtils.isEmpty(tableNameList)) return false;  //2.4.0 没有指定表名则不放缓存
+		
 		if(getCachePrototype()==1 || getCachePrototype()==2) {
 			try {
 				
@@ -287,8 +292,6 @@ public final class CacheUtil {
 	
 		 String key=CacheKey.genKey(sql);
 		
-		 List<String> tableNameList=CacheKey.genTableNameList(sql);  //支持多表的情况
-		 
 		 //never 列表的不用放缓存       暂时只是用表名标识
 		 if(tableNameList!=null && tableNameList.size()==1){
 //			if(neverCacheTableMap.get(tableKeyList.get(0).toLowerCase()) !=null) { //检测到是never
