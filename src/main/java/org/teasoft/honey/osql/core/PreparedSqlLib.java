@@ -314,7 +314,7 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 	}
 
 	@Override
-	@Deprecated
+//	@Deprecated
 	public int modify(String sql, Object[] preValues) {
 
 		doBeforePasreEntity2();
@@ -329,7 +329,7 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 	}
 
 	@Override
-	@Deprecated
+//	@Deprecated
 	public int modify(String sqlStr, Map<String, Object> map) {
 
 		doBeforePasreEntity2(); //fixed bug
@@ -344,7 +344,7 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 	}
 
 	@Override
-	@Deprecated
+//	@Deprecated
 	public int modify(String sql) {
 		Object[] preValues = null;
 		return modify(sql, preValues);
@@ -465,12 +465,24 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 		
 		List list = _initPreparedValues(sql, preValues);
 		// pre page 不放缓存 5,7
-		boolean isSet=HoneyUtil.setPageNum(list);
+		boolean isSetted=HoneyUtil.setPageNum(list);
 		
-		if ((preValues == null || preValues.length == 0) && !isSet)
+		if ((preValues == null || preValues.length == 0) && !isSetted)
 			return; // 参数为空,且没有设置分页参数,则不设置 setPreparedValue
 		else
 			HoneyContext.setPreparedValue(sql, list); // 没有entity,不放缓存.
+		
+		_addTableforCacheIfNeed(sql); //2.4.0
+	}
+	
+	//2.4.0
+	private void _addTableforCacheIfNeed(String sql) {
+		//2.4.0  关联方法没有T参数的,使其也可以纳入缓存管理
+		String tablename = getRelativeTableOneTime();
+		if (StringUtils.isNotBlank(tablename))
+			HoneyContext.addInContextForCache(sql, tablename);   
+		
+//		注意:若该方法位置转换sql前面,有转换sql的,转换后还要用新sql更新缓存及上下文
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -571,13 +583,15 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 		}
 		
 		//6,8  map,page 不放缓存
-		boolean isSet=HoneyUtil.setPageNum(list); //设置分页参数
+		boolean isSetted=HoneyUtil.setPageNum(list); //设置分页参数
 		
-		if (ObjectUtils.isEmpty(map) && !isSet) {
+		if (ObjectUtils.isEmpty(map) && !isSetted) {
 			// 参数为空,且没有设置分页参数,则不设置 setPreparedValue
 		} else {
 			HoneyContext.setPreparedValue(sql, list);
 		}
+		
+		_addTableforCacheIfNeed(sql); //2.4.0
 		
 		return sql;
 	}
@@ -752,6 +766,7 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 		String keys[] = mapKeys.split(","); //map's key
 
 		insertSql[0] = doAfterCompleteSql(insertSql[0]); //提前转换sql,可以少更新上下文
+		_addTableforCacheIfNeed(insertSql[0]); //2.4.0
 
 		String sql_i = null;
 		List<PreparedValue> preparedValueList = new ArrayList<>();
@@ -796,6 +811,32 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 		return insertBatch(sqlStr, parameterMapList, batchSize);
 	}
 	
+	// 2.4.0
+	@Override
+	public void setRelativeTableOneTime(String... table) {
+		if (StringUtils.isNotEmpty(table))
+			OneTimeParameter.setAttribute(StringConst.TABLE_NAME_RELATIVE, table);
+	}
+
+	// 2.4.0
+	@Override
+	public String getRelativeTableOneTime() {
+		String[] tablename = (String[]) OneTimeParameter.getAttribute(StringConst.TABLE_NAME_RELATIVE);
+		String names = null;
+		if (StringUtils.isNotEmpty(tablename)) {
+			if (tablename.length == 1)
+				names = tablename[0].trim();
+			else if (tablename.length > 1) {
+				names = tablename[0].trim();
+				for (int i = 1; i < tablename.length; i++) {
+					if (StringUtils.isNotBlank(tablename[i]))
+						names += StringConst.TABLE_SEPARATOR + tablename[i].trim();
+				}
+			}
+		}
+		return names;
+	}
+
 	private void doBeforePasreEntity() {
 		Object entity=null;
 		super.doBeforePasreEntity(entity, SuidType.SELECT);

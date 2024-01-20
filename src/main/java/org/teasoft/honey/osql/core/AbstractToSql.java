@@ -55,7 +55,7 @@ public abstract class AbstractToSql implements ToSql{
 	
 	public void appendTable(String table) {
 		if(StringUtils.isBlank(this.table)) this.table=table;
-		else this.table+="##"+table;
+		else this.table+=StringConst.TABLE_SEPARATOR+table;
 	}
 	
 
@@ -67,10 +67,12 @@ public abstract class AbstractToSql implements ToSql{
 		this.isUsePlaceholder = isUsePlaceholder;
 	}
 
-	protected void addValue(Object v) { //TODO  NULL要另外处理
-		PreparedValue preparedValue = new PreparedValue();
-		preparedValue.setType(v.getClass().getName());
-//		System.out.println(v.getClass().getName());
+	protected void addValue(Object v) {
+		PreparedValue preparedValue = new PreparedValue(); //NULL要另外处理
+		if (v == null)
+			preparedValue.setType(Object.class.getName());
+		else
+			preparedValue.setType(v.getClass().getName());
 		preparedValue.setValue(v);
 		pvList.add(preparedValue);
 	}

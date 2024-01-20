@@ -18,6 +18,8 @@ public final class StringConst {
 	public static final String tRue = "tRue";
 	public static final String PREFIX="_SYS_Bee_";
 	public static final String TABLE_NAME = "_SYS_Bee_TableName";
+	public static final String TABLE_NAME_RELATIVE = "_SYS_Bee_TableName_Relative"; //2.4.0
+	public static final String TABLE_SEPARATOR = "##";
 	public static final String DoNotCheckAnnotation = "_SYS_Bee_DoNotCheckAnnotation";
 	public static final String ALREADY_SET_ROUTE = "_SYS_Bee_ALREADY_SET_ROUTE";
 	public static final String Select_Fun = "_SYS_Bee_Select_Fun";
