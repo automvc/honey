@@ -10,7 +10,7 @@ import java.util.List;
 
 import org.teasoft.bee.osql.chain.Select;
 import org.teasoft.bee.osql.chain.UnionSelect;
-import org.teasoft.honey.osql.core.AbstractToSql;
+import org.teasoft.honey.osql.core.AbstractToSqlForChain;
 //import org.teasoft.honey.osql.core.HoneyContext;
 import org.teasoft.honey.osql.core.K;
 
@@ -19,7 +19,7 @@ import org.teasoft.honey.osql.core.K;
  * @since  1.3
  * @since  2.4.0
  */
-public class UnionSelectImpl extends AbstractToSql implements UnionSelect {
+public class UnionSelectImpl extends AbstractToSqlForChain implements UnionSelect {
 
 	private static final String L_PARENTHESES = "(";
 	private static final String R_PARENTHESES = ")";

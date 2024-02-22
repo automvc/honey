@@ -18,16 +18,22 @@ import org.teasoft.honey.util.StringUtils;
  * @since  1.3
  * @since  2.4.0
  */
-public abstract class AbstractToSql implements ToSql{
+public abstract class AbstractToSqlForChain implements ToSql{
 	
 	protected StringBuffer sql = new StringBuffer();
 	
+	//2.4.0
+	private List<PreparedValue>  pvList = new ArrayList<>();
+	private boolean isUsePlaceholder=true;
+	private String table;
+	
 	public String toSQL() {
-////		return toSQL(false);
-//		return toSQL(true); //oracle用jdbc不允许有分号
-		
-		String sql0=toSQL(true);
-		if(isUsePlaceholder()) setContext(sql0);  //但是使用pre的时候，会把它冲了; V2.4.0 使用pre无参数时，已不会。
+		String sql0=toSQL(true);//oracle用jdbc不允许有分号
+		if(isUsePlaceholder()) {
+			setContext(sql0);  //但是使用pre的时候，会把它冲了; V2.4.0 使用pre无参数时，已不会。
+//			if (StringUtils.isNotBlank(getTable()))
+//				HoneyContext.addInContextForCache(sql0, getTable());   //纳入缓存管理
+		}
 		return sql0;
 	}
 
@@ -40,11 +46,7 @@ public abstract class AbstractToSql implements ToSql{
 		}
 	}
 	
-	//2.4.0
-	private List<PreparedValue>  pvList = new ArrayList<>();
-	private boolean isUsePlaceholder=true;
-	private String table;
-	
+	@Override
 	public String getTable() {
 		return table;
 	}
@@ -77,12 +79,8 @@ public abstract class AbstractToSql implements ToSql{
 		pvList.add(preparedValue);
 	}
 	
-//	protected static void setContext(String sql,List<PreparedValue> list,String tableName){
-//		HoneyContext.setContext(sql, list, tableName);
-//	}
-	
 	protected void setContext(String sql){
-		HoneyContext.setContext(sql, pvList, table);
+		HoneyContext.setContext(sql, pvList, table); //已有cache
 	}
 	
 	@Override

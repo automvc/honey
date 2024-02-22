@@ -7,7 +7,7 @@
 package org.teasoft.honey.osql.chain;
 
 import org.teasoft.bee.osql.chain.Insert;
-import org.teasoft.honey.osql.core.AbstractToSql;
+import org.teasoft.honey.osql.core.AbstractToSqlForChain;
 import org.teasoft.honey.osql.core.K;
 
 /**
@@ -15,7 +15,7 @@ import org.teasoft.honey.osql.core.K;
  * @since  2.4.0
  */
 
-public class InsertImpl extends AbstractToSql implements Insert {
+public class InsertImpl extends AbstractToSqlForChain implements Insert {
 //	public class InsertImpl extends WhereImpl<Insert> implements Insert {
 	
 	private static final String QU_MARK = "?";

@@ -1329,9 +1329,12 @@ public final class HoneyUtil {
 
 		return checkAndProcessSelectFieldViaString(columnsdNames, null, fieldList);
 	}
-	 
+	
 	public static String checkAndProcessSelectFieldViaString(String columnsdNames,Map<String,String> subDulFieldMap,String ...fields){
-			
+		return checkAndProcessSelectFieldViaString(columnsdNames, subDulFieldMap, true, fields);
+	}
+	 
+	public static String checkAndProcessSelectFieldViaString(String columnsdNames,Map<String,String> subDulFieldMap,boolean check,String ...fields){
 		if (fields == null) return null;
 		 
 //		Field fields[] = entity.getClass().getDeclaredFields();
@@ -1367,7 +1370,7 @@ public final class HoneyUtil {
 //			}
 			
 //			if (!columnsdNames.contains(colName)) {
-			if(!(  
+			if( !(  
 			     columnsdNames.contains(","+checkColName+",") || columnsdNames.startsWith(checkColName+",") 
 			  || columnsdNames.endsWith(","+checkColName) ||  columnsdNames.equals(checkColName) 
 			  || columnsdNames.contains("."+checkColName+",")  || columnsdNames.endsWith("."+checkColName)
@@ -1404,7 +1407,13 @@ public final class HoneyUtil {
 
 		}//end for
 
-		if (!"".equals(errorField)) throw new BeeErrorFieldException("ErrorField: " + errorField);
+		if (!"".equals(errorField)) {
+			if (check)
+				throw new BeeErrorFieldException("ErrorField: " + errorField);
+			else { //2.4.0 fun 不检测字段是否是实体的
+				Logger.debug("Please confirm the field(s) is right or not :" + errorField);
+			}
+		}
 		
 		if("".equals(newSelectFields.trim())) return null;
 		

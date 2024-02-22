@@ -10,7 +10,7 @@ import org.teasoft.bee.osql.BeeException;
 import org.teasoft.bee.osql.Op;
 import org.teasoft.bee.osql.chain.Where;
 import org.teasoft.bee.osql.exception.BeeErrorNameException;
-import org.teasoft.honey.osql.core.AbstractToSql;
+import org.teasoft.honey.osql.core.AbstractToSqlForChain;
 import org.teasoft.honey.osql.core.ConditionHelper;
 import org.teasoft.honey.osql.core.K;
 import org.teasoft.honey.osql.util.NameCheckUtil;
@@ -20,7 +20,7 @@ import org.teasoft.honey.osql.util.NameCheckUtil;
  * @since  2.4.0
  */
 
-public class WhereImpl<T> extends AbstractToSql implements Where<T>{
+public class WhereImpl<T> extends AbstractToSqlForChain implements Where<T>{
 
 	//for where condition
 	private static final String L_PARENTHESES = "(";

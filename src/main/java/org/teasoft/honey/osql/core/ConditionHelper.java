@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Vector;
 
 import org.teasoft.bee.osql.FunctionType;
 import org.teasoft.bee.osql.Op;
@@ -694,8 +695,10 @@ public class ConditionHelper {
 			
 			if("*".equals(funExpList.get(i).getField())) {
 				columnName="*";
-			}else {
-				columnName = HoneyUtil.checkAndProcessSelectFieldViaString(columnNames, null, funExpList.get(i).getField());
+			}else { //TODO //不校验字段
+//				//聚合函数,支持复合写法,eg:"DISTINCT(school_id)", 不用检测
+				columnName = HoneyUtil.checkAndProcessSelectFieldViaString(columnNames, null, false,funExpList.get(i).getField());
+				
 			}
 			if(isFirst) {
 				isFirst=false;
@@ -717,7 +720,7 @@ public class ConditionHelper {
 				funUseName=columnName;
 			}
 			
-			if (get_FunStructForSharding) {
+			if (get_FunStructForSharding) { //sharding
 //				funStructs[i+adjust] = new FunStruct(funUseName, functionTypeName);
 				funStructs.add(new FunStruct(funUseName, functionTypeName));
 				if(!hasAvg && FunctionType.AVG.getName().equalsIgnoreCase(functionTypeName)) {
@@ -924,4 +927,288 @@ public class ConditionHelper {
 		
 		return v;
 	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	static WhereConditionWrap processWhereCondition(Condition condition) {
+		return processWhereCondition(condition, true, null);
+	}
+
+	static WhereConditionWrap processWhereCondition(Condition condition, boolean firstWhere,
+			String useSubTableNames[]) {
+		
+		StringBuffer sqlBuffer=new StringBuffer();
+		List<PreparedValue> list=new Vector<>();
+		
+		Class entityClass = (Class) OneTimeParameter.getAttribute(StringConst.Column_EC); //TODO
+//		没有初始化路由，是否有影响？
+		//condition里要设置操作类型
+		
+		if(condition==null) return null;
+		
+		PreparedValue preparedValue = null;
+		boolean isNeedAnd = true;
+		
+		boolean isFirstWhere=firstWhere; //v1.7.2 return for control whether allow to delete/update whole records in one table
+
+		ConditionImpl conditionImpl = (ConditionImpl) condition;
+		List<Expression> expList = conditionImpl.getExpList();
+		Expression expression = null;
+		
+		Integer start = conditionImpl.getStart();
+		
+		if (start!=null && SuidType.SELECT != conditionImpl.getSuidType()) {
+			throw new BeeErrorGrammarException(conditionImpl.getSuidType() + " do not support paging with start !");
+		} 
+		String columnName="";
+		for (int j = 0; j < expList.size(); j++) {
+			expression = expList.get(j);
+			String opType = expression.getOpType();
+			
+			columnName=_toColumnName(expression.getFieldName(),useSubTableNames,entityClass);
+			
+			if ( GROUP_BY.equalsIgnoreCase(opType) || HAVING.equalsIgnoreCase(opType) ) {
+				if (SuidType.SELECT != conditionImpl.getSuidType()) {
+					throw new BeeErrorGrammarException(conditionImpl.getSuidType() + " do not support the opType: "+opType+"!");
+				} 
+			}
+			//mysql's delete,update can use order by.
+
+			if (firstWhere) {
+				if ( GROUP_BY.equalsIgnoreCase(opType) || HAVING.equalsIgnoreCase(opType) || "orderBy".equalsIgnoreCase(opType)) {
+					firstWhere = false;
+				} else {
+					sqlBuffer.append(" ").append(K.where).append(" ");
+					firstWhere = false;
+					isNeedAnd = false;
+					isFirstWhere=false; //for return. where过滤条件
+				}
+			}
+			if (Op.in.getOperator().equalsIgnoreCase(opType) || Op.notIn.getOperator().equalsIgnoreCase(opType)) {
+				
+				Object v = expression.getValue();
+				
+				isNeedAnd=adjustAnd(sqlBuffer,isNeedAnd);
+				sqlBuffer.append(columnName);
+				if(HoneyUtil.isSqlKeyWordUpper()) sqlBuffer.append(expression.getOpType().toUpperCase());
+				else sqlBuffer.append(expression.getOpType());
+				
+				processIn(sqlBuffer, list, v);
+
+				isNeedAnd = true;
+				continue;
+			} else if (Op.like.getOperator().equalsIgnoreCase(opType) || Op.notLike.getOperator().equalsIgnoreCase(opType)) {
+				isNeedAnd=adjustAnd(sqlBuffer,isNeedAnd);
+
+				sqlBuffer.append(columnName);
+				if(HoneyUtil.isSqlKeyWordUpper()) sqlBuffer.append(expression.getOpType().toUpperCase());
+				else sqlBuffer.append(expression.getOpType());
+				sqlBuffer.append("?");
+
+				String v = (String) expression.getValue();
+				v=processLike(expression.getOp(), v);
+				
+				preparedValue = new PreparedValue();
+				if(v==null) preparedValue.setType(Object.class.getName());
+				else preparedValue.setType(expression.getValue().getClass().getName());
+				preparedValue.setValue(v);
+				list.add(preparedValue);
+
+				isNeedAnd = true;
+				continue;
+			} else if (" between ".equalsIgnoreCase(opType) || " not between ".equalsIgnoreCase(opType)) {
+
+				isNeedAnd=adjustAnd(sqlBuffer,isNeedAnd);
+
+				sqlBuffer.append(columnName);
+				sqlBuffer.append(opType);
+				sqlBuffer.append("?");
+				sqlBuffer.append(" "+K.and+" ");
+				sqlBuffer.append("?");
+
+				addValeToPvList(list, expression.getValue());
+				addValeToPvList(list, expression.getValue2());
+
+				isNeedAnd = true;
+				continue;
+
+			} else if (GROUP_BY.equalsIgnoreCase(opType)) {
+				if (SuidType.SELECT != conditionImpl.getSuidType()) {
+					throw new BeeErrorGrammarException("BeeErrorGrammarException: "+conditionImpl.getSuidType() + " do not support 'group by' !");
+				}
+
+				sqlBuffer.append(expression.getValue());//group by或者,
+				sqlBuffer.append(columnName);
+
+				continue;
+			} else if (HAVING.equalsIgnoreCase(opType)) {
+				if (SuidType.SELECT != conditionImpl.getSuidType()) {
+					throw new BeeErrorGrammarException(conditionImpl.getSuidType() + " do not support 'having' !");
+				}
+
+				if (5 == expression.getOpNum()) { //having(FunctionType.MIN, "field", Op.ge, 60)
+					sqlBuffer.append(expression.getValue());//having 或者 and
+					sqlBuffer.append(FunAndOrderTypeMap.transfer(expression.getValue3().toString())); //fun
+					sqlBuffer.append("(");
+					if (FunctionType.COUNT.getName().equals(expression.getValue3()) && "*".equals(expression.getFieldName().trim())) {
+						sqlBuffer.append("*");
+					} else {
+						sqlBuffer.append(columnName);
+					}
+
+					sqlBuffer.append(")");
+					sqlBuffer.append(expression.getValue4()); //Op
+					sqlBuffer.append("?");
+
+					addValeToPvList(list, expression.getValue2());
+				}
+
+				continue;
+			}else if ("orderBy".equalsIgnoreCase(opType)) {
+
+				if (SuidType.SELECT != conditionImpl.getSuidType()) {
+					throw new BeeErrorGrammarException(conditionImpl.getSuidType() + " do not support 'order by' !");
+				}
+
+				sqlBuffer.append(expression.getValue());//order by或者,
+				if (4 == expression.getOpNum()) { //order by max(total)
+					sqlBuffer.append(FunAndOrderTypeMap.transfer(expression.getValue3().toString()));
+					sqlBuffer.append("(");
+					sqlBuffer.append(columnName);
+					sqlBuffer.append(")");
+				} else {
+					sqlBuffer.append(columnName);
+				}
+
+				if (3 == expression.getOpNum() || 4 == expression.getOpNum()) { //指定 desc,asc
+					sqlBuffer.append(ONE_SPACE);
+					sqlBuffer.append(FunAndOrderTypeMap.transfer(expression.getValue2().toString()));
+				}
+				continue;
+			}//end orderBy
+
+			if (expression.getOpNum() == -2) { // (
+//				adjustAnd(sqlBuffer);
+				isNeedAnd=adjustAnd(sqlBuffer,isNeedAnd);
+				sqlBuffer.append(expression.getValue());
+				continue;
+			}
+			if (expression.getOpNum() == -1) {// )
+				sqlBuffer.append(expression.getValue());
+				isNeedAnd = true;
+				continue;
+
+			} else if (expression.getOpNum() == 1) { // or || and operation, 还有:  not (2.1.10) 
+				if ("!".equals(expression.getValue())) { //V2.1.10
+					isNeedAnd=adjustAnd(sqlBuffer,isNeedAnd);
+					sqlBuffer.append(expression.getValue());
+				}else {
+					sqlBuffer.append(" ");
+					sqlBuffer.append(expression.getValue());
+					sqlBuffer.append(" ");
+				}
+				isNeedAnd = false;
+				continue;
+			}
+			isNeedAnd=adjustAnd(sqlBuffer,isNeedAnd);
+
+			sqlBuffer.append(columnName);  
+
+			if (expression.getValue() == null) {
+				if("=".equals(expression.getOpType())){
+					sqlBuffer.append(" "+K.isNull);
+				}else{
+					sqlBuffer.append(" "+K.isNotNull);
+					if(! "!=".equals(expression.getOpType())) {
+						String fieldName=columnName;
+						Logger.warn(fieldName+expression.getOpType()+"null transfer to : " +fieldName+" "+K.isNotNull);
+					}
+				}
+			} else {
+				if (expression.getOpNum() == -3) { //eg:field1=field2   could not use for having in mysql 
+					sqlBuffer.append(expression.getOpType());
+					sqlBuffer.append(expression.getValue());
+				} else {
+					sqlBuffer.append(expression.getOpType());
+					sqlBuffer.append("?");
+					addValeToPvList(list, expression.getValue());
+				}
+			}
+			isNeedAnd = true;
+		} //end expList for 
+		
+		return new WhereConditionWrap(sqlBuffer, list, isFirstWhere);
+	}
+	
+	
+	private static void addValeToPvList(List<PreparedValue> list,Object value) {
+		PreparedValue preparedValue = new PreparedValue();
+		preparedValue.setType(value.getClass().getName());
+		preparedValue.setValue(value);
+		list.add(preparedValue);
+	}
+	
+	
+	public static void main(String[] args) {
+		Condition condition=BeeFactory.getHoneyFactory().getCondition();
+		condition.op("abc", Op.eq, 1);
+		condition.op("inField", Op.in, 2);
+		
+//		WhereConditionWrap wrap=processWhereCondition(condition, true, null);
+		WhereConditionWrap wrap=processWhereCondition(condition);
+		
+		System.out.println(wrap.getSqlBuffer().toString());  // where abc=? and in_field in (?)
+		
+	}
+	
+}
+
+class WhereConditionWrap{
+	
+	private StringBuffer sqlBuffer;
+	private List<?> pvList;
+	private boolean isFirstWhere;
+	
+	public WhereConditionWrap() {}
+	
+	public WhereConditionWrap(StringBuffer sqlBuffer, List<?> pvList, boolean isFirstWhere) {
+		super();
+		this.sqlBuffer = sqlBuffer;
+		this.pvList = pvList;
+		this.isFirstWhere = isFirstWhere;
+	}
+
+
+
+	public StringBuffer getSqlBuffer() {
+		return sqlBuffer;
+	}
+
+	public void setSqlBuffer(StringBuffer sqlBuffer) {
+		this.sqlBuffer = sqlBuffer;
+	}
+
+	public List<?> getPvList() {
+		return pvList;
+	}
+
+	public void setPvList(List<?> pvList) {
+		this.pvList = pvList;
+	}
+
+	public boolean isFirstWhere() {
+		return isFirstWhere;
+	}
+
+	public void setFirstWhere(boolean isFirstWhere) {
+		this.isFirstWhere = isFirstWhere;
+	}
+	
 }
