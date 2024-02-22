@@ -37,6 +37,7 @@ import org.teasoft.honey.osql.mongodb.MongodbCommRegister;
 import org.teasoft.honey.osql.name.NameUtil;
 import org.teasoft.honey.osql.util.DateUtil;
 import org.teasoft.honey.osql.util.NameCheckUtil;
+import org.teasoft.honey.util.ObjectUtils;
 import org.teasoft.honey.util.StringUtils;
 
 /**
@@ -197,7 +198,10 @@ public class GenBean {
 
 			if (commentMap != null && (config.isGenComment() || config.isGenSwagger())) {
 				comment = commentMap.get(columnName);
-				boolean ynNull = ynNulls.get(i) == null ? true : ynNulls.get(i);
+				boolean ynNull =true;
+				if(ObjectUtils.isNotEmpty(ynNulls))
+				   ynNull = ynNulls.get(i) == null ? true : ynNulls.get(i);
+				
 //				String requiredStr=", required = true";
 				String requiredStr="";
 				String descValue=comment;
@@ -500,7 +504,9 @@ public class GenBean {
 			String tableNameOrPropertyName) {
 		Table table = new Table();
 		table.setTableName(tableNameOrPropertyName);
+		Map<String,String> commentMap=new HashMap<>();
 		String key = "";
+		commentMap.put(tableNameOrPropertyName, tableNameOrPropertyName); //为mongodb字段添加默认注释
 		Logger.debug("The layer is: " + layer);
 		for (Entry<String, Object> entry : set) {
 			key = entry.getKey();
@@ -518,10 +524,13 @@ public class GenBean {
 //				nameQueue.add(entry.getValue().getClass().getSimpleName());
 				nameQueue.add(key);
 				table.getColumnTypes().add(key);
+				commentMap.put(key, key);
 			} else {
 				table.getColumnTypes().add(entry.getValue().getClass().getName());
+				commentMap.put(entry.getValue().getClass().getName(), entry.getValue().getClass().getName());
 			}
 		}
+		table.setCommentMap(commentMap);
 
 		f1_mongodb=genBeanFile(table);
 		if(config.isGenFieldFile()) genFieldFile(table);
