@@ -16,17 +16,10 @@ import org.teasoft.honey.osql.core.BeeFactory;
  */
 public class AbstractSelectToSql extends WhereImpl<Select>{
 	protected int start;
-	protected int size;
+	protected int size=100; //默认100
 	
-	public String toSQL() {
-//		return toSQL(true);  //oracle用jdbc不允许有分号
-		
-		String sql0=toSQL(true); //oracle用jdbc不允许有分号
-		if(isUsePlaceholder()) setContext(sql0);  //但是使用pre的时候，会把它冲了; 无参数时，已不会。
-		return sql0;
-	}
-
-	public String toSQL(boolean noSemicolon) {
+	//select的要加分页
+	public String toSQL(boolean noSemicolon) {  //toSQL()也会调用这个方法
 		if (noSemicolon){
 			return addPage(sql.toString());
 		}else{
