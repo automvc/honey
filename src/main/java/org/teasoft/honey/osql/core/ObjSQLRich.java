@@ -755,27 +755,6 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 		}
 		return a;
 	}
-
-	@Override
-	@Deprecated
-	public <T> List<T> select(T entity, IncludeType includeType, Condition condition) {
-		if (entity == null) return null;
-		if (includeType != null) {
-			if (condition == null) condition = BeeFactoryHelper.getCondition();
-			condition.setIncludeType(includeType);
-		}
-		return select(entity, condition);
-	}
-
-	@Override
-	public <T> String selectJson(T entity, IncludeType includeType, Condition condition) {
-		if (entity == null) return null;
-		if (includeType != null) {
-			if (condition == null) condition = BeeFactoryHelper.getCondition();
-			condition.setIncludeType(includeType);
-		}
-		return selectJson(entity, condition);
-	}
 	
 	@Override
 	public <T> String selectJson(T entity, Condition condition) {

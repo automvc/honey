@@ -533,20 +533,6 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 	}
 
 	@Override
-	@Deprecated
-	public <T> List<T> select(T entity, IncludeType includeType, Condition condition) {
-		if (condition == null) condition = BeeFactoryHelper.getCondition(); // fixed bug v2.0.2.14
-		return select(entity, condition.setIncludeType(includeType));
-	}
-
-	@Override
-	public <T> String selectJson(T entity, IncludeType includeType, Condition condition) {
-		if (entity == null) return null;
-		if (condition == null) condition = BeeFactoryHelper.getCondition(); // fixed bug v2.0.2.14
-		return selectJson(entity, condition.setIncludeType(includeType));
-	}
-	
-	@Override
 	public <T> String selectJson(T entity, Condition condition) {
 		if (entity == null) return null;
 		try {
