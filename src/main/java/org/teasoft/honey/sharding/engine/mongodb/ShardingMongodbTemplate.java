@@ -21,16 +21,18 @@ public abstract class ShardingMongodbTemplate<T> {
 	public abstract T shardingWork();
 
 	public T doSharding() {
-		HoneyContext.setSqlIndexLocal(index);
-		HoneyContext.setAppointDS(ds);
-		HoneyContext.setAppointTab(tab);
+		try {
+			HoneyContext.setSqlIndexLocal(index);
+			HoneyContext.setAppointDS(ds);
+			HoneyContext.setAppointTab(tab);
 
-		T rs = shardingWork();
+			return shardingWork();
+			
+		} finally {
+			HoneyContext.removeAppointTab();
+			HoneyContext.removeAppointDS();
+			HoneyContext.removeSqlIndexLocal();
+		}
 
-		HoneyContext.removeAppointTab();
-		HoneyContext.removeAppointDS();
-		HoneyContext.removeSqlIndexLocal();
-
-		return rs;
 	}
 }

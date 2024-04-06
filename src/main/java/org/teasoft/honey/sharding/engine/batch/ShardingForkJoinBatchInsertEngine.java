@@ -103,89 +103,88 @@ public class ShardingForkJoinBatchInsertEngine<T> {
 	}
 
 
-
-
-/**
- * 批量插入分片,使用RecursiveTask,进行ForkJoin
- * @author Kingstar
- * @since  2.0
- */
+	/**
+	 * 批量插入分片,使用RecursiveTask,进行ForkJoin
+	 * @author Kingstar
+	 * @since  2.0
+	 */
 	private class ShardingRecursiveBatchInsert extends RecursiveTask<Integer> {
 
-	private static final long serialVersionUID = 12345602L;
+		private static final long serialVersionUID = 12345602L;
 
-	private int start;
-	private int end;
-	private int batchSize;
-	private String excludeFields;
-	private SuidRich suidRich;
-	private List<Object[]> newEntityArrayList = new ArrayList<>();
-	private List<String> taskDs = new ArrayList<>();
-	private List<String> taskTab = new ArrayList<>();
+		private int start;
+		private int end;
+		private int batchSize;
+		private String excludeFields;
+		private SuidRich suidRich;
+		private List<Object[]> newEntityArrayList = new ArrayList<>();
+		private List<String> taskDs = new ArrayList<>();
+		private List<String> taskTab = new ArrayList<>();
 
+		public ShardingRecursiveBatchInsert(List<Object[]> newEntityArrayList, int batchSize,
+				String excludeFields, List<String> taskDs, List<String> taskTab,
+				SuidRich suidRich) {
 
-	public ShardingRecursiveBatchInsert(List<Object[]> newEntityArrayList, int batchSize,
-			String excludeFields, List<String> taskDs, List<String> taskTab,
-			SuidRich suidRich) {
-		
-		this.start = 0;
-		this.end = newEntityArrayList.size() - 1;
-		
-		this.batchSize = batchSize;
-		this.excludeFields = excludeFields;
-		this.suidRich = suidRich;
-		this.newEntityArrayList = newEntityArrayList;
-		this.taskDs = taskDs;
-		this.taskTab = taskTab;
-	}
-	
-	public ShardingRecursiveBatchInsert(List<Object[]> newEntityArrayList, int batchSize,
-			String excludeFields, List<String> taskDs, List<String> taskTab,
-			SuidRich suidRich,int start, int end) {
-		
-		this(newEntityArrayList, batchSize, excludeFields, taskDs, taskTab, suidRich);
-		
-		this.start = start;
-		this.end = end;
-	}
+			this.start = 0;
+			this.end = newEntityArrayList.size() - 1;
 
-	@Override
-	protected Integer compute() {
-		if (end == start) {
+			this.batchSize = batchSize;
+			this.excludeFields = excludeFields;
+			this.suidRich = suidRich;
+			this.newEntityArrayList = newEntityArrayList;
+			this.taskDs = taskDs;
+			this.taskTab = taskTab;
+		}
+
+		public ShardingRecursiveBatchInsert(List<Object[]> newEntityArrayList, int batchSize,
+				String excludeFields, List<String> taskDs, List<String> taskTab,
+				SuidRich suidRich, int start, int end) {
+
+			this(newEntityArrayList, batchSize, excludeFields, taskDs, taskTab, suidRich);
+
+			this.start = start;
+			this.end = end;
+		}
+
+		@Override
+		protected Integer compute() {
+			if (end == start) {
 //			Logger.info(">>>>>>>>>>>do sharding "+start);
-			return doOneTask(newEntityArrayList.get(start), batchSize, excludeFields, start);
-		} else {
+				return doOneTask(newEntityArrayList.get(start), batchSize, excludeFields,
+						start);
+			} else {
 //			int mid = (end + start) / 2;
-			ShardingRecursiveBatchInsert task1 = new ShardingRecursiveBatchInsert(
-					newEntityArrayList, batchSize, excludeFields, taskDs, taskTab, suidRich,
+				ShardingRecursiveBatchInsert task1 = new ShardingRecursiveBatchInsert(
+						newEntityArrayList, batchSize, excludeFields, taskDs, taskTab, suidRich,
 //					start, mid);
-					start, start); //按顺序分派
-			ShardingRecursiveBatchInsert task2 = new ShardingRecursiveBatchInsert(
-					newEntityArrayList, batchSize, excludeFields, taskDs, taskTab, suidRich,
+						start, start); // 按顺序分派
+				ShardingRecursiveBatchInsert task2 = new ShardingRecursiveBatchInsert(
+						newEntityArrayList, batchSize, excludeFields, taskDs, taskTab, suidRich,
 //					mid + 1, end);
-					start + 1, end);
+						start + 1, end);
 
-			invokeAll(task1, task2);
-			return task1.join() + task2.join();
+				invokeAll(task1, task2);
+				return task1.join() + task2.join();
+			}
+		}
+
+		private int doOneTask(Object entity[], int batchSize, String excludeFields, int index) {
+
+			try {
+				HoneyContext.setSqlIndexLocal(index);
+
+				HoneyContext.setAppointTab(taskTab.get(index));
+				HoneyContext.setAppointDS(taskDs.get(index));
+
+//		        int b = copy(suidRich).insert(entity, batchSize, excludeFields);
+				int b = suidRich.insert(entity, batchSize, excludeFields);
+				return b;
+			} finally {
+				HoneyContext.removeAppointDS();
+				HoneyContext.removeAppointTab();
+				HoneyContext.removeSqlIndexLocal();
+			}
+
 		}
 	}
-
-	private int doOneTask(Object entity[], int batchSize, String excludeFields, int index) {
-		
-		HoneyContext.setSqlIndexLocal(index);
-		
-		HoneyContext.setAppointTab(taskTab.get(index));
-		HoneyContext.setAppointDS(taskDs.get(index));
-		
-//		int b = copy(suidRich).insert(entity, batchSize, excludeFields);
-		int b = suidRich.insert(entity, batchSize, excludeFields);
-
-		HoneyContext.removeAppointDS();
-		HoneyContext.removeAppointTab();
-		HoneyContext.removeSqlIndexLocal();
-
-		return b;
-	}
-	
-}
 }

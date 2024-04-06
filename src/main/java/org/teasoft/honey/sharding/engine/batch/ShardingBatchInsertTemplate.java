@@ -24,16 +24,17 @@ public abstract class ShardingBatchInsertTemplate<T> {
 	public abstract T shardingWork();
 
 	public T doSharding() {
-		HoneyContext.setSqlIndexLocal(index);
-		HoneyContext.setAppointTab(taskTab.get(index));
-		HoneyContext.setAppointDS(taskDs.get(index));
+		try {
+			HoneyContext.setSqlIndexLocal(index);
+			HoneyContext.setAppointTab(taskTab.get(index));
+			HoneyContext.setAppointDS(taskDs.get(index));
 
-		T rs = shardingWork();
-
-		HoneyContext.removeAppointDS();
-		HoneyContext.removeAppointTab();
-		HoneyContext.removeSqlIndexLocal();
-
-		return rs;
+			return shardingWork();
+			
+		} finally {
+			HoneyContext.removeAppointDS();
+			HoneyContext.removeAppointTab();
+			HoneyContext.removeSqlIndexLocal();
+		}
 	}
 }
