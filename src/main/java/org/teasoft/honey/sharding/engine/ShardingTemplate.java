@@ -20,14 +20,15 @@ public abstract class ShardingTemplate<T> {
 	public abstract T shardingWork();
 
 	public T doSharding() {
-		HoneyContext.setSqlIndexLocal(index);
-		HoneyContext.setAppointDS(ds);
+		try {
+			HoneyContext.setSqlIndexLocal(index);
+			HoneyContext.setAppointDS(ds);
 
-		T rs = shardingWork();
+			return shardingWork();
 
-		HoneyContext.removeAppointDS();
-		HoneyContext.removeSqlIndexLocal();
-
-		return rs;
+		} finally {
+			HoneyContext.removeAppointDS();
+			HoneyContext.removeSqlIndexLocal();
+		}
 	}
 }

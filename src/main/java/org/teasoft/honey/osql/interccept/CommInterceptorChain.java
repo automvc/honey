@@ -123,20 +123,25 @@ public class CommInterceptorChain implements InterceptorChain {
 	@Override
 	@SuppressWarnings("rawtypes")
 	public void beforeReturn(List list) {
-		for (int i = 0; i < chain.size(); i++) {
-			chain.get(i).beforeReturn(list);
+		try {
+			for (int i = 0; i < chain.size(); i++) {
+				chain.get(i).beforeReturn(list);
+			}
+		} finally {
+			_remove();
 		}
-		_remove();
 	}
 
 	//用于update,insert,delete及没有返回Javabean结构的查询方法
 	@Override
 	public void beforeReturn() {
-
-		for (int i = 0; i < chain.size(); i++) {
-			chain.get(i).beforeReturn();
+		try {
+			for (int i = 0; i < chain.size(); i++) {
+				chain.get(i).beforeReturn();
+			}
+		} finally {
+			_remove();
 		}
-		_remove();
 	}
 	
 	private void _remove() {
