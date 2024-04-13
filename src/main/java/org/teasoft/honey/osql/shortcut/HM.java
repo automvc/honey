@@ -9,6 +9,8 @@ package org.teasoft.honey.osql.shortcut;
 import org.teasoft.honey.sharding.HintManager;
 
 /**
+ * shortcut for HintManager.
+ * HM: Hint Manager
  * @author Kingstar
  * @since  2.0
  */
