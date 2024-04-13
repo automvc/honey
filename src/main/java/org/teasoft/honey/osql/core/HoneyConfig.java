@@ -74,6 +74,13 @@ public final class HoneyConfig {
 				_overrideByActive(active);
 				//use the key in active override the main file.
 			}
+		}else {//在main方法,操作数据库时,有时需要获取dbName;需要先解析一次
+			try {
+				initHoneyContext();
+				HoneyContext.refreshDataSourceMap();
+			} catch (Exception e) {
+				Logger.debug(e.getMessage(),e);
+			}
 		}
 	
 		if(isAndroid || isHarmony) {//V1.17
