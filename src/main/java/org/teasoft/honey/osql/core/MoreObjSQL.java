@@ -303,6 +303,8 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 			returnId = getSuidRich().insertAndReturnId(entity);
 		else if (SuidType.UPDATE == suidType)
 			returnId = getSuidRich().update(entity);  //todo 是否需要加codition?
+		   //TODO 从表没有设置id时,会报错.
+		//TODO 关联字段,在从表更新时,应该作为过滤条件.
 		else if (SuidType.DELETE == suidType)
 			returnId = getSuidRich().delete(entity);
 		

@@ -60,8 +60,23 @@ https://github.com/automvc/bee-ext
 * 26.Use entity name _F (automatically generated) to reference entity field names, e.g., Users_F.name or in SuidRichExt interface using the format Users::getName.  
 
 ## Newest main Function
+### **V2.4.0**  
+1. Chaing SQL programming supports placeholder precompilation to prevent injection attacks  
+2. Do not cache if no table name is specified  
+3. Add a default date sharding implementation for Calculate, and add a custom sharding implementation example  
+4. Support ElasticSearch(7.x) ORM query  
+5. PreparedSql support set table name for enhance relative cache  
+6. MongoDB gen Javabean support gen comment  
 
-### **V2.2(2024.1.1·LTS)**  
+7.the Sharding template method class uses finally to handle context recycling
+8.MapSql(MapSuid)supports using Condition to implement more complex where conditions, with updateSet set values  
+MapSql add methods: public void where(Condition condition);  
+                    public void updateSet(Condition condition);  
+9.add ConditionExt to support the use of entity::getName to reference property  
+10.add ChainSqlFactory  
+
+
+**V2.2(2024.1.1·LTS)**  
 1. Javabean entity supports inheritance (configure bee.osql.openEntityCanExtend=true).  
 2. Enhanced the association between batch insert and transaction.  
    2.2 Before version 2.2, calling batch insertion would commit on each batch, but in version 2.2, it is changed to only call once within a transaction. The content of the batch insertion method is no longer committed, but is controlled by the transaction.  
@@ -317,7 +332,7 @@ Quick Start:
        <dependency>
 	      <groupId>org.teasoft</groupId>
 	      <artifactId>bee-all</artifactId>
-	      <version>2.1.8</version>
+	      <version>2.2</version>
         </dependency>
 		
 	    <!-- Mysql config.You need change it to the real database config. -->
@@ -327,6 +342,14 @@ Quick Start:
 			<version>5.1.47</version>
 			<scope>runtime</scope>
 		</dependency>
+```
+
+Gradle
+
+```xml
+implementation group: 'org.teasoft', name: 'bee-all', version: '2.2'
+//Gradle(Short)
+implementation 'org.teasoft:bee-all:2.2'
 ```
 
 #### 1.2  Of course, can download the jar file directly  
@@ -547,7 +570,7 @@ Operate 10000 records, and the use time comparison is as follows.
 <img src="illustration/Bee-architecture-EN-V2.0.png"  width="520" height="640">  
 
 ## Bee Common Interface  
-<img src="illustration/common-interface_en.jpg">  
+<img src="illustration/common-interface-2.4_en.png">  
 
 Rapid application development:
 =========	
