@@ -66,13 +66,21 @@ public class MapSqlProcessor {
 
 		//where
 		List<PreparedValue> list = new ArrayList<>();
+		boolean firstWhere = true;
 
 		if (ObjectUtils.isNotEmpty(whereConditonMap)) {
 			Boolean isBooleanTransfer = sqlSettingMap.get(MapSqlSetting.IsTransferTrueFalseStringToBooleanType);
 			parseBoolean(whereConditonMap,isBooleanTransfer); //V1.11
-			where(whereConditonMap, list, sqlBuffer, isTransfer, getIncludeType(sqlSettingMap));
+			firstWhere=where(whereConditonMap, list, sqlBuffer, isTransfer, getIncludeType(sqlSettingMap));
 		}
-
+		
+		//2.4.0
+		WhereConditionWrap wrap=ConditionHelper.processWhereCondition(mapSqlImpl.getWhereCondition(), firstWhere, null);
+        if(wrap!=null) {
+        	sqlBuffer.append(wrap.getSqlBuffer());
+        	list.addAll((List)wrap.getPvList());
+        }
+		
 		//group by
 		String groupByField = sqlkeyMap.get(MapSqlKey.GroupBy);
 		if (StringUtils.isNotBlank(groupByField)) {
@@ -167,6 +175,14 @@ public class MapSqlProcessor {
 			parseBoolean(whereConditonMap,isBooleanTransfer); //V1.11
 			firstWhere = where(whereConditonMap, list, sqlBuffer, isTransfer,getIncludeType(sqlSettingMap));
 		}
+		
+		//2.4.0
+		WhereConditionWrap wrap=ConditionHelper.processWhereCondition(suidMapImpl.getWhereCondition(), firstWhere, null);
+        if(wrap!=null) {
+        	sqlBuffer.append(wrap.getSqlBuffer());
+        	list.addAll((List)wrap.getPvList());
+        	firstWhere=wrap.isFirst();
+        }
 
 		String sql = sqlBuffer.toString();
 
@@ -219,12 +235,30 @@ public class MapSqlProcessor {
 			parseBoolean(newValueMap,isBooleanTransfer); //V1.11
 			firstSet = updateSet(newValueMap, list, sqlBuffer, isTransfer, getIncludeType(sqlSettingMap));
 		}
-
+		
+		// 2.4.0 使用Condition设置update set
+		UpdateSetConditionWrap updateSetWrap = ConditionHelper.processUpdateSetCondition(
+				sqlBuffer, list, suidMapImpl.getUpdateSetCondition(), firstSet);
+		if (updateSetWrap != null) {
+			sqlBuffer.append(updateSetWrap.getSqlBuffer());
+			list.addAll((List) updateSetWrap.getPvList());
+			firstSet = updateSetWrap.isFirst();
+		}
+		
 		boolean firstWhere = true;
 		if (ObjectUtils.isNotEmpty(whereConditonMap)) {
 			Boolean isBooleanTransfer = sqlSettingMap.get(MapSqlSetting.IsTransferTrueFalseStringToBooleanType);
 			parseBoolean(whereConditonMap,isBooleanTransfer); //V1.11
 			firstWhere = where(whereConditonMap, list, sqlBuffer, isTransfer,getIncludeType(sqlSettingMap));
+		}
+		
+		// 2.4.0
+		WhereConditionWrap wrap = ConditionHelper.processWhereCondition(
+				suidMapImpl.getWhereCondition(), firstWhere, null);
+		if (wrap != null) {
+			sqlBuffer.append(wrap.getSqlBuffer());
+			list.addAll((List) wrap.getPvList());
+			firstWhere = wrap.isFirst();
 		}
 
 		String sql = sqlBuffer.toString();
@@ -301,27 +335,30 @@ public class MapSqlProcessor {
 	
 	public static String toCountSqlByMap(MapSql mapSql) {
 		MapSqlImpl t = (MapSqlImpl) mapSql;
-		MapSql newOne=copyForCount(t);
+//		MapSql newOne=copyForCount(t);
+		MapSql newOne=t.copyForCount();
 		newOne.put(MapSqlKey.SelectColumns, "count(*)");
 		return toSelectSqlByMap(newOne);
 	}
 	
-	private static MapSql copyForCount(MapSqlImpl old) {
-		MapSqlImpl n = new MapSqlImpl();
-		n.kv = old.getKvMap();
-//		n.sqlkeyMap = old.getSqlkeyMap();
-		n.newKv = old.getNewKvMap();
-		n.settingMap = old.getSqlSettingMap();
-//		n.start(old.getStart()); //ignore
-//		n.size(old.getSize()); //ignore
-		
-		Map<MapSqlKey, String> map=old.getSqlkeyMap();
-		for (Map.Entry<MapSqlKey, String> entry : map.entrySet()) {
-			n.put(entry.getKey(), entry.getValue());
-		}
-		
-		return n;
-	}
+//	private static MapSql copyForCount(MapSqlImpl old) {
+////		MapSqlImpl n = new MapSqlImpl();
+////		n.kv = old.getKvMap();
+//////		n.sqlkeyMap = old.getSqlkeyMap();
+////		n.newKv = old.getNewKvMap();
+////		n.settingMap = old.getSqlSettingMap();
+////		
+//////		n.start(old.getStart()); //ignore
+//////		n.size(old.getSize()); //ignore
+////		Map<MapSqlKey, String> map=old.getSqlkeyMap();
+////		for (Map.Entry<MapSqlKey, String> entry : map.entrySet()) {
+////			n.put(entry.getKey(), entry.getValue());
+////		}
+//		
+//		MapSqlImpl n =old.copyForCount();
+//		
+//		return n;
+//	}
 	
 	private static Object processId(Map<String, Object> insertKvMap,String tableName,String customPkName,
 			Map<MapSqlSetting, Boolean> sqlSettingMap,boolean returnId) {

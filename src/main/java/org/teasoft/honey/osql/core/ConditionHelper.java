@@ -56,22 +56,33 @@ public class ConditionHelper {
 	}
 	
 	//ForUpdate
-//	static boolean processConditionForUpdateSet(StringBuffer sqlBuffer, StringBuffer valueBuffer, List<PreparedValue> list, Condition condition) {
-	static boolean processConditionForUpdateSet(StringBuffer sqlBuffer, List<PreparedValue> list, Condition condition) { //delete valueBuffer
-		ConditionImpl conditionImpl = (ConditionImpl) condition;
-		List<Expression> updateSetList = conditionImpl.getUpdateExpList();
-		boolean firstSet = true;
+	static boolean processConditionForUpdateSet(StringBuffer sqlBuffer, List<PreparedValue> list, 
+			Condition condition) {
+		return processUpdateSetCondition(sqlBuffer, list, condition,true).isFirst(); // just return isFirst
+	}
+	
+	//2.4.0
+	static UpdateSetConditionWrap processUpdateSetCondition(Condition condition) {
+		return processUpdateSetCondition(new StringBuffer(), new ArrayList<PreparedValue>(), condition,true);
+	}
+	
+	static UpdateSetConditionWrap processUpdateSetCondition(StringBuffer sqlBuffer, List<PreparedValue> list, 
+			Condition condition,boolean firstSet) {
 		
 		Class entityClass = (Class) OneTimeParameter.getAttribute(StringConst.Column_EC);
+//		boolean firstSet = true;
+		if(condition==null) return new UpdateSetConditionWrap(sqlBuffer, list, firstSet);;
+		
+		ConditionImpl conditionImpl = (ConditionImpl) condition;
+		List<Expression> updateSetList = conditionImpl.getUpdateExpList();
+		
 
-//		if ( setAdd.equalsIgnoreCase(opType) || setMultiply.equalsIgnoreCase(opType) ) {
 		if (updateSetList != null && updateSetList.size() > 0) {
 			if (SuidType.UPDATE != conditionImpl.getSuidType()) {
 				throw new BeeErrorGrammarException(conditionImpl.getSuidType() + " do not support the method set ,setAdd or setMultiply!");
 			}
 		}
 
-		PreparedValue preparedValue = null;
 		Expression expression = null;
 
 		for (int j = 0; updateSetList!=null && j < updateSetList.size(); j++) {
@@ -103,7 +114,7 @@ public class ConditionHelper {
 					continue;
 				}
 				
-				if(opType!=null) { //只有set(arg1,arg2) opType=null
+				if(opType!=null) {
 					if (setWithField.equals(opType)) {
 						sqlBuffer.append(_toColumnName((String)expression.getValue(),entityClass));
 					}else {
@@ -140,16 +151,13 @@ public class ConditionHelper {
 //					valueBuffer.append(","); // do not need check. at final will delete the first letter.
 //					valueBuffer.append(expression.getValue());
 
-					preparedValue = new PreparedValue();
-					preparedValue.setType(expression.getValue().getClass().getName());
-					preparedValue.setValue(expression.getValue());
-					list.add(preparedValue);
+					addValeToPvList(list, expression.getValue());
 				}
 			}
-
 		}
-
-		return firstSet;
+		
+//		return firstSet;
+		return new UpdateSetConditionWrap(sqlBuffer, list, firstSet);
 	}
 	
 	static boolean processCondition(StringBuffer sqlBuffer, 
@@ -165,7 +173,6 @@ public class ConditionHelper {
 		
 		if(condition==null) return firstWhere;
 		
-		PreparedValue preparedValue = null;
 		boolean isNeedAnd = true;
 		
 		boolean isFirstWhere=firstWhere; //v1.7.2 return for control whether allow to delete/update whole records in one table
@@ -285,11 +292,12 @@ public class ConditionHelper {
 //                  Logger.warn("the parameter value in like is null !",new BeeIllegalSQLException());
 //				}
 				
-				preparedValue = new PreparedValue();
-				if(v==null) preparedValue.setType(Object.class.getName());
-				else preparedValue.setType(expression.getValue().getClass().getName());
-				preparedValue.setValue(v);
-				list.add(preparedValue);
+//				preparedValue = new PreparedValue();
+//				if(v==null) preparedValue.setType(Object.class.getName());
+//				else preparedValue.setType(expression.getValue().getClass().getName());
+//				preparedValue.setValue(v);
+//				list.add(preparedValue);
+				addValeToPvList(list, v);
 
 				isNeedAnd = true;
 				continue;
@@ -304,15 +312,17 @@ public class ConditionHelper {
 				sqlBuffer.append(" "+K.and+" ");
 				sqlBuffer.append("?");
 
-				preparedValue = new PreparedValue();
-				preparedValue.setType(expression.getValue().getClass().getName());
-				preparedValue.setValue(expression.getValue());
-				list.add(preparedValue);
-
-				preparedValue = new PreparedValue();
-				preparedValue.setType(expression.getValue2().getClass().getName());
-				preparedValue.setValue(expression.getValue2());
-				list.add(preparedValue);
+//				preparedValue = new PreparedValue();
+//				preparedValue.setType(expression.getValue().getClass().getName());
+//				preparedValue.setValue(expression.getValue());
+//				list.add(preparedValue);
+//
+//				preparedValue = new PreparedValue();
+//				preparedValue.setType(expression.getValue2().getClass().getName());
+//				preparedValue.setValue(expression.getValue2());
+//				list.add(preparedValue);
+				addValeToPvList(list, expression.getValue());
+				addValeToPvList(list, expression.getValue2());
 
 				isNeedAnd = true;
 				continue;
@@ -350,10 +360,11 @@ public class ConditionHelper {
 					sqlBuffer.append(expression.getValue4()); //Op
 					sqlBuffer.append("?");
 
-					preparedValue = new PreparedValue();
-					preparedValue.setType(expression.getValue2().getClass().getName());
-					preparedValue.setValue(expression.getValue2());
-					list.add(preparedValue);
+//					preparedValue = new PreparedValue();
+//					preparedValue.setType(expression.getValue2().getClass().getName());
+//					preparedValue.setValue(expression.getValue2());
+//					list.add(preparedValue);
+					addValeToPvList(list, expression.getValue2());
 				}
 
 				continue;
@@ -451,10 +462,11 @@ public class ConditionHelper {
 					sqlBuffer.append(expression.getOpType());
 					sqlBuffer.append("?");
 
-					preparedValue = new PreparedValue();
-					preparedValue.setType(expression.getValue().getClass().getName());
-					preparedValue.setValue(expression.getValue());
-					list.add(preparedValue);
+//					preparedValue = new PreparedValue();
+//					preparedValue.setType(expression.getValue().getClass().getName());
+//					preparedValue.setValue(expression.getValue());
+//					list.add(preparedValue);
+					addValeToPvList(list, expression.getValue());
 				}
 			}
 			isNeedAnd = true;
@@ -562,10 +574,12 @@ public class ConditionHelper {
 	}
 	
 	private static void setPreValue(List<PreparedValue> list, Object value) {
-		PreparedValue preparedValue = new PreparedValue();
-		preparedValue.setValue(value);
-		preparedValue.setType(value.getClass().getName());
-		list.add(preparedValue);
+//		PreparedValue preparedValue = new PreparedValue();
+//		preparedValue.setValue(value);
+//		preparedValue.setType(value.getClass().getName());
+//		list.add(preparedValue);
+		
+		addValeToPvList(list, value);
 	}
 	
 	
@@ -944,23 +958,21 @@ public class ConditionHelper {
 	static WhereConditionWrap processWhereCondition(Condition condition, boolean firstWhere,
 			String useSubTableNames[]) {
 		
+		Class entityClass = (Class) OneTimeParameter.getAttribute(StringConst.Column_EC); // 要消费了
+		if(condition==null) return null;
+		
 		StringBuffer sqlBuffer=new StringBuffer();
 		List<PreparedValue> list=new Vector<>();
 		
-		Class entityClass = (Class) OneTimeParameter.getAttribute(StringConst.Column_EC); //TODO
+
 //		没有初始化路由，是否有影响？
 		//condition里要设置操作类型
 		
-		if(condition==null) return null;
-		
-		PreparedValue preparedValue = null;
 		boolean isNeedAnd = true;
-		
 		boolean isFirstWhere=firstWhere; //v1.7.2 return for control whether allow to delete/update whole records in one table
 
 		ConditionImpl conditionImpl = (ConditionImpl) condition;
 		List<Expression> expList = conditionImpl.getExpList();
-		Expression expression = null;
 		
 		Integer start = conditionImpl.getStart();
 		
@@ -968,6 +980,7 @@ public class ConditionHelper {
 			throw new BeeErrorGrammarException(conditionImpl.getSuidType() + " do not support paging with start !");
 		} 
 		String columnName="";
+		Expression expression = null;
 		for (int j = 0; j < expList.size(); j++) {
 			expression = expList.get(j);
 			String opType = expression.getOpType();
@@ -1014,12 +1027,7 @@ public class ConditionHelper {
 
 				String v = (String) expression.getValue();
 				v=processLike(expression.getOp(), v);
-				
-				preparedValue = new PreparedValue();
-				if(v==null) preparedValue.setType(Object.class.getName());
-				else preparedValue.setType(expression.getValue().getClass().getName());
-				preparedValue.setValue(v);
-				list.add(preparedValue);
+				addValeToPvList(list, v);
 
 				isNeedAnd = true;
 				continue;
@@ -1100,6 +1108,7 @@ public class ConditionHelper {
 				sqlBuffer.append(expression.getValue());
 				continue;
 			}
+			
 			if (expression.getOpNum() == -1) {// )
 				sqlBuffer.append(expression.getValue());
 				isNeedAnd = true;
@@ -1148,41 +1157,44 @@ public class ConditionHelper {
 	}
 	
 	
-	private static void addValeToPvList(List<PreparedValue> list,Object value) {
+	private static void addValeToPvList(List<PreparedValue> list, Object value) {
 		PreparedValue preparedValue = new PreparedValue();
-		preparedValue.setType(value.getClass().getName());
 		preparedValue.setValue(value);
+		if (value == null)
+			preparedValue.setType(Object.class.getName());
+		else
+			preparedValue.setType(value.getClass().getName());
 		list.add(preparedValue);
 	}
 	
 	
-	public static void main(String[] args) {
-		Condition condition=BeeFactory.getHoneyFactory().getCondition();
-		condition.op("abc", Op.eq, 1);
-		condition.op("inField", Op.in, 2);
-		
-//		WhereConditionWrap wrap=processWhereCondition(condition, true, null);
-		WhereConditionWrap wrap=processWhereCondition(condition);
-		
-		System.out.println(wrap.getSqlBuffer().toString());  // where abc=? and in_field in (?)
-		
-	}
+//	public static void main(String[] args) {
+//		Condition condition=BeeFactory.getHoneyFactory().getCondition();
+//		condition.op("abc", Op.eq, 1);
+//		condition.op("inField", Op.in, 2);
+//		
+////		WhereConditionWrap wrap=processWhereCondition(condition, true, null);
+//		WhereConditionWrap wrap=processWhereCondition(condition);
+//		
+//		System.out.println(wrap.getSqlBuffer().toString());  // where abc=? and in_field in (?)
+//		
+//	}
 	
 }
 
-class WhereConditionWrap{
+class ConditionWrap{
 	
 	private StringBuffer sqlBuffer;
 	private List<?> pvList;
-	private boolean isFirstWhere;
+	private boolean isFirst; //where or updateSet
 	
-	public WhereConditionWrap() {}
+	public ConditionWrap() {}
 	
-	public WhereConditionWrap(StringBuffer sqlBuffer, List<?> pvList, boolean isFirstWhere) {
+	public ConditionWrap(StringBuffer sqlBuffer, List<?> pvList, boolean isFirst) {
 		super();
 		this.sqlBuffer = sqlBuffer;
 		this.pvList = pvList;
-		this.isFirstWhere = isFirstWhere;
+		this.isFirst = isFirst;
 	}
 
 
@@ -1203,12 +1215,23 @@ class WhereConditionWrap{
 		this.pvList = pvList;
 	}
 
-	public boolean isFirstWhere() {
-		return isFirstWhere;
+	public boolean isFirst() {
+		return isFirst;
 	}
 
-	public void setFirstWhere(boolean isFirstWhere) {
-		this.isFirstWhere = isFirstWhere;
+	public void setFirst(boolean isFirst) {
+		this.isFirst = isFirst;
 	}
-	
+}
+
+class WhereConditionWrap extends ConditionWrap {
+	public WhereConditionWrap(StringBuffer sqlBuffer, List<?> pvList, boolean isFirst) {
+		super(sqlBuffer, pvList, isFirst);
+	}
+}
+
+class UpdateSetConditionWrap extends ConditionWrap {
+	public UpdateSetConditionWrap(StringBuffer sqlBuffer, List<?> pvList, boolean isFirst) {
+		super(sqlBuffer, pvList, isFirst);
+	}
 }

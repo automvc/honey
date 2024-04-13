@@ -12,6 +12,7 @@ import java.util.Map;
 
 import org.teasoft.bee.osql.MapSqlKey;
 import org.teasoft.bee.osql.MapSqlSetting;
+import org.teasoft.bee.osql.api.Condition;
 import org.teasoft.bee.osql.api.MapSql;
 
 /**
@@ -21,13 +22,14 @@ import org.teasoft.bee.osql.api.MapSql;
  */
 public class MapSqlImpl implements MapSql {
 
-	 Map<MapSqlKey, String> sqlkeyMap = new HashMap<>();
-//	Map<String, Object> whereConditonMap = new HashMap<>();
-//	private Map<String, Object> whereConditonMap = new LinkedHashMap<>();
-	 Map<String, Object> kv = new LinkedHashMap<>();
-	 Map<String, Object> newKv = new LinkedHashMap<>(); //just for update set part
-	 Map<MapSqlSetting, Boolean> settingMap = new HashMap<>();
-
+	private Map<MapSqlKey, String> sqlkeyMap = new HashMap<>();
+	private Map<String, Object> kv = new LinkedHashMap<>();
+	private Map<String, Object> newKv = new LinkedHashMap<>(); //just for update set part
+	private Map<MapSqlSetting, Boolean> settingMap = new HashMap<>();
+	
+	private Condition whereCondition;
+	private Condition updateSetCondition;
+	
 	@Override
 	public void put(MapSqlKey key, String value) {
 		sqlkeyMap.put(key, value);
@@ -94,6 +96,46 @@ public class MapSqlImpl implements MapSql {
 
 	public Integer getSize() {
 		return size;
+	}
+
+	@Override
+	public void where(Condition condition) { // 2.4.0
+		this.whereCondition = condition;
+	}
+	
+	@Override
+	public void updateSet(Condition condition) {// 2.4.0
+		this.updateSetCondition=condition;
+	}
+
+	// 2.4.0
+	public Condition getWhereCondition() {
+		return whereCondition;
+	}
+	
+	// 2.4.0
+	public Condition getUpdateSetCondition() {
+		return updateSetCondition;
+	}
+
+	MapSqlImpl copyForCount(){
+		MapSqlImpl n = new MapSqlImpl();
+		n.kv = this.getKvMap();
+//		n.sqlkeyMap = old.getSqlkeyMap();
+		n.newKv = this.getNewKvMap();
+		n.settingMap = this.getSqlSettingMap();
+		
+		n.whereCondition=this.getWhereCondition(); //2.4.0
+		
+//		n.start(old.getStart()); //ignore
+//		n.size(old.getSize()); //ignore
+		
+		Map<MapSqlKey, String> map=this.getSqlkeyMap();
+		for (Map.Entry<MapSqlKey, String> entry : map.entrySet()) {
+			n.put(entry.getKey(), entry.getValue());
+		}
+		
+		return n;
 	}
 	
 }
