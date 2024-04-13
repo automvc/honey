@@ -512,6 +512,7 @@ public class GenBean {
 			key = entry.getKey();
 			if ("_id".equals(key)) key = "id";
 			table.getColumnNames().add(key);
+			commentMap.put(key,key);
 //			table.getColumnTypes().add(entry.getValue().getClass().getName());
 
 //			多层Json结构当String处理,不会生成多个Javabean
@@ -524,10 +525,11 @@ public class GenBean {
 //				nameQueue.add(entry.getValue().getClass().getSimpleName());
 				nameQueue.add(key);
 				table.getColumnTypes().add(key);
-				commentMap.put(key, key);
+//				commentMap.put(key, key);
 			} else {
 				table.getColumnTypes().add(entry.getValue().getClass().getName());
-				commentMap.put(entry.getValue().getClass().getName(), entry.getValue().getClass().getName());
+//				String entry.getValue().getClass().getSimpleName();
+//				commentMap.put(, entry.getValue().getClass().getName());
 			}
 		}
 		table.setCommentMap(commentMap);
