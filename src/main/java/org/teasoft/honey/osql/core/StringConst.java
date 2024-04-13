@@ -42,22 +42,19 @@ public final class StringConst {
 	public static final String MapSuid_Insert_Has_ID="_SYS_Bee_MapSuid_Insert_Has_ID";
 	public static final String Column2Field="_SYS_Bee_Column2Field:";
 	
-	public static final String Route_EC="_SYS_Bee_ROUTE_EC"; ////EC:Entity Class
-	public static final String Column_EC="_SYS_Bee_COLUMN_EC";
+	public static final String Route_EC="_SYS_Bee_ROUTE_EC";   //EC:Entity Class
+	public static final String Column_EC="_SYS_Bee_COLUMN_EC"; //EC:Entity Class
 	
 	public static final String SchemaName="_SYS_Bee_SchemaName";
 	public static final String SuidType="_SYS_Bee_SuidType"; //V1.17
 
-	
+	//Sharding<<<<<<<<<<<<<<<<<<<<<<<<<<
 	public static final String HadSharding=PREFIX+"HadSharding";
-	
-//	public static final String ShardingTableIndexStr="##(index)##";
 	public static final String ShardingTableIndexStr="[$#(index)#$]";
 	
 	public static final String DsNameListLocal=PREFIX+"DsNameListLocal";
 	public static final String TabNameListLocal=PREFIX+"TabNameListLocal";
 	public static final String TabSuffixListLocal=PREFIX+"TabSuffixListLocal";
-	
 	
 	public static final String ShardingFullSelect=PREFIX+"ShardingFullSelect";
 	public static final String ShardingSomeDsFullSelect=PREFIX+"ShardingSomeDsFullSelect";
@@ -71,9 +68,7 @@ public final class StringConst {
 	public static final String TabNameListForBatchLocal=PREFIX+"TabNameListForBatchLocal";
 	
 	public static final String MoreTableQuery=PREFIX+"MoreTableQuery";
-	
 	public static final String InterceptorSubEntity=PREFIX+"InterceptorSubEntity";
-	
 	public static final String ShardingBatchInsertDoing=PREFIX+"ShardingBatchInsertDoing";
 	
 	public static final String  Check_Group_ForSharding=PREFIX+"Check_Group_ForSharding";
@@ -81,6 +76,7 @@ public final class StringConst {
 	public static final String  Return_GroupFunStruct=PREFIX+"Return_GroupFunStruct";
 	
 	public static final String  ShardingSelectRs_ThreadFlag=PREFIX+"ShardingSelectRs_ThreadID";
+	//Sharding>>>>>>>>>>>>>>>>>>>>>>>
 	
 	//MongoDB
 	public static final String  GridFs_FileId=PREFIX+"GridFs_FileId";
@@ -88,7 +84,6 @@ public final class StringConst {
 	public static final String  GridFs_FileColumnName=PREFIX+"GridFs_FileColumnName";
 	public static final String  MongoDB_SelectAllFields=PREFIX+"MongoDB_select_all_fields"; //V2.1.8
 	public static final String  GridFsMetadata_FieldName=PREFIX+"GridFsMetadata_FieldName";
-	
 	
 //	OSQL
 	public static final String START_GREAT_EQ_0 = "Parameter 'start' need >=0 .";
