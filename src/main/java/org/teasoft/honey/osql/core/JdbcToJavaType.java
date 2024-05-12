@@ -420,18 +420,12 @@ public class JdbcToJavaType {
 		jdbc2JavaTypeMap.put("real","Float");
 		jdbc2JavaTypeMap.put("float4","Float");
 
-//		jdbcTypeMap.put("cidr","
-//		jdbcTypeMap.put("inet ","
-//		jdbcTypeMap.put("macaddr","
-//		jdbcTypeMap.put("macaddr8","
+		jdbc2JavaTypeMap.put("json",STRING);
+		jdbc2JavaTypeMap.put("jsonb",STRING);  //TODO
 
-		jdbc2JavaTypeMap.put("json",STRING);  //
-//		jdbcTypeMap.put("jsonb","
-
-		jdbc2JavaTypeMap.put("bytea","byte[]");  //
+		jdbc2JavaTypeMap.put("bytea","byte[]"); //TODO bytea
 
 		jdbc2JavaTypeMap.put("date","Date");
-//		jdbcTypeMap.put("interval","
 		jdbc2JavaTypeMap.put("time","Time");
 		jdbc2JavaTypeMap.put("timestamp","Timestamp");
 

@@ -90,7 +90,7 @@ public final class HoneyUtil {
 	}
 
 	@SuppressWarnings("rawtypes")
-	static String getBeanField(Field field[],Class entityClass) {  //是否通过class获取？  TODO
+	static String getBeanField(Field field[],Class entityClass) {
 		if (field == null) return "";
 		StringBuffer s = new StringBuffer();
 		int len = field.length;
@@ -1181,11 +1181,8 @@ public final class HoneyUtil {
 	public static <T> void checkPackage(T entity) {
 		if (entity == null) return;
 		
-//		if(entity.getClass().getPackage()==null) return ; //2020-04-19 if it is default package or empty package, do not check. Suggest by:pcode
-//		String packageName = entity.getClass().getPackage().getName();
-		
 		String classFullName=entity.getClass().getName();
-		//		传入的实体可以过滤掉常用的包开头的,如:java., javax. ; 但spring开头不能过滤,否则spring想用bee就不行了.
+		//		传入的实体可以过滤掉常用的包开头的,如:java., javax. ; 但像spring开头不能过滤,否则spring想用bee就不行了.
 		if (classFullName.startsWith("java.") || classFullName.startsWith("javax.")) {
 			throw new BeeIllegalEntityException("BeeIllegalEntityException: Illegal Entity, " + entity.getClass().getName());
 		}
@@ -1197,21 +1194,21 @@ public final class HoneyUtil {
 		return (classFullName.startsWith("java.") || classFullName.startsWith("javax."));
 	}
 
-	//将非null的字段值以Map形式返回
+	/**
+	 * 将非null的字段值以Map形式返回(被认为忽略的字段也不会返回,即isSkipField(fields[i]))
+	 * @param entity
+	 * @return
+	 */
 	public static <T> Map<String, Object> getColumnMapByEntity(T entity) {
 		Map<String, Object> map = new HashMap<>();
-//		Field fields[] = entity.getClass().getDeclaredFields();
 		Field fields[] = HoneyUtil.getFields(entity.getClass());
 		int len = fields.length;
 		try {
 			for (int i = 0; i < len; i++) {
-//				fields[i].setAccessible(true);
 				HoneyUtil.setAccessibleTrue(fields[i]);
-//				if (fields[i].get(entity) == null || "serialVersionUID".equals(fields[i].getName()) || fields[i].isSynthetic() || fields[i].isAnnotationPresent(JoinTable.class)) {
 				if (fields[i].get(entity) == null || isSkipField(fields[i])) {
 					continue;
 				} else {
-//					map.put(_toColumnName(fields[i].getName()), fields[i].get(entity));
 					map.put(NameTranslateHandle.toColumnName(fields[i].getName(),entity.getClass()), fields[i].get(entity));
 				}
 			}
@@ -1596,7 +1593,6 @@ public final class HoneyUtil {
 		Object obj = null;
 		try {
 			if (field != null) {
-//				field.setAccessible(true);
 				HoneyUtil.setAccessibleTrue(field);
 				obj = field.get(entity);
 			}
@@ -1624,9 +1620,7 @@ public final class HoneyUtil {
 //				field = entity.getClass().getDeclaredField(pkName);
 				field = HoneyUtil.getField(entity.getClass(), pkName);
 				
-//				field.setAccessible(true);
 				HoneyUtil.setAccessibleTrue(field);
-//				field.set(entity, obj);
 				HoneyUtil.setFieldValue(field, entity, obj);
 			} catch (NoSuchFieldException e) {
 				throw new ObjSQLException("Miss id field: the entity no id field!");
@@ -1653,18 +1647,14 @@ public final class HoneyUtil {
 			if (OneTimeParameter.isTrue(StringConst.OLD_ID_EXIST+i)) {
 				try {
 					Object obj = OneTimeParameter.getAttribute(StringConst.OLD_ID+i);
-//					field = entity[i].getClass().getDeclaredField(pkName);
 					field = HoneyUtil.getField(entity[i].getClass(), pkName);
-//					field.setAccessible(true);
 					HoneyUtil.setAccessibleTrue(field);
-//					field.set(entity[i], obj);
 					HoneyUtil.setFieldValue(field, entity[i], obj);
 				} catch (NoSuchFieldException e) {
 					throw new ObjSQLException("entity[] miss id field: the element in entity[] no id field!");
 				} catch (IllegalAccessException e) {
 					throw ExceptionHelper.convert(e);
 				} catch (Exception e) {
-//					e.printStackTrace();
 					Logger.error(e.getMessage(),e);
 				}
 			}
@@ -1691,7 +1681,6 @@ public final class HoneyUtil {
 				//V1.11
 				boolean noId = false;
 				try {
-//					field0 = entity[0].getClass().getDeclaredField("id");
 					field0 = HoneyUtil.getField(entity[0].getClass(),"id");
 					pkName="id";
 				} catch (NoSuchFieldException e) {
@@ -1700,7 +1689,6 @@ public final class HoneyUtil {
 				if (noId) {
 					pkName = HoneyUtil.getPkFieldName(entity[0]);
 					if("".equals(pkName) || pkName.contains(",")) return ; //just support single primary key.
-//					field0 = entity[0].getClass().getDeclaredField(pkName); //fixed 1.17
 					field0 = HoneyUtil.getField(entity[0].getClass(),pkName);//fixed 1.17
 					pkAlias="("+pkName+")";
 				}	
@@ -1759,10 +1747,7 @@ public final class HoneyUtil {
 					hasValue = false;
 //					v = null;
 					
-//					field = entity[i].getClass().getDeclaredField(pkName);
 					field = HoneyUtil.getField(entity[i].getClass(),pkName);
-					
-//					field.setAccessible(true);
 					HoneyUtil.setAccessibleTrue(field);
 					Object obj = field.get(entity[i]);
 					
@@ -1821,7 +1806,6 @@ public final class HoneyUtil {
 	 * @param c
 	 * @return
 	 */
-//	@SuppressWarnings("rawtypes")
 	public static String getPkFieldNameByClass(Class<?> c) {
 
 		if (c == null) return null;
@@ -1829,7 +1813,6 @@ public final class HoneyUtil {
 		String pkey = HoneyContext.getBeanCustomPKey(classFullName);
 		if (pkey != null) return pkey;
 
-//		Field field[] = c.getDeclaredFields();
 		Field field[] = HoneyUtil.getFields(c);
 		int len = field.length;
 		boolean isFirst = true;
@@ -1959,8 +1942,7 @@ public final class HoneyUtil {
 	}
 	
 	public static <T> String getColumnNames(T entity) {
-//		Field fields[] = entity.getClass().getDeclaredFields(); 
-		Field fields[] = HoneyUtil.getFields(entity.getClass()); //可以改通过class直接得到 TODO?
+		Field fields[] = HoneyUtil.getFields(entity.getClass());
 		String columnNames;
 		String packageAndClassName = entity.getClass().getName();
 		columnNames = HoneyContext.getBeanField(packageAndClassName);
@@ -2052,11 +2034,6 @@ public final class HoneyUtil {
 		return HoneyConfig.getHoneyConfig().openEntityCanExtend;
 	}
 	
-//	public static String getRandomPrefix() {
-//		String s = Math.random() + "";
-//		return "[$#("+s.substring(0,8)+")#$]";
-//	}
-	
 	private static char ch[]="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789XY".toCharArray();//64
 	private static final String START_MARK = "[$#(";
 	private static final String END_MARK= ")#$]";
@@ -2071,7 +2048,6 @@ public final class HoneyUtil {
 		try {
 			return START_MARK+s.substring(2, 13) + ch[index % 64]+END_MARK; //len 20
 		} catch (StringIndexOutOfBoundsException e) { //Exception in thread "main" java.lang.StringIndexOutOfBoundsException: String index out of range: 13
-//			System.out.println(s);
 			return getRandomPrefix();
 		}
 	}
