@@ -138,7 +138,8 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 			rs = pst.executeQuery();
 			rsList = new ArrayList<>();
 			while (rs.next()) {
-				targetObj=TransformResultSet.rowToEntity(rs, entityClass);
+//				targetObj=TransformResultSet.rowToEntity(rs, entityClass);
+				targetObj=ResultAssemblerHandler.rowToEntity(rs, entityClass);
 				rsList.add(targetObj);
 			}
 //			addInCache(sql, rsList, "List<T>", SuidType.SELECT, rsList.size());
