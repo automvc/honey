@@ -10,13 +10,18 @@ import java.lang.reflect.Field;
 import java.util.List;
 
 import org.teasoft.bee.osql.BeeSql;
+import org.teasoft.bee.osql.FunctionType;
 import org.teasoft.bee.osql.MoreObjToSQL;
 import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.api.Condition;
 import org.teasoft.bee.osql.api.MoreTable;
 import org.teasoft.bee.osql.api.SuidRich;
 import org.teasoft.bee.osql.exception.BeeIllegalParameterException;
+import org.teasoft.bee.osql.exception.BeeIllegalSQLException;
+import org.teasoft.honey.osql.core.ConditionImpl.FunExpress;
+import org.teasoft.honey.osql.shortcut.BF;
 import org.teasoft.honey.osql.util.AnnoUtil;
+import org.teasoft.honey.util.ObjectUtils;
 
 /**
  * 多表查询,MoreTable实现类.Multi table query, moretable implementation class.
@@ -69,6 +74,68 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 		List<T> list = getBeeSql().moreTableSelect(sql, entity);
 		doBeforeReturn(list);
 		return list;
+	}
+	
+	@Override
+	public <T> String selectWithFun(T entity, Condition condition) {
+
+		if (entity == null) return null;
+		String fun = null;
+		try {
+			ConditionImpl conditionImpl = (ConditionImpl) condition;
+			List<FunExpress> funExpList = conditionImpl.getFunExpList();
+			if (ObjectUtils.isEmpty(funExpList)) {
+				throw new BeeIllegalSQLException("In selectWithFun, the aggregation function can not be empty!");
+			}
+			if (funExpList.size()>1) {
+				throw new BeeIllegalSQLException("In selectWithFun, just support one aggregation function!");
+			}
+
+			regCondition(condition);
+			doBeforePasreEntity(entity);// 因要解析子表,子表下放再执行
+			_regFunType(getFunctionType(funExpList.get(0).getFunctionType())); // test?
+			String sql = getMoreObjToSQL().toSelectSQL(entity, condition);
+			_regEntityClass1(entity);
+			sql = doAfterCompleteSql(sql);
+			fun = getBeeSql().selectFun(sql);
+			Logger.logSQL(SELECT_SQL, sql);
+		} finally {
+			doBeforeReturn();
+		}
+		return fun;
+	}
+	
+	private static FunctionType getFunctionType(String functionName) {
+		for (FunctionType type : FunctionType.values()) {
+			if (type.getName().equalsIgnoreCase(functionName)) {
+				return type;
+			}
+		}
+		return null;
+	}
+
+	// 没能将entity传到SqlLib,需要注册
+	private <T> void _regEntityClass1(T entity) {
+		if (entity == null) return;
+		HoneyContext.regEntityClass(entity.getClass());
+	}
+
+	private <T> void _regFunType(FunctionType functionType) {
+		HoneyContext.regFunType(functionType);
+	}
+
+	@Override
+	public <T> int count(T entity) {
+		return count(entity, null);
+	}
+
+	@Override
+	public <T> int count(T entity, Condition condition) {
+		Condition con;
+		con = condition == null ? BF.getCondition() : condition;
+
+		String total = selectWithFun(entity, con.selectFun(FunctionType.COUNT, "*"));
+		return total == null ? 0 : Integer.parseInt(total);
 	}
 
 	@Override
