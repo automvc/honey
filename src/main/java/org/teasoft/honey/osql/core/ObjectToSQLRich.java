@@ -261,13 +261,11 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			sqlBuffer.append(selectAndFun);
 			sqlBuffer.append(tableName);
 			boolean firstWhere = true;
-//			Field fields[] = entity.getClass().getDeclaredFields();
 			Field fields[] = HoneyUtil.getFields(entity.getClass());
 			int len = fields.length;
 			List<PreparedValue> list = new ArrayList<>();
 			PreparedValue preparedValue = null;
 			for (int i = 0; i < len; i++) {
-//			  fields[i].setAccessible(true);
 			  HoneyUtil.setAccessibleTrue(fields[i]);
 				
 //			  if (fields[i]!= null && fields[i].isAnnotationPresent(JoinTable.class)){//v1.7.0 排除多表的实体字段
@@ -283,7 +281,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 //				continue;
 			  
 				if ((fields[i].getName().equals(fieldForFun))
-						|| ("count".equalsIgnoreCase(funType) && "*".equals(fieldForFun))) { //排除count(*)
+						|| ("count".equalsIgnoreCase(funType) && "*".equals(fieldForFun)) ) { //排除count(*)
 					isContainField = true;
 				}
 					
@@ -295,11 +293,9 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 					}
 
 					if (firstWhere) {
-//						sqlBuffer.append(" where ");
 						sqlBuffer.append(" ").append(K.where).append(" ");
 						firstWhere = false;
 					} else {
-//						sqlBuffer.append(" and ");
 						sqlBuffer.append(" ").append(K.and).append(" ");
 					}
 					sqlBuffer.append(_toColumnName(fields[i].getName(),entity.getClass()));
@@ -339,14 +335,6 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		return sql;
 	}
 	
-	//v1.9
-//	public <T> String toSelectFunSQL(T entity, Condition condition) {
-//		if (condition == null || condition.getIncludeType() == null)
-//			return _ObjectToSQLHelper._toSelectSQL(entity, -1, condition, true); // 过滤NULL和空字符串
-//		else
-//			return _ObjectToSQLHelper._toSelectSQL(entity, condition.getIncludeType().getValue(), condition, true);
-//	}
-	
 	@Override
 	public <T> String toSelectSQL(T entity, IncludeType includeType) {
 		return _ObjectToSQLHelper._toSelectSQL(entity, includeType.getValue());
@@ -378,11 +366,6 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		return sql;
 	}
 
-//	@Override
-//	public <T> String[] toInsertSQL(T entity[]) {
-//		return toInsertSQL(entity, "");
-//	}
-	
 	private static final String INDEX1 = "_SYS[index";
 	private static final String INDEX2 = "]_End ";
 	private static final String INDEX3 = "]";
@@ -572,7 +555,6 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	}
 
 	@Override
-//	public <T> String toSelectByIdSQL(T entity, Long id) {
 	public <T> String toSelectByIdSQL(Class<T> entityClazz, Long id) {
 		SqlValueWrap sqlBuffer = toSelectByIdSQL0(entityClazz);
 		String pkName=getPkName(entityClazz);
@@ -591,7 +573,6 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		Field field = null;
 		String type=null;
 		try {
-//			field = entityClazz.getDeclaredField(pkName);
 			field = HoneyUtil.getField(entityClazz, pkName);
 			type=field.getType().getSimpleName();
 		} catch (Exception e) {
@@ -606,7 +587,6 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		Field field = null;
 		String type=null;
 		try {
-//			field = c.getDeclaredField(pkName);
 			field = HoneyUtil.getField(c, pkName);
 			type=field.getType().getSimpleName();
 		} catch (Exception e) {
@@ -616,14 +596,6 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		return type;
 	}
 
-//	@Override
-//	public <T> String toSelectSQL(T entity, IncludeType includeType, Condition condition) {
-//		if (includeType == null)
-//			return _ObjectToSQLHelper._toSelectSQL(entity, -1, condition);
-//		else
-//			return _ObjectToSQLHelper._toSelectSQL(entity, includeType.getValue(), condition);
-//	}
-	
 	private <T> String _toUpdateBySQL(T entity, int includeType, String... whereFieldList) {
 		if (whereFieldList == null) return null;
 		if (whereFieldList.length == 0 || "".equals(whereFieldList[0].trim())) throw new ObjSQLException("ObjSQLException:whereFieldList at least include one field.");
@@ -769,13 +741,11 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		String packageAndClassName = entityClazz.getName();
 		String columnNames = HoneyContext.getBeanField(packageAndClassName);
 		if (columnNames == null) {
-//			Field fields[] = entityClazz.getDeclaredFields();
 			Field fields[] = HoneyUtil.getFields(entityClazz);
 			columnNames = HoneyUtil.getBeanField(fields,entityClazz);
 			HoneyContext.addBeanField(packageAndClassName, columnNames);
 		}
 
-//		sqlBuffer.append(K.select+" " + columnNames + " "+K.from+" ");
 		sqlBuffer.append(K.select).append(" ").append(columnNames).append(" ").append(K.from).append(" ");
 		sqlBuffer.append(tableName).append(" ").append(K.where).append(" ");
 
@@ -806,7 +776,6 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 				tableName = _toTableName(entity);
 			}
 			
-//			Field fields[] = entity.getClass().getDeclaredFields(); //返回所有字段,包括公有和私有   
 			Field fields[] = HoneyUtil.getFields(entity.getClass()); //返回所有字段,包括公有和私有   
 			
 			String columnNames ="";
@@ -828,7 +797,6 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			List<PreparedValue> list = new ArrayList<>();
 			PreparedValue preparedValue = null;
 			for (int i = 0; i < len; i++) {
-//				fields[i].setAccessible(true);
 				HoneyUtil.setAccessibleTrue(fields[i]);
 				
 				if (HoneyUtil.isContinue(-1, fields[i].get(entity),fields[i])) {
@@ -898,7 +866,6 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	}
 	
 	private static String _id(String pkName,Class entityClass){ 
-//		return NameTranslateHandle.toColumnName("id");
 		return NameTranslateHandle.toColumnName(pkName,entityClass);
 	}
 	

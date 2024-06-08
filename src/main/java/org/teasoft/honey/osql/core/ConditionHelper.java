@@ -226,35 +226,7 @@ public class ConditionHelper {
 				if(HoneyUtil.isSqlKeyWordUpper()) sqlBuffer.append(expression.getOpType().toUpperCase());
 				else sqlBuffer.append(expression.getOpType());
 				
-				
-//				sqlBuffer.append(" (");
-//				sqlBuffer.append("?");
-//				int len=1;
-//				boolean needSetNull=false;
-//				if (v == null) {
-//					needSetNull=true;
-//				}else {
-//					List<PreparedValue> inList=processIn(v);
-//					len=inList.size();
-//					if(len>0) list.addAll(inList);
-//					else if(len==0) needSetNull=true;
-//				}
-//				
-//				if(needSetNull) {
-//					PreparedValue p = new PreparedValue();
-//					p.setValue(null);
-//					p.setType(Object.class.getName());
-//					list.add(p);
-//				}
-//				
-//				for (int i = 1; i < len; i++) { //start 1
-//					sqlBuffer.append(",?");
-//				}
-//
-//				sqlBuffer.append(")");
-				
 	            processIn(sqlBuffer, list, v); //2.4.0
-				
 
 				isNeedAnd = true;
 				continue;
@@ -272,38 +244,12 @@ public class ConditionHelper {
 				String v = (String) expression.getValue();
                 v=processLike(expression.getOp(), v); //V2.4.0
                 
-//				if (v != null) {
-//					Op op = expression.getOp();
-//					if (Op.likeLeft == op) {
-//						checkLikeEmptyException(v);
-//						v = "%" + StringUtils.escapeLike(v);
-//					} else if (Op.likeRight == op) {
-//						checkLikeEmptyException(v);
-//						v = StringUtils.escapeLike(v) + "%";
-//					} else if (Op.likeLeftRight == op) {
-//						checkLikeEmptyException(v);
-//						v = "%" + StringUtils.escapeLike(v) + "%";
-//					} else { // Op.like
-//						if (StringUtils.justLikeChar(v)) {
-//							throw new BeeIllegalSQLException("Like has SQL injection risk! " + columnName + " like '" + v+"'");
-//						}
-//					}
-//				} else {
-//                  Logger.warn("the parameter value in like is null !",new BeeIllegalSQLException());
-//				}
-				
-//				preparedValue = new PreparedValue();
-//				if(v==null) preparedValue.setType(Object.class.getName());
-//				else preparedValue.setType(expression.getValue().getClass().getName());
-//				preparedValue.setValue(v);
-//				list.add(preparedValue);
 				addValeToPvList(list, v);
 
 				isNeedAnd = true;
 				continue;
 			} else if (" between ".equalsIgnoreCase(opType) || " not between ".equalsIgnoreCase(opType)) {
 
-//				adjustAnd(sqlBuffer);
 				isNeedAnd=adjustAnd(sqlBuffer,isNeedAnd);
 
 				sqlBuffer.append(columnName);
@@ -312,15 +258,6 @@ public class ConditionHelper {
 				sqlBuffer.append(" "+K.and+" ");
 				sqlBuffer.append("?");
 
-//				preparedValue = new PreparedValue();
-//				preparedValue.setType(expression.getValue().getClass().getName());
-//				preparedValue.setValue(expression.getValue());
-//				list.add(preparedValue);
-//
-//				preparedValue = new PreparedValue();
-//				preparedValue.setType(expression.getValue2().getClass().getName());
-//				preparedValue.setValue(expression.getValue2());
-//				list.add(preparedValue);
 				addValeToPvList(list, expression.getValue());
 				addValeToPvList(list, expression.getValue2());
 
@@ -360,10 +297,6 @@ public class ConditionHelper {
 					sqlBuffer.append(expression.getValue4()); //Op
 					sqlBuffer.append("?");
 
-//					preparedValue = new PreparedValue();
-//					preparedValue.setType(expression.getValue2().getClass().getName());
-//					preparedValue.setValue(expression.getValue2());
-//					list.add(preparedValue);
 					addValeToPvList(list, expression.getValue2());
 				}
 
@@ -436,16 +369,12 @@ public class ConditionHelper {
 				isNeedAnd = false;
 				continue;
 			}
-//			adjustAnd(sqlBuffer);
 			isNeedAnd=adjustAnd(sqlBuffer,isNeedAnd);
-
-			//}
 
 			sqlBuffer.append(columnName);  
 
 			if (expression.getValue() == null) {
 				if("=".equals(expression.getOpType())){
-//					sqlBuffer.append(" is null");
 					sqlBuffer.append(" "+K.isNull);
 				}else{
 					sqlBuffer.append(" "+K.isNotNull);
@@ -461,11 +390,6 @@ public class ConditionHelper {
 				} else {
 					sqlBuffer.append(expression.getOpType());
 					sqlBuffer.append("?");
-
-//					preparedValue = new PreparedValue();
-//					preparedValue.setType(expression.getValue().getClass().getName());
-//					preparedValue.setValue(expression.getValue());
-//					list.add(preparedValue);
 					addValeToPvList(list, expression.getValue());
 				}
 			}
@@ -574,11 +498,6 @@ public class ConditionHelper {
 	}
 	
 	private static void setPreValue(List<PreparedValue> list, Object value) {
-//		PreparedValue preparedValue = new PreparedValue();
-//		preparedValue.setValue(value);
-//		preparedValue.setType(value.getClass().getName());
-//		list.add(preparedValue);
-		
 		addValeToPvList(list, value);
 	}
 	
