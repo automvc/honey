@@ -67,7 +67,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 
 		if (sql == null || "".equals(sql.trim())) return Collections.emptyList();
 		
-		if (!ShardingUtil.hadSharding()) {
+		if (isSimpleMode()) {
 			return _selectSomeField(sql, entityClass); // 1.x版本及不用分片走的分支
 		} else {
 			if (HoneyContext.getSqlIndexLocal() == null) {
@@ -202,7 +202,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 	public String selectFun(String sql) {
 		Class entityClass = (Class) OneTimeParameter.getAttribute(StringConst.Route_EC);
 		if(sql==null || "".equals(sql.trim())) return null; 
-		if (!ShardingUtil.hadSharding()) {
+		if (isSimpleMode()) {
 			return _selectFun(sql,entityClass);
 		} else {
 			if (HoneyContext.getSqlIndexLocal() == null) {
@@ -240,22 +240,22 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 		}
 	}
 	
-	@SuppressWarnings("rawtypes")	
-	private String _selectFun(String sql,Class entityClass) {
-		
+	@SuppressWarnings("rawtypes")
+	private String _selectFun(String sql, Class entityClass) {
+
 //		if(sql==null || "".equals(sql.trim())) return null; //往前放了
-		
+
 		boolean isReg = updateInfoInCache(sql, "String", SuidType.SELECT, entityClass);
 		if (isReg) {
 			initRoute(SuidType.SELECT, entityClass, sql);
-			Object cacheObj = getCache().get(sql); //这里的sql还没带有值
+			Object cacheObj = getCache().get(sql); // 这里的sql还没带有值
 			if (cacheObj != null) {
 				clearContext(sql);
 				return (String) cacheObj;
 			}
 		}
-		if(isShardingMain()) return null; //sharding时,主线程没有缓存就返回.
-		
+		if (isShardingMain()) return null; // sharding时,主线程没有缓存就返回.
+
 		String result = null;
 		Connection conn = null;
 		PreparedStatement pst = null;
@@ -263,13 +263,13 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 		boolean hasException = false;
 		try {
 			conn = getConn();
-			String exe_sql=HoneyUtil.deleteLastSemicolon(sql);
+			String exe_sql = HoneyUtil.deleteLastSemicolon(sql);
 			pst = conn.prepareStatement(exe_sql);
 
 			setPreparedValues(pst, sql);
 
 			rs = pst.executeQuery();
-			if (rs.next()) { //if
+			if (rs.next()) { // if
 //				result= rs.getString(1); 
 				if (rs.getObject(1) == null)
 					result = "";
@@ -277,20 +277,14 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 					result = rs.getObject(1).toString();
 			}
 
-			boolean hasMore = false;
 			if (rs.next()) {
-				hasMore = true;
+				throw new ObjSQLException("The size of ResultSet more than 1.");
 			}
-			
-			if (hasMore) {
-				throw new ObjSQLException("ObjSQLException:The size of ResultSet more than 1.");
-			}
-			
-//			addInCache(sql, result,"String",SuidType.SELECT,1);
+
 			addInCache(sql, result, 1);
 
 		} catch (SQLException e) {
-			hasException=true;
+			hasException = true;
 			throw ExceptionHelper.convert(e);
 		} finally {
 			closeRs(rs);
@@ -312,7 +306,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 		Class entityClass = (Class) OneTimeParameter.getAttribute(StringConst.Route_EC);
 		if (sql == null || "".equals(sql.trim())) return Collections.emptyList();
 
-		if (!ShardingUtil.hadSharding()) {
+		if (isSimpleMode()) {
 			return _select(sql, entityClass); // 1.x版本及不用分片走的分支
 		} else {
 			if (HoneyContext.getSqlIndexLocal() == null) {
@@ -344,6 +338,10 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 				return _select(sql, entityClass);
 			}
 		}
+	}
+
+	private boolean isSimpleMode() {
+		return !ShardingUtil.hadSharding();
 	}
 		
 		
@@ -460,7 +458,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 	public int modify(String sql) {
 		Class entityClass = (Class) OneTimeParameter.getAttribute(StringConst.Route_EC);
 		if (sql == null || "".equals(sql)) return -2;
-		if (!ShardingUtil.hadSharding()) {
+		if (isSimpleMode()) {
 			return _modify(sql, entityClass); // 1.x版本及不用分片走的分支
 		} else {
 			if (HoneyContext.getSqlIndexLocal() == null) {// 拦截到的要分片的主线程
@@ -581,7 +579,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 		Class entityClass = (Class) OneTimeParameter.getAttribute(StringConst.Route_EC);
 		if(sql==null || "".equals(sql.trim())) return null;
 		
-		if (!ShardingUtil.hadSharding()) { //无分片
+		if (isSimpleMode()) { //无分片
 			return _selectJson(sql,entityClass);
 		} else { //有分片
 			if (HoneyContext.getSqlIndexLocal() == null) { //有分片的主线程
@@ -1058,7 +1056,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 	public <T> List<T> moreTableSelect(String sql, T entity) {
 		if(sql==null || "".equals(sql.trim())) return Collections.emptyList();
 		
-		if (!ShardingUtil.hadSharding()) {
+		if (isSimpleMode()) {
 			return _moreTableSelect(sql, entity); // 1.x版本及不用分片走的分支
 		} else {
 			if (HoneyContext.getSqlIndexLocal() == null) {
