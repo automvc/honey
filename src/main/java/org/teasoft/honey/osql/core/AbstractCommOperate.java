@@ -67,7 +67,7 @@ public class AbstractCommOperate implements CommOperate{
 	
 	void _doBeforePasreEntity(SuidType suidType) {
 		regSuidType(suidType);
-		if (this.nameTranslate != null) HoneyContext.setCurrentNameTranslate(nameTranslate); // enhance V2.1
+		if (this.nameTranslate != null) HoneyContext.setCurrentNameTranslateOneTime(nameTranslate); // enhance V2.1
 		if (this.dsName != null) HoneyContext.setTempDS(dsName);
 	}
 

@@ -563,7 +563,15 @@ public final class HoneyContext {
 		return currentNameTranslate.get();
 	}
 
-	public static void setCurrentNameTranslate(NameTranslate nameTranslate) {
+		
+	/**
+	 * 设置只一次有效.AbstractCommOperate在执行SUID操作返回前会清除.
+	 * 若整个应用只有一个自定义的NameTranslate,可以使用
+	 * NameRegistry.registerNameTranslate(nameTranslate)进行设置.
+	 * @param nameTranslate
+	 */
+//	public static void setCurrentNameTranslate(NameTranslate nameTranslate) { //closed on V2.4.0
+    static void setCurrentNameTranslateOneTime(NameTranslate nameTranslate) {
 		HoneyContext.clearFieldNameCache();
 		currentNameTranslate.set(nameTranslate);
 	}
