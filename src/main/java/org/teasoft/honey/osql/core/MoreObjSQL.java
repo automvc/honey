@@ -40,12 +40,16 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 	@Override
 	public <T> List<T> select(T entity) {
 		if (entity == null) return null;
-		doBeforePasreEntity(entity); // 因要解析子表,子表下放再执行
-		String sql = getMoreObjToSQL().toSelectSQL(entity);
-		sql = doAfterCompleteSql(sql);
-		Logger.logSQL(SELECT_SQL, sql);
-		List<T> list = getBeeSql().moreTableSelect(sql, entity);
-		doBeforeReturn(list);
+		List<T> list = null;
+		try {
+			doBeforePasreEntity(entity); // 因要解析子表,子表下放再执行
+			String sql = getMoreObjToSQL().toSelectSQL(entity);
+			sql = doAfterCompleteSql(sql);
+			Logger.logSQL(SELECT_SQL, sql);
+			list = getBeeSql().moreTableSelect(sql, entity);
+		} finally {
+			doBeforeReturn(list);
+		}
 		return list;
 	}
 
@@ -54,25 +58,33 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 		if (entity == null) return null;
 		if (size <= 0) throw new BeeIllegalParameterException(StringConst.SIZE_GREAT_0);
 		if (start < 0) throw new BeeIllegalParameterException(StringConst.START_GREAT_EQ_0);
-		doBeforePasreEntity(entity); // 因要解析子表,子表下放再执行
-		String sql = getMoreObjToSQL().toSelectSQL(entity, start, size);
-		sql = doAfterCompleteSql(sql);
-		Logger.logSQL(SELECT_SQL, sql);
-		List<T> list = getBeeSql().moreTableSelect(sql, entity);
-		doBeforeReturn(list);
+		List<T> list = null;
+		try {
+			doBeforePasreEntity(entity); // 因要解析子表,子表下放再执行
+			String sql = getMoreObjToSQL().toSelectSQL(entity, start, size);
+			sql = doAfterCompleteSql(sql);
+			Logger.logSQL(SELECT_SQL, sql);
+			list = getBeeSql().moreTableSelect(sql, entity);
+		} finally {
+			doBeforeReturn(list);
+		}
 		return list;
 	}
 
 	@Override
 	public <T> List<T> select(T entity, Condition condition) {
 		if (entity == null) return null;
-		regCondition(condition);
-		doBeforePasreEntity(entity); // 因要解析子表,子表下放再执行
-		String sql = getMoreObjToSQL().toSelectSQL(entity, condition);
-		sql = doAfterCompleteSql(sql);
-		Logger.logSQL(SELECT_SQL, sql);
-		List<T> list = getBeeSql().moreTableSelect(sql, entity);
-		doBeforeReturn(list);
+		List<T> list = null;
+		try {
+			regCondition(condition);
+			doBeforePasreEntity(entity); // 因要解析子表,子表下放再执行
+			String sql = getMoreObjToSQL().toSelectSQL(entity, condition);
+			sql = doAfterCompleteSql(sql);
+			Logger.logSQL(SELECT_SQL, sql);
+			list = getBeeSql().moreTableSelect(sql, entity);
+		} finally {
+			doBeforeReturn(list);
+		}
 		return list;
 	}
 	
