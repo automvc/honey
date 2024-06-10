@@ -260,7 +260,6 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 					throw ExceptionHelper.convert(e);
 				}
 			}
-
 		} catch (Exception e) {
 			Logger.error(e.getMessage(), e);
 		}
@@ -269,7 +268,7 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 
 	private <T> int modify(T entity,SuidType suidType) {	
 		// 是否需要事务？？ 由上一层负责
-		MoreTableInsertStruct struct =null;
+		MoreTableModifyStruct struct =null;
 		boolean hasParseEntity=false;
 		boolean hasProcess=false;
 		long returnId=0;
@@ -277,22 +276,20 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 			Object idValeu=HoneyUtil.getIdValue(entity);
 			
 			if (idValeu == null) {
-				struct = MoreInsertUtils._getMoreTableInsertStruct(entity); // UPDATE时,先执行,要用结构信息判断
+				struct = MoreInsertUtils._getMoreTableModifyStruct(entity); // UPDATE时,先执行,要用结构信息判断
 				hasParseEntity = true;
 				boolean nullKeyValue=false;
 				if (struct.ref.length == 1) {
-//					if(struct.ref[0][0].equalsIgnoreCase("id")) Logger.warn("The id value is null!");
 					nullKeyValue =checkTempKeyNullValue(entity, struct.ref[0]);
 					returnId=getSuidRich().updateBy(entity, struct.ref[0]); // update by
 					hasProcess = true;
 				} else if (struct.ref.length == 2) {
 					String tempKey[]=mergeArrays(struct.ref[0], struct.ref[1]);
-//					if(tempKey[0].equalsIgnoreCase("id")) Logger.warn("The id value is null!");
 					nullKeyValue=checkTempKeyNullValue(entity, tempKey);
 					returnId=getSuidRich().updateBy(entity, tempKey); // update by
 					hasProcess = true;
 				}
-				if(nullKeyValue) return (int)returnId;
+				if(nullKeyValue) return (int)returnId; //无法关联子表操作,提前返回
 			}
 		}
 		
@@ -301,7 +298,7 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 		if (returnId < 0 || (suidType!=SuidType.UPDATE && returnId==0)) return (int) returnId;   //等于0时, 子表是否还要处理??   不需要,既然是关联操作,父表都没有操作到,则无关联可言
 		//update时,returnId==0,还需要试着更新子表  V2.4.0
 		
-		if(! hasParseEntity) struct = MoreInsertUtils._getMoreTableInsertStruct(entity);
+		if(! hasParseEntity) struct = MoreInsertUtils._getMoreTableModifyStruct(entity);
 
 		if (struct != null) {
 			int len = struct.subField.length;
@@ -324,10 +321,6 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 			} catch (NoSuchFieldException e) {
 				throw ExceptionHelper.convert(e);
 			}
-//			T t; //传入的实体参数；
-//			List list2= (List) field[i].get(t); //获取到实体t的 List 属性
-//		         问题是,实体t的 List 属性有一个属性是bookId,
-//		         如何给它设置值
 		}
 		
 		if (SuidType.INSERT == suidType)
@@ -336,7 +329,7 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 			return (int)returnId; //主表受影响的行数
 	}
 	
-	private OneHasOne moreSubModify(MoreTableInsertStruct struct, int i, long returnId,
+	private OneHasOne moreSubModify(MoreTableModifyStruct struct, int i, long returnId,
 			Object currentEntity,SuidType suidType) throws IllegalAccessException, NoSuchFieldException {
 		if (struct.subIsList[i]) {
 			HoneyUtil.setAccessibleTrue(struct.subField[i]);
@@ -358,7 +351,7 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 					}else if(SuidType.UPDATE==suidType) {
 						Object idValeu=HoneyUtil.getIdValue(listSubI.get(i));
 						if(idValeu!=null) getSuidRich().update(listSubI.get(i)); //by id or primary key
-						else getSuidRich().updateBy(listSubI.get(i), struct.foreignKey[i]); //update by
+						else getSuidRich().updateBy(listSubI.get(i), struct.foreignKey[i]); //update by V2.4.0
 					}
 				}
 			}
@@ -392,7 +385,7 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 				
 				Object idValeu = HoneyUtil.getIdValue(subEntity); //by id or primary key
 				if (idValeu != null) returnId1=getSuidRich().update(subEntity);
-				else returnId1=getSuidRich().updateBy(subEntity, struct.foreignKey[i]); //update by
+				else returnId1=getSuidRich().updateBy(subEntity, struct.foreignKey[i]); //update by V2.4.0
 				if(returnId1>=0) needReturn=true;
 			} else {
 				// 从表要设置了关联信息才执行  上面已设置(设置外键的值)
@@ -410,7 +403,7 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 		return null;
 	}
 	
-	private boolean setPkField(MoreTableInsertStruct struct, int i, long returnId,
+	private boolean setPkField(MoreTableModifyStruct struct, int i, long returnId,
 			Object currentEntity, Object subEntity, Field fkField,int propIndex)
 			throws IllegalAccessException, NoSuchFieldException {
 		boolean useReturnId = false;
@@ -438,7 +431,7 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 	// Update,Delete no return id
 	//setPkFieldForUpdateOrDelete
 	//如果子实体没有用上FK声明的字段则不执行,防止更新到多余记录
-	private boolean setPkField2(MoreTableInsertStruct struct, int i, long returnId,
+	private boolean setPkField2(MoreTableModifyStruct struct, int i, long returnId,
 			Object currentEntity, Object subEntity, Field fkField, int propIndex)
 			throws IllegalAccessException, NoSuchFieldException {
 

@@ -376,7 +376,6 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 			list=TransformResultSet.toStringsList(rs);
 			
 			logSelectRows(list.size());
-//			addInCache(sql, list,"List<String[]>",SuidType.SELECT,list.size());
 			addInCache(sql, list, list.size());
 			
 		} catch (SQLException e) {
@@ -629,7 +628,6 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 		}
 		if(isShardingMain()) return null; //sharding时,主线程没有缓存就返回.
 		
-//		StringBuffer json=new StringBuffer("");
 		String json="";
 		Connection conn = null;
 		PreparedStatement pst = null;

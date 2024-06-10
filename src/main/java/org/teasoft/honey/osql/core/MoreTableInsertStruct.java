@@ -10,9 +10,12 @@ import java.lang.reflect.Field;
 
 /**
  * @author Kingstar
+ * for update
  * @since  2.1.8
+ * for update/insert/delete
+ * @since  2.4.0
  */
-class MoreTableInsertStruct {
+class MoreTableModifyStruct {
 
 	Field subField[];
 	boolean subIsList[];  //子属性是否是List类型

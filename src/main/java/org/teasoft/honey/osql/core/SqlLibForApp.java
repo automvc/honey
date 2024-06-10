@@ -44,7 +44,7 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 	
 	@Override
 	public ResultSet selectRs(String sql) {
-		
+		Logger.warn("[Bee] ==========SqlLibForApp do not support the method: selectRs");
 		return null;
 	}
 

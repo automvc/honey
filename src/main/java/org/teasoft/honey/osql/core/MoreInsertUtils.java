@@ -20,18 +20,17 @@ public class MoreInsertUtils {
 
 	private MoreInsertUtils() {}
 
-	static <T> MoreTableInsertStruct _getMoreTableInsertStruct(T entity) {
-		return _getMoreTableInsertStruct(entity, false);
+	static <T> MoreTableModifyStruct _getMoreTableModifyStruct(T entity) {
+		return _getMoreTableModifyStruct(entity, false);
 	}
 
-	static <T> MoreTableInsertStruct _getMoreTableInsertStruct(T entity,
+	static <T> MoreTableModifyStruct _getMoreTableModifyStruct(T entity,
 			boolean isOneHasOneCheck) {
 		if (entity == null) return null;
 
-//		Field field[] = entity.getClass().getDeclaredFields();
 		Field field[] = HoneyUtil.getFields(entity.getClass());
 
-		MoreTableInsertStruct moreTableStruct = null;
+		MoreTableModifyStruct moreTableStruct = null;
 		int subEntityFieldNum = 0;
 
 		Field subField0 = null;
@@ -86,14 +85,13 @@ public class MoreInsertUtils {
 				Object subEntity = null;
 				try {
 					if (subField0 != null) {
-//						subField0.setAccessible(true);
 						HoneyUtil.setAccessibleTrue(subField0);
 						subEntity = subField0.get(entity);
 					}
 				} catch (IllegalAccessException e) {
 					Logger.debug(e.getMessage(), e);
 				}
-				MoreTableInsertStruct subStruct = _getMoreTableInsertStruct(subEntity, true);
+				MoreTableModifyStruct subStruct = _getMoreTableModifyStruct(subEntity, true);
 				if (subStruct != null && subStruct.subField.length == 1) {
 					subTwoIsList = subStruct.subIsList[0];
 					subField1 = subStruct.subField[0];
@@ -108,7 +106,7 @@ public class MoreInsertUtils {
 		}
 
 		if (subEntityFieldNum > 0) {
-			moreTableStruct = new MoreTableInsertStruct();
+			moreTableStruct = new MoreTableModifyStruct();
 			boolean subIsList[] = new boolean[subEntityFieldNum];
 			Field subField[] = new Field[subEntityFieldNum];
 			String ref[][] = new String[subEntityFieldNum][];
