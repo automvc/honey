@@ -38,6 +38,7 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 	private MoreObjToSQL moreObjToSQL;
 
 	private static final String SELECT_SQL = "select SQL: ";
+	private static final String SELECT_JSON_SQL = "selectJson SQL: ";
 
 	@Override
 	public <T> List<T> select(T entity) {
@@ -169,6 +170,27 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 			doBeforeReturn();
 		}
 		return list;
+	}
+	
+	
+	@Override
+	public <T> String selectJson(T entity, Condition condition) {
+		if (entity == null) return null;
+		String json = null;
+		try {
+			regCondition(condition);
+			doBeforePasreEntity(entity, SuidType.SELECT);
+			_regEntityClass1(entity);
+			OneTimeParameter.setTrueForKey(StringConst.Check_Group_ForSharding); //TODO
+			String sql = getMoreObjToSQL().toSelectSQL(entity, condition);
+			sql = doAfterCompleteSql(sql);
+			Logger.logSQL(SELECT_JSON_SQL, sql);
+
+			json = getBeeSql().selectJson(sql);
+		} finally {
+			doBeforeReturn();
+		}
+		return json;
 	}
 
 	@Override
