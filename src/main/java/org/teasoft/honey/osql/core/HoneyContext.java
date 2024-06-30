@@ -20,12 +20,14 @@ import org.teasoft.bee.osql.api.Condition;
 import org.teasoft.bee.osql.exception.BeeIllegalParameterException;
 import org.teasoft.bee.osql.exception.ShardingErrorException;
 import org.teasoft.bee.sharding.GroupFunStruct;
+import org.teasoft.bee.sharding.ShardingBean;
 import org.teasoft.bee.sharding.ShardingPageStruct;
 import org.teasoft.bee.sharding.ShardingSortStruct;
 import org.teasoft.honey.database.DatabaseClientConnection;
 import org.teasoft.honey.distribution.ds.RouteStruct;
 import org.teasoft.honey.osql.dialect.sqlserver.SqlServerPagingStruct;
 import org.teasoft.honey.sharding.ShardingUtil;
+import org.teasoft.honey.sharding.config.ShardingConfig;
 import org.teasoft.honey.util.ObjectUtils;
 import org.teasoft.honey.util.StringUtils;
 
@@ -1272,8 +1274,48 @@ public final class HoneyContext {
 				setDataSourceMap(map);
 				
 				CacheUtil.clear(); //V2.1.10
+				
+				prcessShardingRuleInProperties(); //2.4.0
 			}
 			HoneyContext.setDsMapConfigRefresh(false);
+		}
+	}
+	
+	private static void prcessShardingRuleInProperties() {
+		Map<String, Map<String, String>> shardingMap = HoneyConfig.getHoneyConfig()
+				.getSharding();
+
+		for (Map.Entry<String, Map<String, String>> entry : shardingMap.entrySet()) {
+
+			Map<String, String> map = entry.getValue();
+			if (map == null || map.size() == 0) continue;
+			
+			String baseTableName = map.get("baseTableName");
+			String className = map.get("className");
+			
+			boolean baseTableNameEmpty = false;
+			boolean classNameEmpty = false;
+			if (StringUtils.isBlank(baseTableName)) {
+				baseTableNameEmpty = true;
+			}
+			if (StringUtils.isBlank(className)) {
+				classNameEmpty = true;
+			}
+
+			if (baseTableNameEmpty && classNameEmpty) {
+				Logger.warn("bee.db.sharding[" + entry.getKey() + "]"
+						+ "must define baseTableName or className");
+			} else {
+				if (!baseTableNameEmpty) {
+					ShardingConfig.addShardingBean(baseTableName,new ShardingBean(entry.getValue()));
+				} else if (!classNameEmpty) {
+					try {
+						ShardingConfig.addShardingBean(Class.forName(className),new ShardingBean(entry.getValue()));
+					} catch (Exception e) {
+						Logger.warn("Can not find the class: "+className,e);
+					}
+				}
+			}
 		}
 	}
 

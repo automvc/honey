@@ -333,12 +333,16 @@ public final class HoneyConfig {
 	boolean pagingWithLimitOffset;
     
     @SysValue("${bee.db.dbs}")
-//    private List<Map<String,String>> dbs; //V2.1 配置多个数据源, 属性值与具体工具对应
     private Map<String,Map<String,String>> dbs; //V2.1 配置多个数据源, 属性值与具体工具对应 ;   Map<String,Map<String,String>>这种结构可以在active中只写不同的部分
 //    {0={password=123, dsName=ds0, driverClassName=com.mysql.jdbc.Driver, jdbcUrl=jdbc:mysql://localhost:3306/bee?characterEncoding=UTF-8&useSSL=false, username=root}, 1={password=123, dsName=ds1, driver-class-name=com.mysql.jdbc.Driver, jdbcUrl=jdbc:mysql://localhost:3306/pro?characterEncoding=UTF-8&useSSL=false, username=root}}
+//  private List<Map<String,String>> dbs; //V2.1 配置多个数据源, 属性值与具体工具对应
     
     @SysValue("${bee.db.extendFirst}")
     boolean extendFirst;//V2.1 dbs数组的非首个下标的元素,是否从首个元素继承属性
+    
+    
+    @SysValue("${bee.db.sharding}")
+    private Map<String,Map<String,String>> sharding; //sharding rule
 
 	//----------------------------- cache start
 	@SysValue("${bee.osql.cache.timeout}")
@@ -697,20 +701,20 @@ public final class HoneyConfig {
 		LoggerFactory.setConfigRefresh(true);
 	}
 
-//	public List<Map<String, String>> getDbs() {
-//		return dbs;
-//	}
-//
-//	public void setDbs(List<Map<String, String>> dbs) {
-//		this.dbs = dbs;
-//	}
-	
 	public Map<String, Map<String, String>> getDbs() {
 		return dbs;
 	}
 
 	public void setDbs(Map<String, Map<String, String>> dbs) {
 		this.dbs = dbs;
+	}
+	
+	public Map<String, Map<String, String>> getSharding() {
+		return sharding;
+	}
+
+	public void setSharding(Map<String, Map<String, String>> sharding) {
+		this.sharding = sharding;
 	}
 	
 }

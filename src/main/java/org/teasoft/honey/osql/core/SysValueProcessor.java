@@ -72,6 +72,12 @@ public class SysValueProcessor {
 			}
 		}//end for
 		
+		processDbs(obj, prop);
+		
+		processShardingRule(obj, prop);
+	}
+	
+	private static <T> void processDbs(T obj,Properties prop) {
 //		GroupMap beePropertiesDbs=null;  //未必是bee.properties;可能已经过更改
 //		if(OneTimeParameter.isTrue(StringConst.PREFIX+"need_override_properties")) { //Bee内部,获取旧的dbs
 //			beePropertiesDbs =getGroupMap(BeeProp.getBeeProp(),null);
@@ -96,7 +102,6 @@ public class SysValueProcessor {
 				HoneyUtil.setFieldValue(dbsF, obj, gm.getMap());
 			} catch (Exception e) {
 				// ignore
-//				System.err.println(e.getMessage());
 			}
 		}
 	}
@@ -109,6 +114,7 @@ public class SysValueProcessor {
 		if(keySet.isEmpty()) return gm;
 		
 		boolean has = false;
+		int len="bee.db.dbs[".length();
 		for (String k : keySet) {
 			if (k.startsWith("bee.db.dbs[")) {
 				if (!has) {
@@ -119,8 +125,36 @@ public class SysValueProcessor {
 						gm = new GroupMap();
 					}
 				}
-				int end = k.indexOf(']', 11);
-				String tag = k.substring(11, end);
+				int end = k.indexOf(']', len);
+				String tag = k.substring(len, end);
+				gm.add(tag, k.substring(end + 2), prop.getProp(k));
+			}
+		}
+		return gm;
+	}
+	
+	private static <T> void processShardingRule(T obj, Properties prop) {
+		GroupMap gm = getGroupMap(prop);
+		if (gm != null && !gm.isEmpty()) {
+			try {
+				Field dbsF = obj.getClass().getDeclaredField("sharding");
+				HoneyUtil.setAccessibleTrue(dbsF);
+				HoneyUtil.setFieldValue(dbsF, obj, gm.getMap());
+			} catch (Exception e) {
+				// ignore
+			}
+		}
+	}
+	
+	private static GroupMap getGroupMap(Properties prop) {
+		Set<String> keySet = prop.getKeys();
+		GroupMap gm = new GroupMap();
+		if (keySet.isEmpty()) return gm;
+		int len = "bee.db.sharding[".length();
+		for (String k : keySet) {
+			if (k.startsWith("bee.db.sharding[")) {
+				int end = k.indexOf(']', len);
+				String tag = k.substring(len, end);
 				gm.add(tag, k.substring(end + 2), prop.getProp(k));
 			}
 		}
