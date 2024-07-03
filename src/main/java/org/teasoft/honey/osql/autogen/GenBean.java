@@ -107,6 +107,9 @@ public class GenBean {
 		boolean dateFlag = true;
 		boolean timeFlag = true;
 		boolean timestampFlag = true;
+		boolean localDateTimeFlag = true; //2.4.0
+		boolean localDateFlag = true; //2.4.0
+		boolean localTimeFlag = true; //2.4.0
 		boolean blobFlag = true;
 		boolean clobFlag = true;
 		boolean arrayFlag = true;
@@ -162,6 +165,15 @@ public class GenBean {
 			} else if ("Timestamp".equals(javaType) && timestampFlag) {
 				importSet.add("import java.sql.Timestamp;");
 				timestampFlag = false;
+			} else if ("LocalDateTime".equals(javaType) && localDateTimeFlag) {
+				importSet.add("import java.time.LocalDateTime;");
+				localDateTimeFlag = false;	
+			} else if ("LocalDate".equals(javaType) && localDateFlag) {
+				importSet.add("import java.time.LocalDate;");
+				localDateFlag = false;	
+			} else if ("LocalTime".equals(javaType) && localTimeFlag) {
+				importSet.add("import java.time.LocalTime;");
+				localTimeFlag = false;	
 			} else if ("Blob".equals(javaType) && blobFlag) {
 				importSet.add("import java.sql.Blob;");
 				blobFlag = false;
@@ -586,7 +598,7 @@ public class GenBean {
 	}
 	
 	private void printCheck(boolean isNeed) {
-		if(isNeed) Logger.info("Please check folder: " + config.getBaseDir() + config.getPackagePath().replace(".", "\\"));
+		if(isNeed) Logger.info("Please check folder: " + config.getBaseDir() + config.getPackagePath().replace(".", File.separator));
 	}
 	
 	public void genSomeBeanFile(String tableNameList) {
