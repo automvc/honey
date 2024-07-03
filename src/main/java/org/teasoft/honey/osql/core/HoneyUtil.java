@@ -736,14 +736,7 @@ public final class HoneyUtil {
 
 		javaTypeMap.put("java.sql.Date", 11);
 		javaTypeMap.put("java.sql.Time", 12);
-		
 		javaTypeMap.put("java.sql.Timestamp", 13);
-//		if(isSQLite()) {
-////		  javaTypeMap.put("java.sql.Timestamp", 3); //V1.11 fixed SQLite bug.  SQLite 需要用Long获取Timestamp    Long只获取到年份.
-////		 javaTypeMap.put("java.sql.Timestamp", 11); // not ok
-////		  javaTypeMap.put("java.sql.Timestamp", 1); //设置参数时,是可以不用转的
-//		  TypeHandlerRegistry.register(Timestamp.class, new TimestampTypeHandler<Timestamp>(),DatabaseConst.SQLite);
-//		}
 		
 		javaTypeMap.put("java.sql.Blob", 14);
 		javaTypeMap.put("java.sql.Clob", 15);
@@ -767,7 +760,10 @@ public final class HoneyUtil {
 		javaTypeMap.put("java.net.URL", 27);
 		
 //		javaTypeMap.put("java.util.UUID", 28);  //1 
-			
+
+		javaTypeMap.put("java.time.LocalDate", 31);
+		javaTypeMap.put("java.time.LocalTime", 32);
+		javaTypeMap.put("java.time.LocalDateTime", 33);
 	}
 
 	public static int getJavaTypeIndex(String javaType) {
@@ -1096,10 +1092,13 @@ public final class HoneyUtil {
 			case 10:
 				return rs.getBigDecimal(index);
 			case 11:
+			case 31:
 				return rs.getDate(index);
 			case 12:
+			case 32:
 				return rs.getTime(index);
 			case 13:
+			case 33:
 				return rs.getTimestamp(index);
 			case 14:
 				return rs.getBlob(index);
