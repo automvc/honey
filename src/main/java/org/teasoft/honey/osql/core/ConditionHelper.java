@@ -388,9 +388,20 @@ public class ConditionHelper {
 					sqlBuffer.append(expression.getOpType());
 					sqlBuffer.append(expression.getValue());
 				} else {
-					sqlBuffer.append(expression.getOpType());
-					sqlBuffer.append("?");
-					addValeToPvList(list, expression.getValue());
+//					System.out.println(expression.getValue().getClass().getName());
+					if (expression.getValue().getClass() == TO_DATE.class) {
+						TO_DATE to_date = (TO_DATE) expression.getValue();
+						sqlBuffer.append(expression.getOpType());
+						String formatter = to_date.getFormatter();
+						// check formatter //TODO
+						sqlBuffer.append("TO_DATE(?, '" + formatter + "')");
+
+						addValeToPvList(list, to_date.getDatetimeValue());
+					} else {
+						sqlBuffer.append(expression.getOpType());
+						sqlBuffer.append("?");
+						addValeToPvList(list, expression.getValue());
+					}
 				}
 			}
 			isNeedAnd = true;
