@@ -121,7 +121,6 @@ public final class SuidHelper {
 						if (i == startRow) Logger.warn("Can not find the field name : " + fieldName[j]);
 						continue;
 					}
-//					field.setAccessible(true);
 					HoneyUtil.setAccessibleTrue(field);
 					try {
 						HoneyUtil.setFieldValue(field, targetObj, ObjectCreatorFactory.create(col[j], field.getType())); //对相应Field设置
@@ -154,31 +153,24 @@ public final class SuidHelper {
 		if (from == null || to == null) return to;
 
 		Field field = null;
-//		Field fields[] = to.getClass().getDeclaredFields();
 		Field fields[] = HoneyUtil.getFields(to.getClass()); 
 		
 		int len = fields.length;
 
 		for (int i = 0; i < len; i++) {
-//			println(fields[i].getModifiers());
-//			println(fields[i].toGenericString());
 			int modifiers=fields[i].getModifiers();
 			if(modifiers==8 || modifiers==16 || modifiers==24 || modifiers==26) {
 				continue; //static,final,private static final
 			}
-			
-//			fields[i].setAccessible(true);
 			HoneyUtil.setAccessibleTrue(fields[i]);
 			
 			try {
-//				field = from.getClass().getDeclaredField(fields[i].getName());
 				field = HoneyUtil.getField(from.getClass(),fields[i].getName());
 			} catch (NoSuchFieldException e) {
 				continue;
 			}
 
 			try {
-//				field.setAccessible(true);
 				HoneyUtil.setAccessibleTrue(field);
 				HoneyUtil.setFieldValue(fields[i], to, field.get(from));
 			} catch (IllegalAccessException e) {
@@ -202,12 +194,10 @@ public final class SuidHelper {
 
 		Map<String, Object> map = null;
 		Object v = null;
-//		Field fields[] = entity.getClass().getDeclaredFields();
 		Field fields[] = HoneyUtil.getFields(entity.getClass());
 
 		for (int i = 0; i < fields.length; i++) {
 			if (i == 0) map = new LinkedHashMap<>();
-//			fields[i].setAccessible(true);
 			HoneyUtil.setAccessibleTrue(fields[i]);
 			
 			try {

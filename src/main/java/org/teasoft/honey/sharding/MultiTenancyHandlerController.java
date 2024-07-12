@@ -52,7 +52,6 @@ public class MultiTenancyHandlerController {
 			//只指明了一个,另一个还要计算吗???　bug??
 			if (isAppoint) return dsTabStruct;
 
-//			field.setAccessible(true);
 			HoneyUtil.setAccessibleTrue(field);
 			Object tenancyValue = field.get(entity); //可能是null,如何处理???
 			

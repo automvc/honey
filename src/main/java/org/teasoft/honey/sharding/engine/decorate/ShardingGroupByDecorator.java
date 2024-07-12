@@ -85,7 +85,6 @@ public class ShardingGroupByDecorator {
 				for (int j = 0; j < groupFields.size(); j++) {
 					String fieldName0=_toFieldName(groupFields.get(j),elementClass);
 					field = currentEntity.getClass().getDeclaredField(fieldName0);
-//					field.setAccessible(true);
 					HoneyUtil.setAccessibleTrue(field);
 					groupKey += field.get(currentEntity) + ",";
 				}
@@ -97,7 +96,6 @@ public class ShardingGroupByDecorator {
 					for (int k = 0; k < funStructs.size(); k++) {
 						String fieldName=_toFieldName(funStructs.get(k).getFieldName(),elementClass);
 						field = currentEntity.getClass().getDeclaredField(fieldName);
-//						field.setAccessible(true);
 						HoneyUtil.setAccessibleTrue(field);
 						Object fun = field.get(currentEntity);
 
@@ -113,7 +111,6 @@ public class ShardingGroupByDecorator {
 
 						if (oldFun == null) { //第二条,    此处,取第一条的值
 							oldField = old.getClass().getDeclaredField(fieldName);
-//							oldField.setAccessible(true);
 							HoneyUtil.setAccessibleTrue(oldField);
 							oldFun = oldField.get(old);
 						}
@@ -173,7 +170,6 @@ public class ShardingGroupByDecorator {
 					try {
 						String fieldName2=_toFieldName(entry.getKey(),elementClass);
 						Field funField = tempEntity.getClass().getDeclaredField(fieldName2);
-//						funField.setAccessible(true);
 						HoneyUtil.setAccessibleTrue(funField);
 						Object v = entry.getValue();
 						if (v != null)
@@ -181,7 +177,6 @@ public class ShardingGroupByDecorator {
 						HoneyUtil.setFieldValue(funField, tempEntity, v);
 
 					} catch (Exception e) {
-//						throw ExceptionHelper.convert(e);
 						Logger.warn(e.getMessage(), e);
 					}
 				}

@@ -36,7 +36,6 @@ public class AutoSetStringHandler {
 							|| sqlSuidType == SuidType.INSERT || sqlSuidType == SuidType.DELETE))))
 				return; //操作类型不对,则返回
 
-//			field.setAccessible(true);
 			HoneyUtil.setAccessibleTrue(field);
 			if (!override && field.get(entity) != null) { //不允许覆盖,原来有值则返回
 				return;

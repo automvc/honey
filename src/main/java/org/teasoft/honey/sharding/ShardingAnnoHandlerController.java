@@ -60,7 +60,6 @@ public class ShardingAnnoHandlerController {
 //			只指定了ds,则运算时,不再计算
 //			if(!isAppointDs) sharding.setDsName(anno.dsName()); //指定了,就不设置,下一层就不会再计算
 
-//			field.setAccessible(true);
 			HoneyUtil.setAccessibleTrue(field);
 			Object shardingValue = field.get(entity); //可能是null,如何处理???
 			

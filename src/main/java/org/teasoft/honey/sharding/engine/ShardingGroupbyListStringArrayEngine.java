@@ -126,7 +126,6 @@ public class ShardingGroupbyListStringArrayEngine {
 							continue;
 						}
 						Object obj = ObjectCreatorFactory.create(value, field.getType());
-//						field.setAccessible(true);
 						HoneyUtil.setAccessibleTrue(field);
 						HoneyUtil.setFieldValue(field, targetObj, obj);
 					}//处理一行记录结束

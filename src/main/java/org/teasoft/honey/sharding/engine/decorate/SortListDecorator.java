@@ -77,7 +77,6 @@ public class SortListDecorator {
 		if (t == null) return null;
 		try {
 			Field field = t.getClass().getDeclaredField(fieldName);
-//			field.setAccessible(true);
 			HoneyUtil.setAccessibleTrue(field);
 			Object obj = field.get(t);
 			if (obj != null) {

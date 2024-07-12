@@ -66,13 +66,11 @@ public class DatetimeHandler {
 							|| sqlSuidType == SuidType.INSERT || sqlSuidType == SuidType.DELETE))))
 				return; //操作类型不对,则返回
 			
-//			field.setAccessible(true);
 			HoneyUtil.setAccessibleTrue(field);
 			if (!override) { //不允许覆盖,原来有值则返回
 				if (field.get(entity) != null) return;
 			}
 
-//			if (field.getType() == Timestamp.class) {
 			if(field.getType().equals(Timestamp.class)) {
 				HoneyUtil.setFieldValue(field, entity, DateUtil.currentTimestamp());
 			}else if(field.getType().equals(java.sql.Date.class)) {

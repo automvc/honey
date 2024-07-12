@@ -43,7 +43,6 @@ final class _ObjectToSQLHelper {
 		StringBuffer sqlBuffer = new StringBuffer();
 		try {
 			String tableName = _toTableName(entity);
-//			Field fields[] = entity.getClass().getDeclaredFields();
 			Field fields[] = HoneyUtil.getFields(entity.getClass());
 
 			sqlBuffer.append(K.select).append(" ").append(fieldNameList).append(" ").append(K.from).append(" ");
@@ -53,7 +52,6 @@ final class _ObjectToSQLHelper {
 			List<PreparedValue> list = new ArrayList<>();
 			PreparedValue preparedValue = null;
 			for (int i = 0; i < len; i++) {
-//				fields[i].setAccessible(true);
 				HoneyUtil.setAccessibleTrue(fields[i]);
 				if (HoneyUtil.isContinue(-1, fields[i].get(entity),fields[i])) {
 					continue;	
@@ -201,7 +199,6 @@ final class _ObjectToSQLHelper {
 			int len = fields.length;
 			PreparedValue preparedValue = null;
 			for (int i = 0; i < len; i++) {
-//				fields[i].setAccessible(true);
 				HoneyUtil.setAccessibleTrue(fields[i]);
 				if (HoneyUtil.isContinue(includeType, fields[i].get(entity),fields[i])) {
 					continue;
@@ -268,7 +265,6 @@ final class _ObjectToSQLHelper {
 		String pkName=""; //primary key
 		String alias="";
 		try {
-//			field = entity.getClass().getDeclaredField("id");
 			field = HoneyUtil.getField(entity.getClass(), "id");
 			pkName="id";
 		} catch (NoSuchFieldException e) {
@@ -284,7 +280,6 @@ final class _ObjectToSQLHelper {
 		
 		if (field == null && !pkName.contains(",")) {//名称不为id的单主键,需要重新获取field,以检测其值是否为null
 			try {
-//				field = entity.getClass().getDeclaredField(pkName);
 				field = HoneyUtil.getField(entity.getClass(), pkName);
 			} catch (NoSuchFieldException e) {
                   //ignore
@@ -293,7 +288,6 @@ final class _ObjectToSQLHelper {
 		
 		try {
 			if (field != null) {
-//			  field.setAccessible(true);
 			  HoneyUtil.setAccessibleTrue(field);
 			  //是联合主键时不检测值是否为null
 			  if(field.get(entity) == null) {
@@ -302,9 +296,6 @@ final class _ObjectToSQLHelper {
 								+ "the id field" + alias + " of entity must not be null !");
 			   }
 		   }
-//		} catch (NullPointerException e) {
-//			throw ExceptionHelper.convert(e);
-			
 		} catch (IllegalAccessException e) {
 			throw ExceptionHelper.convert(e);
 		}
@@ -349,10 +340,8 @@ final class _ObjectToSQLHelper {
 		
 		try {
 
-//			sqlBuffer.append("update ");
 			sqlBuffer.append(K.update).append(" ");
 			sqlBuffer.append(tableName);
-//			sqlBuffer.append(" set ");
 			sqlBuffer.append(" ").append(K.set).append(" ");
 
 			//v1.7.2  处理通过condition设置的部分
@@ -369,7 +358,6 @@ final class _ObjectToSQLHelper {
 
 			PreparedValue preparedValue = null;
 			for (int i = 0; i < len; i++) {
-//				fields[i].setAccessible(true);
 				HoneyUtil.setAccessibleTrue(fields[i]);
 				
 ////				if (isContainField(setColmns, fields[i].getName())) { //set value.setColmn不受includeType影响,都会转换
@@ -422,17 +410,14 @@ final class _ObjectToSQLHelper {
 //							continue; //Condition已包含的,不再遍历
 						
 						if (firstWhere) {
-//							whereStament.append(" where ");
 							whereStament.append(" ").append(K.where).append(" ");
 							firstWhere = false;
 						} else {
-//							whereStament.append(" and ");
 							whereStament.append(" ").append(K.and).append(" ");
 						}
 						whereStament.append(_toColumnName(fields[i].getName(),entity.getClass()));
 
 						if (fields[i].get(entity) == null) {
-//							whereStament.append(" is null");
 							whereStament.append(" ").append(K.isNull);
 						} else {
 
@@ -535,7 +520,6 @@ final class _ObjectToSQLHelper {
 
 		PreparedValue preparedValue = null;
 		for (int i = 0; i < len; i++) {
-//			fields[i].setAccessible(true);
 			HoneyUtil.setAccessibleTrue(fields[i]);
 			if (! isContainField(whereColumns, fields[i].getName())) { //set value.  不属于whereColumn的,将考虑转为set.  同一个实体的某个属性的值,若用于WHERE部分了,再用于UPDATE SET部分就没有意义
 				
@@ -562,7 +546,6 @@ final class _ObjectToSQLHelper {
 				sqlBuffer.append(_toColumnName(fields[i].getName(),entity.getClass()));
 
 				if (fields[i].get(entity) == null) {
-//					sqlBuffer.append(" =null"); //  =
 					sqlBuffer.append(" =").append(K.Null); //  =
 				} else {
 
@@ -596,17 +579,14 @@ final class _ObjectToSQLHelper {
 				    if(isNullPkOrId(fields[i], entity)) continue; //主键=null不作为过滤条件
 					
 					if (firstWhere) {
-//						whereStament.append(" where ");
 						whereStament.append(" ").append(K.where).append(" ");
 						firstWhere = false;
 					} else {
-//						whereStament.append(" and ");
 						whereStament.append(" ").append(K.and).append(" ");
 					}
 					whereStament.append(_toColumnName(fields[i].getName(),entity.getClass()));
 
 					if (fields[i].get(entity) == null) {
-//						whereStament.append(" is null");
 						whereStament.append(" ").append(K.isNull);
 					} else {
 
@@ -661,79 +641,6 @@ final class _ObjectToSQLHelper {
 		return sql;
 	}
 
-/*	static <T> String _toInsertSQL(T entity, int includeType) throws IllegalAccessException {
-		checkPackage(entity);
-		
-		StringBuffer sqlBuffer = new StringBuffer();
-		StringBuffer sqlValue = new StringBuffer(") values (");
-//		StringBuffer valueBuffer = new StringBuffer();
-		String sql = "";
-		boolean isFirst = true;
-		String tableName = _toTableName(entity);
-
-		sqlBuffer.append(INSERT_INTO);
-		sqlBuffer.append(tableName);
-		sqlBuffer.append("(");
-
-		Field fields[] = entity.getClass().getDeclaredFields();
-		int len = fields.length;
-		List<PreparedValue> list = new ArrayList<>();
-		PreparedValue preparedValue = null;
-		for (int i = 0; i < len; i++) {
-			fields[i].setAccessible(true);
-						if (fields[i].get(entity) == null){
-			//				continue;
-							if(isIncludeNullField) {
-							
-							}else{
-								continue;
-							}
-						}
-			if (HoneyUtil.isContinue(includeType, fields[i].get(entity),fields[i])) {
-				continue;
-			} else {
-
-				if (isFirst) {
-					isFirst = false;
-				} else {
-					sqlBuffer.append(",");
-					sqlValue.append(",");
-				}
-
-				sqlBuffer.append(_toColumnName(fields[i].getName()));
-
-				if (fields[i].get(entity) == null) {
-					sqlValue.append("null");
-				} else {
-					sqlValue.append("?");
-
-//					valueBuffer.append(",");
-//					valueBuffer.append(fields[i].get(entity));
-
-					preparedValue = new PreparedValue();
-					preparedValue.setType(fields[i].getType().getName());
-					preparedValue.setValue(fields[i].get(entity));
-					list.add(preparedValue);
-				}
-			}
-		}
-
-		sqlBuffer.append(sqlValue);
-		sqlBuffer.append(")");
-//		sqlBuffer.append(" ;");
-
-		sql = sqlBuffer.toString();
-
-//		if (valueBuffer.length() > 0) valueBuffer.deleteCharAt(0);
-//		HoneyContext.setPreparedValue(sql, list);
-//		HoneyContext.setSqlValue(sql, valueBuffer.toString());
-//		addInContextForCache(sqlBuffer.toString(), valueBuffer.toString(), tableName);//2019-09-29
-		
-		setContext(sql, list, tableName);
-		
-		return sql;
-	}*/
-
 //	static <T> SqlValueWrap _toInsertSQL0(T entity, int includeType, String excludeFieldList) throws IllegalAccessException {
 	static <T> String _toInsertSQL0(T entity, int includeType, String excludeFieldList) throws IllegalAccessException {
 		checkPackage(entity);
@@ -782,7 +689,6 @@ final class _ObjectToSQLHelper {
 		}
 		sqlValue.append(")");
 		
-//      sqlBuffer.append(") values");
 		sqlBuffer.append(") ").append(K.values);
 		sqlBuffer.append(sqlValue);
 		sql=sqlBuffer.toString();
@@ -810,7 +716,6 @@ final class _ObjectToSQLHelper {
 		List<PreparedValue> list = new ArrayList<>();
 		PreparedValue preparedValue = null;
 		for (int i = 0; i < len; i++) {
-//			fields[i].setAccessible(true);
 			HoneyUtil.setAccessibleTrue(fields[i]);
 
 //			if ("serialVersionUID".equals(fields[i].getName()) || fields[i].isSynthetic()) {
@@ -854,7 +759,6 @@ final class _ObjectToSQLHelper {
 		try {
 			String tableName = _toTableName(entity);
 
-//			sqlBuffer.append("delete from ");
 			sqlBuffer.append(K.delete).append(" ").append(K.from).append(" ");
 			sqlBuffer.append(tableName);
 
@@ -863,7 +767,6 @@ final class _ObjectToSQLHelper {
 			List<PreparedValue> list = new ArrayList<>();
 			PreparedValue preparedValue = null;
 			for (int i = 0; i < len; i++) {
-//				fields[i].setAccessible(true);
 				HoneyUtil.setAccessibleTrue(fields[i]);
 
 				if (HoneyUtil.isContinue(includeType, fields[i].get(entity),fields[i])) {
@@ -878,17 +781,14 @@ final class _ObjectToSQLHelper {
 //						continue; //Condition已包含的,不再遍历
 
 					if (firstWhere) {
-//						sqlBuffer.append(" where ");
 						sqlBuffer.append(" ").append(K.where).append(" ");
 						firstWhere = false;
 					} else {
-//						sqlBuffer.append(" and ");
 						sqlBuffer.append(" ").append(K.and).append(" ");
 					}
 					sqlBuffer.append(_toColumnName(fields[i].getName(),entity.getClass()));
 					
 					if (fields[i].get(entity) == null) {
-//						sqlBuffer.append(" is null");
 						sqlBuffer.append(" ").append(K.isNull);
 					} else {
 
@@ -922,7 +822,6 @@ final class _ObjectToSQLHelper {
 				if (notDeleteWholeRecords) {
 					Logger.logSQL("delete SQL: ", sql);
 					throw new BeeIllegalBusinessException("BeeIllegalBusinessException: It is not allowed delete whole records in one table.");
-					//return "";
 				}
 			}
 			
@@ -957,11 +856,6 @@ final class _ObjectToSQLHelper {
 		HoneyContext.setContext(sql, list, tableName);
 	}
 	
-////  static void addInContextForCache(String sql,String sqlValue, String tableName){ //changed v1.8
-//    static void addInContextForCache(String sql, String tableName){
-//    	HoneyContext.addInContextForCache(sql, tableName);
-//	}
-    
 	private static <T> void checkPackage(T entity) {
 		HoneyUtil.checkPackage(entity);
 	}
@@ -969,10 +863,6 @@ final class _ObjectToSQLHelper {
 	private static String _toTableName(Object entity){
 		return NameTranslateHandle.toTableName(NameUtil.getClassFullName(entity));
 	}
-	
-//	private static String _toColumnName(String fieldName){
-//		return NameTranslateHandle.toColumnName(fieldName);
-//	}
 	
 	@SuppressWarnings("rawtypes")
 	private static String _toColumnName(String fieldName, Class entityClass) {
@@ -998,7 +888,6 @@ final class _ObjectToSQLHelper {
 			//V1.11
 			boolean noId = false;
 			try {
-//				field = entity.getClass().getDeclaredField("id");
 				field = HoneyUtil.getField(entity.getClass(), "id");
 				
 				pkName="id";
@@ -1008,7 +897,6 @@ final class _ObjectToSQLHelper {
 			if (noId) {
 				pkName = HoneyUtil.getPkFieldName(entity);
 				if("".equals(pkName) || pkName.contains(",")) return ; //just support single primary key.
-//				field = entity.getClass().getDeclaredField(pkName);
 				field = HoneyUtil.getField(entity.getClass(), pkName);
 				pkAlias="("+pkName+")";
 			}
@@ -1044,7 +932,6 @@ final class _ObjectToSQLHelper {
 				return ; //just set the Long/Integer id field
 			}
 		
-//			field.setAccessible(true);
 			HoneyUtil.setAccessibleTrue(field);
 			obj = field.get(entity);
 			if (obj != null) {
@@ -1076,10 +963,8 @@ final class _ObjectToSQLHelper {
 			long longId = GenIdFactory.get(tableKey);
 			id = longId;
 		}
-//		field.setAccessible(true);
 		HoneyUtil.setAccessibleTrue(field);
 		try {
-//			field.set(entity, id);
 			HoneyUtil.setFieldValue(field, entity, id);
 			if (hasValue) {
 				Logger.warn(" [ID WOULD BE REPLACED] " + entity.getClass() + " 's id field"+pkAlias+" value is " + obj.toString() + " would be replace by "+ id);
@@ -1105,8 +990,6 @@ final class _ObjectToSQLHelper {
 	//V1.11
 	private static boolean isNullPkOrId(Field field, Object entity) {
 		try {
-//			if (field.get(entity) == null && "id".equalsIgnoreCase(field.getName())) return true;
-//			if (field.get(entity) == null && field.isAnnotationPresent(PrimaryKey.class)) return true;
 			if (field.get(entity) == null && isPrimaryKey(field)) return true;
 		} catch (Exception e) {
 			//ignroe
@@ -1117,8 +1000,6 @@ final class _ObjectToSQLHelper {
 	//V1.11
 	private static boolean isPrimaryKey(Field field) {
 		if ("id".equalsIgnoreCase(field.getName())) return true;
-//		if (field.isAnnotationPresent(PrimaryKey.class)) return true;
-//		return false;
 		return AnnoUtil.isPrimaryKey(field);
 	}
 }
