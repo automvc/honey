@@ -390,8 +390,7 @@ public class ConditionHelper {
 					sqlBuffer.append(expression.getValue());
 				} else {
 					sqlBuffer.append(expression.getOpType());
-//					System.out.println(expression.getValue().getClass().getName());
-					if (expression.getValue().getClass() == TO_DATE.class) {
+					if (expression.getValue().getClass() == TO_DATE.class) { //2.4.0
 						
 						TO_DATE to_date = (TO_DATE) expression.getValue();
 						String formatter = to_date.getFormatter();
@@ -720,8 +719,6 @@ public class ConditionHelper {
 			onExpBuffer.append(_toColumnName(exp.getFieldName(),entityClass));
 			onExpBuffer.append(K.space);
 			onExpBuffer.append(exp.opType);
-			//			onExpBuffer.append(K.space);
-			//			onExpBuffer.append(exp.getValue());
 			onExpBuffer.append("?");
 
 			if (moreTableStruct[0].joinTableNum == 2) {
@@ -879,14 +876,6 @@ public class ConditionHelper {
 		
 		return v;
 	}
-	
-	
-	
-	
-	
-	
-	
-	
 	
 	
 	static WhereConditionWrap processWhereCondition(Condition condition) {
@@ -1084,8 +1073,25 @@ public class ConditionHelper {
 					sqlBuffer.append(expression.getValue());
 				} else {
 					sqlBuffer.append(expression.getOpType());
-					sqlBuffer.append("?");
-					addValeToPvList(list, expression.getValue());
+					if (expression.getValue().getClass() == TO_DATE.class) { //2.4.0
+						
+						TO_DATE to_date = (TO_DATE) expression.getValue();
+						String formatter = to_date.getFormatter();
+						if (NameCheckUtil.isContainCommentChar(formatter)) {
+							throw new BeeIllegalSQLException("formatter :" + formatter + " , have sql comment character");
+						}
+						if(! HoneyUtil.isOracle()) { 
+							Logger.warn("Make sure the Database support TO_DATE() function!");
+						}
+						
+						sqlBuffer.append("TO_DATE(?, '" + formatter + "')");
+
+						addValeToPvList(list, to_date.getDatetimeValue());
+						
+					} else {
+						sqlBuffer.append("?");
+						addValeToPvList(list, expression.getValue());
+					}
 				}
 			}
 			isNeedAnd = true;
