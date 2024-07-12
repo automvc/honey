@@ -25,6 +25,7 @@ import org.teasoft.bee.sharding.FunStruct;
 import org.teasoft.bee.sharding.GroupFunStruct;
 import org.teasoft.honey.osql.core.ConditionImpl.FunExpress;
 import org.teasoft.honey.osql.dialect.sqlserver.SqlServerPagingStruct;
+import org.teasoft.honey.osql.util.NameCheckUtil;
 import org.teasoft.honey.sharding.ShardingReg;
 import org.teasoft.honey.sharding.ShardingUtil;
 import org.teasoft.honey.util.StringUtils;
@@ -388,17 +389,24 @@ public class ConditionHelper {
 					sqlBuffer.append(expression.getOpType());
 					sqlBuffer.append(expression.getValue());
 				} else {
+					sqlBuffer.append(expression.getOpType());
 //					System.out.println(expression.getValue().getClass().getName());
 					if (expression.getValue().getClass() == TO_DATE.class) {
+						
 						TO_DATE to_date = (TO_DATE) expression.getValue();
-						sqlBuffer.append(expression.getOpType());
 						String formatter = to_date.getFormatter();
-						// check formatter //TODO
+						if (NameCheckUtil.isContainCommentChar(formatter)) {
+							throw new BeeIllegalSQLException("formatter :" + formatter + " , have sql comment character");
+						}
+						if(! HoneyUtil.isOracle()) { 
+							Logger.warn("Make sure the Database support TO_DATE() function!");
+						}
+						
 						sqlBuffer.append("TO_DATE(?, '" + formatter + "')");
 
 						addValeToPvList(list, to_date.getDatetimeValue());
+						
 					} else {
-						sqlBuffer.append(expression.getOpType());
 						sqlBuffer.append("?");
 						addValeToPvList(list, expression.getValue());
 					}

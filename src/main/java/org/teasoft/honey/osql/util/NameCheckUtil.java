@@ -113,5 +113,19 @@ public class NameCheckUtil {
 		}
 		return false;
 	}
+	
+	
+	public static boolean isContainCommentChar(String fieldName) {
+
+		if (fieldName == null) return false;
+
+		String str = fieldName.replace(" ", "");
+		// 去掉换行
+
+		if (str.contains("--") || str.contains("#") || str.contains("/*") || str.contains("//"))
+			return true;
+
+		return false;
+	}
 
 }

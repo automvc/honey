@@ -824,9 +824,9 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 		String[] tablename = (String[]) OneTimeParameter.getAttribute(StringConst.TABLE_NAME_RELATIVE);
 		String names = null;
 		if (StringUtils.isNotEmpty(tablename)) {
-			if (tablename.length == 1)
+			if (tablename.length == 1) {
 				names = tablename[0].trim();
-			else if (tablename.length > 1) {
+			}else if (tablename.length > 1) {
 				names = tablename[0].trim();
 				for (int i = 1; i < tablename.length; i++) {
 					if (StringUtils.isNotBlank(tablename[i]))
