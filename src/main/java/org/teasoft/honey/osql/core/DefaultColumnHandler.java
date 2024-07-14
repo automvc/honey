@@ -108,16 +108,9 @@ public class DefaultColumnHandler implements ColumnHandler {
 
 	private void initDefineColumn(Class entityClass) {
 		try {
-//			Object entity = Class.forName(entityFullName).newInstance();
-			//看下直接传entity是否方便????
-//			Field fields[] = entity.getClass().getDeclaredFields();
-			
-//			Field fields[] = entityClass.getDeclaredFields();
-//			Field fields[] = HoneyUtil.getFields(entityClass.getClass());
-			
 			if (entityClass == null) return;
 			if (HoneyUtil.isJavaPackage(entityClass)) {
-				Logger.debug("传入的类是java库的");
+				Logger.debug("The parameter entityClass is from Java library");
 				return;
 			}
 			
@@ -131,11 +124,8 @@ public class DefaultColumnHandler implements ColumnHandler {
 			boolean has = false;
 			for (int i = 0; i < len; i++) {
 				if (HoneyUtil.isSkipField(fields[i])) continue;
-//				fields[i].setAccessible(true);
 				HoneyUtil.setAccessibleTrue(fields[i]);
 				if (AnnoUtil.isColumn(fields[i])) {
-//					Column column = fields[i].getAnnotation(Column.class);
-//					defineColumn = column.value();
 					defineColumn=AnnoUtil.getValue(fields[i]);
 					if (NameCheckUtil.isIllegal(defineColumn)) {
 						throw new BeeIllegalParameterException(

@@ -41,7 +41,6 @@ public class DefaultInterceptor implements Interceptor {
 		Boolean f = HoneyContext.getEntityInterceptorFlag(entity.getClass().getName());
 		if (Boolean.FALSE.equals(f)) return entity;
 
-//		Field fields[] = entity.getClass().getDeclaredFields();
 		Field fields[] = HoneyUtil.getFields(entity.getClass());
 		int len = fields.length;
 		boolean isHas = false;

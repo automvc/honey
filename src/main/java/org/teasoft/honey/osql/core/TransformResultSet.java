@@ -75,7 +75,6 @@ public class TransformResultSet {
 						isJsonString=true;
 					}else if(entityClass!=null){
 						try {
-//							currField = entityClass.getDeclaredField(fieldName);
 							currField = HoneyUtil.getField(entityClass, fieldName);
 							isJsonString=isJoson(currField);
 						} catch (NoSuchFieldException e) {

@@ -1079,7 +1079,6 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 		}
 	}
 	
-//	private String listFieldTypeForMoreTable=null;
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private <T> List<T> _moreTableSelect(String sql, T entity) {
 		
@@ -1128,7 +1127,6 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 			rs = pst.executeQuery();
 			rsList = new ArrayList<>();
 
-//			Field field[] = entity.getClass().getDeclaredFields();
 			Field field[] = HoneyUtil.getFields(entity.getClass());
 			int columnCount = field.length;
 			
@@ -1159,12 +1157,10 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 				}
 			}
 			
-//			Field fields1[] = subEntityFieldClass[0].getDeclaredFields();
 			Field fields1[] = HoneyUtil.getFields(subEntityFieldClass[0]);
 			Field fields2[] =null;
 			
             if(subField[1]!=null){
-//            	fields2=subEntityFieldClass[1].getDeclaredFields();
             	fields2=HoneyUtil.getFields(subEntityFieldClass[1]);
             }
             
@@ -1209,7 +1205,6 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 						}
 						
 						v2=null;
-//						fields2[i].setAccessible(true);
 						HoneyUtil.setAccessibleTrue(fields2[i]);
 						isDul=false;
 						dulField="";
@@ -1312,7 +1307,6 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 						isRegHandlerPriority1 = TypeHandlerRegistry.isPriorityType(fields1[i].getType());
 					}
 					v1 = null;
-//					fields1[i].setAccessible(true);
 					HoneyUtil.setAccessibleTrue(fields1[i]);
 					isDul = false;
 					dulField = "";
@@ -1320,12 +1314,10 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 
 						if (oneHasOne && fields1[i] != null && fields1[i].isAnnotationPresent(JoinTable.class)) {
 							if (subField[1] != null && fields1[i].getName().equals(variableName[1]) && subObj2 != null) {
-//								fields1[i].setAccessible(true);
 								HoneyUtil.setAccessibleTrue(fields1[i]);
 								if (subTwoIsList2) {
 									subField2InOneHasOne = fields1[i];
 								} else {
-//									fields1[i].set(subObj1, subObj2); //设置子表2的对象     要考虑List. 
 									HoneyUtil.setFieldValue(fields1[i], subObj1, subObj2); //设置子表2的对象     要考虑List. 
 								}
 
@@ -1406,7 +1398,6 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 						}
 					}catch (SQLException e) {// for after use condition selectField method
 //						fields1[i].set(subObj1,null);
-//						e.printStackTrace();
 					}
 					
 					if(oneHasOne) checkKey2ForOneHasOne.append(v1);
@@ -1427,7 +1418,6 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 //					if("serialVersionUID".equals(field[i].getName()) || field[i].isSynthetic()) continue;
 					if(HoneyUtil.isSkipFieldForMoreTable(field[i])) continue;  //有Ignore注释,将不再处理JoinTable
 					if (field[i]!= null && field[i].isAnnotationPresent(JoinTable.class)) {
-//						field[i].setAccessible(true);
 						HoneyUtil.setAccessibleTrue(field[i]);
 						if(field[i].getName().equals(variableName[0])){
 							if(subOneIsList1) subOneListField=field[i];  //子表1字段是List
@@ -1445,7 +1435,6 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 						isRegHandlerPriority = TypeHandlerRegistry.isPriorityType(field[i].getType());
 					}
 
-//					field[i].setAccessible(true);
 					HoneyUtil.setAccessibleTrue(field[i]);
 					Object v = null;
 
@@ -1475,7 +1464,6 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 							v = TypeHandlerRegistry.handlerProcess(field[i].getType(), v);
 						}
 
-//						field[i].setAccessible(true);
 						HoneyUtil.setFieldValue(field[i], targetObj, v);
 						checkKey.append(v);
 					} catch (IllegalArgumentException e) {
@@ -1499,7 +1487,6 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 						if (!alreadyProcess) HoneyUtil.setFieldValue(field[i], targetObj, v);
 						
 					} catch (SQLException e) { // for after use condition selectField method
-//						e.printStackTrace();
 						HoneyUtil.setFieldValue(field[i], targetObj, null);
 					}
 					

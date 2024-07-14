@@ -105,7 +105,6 @@ public class ShardingInterceptor extends EmptyInterceptor {
 		Boolean flag = HoneyContext.getCustomFlagMap(key);
 		if (Boolean.FALSE.equals(flag)) return entity;
 
-//		Field fields[] = entity.getClass().getDeclaredFields();
 		Field fields[] = HoneyUtil.getFields(entity.getClass());
 		
 		

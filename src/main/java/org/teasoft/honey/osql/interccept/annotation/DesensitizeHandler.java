@@ -40,10 +40,8 @@ public class DesensitizeHandler {
 
 			for (int i = 0; i < list.size(); i++) {
 				Object obj = list.get(i);
-//				Field f = obj.getClass().getDeclaredField(field.getName());
 				Field f = HoneyUtil.getField(obj.getClass(),field.getName());
 				
-//				f.setAccessible(true);
 				HoneyUtil.setAccessibleTrue(f);
 				String targetStr = (String) f.get(obj);
 				HoneyUtil.setFieldValue(f, obj, replace(targetStr, start, end, s));

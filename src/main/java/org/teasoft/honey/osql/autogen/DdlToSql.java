@@ -93,7 +93,6 @@ public class DdlToSql {
 		if (tableName == null) tableName = _toTableNameByClass(entityClass);
 		StringBuilder sqlBuffer = new StringBuilder();
 		sqlBuffer.append(CREATE_TABLE + tableName + " (").append(LINE_SEPARATOR);
-//		Field fields[] = entityClass.getDeclaredFields();
 		Field fields[] = HoneyUtil.getFields(entityClass);
 		for (int i = 0; i < fields.length; i++) {
 			if (isSkipField(fields[i])) {

@@ -322,28 +322,6 @@ public class ConditionHelper {
 				if (3 == expression.getOpNum() || 4 == expression.getOpNum()) { //指定 desc,asc
 					sqlBuffer.append(ONE_SPACE);
 					sqlBuffer.append(FunAndOrderTypeMap.transfer(expression.getValue2().toString()));
-					
-//					//V1.17
-//					//SqlServer 2012版之前的复杂分页语法需要判断
-//					if(!orderByIdDescInSqlServer && start>1 && HoneyUtil.isSqlServer()) {
-//						pkName="";
-//						try {
-//							entityClass.getDeclaredField("id");
-//							pkName="id";
-//						} catch (NoSuchFieldException e) {
-//							pkName = HoneyUtil.getPkFieldNameByClass(entityClass).split(",")[0]; //有多个,只取第一个
-//						}
-//						
-//						String pkColumnName=_toColumnName(pkName,useSubTableNames,entityClass);
-//						// 1判断是否是主键  // 2判断是否是DESC
-//						if(pkColumnName.equalsIgnoreCase(columnName)) {
-//							if("desc".equalsIgnoreCase(expression.getValue2().toString())) {
-//								//需要调整内部分页排序
-//								orderByIdDescInSqlServer=true;
-//							}
-//						}
-//					}
-					
 				}
 				continue;
 			}//end orderBy

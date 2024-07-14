@@ -393,13 +393,10 @@ public class _MoreObjectToSQLHelper {
 		
 		Field fields[] = null;
 		if (index == 1 && moreTableStruct[0].subOneIsList) {
-//			fields = moreTableStruct[index].subClass.getDeclaredFields();
 			fields = HoneyUtil.getFields(moreTableStruct[index].subClass);
 		} else if (index == 2 && moreTableStruct[0].subTwoIsList) {
-//			fields = moreTableStruct[index].subClass.getDeclaredFields();
 			fields = HoneyUtil.getFields(moreTableStruct[index].subClass);
 		} else {
-//			fields = moreTableStruct[index].subEntityField.getType().getDeclaredFields();
 			fields = HoneyUtil.getFields(moreTableStruct[index].subEntityField.getType());
 		}
 		
@@ -407,7 +404,6 @@ public class _MoreObjectToSQLHelper {
 		int len = fields.length;
 //		for (int i = 0, k = 0; i < len; i++) { //bug
 		for (int i = 0; i < len; i++) {
-//			fields[i].setAccessible(true);
 			HoneyUtil.setAccessibleTrue(fields[i]);
 			
 //			if (fields[i].isAnnotationPresent(JoinTable.class)) {
@@ -426,11 +422,9 @@ public class _MoreObjectToSQLHelper {
 //					continue; //Condition已包含的,不再遍历
 
 				if (firstWhere) {
-//					sqlBuffer2.append(" where ");
 					sqlBuffer2.append(" ").append(K.where).append(" ");
 					firstWhere = false;
 				} else {
-//					sqlBuffer2.append(" and ");
 					sqlBuffer2.append(" ").append(K.and).append(" ");
 				}
 				sqlBuffer2.append(useSubTableName);
@@ -438,15 +432,11 @@ public class _MoreObjectToSQLHelper {
 				sqlBuffer2.append(_toColumnName(fields[i].getName(),entity.getClass()));
 				
 				if (fields[i].get(entity) == null) {
-//					sqlBuffer2.append(" is null");
 					sqlBuffer2.append(" ").append(K.isNull);
 					
 				} else {
 					sqlBuffer2.append("=");
 					sqlBuffer2.append("?");
-
-//					valueBuffer.append(",");
-//					valueBuffer.append(fields[i].get(entity));
 
 					preparedValue = new PreparedValue();
 					preparedValue.setType(fields[i].getType().getName());
@@ -461,11 +451,9 @@ public class _MoreObjectToSQLHelper {
 		return firstWhere;
 	}
 	
-//	static void addInContextForCache(String sql,String sqlValue, String tableName){
     static void addInContextForCache(String sql, String tableName){
 		CacheSuidStruct struct=new CacheSuidStruct();
 		struct.setSql(sql);
-//		struct.setSqlValue(sqlValue);
 		struct.setTableNames(tableName);
 		
 		HoneyContext.setCacheInfo(sql, struct);
@@ -484,10 +472,6 @@ public class _MoreObjectToSQLHelper {
 		return NameTranslateHandle.toColumnName(fieldName, entityClass);
 	}
 
-//	private static String _toTableNameByEntityName(String entityName){
-//		return NameTranslateHandle.toTableName(entityName);
-//	}
-	
 	//为指定字段,没有带表名的,自动填上主表表名.
 	private static String _addMaintableForSelectField(String selectField, String mainTableName) {
 
@@ -539,13 +523,11 @@ public class _MoreObjectToSQLHelper {
 	private static <T> boolean parseMainObject(T entity,String tableName,StringBuffer sqlBuffer0, 
 				List<PreparedValue> list, boolean firstWhere, int includeType) throws IllegalAccessException{
 		
-//		Field fields[] = entity.getClass().getDeclaredFields(); 
 		Field fields[] = HoneyUtil.getFields(entity.getClass()); 
 		PreparedValue preparedValue=null;
 		
 		int len = fields.length;
 		for (int i = 0; i < len; i++) {
-//			fields[i].setAccessible(true);
             HoneyUtil.setAccessibleTrue(fields[i]);
 
 //			if (fields[i].isAnnotationPresent(JoinTable.class)) {
@@ -598,8 +580,6 @@ public class _MoreObjectToSQLHelper {
 	//V1.11
 	private static boolean isNullPkOrId(Field field, Object entity) {
 		try {
-//			if (field.get(entity) == null && "id".equalsIgnoreCase(field.getName())) return true;
-//			if (field.get(entity) == null && field.isAnnotationPresent(PrimaryKey.class)) return true;
 			if (field.get(entity) == null && isPrimaryKey(field)) return true;
 		} catch (Exception e) {
 			//ignroe
@@ -610,8 +590,6 @@ public class _MoreObjectToSQLHelper {
 	//V1.11
 	private static boolean isPrimaryKey(Field field) {
 		if ("id".equalsIgnoreCase(field.getName())) return true;
-//		if (field.isAnnotationPresent(PrimaryKey.class)) return true;
-//		return false;
 		return AnnoUtil.isPrimaryKey(field);
 	}
 	

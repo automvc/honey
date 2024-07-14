@@ -533,7 +533,6 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	@SuppressWarnings("rawtypes")
 	private String getPkName(Class c) {
 		try {
-//			c.getDeclaredField("id");  //V1.11 因主键可以不是默认id,多了此步检测
 			HoneyUtil.getField(c, "id"); //V1.11 因主键可以不是默认id,多了此步检测
 			return "id";
 		} catch (NoSuchFieldException e) {

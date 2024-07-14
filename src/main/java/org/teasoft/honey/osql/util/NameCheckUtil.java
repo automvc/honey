@@ -45,7 +45,6 @@ public class NameCheckUtil {
 		Set<String> set = new HashSet<>();
 		try {
 			for (int i = 0; i < len; i++) {
-//				fields[i].setAccessible(true);
 				HoneyUtil.setAccessibleTrue(fields[i]);
 				set.add(fields[i].get(entity).toString());
 			}

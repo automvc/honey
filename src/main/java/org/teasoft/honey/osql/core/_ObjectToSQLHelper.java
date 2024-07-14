@@ -663,7 +663,6 @@ final class _ObjectToSQLHelper {
 		List<PreparedValue> list = new ArrayList<>();
 		PreparedValue preparedValue = null;
 		for (int i = 0; i < len; i++) {
-//			fields[i].setAccessible(true);
 			HoneyUtil.setAccessibleTrue(fields[i]);
 			if (HoneyUtil.isContinue(includeType, fields[i].get(entity),fields[i])) {
 				continue;

@@ -120,7 +120,6 @@ public class ShardingGroupbyListStringArrayEngine {
 						String name = null;
 						try {
 							name = _toFieldName(columnName, entityClass);
-//							field = entityClass.getDeclaredField(name);// 可能会找不到Javabean的字段
 							field = HoneyUtil.getField(entityClass,name);// 可能会找不到Javabean的字段
 						} catch (NoSuchFieldException e) {
 							continue;

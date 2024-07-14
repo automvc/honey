@@ -230,7 +230,6 @@ public final class HoneyUtil {
 //				if(field[i].getType().isAssignableFrom(List.class)) {
 				if(List.class.isAssignableFrom(field[i].getType())) {
 					try {
-//					field[i].setAccessible(true);
 					HoneyUtil.setAccessibleTrue(field[i]);
 						if (subEntityFieldNum == 1) {
 							subOneIsList = true;
@@ -392,7 +391,6 @@ public final class HoneyUtil {
 					//处理是List oneHasOne字段  
 					if (oneHasOne && subTwoIsList) {
 						try {
-//							subField[1].setAccessible(true);
 							HoneyUtil.setAccessibleTrue(subField[1]);
 //							subTwoIsList = true;
 							moreTableStruct[0].subTwoIsList = true;
@@ -477,7 +475,6 @@ public final class HoneyUtil {
 				}
 				moreTableStruct[1 + j].useSubTableName = useSubTableName;
 				try {
-//					subField[j].setAccessible(true);
 					HoneyUtil.setAccessibleTrue(subField[j]);
 					if (j == 0 && subOneIsList) {
 						if (ObjectUtils.isNotEmpty(listOne))
@@ -574,7 +571,6 @@ public final class HoneyUtil {
 	static StringBuffer _getBeanFullField_0(Class entityClass, String tableName,String entityFullName,
 			Set<String> mainFieldSet,Map<String,String> dulMap,boolean checkOneHasOne) {
 		
-//		Field field[] = entityField.getType().getDeclaredFields();
 		Field field[] = entityClass.getDeclaredFields();
 		
 //	 return	_getBeanFullField_0(field, tableName, entityFullName, mainFieldSet, dulMap, checkOneHasOne, entityField.getName());
@@ -1332,14 +1328,6 @@ public final class HoneyUtil {
 	public static String checkAndProcessSelectFieldViaString(String columnsdNames,Map<String,String> subDulFieldMap,boolean check,String ...fields){
 		if (fields == null) return null;
 		 
-//		Field fields[] = entity.getClass().getDeclaredFields();
-//		String packageAndClassName = entity.getClass().getName();
-//		String columnsdNames = HoneyContext.getBeanField(packageAndClassName);
-//		if (columnsdNames == null) {
-//			columnsdNames = HoneyUtil.getBeanField(fields);//获取属性名对应的DB字段名
-//			HoneyContext.addBeanField(packageAndClassName, columnsdNames);
-//		}
-		
 		columnsdNames=columnsdNames.toLowerCase();//不区分大小写检测
 
 		String errorField = "";
@@ -1559,7 +1547,6 @@ public final class HoneyUtil {
 	public static <T> Field getPkField(Class<T> entityClass) {
 		Field field = null;
 		try {
-//			field = entityClass.getDeclaredField("id");
 			field = HoneyUtil.getField(entityClass, "id");
 		} catch (NoSuchFieldException e) {
 			String pkName = getPkFieldNameByClass(entityClass);
@@ -1569,7 +1556,6 @@ public final class HoneyUtil {
 				hasException = true;
 			} else if (pkName != null && !pkName.contains(",")) {
 				try {
-//					field = entityClass.getDeclaredField(pkName);
 					field = HoneyUtil.getField(entityClass, pkName);
 				} catch (NoSuchFieldException e2) {
 					hasException = true;
@@ -1615,7 +1601,6 @@ public final class HoneyUtil {
 			try {
 				Object obj = OneTimeParameter.getAttribute(StringConst.OLD_ID);
 				String pkName=(String)OneTimeParameter.getAttribute(StringConst.Primary_Key_Name);
-//				field = entity.getClass().getDeclaredField(pkName);
 				field = HoneyUtil.getField(entity.getClass(), pkName);
 				
 				HoneyUtil.setAccessibleTrue(field);

@@ -56,7 +56,6 @@ public class CustomInterceptor extends EmptyInterceptor {
 			return;
 		}
 
-//		Field fields[] = entity.getClass().getDeclaredFields();
 		Field fields[] = HoneyUtil.getFields(entity.getClass());
 		int len = fields.length;
 		boolean isHas = false;

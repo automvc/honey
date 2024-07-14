@@ -53,13 +53,10 @@ public class CallableSqlLib implements CallableSql {
 				targetObj = (T) returnType.getClass().newInstance();
 				for (int i = 0; i < columnCount; i++) {
 					if(HoneyUtil.isSkipField(field[i])) continue;
-//					field[i].setAccessible(true);
 					HoneyUtil.setAccessibleTrue(field[i]);
 					try {
-//						field[i].set(targetObj, rs.getObject(_toColumnName(field[i].getName())));
 						HoneyUtil.setFieldValue(field[i],targetObj, rs.getObject(_toColumnName(field[i].getName())));
 					} catch (IllegalArgumentException e) {
-//						field[i].set(targetObj,_getObject(rs,field[i]));
 						HoneyUtil.setFieldValue(field[i],targetObj,_getObject(rs,field[i]));
 					}
 					

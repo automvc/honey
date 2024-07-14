@@ -46,7 +46,6 @@ public final class EntityUtil {
 //	public static String getFieldNames(Object entity, boolean isTransform) {
 	public static String getColumnNames(Object entity, boolean isTransform) {
 		if (entity == null) return "";
-//		Field fields[] = entity.getClass().getDeclaredFields();
 		Field fields[] = HoneyUtil.getFields(entity.getClass());
 
 		if (fields == null) return "";

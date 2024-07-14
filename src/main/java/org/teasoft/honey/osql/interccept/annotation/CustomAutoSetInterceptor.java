@@ -35,7 +35,6 @@ public class CustomAutoSetInterceptor extends EmptyInterceptor {
 		Boolean flag = HoneyContext.getCustomFlagMap(key);
 		if (Boolean.FALSE.equals(flag)) return entity;
 
-//		Field fields[] = entity.getClass().getDeclaredFields();
 		Field fields[] = HoneyUtil.getFields(entity.getClass());
 		int len = fields.length;
 		boolean isHas = false;

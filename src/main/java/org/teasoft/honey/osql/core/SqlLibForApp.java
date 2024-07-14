@@ -400,7 +400,6 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 			
 			List<Map<String, String>> rsMapList=getBeeSqlForApp().selectMapListWithColumnName(exe_sql, toStringArray(sql));
 			rsList = new ArrayList<>();
-//			Field field[] = entity.getClass().getDeclaredFields();
 			Field field[] = HoneyUtil.getFields(entity.getClass());
 			boolean oneHasOne=moreTableStruct[0].oneHasOne;
 			
@@ -423,12 +422,10 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 				}
 			}
 			
-//			Field fields1[] = subEntityFieldClass[0].getDeclaredFields();
 			Field fields1[] = HoneyUtil.getFields(subEntityFieldClass[0]);
 			Field fields2[] =null;
 			
             if(subField[1]!=null){
-//            	fields2=subEntityFieldClass[1].getDeclaredFields();
             	fields2=HoneyUtil.getFields(subEntityFieldClass[1]);
             }
             
@@ -474,7 +471,6 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 						}
 						
 						v2=null;
-//						fields2[i].setAccessible(true);
 						HoneyUtil.setAccessibleTrue(fields2[i]);
 						isDul=false;
 						dulField="";
@@ -547,7 +543,6 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 						isRegHandlerPriority1 = TypeHandlerRegistry.isPriorityType(fields1[i].getType());
 					}
 					v1 = null;
-//					fields1[i].setAccessible(true);
 					HoneyUtil.setAccessibleTrue(fields1[i]);
 
 					isDul = false;
@@ -555,7 +550,6 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 					try {
 						if (oneHasOne && fields1[i] != null && fields1[i].isAnnotationPresent(JoinTable.class)) {
 							if (subField[1] != null && fields1[i].getName().equals(variableName[1]) && subObj2 != null) {
-//								fields1[i].setAccessible(true);
 								HoneyUtil.setAccessibleTrue(fields1[i]);
 								if (subTwoIsList2) {
 									subField2InOneHasOne = fields1[i];
@@ -634,7 +628,6 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 //					if("serialVersionUID".equals(field[i].getName()) || field[i].isSynthetic()) continue;
 					if(HoneyUtil.isSkipFieldForMoreTable(field[i])) continue;  //有Ignore注释,将不再处理JoinTable
 					if (field[i]!= null && field[i].isAnnotationPresent(JoinTable.class)) {
-//						field[i].setAccessible(true);
 						HoneyUtil.setAccessibleTrue(field[i]);
 						if(field[i].getName().equals(variableName[0])){
 							if(subOneIsList1) subOneListField=field[i];  //子表1字段是List
@@ -652,7 +645,6 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 						isRegHandlerPriority = TypeHandlerRegistry.isPriorityType(field[i].getType());
 					}
 
-//					field[i].setAccessible(true);
 					HoneyUtil.setAccessibleTrue(field[i]);
 					Object v = null;
 

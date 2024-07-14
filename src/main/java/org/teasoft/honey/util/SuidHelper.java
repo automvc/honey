@@ -115,7 +115,6 @@ public final class SuidHelper {
 				for (int j = 0; j < fieldName.length; j++) {
 					if(StringUtils.isBlank(fieldName[j])) continue;
 					try {
-//						field = entity.getClass().getDeclaredField(fieldName[j]);//可能会找不到Javabean的字段
 						field = HoneyUtil.getField(entity.getClass(),fieldName[j]);//可能会找不到Javabean的字段
 					} catch (NoSuchFieldException e) {
 						if (i == startRow) Logger.warn("Can not find the field name : " + fieldName[j]);
