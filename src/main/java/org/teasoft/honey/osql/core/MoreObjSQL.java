@@ -26,11 +26,13 @@ import org.teasoft.honey.osql.util.AnnoUtil;
 import org.teasoft.honey.util.ObjectUtils;
 
 /**
- * 多表查询,MoreTable实现类.Multi table query, moretable implementation class.
+ * 多表Select/Update/Insert/Delete,MoreTable实现类.Multi table Select/Update/Insert/Delete, moretable implementation class.
  * @author Kingstar
  * @since  1.7
  * More table insert
  * @since  2.1.8
+ * Update/Insert/Delete
+ * @since  2.4.0
  */
 public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 
