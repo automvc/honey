@@ -185,7 +185,6 @@ public final class HoneyUtil {
 
 		String entityFullName = entity.getClass().getName();
 		
-//		Field field[] = entity.getClass().getDeclaredFields();
 		Field field[] = HoneyUtil.getFields(entity.getClass());
 
 		MoreTableStruct moreTableStruct[] = new MoreTableStruct[3];
@@ -583,7 +582,6 @@ public final class HoneyUtil {
 
 //		tableName传入的也是:useSubTableName
 //		entityFieldFullName just for tip
-//		Field field[] = entityField.getType().getDeclaredFields();
 
 //		String tableName = _toTableNameByEntityName(entityField.getType().getSimpleName());//有可能用别名
 		StringBuffer columns = new StringBuffer();
@@ -594,7 +592,6 @@ public final class HoneyUtil {
 		Field subEntityFirstAnnotationField=null;
 		List<String> WarnMsglist=new ArrayList<>();
 		for (int i = 0; i < len; i++) {
-//			if ("serialVersionUID".equals(field[i].getName()) || field[i].isSynthetic()) continue;
 			if(HoneyUtil.isSkipFieldForMoreTable(field[i])) continue; //有Ignore注解,将不再处理JoinTable
 			if (field[i] != null && field[i].isAnnotationPresent(JoinTable.class)) {
 				currentSubNum++;

@@ -47,7 +47,7 @@ public class DefaultColumnHandler implements ColumnHandler {
 
 	private String toColumnName0(String fieldName, Class entityClass) {
 		if (HoneyUtil.isJavaPackage(entityClass)) {
-			Logger.debug("传入的类是java库的");
+			Logger.debug("The parameter entityClass is from Java library");
 			return null;
 		}
 		if (entityClass != null) {
@@ -91,7 +91,7 @@ public class DefaultColumnHandler implements ColumnHandler {
 	
 	private String toFieldName0(String columnName, Class entityClass) {
 		if (HoneyUtil.isJavaPackage(entityClass)) {
-			Logger.debug("传入的类是java库的");
+			Logger.debug("The parameter entityClass is from Java library");
 			return null;
 		}
 		if (entityClass != null) {

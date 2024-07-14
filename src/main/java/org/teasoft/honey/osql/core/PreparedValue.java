@@ -9,8 +9,7 @@ import java.lang.reflect.Field;
  * @since  1.0
  */
 class PreparedValue implements Serializable {
-//	class PreparedValue {
-
+	
 	private static final long serialVersionUID = 1592803913604L;
 	
 	private String type;
@@ -19,11 +18,6 @@ class PreparedValue implements Serializable {
 	
 	public PreparedValue(){}
 	
-//	public PreparedValue(String type, Object value) {
-//		this.type = type;
-//		this.value = value;
-//	}
-
 	public String getType() {
 		return type;
 	}

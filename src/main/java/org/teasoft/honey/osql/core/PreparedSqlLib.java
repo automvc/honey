@@ -556,14 +556,6 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 			throw new SqlNullException(STRING_IS_NULL);
 		}
 		
-//       //if (ObjectUtils.isEmpty(map)) return sqlStr;  //TODO 2.4
-//		SqlValueWrap wrap = processSql2(sqlStr,map); //bug.  wrap maybe null
-//		if (wrap == null || ObjectUtils.isEmpty(map)) return sqlStr; //fix null bug     //map为空也有可能是要设置分页,不能提前返回 
-//		String sql = wrap.getSql();
-////		String mapKeys = wrap.getValueBuffer().toString(); //wrap.getValueBuffer() is :map's key , get from like: #{name}
-////		List list = _initPreparedValues(mapKeys, map);
-		
-		
 		//V2.4.0
 		SqlValueWrap wrap = processSql2(sqlStr,map);
 //		if (wrap == null) return sqlStr;  //bug  没有起止标签,返回null,但可能是要加分页参数
@@ -790,7 +782,6 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 				HoneyContext.setPreparedValue(sql_i, oneRecoreList);
 			}
 		}
-//		HoneyContext.test();
 		int a = getBeeSql().batch(insertSql,batchSize);
 		doBeforeReturn();
 

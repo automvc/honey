@@ -45,16 +45,6 @@ public class MongodbObjSQL extends AbstractCommOperate implements Suid {
 		try {
 		doBeforePasreEntity(entity,SuidType.UPDATE);
 		
-		
-//		String sql = "";
-//		int updateNum = -1;
-//		sql = getObjToSQL().toUpdateSQL(entity);
-//		_regEntityClass(entity);
-//		sql=doAfterCompleteSql(sql);
-//		
-//		Logger.logSQL("update SQL: ", sql);
-//		updateNum = getBeeSql().modify(sql);
-		
 		int updateNum =getMongodbBeeSql().update(entity);
 		
 		return updateNum;
@@ -173,10 +163,6 @@ public class MongodbObjSQL extends AbstractCommOperate implements Suid {
 		return this;
 	}
 	
-//	private <T> void _regEntityClass(T entity){
-//		HoneyContext.regEntityClass(entity.getClass());
-//	}
-
 	@Override
 	public void beginSameConnection() {
 		OneTimeParameter.setTrueForKey("_SYS_Bee_SAME_CONN_BEGIN"); 

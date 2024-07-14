@@ -22,10 +22,7 @@ import org.teasoft.honey.distribution.ds.RouteStruct;
  */
 public class DefaultBeeExtCache implements BeeExtCache {
 
-//	private static boolean useLevelTwo = HoneyConfig.getHoneyConfig().cache_useLevelTwo;
-	
 	private static final long serialVersionUID = 1596710362358L;
-//	private static boolean levelOneTolevelTwo = HoneyConfig.getHoneyConfig().cache_levelOneTolevelTwo;
 
 	private static String logCache2Msg = "==========get from Level 2 Cache.";
 	private static boolean isShowSql = false;

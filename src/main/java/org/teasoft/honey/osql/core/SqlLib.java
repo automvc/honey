@@ -594,7 +594,6 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 				
 				logSelectRows(wrap.getRowCount());
 				String json =wrap.getResultJson();
-//				addInCache(sql, json, "StringJson", SuidType.SELECT, -1); // 没有作最大结果集判断
 				addInCache(sql, json, -1); // 没有作最大结果集判断
 				
 				return json;
@@ -640,7 +639,6 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 			json = wrap.getResultJson();
 			logSelectRows(wrap.getRowCount());  // 这里的日志,是容易输出,但从缓存取,则计算不了,是多少行.
 			
-//			addInCache(sql, json,"StringJson",SuidType.SELECT,-1);  //没有作最大结果集判断
 			addInCache(sql, json, -1); // 没有作最大结果集判断
 
 		} catch (SQLException e) {
@@ -1063,10 +1061,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 				//rsList还要排序
 				List<T> rsList =new ShardingMoreTableSelectEngine().asynProcess(sql, entity, this);
 				
-//				addInCache(sql, rsList, "List<T>", SuidType.SELECT, rsList.size());
-//				addInCache(sql, rsList,"List<T>"+listFieldTypeForMoreTable,SuidType.SELECT,rsList.size());
 				addInCache(sql, rsList, rsList.size());
-//				listFieldTypeForMoreTable=null;
 				return rsList;
 				
 				}finally {
@@ -1546,7 +1541,6 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 				
 			} //end  while (rs.next())
 		
-//			addInCache(sql, rsList,"List<T>"+listFieldType,SuidType.SELECT,rsList.size());
 			addInCache(sql, rsList, rsList.size());
 			
 		} catch (SQLException e) {

@@ -341,25 +341,6 @@ public class MapSqlProcessor {
 		return toSelectSqlByMap(newOne);
 	}
 	
-//	private static MapSql copyForCount(MapSqlImpl old) {
-////		MapSqlImpl n = new MapSqlImpl();
-////		n.kv = old.getKvMap();
-//////		n.sqlkeyMap = old.getSqlkeyMap();
-////		n.newKv = old.getNewKvMap();
-////		n.settingMap = old.getSqlSettingMap();
-////		
-//////		n.start(old.getStart()); //ignore
-//////		n.size(old.getSize()); //ignore
-////		Map<MapSqlKey, String> map=old.getSqlkeyMap();
-////		for (Map.Entry<MapSqlKey, String> entry : map.entrySet()) {
-////			n.put(entry.getKey(), entry.getValue());
-////		}
-//		
-//		MapSqlImpl n =old.copyForCount();
-//		
-//		return n;
-//	}
-	
 	private static Object processId(Map<String, Object> insertKvMap,String tableName,String customPkName,
 			Map<MapSqlSetting, Boolean> sqlSettingMap,boolean returnId) {
 		

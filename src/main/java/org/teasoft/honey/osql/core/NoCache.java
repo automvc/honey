@@ -14,6 +14,9 @@ import org.teasoft.bee.osql.Cache;
  * @since  1.4
  */
 public class NoCache implements Cache{
+	
+	private static final long serialVersionUID = 1L;
+
 	@Override
 	public Object get(String key) {
 		return null;

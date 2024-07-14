@@ -27,13 +27,8 @@ class OneTimeParameter {
 
 		Map<String, Object> map = local.get();
 		if (map == null) return null;
-//		if (map.size() == 0) {
-//			remove();
-//			return null;
-//		}
 		Object obj = map.get(key);
 		map.remove(key); // 取后即删
-//		if (map.size() == 0) remove();
 		return obj;
 	}
 

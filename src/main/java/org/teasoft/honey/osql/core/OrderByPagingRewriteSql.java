@@ -97,17 +97,6 @@ public class OrderByPagingRewriteSql {
 		return list;
 	}
 	
-//   @SuppressWarnings("rawtypes")
-//	private static List copyObject(List<PreparedValue> obj) {
-//		try {
-//			Serializer jdks = new JdkSerializer();
-//			return (List)jdks.unserialize(jdks.serialize(obj));
-//		} catch (Exception e) {
-//			Logger.debug(e.getMessage(), e);
-//		}
-//		return obj;
-//	}
-	
 	@SuppressWarnings("rawtypes")
 	public static List<String[]> createSqlsForFullSelect(String sql, Class entityClass) {
 		String tableName = _toTableName(entityClass);
