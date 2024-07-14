@@ -14,7 +14,6 @@ package org.teasoft.honey.osql.core;
 public class CacheDeleteThread extends Thread {
 
 	private static volatile boolean finished = true;
-//	private static int num = 0;
 
 	private int delEndIndex;
 

@@ -46,17 +46,6 @@ public class CacheArrayIndex {
 	public int getKnow() {
 		return know;
 	}
-/*	public synchronized void setKnow(int know) {
-		
-		 this.know = know;
-//		if(low<=high)
-//		  this.know = know;
-//		else{ //循环的情况
-//			if( low < know  || know < high   ){
-//				this.know = know;
-//			}
-//		}
-	}*/
 	
 	public int getUsedSize(){
 		int t=getHigh()-getLow();

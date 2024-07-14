@@ -204,8 +204,6 @@ public class Ddl {
 	 */
 	public static <T> void primaryKey(Class<T> entityClass, String fields, String keyName) {
         
-//		String primaryKeySql=DdlToSql.toPrimaryKeySql(entityClass, fields, keyName);
-//		ddlModify(primaryKeySql);
 		SuidRich suidRich = BeeFactoryHelper.getSuidRich();
 		suidRich.primaryKey(entityClass, fields, keyName);
 	}
