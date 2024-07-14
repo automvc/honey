@@ -44,7 +44,7 @@ public class ChainSqlFactory {
 	}
 
 	public Insert getInsert() {
-		if (insert == null) new InsertImpl();
+		if (insert == null) return new InsertImpl();
 		return insert;
 	}
 
