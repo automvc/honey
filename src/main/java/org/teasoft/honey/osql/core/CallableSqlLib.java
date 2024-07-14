@@ -219,14 +219,14 @@ public class CallableSqlLib implements CallableSql {
 	private void setConnLocal(String key, Connection conn) {
 		if (conn == null) return;
 		Map<String, Connection> map = connLocal.get();
-		if (null == map) map = new HashMap<>();
+		if (map == null) map = new HashMap<>();
 		map.put(key, conn);
 		connLocal.set(map);
 	}
 
 	private Connection getConnLocal(String key) {
 		Map<String, Connection> map = connLocal.get();
-		if (null == map) return null;
+		if (map == null) return null;
 		Connection s = map.get(key);
 		map.remove(key);
 		connLocal.remove();

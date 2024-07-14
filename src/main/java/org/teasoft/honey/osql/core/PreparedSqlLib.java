@@ -314,7 +314,6 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 	}
 
 	@Override
-//	@Deprecated
 	public int modify(String sql, Object[] preValues) {
 
 		doBeforePasreEntity2();
@@ -329,7 +328,6 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 	}
 
 	@Override
-//	@Deprecated
 	public int modify(String sqlStr, Map<String, Object> map) {
 
 		doBeforePasreEntity2(); //fixed bug
@@ -344,7 +342,6 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 	}
 
 	@Override
-//	@Deprecated
 	public int modify(String sql) {
 		Object[] preValues = null;
 		return modify(sql, preValues);

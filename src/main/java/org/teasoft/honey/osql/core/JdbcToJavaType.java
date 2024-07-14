@@ -56,7 +56,6 @@ public class JdbcToJavaType {
 
 	
 	public static void appendJdbcToJavaType(String databaseName,Map<String, String> oneDb_Java2DbTypeMap) {
-//		Map<String, String> map = dbJdbc2JavaTypeMap.get(databaseName);
 		Map<String, String> map = dbJdbc2JavaTypeMap.get(databaseName.toLowerCase());
 		if (map == null) {
 			setJdbcToJavaType(databaseName.toLowerCase(), oneDb_Java2DbTypeMap);
@@ -85,7 +84,6 @@ public class JdbcToJavaType {
 	}
 	
 	private static void appendJdbcTypeCustomProp(String dbName) {
-//		Map<String, String> map = dbJdbc2JavaTypeMap.get(dbName);
 		Map<String, String> map = dbJdbc2JavaTypeMap.get(dbName.toLowerCase());
 		if (map == null) {
 			map= new HashMap<>(); 
@@ -97,7 +95,6 @@ public class JdbcToJavaType {
 	}
 
 	private static void appendJdbcTypeCustomProp_specificalDB(String dbName) {
-//		Map<String, String> map = dbJdbc2JavaTypeMap.get(dbName);
 		Map<String, String> map = dbJdbc2JavaTypeMap.get(dbName.toLowerCase());
 		if (map == null) {
 			map= new HashMap<>(); 
@@ -110,8 +107,6 @@ public class JdbcToJavaType {
 	
 	public static void initJdbcTypeMap(String dbName) {
 
-//		String dbName = HoneyConfig.getHoneyConfig().getDbName();
-		
 		if (DatabaseConst.ORACLE.equalsIgnoreCase(dbName))
 			setJdbcToJavaType(DatabaseConst.ORACLE.toLowerCase(), forOracle());
 		else if (DatabaseConst.SQLite.equalsIgnoreCase(dbName))
@@ -324,9 +319,8 @@ public class JdbcToJavaType {
 		//if you want to change, can set in jdbcTypeToFieldType-H2.properties
 		jdbc2JavaTypeMap.put("IDENTITY", "Long");
 		jdbc2JavaTypeMap.put("UUID", "java.util.UUID");
-//		jdbcTypeMap.put("YEAR", "Time");
-		jdbc2JavaTypeMap.put("TIME", "Object");
-//		jdbc2JavaTypeMap.put("OTHER", "bbb");
+//		jdbc2JavaTypeMap.put("TIME", "Time");  //in common
+		jdbc2JavaTypeMap.put("OTHER", "Object");
 		jdbc2JavaTypeMap.put("ENUM", "Integer");
 		jdbc2JavaTypeMap.put("ARRAY", "Object[]");
 		jdbc2JavaTypeMap.put("GEOMETRY", STRING);

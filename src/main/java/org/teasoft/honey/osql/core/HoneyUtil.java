@@ -677,7 +677,7 @@ public final class HoneyUtil {
 
 		if (javaType != null) return javaType;
 
-		if (null == jdbc2JavaTypeMap.get(jdbcType)) {
+		if (jdbc2JavaTypeMap.get(jdbcType) == null) {
 
 			//fix UNSIGNED,  like :TINYINT UNSIGNED 
 			String tempType = jdbcType.trim();
@@ -836,7 +836,7 @@ public final class HoneyUtil {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	static void setPreparedValues(PreparedStatement pst, int objTypeIndex, int i, Object value) throws SQLException {
 
-		if (null == value) {
+		if (value == null) {
 			setPreparedNull(pst, objTypeIndex, i);
 			return;
 		}
@@ -961,8 +961,7 @@ public final class HoneyUtil {
 				SetParaTypeConvert converter = SetParaTypeConverterRegistry.getConverter(value.getClass()); //fixed bug
 				if (converter != null) {
 					value = converter.convert(value);
-					pst.setObject(i + 1, value);
-					
+					  pst.setObject(i + 1, value);
 				//if did not define SetParaTypeConvert,will process by default	
 				}else if(objTypeIndex==11) {
 					pst.setDate(i + 1, (Date) value);
@@ -1723,7 +1722,6 @@ public final class HoneyUtil {
 					return; 
 				}
 				
-//				field.setAccessible(true);
 //				if (field.get(entity[0]) != null) return; //即使没值,运行一次后也会有值,下次再用就会重复.而用户又不知道.    //要提醒是被覆盖了。
 			
 //				boolean replaceOldValue = HoneyConfig.getHoneyConfig().genid_replaceOldId;
@@ -1759,11 +1757,9 @@ public final class HoneyUtil {
 //					OneTimeParameter.setTrueForKey(StringConst.OLD_ID_EXIST+i);
 //					OneTimeParameter.setAttribute(StringConst.OLD_ID+i, obj);
 					
-//					field.setAccessible(true);
 					HoneyUtil.setAccessibleTrue(field);
 					try {
 						if (_ObjectToSQLHelper.isInt(field0))
-//							field.set(entity[i], (int)id);
 							HoneyUtil.setFieldValue(field, entity[i], (int)id);
 						else if(!hasGenUUIDAnno && isStringField) //没有用GenUUID又是String
 							HoneyUtil.setFieldValue(field, entity[i], id+"");

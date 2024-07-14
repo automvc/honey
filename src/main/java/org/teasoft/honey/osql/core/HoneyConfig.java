@@ -230,6 +230,7 @@ public final class HoneyConfig {
 	
 	@SysValue("${bee.osql.showShardingSQL}")   //属于 bee.osql
 	public boolean showShardingSQL = false;
+	
 	//----------------------------- showSql start
 
 	@SysValue("${bee.osql.showSql.showType}")
@@ -342,7 +343,7 @@ public final class HoneyConfig {
     
     
     @SysValue("${bee.db.sharding}")
-    private Map<String,Map<String,String>> sharding; //sharding rule
+    private Map<String,Map<String,String>> sharding; //sharding rule  2.4.0
 
 	//----------------------------- cache start
 	@SysValue("${bee.osql.cache.timeout}")

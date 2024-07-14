@@ -246,14 +246,14 @@ public class LoggerFactory {
 		if (logger == null) return;
 		if(key==null || "".equals(key.trim())) return;
 		Map<String, Log> map = logLocal.get();
-		if (null == map) map = new HashMap<>();
+		if (map == null) map = new HashMap<>();
 		map.put(key, logger); 
 		logLocal.set(map);
 	}
 	
 	private static Log getCacheInfo(String key) {
 		Map<String, Log> map = logLocal.get();
-		if (null == map) return null;
+		if (map == null) return null;
 		return map.get(key);
 	}
 

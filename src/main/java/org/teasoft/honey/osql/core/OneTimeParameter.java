@@ -26,7 +26,7 @@ class OneTimeParameter {
 	static Object getAttribute(String key) {
 
 		Map<String, Object> map = local.get();
-		if (null == map) return null;
+		if (map == null) return null;
 //		if (map.size() == 0) {
 //			remove();
 //			return null;
@@ -40,7 +40,7 @@ class OneTimeParameter {
 	static void setAttribute(String key, Object obj) {
 		if (obj == null) return;
 		Map<String, Object> map = local.get();
-		if (null == map) map = new ConcurrentHashMap<>();
+		if (map == null) map = new ConcurrentHashMap<>();
 		map.put(key, obj); 
 		local.set(map);
 	}

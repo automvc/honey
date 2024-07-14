@@ -89,7 +89,6 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 				} else {
 					rsList = new ShardingSelectEngine().asynProcess(sql, entityClass, this); 
 				}
-//				addInCache(sql, rsList, "List<T>", SuidType.SELECT, rsList.size());  //缓存Key,是否包括了分片的DS,Tables
 				addInCache(sql, rsList, rsList.size()); // 缓存Key,是否包括了分片的DS,Tables
 				logSelectRows(rsList.size());
 				
@@ -142,7 +141,6 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 				targetObj=ResultAssemblerHandler.rowToEntity(rs, entityClass);
 				rsList.add(targetObj);
 			}
-//			addInCache(sql, rsList, "List<T>", SuidType.SELECT, rsList.size());
 			addInCache(sql, rsList, rsList.size());
 		} catch (SQLException e) {
 			hasException = true;
@@ -226,7 +224,6 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 					fun = new ShardingSelectFunEngine().asynProcess(sql, this, entityClass); 
 				}
 				
-//				addInCache(sql, fun,"String",SuidType.SELECT,1);
 				addInCache(sql, fun, 1);
 				
 				return fun;
@@ -325,7 +322,6 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 					rsList = new ShardingSelectListStringArrayEngine().asynProcess(sql, this, entityClass);
 				}
 				
-//				addInCache(sql, rsList, "List<String[]>", SuidType.SELECT, rsList.size());
 				addInCache(sql, rsList, rsList.size());
 
 				return rsList;
@@ -428,7 +424,6 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 			
 			logSelectRows(list.size());
 			
-//			addInCache(sql, list,"List<Map<String,Object>>",SuidType.SELECT,list.size());
 			addInCache(sql, list, list.size());
 			
 		} catch (SQLException e) {
@@ -456,7 +451,8 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 	@SuppressWarnings("rawtypes")
 	public int modify(String sql) {
 		Class entityClass = (Class) OneTimeParameter.getAttribute(StringConst.Route_EC);
-		if (sql == null || "".equals(sql)) return -2;
+//		if (sql == null || "".equals(sql)) return -2;
+		if (sql == null || "".equals(sql)) return -1; //2.4.0
 		if (isSimpleMode()) {
 			return _modify(sql, entityClass); // 1.x版本及不用分片走的分支
 		} else {
@@ -475,8 +471,6 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 	
 	@SuppressWarnings("rawtypes")
 	private int _modify(String sql, Class entityClass) {
-		
-//		if(sql==null || "".equals(sql)) return -2;
 		
 		initRoute(SuidType.MODIFY, entityClass, sql);
 		
@@ -527,7 +521,8 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 	@Override
 	public long insertAndReturnId(String sql) {
 
-		if (sql == null || "".equals(sql)) return -2L;
+//		if (sql == null || "".equals(sql)) return -2L;
+		if (sql == null || "".equals(sql)) return -1L; //2.4.0
 
 		initRoute(SuidType.INSERT, null, sql);  //entityClass在context会设置
 

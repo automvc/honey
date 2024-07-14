@@ -325,7 +325,6 @@ public final class HoneyContext {
 	}
 
 	public static void removeCustomMap(String key) {
-//		if (key == null) return ;
 		if (customMap.containsKey(key)) customMap.remove(key);
 	}
 
@@ -333,20 +332,20 @@ public final class HoneyContext {
 		if (mapValue == null) return;
 		if (key == null || "".equals(key.trim())) return;
 		Map<String, Map<String, String>> map = customMapLocal.get();
-		if (null == map) map = new ConcurrentHashMap<>();
+		if (map == null) map = new ConcurrentHashMap<>();
 		map.put(key, mapValue);
 		customMapLocal.set(map);
 	}
 
 	public static Map<String, String> getCustomMapLocal(String key) {
 		Map<String, Map<String, String>> map = customMapLocal.get();
-		if (null == map || key == null) return null;
+		if (map == null || key == null) return null;
 		return map.get(key);
 	}
 
 	public static void removeCustomMapLocal(String key) {
 		Map<String, Map<String, String>> map = customMapLocal.get();
-		if (null == map || key == null) return;
+		if (map == null || key == null) return;
 		if (map.containsKey(key)) map.remove(key);
 	}
 
@@ -354,7 +353,7 @@ public final class HoneyContext {
 		if (sysCommStr == null) return;
 		if (key == null || "".equals(key.trim())) return;
 		Map<String, String> map = sysCommStrLocal.get();
-		if (null == map) map = new ConcurrentHashMap<>();
+		if (map == null) map = new ConcurrentHashMap<>();
 		map.put(key, sysCommStr);
 		sysCommStrLocal.set(map);
 	}
@@ -383,7 +382,7 @@ public final class HoneyContext {
 		if (listString == null) return;
 		if (key == null || "".equals(key.trim())) return;
 		Map<String, List<String>> map = listLocal.get();
-		if (null == map) map = new ConcurrentHashMap<>();
+		if (map == null) map = new ConcurrentHashMap<>();
 		map.put(key, listString);
 		listLocal.set(map);
 	}
@@ -411,34 +410,30 @@ public final class HoneyContext {
 		}
 
 		Map<String, List<PreparedValue>> map = sqlPreValueLocal.get();
-		// if (null == map) map = new HashMap<>();
-		if (null == map) map = new ConcurrentHashMap<>();
+		if (map == null) map = new ConcurrentHashMap<>();
 		map.put(sqlStr, list);
 		sqlPreValueLocal.set(map);
 	}
 	
-//	public static List<PreparedValue> justGetPreparedValue(String sqlStr) {
 	static List<PreparedValue> justGetPreparedValue(String sqlStr) {
 		Map<String, List<PreparedValue>> map = sqlPreValueLocal.get();
-		if (null == map || sqlStr == null) return null;
+		if (map == null || sqlStr == null) return null;
 
 		return map.get(sqlStr);
 	}
 
 	static void clearPreparedValue(String sqlStr) {
 		Map<String, List<PreparedValue>> map = sqlPreValueLocal.get();
-		if (null == map || sqlStr == null) return;
-//		if (map.get(sqlStr) != null) map.remove(sqlStr);
+		if (map == null || sqlStr == null) return;
 
 		if (map.containsKey(sqlStr)) map.remove(sqlStr);
 	}
 
 	static List<PreparedValue> getAndClearPreparedValue(String sqlStr) {
 		Map<String, List<PreparedValue>> map = sqlPreValueLocal.get();
-		if (null == map || sqlStr == null) return null;
+		if (map == null || sqlStr == null) return null;
 		
 		List<PreparedValue> list = map.get(sqlStr);
-//		if (list != null) map.remove(sqlStr);
 		if (map.containsKey(sqlStr)) map.remove(sqlStr);
 		return list;
 	}
@@ -447,14 +442,14 @@ public final class HoneyContext {
 		if (cacheInfo == null) return;
 		if (sqlStr == null || "".equals(sqlStr.trim())) return;
 		Map<String, CacheSuidStruct> map = cacheLocal.get();
-		if (null == map) map = new ConcurrentHashMap<>();
+		if (map == null) map = new ConcurrentHashMap<>();
 		map.put(sqlStr, cacheInfo);
 		cacheLocal.set(map);
 	}
 
 	public static CacheSuidStruct getCacheInfo(String sqlStr) {
 		Map<String, CacheSuidStruct> map = cacheLocal.get();
-		if (null == map || sqlStr == null) return null;
+		if (map == null || sqlStr == null) return null;
 		return map.get(sqlStr);
 	}
 
@@ -469,14 +464,14 @@ public final class HoneyContext {
 		if (sqlServerPagingStruct == null) return;
 		if (sqlStr == null || "".equals(sqlStr.trim())) return;
 		Map<String, SqlServerPagingStruct> map = sqlServerPaging.get();
-		if (null == map) map = new ConcurrentHashMap<>();
+		if (map == null) map = new ConcurrentHashMap<>();
 		map.put(sqlStr, sqlServerPagingStruct);
 		sqlServerPaging.set(map);
 	}
 
 	public static SqlServerPagingStruct getAndRemoveSqlServerPagingStruct(String sqlStr) {
 		Map<String, SqlServerPagingStruct> map = sqlServerPaging.get();
-		if (null == map || sqlStr == null) return null;
+		if (map == null || sqlStr == null) return null;
 		SqlServerPagingStruct struct = map.get(sqlStr);
 //		if (struct != null) map.remove(sqlStr);
 		if (map.containsKey(sqlStr)) map.remove(sqlStr);
@@ -492,18 +487,6 @@ public final class HoneyContext {
 	}
 
 	public static void setCurrentConnection(Connection conn) {
-//		// 判断要是有分片时涉及多个库, 要将ds放入  Map<ds,Connection>
-		// 看下是否会影响到sameConnectionDoing???
-//		if (HoneyContext.hadSharding()) {
-//			List<String> dsNameListLocal = HoneyContext
-//					.getListLocal(StringConst.DsNameListLocal);
-//			if (dsNameListLocal != null && dsNameListLocal.size() > 1) {
-//			
-//			}
-//		}
-		
-		// 分片,涉及多个DS的,不能使用同一连接.
-
 		currentConnection.set(conn);
 	}
 
@@ -515,7 +498,6 @@ public final class HoneyContext {
 		String threadFlag=HoneyContext.getSysCommStrLocal(StringConst.ShardingSelectRs_ThreadFlag);
 		Integer subThreadIndex = HoneyContext.getSqlIndexLocal();
 		String key=threadFlag+subThreadIndex;
-//		Logger.debug("-------------set ----Conns------------"+key);
 		conneForSelectRs.put(key, conn);
 	}
 
@@ -523,7 +505,6 @@ public final class HoneyContext {
 		Connection conn=conneForSelectRs.get(key);
 		if(conn!=null) {
 			try {
-//				Logger.debug("-------------close ----Conns------------"+key);
 				conn.close();
 			} catch (Exception e) {
 				Logger.debug(e.getMessage(),e);
@@ -875,16 +856,6 @@ public final class HoneyContext {
 				removesameConnectionDoing(); // 同一conn
 				OneTimeParameter.setTrueForKey("_SYS_Bee_SAME_CONN_EXCEPTION");
 			}
-//			boolean enableMultiDs = HoneyConfig.getHoneyConfig().multiDS_enable;
-//			int multiDsType = HoneyConfig.getHoneyConfig().multiDS_type;
-//			boolean differentDbType=HoneyConfig.getHoneyConfig().multiDS_differentDbType;
-////			if (enableMultiDs && multiDsType == 2) {//仅分库,有多个数据源时
-//			if (enableMultiDs && (multiDsType ==2 || (multiDsType ==1 && differentDbType) )) {//仅分库,有多个数据源时
-
-//			if (isNeedDs()) {
-//			if(enableMultiDs) { //放到拦截器中
-//				removeCurrentRoute();
-//			}
 		}
 	}
 	
@@ -930,18 +901,7 @@ public final class HoneyContext {
 			} catch (SQLException e) {
 				Logger.debug(e.getMessage());
 				throw ExceptionHelper.convert(e);
-			} finally {
-//			boolean enableMultiDs = HoneyConfig.getHoneyConfig().multiDS_enable;
-//			int multiDsType = HoneyConfig.getHoneyConfig().multiDS_type;
-//			boolean differentDbType=HoneyConfig.getHoneyConfig().multiDS_differentDbType;
-////			if (enableMultiDs && multiDsType == 2) {//仅分库,有多个数据源时
-//			if (enableMultiDs && (multiDsType ==2 || (multiDsType ==1 && differentDbType) )) {
-
-//			if (isNeedDs()) {
-//			if(enableMultiDs) {  //放到拦截器中
-//				removeCurrentRoute();    //RW不用清???? 
-//			}
-			}
+			} 
 		}
 	}
 
@@ -1148,15 +1108,6 @@ public final class HoneyContext {
 	public static boolean isConfigRefresh() {
 		return configRefresh;
 	}
-	
-	
-//	public static boolean isDsMapRefresh() {
-//		return dsMapConfigRefresh;
-//	}
-//	
-//	public static void setDsMapRefresh(boolean dsMapRefresh) {
-//		HoneyContext.dsMapConfigRefresh = dsMapRefresh;
-//	}
 
 	public static boolean isDsMapConfigRefresh() {
 		return dsMapConfigRefresh;

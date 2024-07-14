@@ -251,7 +251,8 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 	@SuppressWarnings("rawtypes")
 	public int modify(String sql) {
 		Class entityClass = (Class) OneTimeParameter.getAttribute(StringConst.Route_EC);
-		if(sql==null || "".equals(sql)) return -2;
+//		if(sql==null || "".equals(sql)) return -2;
+		if(sql==null || "".equals(sql)) return -1; //2.4.0
 		
 		initRoute(SuidType.MODIFY, entityClass, sql);
 		
@@ -269,7 +270,8 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 
 	@Override
 	public long insertAndReturnId(String sql) {
-		if (sql == null || "".equals(sql)) return -2L;
+//		if (sql == null || "".equals(sql)) return -2L;
+		if (sql == null || "".equals(sql)) return -1L; //2.4.0
 
 		initRoute(SuidType.INSERT, null, sql);
 
