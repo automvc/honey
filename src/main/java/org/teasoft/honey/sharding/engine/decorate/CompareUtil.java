@@ -36,13 +36,13 @@ public class CompareUtil {
 		boolean caseSensitive = struct.getCaseSensitive() != null ? struct.getCaseSensitive()[i]
 				: false;
 
-		if (null == thisValue && null == otherValue) {
+		if (thisValue == null && otherValue == null) {
 			return 0;
 		}
-		if (null == thisValue) {
+		if (thisValue == null) {
 			return nullFirst ? -1 : 1;
 		}
-		if (null == otherValue) {
+		if (otherValue == null) {
 			return nullFirst ? 1 : -1;
 		}
 
