@@ -76,6 +76,7 @@ public class K {
 	public static final String table=k.table();
 	public static final String drop=k.drop();
 	public static final String If=k.If();
+	public static final String to_date=k.to_date();
 	
 	private static SqlKeyWord getSqlKeyWord() {
 		if (HoneyUtil.isSqlKeyWordUpper())

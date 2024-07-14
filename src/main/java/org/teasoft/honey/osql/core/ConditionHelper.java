@@ -380,7 +380,7 @@ public class ConditionHelper {
 							Logger.warn("Make sure the Database support TO_DATE() function!");
 						}
 						
-						sqlBuffer.append("TO_DATE(?, '" + formatter + "')");
+						sqlBuffer.append(K.to_date + "(?, '" + formatter + "')");
 
 						addValeToPvList(list, to_date.getDatetimeValue());
 						
@@ -1063,7 +1063,7 @@ public class ConditionHelper {
 							Logger.warn("Make sure the Database support TO_DATE() function!");
 						}
 						
-						sqlBuffer.append("TO_DATE(?, '" + formatter + "')");
+						sqlBuffer.append(K.to_date + "(?, '" + formatter + "')");
 
 						addValeToPvList(list, to_date.getDatetimeValue());
 						
