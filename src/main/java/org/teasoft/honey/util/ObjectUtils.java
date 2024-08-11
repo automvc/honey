@@ -72,4 +72,12 @@ public class ObjectUtils {
 		return obj==null? null:obj.toString();
 	}
 	
+	/**
+	 * check object is null.
+	 * @param obj
+	 * @since 2.4.0
+	 */
+	public static void checkNull(Object obj) {
+		if (obj == null) throw new NullPointerException("The object is null.");
+	}
 }

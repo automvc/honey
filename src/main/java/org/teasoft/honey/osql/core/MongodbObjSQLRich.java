@@ -37,7 +37,7 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 
 	private static final long serialVersionUID = 1596710362263L;
 	
-	private static final String ID_IS_NULL = "in method selectById,id is null! ";
+	private static final String ID_IS_NULL = "in method selectById, id is null! ";
 	private static final String START_GREAT_EQ_0 = StringConst.START_GREAT_EQ_0;
 	private static final String SIZE_GREAT_0 = StringConst.SIZE_GREAT_0;
 	private static final String TIP_SIZE_0 = "The size is 0, but it should be greater than 0 (>0)";

@@ -26,7 +26,7 @@ import org.teasoft.honey.osql.util.AnnoUtil;
 import org.teasoft.honey.util.ObjectUtils;
 
 /**
- * 多表Select/Update/Insert/Delete,MoreTable实现类.Multi table Select/Update/Insert/Delete, moretable implementation class.
+ * 多表Select/Update/Insert/Delete,MoreTable实现类.Multi table Select/Update/Insert/Delete, MoreTable implementation class.
  * @author Kingstar
  * @since  1.7
  * More table insert
@@ -300,7 +300,7 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 			Object idValeu=HoneyUtil.getIdValue(entity);
 			
 			if (idValeu == null) {
-				struct = MoreInsertUtils._getMoreTableModifyStruct(entity); // UPDATE时,先执行,要用结构信息判断
+				struct = MoreTableModifyUtils._getMoreTableModifyStruct(entity); // UPDATE时,先执行,要用结构信息判断
 				hasParseEntity = true;
 				boolean nullKeyValue=false;
 				if (struct.ref.length == 1) {
@@ -322,7 +322,7 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 		if (returnId < 0 || (suidType!=SuidType.UPDATE && returnId==0)) return (int) returnId;   //等于0时, 子表是否还要处理??   不需要,既然是关联操作,父表都没有操作到,则无关联可言
 		//update时,returnId==0,还需要试着更新子表  V2.4.0
 		
-		if(! hasParseEntity) struct = MoreInsertUtils._getMoreTableModifyStruct(entity);
+		if(! hasParseEntity) struct = MoreTableModifyUtils._getMoreTableModifyStruct(entity);
 
 		if (struct != null) {
 			int len = struct.subField.length;

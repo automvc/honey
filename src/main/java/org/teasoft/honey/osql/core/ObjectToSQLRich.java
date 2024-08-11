@@ -788,7 +788,6 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 					HoneyContext.addBeanField(packageAndClassName, columnNames);
 				}
 			}
-//			sqlBuffer.append("select " + fieldNames + " from ");
 			sqlBuffer.append(K.select).append(" ").append(columnNames).append(" ").append(K.from).append(" ");
 			sqlBuffer.append(tableName);
 			boolean firstWhere = true;

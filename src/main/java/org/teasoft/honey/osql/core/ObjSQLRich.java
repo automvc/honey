@@ -48,7 +48,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 	private static final String SELECT_BY_ID_SQL = "selectById SQL: ";
 	private static final String UPDATE_SQL_WHERE_FIELDS = "update SQL(whereFields) :";
 	private static final String UPDATE_SQL_UPDATE_FIELDS = "update SQL(updateFields) :";
-	private static final String ID_IS_NULL = "in method selectById,id is null! ";
+	private static final String ID_IS_NULL = "in method selectById, id is null! ";
 	private static final String START_GREAT_EQ_0 = StringConst.START_GREAT_EQ_0;
 	private static final String SIZE_GREAT_0 = StringConst.SIZE_GREAT_0;
 	private static final String TIP_SIZE_0 = "The size is 0, but it should be greater than 0 (>0)";
@@ -405,7 +405,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 			sql = doAfterCompleteSql(sql);
 			Logger.logSQL("insert SQL: ", sql);
 			if (OneTimeParameter.isTrue("_SYS_Bee_NullObjectInsert")) {
-				Logger.warn("All fields in object is null,would ignroe it!");
+				Logger.warn("All fields in object is null, would ignroe it!");
 				r = 0;
 			} else {
 				r = getBeeSql().modify(sql);
@@ -427,7 +427,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 			Logger.logSQL("insert SQL: ", sql);
 
 			if (OneTimeParameter.isTrue("_SYS_Bee_NullObjectInsert")) {
-				Logger.warn("All fields in object is null,would ignroe it!");
+				Logger.warn("All fields in object is null, would ignroe it!");
 				return -1;
 			}
 

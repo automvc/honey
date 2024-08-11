@@ -6,7 +6,7 @@
 
 package org.teasoft.honey.distribution;
 
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.teasoft.bee.distribution.GenId;
 import org.teasoft.bee.distribution.Worker;
@@ -29,7 +29,7 @@ import org.teasoft.honey.osql.core.Logger;
  */
 public class PearFlowerId implements GenId {
 
-	private Random random=new Random();
+	private ThreadLocalRandom random=ThreadLocalRandom.current();
 	private boolean isBatch=false;
 	
 	private Worker worker;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2023 the original author.All rights reserved.
+ * Copyright 2016-2024 the original author.All rights reserved.
  * Kingstar(honeysoft@126.com)
  * The license,see the LICENSE file.
  */
@@ -13,12 +13,16 @@ import org.teasoft.bee.osql.annotation.FK;
 import org.teasoft.honey.osql.util.AnnoUtil;
 
 /**
+ * Parse entity for MoreTableModifyStruct.
  * @author Kingstar
+ * use MoreInsertUtils name
  * @since  2.1.8
+ * use MoreTableModifyUtils name
+ * @since 2.4.0
  */
-public class MoreInsertUtils {
+class MoreTableModifyUtils {
 
-	private MoreInsertUtils() {}
+	private MoreTableModifyUtils() {}
 
 	static <T> MoreTableModifyStruct _getMoreTableModifyStruct(T entity) {
 		return _getMoreTableModifyStruct(entity, false);
@@ -30,7 +34,7 @@ public class MoreInsertUtils {
 
 		Field field[] = HoneyUtil.getFields(entity.getClass());
 
-		MoreTableModifyStruct moreTableStruct = null;
+		MoreTableModifyStruct moreTableModifyStruct = null;
 		int subEntityFieldNum = 0;
 
 		Field subField0 = null;
@@ -106,7 +110,7 @@ public class MoreInsertUtils {
 		}
 
 		if (subEntityFieldNum > 0) {
-			moreTableStruct = new MoreTableModifyStruct();
+			moreTableModifyStruct = new MoreTableModifyStruct();
 			boolean subIsList[] = new boolean[subEntityFieldNum];
 			Field subField[] = new Field[subEntityFieldNum];
 			String ref[][] = new String[subEntityFieldNum][];
@@ -122,15 +126,15 @@ public class MoreInsertUtils {
 				ref[1] = ref1;
 				foreignKey[1] = foreignKey1;
 			}
-			moreTableStruct.subIsList = subIsList;
-			moreTableStruct.subField = subField;
-			moreTableStruct.ref = ref;
-			moreTableStruct.foreignKey = foreignKey;
+			moreTableModifyStruct.subIsList = subIsList;
+			moreTableModifyStruct.subField = subField;
+			moreTableModifyStruct.ref = ref;
+			moreTableModifyStruct.foreignKey = foreignKey;
 
-			moreTableStruct.oneHasOne = oneHasOne;
+			moreTableModifyStruct.oneHasOne = oneHasOne;
 		}
 
-		return moreTableStruct;
+		return moreTableModifyStruct;
 	}
 
 }

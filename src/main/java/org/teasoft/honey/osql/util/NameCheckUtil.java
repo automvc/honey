@@ -79,7 +79,7 @@ public class NameCheckUtil {
 
 	private static void _checkName(String name) {
 		
-		if(name==null) throw new BeeErrorNameException("The name is null !");
+		if(name==null) throw new BeeErrorNameException("The name is null.");
 		
 		if("count(*)".equalsIgnoreCase(name)) return ;
 
@@ -114,12 +114,12 @@ public class NameCheckUtil {
 	}
 	
 	
-	public static boolean isContainCommentChar(String fieldName) {
+	public static boolean isContainCommentString(String fieldName) {
 
 		if (fieldName == null) return false;
 
 		String str = fieldName.replace(" ", "");
-		// 去掉换行
+		str=str.replace("	", ""); //tab
 
 		if (str.contains("--") || str.contains("#") || str.contains("/*") || str.contains("//"))
 			return true;

@@ -70,17 +70,7 @@ public final class StringUtils {
 	 * @return
 	 */
 	public static String toCommasString (String... stringArray) {
-		
-		if (stringArray == null) return null;
-		if (stringArray.length == 0) return null;
-		if (stringArray.length == 1) return stringArray[0];
-		StringBuilder idsStr = new StringBuilder();
-		for (int i = 0; i < stringArray.length; i++) {
-			if (i != 0) idsStr.append(",");
-			idsStr.append(stringArray[i].trim());
-		}
-
-		return idsStr.toString();
+		return Joiner.join(",", stringArray);
 	}
 	
 	/**
@@ -89,20 +79,7 @@ public final class StringUtils {
 	 * @return
 	 */
 	public static String toCommasString (Number... numArray) {
-		
-		if (numArray == null) return null;
-		if (numArray.length == 0) return null;
-		if (numArray.length == 1) {
-			if (numArray[0] == null) return null;
-			else return numArray[0]+"";
-		}
-		StringBuilder idsStr = new StringBuilder();
-		for (int i = 0; i < numArray.length; i++) {
-			idsStr.append(numArray[i]);
-			if (i != numArray.length - 1) idsStr.append(",");
-		}
-
-		return idsStr.toString();
+		return Joiner.join(",", numArray);
 	}
 	
 	

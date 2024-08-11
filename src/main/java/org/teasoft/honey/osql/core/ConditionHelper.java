@@ -369,11 +369,12 @@ public class ConditionHelper {
 					sqlBuffer.append(expression.getValue());
 				} else {
 					sqlBuffer.append(expression.getOpType());
-					if (expression.getValue().getClass() == TO_DATE.class) { //2.4.0
+					if (expression.getValue().getClass() == TO_DATE.class) { //2.4.0  
+					// eg:condition.op("mydatetime", Op.ge, new TO_DATE("2024-07-08", "YYYY-MM-DD"));
 						
 						TO_DATE to_date = (TO_DATE) expression.getValue();
 						String formatter = to_date.getFormatter();
-						if (NameCheckUtil.isContainCommentChar(formatter)) {
+						if (NameCheckUtil.isContainCommentString(formatter)) {
 							throw new BeeIllegalSQLException("formatter :" + formatter + " , have sql comment character");
 						}
 						if(! HoneyUtil.isOracle()) { 
@@ -1056,7 +1057,7 @@ public class ConditionHelper {
 						
 						TO_DATE to_date = (TO_DATE) expression.getValue();
 						String formatter = to_date.getFormatter();
-						if (NameCheckUtil.isContainCommentChar(formatter)) {
+						if (NameCheckUtil.isContainCommentString(formatter)) {
 							throw new BeeIllegalSQLException("formatter :" + formatter + " , have sql comment character");
 						}
 						if(! HoneyUtil.isOracle()) { 

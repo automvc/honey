@@ -11,9 +11,9 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.teasoft.bee.osql.BeeException;
 import org.teasoft.bee.osql.Registry;
@@ -88,7 +88,7 @@ public class ShardingRegistry implements Registry {
 		return fullNodes.get(baseTableName.toLowerCase());
 	}
 	
-	private static final Random RAND=new Random();
+	private static final ThreadLocalRandom RAND=ThreadLocalRandom.current();
 	
 	public static String getRandDs(String baseTableName) {
 		Map<String, Set<String>> map = getFullNodes(baseTableName);
