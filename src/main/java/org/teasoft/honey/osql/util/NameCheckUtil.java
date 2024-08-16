@@ -119,7 +119,7 @@ public class NameCheckUtil {
 		if (fieldName == null) return false;
 
 		String str = fieldName.replace(" ", "");
-		str=str.replace("	", ""); //tab
+		str = str.replace("	", ""); // tab
 
 		if (str.contains("--") || str.contains("#") || str.contains("/*") || str.contains("//"))
 			return true;
