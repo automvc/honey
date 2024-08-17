@@ -17,6 +17,7 @@ import org.teasoft.bee.sharding.ShardingPageStruct;
 import org.teasoft.honey.sharding.ShardingUtil;
 import org.teasoft.honey.sharding.engine.decorate.OrderBySqlDecorator;
 import org.teasoft.honey.sharding.engine.decorate.PagingSqlDecorator;
+import org.teasoft.honey.util.StringUtils;
 
 /**
  * @author AiTeaSoft
@@ -155,6 +156,9 @@ public class OrderByPagingRewriteSql {
    private static String createUnionAllSql(String sqls[]) {
 	   UnionSelect unionSelect=BeeFactoryHelper.getUnionSelect();
 		String newSql=unionSelect.unionAll(sqls).toSQL();
+		if(StringUtils.isBlank(newSql)) {
+			Logger.warn("newSql is empty!");
+		}
 		newSql=K.select+" * "+K.from+K.space+"("+newSql +") _union_select";
 		
 		return newSql;

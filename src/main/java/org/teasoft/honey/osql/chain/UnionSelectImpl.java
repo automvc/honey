@@ -25,7 +25,7 @@ public class UnionSelectImpl extends AbstractToSqlForChain implements UnionSelec
 	private static final String R_PARENTHESES = ")";
 	private static final String ONE_SPACE = " ";
 	
-	private StringBuffer sql = new StringBuffer();
+//	private StringBuffer sql = new StringBuffer(); //fixed bug.
 	
 	public UnionSelectImpl() {}
 

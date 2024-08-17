@@ -20,9 +20,11 @@ import java.util.concurrent.ExecutorService;
 import org.teasoft.bee.osql.BeeSql;
 import org.teasoft.bee.sharding.ShardingSortStruct;
 import org.teasoft.honey.distribution.GenIdFactory;
+import org.teasoft.honey.osql.core.ExceptionHelper;
 import org.teasoft.honey.osql.core.HoneyContext;
 import org.teasoft.honey.osql.core.Logger;
 import org.teasoft.honey.osql.core.OrderByPagingRewriteSql;
+import org.teasoft.honey.osql.core.ResultAssemblerHandler;
 import org.teasoft.honey.osql.core.ShardingLogReg;
 import org.teasoft.honey.osql.core.ShardingSortReg;
 import org.teasoft.honey.osql.core.StringConst;
@@ -73,12 +75,15 @@ public class ShardingSelectRsEngine {
 			completionService.submit(tasks.get(i));
 		}
 		
+		ResultSet rs=null;
 		//Result Merge
 		ShardingSortStruct struct =null;
 		Queue<CompareResult> queue= new PriorityQueue<>(size);
 		for (int i = 0; i < size; i++) {
 			try {
-				ResultSet rs=completionService.take().get(); //先于getCurrentShardingSort获取
+				rs = completionService.take().get(); // 先于getCurrentShardingSort获取
+				if (size == 1) break;
+				
 				if(i==0) {
 					ShardingSortReg.regSort(rs.getMetaData());
 					struct = HoneyContext.getCurrentShardingSort();
@@ -94,7 +99,20 @@ public class ShardingSelectRsEngine {
 		executor.shutdown();
 		
 		//放入优先队列后,就转换出需要的数据.   要传入需要多少数据? 在内部处理.   有取中间几条的吗? 有
-		List<T> rsList =new OrderByStreamResult<>(queue,entityClass).getOnePageList();
+		List<T> rsList = null;
+		if (size == 1) {// v2.4.0
+			try {
+				rsList = new ArrayList<>();
+				while (rs.next()) {
+					T targetObj = ResultAssemblerHandler.rowToEntity(rs, entityClass);
+					rsList.add(targetObj);
+				}
+			} catch (Exception e) {
+				throw ExceptionHelper.convert(e);
+			}
+		} else {
+			rsList = new OrderByStreamResult<>(queue, entityClass).getOnePageList();
+		}
 		
 		for (int i = 0; i < size; i++) { // fixed bug
 			HoneyContext.clearConnForSelectRs(threadFlag + (i + 1));

@@ -63,8 +63,6 @@ public class OrderByStreamResult<T> {
 				onePageList = new ArrayList<>(size);
 				
 			 try {
-				
-				
 //				for (int i = from; i < to && orderByValuesQueue.size() > 0; i++) { // [from,to)
 				for (int i = from; i < to && orderByValuesQueue.size() > 0;  ) { // [from,to) no: i++
 					CompareResult cr = orderByValuesQueue.poll();
@@ -90,8 +88,7 @@ public class OrderByStreamResult<T> {
 			  } catch (Exception e) {
 				 throw ExceptionHelper.convert(e);
 			  }
-				
-		   }
+			}
 		}
 
 		if(onePageList==null) onePageList = new ArrayList<>(); //fixed bug
