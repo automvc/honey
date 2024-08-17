@@ -17,6 +17,7 @@ import org.teasoft.bee.osql.api.CallableSql;
  * 存储过程方式Sql操作DB的接口CallableSql的实现类.Procedure sql operate the DB.
  * CallableSql do not support DB Sharding.
  * CallableSql have not BeeSql router system, but can use setDataSourceName method.
+ * CallableSql do not support cache.
  * @author Kingstar
  * @since  1.0
  * some methods support Interceptor.
@@ -69,11 +70,9 @@ public class CallableSqlLib extends AbstractCommOperate implements CallableSql {
 			}
 			checkClose(cstmt, conn);
 			doBeforeReturn(rsList);
+		    targetObj = null;
 		}
-
-//		returnType = null;
-//		targetObj = null;
-
+		
 		return rsList;
 	}
 
@@ -244,17 +243,20 @@ public class CallableSqlLib extends AbstractCommOperate implements CallableSql {
 
 		if (preValues == null) return new StringBuffer("preValues is null!");
 
-		StringBuffer valueBuffer = new StringBuffer();
+		boolean isShowSQL = isShowSQL();
+		StringBuffer valueBuffer = new StringBuffer(); // for print log
 		int len = preValues.length;
 		for (int i = 0; i < len; i++) {
 			int k = -1; // V1.17
 			if (preValues[i] != null) k = HoneyUtil.getJavaTypeIndex(preValues[i].getClass().getName());
 			HoneyUtil.setPreparedValues(cstmt, k, i, preValues[i]); // i from 0
-			valueBuffer.append(",");
-			valueBuffer.append(preValues[i]);
+			if (isShowSQL) {
+				valueBuffer.append(",");
+				valueBuffer.append(preValues[i]);
+			}
 		}
 
-		if (valueBuffer.length() > 0) {
+		if (isShowSQL && valueBuffer.length() > 0) {
 			valueBuffer.deleteCharAt(0);
 		}
 		return valueBuffer;
@@ -276,6 +278,10 @@ public class CallableSqlLib extends AbstractCommOperate implements CallableSql {
 	private void doBeforePasreEntity2() {
 		Object entity = null;
 		super.doBeforePasreEntity(entity, SuidType.MODIFY);
+	}
+	
+	private static boolean isShowSQL() {
+		return HoneyConfig.getHoneyConfig().showSQL;
 	}
 
 }

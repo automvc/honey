@@ -95,7 +95,7 @@ public final class SuidHelper {
 	 * @param entity 要转成的结构.the structure to be transformed into.
 	 * @return 实体List. list of entity.
 	 */
-	public static <T> List<T> parseToEntity(List<String[]> list, int startRow, int endRow, String[] fieldName, T entity) {
+	public static <T> List<T> parseToEntity(List<String[]> list, int startRow, int endRow, String[] fieldName, final T entity) {
 		T targetObj = null;
 		List<T> rsList = null;
 		Field field = null;
@@ -134,7 +134,6 @@ public final class SuidHelper {
 		} catch (InstantiationException e) {
 			throw ExceptionHelper.convert(e);
 		} finally {
-			entity = null;
 			targetObj = null;
 		}
 

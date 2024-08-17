@@ -363,7 +363,7 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 	
 	@Override
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public <T> List<T> moreTableSelect(String sql, T entity) {
+	public <T> List<T> moreTableSelect(String sql, final T entity) {
 		
 		if(sql==null || "".equals(sql.trim())) return Collections.emptyList();
 		
@@ -745,11 +745,9 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 			throw ExceptionHelper.convert(e);
 		} finally {
 			clearContext(sql);
+			targetObj = null;
 		}
 
-		entity = null;
-		targetObj = null;
-		
 //		子表是List类型时，要连原始数据行数也打印日志
 		if(subOneIsList1 || subTwoIsList2)
 		   Logger.logSQL(" | <--  ( select raw record rows: ", recordRow + " )");

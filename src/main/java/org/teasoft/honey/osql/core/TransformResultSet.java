@@ -282,30 +282,32 @@ public class TransformResultSet {
 	private static boolean openFieldTypeHandler = HoneyConfig.getHoneyConfig().openFieldTypeHandler;
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static <T> T rowToEntity(ResultSet rs, Class<T> clazz) throws SQLException,IllegalAccessException,InstantiationException {
+	public static <T> T rowToEntity(ResultSet rs, Class<T> clazz)
+			throws SQLException, IllegalAccessException, InstantiationException {
 
 		T targetObj = null;
 		targetObj = clazz.newInstance();
 		ResultSetMetaData rmeta = rs.getMetaData();
-		
-		if(rs.isBeforeFirst()) rs.next();
-		
+
+		if (rs.isBeforeFirst()) rs.next();
 
 		int columnCount = rmeta.getColumnCount();
 		Field field = null;
 		String name = null;
-		boolean firstRow=true;
+		boolean firstRow = true;
 		for (int i = 0; i < columnCount; i++) {
 			try {
 //				name = _toFieldName(rmeta.getColumnName(i + 1), clazz);
 //				 支持父类时，是否有影响？ todo
-				name = _toFieldName(rmeta.getColumnLabel(i + 1), clazz); //fixed bug,V2.1.8. 获取用于打印输出和显示的指定列的建议标题。建议标题通常由 SQL AS 子句来指定。如果未指定 SQL AS，则从 getColumnLabel 返回的值将和 getColumnName 方法返回的值相同。 
-				field = HoneyUtil.getField(clazz, name);// 可能会找不到Javabean的字段    
+				name = _toFieldName(rmeta.getColumnLabel(i + 1), clazz); // fixed bug,V2.1.8. 获取用于打印输出和显示的指定列的建议标题。建议标题通常由 SQL AS
+																			// 子句来指定。如果未指定 SQL AS，则从 getColumnLabel 返回的值将和
+																			// getColumnName 方法返回的值相同。
+				field = HoneyUtil.getField(clazz, name);// 可能会找不到Javabean的字段
 			} catch (NoSuchFieldException e) {
 				continue;
 			}
-			if(firstRow) { //2.0
-				firstRow=false;
+			if (firstRow) { // 2.0
+				firstRow = false;
 				regSort(rmeta);
 			}
 			HoneyUtil.setAccessibleTrue(field);
@@ -333,7 +335,7 @@ public class TransformResultSet {
 					obj = TypeHandlerRegistry.handlerProcess(field.getType(), obj);
 				}
 				HoneyUtil.setFieldValue(field, targetObj, obj); // 对相应Field设置
-				
+
 			} catch (IllegalArgumentException e) {
 //				e.printStackTrace();
 				boolean alreadyProcess = false;
@@ -355,6 +357,8 @@ public class TransformResultSet {
 				if (!alreadyProcess) {
 					HoneyUtil.setFieldValue(field, targetObj, obj);
 				}
+			} finally {
+				targetObj = null;
 			}
 		}
 		return targetObj;

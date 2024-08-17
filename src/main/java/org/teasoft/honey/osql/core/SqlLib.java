@@ -57,13 +57,13 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 	}
 	
 	@Override
-	public <T> List<T> select(String sql, Class<T> entityClass) {
+	public <T> List<T> select(String sql, final Class<T> entityClass) {
 		return selectSomeField(sql, entityClass);
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public <T> List<T> selectSomeField(String sql, Class<T> entityClass) {
+	public <T> List<T> selectSomeField(String sql, final Class<T> entityClass) {
 
 		if (sql == null || "".equals(sql.trim())) return Collections.emptyList();
 		
@@ -104,7 +104,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private <T> List<T> _selectSomeField(String sql, Class<T> entityClass) {
+	private <T> List<T> _selectSomeField(String sql, final Class<T> entityClass) {
 //		if (sql == null || "".equals(sql.trim())) return Collections.emptyList();
 
 		boolean isReg = updateInfoInCache(sql, "List<T>", SuidType.SELECT, entityClass);
@@ -342,7 +342,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 		
 		
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private List<String[]> _select(String sql,Class entityClass) {	
+	private List<String[]> _select(String sql, final Class entityClass) {
 //		if(sql==null || "".equals(sql.trim())) return Collections.emptyList();
 		
 		boolean isReg = updateInfoInCache(sql, "List<String[]>", SuidType.SELECT, entityClass);
@@ -470,7 +470,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 	}
 	
 	@SuppressWarnings("rawtypes")
-	private int _modify(String sql, Class entityClass) {
+	private int _modify(String sql, final Class entityClass) {
 		
 		initRoute(SuidType.MODIFY, entityClass, sql);
 		
@@ -608,7 +608,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 	}	
 	
 	@SuppressWarnings("rawtypes")
-	private String _selectJson(String sql,Class entityClass) {
+	private String _selectJson(String sql, final Class entityClass) {
 //		if(sql==null || "".equals(sql.trim())) return null;
 		
 		boolean isReg = updateInfoInCache(sql, "StringJson", SuidType.SELECT, entityClass);
@@ -842,7 +842,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 		return a;
 	}
 	
-	private int batchForMysql(String sql[], int batchSize) {
+	private int batchForMysql(String sql[], final int batchSize) {
 
 		if (sql == null || sql.length < 1) return -1;
 
@@ -951,7 +951,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 		return total;
 	}
 	
-	private void clearContextForMysql(String sql_0, int batchSize, int len) {
+	private void clearContextForMysql(String sql_0, final int batchSize, final int len) {
 		
 		clearContext(sql_0, batchSize, len);
 
@@ -996,7 +996,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 		return a;
 	}
 	
-	private String[] getBatchExeSql(String sql0,int size,String placeholderValue){
+	private String[] getBatchExeSql(String sql0, final int size, String placeholderValue) {
 		StringBuffer batchSql=new StringBuffer(sql0);
 		StringBuffer batchSql_forPrint=new StringBuffer(sql0);
 		String batchExeSql[]=new String[2];
@@ -1044,7 +1044,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 	}
 	
 	@Override
-	public <T> List<T> moreTableSelect(String sql, T entity) {
+	public <T> List<T> moreTableSelect(String sql, final T entity) {
 		if(sql==null || "".equals(sql.trim())) return Collections.emptyList();
 		
 		if (isSimpleMode()) {
@@ -1075,7 +1075,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private <T> List<T> _moreTableSelect(String sql, T entity) {
+	private <T> List<T> _moreTableSelect(String sql, final T entity) {
 		
 		if(sql==null || "".equals(sql.trim())) return Collections.emptyList();
 		
@@ -1561,10 +1561,8 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 			} else {
 				checkClose(pst, conn);
 			}
+			targetObj = null;
 		}
-
-		entity = null;
-		targetObj = null;
 		
 //		子表是List类型时，要连原始数据行数也打印日志
 		if(subOneIsList1 || subTwoIsList2)
