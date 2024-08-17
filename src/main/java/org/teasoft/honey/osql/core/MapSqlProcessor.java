@@ -206,7 +206,7 @@ public class MapSqlProcessor {
 
 		MapSqlImpl suidMapImpl = (MapSqlImpl) mapSql;
 		Map<MapSqlKey, String> sqlkeyMap = suidMapImpl.getSqlkeyMap();
-		Map<String, Object> whereConditonMap = suidMapImpl.getKvMap();
+		Map<String, Object> whereMap = suidMapImpl.getKvMap();
 
 		Map<MapSqlSetting, Boolean> sqlSettingMap = suidMapImpl.getSqlSettingMap();
 
@@ -240,21 +240,21 @@ public class MapSqlProcessor {
 		UpdateSetConditionWrap updateSetWrap = ConditionHelper.processUpdateSetCondition(
 				sqlBuffer, list, suidMapImpl.getUpdateSetCondition(), firstSet);
 		if (updateSetWrap != null) {
-			sqlBuffer.append(updateSetWrap.getSqlBuffer());
-			list.addAll((List) updateSetWrap.getPvList());
+//			sqlBuffer.append(updateSetWrap.getSqlBuffer());
+//			list.addAll((List) updateSetWrap.getPvList()); //already pass list to processUpdateSetCondition
 			firstSet = updateSetWrap.isFirst();
 		}
 		
 		boolean firstWhere = true;
-		if (ObjectUtils.isNotEmpty(whereConditonMap)) {
+		if (ObjectUtils.isNotEmpty(whereMap)) {
 			Boolean isBooleanTransfer = sqlSettingMap.get(MapSqlSetting.IsTransferTrueFalseStringToBooleanType);
-			parseBoolean(whereConditonMap,isBooleanTransfer); //V1.11
-			firstWhere = where(whereConditonMap, list, sqlBuffer, isTransfer,getIncludeType(sqlSettingMap));
+			parseBoolean(whereMap,isBooleanTransfer); //V1.11
+			firstWhere = where(whereMap, list, sqlBuffer, isTransfer,getIncludeType(sqlSettingMap));
 		}
 		
 		// 2.4.0
 		WhereConditionWrap wrap = ConditionHelper.processWhereCondition(
-				suidMapImpl.getWhereCondition(), firstWhere, null);
+				suidMapImpl.getWhereCondition(), firstWhere, null); //do not pass list and sqlBuffer
 		if (wrap != null) {
 			sqlBuffer.append(wrap.getSqlBuffer());
 			list.addAll((List) wrap.getPvList());

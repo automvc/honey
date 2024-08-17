@@ -10,8 +10,10 @@ import java.util.List;
 
 import org.teasoft.bee.osql.OrderType;
 import org.teasoft.bee.osql.chain.Select;
+import org.teasoft.bee.osql.exception.BeeIllegalParameterException;
 import org.teasoft.honey.osql.core.FunAndOrderTypeMap;
 import org.teasoft.honey.osql.core.K;
+import org.teasoft.honey.osql.core.StringConst;
 
 /**
  * @author Kingstar
@@ -281,15 +283,20 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 		return useSubSelect(field, K.notIn, subSelect.toSQL());  //subSelect.toSQL() 不需要加缓存 ？？？
 	}
 	
+	private static final String START_GREAT_EQ_0 = StringConst.START_GREAT_EQ_0;
+	private static final String SIZE_GREAT_0 = StringConst.SIZE_GREAT_0;
+	
 	@Override
 	public Select start(int start) {
-		this.start=start;
+		if (start < 0) throw new BeeIllegalParameterException(START_GREAT_EQ_0);
+		this.start = start;
 		return this;
 	}
 
 	@Override
 	public Select size(int size) {
-		this.size=size;
+		if (size <= 0) throw new BeeIllegalParameterException(SIZE_GREAT_0);
+		this.size = size;
 		return this;
 	}
 	

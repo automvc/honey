@@ -630,7 +630,7 @@ public final class CacheUtil {
 		if (rs instanceof List) {
 			try {
 				List list = (List) rs;
-				if (list != null && list.size() > 0) {
+				if (list != null && list.size() > 0 && list.get(0) != null) {
 					return Serializable.class.isAssignableFrom(list.get(0).getClass());
 				}
 			} catch (Exception e) {

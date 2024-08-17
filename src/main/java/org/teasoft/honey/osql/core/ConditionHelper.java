@@ -72,8 +72,7 @@ public class ConditionHelper {
 			Condition condition,boolean firstSet) {
 		
 		Class entityClass = (Class) OneTimeParameter.getAttribute(StringConst.Column_EC);
-//		boolean firstSet = true;
-		if(condition==null) return new UpdateSetConditionWrap(sqlBuffer, list, firstSet);;
+		if(condition==null) return null;
 		
 		ConditionImpl conditionImpl = (ConditionImpl) condition;
 		List<Expression> updateSetList = conditionImpl.getUpdateExpList();

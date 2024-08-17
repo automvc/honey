@@ -357,10 +357,9 @@ public class TransformResultSet {
 				if (!alreadyProcess) {
 					HoneyUtil.setFieldValue(field, targetObj, obj);
 				}
-			} finally {
-				targetObj = null;
-			}
+			} 
 		}
+		
 		return targetObj;
 	}
 

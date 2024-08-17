@@ -12,6 +12,7 @@ import java.util.Map;
 
 import org.teasoft.bee.osql.MapSqlKey;
 import org.teasoft.bee.osql.MapSqlSetting;
+import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.api.Condition;
 import org.teasoft.bee.osql.api.MapSql;
 
@@ -26,6 +27,7 @@ public class MapSqlImpl implements MapSql {
 	private Map<String, Object> kv = new LinkedHashMap<>();
 	private Map<String, Object> newKv = new LinkedHashMap<>(); //just for update set part
 	private Map<MapSqlSetting, Boolean> settingMap = new HashMap<>();
+	private boolean setSuidTypeForUpdate=false;
 	
 	private Condition whereCondition;
 	private Condition updateSetCondition;
@@ -105,7 +107,11 @@ public class MapSqlImpl implements MapSql {
 	
 	@Override
 	public void updateSet(Condition condition) {// 2.4.0
-		this.updateSetCondition=condition;
+		if (!setSuidTypeForUpdate) {
+			setSuidTypeForUpdate = true;
+			if (condition != null) condition.setSuidType(SuidType.UPDATE);
+		}
+		this.updateSetCondition = condition;
 	}
 
 	// 2.4.0

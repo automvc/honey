@@ -543,7 +543,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 
 			rsKey = pst.getGeneratedKeys();
 			rsKey.next();
-			returnId = rsKey.getLong(1);
+			returnId = rsKey.getLong(1); //主键字段没值时,可能会报异常
 		} catch (SQLException e) {
 			hasException = true;
 			throw ExceptionHelper.convert(e);

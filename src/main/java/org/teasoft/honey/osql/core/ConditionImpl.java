@@ -74,7 +74,7 @@ public class ConditionImpl implements Condition {
 
 	@Override
 	public Condition size(Integer size) {
-		if (size == null || size < 0) throw new BeeIllegalParameterException(SIZE_GREAT_0);
+		if (size == null || size <= 0) throw new BeeIllegalParameterException(SIZE_GREAT_0);
 		this.size = size;
 		return this;
 	}
