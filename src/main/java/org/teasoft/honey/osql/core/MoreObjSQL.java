@@ -24,6 +24,7 @@ import org.teasoft.honey.osql.core.ConditionImpl.FunExpress;
 import org.teasoft.honey.osql.shortcut.BF;
 import org.teasoft.honey.osql.util.AnnoUtil;
 import org.teasoft.honey.util.ObjectUtils;
+import org.teasoft.honey.util.StringUtils;
 
 /**
  * 多表Select/Update/Insert/Delete,MoreTable实现类.Multi table Select/Update/Insert/Delete, MoreTable implementation class.
@@ -152,7 +153,7 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 		con = condition == null ? BF.getCondition() : condition;
 
 		String total = selectWithFun(entity, con.selectFun(FunctionType.COUNT, "*"));
-		return total == null ? 0 : Integer.parseInt(total);
+		return StringUtils.isBlank(total) ? 0 : Integer.parseInt(total);
 	}
 
 	@Override
@@ -225,7 +226,6 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 	}
 
 	
-	
 	// -------------------more---insert------V2.1.8------------------
 	//OneToOne Table1->Table2
 	//最多支持三个表(子表中又有子表)关联插入: Table1->Table2->Table3 ;此种,表2不支持List的形式
@@ -261,36 +261,8 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 		return modify(entity,SuidType.DELETE);
 	}
 	
-	private <T> boolean checkTempKeyNullValue(T entity, String tempKey[]) {
-		Field field = null;
-		boolean nullKeyValue=true;
-		try {
-			for (int i = 0; i < tempKey.length; i++) {
-				field = HoneyUtil.getField(entity.getClass(), tempKey[i]);
-
-				Object obj = null;
-				try {
-					if (field != null) {
-						HoneyUtil.setAccessibleTrue(field);
-						obj = field.get(entity);
-						if (obj == null) {
-							Logger.warn("The " + field.getName() + " value is null!");
-							nullKeyValue=nullKeyValue && true;
-						}else {
-							nullKeyValue=false;
-						}
-					}
-				} catch (IllegalAccessException e) {
-					throw ExceptionHelper.convert(e);
-				}
-			}
-		} catch (Exception e) {
-			Logger.error(e.getMessage(), e);
-		}
-		return nullKeyValue;
-	}
-
-	private <T> int modify(T entity,SuidType suidType) {	
+	//多表的modify是调用suidRich完成的.拦截器,则使用suidRich的.
+	private <T> int modify(T entity,SuidType suidType) {
 		// 是否需要事务？？ 由上一层负责
 		MoreTableModifyStruct struct =null;
 		boolean hasParseEntity=false;
@@ -425,6 +397,35 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 			}
 		}
 		return null;
+	}
+	
+	private <T> boolean checkTempKeyNullValue(T entity, String tempKey[]) {
+		Field field = null;
+		boolean nullKeyValue=true;
+		try {
+			for (int i = 0; i < tempKey.length; i++) {
+				field = HoneyUtil.getField(entity.getClass(), tempKey[i]);
+
+				Object obj = null;
+				try {
+					if (field != null) {
+						HoneyUtil.setAccessibleTrue(field);
+						obj = field.get(entity);
+						if (obj == null) {
+							Logger.warn("The " + field.getName() + " value is null!");
+							nullKeyValue=nullKeyValue && true;
+						}else {
+							nullKeyValue=false;
+						}
+					}
+				} catch (IllegalAccessException e) {
+					throw ExceptionHelper.convert(e);
+				}
+			}
+		} catch (Exception e) {
+			Logger.error(e.getMessage(), e);
+		}
+		return nullKeyValue;
 	}
 	
 	private boolean setPkField(MoreTableModifyStruct struct, int i, long returnId,

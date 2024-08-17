@@ -15,6 +15,7 @@ import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.api.MapSql;
 import org.teasoft.bee.osql.api.MapSuid;
 import org.teasoft.honey.util.ObjectUtils;
+import org.teasoft.honey.util.StringUtils;
 
 /**
  * 操作数据库不依赖javabean结构的类.The class that operation database does not depend on Javabean.
@@ -36,57 +37,77 @@ public class MapSuidImpl extends AbstractCommOperate implements MapSuid {
 
 	@Override
 	public List<String[]> selectString(MapSql mapSql) {
+		List<String[]> list =null;
+		try {
 		doBeforePasreEntity(SuidType.SELECT);
 
 		String sql = MapSqlProcessor.toSelectSqlByMap(mapSql);
 		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("In MapSuid, select List<String[]> SQL: ", sql);
-		List<String[]> list = getBeeSql().select(sql);
+		list = getBeeSql().select(sql);
+		}finally {
 		doBeforeReturn();
+		}
 		return list;
 	}
 
 	@Override
 	public String selectJson(MapSql mapSql) {
+		String json ="";
+		try {
 		doBeforePasreEntity(SuidType.SELECT);
 		String sql = MapSqlProcessor.toSelectSqlByMap(mapSql);
 		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("In MapSuid, selectJson SQL: ", sql);
-		String json = getBeeSql().selectJson(sql);
+		 json = getBeeSql().selectJson(sql);
+	    }finally {
 		doBeforeReturn();
+	    }
 		return json;
 	}
 
 	@Override
 	public List<Map<String, Object>> select(MapSql mapSql) {
+		List<Map<String, Object>> list =null;
+		try {
 		doBeforePasreEntity(SuidType.SELECT);
 		String sql = MapSqlProcessor.toSelectSqlByMap(mapSql);
 		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("In MapSuid, select List<Map> SQL: ", sql);
-		List<Map<String, Object>> list = getBeeSql().selectMapList(sql);
+		list = getBeeSql().selectMapList(sql);
+	    }finally {
 		doBeforeReturn();
+	    }
 		return list;
 	}
 
 	@Override
 	public int count(MapSql mapSql) {
+		String total =null;
+		try {
 		doBeforePasreEntity(SuidType.SELECT);
 		String sql = MapSqlProcessor.toCountSqlByMap(mapSql);
 		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("In MapSuid, count SQL: ", sql);
-		String total = getBeeSql().selectFun(sql);
+		 total = getBeeSql().selectFun(sql);
+	    }finally {
 		doBeforeReturn();
-		return total == null ? 0 : Integer.parseInt(total);
+	    }
+		return StringUtils.isBlank(total) ? 0 : Integer.parseInt(total);
 	}
 
 	@Override
 	public Map<String, Object> selectOne(MapSql mapSql) {
+		List<Map<String, Object>> list =null;
+		try {
 		doBeforePasreEntity(SuidType.SELECT);
 		String sql = MapSqlProcessor.toSelectSqlByMap(mapSql);
 		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("In MapSuid, selectOne Map SQL: ", sql);
-		List<Map<String, Object>> list = getBeeSql().selectMapList(sql);
+		list = getBeeSql().selectMapList(sql);
+	    }finally {
 		doBeforeReturn();
+	    }
 		if (ObjectUtils.isNotEmpty(list)) {
 			return list.get(0);
 		} else {
@@ -97,14 +118,18 @@ public class MapSuidImpl extends AbstractCommOperate implements MapSuid {
 	@Override
 	public int insert(MapSql mapSql) {
 		if (mapSql == null) return -1;
+		int insertNum =0;
+		try {
 		doBeforePasreEntity(SuidType.INSERT);
 
 		String sql = MapSqlProcessor.toInsertSqlByMap(mapSql);
 		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("In MapSuid, insert SQL: ", sql);
 
-		int insertNum = getBeeSql().modify(sql);
+		insertNum = getBeeSql().modify(sql);
+	    }finally {
 		doBeforeReturn();
+	    }
 
 		return insertNum;
 	}
@@ -113,13 +138,16 @@ public class MapSuidImpl extends AbstractCommOperate implements MapSuid {
 	public long insertAndReturnId(MapSql mapSql) {
 
 		if (mapSql == null) return -1;
+		
+		long newId=0;
+		try {
 		doBeforePasreEntity(SuidType.INSERT);
 		String sql = MapSqlProcessor.toInsertSqlByMap(mapSql, true); // will get pkName and set into OneTimeParameter
 		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("In MapSuid, insertAndReturnId SQL: ", sql);
 
 		Object obj = OneTimeParameter.getAttribute(StringConst.MapSuid_Insert_Has_ID);
-		long newId;
+		
 		if (obj != null) {
 			newId = Long.parseLong(obj.toString());
 			if (newId > 1) { //设置有大于1的值,使用设置的
@@ -140,31 +168,40 @@ public class MapSuidImpl extends AbstractCommOperate implements MapSuid {
 //		假如处理后id为空,则用db生成.
 		//id will gen by db
 		newId = getBeeSql().insertAndReturnId(sql);
+        }finally {
 		doBeforeReturn();
-
+	    }
 		return newId;
 
 	}
 
 	@Override
 	public int delete(MapSql mapSql) {
+		int a =0;
+		try {
 		doBeforePasreEntity(SuidType.DELETE);
 		String sql = MapSqlProcessor.toDeleteSqlByMap(mapSql);
 		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("In MapSuid, delete SQL: ", sql);
-		int a = getBeeSql().modify(sql);
+		 a = getBeeSql().modify(sql);
+	    }finally {
 		doBeforeReturn();
+	    }
 		return a;
 	}
 
 	@Override
 	public int update(MapSql mapSql) {
+		int a =0;
+		try {
 		doBeforePasreEntity(SuidType.UPDATE);
 		String sql = MapSqlProcessor.toUpdateSqlByMap(mapSql);
 		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("In MapSuid, update SQL: ", sql);
-		int a = getBeeSql().modify(sql);
+		 a = getBeeSql().modify(sql);
+     	}finally {
 		doBeforeReturn();
+    	}
 		return a;
 	}
 	

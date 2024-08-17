@@ -340,7 +340,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 	@Override
 	public <T> int count(T entity, Condition condition) {
 		String total = selectWithFun(entity, FunctionType.COUNT, "*", condition);
-		return total == null ? 0 : Integer.parseInt(total);
+		return StringUtils.isBlank(total) ? 0 : Integer.parseInt(total);
 	}
 
 	@Override

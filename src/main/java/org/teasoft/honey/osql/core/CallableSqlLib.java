@@ -10,12 +10,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.api.CallableSql;
 
 /**
  * 存储过程方式Sql操作DB的接口CallableSql的实现类.Procedure sql operate the DB.
+ * CallableSql do not support DB Sharding.
+ * CallableSql have not BeeSql router system, but can use setDataSourceName method.
  * @author Kingstar
  * @since  1.0
+ * some methods support Interceptor.
+ * @since  2.4.0
  */
 public class CallableSqlLib extends AbstractCommOperate implements CallableSql {
 
@@ -32,10 +37,13 @@ public class CallableSqlLib extends AbstractCommOperate implements CallableSql {
 		List<T> rsList = null;
 		T targetObj = null;
 		try {
+			doBeforePasreEntity(returnType, SuidType.SELECT);//returnType的值,虽然不用作占位参数的值,但可以用作拦截器的业务逻辑判断
+			
 			conn = getConn();
 //          callSql = "{call batchOrder(?,?,?)}"; 
 //			callSql = "{call " + callSql + "}"; // callSql like : batchOrder(?,?,?)
 			callSql=getCallSql(callSql);
+			callSql = doAfterCompleteSql(callSql);
 			cstmt = conn.prepareCall(callSql);
 
 			StringBuffer values = initPreparedValues(cstmt, preValues);
@@ -60,10 +68,12 @@ public class CallableSqlLib extends AbstractCommOperate implements CallableSql {
 				// ignore
 			}
 			checkClose(cstmt, conn);
+			
+			doBeforeReturn(rsList);
 		}
 
-		returnType = null;
-		targetObj = null;
+//		returnType = null;
+//		targetObj = null;
 
 		return rsList;
 	}
@@ -79,8 +89,11 @@ public class CallableSqlLib extends AbstractCommOperate implements CallableSql {
 		Connection conn = null;
 		CallableStatement cstmt =null;
 		try {
+			doBeforePasreEntity2();
+			
 			conn = getConn();
 			callSql=getCallSql(callSql);
+			callSql = doAfterCompleteSql(callSql);
 			cstmt = conn.prepareCall(callSql);
 
 			StringBuffer values = initPreparedValues(cstmt, preValues);
@@ -91,6 +104,7 @@ public class CallableSqlLib extends AbstractCommOperate implements CallableSql {
 			throw ExceptionHelper.convert(e);
 		}finally{
 		  checkClose(cstmt, conn);
+		  doBeforeReturn();
 		}
 
 		return result;
@@ -141,8 +155,10 @@ public class CallableSqlLib extends AbstractCommOperate implements CallableSql {
 		CallableStatement cstmt = null;
 
 		try {
+			doBeforePasreEntity();
 			conn = getConn();
 			callSql=getCallSql(callSql);
+			callSql = doAfterCompleteSql(callSql);
 			cstmt = conn.prepareCall(callSql);
 
 			StringBuffer values = initPreparedValues(cstmt, preValues);
@@ -155,6 +171,7 @@ public class CallableSqlLib extends AbstractCommOperate implements CallableSql {
 			throw ExceptionHelper.convert(e);
 		} finally {
 			checkClose(cstmt, conn);
+			doBeforeReturn();
 		}
 
 		return list;
@@ -169,8 +186,10 @@ public class CallableSqlLib extends AbstractCommOperate implements CallableSql {
 		CallableStatement cstmt = null;
 
 		try {
+			doBeforePasreEntity();
 			conn = getConn();
 			callSql=getCallSql(callSql);
+			callSql = doAfterCompleteSql(callSql);
 			cstmt = conn.prepareCall(callSql);
 
 			StringBuffer values = initPreparedValues(cstmt, preValues);
@@ -186,6 +205,7 @@ public class CallableSqlLib extends AbstractCommOperate implements CallableSql {
 			throw ExceptionHelper.convert(e);
 		} finally {
 			checkClose(cstmt, conn);
+			doBeforeReturn();
 		}
 
 		return json;
@@ -247,6 +267,16 @@ public class CallableSqlLib extends AbstractCommOperate implements CallableSql {
 
 	protected void checkClose(Statement stmt, Connection conn) {
 		HoneyContext.checkClose(stmt, conn);
+	}
+	
+	private void doBeforePasreEntity() {
+		Object entity=null;
+		super.doBeforePasreEntity(entity, SuidType.SELECT);
+	}
+	
+	private void doBeforePasreEntity2() {
+		Object entity=null;
+		super.doBeforePasreEntity(entity, SuidType.MODIFY);
 	}
 	
 }
