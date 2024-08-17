@@ -37,12 +37,12 @@ public class CallableSqlLib extends AbstractCommOperate implements CallableSql {
 		List<T> rsList = null;
 		T targetObj = null;
 		try {
-			doBeforePasreEntity(returnType, SuidType.SELECT);//returnType的值,虽然不用作占位参数的值,但可以用作拦截器的业务逻辑判断
-			
+			doBeforePasreEntity(returnType, SuidType.SELECT);// returnType的值,虽然不用作占位参数的值,但可以用作拦截器的业务逻辑判断
+
 			conn = getConn();
 //          callSql = "{call batchOrder(?,?,?)}"; 
 //			callSql = "{call " + callSql + "}"; // callSql like : batchOrder(?,?,?)
-			callSql=getCallSql(callSql);
+			callSql = getCallSql(callSql);
 			callSql = doAfterCompleteSql(callSql);
 			cstmt = conn.prepareCall(callSql);
 
@@ -52,7 +52,7 @@ public class CallableSqlLib extends AbstractCommOperate implements CallableSql {
 
 			rsList = new ArrayList<>();
 			while (rs.next()) {
-				targetObj=ResultAssemblerHandler.rowToEntity(rs, toClassT(returnType));
+				targetObj = ResultAssemblerHandler.rowToEntity(rs, toClassT(returnType));
 				rsList.add(targetObj);
 			}
 		} catch (SQLException e) {
@@ -63,12 +63,11 @@ public class CallableSqlLib extends AbstractCommOperate implements CallableSql {
 			throw ExceptionHelper.convert(e);
 		} finally {
 			try {
-				if(rs!=null) rs.close();
+				if (rs != null) rs.close();
 			} catch (Exception e2) {
 				// ignore
 			}
 			checkClose(cstmt, conn);
-			
 			doBeforeReturn(rsList);
 		}
 
@@ -77,34 +76,34 @@ public class CallableSqlLib extends AbstractCommOperate implements CallableSql {
 
 		return rsList;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	private <T> Class<T> toClassT(T entity) {
-		return (Class<T>)entity.getClass();
+		return (Class<T>) entity.getClass();
 	}
 
 	@Override
-	public int modify(String callSql, Object[] preValues) { //没有 输出参数情形
+	public int modify(String callSql, Object[] preValues) { // 没有 输出参数情形
 		int result = 0;
 		Connection conn = null;
-		CallableStatement cstmt =null;
+		CallableStatement cstmt = null;
 		try {
 			doBeforePasreEntity2();
-			
+
 			conn = getConn();
-			callSql=getCallSql(callSql);
+			callSql = getCallSql(callSql);
 			callSql = doAfterCompleteSql(callSql);
 			cstmt = conn.prepareCall(callSql);
 
 			StringBuffer values = initPreparedValues(cstmt, preValues);
 			Logger.logSQL(CALLABLE_SQL, callSql + VALUES + values);
 			result = cstmt.executeUpdate();
-			
+
 		} catch (SQLException e) {
 			throw ExceptionHelper.convert(e);
-		}finally{
-		  checkClose(cstmt, conn);
-		  doBeforeReturn();
+		} finally {
+			checkClose(cstmt, conn);
+			doBeforeReturn();
 		}
 
 		return result;
@@ -112,15 +111,15 @@ public class CallableSqlLib extends AbstractCommOperate implements CallableSql {
 	}
 
 	@Override
-	public CallableStatement getCallableStatement(String callSql) { //可自定义输入参数
+	public CallableStatement getCallableStatement(String callSql) { // 可自定义输入参数
 		Connection conn = null;
 		CallableStatement cstmt = null;
 		try {
 			conn = getConn();
-			callSql=getCallSql(callSql);
+			callSql = getCallSql(callSql);
 			cstmt = conn.prepareCall(callSql);
-			Logger.logSQL("Callable SQL,getCallableStatement: ",callSql);
-			String key=getIdString(cstmt);
+			Logger.logSQL("Callable SQL,getCallableStatement: ", callSql);
+			String key = getIdString(cstmt);
 			setConnLocal(key, conn);
 
 		} catch (SQLException e) {
@@ -132,14 +131,14 @@ public class CallableSqlLib extends AbstractCommOperate implements CallableSql {
 	}
 
 	@Override
-	public int modify(CallableStatement cstmt) { //无输出参数情形
+	public int modify(CallableStatement cstmt) { // 无输出参数情形
 		int result = 0;
 		try {
-			String key=getIdString(cstmt);
+			String key = getIdString(cstmt);
 			Connection conn = getConnLocal(key);
 			result = cstmt.executeUpdate();
 			checkClose(cstmt, conn);
-			
+
 		} catch (SQLException e) {
 			throw ExceptionHelper.convert(e);
 		}
@@ -148,8 +147,8 @@ public class CallableSqlLib extends AbstractCommOperate implements CallableSql {
 
 	@Override
 	public List<String[]> select(String callSql, Object[] preValues) {
-		
-		List<String[]> list=null;
+
+		List<String[]> list = null;
 		Connection conn = null;
 		ResultSet rs = null;
 		CallableStatement cstmt = null;
@@ -157,7 +156,7 @@ public class CallableSqlLib extends AbstractCommOperate implements CallableSql {
 		try {
 			doBeforePasreEntity();
 			conn = getConn();
-			callSql=getCallSql(callSql);
+			callSql = getCallSql(callSql);
 			callSql = doAfterCompleteSql(callSql);
 			cstmt = conn.prepareCall(callSql);
 
@@ -165,7 +164,7 @@ public class CallableSqlLib extends AbstractCommOperate implements CallableSql {
 			Logger.logSQL(CALLABLE_SQL, callSql + VALUES + values);
 			rs = cstmt.executeQuery();
 
-			list=TransformResultSet.toStringsList(rs);
+			list = TransformResultSet.toStringsList(rs);
 
 		} catch (SQLException e) {
 			throw ExceptionHelper.convert(e);
@@ -179,8 +178,8 @@ public class CallableSqlLib extends AbstractCommOperate implements CallableSql {
 
 	@Override
 	public String selectJson(String callSql, Object[] preValues) {
-		
-		String json="";
+
+		String json = "";
 		Connection conn = null;
 		ResultSet rs = null;
 		CallableStatement cstmt = null;
@@ -188,7 +187,7 @@ public class CallableSqlLib extends AbstractCommOperate implements CallableSql {
 		try {
 			doBeforePasreEntity();
 			conn = getConn();
-			callSql=getCallSql(callSql);
+			callSql = getCallSql(callSql);
 			callSql = doAfterCompleteSql(callSql);
 			cstmt = conn.prepareCall(callSql);
 
@@ -196,9 +195,9 @@ public class CallableSqlLib extends AbstractCommOperate implements CallableSql {
 			Logger.logSQL(CALLABLE_SQL, callSql + VALUES + values);
 			rs = cstmt.executeQuery();
 
-			JsonResultWrap wrap = TransformResultSet.toJson(rs,null);
+			JsonResultWrap wrap = TransformResultSet.toJson(rs, null);
 			json = wrap.getResultJson();
-			int rowCount=wrap.getRowCount();
+			int rowCount = wrap.getRowCount();
 			logSelectRows(rowCount);
 
 		} catch (SQLException e) {
@@ -210,11 +209,11 @@ public class CallableSqlLib extends AbstractCommOperate implements CallableSql {
 
 		return json;
 	}
-	
+
 	private void logSelectRows(int size) {
 		Logger.logSQL(" | <--  select rows: ", size + "");
 	}
-	
+
 	private String getCallSql(String callSql) {
 		return "{call " + callSql + "}";
 	}
@@ -235,22 +234,22 @@ public class CallableSqlLib extends AbstractCommOperate implements CallableSql {
 		connLocal.remove();
 		return s;
 	}
-	
+
 	private String getIdString(CallableStatement cstmt) {
 //		return cstmt.toString(); //mysql is different in  modify(CallableStatement cstmt),getCallableStatement(String callSql)
-		return cstmt.hashCode()+"";
+		return cstmt.hashCode() + "";
 	}
 
 	private StringBuffer initPreparedValues(CallableStatement cstmt, Object[] preValues) throws SQLException {
-       
-		if(preValues==null) return new StringBuffer("preValues is null!");
-        
+
+		if (preValues == null) return new StringBuffer("preValues is null!");
+
 		StringBuffer valueBuffer = new StringBuffer();
-		int len=preValues.length;
+		int len = preValues.length;
 		for (int i = 0; i < len; i++) {
-			int k=-1; //V1.17
-			if(preValues[i]!=null) k = HoneyUtil.getJavaTypeIndex(preValues[i].getClass().getName());
-			HoneyUtil.setPreparedValues(cstmt, k, i, preValues[i]); //i from 0
+			int k = -1; // V1.17
+			if (preValues[i] != null) k = HoneyUtil.getJavaTypeIndex(preValues[i].getClass().getName());
+			HoneyUtil.setPreparedValues(cstmt, k, i, preValues[i]); // i from 0
 			valueBuffer.append(",");
 			valueBuffer.append(preValues[i]);
 		}
@@ -268,15 +267,15 @@ public class CallableSqlLib extends AbstractCommOperate implements CallableSql {
 	protected void checkClose(Statement stmt, Connection conn) {
 		HoneyContext.checkClose(stmt, conn);
 	}
-	
+
 	private void doBeforePasreEntity() {
-		Object entity=null;
+		Object entity = null;
 		super.doBeforePasreEntity(entity, SuidType.SELECT);
 	}
-	
+
 	private void doBeforePasreEntity2() {
-		Object entity=null;
+		Object entity = null;
 		super.doBeforePasreEntity(entity, SuidType.MODIFY);
 	}
-	
+
 }

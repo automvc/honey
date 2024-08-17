@@ -208,22 +208,22 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 			List<String> tabNameListForBatch = HoneyContext.getListLocal(StringConst.TabNameListForBatchLocal);
 			List<String> dsNameListForBatch = HoneyContext.getListLocal(StringConst.DsNameListForBatchLocal);
 
-			if (!ShardingUtil.isSharding() || (ObjectUtils.isEmpty(tabNameListForBatch)
-					&& ObjectUtils.isEmpty(dsNameListForBatch))) {
+			if (!ShardingUtil.isSharding()
+					|| (ObjectUtils.isEmpty(tabNameListForBatch) && ObjectUtils.isEmpty(dsNameListForBatch))) {
 				a = _insert(entity, batchSize, excludeFields);
 			} else {
 				try {
 					String tableName = _toTableName(entity[0]);
-					Logger.logSQL("Batch insert, tableName:" + tableName + "  dsNameList:"
-							+ dsNameListForBatch + "  tabNameList:" + tabNameListForBatch);
+					Logger.logSQL("Batch insert, tableName:" + tableName + "  dsNameList:" + dsNameListForBatch + "  tabNameList:"
+							+ tabNameListForBatch);
 					boolean isBroadcastTab = ShardingRegistry.isBroadcastTab(tableName);
 					boolean forkJoin = HoneyConfig.getHoneyConfig().sharding_forkJoinBatchInsert;
 					if (forkJoin && !isBroadcastTab)
-						a = new ShardingForkJoinBatchInsertEngine<T>().batchInsert(entity,
-								batchSize, excludeFields, tabNameListForBatch, this);
+						a = new ShardingForkJoinBatchInsertEngine<T>().batchInsert(entity, batchSize, excludeFields,
+								tabNameListForBatch, this);
 					else
-						a = new ShardingBatchInsertEngine<T>().batchInsert(entity, batchSize,
-								excludeFields, tabNameListForBatch, this);
+						a = new ShardingBatchInsertEngine<T>().batchInsert(entity, batchSize, excludeFields, tabNameListForBatch,
+								this);
 				} catch (Exception e) {
 					Logger.error(e.getMessage(), e);
 				} finally {
@@ -257,8 +257,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 
 	private <T> void checkNull(T entity[]) {
 		for (int i = 0; i < entity.length; i++) {
-			if (entity[i] == null)
-				throw new ObjSQLException("entity[] have null element, index: " + i);
+			if (entity[i] == null) throw new ObjSQLException("entity[] have null element, index: " + i);
 		}
 	}
 
@@ -314,8 +313,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 	}
 
 	@Override
-	public <T> String selectWithFun(T entity, FunctionType functionType, String fieldForFun,
-			Condition condition) {
+	public <T> String selectWithFun(T entity, FunctionType functionType, String fieldForFun, Condition condition) {
 		if (entity == null) return null;
 		String s = null;
 		try {
@@ -964,8 +962,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 		if (oldEntity == null || newEntity == null) return -1;
 
 		// 变长参数后, 出现混淆,需要调整
-		if (newEntity.getClass() == String.class)
-			return _update(oldEntity, newEntity.toString());
+		if (newEntity.getClass() == String.class) return _update(oldEntity, newEntity.toString());
 
 		String oldEntityFullName = oldEntity.getClass().getName();
 		String newEntityFullName = newEntity.getClass().getName();
@@ -974,8 +971,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 		Logger.debug(newEntityFullName);
 
 		if (!oldEntityFullName.equals(newEntityFullName)) {
-			throw new BeeErrorGrammarException(
-					"BeeErrorGrammarException: the oldEntity and newEntity must be same type!");
+			throw new BeeErrorGrammarException("BeeErrorGrammarException: the oldEntity and newEntity must be same type!");
 		}
 
 		doBeforePasreEntity(newEntity, SuidType.UPDATE); // 拦截器只处理新实体； 旧实体oldEntity作为条件不在拦截器处理。
@@ -1097,14 +1093,13 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 		_index(entityClass, fields, indexName, PREFIX, IndexTypeTip, IndexType);
 	}
 
-	private <T> void _index(Class<T> entityClass, String fields, String indexName,
-			String PREFIX, String IndexTypeTip, String IndexType) {
+	private <T> void _index(Class<T> entityClass, String fields, String indexName, String PREFIX, 
+			String IndexTypeTip, String IndexType) {
 
 		doBeforePasreEntity(entityClass, SuidType.DDL);
 		_regEntityClass2(entityClass);
 
-		String indexSql = DdlToSql.toIndexSql(entityClass, fields, indexName, PREFIX,
-				IndexTypeTip, IndexType);
+		String indexSql = DdlToSql.toIndexSql(entityClass, fields, indexName, PREFIX, IndexTypeTip, IndexType);
 
 		_ddlModify(entityClass, indexSql);
 	}

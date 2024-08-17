@@ -19,75 +19,75 @@ import org.teasoft.honey.util.StringUtils;
  * @since  2.0
  */
 public class MongodbObjSQL extends AbstractCommOperate implements Suid {
-	
+
 	private MongodbBeeSql mongodbBeeSql;
-	
+
 	@Override
 	public <T> List<T> select(T entity) {
 		if (entity == null) return null;
-		List<T> list =null;
+		List<T> list = null;
 		try {
-		checkPackage(entity);
-		doBeforePasreEntity(entity,SuidType.SELECT);
+			checkPackage(entity);
+			doBeforePasreEntity(entity, SuidType.SELECT);
 
-		list =getMongodbBeeSql().select(entity);
-		}finally {
-		 doBeforeReturn(list);
+			list = getMongodbBeeSql().select(entity);
+		} finally {
+			doBeforeReturn(list);
 		}
 		return list;
 	}
 
 	@Override
 	public <T> int update(T entity) {
-		// 当id为null时抛出异常  在转sql时抛出
+		// 当id为null时抛出异常 在转sql时抛出
 
 		if (entity == null) return 0;
 		try {
-		doBeforePasreEntity(entity,SuidType.UPDATE);
-		
-		int updateNum =getMongodbBeeSql().update(entity);
-		
-		return updateNum;
-		}finally {
-		 doBeforeReturn();
+			doBeforePasreEntity(entity, SuidType.UPDATE);
+
+			int updateNum = getMongodbBeeSql().update(entity);
+
+			return updateNum;
+		} finally {
+			doBeforeReturn();
 		}
 	}
 
 	@Override
-	public <T> int insert(T entity){
+	public <T> int insert(T entity) {
 
 		if (entity == null) return -1;
 		try {
-		doBeforePasreEntity(entity,SuidType.INSERT);
-		_ObjectToSQLHelper.setInitIdByAuto(entity); // 更改了原来的对象
-		
-		int insertNum =0;
-		insertNum=getMongodbBeeSql().insert(entity);
-		HoneyUtil.revertId(entity); //v1.9
-		
-		return insertNum;
-		}finally {
-		 doBeforeReturn();
+			doBeforePasreEntity(entity, SuidType.INSERT);
+			_ObjectToSQLHelper.setInitIdByAuto(entity); // 更改了原来的对象
+
+			int insertNum = 0;
+			insertNum = getMongodbBeeSql().insert(entity);
+			HoneyUtil.revertId(entity); // v1.9
+
+			return insertNum;
+		} finally {
+			doBeforeReturn();
 		}
-		
+
 	}
 
 	@Override
 	public <T> long insertAndReturnId(T entity) {
 		if (entity == null) return -1;
 		try {
-		doBeforePasreEntity(entity,SuidType.INSERT);
-		_ObjectToSQLHelper.setInitIdByAuto(entity); // 更改了原来的对象
-		
-		long insertNum =0;
-		
-		insertNum=getMongodbBeeSql().insertAndReturnId(entity, null);
-		
-		HoneyUtil.revertId(entity); 
-		
-		return insertNum;
-		}finally {
-		 doBeforeReturn();
+			doBeforePasreEntity(entity, SuidType.INSERT);
+			_ObjectToSQLHelper.setInitIdByAuto(entity); // 更改了原来的对象
+
+			long insertNum = 0;
+
+			insertNum = getMongodbBeeSql().insertAndReturnId(entity, null);
+
+			HoneyUtil.revertId(entity);
+
+			return insertNum;
+		} finally {
+			doBeforeReturn();
 		}
 	}
 
@@ -96,15 +96,15 @@ public class MongodbObjSQL extends AbstractCommOperate implements Suid {
 
 		if (entity == null) return -1;
 		try {
-		doBeforePasreEntity(entity,SuidType.DELETE);
-		
-		int deleteNum =0;
-		
-		deleteNum=getMongodbBeeSql().delete(entity);
-		
-		return deleteNum;
-		}finally {
-		 doBeforeReturn();
+			doBeforePasreEntity(entity, SuidType.DELETE);
+
+			int deleteNum = 0;
+
+			deleteNum = getMongodbBeeSql().delete(entity);
+
+			return deleteNum;
+		} finally {
+			doBeforeReturn();
 		}
 	}
 
@@ -113,30 +113,29 @@ public class MongodbObjSQL extends AbstractCommOperate implements Suid {
 		if (entity == null) return null;
 		List<T> list = null;
 		try {
-		regCondition(condition);
-		doBeforePasreEntity(entity, SuidType.SELECT);
-		if (condition != null) condition.setSuidType(SuidType.SELECT);
+			regCondition(condition);
+			doBeforePasreEntity(entity, SuidType.SELECT);
+			if (condition != null) condition.setSuidType(SuidType.SELECT);
 
-		if (condition != null) {
-			ConditionImpl conditionImpl = (ConditionImpl) condition;
-			String[] selectFields = conditionImpl.getSelectField();
-			if (selectFields != null && selectFields.length == 1
-					&& StringUtils.isNotBlank(selectFields[0])) {
-				selectFields = selectFields[0].split(",");
-			} else {
-				if (condition.getSelectField() == null) {
-					condition.selectField(HoneyUtil.getColumnNames(entity));
-					//V2.1.8
-					HoneyContext.setTrueInSysCommStrLocal(StringConst.MongoDB_SelectAllFields);
+			if (condition != null) {
+				ConditionImpl conditionImpl = (ConditionImpl) condition;
+				String[] selectFields = conditionImpl.getSelectField();
+				if (selectFields != null && selectFields.length == 1 && StringUtils.isNotBlank(selectFields[0])) {
+					selectFields = selectFields[0].split(",");
+				} else {
+					if (condition.getSelectField() == null) {
+						condition.selectField(HoneyUtil.getColumnNames(entity));
+						// V2.1.8
+						HoneyContext.setTrueInSysCommStrLocal(StringConst.MongoDB_SelectAllFields);
+					}
 				}
 			}
-		}
 
-		list = getMongodbBeeSql().select(entity, condition);
-		}finally {
-		HoneyContext.removeSysCommStrLocal(StringConst.MongoDB_SelectAllFields);
-        
-		doBeforeReturn(list);
+			list = getMongodbBeeSql().select(entity, condition);
+		} finally {
+			HoneyContext.removeSysCommStrLocal(StringConst.MongoDB_SelectAllFields);
+
+			doBeforeReturn(list);
 		}
 		return list;
 	}
@@ -145,15 +144,15 @@ public class MongodbObjSQL extends AbstractCommOperate implements Suid {
 	public <T> int delete(T entity, Condition condition) {
 		if (entity == null) return -1;
 		try {
-		regCondition(condition);
-		doBeforePasreEntity(entity,SuidType.DELETE);
-		int deleteNum =0;
-		
-		deleteNum=getMongodbBeeSql().delete(entity);
-		
-		return deleteNum;
-		}finally {
-		 doBeforeReturn();	
+			regCondition(condition);
+			doBeforePasreEntity(entity, SuidType.DELETE);
+			int deleteNum = 0;
+
+			deleteNum = getMongodbBeeSql().delete(entity);
+
+			return deleteNum;
+		} finally {
+			doBeforeReturn();
 		}
 	}
 
@@ -162,12 +161,13 @@ public class MongodbObjSQL extends AbstractCommOperate implements Suid {
 		OneTimeParameter.setAttribute(para, value);
 		return this;
 	}
-	
+
 	@Override
 	public void beginSameConnection() {
-		OneTimeParameter.setTrueForKey(StringConst.SAME_CONN_BEGIN); 
-		if(OneTimeParameter.isTrue(StringConst.SAME_CONN_EXCEPTION)) {//获取后,该key不会再存在
-			Logger.warn("Last SameConnection do not have endSameConnection() or do not run endSameConnection() after having exception.");
+		OneTimeParameter.setTrueForKey(StringConst.SAME_CONN_BEGIN);
+		if (OneTimeParameter.isTrue(StringConst.SAME_CONN_EXCEPTION)) {// 获取后,该key不会再存在
+			Logger.warn(
+					"Last SameConnection do not have endSameConnection() or do not run endSameConnection() after having exception.");
 		}
 	}
 
@@ -175,19 +175,18 @@ public class MongodbObjSQL extends AbstractCommOperate implements Suid {
 	public void endSameConnection() {
 		HoneyContext.endSameConnection();
 	}
-	
+
 	private <T> void checkPackage(T entity) {
 		HoneyUtil.checkPackage(entity);
 	}
-	
-	
+
 	public MongodbBeeSql getMongodbBeeSql() {
-		if(mongodbBeeSql==null) return BeeFactory.getHoneyFactory().getMongodbBeeSql();
+		if (mongodbBeeSql == null) return BeeFactory.getHoneyFactory().getMongodbBeeSql();
 		return mongodbBeeSql;
 	}
 
 	public void setMongodbBeeSql(MongodbBeeSql mongodbBeeSql) {
 		this.mongodbBeeSql = mongodbBeeSql;
 	}
-	
+
 }
