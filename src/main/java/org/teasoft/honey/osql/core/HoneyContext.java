@@ -527,7 +527,7 @@ public final class HoneyContext {
 
 	public static void setCurrentAppDBIfNeed(Object appDB) {
 		if (isAppDBObject(appDB.getClass().getName())) {
-			if (OneTimeParameter.isTrue("_SYS_Bee_SAME_CONN_BEGIN")) {
+			if (OneTimeParameter.isTrue(StringConst.SAME_CONN_BEGIN)) {
 				currentAppDB.set(appDB);
 			}
 		}
@@ -689,31 +689,27 @@ public final class HoneyContext {
 	static void endSameConnection() {
 		// V1..17 for Android
 		if (HoneyConfig.getHoneyConfig().isAndroid || HoneyConfig.getHoneyConfig().isHarmony) { // Harmony只是删除上下文保存的,但是否关闭不在这负责
-			if (OneTimeParameter.isTrue("_SYS_Bee_SAME_CONN_BEGIN")) { // all get from cache. 设置标志后,都是从缓存获取. 所以没有消费这个标识
-				Logger.warn(
-						"Do not get the new Connection in the SameConnection.Maybe all the results get from cache! ");
+			if (OneTimeParameter.isTrue(StringConst.SAME_CONN_BEGIN)) { // all get from cache. 设置标志后,都是从缓存获取. 所以没有消费这个标识
+				Logger.warn("Do not get the new Connection in the SameConnection.Maybe all the results get from cache! ");
 			}
 			HoneyContext.removeCurrentAppDB(); // 同一连接结束时要删除上下文
 
 			return;
 		}
 
-		if (OneTimeParameter.isTrue("_SYS_Bee_SAME_CONN_BEGIN")) { // all get from cache.
-			Logger.warn(
-					"Do not get the new Connection in the SameConnection.Maybe all the results get from cache! ");
+		if (OneTimeParameter.isTrue(StringConst.SAME_CONN_BEGIN)) { // all get from cache.
+			Logger.warn("Do not get the new Connection in the SameConnection.Maybe all the results get from cache! ");
 		} else if (!StringConst.tRue.equals(getSameConnectionDoing())) {
-			if (OneTimeParameter.isTrue("_SYS_Bee_SAME_CONN_EXCEPTION")) {// exception, //异常时,会删除上下文连接
+			if (OneTimeParameter.isTrue(StringConst.SAME_CONN_EXCEPTION)) {// exception, //异常时,会删除上下文连接
 //				next select will get every conn like normal case.
 //				若报异常后到调用endSameConnection()之时, 1)没有新获取连接,则直接到这个方法;  不用特别处理
 //				2)有新的连接,用完后,正常关闭,到这里,也是这个提示.
-				Logger.warn(
-						"Do not use same Connection, because have exception in between the begin and end SameConnection !");
+				Logger.warn("Do not use same Connection, because have exception in between the begin and end SameConnection !");
 			} else { // miss beginSameConnection
-				Logger.warn(
-						"Calling the endSameConnection(), but miss the beginSameConnection()");
+				Logger.warn("Calling the endSameConnection(), but miss the beginSameConnection()");
 			}
 		} else if (StringConst.tRue.equals(getSameConnectionDoing())) { // 正常流程
-			OneTimeParameter.setTrueForKey("_SYS_Bee_SAME_CONN_END");
+			OneTimeParameter.setTrueForKey(StringConst.SAME_CONN_END);
 			checkClose(null, getCurrentConnection());
 		}
 		removeCurrentConnection();
@@ -804,7 +800,7 @@ public final class HoneyContext {
 		conn = getCurrentConnection(); // 获取已开启事务或同一Connection的连接
 
 		if (conn == null) {
-			boolean isSameConn = OneTimeParameter.isTrue("_SYS_Bee_SAME_CONN_BEGIN");
+			boolean isSameConn = OneTimeParameter.isTrue(StringConst.SAME_CONN_BEGIN);
 			if (isSameConn) {
 				checkShadingHasMoreDs(
 						"Donot support SameConnection in more DataSources at one time!");
@@ -854,7 +850,7 @@ public final class HoneyContext {
 			if (StringConst.tRue.equals(getSameConnectionDoing())) {
 				removeCurrentConnection(); //2.2
 				removesameConnectionDoing(); // 同一conn
-				OneTimeParameter.setTrueForKey("_SYS_Bee_SAME_CONN_EXCEPTION");
+				OneTimeParameter.setTrueForKey(StringConst.SAME_CONN_EXCEPTION);
 			}
 		}
 	}
@@ -888,7 +884,7 @@ public final class HoneyContext {
 				// 如果设置了同一Connection
 				// 并且调用了endSameConnection才关闭
 				if (StringConst.tRue.equals(getSameConnectionDoing())) {
-					if (OneTimeParameter.isTrue("_SYS_Bee_SAME_CONN_END")) { // 调用suid.endSameConnection();前的SQL操作 不会触发这里的.
+					if (OneTimeParameter.isTrue(StringConst.SAME_CONN_END)) { // 调用suid.endSameConnection();前的SQL操作 不会触发这里的.
 						removesameConnectionDoing();
 						if (conn != null) conn.close();
 					}

@@ -47,6 +47,10 @@ public final class StringConst {
 	
 	public static final String SchemaName="_SYS_Bee_SchemaName";
 	public static final String SuidType="_SYS_Bee_SuidType"; //V1.17
+	
+	public static final String SAME_CONN_BEGIN="_SYS_Bee_SAME_CONN_BEGIN";
+	public static final String SAME_CONN_EXCEPTION="_SYS_Bee_SAME_CONN_EXCEPTION";
+	public static final String SAME_CONN_END="_SYS_Bee_SAME_CONN_END";
 
 	//Sharding<<<<<<<<<<<<<<<<<<<<<<<<<<
 	public static final String HadSharding=PREFIX+"HadSharding";

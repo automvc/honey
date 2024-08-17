@@ -947,9 +947,6 @@ public final class HoneyUtil {
 //	        	pst.setBigInteger(i+1, (BigInteger)value);break;
 			default:
 			{
-//				value=tryConvert(value);
-//				pst.setObject(i + 1, value);
-				
 //				先查找是否有对应类型的转换器;  到这里value不会是null;前面已处理
 				SetParaTypeConvert converter = SetParaTypeConverterRegistry.getConverter(value.getClass()); //fixed bug
 				if (converter != null) {
@@ -976,11 +973,6 @@ public final class HoneyUtil {
 		} //end switch
 	}
 	
-//	private static Object tryConvert(Object value) {
-//		if (value == null) return value;
-//		return SetParaTypeConverterRegistry.converterProcess(value.getClass(), value);
-//	}
-
 	static Object getResultObject(ResultSet rs, String typeName, String columnName) throws SQLException {
 
 		int k = HoneyUtil.getJavaTypeIndex(typeName);
@@ -1026,8 +1018,8 @@ public final class HoneyUtil {
 			case 18:
 				return rs.getSQLXML(columnName);
 				
-//				19: BigInteger
-//				20:char
+//				 19: BigInteger
+//				 20:char
 				
 //				 21:java.util.Date 
 			case 21:	
@@ -1174,7 +1166,7 @@ public final class HoneyUtil {
 		
 		String classFullName=entity.getClass().getName();
 		//		传入的实体可以过滤掉常用的包开头的,如:java., javax. ; 但像spring开头不能过滤,否则spring想用bee就不行了.
-		if (classFullName.startsWith("java.") || classFullName.startsWith("javax.")) {
+		if (classFullName.startsWith("java.") || classFullName.startsWith("javax.") || classFullName.startsWith("jakarta.")) {
 			throw new BeeIllegalEntityException("BeeIllegalEntityException: Illegal Entity, " + entity.getClass().getName());
 		}
 	}
@@ -1182,7 +1174,7 @@ public final class HoneyUtil {
 	public static boolean isJavaPackage(Class<?> entityClass) {
 		if (entityClass == null) return false;
 		String classFullName = entityClass.getName();
-		return (classFullName.startsWith("java.") || classFullName.startsWith("javax."));
+		return (classFullName.startsWith("java.") || classFullName.startsWith("javax.") || classFullName.startsWith("jakarta."));
 	}
 
 	/**
@@ -1210,7 +1202,7 @@ public final class HoneyUtil {
 		return map;
 	}
 	
-	//List<PreparedValue>  to valueBuffer
+	//List<PreparedValue>  to value string
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static String list2Value(List<PreparedValue> list,boolean needType){
 		StringBuffer b=new StringBuffer();
@@ -2004,7 +1996,7 @@ public final class HoneyUtil {
 
 	public static boolean isSuperEntity(Class<?> superClass) {
 		return superClass != null && superClass != Object.class
-				&& (!superClass.getName().startsWith("java.") && !superClass.getName().startsWith("javax."));
+				&& (!superClass.getName().startsWith("java.") && !superClass.getName().startsWith("javax.") && !superClass.getName().startsWith("jakarta.") );
 	}
 	
 	private static boolean isOpenEntityCanExtend() {

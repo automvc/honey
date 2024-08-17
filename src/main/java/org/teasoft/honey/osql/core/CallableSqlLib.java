@@ -1,6 +1,5 @@
 package org.teasoft.honey.osql.core;
 
-import java.lang.reflect.Field;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -18,7 +17,7 @@ import org.teasoft.bee.osql.api.CallableSql;
  * @author Kingstar
  * @since  1.0
  */
-public class CallableSqlLib implements CallableSql {
+public class CallableSqlLib extends AbstractCommOperate implements CallableSql {
 
 	private static final String VALUES = "  values: ";
 	private static final String CALLABLE_SQL = "Callable SQL: ";
@@ -44,23 +43,8 @@ public class CallableSqlLib implements CallableSql {
 			rs = cstmt.executeQuery();
 
 			rsList = new ArrayList<>();
-
-			Field field[] = HoneyUtil.getFields(returnType.getClass());
-			
-			int columnCount = field.length;
-
 			while (rs.next()) {
-				targetObj = (T) returnType.getClass().newInstance();
-				for (int i = 0; i < columnCount; i++) {
-					if(HoneyUtil.isSkipField(field[i])) continue;
-					HoneyUtil.setAccessibleTrue(field[i]);
-					try {
-						HoneyUtil.setFieldValue(field[i],targetObj, rs.getObject(_toColumnName(field[i].getName())));
-					} catch (IllegalArgumentException e) {
-						HoneyUtil.setFieldValue(field[i],targetObj,_getObject(rs,field[i]));
-					}
-					
-				}
+				targetObj=ResultAssemblerHandler.rowToEntity(rs, toClassT(returnType));
 				rsList.add(targetObj);
 			}
 		} catch (SQLException e) {
@@ -82,6 +66,11 @@ public class CallableSqlLib implements CallableSql {
 		targetObj = null;
 
 		return rsList;
+	}
+	
+	@SuppressWarnings("unchecked")
+	private <T> Class<T> toClassT(T entity) {
+		return (Class<T>)entity.getClass();
 	}
 
 	@Override
@@ -147,7 +136,6 @@ public class CallableSqlLib implements CallableSql {
 	public List<String[]> select(String callSql, Object[] preValues) {
 		
 		List<String[]> list=null;
-		
 		Connection conn = null;
 		ResultSet rs = null;
 		CallableStatement cstmt = null;
@@ -175,9 +163,7 @@ public class CallableSqlLib implements CallableSql {
 	@Override
 	public String selectJson(String callSql, Object[] preValues) {
 		
-//		StringBuffer json = new StringBuffer("");
 		String json="";
-		
 		Connection conn = null;
 		ResultSet rs = null;
 		CallableStatement cstmt = null;
@@ -263,11 +249,4 @@ public class CallableSqlLib implements CallableSql {
 		HoneyContext.checkClose(stmt, conn);
 	}
 	
-	private static String _toColumnName(String fieldName){
-		return NameTranslateHandle.toColumnName(fieldName);
-	}
-	
-	private Object _getObject(ResultSet rs, Field field) throws SQLException{
-		return HoneyUtil.getResultObject(rs, field.getType().getName(), _toColumnName(field.getName()));
-	}
 }

@@ -26,8 +26,9 @@ public class ResultAssemblerHandler {
 		return getResultAssembler(clazz).rowToEntity(rs, clazz);
 	}
 
+	@SuppressWarnings("unchecked")
 	private static <T> ResultAssembler<T> getResultAssembler(Class<T> entityClass) {
-		ResultAssembler<T> t = ResultAssemblerRegistry.getConverter(entityClass);
+		ResultAssembler<T> t = ResultAssemblerRegistry.getResultAssembler(entityClass);
 		if (t != null)
 			return t;
 		else

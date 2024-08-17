@@ -126,6 +126,7 @@ public final class EntityUtil {
 		
 		return !(field.getType().isPrimitive() || typeName.startsWith("java.")
 				|| typeName.startsWith("javax.")
+				|| typeName.startsWith("jakarta.")
 				|| typeName.startsWith("org.teasoft.bee.")
 				|| typeName.startsWith("org.teasoft.hoeny.")
 				|| typeName.startsWith("org.teasoft.beex.")
@@ -143,6 +144,7 @@ public final class EntityUtil {
 		
 		return !(typeName.startsWith("java.")
 				|| typeName.startsWith("javax.")
+				|| typeName.startsWith("jakarta.")
 				|| typeName.startsWith("org.teasoft.bee.")
 				|| typeName.startsWith("org.teasoft.hoeny.")
 				|| typeName.startsWith("org.teasoft.beex.")

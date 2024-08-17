@@ -844,7 +844,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		if(c==null) return;
 //		String packageName=c.getPackage().getName();  //bug
 		String classFullName=c.getName();
-		if(classFullName.startsWith("java.") || classFullName.startsWith("javax.")){
+		if(classFullName.startsWith("java.") || classFullName.startsWith("javax.") || classFullName.startsWith("jakarta.")){
 			throw new BeeIllegalEntityException("BeeIllegalEntityException: Illegal Entity, "+c.getName());
 		}
 	}
