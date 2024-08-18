@@ -20,14 +20,13 @@ import java.util.concurrent.ExecutorService;
 import org.teasoft.bee.osql.BeeSql;
 import org.teasoft.bee.sharding.ShardingSortStruct;
 import org.teasoft.honey.distribution.GenIdFactory;
-import org.teasoft.honey.osql.core.ExceptionHelper;
 import org.teasoft.honey.osql.core.HoneyContext;
 import org.teasoft.honey.osql.core.Logger;
 import org.teasoft.honey.osql.core.OrderByPagingRewriteSql;
-import org.teasoft.honey.osql.core.ResultAssemblerHandler;
 import org.teasoft.honey.osql.core.ShardingLogReg;
 import org.teasoft.honey.osql.core.ShardingSortReg;
 import org.teasoft.honey.osql.core.StringConst;
+import org.teasoft.honey.osql.core.TransformResultSet;
 import org.teasoft.honey.sharding.ShardingUtil;
 import org.teasoft.honey.sharding.engine.decorate.CompareResult;
 import org.teasoft.honey.sharding.engine.decorate.OrderByStreamResult;
@@ -98,19 +97,11 @@ public class ShardingSelectRsEngine {
 		}
 		executor.shutdown();
 		
-		//放入优先队列后,就转换出需要的数据.   要传入需要多少数据? 在内部处理.   有取中间几条的吗? 有
 		List<T> rsList = null;
-		if (size == 1) {// v2.4.0
-			try {
-				rsList = new ArrayList<>();
-				while (rs.next()) {
-					T targetObj = ResultAssemblerHandler.rowToEntity(rs, entityClass);
-					rsList.add(targetObj);
-				}
-			} catch (Exception e) {
-				throw ExceptionHelper.convert(e);
-			}
+		if (size == 1) {// v2.4.0 只有一个数据源时,直接转化
+			rsList = TransformResultSet.rsToListEntity(rs, entityClass);
 		} else {
+			// 放入优先队列后,就转换出需要的数据. 要传入需要多少数据? 在内部处理. 有取中间几条的吗? 有
 			rsList = new OrderByStreamResult<>(queue, entityClass).getOnePageList();
 		}
 		

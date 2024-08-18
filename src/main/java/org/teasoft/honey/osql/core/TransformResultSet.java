@@ -362,5 +362,22 @@ public class TransformResultSet {
 		
 		return targetObj;
 	}
+	
+	public static <T> List<T> rsToListEntity(ResultSet rs, Class<T> entityClass) {
+		List<T> rsList = null;
+		T targetObj = null;
+		try {
+			rsList = new ArrayList<>();
+			while (rs.next()) {
+				targetObj = ResultAssemblerHandler.rowToEntity(rs, entityClass);
+				rsList.add(targetObj);
+			}
+		} catch (Exception e) {
+			throw ExceptionHelper.convert(e);
+		} finally {
+			targetObj = null;
+		}
+		return rsList;
+	}
 
 }
