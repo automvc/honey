@@ -16,16 +16,15 @@ import org.teasoft.honey.osql.core.K;
  */
 
 public class InsertImpl extends AbstractToSqlForChain implements Insert {
-//	public class InsertImpl extends WhereImpl<Insert> implements Insert {
-	
-	private static final String QU_MARK = "?";
+
+	private static final String Q_MARK = "?";
 	private boolean isStartField = true;
 	private static final String L_PARENTHESES = "(";
 	private static final String R_PARENTHESES = ")";
 	private static final String COMMA = ",";
-	
-	private StringBuffer v = new StringBuffer();
-	
+
+	private StringBuffer valueSql = new StringBuffer();
+
 	@Override
 	public Insert insert(String table) {
 		checkExpression(table);
@@ -38,37 +37,54 @@ public class InsertImpl extends AbstractToSqlForChain implements Insert {
 	}
 
 	@Override
-	public Insert column(String column) {
-//		checkField(column);
+	public Insert columnAndValue(String column, Object value) {
 		checkExpression(column);
 		if (isStartField) {
+			isStartField = false;
+
 			sql.append(L_PARENTHESES);
 			sql.append(column);
 			sql.append(R_PARENTHESES);
-			isStartField = false;
-			if(isUsePlaceholder()) v.append(QU_MARK);
 		} else {
-			sql.deleteCharAt(sql.length()-1);
+			sql.deleteCharAt(sql.length() - 1); // delete ')'
 			sql.append(COMMA);
 			sql.append(column);
 			sql.append(R_PARENTHESES);
-			
-			if(isUsePlaceholder()) v.append(COMMA).append(QU_MARK);
+
+			valueSql.append(COMMA);
+		}
+
+		if (isUsePlaceholder()) {
+			valueSql.append(Q_MARK);
+			addValue(value);
+		} else {
+			appendValue(valueSql, value);
 		}
 
 		return this;
 	}
-	
+
+	@Override
 	public String toSQL() {
+		StringBuffer tempSql = new StringBuffer(sql);
 
-		if (isUsePlaceholder())  //TODO
-		   sql.append(K.space).append(K.values).append(K.space).append(L_PARENTHESES).append(v).append(R_PARENTHESES);
+		sql.append(K.space).append(K.values).append(K.space).append(L_PARENTHESES).append(valueSql).append(R_PARENTHESES);
+		String sql0 = super.toSQL();
 
-		return super.toSQL();
+		sql = tempSql;
+
+		return sql0;
 	}
-	
-	
+
 	private void _appendTable(String table) {
 		super.appendTable(table);
+	}
+
+	private void appendValue(StringBuffer s, Object value) {
+		if (value != null && value.getClass() == String.class) {
+			s.append("'").append(value).append("'");
+		} else {
+			s.append(value);
+		}
 	}
 }

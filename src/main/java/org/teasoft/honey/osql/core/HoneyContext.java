@@ -406,7 +406,8 @@ public final class HoneyContext {
 		if (list == null) return;
 		if (sqlStr == null || "".equals(sqlStr.trim())) return;
 		if (list.size() == 0) {
-			if (!isShowExecutableSql()) return;
+//			if (!isShowExecutableSql()) return;  //2.4.0  为了让chaning模式也能用占位符供preparedSql调用,参数为空时,不再放入上下文. 
+			return;
 		}
 
 		Map<String, List<PreparedValue>> map = sqlPreValueLocal.get();
@@ -690,7 +691,7 @@ public final class HoneyContext {
 		// V1..17 for Android
 		if (HoneyConfig.getHoneyConfig().isAndroid || HoneyConfig.getHoneyConfig().isHarmony) { // Harmony只是删除上下文保存的,但是否关闭不在这负责
 			if (OneTimeParameter.isTrue(StringConst.SAME_CONN_BEGIN)) { // all get from cache. 设置标志后,都是从缓存获取. 所以没有消费这个标识
-				Logger.warn("Do not get the new Connection in the SameConnection.Maybe all the results get from cache! ");
+				Logger.warn("Do not get the new Connection in the SameConnection. Maybe all the results get from cache! ");
 			}
 			HoneyContext.removeCurrentAppDB(); // 同一连接结束时要删除上下文
 
@@ -698,7 +699,7 @@ public final class HoneyContext {
 		}
 
 		if (OneTimeParameter.isTrue(StringConst.SAME_CONN_BEGIN)) { // all get from cache.
-			Logger.warn("Do not get the new Connection in the SameConnection.Maybe all the results get from cache! ");
+			Logger.warn("Do not get the new Connection in the SameConnection. Maybe all the results get from cache! ");
 		} else if (!StringConst.tRue.equals(getSameConnectionDoing())) {
 			if (OneTimeParameter.isTrue(StringConst.SAME_CONN_EXCEPTION)) {// exception, //异常时,会删除上下文连接
 //				next select will get every conn like normal case.

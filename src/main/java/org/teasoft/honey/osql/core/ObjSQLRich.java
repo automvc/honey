@@ -1052,7 +1052,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 			}
 		} else {// donot Drop ExistTable
 			boolean isSharding = ShardingUtil.isSharding();
-			if (!isSharding) { // 已存在,则不创建 2.0 非分片才检测
+			if (!isSharding) { // 已存在,则不创建     2.0 非分片才检测
 				try {
 					int c = count(entityClass.newInstance());
 					if (c > 0) return true;

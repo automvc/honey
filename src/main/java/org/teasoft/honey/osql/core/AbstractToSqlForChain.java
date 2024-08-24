@@ -21,13 +21,12 @@ import org.teasoft.honey.util.StringUtils;
 public abstract class AbstractToSqlForChain implements ToSql{
 	
 	protected StringBuffer sql = new StringBuffer();
-	
-	//2.4.0
-	private List<PreparedValue>  pvList = new ArrayList<>();
-	private boolean isUsePlaceholder=true;
+	protected List<PreparedValue> pvList = new ArrayList<>();// 2.4.0
+	private boolean isUsePlaceholder = true;
 	private String table;
 	
-	public String toSQL() {
+	@Override
+	public String toSQL() { //使用占位符时,调用了toSQL(),就应该执行,以防止上下文中保存的值信息出错.
 		String sql0=toSQL(true);//oracle用jdbc不允许有分号
 		if(isUsePlaceholder()) {
 			setContext(sql0);  //但是使用pre的时候，会把它冲了; V2.4.0 使用pre无参数时，已不会。
@@ -59,12 +58,12 @@ public abstract class AbstractToSqlForChain implements ToSql{
 		if(StringUtils.isBlank(this.table)) this.table=table;
 		else this.table+=StringConst.TABLE_SEPARATOR+table;
 	}
-	
 
 	public boolean isUsePlaceholder() {
-		return isUsePlaceholder;
+		return this.isUsePlaceholder;
 	}
 	
+	@Override
 	public void setUsePlaceholder(boolean isUsePlaceholder) {
 		this.isUsePlaceholder = isUsePlaceholder;
 	}

@@ -12,6 +12,7 @@ import java.util.List;
 import org.teasoft.honey.distribution.ds.Router;
 import org.teasoft.honey.osql.util.MD5;
 import org.teasoft.honey.sharding.ShardingUtil;
+import org.teasoft.honey.util.StringUtils;
 
 /**
  * Cache Key.
@@ -112,6 +113,7 @@ public final class CacheKey {
 		if (struct != null) {
 //		if (struct != null && SuidType.MODIFY.getType().equals(struct.getSuidType()) ) {  //查询时,放缓存也要用到
 			String tableNames=struct.getTableNames();
+			if (StringUtils.isBlank(tableNames)) return null; // 2.4.0
 			String tabs[]=tableNames.trim().split(StringConst.TABLE_SEPARATOR);
 			for (int i = 0; i < tabs.length; i++) {
 				list.add(tabs[i]);  // 还要加上数据源信息等其它      在CacheUtil已为仅分库情型加DS

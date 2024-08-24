@@ -38,7 +38,7 @@ public class Ddl {
 	/**
 	 * @param entityClass
 	 * @param isDropExistTable
-	 * @return
+	 * @return flag whether create successfully.
 	 * @since 2.0
 	 */
 	public static <T> boolean createTable(Class<T> entityClass, boolean isDropExistTable) {
@@ -53,7 +53,7 @@ public class Ddl {
 	 * <br>too much field information. This method only considers the general situation, and is not 
 	 * <br>recommended if there are detailed requirements.
 	 * @param entity Javabean entity.
-	 * @return flag whether create successfully.
+	 * @return flag whether create successfully.if exist and already has data, also return true.
 	 * @deprecated
 	 */
 	public static <T> boolean createTable(T entity) {
