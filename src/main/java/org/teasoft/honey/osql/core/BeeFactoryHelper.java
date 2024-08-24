@@ -53,34 +53,30 @@ public class BeeFactoryHelper {
 		return BeeFactory.getHoneyFactory().getMapSql();
 	}
 	
-	// @since 2.0
+	//2.0
 	public static UnionSelect getUnionSelect() {
 		return BeeFactory.getHoneyFactory().getUnionSelect();
 	}
-	// @since 2.0
+	//2.0
 	public static Suid getSuidForMongodb() {
 		return BeeFactory.getHoneyFactory().getSuidForMongodb();
 	}
-	// @since 2.0
+	//2.0
 	public static SuidRich getSuidRichForMongodb() {
 		return BeeFactory.getHoneyFactory().getSuidRichForMongodb();
 	}
 
-	// @since 2.1
-	public ObjSQLService getObjSQLService() {
+	//2.1
+	public static ObjSQLService getObjSQLService() {
 		return BeeFactory.getHoneyFactory().getObjSQLService();
 	}
-	// @since 2.1
-	public ObjSQLRichService getObjSQLRichService() {
+	//2.1
+	public static ObjSQLRichService getObjSQLRichService() {
 		return BeeFactory.getHoneyFactory().getObjSQLRichService();
 	}
 	
-//	// @since 2.1
-//	public MongodbBeeSql getMongodbBeeSql() {
-//		return BeeFactory.getHoneyFactory().getMongodbBeeSql();
-//	}
-	// @since 2.1
-	public MongodbRawSql getMongodbRawSql() {
+	//2.1
+	public static MongodbRawSql getMongodbRawSql() {
 		return BeeFactory.getHoneyFactory().getMongodbRawSql();
 	}
 

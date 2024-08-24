@@ -62,7 +62,7 @@ public class ShardingUtil {
 	}
 	
 	public static boolean hadSharding() {//要分片,且有分片
-		return isSharding() && isTrueInSysCommStrLocal(StringConst.HadSharding);
+		return isSharding() && isTrue(StringConst.HadSharding);
 	}
 	
 	public static boolean hadGroupSharding() {
@@ -74,32 +74,31 @@ public class ShardingUtil {
 	}
 	
 	public static boolean hadShardingFullSelect() {//要分片,且要全域查询
-		return isSharding() && isTrueInSysCommStrLocal(StringConst.ShardingFullSelect);
+		return isSharding() && isTrue(StringConst.ShardingFullSelect);
 	}
 	
 	public static boolean hadShardingSomeDsFullSelect() {//分片值只计算得数据源名称,应该查其下的所有表.
-		return isSharding() && isTrueInSysCommStrLocal(StringConst.ShardingSomeDsFullSelect);
+		return isSharding() && isTrue(StringConst.ShardingSomeDsFullSelect);
 	}
 	
 	public static boolean isMoreTableQuery() {
-//		return StringConst.tRue.equals(HoneyContext.getSysCommStrLocal(StringConst.MoreTableQuery));
-		return isTrueInSysCommStrLocal(StringConst.MoreTableQuery);
+		return isTrue(StringConst.MoreTableQuery);
 	}
 	
-	public static void setTrueInSysCommStrLocal(String key) {
-		HoneyContext.setSysCommStrLocal(key, StringConst.tRue);
+	public static void setTrue(String key) {
+		HoneyContext.setTrueInSysCommStrInheritableLocal(key);
 	}
 	
-	public static boolean isTrueInSysCommStrLocal(String key) {
-		return HoneyContext.isTrueInSysCommStrLocal(key);
+	public static boolean isTrue(String key) {
+		return HoneyContext.isTrueInSysCommStrInheritableLocal(key);
 	}
 	
 	public static void regSelectRsThreadFlag(String threadFlag) {
-		HoneyContext.setSysCommStrLocal(StringConst.ShardingSelectRs_ThreadFlag, threadFlag);
+		HoneyContext.setSysCommStrInheritableLocal(StringConst.ShardingSelectRs_ThreadFlag, threadFlag);
 	}
 	
 	public static boolean isShardingBatchInsertDoing() {
-		return isTrueInSysCommStrLocal(StringConst.ShardingBatchInsertDoing);
+		return isTrue(StringConst.ShardingBatchInsertDoing);
 	}
 	
 	public static int hashInt(String str) {

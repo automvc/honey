@@ -55,6 +55,7 @@ public final class HoneyContext {
 	private static ThreadLocal<Map<String, Map<String, String>>> customMapLocal;
 
 	private static ThreadLocal<Map<String, String>> sysCommStrLocal;
+	private static ThreadLocal<Map<String, String>> sysCommStrInheritableLocal;
 	private static ThreadLocal<Map<String, List<String>>> listLocal;
 
 	private static ThreadLocal<RouteStruct> currentRoute;
@@ -116,6 +117,7 @@ public final class HoneyContext {
 		if(sqlServerPaging!=null) sqlServerPaging.remove();
 		if(customMapLocal!=null) customMapLocal.remove();
 		if(sysCommStrLocal!=null) sysCommStrLocal.remove();
+		if (sysCommStrInheritableLocal != null) sysCommStrInheritableLocal.remove();
 		if(listLocal!=null) listLocal.remove();
 		if(sqlPreValueLocal!=null) sqlPreValueLocal.remove();
 		if(sqlIndexLocal!=null) sqlIndexLocal.remove();
@@ -127,6 +129,7 @@ public final class HoneyContext {
 		sqlIndexLocal = new InheritableThreadLocal<>();
 		conditionLocal = new InheritableThreadLocal<>();
 //		tabNameListLocal = new ThreadLocal<>(); //每个子线程都有一个具体表名,不需要.
+		sysCommStrInheritableLocal = new InheritableThreadLocal<>();
 
 		sqlServerPaging = new ThreadLocal<>();
 		customMapLocal = new ThreadLocal<>();
@@ -367,7 +370,26 @@ public final class HoneyContext {
 	public static void removeSysCommStrLocal(String key) {
 		Map<String, String> map = sysCommStrLocal.get();
 		if (map != null) map.remove(key);
-//		if (map != null && map.containsKey(key)) map.remove(key);
+	}
+	
+	public static void setSysCommStrInheritableLocal(String key, String value) {
+		if (value == null) return;
+		if (key == null || "".equals(key.trim())) return;
+		Map<String, String> map = sysCommStrInheritableLocal.get();
+		if (map == null) map = new ConcurrentHashMap<>();
+		map.put(key, value);
+		sysCommStrInheritableLocal.set(map);
+	}
+
+	public static String getSysCommStrInheritableLocal(String key) {
+		Map<String, String> map = sysCommStrInheritableLocal.get();
+		if (map == null || key == null) return null;
+		return map.get(key);
+	}
+
+	public static void removeSysCommStrInheritableLocal(String key) {
+		Map<String, String> map = sysCommStrInheritableLocal.get();
+		if (map != null) map.remove(key);
 	}
 
 	public static void setTrueInSysCommStrLocal(String key) {
@@ -376,6 +398,14 @@ public final class HoneyContext {
 
 	public static boolean isTrueInSysCommStrLocal(String key) {
 		return StringConst.tRue.equals(HoneyContext.getSysCommStrLocal(key));
+	}
+	
+	public static void setTrueInSysCommStrInheritableLocal(String key) {
+		setSysCommStrInheritableLocal(key, StringConst.tRue);
+	}
+
+	public static boolean isTrueInSysCommStrInheritableLocal(String key) {
+		return StringConst.tRue.equals(HoneyContext.getSysCommStrInheritableLocal(key));
 	}
 
 	public static void setListLocal(String key, List<String> listString) {

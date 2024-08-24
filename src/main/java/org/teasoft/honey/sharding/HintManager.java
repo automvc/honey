@@ -18,7 +18,7 @@ public class HintManager {
 	
 	public static void setDataSourceName(String dsName) {
 		HoneyContext.setAppointDS(dsName);
-		HoneyContext.setSysCommStrLocal(StringConst.HintDs, StringConst.tRue);
+		HoneyContext.setSysCommStrInheritableLocal(StringConst.HintDs, StringConst.tRue);
 	}
 	
 	/**
@@ -27,7 +27,7 @@ public class HintManager {
 	 */
 	public static void setTableName(String tableName) {
 		HoneyContext.setAppointTab(tableName);
-		HoneyContext.setSysCommStrLocal(StringConst.HintTab, StringConst.tRue);
+		HoneyContext.setSysCommStrInheritableLocal(StringConst.HintTab, StringConst.tRue);
 	}
 	
 }

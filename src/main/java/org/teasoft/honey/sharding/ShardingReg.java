@@ -28,7 +28,7 @@ public class ShardingReg {
 	//<<<<<<<<<<<<<<<<<<<<<<<<<解析时用.  start
 	
 	public static void regHadSharding() {
-		ShardingUtil.setTrueInSysCommStrLocal(StringConst.HadSharding);
+		ShardingUtil.setTrue(StringConst.HadSharding);
 	}
 
 	//下游还会判断,是否涉及多个库.
@@ -201,7 +201,7 @@ public class ShardingReg {
 		}
 	
 	public static void setTrueInSysCommStrLocal(String key) {
-		HoneyContext.setSysCommStrLocal(key, StringConst.tRue);
+		HoneyContext.setSysCommStrInheritableLocal(key, StringConst.tRue);
 	}
 
 }

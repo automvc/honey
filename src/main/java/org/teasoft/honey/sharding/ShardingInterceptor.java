@@ -246,16 +246,16 @@ public class ShardingInterceptor extends EmptyInterceptor {
 	}
 	
 	private boolean isHintBoth() {
-		return ShardingUtil.isTrueInSysCommStrLocal(StringConst.HintDs)
-				&& ShardingUtil.isTrueInSysCommStrLocal(StringConst.HintTab);
+		return ShardingUtil.isTrue(StringConst.HintDs)
+				&& ShardingUtil.isTrue(StringConst.HintTab);
 	}
 	
 	private boolean isHintDs() {
-		return ShardingUtil.isTrueInSysCommStrLocal(StringConst.HintDs);
+		return ShardingUtil.isTrue(StringConst.HintDs);
 	}
 	
 	private boolean isHintTab() {
-		return ShardingUtil.isTrueInSysCommStrLocal(StringConst.HintTab);
+		return ShardingUtil.isTrue(StringConst.HintTab);
 	}
 	
 	private void regFullorHintDsFull(SuidType suidType) {

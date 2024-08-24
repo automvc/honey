@@ -12,6 +12,7 @@ import org.teasoft.bee.mongodb.MongodbBeeSql;
 import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.api.Condition;
 import org.teasoft.bee.osql.api.Suid;
+import org.teasoft.honey.sharding.ShardingUtil;
 import org.teasoft.honey.util.StringUtils;
 
 /**
@@ -57,6 +58,13 @@ public class MongodbObjSQL extends AbstractCommOperate implements Suid {
 	public <T> int insert(T entity) {
 
 		if (entity == null) return -1;
+		
+		if (ShardingUtil.isSharding()){ 
+			T array[] = (T[]) new Object[1];
+			array[0]=entity;
+			return new MongodbObjSQLRich().insert(array); //todo
+		}
+		
 		try {
 			doBeforePasreEntity(entity, SuidType.INSERT);
 			_ObjectToSQLHelper.setInitIdByAuto(entity); // 更改了原来的对象

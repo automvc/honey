@@ -307,6 +307,13 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 	@Override
 	public <T> int insert(T entity, IncludeType includeType) {
 		if (entity == null) return -1;
+		
+		if (ShardingUtil.isSharding()){
+			T array[] = (T[]) new Object[1];
+			array[0]=entity;
+			Logger.warn("In the Sharding type, change to call insert(T[] entity), it will ignore includeType parameter!");
+			return insert(array);
+		}
 
 		long a = insertAndReturnId(entity, includeType);
 		if (a > 0)
