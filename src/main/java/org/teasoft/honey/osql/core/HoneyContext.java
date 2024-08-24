@@ -526,7 +526,7 @@ public final class HoneyContext {
 	}
 
 	public synchronized static void regConnForSelectRs(Connection conn) {
-		String threadFlag=HoneyContext.getSysCommStrLocal(StringConst.ShardingSelectRs_ThreadFlag);
+		String threadFlag=HoneyContext.getSysCommStrInheritableLocal(StringConst.ShardingSelectRs_ThreadFlag);
 		Integer subThreadIndex = HoneyContext.getSqlIndexLocal();
 		String key=threadFlag+subThreadIndex;
 		conneForSelectRs.put(key, conn);
@@ -813,7 +813,7 @@ public final class HoneyContext {
 	}
 
 	static void regFunType(FunctionType functionType) {
-		HoneyContext.setSysCommStrLocal(StringConst.FunType, functionType.getName());
+		HoneyContext.setSysCommStrInheritableLocal(StringConst.FunType, functionType.getName());
 	}
 
 	static void regSuidType(SuidType suidType) {

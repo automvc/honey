@@ -168,7 +168,7 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 			} catch (Exception e) {
 				Logger.error(e.getMessage(), e);
 			} finally {
-				HoneyContext.removeSysCommStrLocal(StringConst.ShardingBatchInsertDoing);
+				HoneyContext.removeSysCommStrInheritableLocal(StringConst.ShardingBatchInsertDoing);
 			}
 		}
 

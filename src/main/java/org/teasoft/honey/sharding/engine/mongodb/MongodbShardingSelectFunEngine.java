@@ -96,7 +96,7 @@ public class MongodbShardingSelectFunEngine {
 			String typeTag = "";
 			typeTag = "select fun";
 
-			String funType = HoneyContext.getSysCommStrLocal(StringConst.FunType);
+			String funType = HoneyContext.getSysCommStrInheritableLocal(StringConst.FunType);
 			if (FunctionType.COUNT.getName().equalsIgnoreCase(funType)) {
 				rsStr = mongodbBeeSql.count(struct, entityClass);
 			} else {

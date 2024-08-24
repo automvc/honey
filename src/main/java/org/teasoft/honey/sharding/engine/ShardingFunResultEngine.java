@@ -21,7 +21,7 @@ import org.teasoft.honey.util.currency.CurrencyArithmetic;
 public class ShardingFunResultEngine {
 	
 	public static String funResultEngine(List<String> rsList) {
-		String funType = HoneyContext.getSysCommStrLocal(StringConst.FunType);
+		String funType = HoneyContext.getSysCommStrInheritableLocal(StringConst.FunType);
 		Double temp = 0D;
 		int position = -1;
 		if (FunctionType.MAX.getName().equalsIgnoreCase(funType)) {

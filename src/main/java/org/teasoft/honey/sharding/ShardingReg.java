@@ -43,7 +43,7 @@ public class ShardingReg {
 	
 	public static void regFullInModifyAllNodes(SuidType suidType) {
 		if(suidType!=SuidType.SELECT) {
-			setTrueInSysCommStrLocal(StringConst.ShardingFullSelect);
+			setTrue(StringConst.ShardingFullSelect);
 			regHadSharding();
 		}
 	}
@@ -52,7 +52,7 @@ public class ShardingReg {
 		//来到这里,说明是涉及全域操作,是没有设置分片值的.
 		
 		if(suidType==SuidType.SELECT || suidType==SuidType.DELETE  || suidType==SuidType.UPDATE) { //全域
-			setTrueInSysCommStrLocal(StringConst.ShardingFullSelect);
+			setTrue(StringConst.ShardingFullSelect);
 			regHadSharding();
 		}else if (SuidType.INSERT == suidType) {
 			//记录插入时,分表的分片值,要设置
@@ -63,7 +63,7 @@ public class ShardingReg {
 	//分片值只计算得数据源名称,应该查其下的所有表.
 	public static void regSomeDsFull(SuidType suidType) {
 		regFull(suidType); //若有异常,会在这句抛出.
-		setTrueInSysCommStrLocal(StringConst.ShardingSomeDsFullSelect);
+		setTrue(StringConst.ShardingSomeDsFullSelect);
 	}
 	
 	public static void regShardingJustDs(List<String> dsNameList) {  //一般用于判断,是否是某个数据源
@@ -156,7 +156,7 @@ public class ShardingReg {
 	}
 	
 	public static void regMoreTableQuery() {
-		setTrueInSysCommStrLocal(StringConst.MoreTableQuery);
+		setTrue(StringConst.MoreTableQuery);
 	}
 	
 	
@@ -165,7 +165,7 @@ public class ShardingReg {
 	
 	
 	public static void regShardingBatchInsertDoing() {
-		setTrueInSysCommStrLocal(StringConst.ShardingBatchInsertDoing);
+		setTrue(StringConst.ShardingBatchInsertDoing);
 	}
 	
 	
@@ -175,13 +175,13 @@ public class ShardingReg {
 			if(! ShardingUtil.isSharding()) return ;
 			
 			HoneyContext.removeConditionLocal();
-			HoneyContext.removeSysCommStrLocal(StringConst.HadSharding);
-			HoneyContext.removeSysCommStrLocal(StringConst.ShardingFullSelect);
-			HoneyContext.removeSysCommStrLocal(StringConst.ShardingSomeDsFullSelect);
-			HoneyContext.removeSysCommStrLocal(StringConst.HintDs);
-			HoneyContext.removeSysCommStrLocal(StringConst.HintTab);
-			HoneyContext.removeSysCommStrLocal(StringConst.FunType);
-			HoneyContext.removeSysCommStrLocal(StringConst.MoreTableQuery);
+			HoneyContext.removeSysCommStrInheritableLocal(StringConst.HadSharding);
+			HoneyContext.removeSysCommStrInheritableLocal(StringConst.ShardingFullSelect);
+			HoneyContext.removeSysCommStrInheritableLocal(StringConst.ShardingSomeDsFullSelect);
+			HoneyContext.removeSysCommStrInheritableLocal(StringConst.HintDs);
+			HoneyContext.removeSysCommStrInheritableLocal(StringConst.HintTab);
+			HoneyContext.removeSysCommStrInheritableLocal(StringConst.FunType);
+			HoneyContext.removeSysCommStrInheritableLocal(StringConst.MoreTableQuery);
 			
 			HoneyContext.removeListLocal(StringConst.TabNameListLocal);
 			HoneyContext.removeListLocal(StringConst.TabSuffixListLocal);
@@ -200,7 +200,7 @@ public class ShardingReg {
 			HoneyContext.removeCurrentGroupFunStruct();
 		}
 	
-	public static void setTrueInSysCommStrLocal(String key) {
+	public static void setTrue(String key) {
 		HoneyContext.setSysCommStrInheritableLocal(key, StringConst.tRue);
 	}
 
