@@ -490,8 +490,29 @@ public final class HoneyConfig {
 	
 	
 	@SysValue("${bee.dosql.multiDS.sharding}")
-	public boolean multiDS_sharding; //用于分库分表的分片
+	boolean multiDS_sharding; //用于分库分表的分片
 	
+	/**
+	 * return multiDS_sharding
+	 * @return multiDS_sharding
+	 * @since 2.4.0
+	 */
+	public boolean getMultiDsSharding() {
+		return multiDS_sharding;
+	}
+	
+	/**
+	 * In production, this attribute should be set in the configuration file using "bee.dosql.multiDS.sharding".
+	 * <br>And the running process should not be changed, otherwise relevant configuration and contextual information will be lost.
+	 * <br>在生产上,此属性应该在配置文件中使用bee.dosql.multiDS.sharding设置,
+	 * <br>且运行过程不宜更改,否则会丢失有关配置和上下文信息.
+	 * @param multiDsSharding
+	 * @since 2.4.0
+	 */
+	public void setMultiDsSharding(boolean multiDsSharding) {
+		this.multiDS_sharding=multiDsSharding;
+		HoneyContext.initTLRefresh();
+	}
 	//----------------------------- multiDs  end
 	
 	

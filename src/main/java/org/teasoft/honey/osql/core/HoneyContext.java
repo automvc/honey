@@ -1127,7 +1127,7 @@ public final class HoneyContext {
 		HoneyContext.configRefresh = configRefresh;
 		HoneyConfig.setChangeDataSource(true); // 1.17
 		
-		if(configRefresh) initTLRefresh(); //2.2
+//		if(configRefresh) initTLRefresh(); //2.2       2.4.0 close   multiDS_sharding应该在系统启动前就定好. 运行过程,不应该更改.
 	}
 
 	private static final Integer ONE=1;

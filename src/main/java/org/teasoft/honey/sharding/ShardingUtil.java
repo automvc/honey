@@ -58,7 +58,7 @@ public class ShardingUtil {
 //	}
 	
 	public static boolean isSharding() {
-		return HoneyContext.isMultiDs() && HoneyConfig.getHoneyConfig().multiDS_sharding;
+		return HoneyContext.isMultiDs() && HoneyConfig.getHoneyConfig().getMultiDsSharding();
 	}
 	
 	public static boolean hadSharding() {//要分片,且有分片
