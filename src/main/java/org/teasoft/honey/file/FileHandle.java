@@ -13,6 +13,9 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 
 import org.teasoft.bee.file.FileCreator;
 import org.teasoft.honey.osql.core.Logger;
@@ -42,7 +45,10 @@ public class FileHandle implements FileCreator{
 	public void genFile(String fullPathAndName, String content) {
 		File f = new File(fullPathAndName);
 		
-		if (!f.exists()) {
+		if(f.exists()) {
+			Logger.info("The file already exist.");
+			backFile(f);
+		}else if (!f.exists()) {
 			String substr=fullPathAndName.substring(0,fullPathAndName.lastIndexOf(File.separator));
 			new File(substr).mkdirs();
 			Logger.info("Create file: "+fullPathAndName);
@@ -53,7 +59,7 @@ public class FileHandle implements FileCreator{
 			){
 			bw.write(content);
 			bw.flush();
-//			bw.close();
+			logGenFile(fullPathAndName);
 		} catch (Exception e) {
 			Logger.error(e.getMessage());
 		}
@@ -64,20 +70,29 @@ public class FileHandle implements FileCreator{
 	public void genFile(String fullPath, String fileName, String content) {
 		// 生成文件
 		if (!fullPath.endsWith(File.separator)) fullPath += File.separator;
-		
+
 		File folder = new File(fullPath);
+		boolean needCheckExist = false;
 		if (!folder.exists()) {
 			folder.mkdirs();
-			Logger.info("Create file: "+fullPath + fileName);
+			Logger.debug("Create folder: " + fullPath);
+		} else {
+			needCheckExist = true;
 		}
 
 		File entityFile = new File(fullPath + fileName);
+		if (needCheckExist) {
+			if (entityFile.exists()) {
+				Logger.info("The file already exist.");
+				backFile(entityFile);
+			}
+		}
 		try(
 			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(entityFile),getCharsetName()));
 			) {
 			bw.write(content);
 			bw.flush();
-//			bw.close();
+			logGenFile(fullPath + fileName);
 		} catch (Exception e) {
 			Logger.error(e.getMessage());
 		}
@@ -109,7 +124,7 @@ public class FileHandle implements FileCreator{
 			bw.write(content);
 			bw.append(LINE_SEPARATOR);
 			bw.flush();
-//			bw.close();
+//			Logger.info("genAppendFile, file name: " + fullPathAndName); //no need, so many log
 		} catch (Exception e) {
 			Logger.error(e.getMessage());
 		}
@@ -131,6 +146,32 @@ public class FileHandle implements FileCreator{
 			Logger.error(e.getMessage());
 		}
 		return reader;
+	}
+	
+	private void logGenFile(String pathAndName) {
+		Logger.info("Generate file successful. path: " + pathAndName);
+	}
+	
+	/**
+	 * back the file
+	 * @param f
+	 * @since 2.4.0
+	 */
+	public void backFile(File f) {
+		String originalFileName = f.getName();
+		// 备份文件名
+		String backupFileName = originalFileName + "_" + System.currentTimeMillis() + ".bak";
+		File backupFile = new File(f.getParent(), backupFileName);
+
+		// copy
+		try {
+			Path sourcePath = f.toPath();
+			Path backupPath = backupFile.toPath();
+			Files.copy(sourcePath, backupPath, StandardCopyOption.REPLACE_EXISTING);
+			Logger.info("Backup file successful. path: " + backupFile.getAbsolutePath());
+		} catch (IOException e) {
+			Logger.debug("Backup file failed: " + backupFile.getAbsolutePath());
+		}
 	}
 	
 }
