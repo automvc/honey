@@ -6,14 +6,7 @@
 
 package org.teasoft.honey.osql.core;
 
-import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.teasoft.bee.osql.annotation.ColumnHandler;
-import org.teasoft.bee.osql.exception.BeeIllegalParameterException;
-import org.teasoft.honey.osql.util.AnnoUtil;
-import org.teasoft.honey.osql.util.NameCheckUtil;
 import org.teasoft.honey.util.ObjectUtils;
 
 /**
@@ -105,54 +98,11 @@ public class DefaultColumnHandler implements ColumnHandler {
 		}
 		return null;
 	}
-
-	private void initDefineColumn(Class entityClass) {
-		try {
-			if (entityClass == null) return;
-			if (HoneyUtil.isJavaPackage(entityClass)) {
-				Logger.debug("The parameter entityClass is from Java library");
-				return;
-			}
-			
-			Field fields[] = HoneyUtil.getFields(entityClass);
-			String entityFullName=entityClass.getName();
-			String defineColumn = "";
-			String fiName = "";
-			int len = fields.length;
-			Map<String, String> kv = new HashMap<>();
-			Map<String, String> column2Field = new HashMap<>();
-			boolean has = false;
-			for (int i = 0; i < len; i++) {
-				if (HoneyUtil.isSkipField(fields[i])) continue;
-				HoneyUtil.setAccessibleTrue(fields[i]);
-				if (AnnoUtil.isColumn(fields[i])) {
-					defineColumn=AnnoUtil.getValue(fields[i]);
-					if (NameCheckUtil.isIllegal(defineColumn)) {
-						throw new BeeIllegalParameterException(
-								"Annotation Column set wrong value:" + defineColumn);
-					}
-
-					fiName = fields[i].getName();
-					kv.put(fiName, defineColumn);
-					column2Field.put(defineColumn, fiName); //单表查询拼结果会用到
-//					if (findName.equals(fiName)) findDefineColumn = defineColumn;
-					has = true;
-				}
-			} //end for
-
-			if (has) {
-				HoneyContext.addCustomMap(field2Column + entityFullName, kv);
-				HoneyContext.addCustomMap(StringConst.Column2Field + entityFullName, column2Field); //SqlLib, select会用到. 
-				HoneyContext.addCustomFlagMap(field2Column + entityFullName, Boolean.TRUE);
-			} else {
-				HoneyContext.addCustomFlagMap(field2Column + entityFullName, Boolean.FALSE);
-			}
-		} catch (Exception e) {
-			Logger.debug(e.getMessage(), e);
-			//ignore
-		}
-	}
 	
+	void initDefineColumn(Class entityClass) {
+		HoneyContext.initParseDefineColumn(entityClass);
+	}
+
 	private static boolean isOpenEntityCanExtend() {
 		return HoneyConfig.getHoneyConfig().openEntityCanExtend;
 	}

@@ -47,22 +47,26 @@ public class ShardingUtil {
 		return 0;
 	}
 	
-//	public static String[] list2Array(List<String> entityList) {
-//		int len = entityList.size();
-//		String entity[] = new String[len];
-//
-//		for (int i = 0; i < len; i++) {
-//			entity[i] = entityList.get(i);
-//		}
-//		return entity;
-//	}
-	
 	public static boolean isSharding() {
 		return HoneyContext.isMultiDs() && HoneyConfig.getHoneyConfig().getMultiDsSharding();
 	}
 	
 	public static boolean hadSharding() {//要分片,且有分片
 		return isSharding() && isTrue(StringConst.HadSharding);
+	}
+	
+	public static boolean useTableIndex(String tableName) {
+		return ShardingUtil.isSharding() 
+				&& !ShardingRegistry.isBroadcastTab(tableName) && ShardingUtil.hadSharding()
+				&& StringUtils.isBlank(HoneyContext.getAppointTab()) //没有指定tableName  2.4.0.8
+				;
+	}
+	
+	public static String appendTableIndexIfNeed(String tableName) {
+		if (useTableIndex(tableName))
+			return tableName + StringConst.ShardingTableIndexStr;
+		else
+			return tableName;
 	}
 	
 	public static boolean hadGroupSharding() {

@@ -182,6 +182,7 @@ public class ShardingReg {
 			HoneyContext.removeSysCommStrInheritableLocal(StringConst.HintTab);
 			HoneyContext.removeSysCommStrInheritableLocal(StringConst.FunType);
 			HoneyContext.removeSysCommStrInheritableLocal(StringConst.MoreTableQuery);
+			HoneyContext.removeSysCommStrInheritableLocal(StringConst.MoreTableSelectShardingFlag);
 			
 			HoneyContext.removeListLocal(StringConst.TabNameListLocal);
 			HoneyContext.removeListLocal(StringConst.TabSuffixListLocal);
@@ -196,11 +197,11 @@ public class ShardingReg {
 			HoneyContext.removeCurrentShardingSort();
 			HoneyContext.removeCurrentGroupFunStruct();
 			
-//			HoneyContext.currentGroupFunStruct.remove();
 			HoneyContext.removeCurrentGroupFunStruct();
 		}
 	
 	public static void setTrue(String key) {
+		if(! ShardingUtil.isSharding()) return ; //2.4.0
 		HoneyContext.setSysCommStrInheritableLocal(key, StringConst.tRue);
 	}
 

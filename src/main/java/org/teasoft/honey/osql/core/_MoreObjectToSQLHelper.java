@@ -9,6 +9,7 @@ package org.teasoft.honey.osql.core;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.teasoft.bee.osql.SuidType;
@@ -16,10 +17,12 @@ import org.teasoft.bee.osql.annotation.JoinType;
 import org.teasoft.bee.osql.api.Condition;
 import org.teasoft.bee.osql.dialect.DbFeature;
 import org.teasoft.bee.osql.interccept.InterceptorChain;
+import org.teasoft.bee.sharding.GroupFunStruct;
 import org.teasoft.honey.osql.dialect.sqlserver.SqlServerPagingStruct;
 import org.teasoft.honey.osql.name.NameUtil;
 import org.teasoft.honey.osql.util.AnnoUtil;
 import org.teasoft.honey.sharding.ShardingReg;
+import org.teasoft.honey.sharding.ShardingUtil;
 import org.teasoft.honey.util.StringUtils;
 
 /**
@@ -40,20 +43,21 @@ public class _MoreObjectToSQLHelper {
 	}
 	
 	static <T> String _toSelectSQL(T entity) {
-        return _toSelectSQL(entity, -1, null,-1,-1);
+		return _toSelectSQL(entity, -1, null, -1, -1);
 	}
 	
 	static <T> String _toSelectSQL(T entity, int start, int size) {
-        return _toSelectSQL(entity, -1, null,start,size);
+		return _toSelectSQL(entity, -1, null, start, size);
 	}
 	
-	static <T> String _toSelectSQL(T entity,Condition condition) {
+	static <T> String _toSelectSQL(T entity, Condition condition) {
 		int includeType;
-		if(condition==null || condition.getIncludeType()==null)
-			includeType=-1;
-		else includeType=condition.getIncludeType().getValue();
-		
-		return _toSelectSQL(entity, includeType, condition,-1,-1);
+		if (condition == null || condition.getIncludeType() == null)
+			includeType = -1;
+		else
+			includeType = condition.getIncludeType().getValue();
+
+		return _toSelectSQL(entity, includeType, condition, -1, -1);
 	}
 	
 	private static void regInterceptorSubEntity() {
@@ -68,13 +72,15 @@ public class _MoreObjectToSQLHelper {
 		Set<String> whereFields=null;
 		if(condition!=null) whereFields=condition.getWhereFields();
 		StringBuffer sqlBuffer = new StringBuffer();
-		StringBuffer sqlBuffer0 = new StringBuffer();//放主表的where条件
+		StringBuffer sqlBufferMainWhere = new StringBuffer();//放主表的where条件
 		StringBuffer sqlBuffer2 = new StringBuffer();
 		boolean firstWhere = true; 
 		
 		try {
 			
 			String tableName = _toTableName(entity); 
+//			String tableNameWithPlaceholder=tableName;
+//			tableName=tableName.replace(StringConst.ShardingTableIndexStr, ""); //baseTableName 2.4.0
 			OneTimeParameter.setAttribute(StringConst.TABLE_NAME, tableName);
 			OneTimeParameter.setTrueForKey(StringConst.MoreStruct_to_SqlLib);
 			
@@ -91,7 +97,7 @@ public class _MoreObjectToSQLHelper {
 			for (int index = 1; index <= 2; index++) { // 从表在数组下标是1和2. 0是主表   sub table index is :1 ,2 
 				if(index==1) chain=(InterceptorChain)OneTimeParameter.getAttribute(StringConst.InterceptorChainForMoreTable);
 				if (moreTableStruct[index] != null) {
-//				   //2.0从表对应的从实体,不用来计算分片. 从表分片的下标与主表的一致
+//				   //2.0从表对应的从实体,不用来计算分片. 从表分片的下标与主表的一致.  (分片拦截器不会处理,但其它拦截器要执行)
 					doBeforePasreSubEntity(moreTableStruct[index].subObject, chain);//V1.11    应该要放到这,要先拦截处理,再解析. 2022-09-05
 				}
 			}
@@ -124,7 +130,7 @@ public class _MoreObjectToSQLHelper {
 			Integer pageSize=ConditionHelper.getPageSize(condition);
 			
 			//多表查询不同时传   start!=-1 && size!=-1 ,   condition
-			if(moreTableStruct[0].subOneIsList) {  //从表1是List,且需要分页
+			if(moreTableStruct[0].subOneIsList && !ShardingUtil.hadSharding()) {  //从表1是List,且需要分页;  2.4.0.8有分片时,不改写.  因分片的分页是要改写sql的.
 					
 //				从表有一条记录 已包含在condition!=null里,也是不会转换的
 				if(start==-1 && size==-1 && condition==null) {
@@ -137,7 +143,7 @@ public class _MoreObjectToSQLHelper {
 //					若condition!=null, 要判断不包括从表的字段.  todo
 //					主表id不为空的,也不用.  因主表最多能查一条记录
 					
-					parseMainObject(entity, tableName, sqlBuffer0, mainList, firstWhere, includeType); //因顺序原因,调整时,需要多解析一次
+					parseMainObject(entity, tableName, sqlBufferMainWhere, mainList, firstWhere, includeType); //因顺序原因,调整时,需要多解析一次
 					Boolean idHasValue=OneTimeParameter.isTrue("idHasValue");
 					
 					if(! idHasValue) {  //right join也不管用.     List类型,不允许用right join
@@ -151,7 +157,8 @@ public class _MoreObjectToSQLHelper {
 						.append("*") //用于调整(改写)sql的
 						.append(" ").append(K.from).append(" ");
 						sqlForList.append(tableName);
-						sqlForList.append(sqlBuffer0); //添加解析主表实体的where条件
+//						adjustTableNameForShardingIfNeed(tableName, sqlForList); //2.4.0.8有分片时,不改写.  因分片的分页是要改写sql的.
+						sqlForList.append(sqlBufferMainWhere); //添加解析主表实体的where条件
 						
 						adjustSqlServerPagingPkIfNeed(sqlStrForList, entity.getClass(),tableName);
 						
@@ -175,7 +182,16 @@ public class _MoreObjectToSQLHelper {
 				
 //				ConditionHelper.processOnExpression(condition,moreTableStruct,list);  // on expression    因顺序原因,不放在这
 				
-				String selectField = ConditionHelper.processSelectField(columnNames, condition,moreTableStruct[0].subDulFieldMap);
+				
+				//V2.4.0
+				boolean checkGroup = OneTimeParameter.isTrue(StringConst.Check_Group_ForSharding) && ShardingUtil.hadSharding();
+				List<String> groupNameslist = condition.getGroupByFields();
+				int t_size = groupNameslist == null ? -1 : groupNameslist.size();
+				if (checkGroup) checkGroup = checkGroup && t_size >= 1;
+				OneTimeParameter.setTrueForKey(StringConst.Get_GroupFunStruct); 
+				
+				
+				String selectField = ConditionHelper.processSelectField(columnNames, condition, moreTableStruct[0].subDulFieldMap);
 				
 				//v1.9.8  给声明要查的字段自动加上 表名.
 				selectField=_addMaintableForSelectField(selectField,tableName);
@@ -195,6 +211,55 @@ public class _MoreObjectToSQLHelper {
 						columnNames="*";
 					}
 				}
+				
+				//2.4.0
+				if(checkGroup) {
+					// 判断,是否是分片,且有group分组,聚合
+					//pre自定义和返回string[]的查询,也不需要.   可以传入标记, select,selectJson的才可以.
+					
+//				 改写sql: 	avg改写; select没有分组字段的,要补上;    是否放这?    
+					
+//					String groupFields[], GroupFunStruct gfsArray[]
+//					private String fieldName;
+//					private String functionType;
+					
+					Map<String, String> orderByMap=condition.getOrderBy();
+					boolean isEmptyOrderByMap=orderByMap.size()==0;
+					boolean needGroupWhenNoFun=false;  // must NoFun
+					
+					//hadSharding, 分组的字段没有查询出来,则加分组的字段
+					for (String g : groupNameslist) {
+						if (columnNames.contains("," + g) || columnNames.contains(g + ",") || columnNames.equals(g)) {
+							// already contain group field
+						} else {
+							if (!g.contains(".")) {
+								columnNames += "," + moreTableStruct[0].tableName + "." + g; // just adjust select field.
+							} else {
+								columnNames += "," + g;
+							}
+						}
+						if(isEmptyOrderByMap) condition.orderBy(g); //will adjust name in ConditionHelper
+						else {
+							if(!needGroupWhenNoFun && !orderByMap.containsKey(g)) needGroupWhenNoFun=true;
+						}
+						
+						//一个实体,原来有一个Map属性,取出后,能清空里面的元素吗???
+					}
+					GroupFunStruct gfStruct=null;
+					if(StringUtils.isNotEmpty(fun)) { //&& size>=1 
+						gfStruct=(GroupFunStruct)OneTimeParameter.getAttribute(StringConst.Return_GroupFunStruct);
+					}
+					
+					//排序没有分组字段,添加进去?
+					if (gfStruct != null) {
+						gfStruct.setGroupFields(groupNameslist);
+						gfStruct.setNeedGroupWhenNoFun(needGroupWhenNoFun); // 有一个排序字段, 但不是分组字段的, 多个分片的记录汇聚合到一起后,可能不合顺序.
+						gfStruct.setColumnNames(columnNames);
+						
+						HoneyContext.setCurrentGroupFunStruct(gfStruct);
+					}
+				}//checkGroup
+				
 			}else { //V1.9
 				if(moreTable_columnListWithStar){
 					columnNames="*";
@@ -213,12 +278,12 @@ public class _MoreObjectToSQLHelper {
 				sqlBuffer.append(sqlStrForList);
 				sqlBuffer.append(")");
 				sqlBuffer.append(" ");
+				
 				list.addAll(mainList);
 			}
 			
 			sqlBuffer.append(tableName);
-			
-//			PreparedValue preparedValue = null;
+			if(!needAdjustPageForList)  adjustTableNameForShardingIfNeed(tableName, sqlBuffer); //sqlBuffer
 			
 //			String useSubTableNames[]=new String[2];
 			String useSubTableNames[]=new String[3];  //v1.9.8 useSubTableNames[2] add main tableName 放主表实际表名
@@ -258,7 +323,7 @@ public class _MoreObjectToSQLHelper {
 					useSubTableNames[s-1]=moreTableStruct[s].useSubTableName; //for conditon parse    todo ??????
 					
 					sqlBuffer.append(COMMA);
-					sqlBuffer.append(moreTableStruct[s].tableName);
+					sqlBuffer.append(ShardingUtil.appendTableIndexIfNeed(moreTableStruct[s].tableName)); 
 //					tableNamesForCache+="##"+moreTableStruct[s].tableName; //V1.9
 					tableNamesForCache.append(StringConst.TABLE_SEPARATOR).append(moreTableStruct[s].tableName);//v1.9.8
 					if(moreTableStruct[s].hasSubAlias){//从表定义有别名
@@ -324,7 +389,7 @@ public class _MoreObjectToSQLHelper {
 			
 			if(condition!=null){
 				 condition.setSuidType(SuidType.SELECT);
-				 useSubTableNames[2]=tableName;   //v1.9.8 useSubTableNames[2] add main tableName 放主表实际表名
+				 useSubTableNames[2]=tableName;   //v1.9.8 useSubTableNames[2] add main tableName 放主表实际表名 
 				 
 				 OneTimeParameter.setAttribute(StringConst.Column_EC, entity.getClass());
 			     ConditionHelper.processCondition(sqlBuffer, list, condition, firstWhere,useSubTableNames); //这句会有分页. 
@@ -349,12 +414,22 @@ public class _MoreObjectToSQLHelper {
 
 		return sql;
 	}
+	
+	private static void adjustTableNameForShardingIfNeed(String tableName,StringBuffer sqlBuffer) {
+		if (ShardingUtil.useTableIndex(tableName)) {
+			sqlBuffer.append(StringConst.ShardingTableIndexStr);
+			sqlBuffer.append(" ");
+			sqlBuffer.append(tableName); // 2.4.0 baseTableName作为别名
+		}
+	}
+	
 	private static void doBeforePasreSubEntity(Object subEntity,InterceptorChain chain) {
 		if(subEntity!=null && chain!=null) {
 			regInterceptorSubEntity();  //2.0从表对应的从实体,不用来计算分片. 从表分片的下标与主表的一致
 			chain.beforePasreEntity(subEntity, SuidType.SELECT);
+		} else { // subEntity为空也要记录; 主表分表时,要用到
+			ShardingReg.regMoreTableQuery();
 		}
-		
 	}
 	
 	private static void adjustSqlServerPagingPkIfNeed(String sql, Class entityClass,String tableName) {
@@ -378,19 +453,17 @@ public class _MoreObjectToSQLHelper {
 		HoneyContext.setSqlServerPagingStruct(sql, struct);
 	}
 	
-	private static boolean parseSubObject(StringBuffer sqlBuffer2, 
-			List<PreparedValue> list,  Set<String> conditionFieldSet, boolean firstWhere,
-			 int includeType,MoreTableStruct moreTableStruct[],int index) throws IllegalAccessException{
-		
-		Object entity=moreTableStruct[index].subObject;
-		
-		if(entity==null) return firstWhere;
-		
+	private static boolean parseSubObject(StringBuffer sqlBuffer2, List<PreparedValue> list,
+			Set<String> conditionFieldSet, boolean firstWhere, int includeType, MoreTableStruct moreTableStruct[],
+			int index) throws IllegalAccessException {
+
+		Object entity = moreTableStruct[index].subObject;
+
+		if (entity == null) return firstWhere;
+
 		PreparedValue preparedValue = null;
-		
-//		String tableName = moreTableStruct[index].tableName;
 		String useSubTableName = moreTableStruct[index].useSubTableName;
-		
+
 		Field fields[] = null;
 		if (index == 1 && moreTableStruct[0].subOneIsList) {
 			fields = HoneyUtil.getFields(moreTableStruct[index].subClass);
@@ -399,28 +472,14 @@ public class _MoreObjectToSQLHelper {
 		} else {
 			fields = HoneyUtil.getFields(moreTableStruct[index].subEntityField.getType());
 		}
-		
-		
+
 		int len = fields.length;
-//		for (int i = 0, k = 0; i < len; i++) { //bug
 		for (int i = 0; i < len; i++) {
 			HoneyUtil.setAccessibleTrue(fields[i]);
-			
-//			if (fields[i].isAnnotationPresent(JoinTable.class)) {
-//				continue;  //JoinTable已在上面另外处理
-//			}
-//			if (HoneyUtil.isContinueForMoreTable(includeType, fields[i].get(entity),fields[i].getName())) {
-			if (HoneyUtil.isContinue(includeType, fields[i].get(entity),fields[i])) {  //包含了fields[i].isAnnotationPresent(JoinTable.class)的判断
+			if (HoneyUtil.isContinue(includeType, fields[i].get(entity), fields[i])) {
 				continue;
 			} else {
-				
-//				if (fields[i].get(entity) == null && "id".equalsIgnoreCase(fields[i].getName())) 
-//					continue; //id=null不作为过滤条件
-				if(isNullPkOrId(fields[i], entity)) continue; //主键=null不作为过滤条件
-				
-//				if(conditionFieldSet!=null && conditionFieldSet.contains(fields[i].getName()))   //closed in V1.9
-//					continue; //Condition已包含的,不再遍历
-
+				if (isNullPkOrId(fields[i], entity)) continue; // 主键=null不作为过滤条件
 				if (firstWhere) {
 					sqlBuffer2.append(" ").append(K.where).append(" ");
 					firstWhere = false;
@@ -429,11 +488,10 @@ public class _MoreObjectToSQLHelper {
 				}
 				sqlBuffer2.append(useSubTableName);
 				sqlBuffer2.append(DOT);
-				sqlBuffer2.append(_toColumnName(fields[i].getName(),entity.getClass()));
-				
+				sqlBuffer2.append(_toColumnName(fields[i].getName(), entity.getClass()));
+
 				if (fields[i].get(entity) == null) {
 					sqlBuffer2.append(" ").append(K.isNull);
-					
 				} else {
 					sqlBuffer2.append("=");
 					sqlBuffer2.append("?");
@@ -442,12 +500,11 @@ public class _MoreObjectToSQLHelper {
 					preparedValue.setType(fields[i].getType().getName());
 					preparedValue.setValue(fields[i].get(entity));
 					if (AnnoUtil.isJson(fields[i])) preparedValue.setField(fields[i]);
-//					list.add(k++, preparedValue);  //bug
 					list.add(preparedValue);
 				}
 			}
-		}//end for
-		
+		} // end for
+
 		return firstWhere;
 	}
 	
@@ -500,7 +557,10 @@ public class _MoreObjectToSQLHelper {
 		
 		if(HoneyUtil.isSqlKeyWordUpper())sqlBuffer.append(moreTableStruct.joinType.getType().toUpperCase());
 		else                             sqlBuffer.append(moreTableStruct.joinType.getType());
-		sqlBuffer.append(moreTableStruct.tableName);
+		sqlBuffer.append(moreTableStruct.tableName); 
+		//只加表下标占位字符
+		if (ShardingUtil.useTableIndex(moreTableStruct.tableName)) sqlBuffer.append(StringConst.ShardingTableIndexStr);
+		
 		tableNamesForCache.append(StringConst.TABLE_SEPARATOR).append(moreTableStruct.tableName);//v1.9.8
 		if(moreTableStruct.hasSubAlias){//从表定义有别名
 			sqlBuffer.append(ONE_SPACE);

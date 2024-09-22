@@ -414,10 +414,10 @@ public class JdbcToJavaType {
 		jdbc2JavaTypeMap.put("real","Float");
 		jdbc2JavaTypeMap.put("float4","Float");
 
-		jdbc2JavaTypeMap.put("json",STRING);
-		jdbc2JavaTypeMap.put("jsonb",STRING);  //TODO
+		jdbc2JavaTypeMap.put("json",STRING); 
+		jdbc2JavaTypeMap.put("jsonb",STRING);  
 
-		jdbc2JavaTypeMap.put("bytea","byte[]"); //TODO bytea
+		jdbc2JavaTypeMap.put("bytea","byte[]"); //bytea  byte array
 
 		jdbc2JavaTypeMap.put("date","Date");
 		jdbc2JavaTypeMap.put("time","Time");

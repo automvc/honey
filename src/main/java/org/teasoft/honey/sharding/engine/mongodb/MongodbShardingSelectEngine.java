@@ -107,7 +107,7 @@ public class MongodbShardingSelectEngine {
 			super(tab, index, mongodbBeeSql, ds);
 			this.entityClass = entityClass;
 			this.struct = struct.copy();
-			this.struct.setTableName(tab);
+			this.struct.setTableName(tab); //reset tab to really tableName
 		}
 
 		public List<T> shardingWork() {

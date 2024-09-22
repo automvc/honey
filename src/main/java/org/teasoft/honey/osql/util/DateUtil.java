@@ -129,7 +129,6 @@ public class DateUtil {
 //	 */
 //	public static Date currentDate2() {
 //		try {
-//			System.out.println(currentDate());
 //			return getSimpleDateFormat().parse(currentDate());
 //		} catch (Exception e) {
 //			Logger.error(e.getMessage(), e);

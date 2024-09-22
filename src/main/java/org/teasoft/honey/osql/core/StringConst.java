@@ -29,13 +29,14 @@ public final class StringConst {
 	public static final String OLD_ID = "_SYS_Bee_OLD_ID_FOR_AUTO_ID";
 	
 	public static final String Primary_Key_Name = "_SYS_Bee_PK_NAME";//PK:Primary_Key
-	public static final String PK_Name_For_ReturnId = "_SYS_Bee_PK_Name_For_InsertAndReturnId"; //PK:Primary_Key
+	public static final String PK_Column_For_ReturnId = "_SYS_Bee_PK_Column_For_InsertAndReturnId"; //PK:Primary_Key
 
 	public static final String SUBENTITY_FIRSTANNOTATION_FIELD = "_SYS_Bee_subEntityFirstAnnotationField";
 	
 	public static final String Reset_Ds_OneTime="_SYS_Bee_Reset_Ds_OneTime";
 	
 	public static final String InterceptorChainForMoreTable="_SYS_Bee_InterceptorChainForMoreTable";
+	public static final String MoreTableSelectShardingFlag="_SYS_Bee_MoreTableSelectShardingFlag";
 	
 	public static final String JdbcTranWriterDS="_SYS_Bee_JdbcTran_WriterDS";
 	
@@ -54,7 +55,8 @@ public final class StringConst {
 
 	//Sharding<<<<<<<<<<<<<<<<<<<<<<<<<<
 	public static final String HadSharding=PREFIX+"HadSharding";
-	public static final String ShardingTableIndexStr="[$#(index)#$]";
+//	public static final String ShardingTableIndexStr="[$#(index)#$]";
+	public static final String ShardingTableIndexStr="'[$#(index)#$]'";//2.4.0.8
 	
 	public static final String DsNameListLocal=PREFIX+"DsNameListLocal";
 	public static final String TabNameListLocal=PREFIX+"TabNameListLocal";

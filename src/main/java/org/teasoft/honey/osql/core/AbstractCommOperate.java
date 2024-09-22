@@ -65,20 +65,23 @@ public class AbstractCommOperate implements CommOperate{
 		HoneyContext.setConditionLocal(condition);
 	}
 	
-	void _doBeforePasreEntity(SuidType suidType) {
-		regSuidType(suidType);
-		if (this.nameTranslate != null) HoneyContext.setCurrentNameTranslateOneTime(nameTranslate); // enhance V2.1
-		if (this.dsName != null) HoneyContext.setTempDS(dsName);
-	}
-
 	protected void doBeforePasreEntity(Object entity, SuidType SuidType) {
 		_doBeforePasreEntity(SuidType);
+		initParseDefineColumn(entity); //2.4.0
+//		about entity: if necessary, can test whether it is Class type.
 		getInterceptorChain().beforePasreEntity(entity, SuidType);
 	}
 	
 	void doBeforePasreEntity(Object entityArray[], SuidType SuidType) {
 		_doBeforePasreEntity(SuidType);
+		if (entityArray != null && entityArray.length > 0) initParseDefineColumn(entityArray[0]); // 2.4.0
 		getInterceptorChain().beforePasreEntity(entityArray, SuidType);
+	}
+	
+	void _doBeforePasreEntity(SuidType suidType) {
+		regSuidType(suidType);
+		if (this.nameTranslate != null) HoneyContext.setCurrentNameTranslateOneTime(nameTranslate); // enhance V2.1
+		if (this.dsName != null) HoneyContext.setTempDS(dsName);
 	}
 
 	String doAfterCompleteSql(String sql) {
@@ -107,6 +110,26 @@ public class AbstractCommOperate implements CommOperate{
 	protected void regSuidType(SuidType suidType) {
 		if (suidType == null) return;
 		if (HoneyConfig.getHoneyConfig().isAndroid) HoneyContext.regSuidType(suidType);
+	}
+	
+	private final String field2Column = StringConst.PREFIX + "Field2Column";
+
+	// 2.4.0  as sharding support column name for tabField/dsField, parse first.
+	private void initParseDefineColumn(Object entity) {
+		if (entity == null) return;
+		Class entityClass;
+		//2.4.0.8
+		if (entity instanceof Class)
+			entityClass = (Class) entity;
+		else
+			entityClass = entity.getClass();
+		
+		String entityFullName = entityClass.getName();
+		Boolean flag = HoneyContext.getCustomFlagMap(field2Column + entityFullName);
+		if (flag == null) {// 还没检测的
+			HoneyContext.initParseDefineColumn(entityClass);
+			flag = HoneyContext.getCustomFlagMap(field2Column + entityFullName);
+		}
 	}
 
 }

@@ -58,9 +58,8 @@ public class MongodbShardingRouter {
 	@SuppressWarnings("rawtypes")
 	static List<String[]> _findDsTabForFull(Class entityClass) {
 
-		String tableName = _toTableName(entityClass); // orders[$#(index)#$]
-		String baseTableName = tableName.replace(StringConst.ShardingTableIndexStr, "");
-
+		String baseTableName = _toTableName(entityClass);
+		
 		List<String> dsList = new ArrayList<>();
 		List<String> tabList = new ArrayList<>();
 

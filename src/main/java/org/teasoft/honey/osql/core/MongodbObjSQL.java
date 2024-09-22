@@ -66,8 +66,8 @@ public class MongodbObjSQL extends AbstractCommOperate implements Suid {
 		}
 		
 		try {
+			_ObjectToSQLHelper.setInitIdByAuto(entity); // 2.4.0    setInitIdByAuto > doBeforePasreEntity
 			doBeforePasreEntity(entity, SuidType.INSERT);
-			_ObjectToSQLHelper.setInitIdByAuto(entity); // 更改了原来的对象
 
 			int insertNum = 0;
 			insertNum = getMongodbBeeSql().insert(entity);
@@ -83,9 +83,10 @@ public class MongodbObjSQL extends AbstractCommOperate implements Suid {
 	@Override
 	public <T> long insertAndReturnId(T entity) {
 		if (entity == null) return -1;
+		checkShardingSupport();
 		try {
+			_ObjectToSQLHelper.setInitIdByAuto(entity); // 2.4.0    setInitIdByAuto > doBeforePasreEntity
 			doBeforePasreEntity(entity, SuidType.INSERT);
-			_ObjectToSQLHelper.setInitIdByAuto(entity); // 更改了原来的对象
 
 			long insertNum = 0;
 
@@ -195,6 +196,12 @@ public class MongodbObjSQL extends AbstractCommOperate implements Suid {
 
 	public void setMongodbBeeSql(MongodbBeeSql mongodbBeeSql) {
 		this.mongodbBeeSql = mongodbBeeSql;
+	}
+	
+	private void checkShardingSupport() {
+		if (ShardingUtil.isSharding()) {
+			Logger.warn("Please notice this method do not support Sharding funtion by default! But you can use HintManager set the sharding table and dataSource name.");
+		}
 	}
 
 }

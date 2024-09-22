@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -26,6 +27,8 @@ import org.teasoft.bee.sharding.ShardingSortStruct;
 import org.teasoft.honey.database.DatabaseClientConnection;
 import org.teasoft.honey.distribution.ds.RouteStruct;
 import org.teasoft.honey.osql.dialect.sqlserver.SqlServerPagingStruct;
+import org.teasoft.honey.osql.util.AnnoUtil;
+import org.teasoft.honey.osql.util.NameCheckUtil;
 import org.teasoft.honey.sharding.ShardingUtil;
 import org.teasoft.honey.sharding.config.ShardingConfig;
 import org.teasoft.honey.util.ObjectUtils;
@@ -197,16 +200,17 @@ public final class HoneyContext {
 	}
 	
 	static void initTLRefresh() { //initTL 默认时,走else;  当在代码设置了multiDS_sharding,才要刷新.
-		if (HoneyConfig.getHoneyConfig().multiDS_sharding) { //当使用分片模式,某些表又没有实行分片时,不宜使用parallelStream()并行操作
-			//因parallelStream()+InheritableThreadLocal会有问题,但分片又必要要用InheritableThreadLocal,所以分片时,不支持parallelStream并行操作
-			sqlPreValueLocal = new InheritableThreadLocal<>();
-			
-			currentRoute = new InheritableThreadLocal<>();
-			cacheLocal = new InheritableThreadLocal<>();
-			sysCommStrLocal = new InheritableThreadLocal<>();
-			appointDS = new InheritableThreadLocal<>();
-		}
+//		if (HoneyConfig.getHoneyConfig().multiDS_sharding) { //当使用分片模式,某些表又没有实行分片时,不宜使用parallelStream()并行操作
+//			//因parallelStream()+InheritableThreadLocal会有问题,但分片又必要要用InheritableThreadLocal,所以分片时,不支持parallelStream并行操作
+//			sqlPreValueLocal = new InheritableThreadLocal<>();
+//			
+//			currentRoute = new InheritableThreadLocal<>();
+//			cacheLocal = new InheritableThreadLocal<>();
+//			sysCommStrLocal = new InheritableThreadLocal<>();
+//			appointDS = new InheritableThreadLocal<>();
+//		}
 		
+		initTL();
 	}
 
 	static ConcurrentMap<String, String> getEntity2tableMap() {
@@ -426,10 +430,6 @@ public final class HoneyContext {
 	public static void removeListLocal(String key) {
 		Map<String, List<String>> map = listLocal.get();
 		if (map != null) map.remove(key);
-	}
-
-	private static boolean isShowExecutableSql() {
-		return HoneyConfig.getHoneyConfig().showSql_showExecutableSql;
 	}
 
 	static void setPreparedValue(String sqlStr, List<PreparedValue> list) {
@@ -1184,12 +1184,17 @@ public final class HoneyContext {
 		
 		Object obj = HoneyConfig.getHoneyConfig();
 		Class<?> clazz = obj.getClass();
+		boolean hasShardingMap=false;
+		boolean hasMultiDS_sharding=false;
+		
 		for (Map.Entry<String, Object> entry : map.entrySet()) {
 			try {
 				Field field = clazz.getDeclaredField(entry.getKey());
 				if (field != null) {
 					HoneyUtil.setAccessibleTrue(field);
 					HoneyUtil.setFieldValue(field, obj, entry.getValue());
+					if("multiDS_sharding".equals(entry.getKey())) hasMultiDS_sharding=true;
+					else if("sharding".equals(entry.getKey())) hasShardingMap=true;
 				}
 			} catch (Exception e) {
 				throw ExceptionHelper.convert(e);
@@ -1198,6 +1203,11 @@ public final class HoneyContext {
 
 		setConfigRefresh(true);
 		setDsMapConfigRefresh(true);  //是否应该有数据源配置时,才设置更新?    解析时会先判断相关属性的
+	
+		//2.4.0
+		if (hasMultiDS_sharding) initTLRefresh();
+		if (hasMultiDS_sharding && hasShardingMap) prcessShardingRuleInProperties();
+		
 	}
 
 	public static boolean getModifiedFlagForCache2(String tableName) {
@@ -1253,16 +1263,18 @@ public final class HoneyContext {
 				
 				CacheUtil.clear(); //V2.1.10
 				
-				prcessShardingRuleInProperties(); //2.4.0
+//				prcessShardingRuleInProperties(); //2.4.0
 			}
 			HoneyContext.setDsMapConfigRefresh(false);
 		}
 	}
 	
-	private static void prcessShardingRuleInProperties() {
-		Map<String, Map<String, String>> shardingMap = HoneyConfig.getHoneyConfig()
-				.getSharding();
-
+   static void prcessShardingRuleInProperties() {
+		Map<String, Map<String, String>> shardingMap = HoneyConfig.getHoneyConfig().getSharding();
+		
+		if (shardingMap == null || shardingMap.isEmpty()) return;
+		if (!ShardingUtil.isSharding()) return;
+		
 		for (Map.Entry<String, Map<String, String>> entry : shardingMap.entrySet()) {
 
 			Map<String, String> map = entry.getValue();
@@ -1294,6 +1306,54 @@ public final class HoneyContext {
 					}
 				}
 			}
+		}
+	}
+   
+    private static final String field2Column=StringConst.PREFIX+"Field2Column";
+	static void initParseDefineColumn(Class entityClass) {
+		try {
+			if (entityClass == null) return;
+			if (HoneyUtil.isJavaPackage(entityClass)) {
+				Logger.debug("The parameter entityClass is from Java library");
+				return;
+			}
+			
+			Field fields[] = HoneyUtil.getFields(entityClass);
+			String entityFullName=entityClass.getName();
+			String defineColumn = "";
+			String fiName = "";
+			int len = fields.length;
+			Map<String, String> kv = new HashMap<>();
+			Map<String, String> column2Field = new HashMap<>();
+			boolean has = false;
+			for (int i = 0; i < len; i++) {
+				if (HoneyUtil.isSkipField(fields[i])) continue;
+				HoneyUtil.setAccessibleTrue(fields[i]);
+				if (AnnoUtil.isColumn(fields[i])) {
+					defineColumn=AnnoUtil.getValue(fields[i]);
+					if (NameCheckUtil.isIllegal(defineColumn)) {
+						throw new BeeIllegalParameterException(
+								"Annotation Column set wrong value:" + defineColumn);
+					}
+
+					fiName = fields[i].getName();
+					kv.put(fiName, defineColumn);
+					column2Field.put(defineColumn, fiName); //单表查询拼结果会用到
+//					if (findName.equals(fiName)) findDefineColumn = defineColumn;
+					has = true;
+				}
+			} //end for
+
+			if (has) {
+				HoneyContext.addCustomMap(field2Column + entityFullName, kv);
+				HoneyContext.addCustomMap(StringConst.Column2Field + entityFullName, column2Field); //SqlLib, select会用到. 
+				HoneyContext.addCustomFlagMap(field2Column + entityFullName, Boolean.TRUE);
+			} else {
+				HoneyContext.addCustomFlagMap(field2Column + entityFullName, Boolean.FALSE);
+			}
+		} catch (Exception e) {
+			Logger.debug(e.getMessage(), e);
+			//ignore
 		}
 	}
 

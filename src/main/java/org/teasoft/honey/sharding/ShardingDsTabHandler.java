@@ -62,7 +62,7 @@ public class ShardingDsTabHandler implements DsTabHandler {
 			// 通过算法类别dsAlgorithm,获取具体的算法.
 			if (calculate1 == null) {
 				calculate1 = CalculateFactory.getCalculate(dsAlgorithm);
-			                                              // bug, dsAlgorithm是基本类型,默认会是0;  
+			                                              // dsAlgorithm是基本类型,默认会是0;  
 	                                                          //要是想用getDsAlgorithmClass设置就无法实现.
 	                                                           //改为默认值为-1,看是否会对原来有影响??   不需要;
 	                                                          //旧的是DsAlgorithmClass>dsAlgorithm
@@ -119,7 +119,7 @@ public class ShardingDsTabHandler implements DsTabHandler {
 			//允许, 表示tabName使用实体名转换得来
 //			dsTabStruct.setTabSuffix(tabSuffix);
 		}
-		dsTabStruct.setTabSuffix(tabSuffix); //下标都要用到. 全域查询时,测不需要在这计算.  2022-09-20
+		dsTabStruct.setTabSuffix(tabSuffix); //下标都要用到. 全域查询时,则不需要在这计算.  2022-09-20
 		//---------Tab--------------end
 		
 		return dsTabStruct;

@@ -24,6 +24,7 @@ import org.teasoft.honey.osql.dialect.sqlserver.SqlServerPagingStruct;
 import org.teasoft.honey.osql.name.NameUtil;
 import org.teasoft.honey.osql.util.AnnoUtil;
 import org.teasoft.honey.sharding.ShardingReg;
+import org.teasoft.honey.sharding.ShardingUtil;
 import org.teasoft.honey.util.StringUtils;
 
 /**
@@ -259,6 +260,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 				selectAndFun = K.select+" " + funType + "(" + _toColumnName(fieldForFun,entity.getClass()) + ") "+K.from+" ";   // funType要能转大小写风格
 			}
 			sqlBuffer.append(selectAndFun);
+			tableName=ShardingUtil.appendTableIndexIfNeed(tableName);
 			sqlBuffer.append(tableName);
 			boolean firstWhere = true;
 			Field fields[] = HoneyUtil.getFields(entity.getClass());
@@ -349,7 +351,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	public <T> String toInsertSQL(T entity, IncludeType includeType) {
 		String sql = null;
 		try {
-			_ObjectToSQLHelper.setInitIdByAuto(entity);
+//			_ObjectToSQLHelper.setInitIdByAuto(entity);   //move to last layer.
 			sql = _ObjectToSQLHelper._toInsertSQL0(entity, includeType.getValue(),"");
 //			HoneyUtil.revertId(entity); //v1.9  bug
 		} catch (IllegalAccessException e) {
@@ -516,7 +518,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		String tableName =_toTableNameByClass(c);
 		
 		sqlBuffer.append(K.delete).append(" ").append(K.from).append(" ")
-		.append(tableName)
+		.append(tableName)  // 下一版本将支持分片
 		.append(" ").append(K.where).append(" ");
 		;
 		
@@ -746,7 +748,8 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		}
 
 		sqlBuffer.append(K.select).append(" ").append(columnNames).append(" ").append(K.from).append(" ");
-		sqlBuffer.append(tableName).append(" ").append(K.where).append(" ");
+		sqlBuffer.append(tableName) //下一版本将支持分片
+		.append(" ").append(K.where).append(" ");
 
 		wrap.setValueBuffer(sqlBuffer); //sqlBuffer
 		wrap.setTableNames(tableName);
@@ -789,6 +792,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 				}
 			}
 			sqlBuffer.append(K.select).append(" ").append(columnNames).append(" ").append(K.from).append(" ");
+			tableName=ShardingUtil.appendTableIndexIfNeed(tableName);
 			sqlBuffer.append(tableName);
 			boolean firstWhere = true;
 			int len = fields.length;

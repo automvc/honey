@@ -15,11 +15,11 @@ import org.teasoft.honey.osql.core.K;
  * @since  2.0
  */
 public class OrderBySqlDecorator {
-	
+
 	public static String addOrderBy(String sql) {
 		ShardingSortStruct shardingSort = HoneyContext.getCurrentShardingSort();
-		if(shardingSort!=null) {
-			sql +=K.space+ K.orderBy +K.space+ shardingSort.getOrderSql();
+		if (shardingSort != null) {
+			sql += K.space + K.orderBy + K.space + shardingSort.getOrderSql();
 		}
 		return sql;
 	}

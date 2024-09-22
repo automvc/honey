@@ -60,11 +60,8 @@ public class ShardingSelectEngine {
 			tasks.add(new ShardingBeeSQLExecutorEngine<T>(sqls[i], i + 1, beeSql, dsArray[i], entityClass));
 		}
 
-//		Logger.logSQL("========= Do sharding , the size of sub operation is :" + sqls.length);
 		if(sqls!=null) ShardingLogReg.log(sqls.length);
 		
-//		Bee SQL Executor Engine
-//		tasks.forEach(completionService::submit);
 		int size=tasks.size();
 		for (int i = 0; tasks != null && i < size; i++) {
 			completionService.submit(tasks.get(i));
@@ -72,7 +69,6 @@ public class ShardingSelectEngine {
 
 		//Result Merge
 		List<T> rsList = ResultMergeEngine.merge(completionService, size);
-		
 		executor.shutdown();
 		
 		//group and aggregate Entity,if necessary
@@ -80,8 +76,6 @@ public class ShardingSelectEngine {
 
 		// 排序装饰
 		SortListDecorator.sort(rsList);
-
-		// 排序后,要将数据放缓存. 
 
 		if(showShardingSQL) Logger.debug("before ResultPagingDecorator, rows: "+rsList.size());
 		

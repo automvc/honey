@@ -85,9 +85,16 @@ public class HoneyFactory {
 	
 	private boolean isOceanBasePrintFirst=true;
 	
+	private static final byte[] lock = new byte[0];  
+	
 	static {
        cache=initCache();
 	}
+	
+	/**
+	 * get the instance by BeeFactory.getHoneyFactory()
+	 */
+	HoneyFactory() {}
 	
 	private static boolean getUseLevelTwo() {
 		return HoneyConfig.getHoneyConfig().cache_useLevelTwo;
@@ -332,7 +339,11 @@ public class HoneyFactory {
 	}
 
 	public Cache getCache() {
-		if (cache == null) cache = initCache();
+		if (cache == null) {
+			synchronized (lock) {
+				if (cache == null) _setCache(initCache());
+			}
+		}
 		return cache;
 	}
 

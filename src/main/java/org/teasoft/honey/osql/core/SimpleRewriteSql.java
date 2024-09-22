@@ -58,8 +58,8 @@ public class SimpleRewriteSql {
 	public static List<String[]> createSqlsForFull(String sql, Class entityClass) {
 
 		List<String[]> list = new ArrayList<>();
-		String tableName = _toTableName(entityClass); // orders[$#(index)#$]
-		String baseTableName = tableName.replace(StringConst.ShardingTableIndexStr, "");
+		String baseTableName = _toTableName(entityClass); //2.4.0 返回的是baseName. 有需要才加ShardingTableIndexStr
+//		String baseTableName = tableName.replace(StringConst.ShardingTableIndexStr, "");
 		List<PreparedValue> listValue = HoneyContext.justGetPreparedValue(sql);
 
 		_createSqlsForFull(list, sql, listValue, baseTableName);
@@ -85,7 +85,6 @@ public class SimpleRewriteSql {
 			if (justSomeDs && !isContain(dsNameList, dsName)) continue; // 只执行部分DS
 			Set<String> tabIndexSet = entry.getValue();
 			for (String tabIndex : tabIndexSet) {
-//			    tempSql = sql.replace(tableName, tab); // eg: orders##(index)##替换成orders1等
 				tempSql = sql.replace(StringConst.ShardingTableIndexStr, tabIndex); // 将下标占位符改为具体下标
 				tempSql=HoneyUtil.getRandomPrefix()+tempSql; //2.2
 				sqlList.add(tempSql);

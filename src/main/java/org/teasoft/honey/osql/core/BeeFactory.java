@@ -16,11 +16,16 @@ import org.teasoft.honey.distribution.ds.Router;
 public class BeeFactory extends BeeAbstractFactory {
 
 	private static BeeFactory instance = new BeeFactory();
-	private static HoneyFactory honeyFactory = null;
-
+//	private static HoneyFactory honeyFactory = null;
 	static {
 		HoneyConfig.getHoneyConfig(); //V2.1.8 先加载config,  多数据源时用到
 		HoneyContext.initLoad();
+	}
+	
+	private BeeFactory() {}
+
+	public static BeeFactory getInstance() {
+		return instance;
 	}
 
 //	HoneyFactory 用于非spring,方法获取对象. 用spring时,由spring管理,不再需要HoneyFactory.
@@ -29,17 +34,12 @@ public class BeeFactory extends BeeAbstractFactory {
 //	}
 
 	public static HoneyFactory getHoneyFactory() {
-		if (honeyFactory == null) {
-			honeyFactory = new HoneyFactory();
-		}
-		return honeyFactory;
+		 return HoneyFactoryHolder.HF;
 	}
-
-	private BeeFactory() {}
-
-	public static BeeFactory getInstance() {
-		return instance;
-	}
+	
+    private static class HoneyFactoryHolder {
+        private static final HoneyFactory HF = new HoneyFactory();  
+    }  
 
 	@Override
 	public DataSource getDataSource() {

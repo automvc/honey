@@ -26,6 +26,7 @@ import org.teasoft.honey.util.StringUtils;
 
 /**
  * MapSql处理器.MapSql Processor.
+ * 本类默认不支持Sharding分片功能.
  * @author Kingstar
  * @since  1.9
  */
@@ -391,7 +392,9 @@ public class MapSqlProcessor {
 				if(returnId) OneTimeParameter.setAttribute(StringConst.MapSuid_Insert_Has_ID, id);
 		}
 		
-		if(returnId) OneTimeParameter.setAttribute(StringConst.PK_Name_For_ReturnId, pkName);  //V1.11 for SqlLib
+		if ("".equals(pkName) || pkName.contains(",")) pkName = "id";
+		//V1.11 for SqlLib   use column name
+		OneTimeParameter.setAttribute(StringConst.PK_Column_For_ReturnId, HoneyUtil.toCloumnNameForPks(pkName, null));
 		
 		return id;
 	}
@@ -569,6 +572,7 @@ public class MapSqlProcessor {
 	}
 
 	private static String _toTableName(String tableName) {
+//		本类默认不支持Sharding分片功能.
 		return NameTranslateHandle.toTableName(tableName);
 	}
 

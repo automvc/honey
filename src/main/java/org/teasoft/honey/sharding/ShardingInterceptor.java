@@ -30,6 +30,7 @@ import org.teasoft.honey.osql.core.HoneyContext;
 import org.teasoft.honey.osql.core.HoneyUtil;
 import org.teasoft.honey.osql.core.K;
 import org.teasoft.honey.osql.core.Logger;
+import org.teasoft.honey.osql.core.NameTranslateHandle;
 import org.teasoft.honey.osql.core.StringConst;
 import org.teasoft.honey.osql.interccept.EmptyInterceptor;
 import org.teasoft.honey.osql.util.AnnoUtil;
@@ -57,6 +58,7 @@ public class ShardingInterceptor extends EmptyInterceptor {
 	
 	@Override
 	public Object beforePasreEntity(Object entity, SuidType suidType) {
+		
 		boolean isSharding = ShardingUtil.isSharding();
 		if (!isSharding) return entity;
 		
@@ -64,6 +66,8 @@ public class ShardingInterceptor extends EmptyInterceptor {
 		if(HoneyContext.isInterceptorSubEntity()) return entity;
 		
 		if (isSkip(entity,suidType)) return entity;
+		
+		boolean moreTableSelectShardingFlag = HoneyContext.isTrueInSysCommStrInheritableLocal(StringConst.MoreTableSelectShardingFlag);
 		
 		String tableName = _toTableName(entity);
 		
@@ -174,7 +178,7 @@ public class ShardingInterceptor extends EmptyInterceptor {
 				return entity;
 			} else { //case 2   有sharding注解且condition不为null
 				//要将Sharding注解的转成shardingBean 用了注解,就不再用配置的sharding信息.所以Sharding注解,还有全表的属性
-				boolean sharded=processCondition(entity, shardingBean, condition, dsTabStruct,suidType);
+				boolean sharded=processCondition(entity, shardingBean, condition, dsTabStruct, suidType, moreTableSelectShardingFlag);
 				if(!sharded && dsTabStruct==null) {
 					regFullorHintDsFull(suidType);
 				}
@@ -220,15 +224,19 @@ public class ShardingInterceptor extends EmptyInterceptor {
 					dsTabStruct = new ShardingDsTabHandler().process(shardingBean); // 分片键的值是null,也放到算法处理类处理,因在处理类,可能会给默认ds
 
 //					if(type!=0 && condition==null) { 
-					if (condition == null) {//case 4 只有来自javabean的; 肯定是一库一表
+//					if (condition == null) {//case 4 只有来自javabean的; 肯定是一库一表
+					if (condition == null && !moreTableSelectShardingFlag) {
 						if(dsTabStruct!=null) {
-						adjustValue(dsTabStruct, entity);
-						setValeueForOneDsOneTab(dsTabStruct,suidType); // 一库一表时,设置到当前线程.
+						   adjustValue(dsTabStruct, entity);
+						   setValeueForOneDsOneTab(dsTabStruct,suidType); // 一库一表时,设置到当前线程.
 						}else {
 							 regFullorHintDsFull(suidType);
 						}
-					} else if (condition != null) {//case 5
-						boolean sharded=processCondition(entity, shardingBean, condition, dsTabStruct,suidType);
+					} 
+					
+//					else if (condition != null) {//case 5
+					if(condition != null || moreTableSelectShardingFlag) {//case 5   多表查询的一库一表 不能简化
+						boolean sharded=processCondition(entity, shardingBean, condition, dsTabStruct, suidType, moreTableSelectShardingFlag);
 						if(dsTabStruct==null && !sharded) {//原来dsTabStruct是null,后来也没发现有
 							 regFullorHintDsFull(suidType);
 						}
@@ -275,13 +283,16 @@ public class ShardingInterceptor extends EmptyInterceptor {
 	}
 	
 	private boolean processCondition(Object entity, ShardingBean shardingBean, Condition condition,
-			DsTabStruct dsTabStruct0,SuidType suidType) {
+			DsTabStruct dsTabStruct0, SuidType suidType, boolean moreTableSelectShardingFlag) {
 
 		DsTabStruct dsTabStruct = null;
-
+		List<Expression> expList =null;
+		
 //		解析condition,看是否会导致多库多表.
-		ConditionImpl conditionImpl = (ConditionImpl) condition;
-		List<Expression> expList = conditionImpl.getExpList();
+		if (condition != null) { //moreTable select 的一库一表也要放到这运算.  2.4.0
+			ConditionImpl conditionImpl = (ConditionImpl) condition;
+			expList = conditionImpl.getExpList();
+		}
 		Expression expression = null;
 
 //		String dsField = shardingBean.getDsField();
@@ -302,11 +313,17 @@ public class ShardingInterceptor extends EmptyInterceptor {
 		shardingBean.setDsShardingValue(null);
 		shardingBean.setTabShardingValue(null);
 		boolean sharded = false;
-
-		for (int j = 0; j < expList.size(); j++) {
+		String tabName1=shardingBean.getTabName();
+		
+		for (int j = 0; expList!=null && j < expList.size(); j++) {
 			expression = expList.get(j);
-			
-			if(! isShardingField(shardingBean, expression.getFieldName())) continue;
+			String fieldName=expression.getFieldName();
+//			if("myorders.userid".equals(fieldName)) fieldName="userid";
+			if (fieldName == null) continue;
+			if (fieldName.contains(".")) {
+				if(fieldName.startsWith(tabName1+".")) fieldName=fieldName.substring(tabName1.length()+1);
+			}
+			if(! isShardingField(shardingBean, fieldName)) continue;
 			
 			String opType = expression.getOpType();
 //			int opNum = expression.getOpNum();
@@ -330,7 +347,7 @@ public class ShardingInterceptor extends EmptyInterceptor {
 					}
 				}*/
 				
-				foundSharding=checkAndProcessShardingField(shardingBean, expression.getFieldName(),expression.getValue());
+				foundSharding=checkAndProcessShardingField(shardingBean, fieldName, expression.getValue());
 				// 找到一个,就计算一次
 				if (foundSharding) {
 					dsTabStruct = new ShardingDsTabHandler().process(shardingBean);
@@ -356,10 +373,8 @@ public class ShardingInterceptor extends EmptyInterceptor {
 					inList = processBetween(v, v2, tabSize);
 				}
 
-				int len = inList.size();
 				for (Object value : inList) {
-					foundSharding = checkAndProcessShardingField(shardingBean,
-							expression.getFieldName(), value);
+					foundSharding = checkAndProcessShardingField(shardingBean, fieldName, value);
 					// 找到一个,就计算一次
 					if (foundSharding) {
 						dsTabStruct = new ShardingDsTabHandler().process(shardingBean);
@@ -399,13 +414,16 @@ public class ShardingInterceptor extends EmptyInterceptor {
 			ShardingReg.regShardingJustDs(dsNameList);
 			
 		// 超过一个放缓存
-		}else if (dsNameList.size() > 1 || tabNameList.size() > 1 || tabSuffixList.size() > 1) {
+		}else if (
+				(dsNameList.size() > 1 || tabNameList.size() > 1 || tabSuffixList.size() >1)  //多表时,不能用这种
+				|| (moreTableSelectShardingFlag && (dsNameList.size()==1 || tabNameList.size() == 1 || tabSuffixList.size()==1) ) //多表时,即使为1也不能转一库一表
+	            ){ 
 			
 			ShardingReg.regHadSharding();
 			
 			// 若是下标有值,都转成具体的表名. sharding只返回Ds和Tab   下标也要返回,更方便生成新sql
 			//不要这个是否可以??     有时只转出了下标,就需要处理.
-			if (tabSuffixList.size() > 1 && tabNameList.size() < 1) {
+			if (tabSuffixList.size() >= 1 && tabNameList.size() < 1) {
 				String tableName = _toTableName(entity); 
 				for (int i = 0; i < tabSuffixList.size(); i++) {
 					String tab = tableName.replace(StringConst.ShardingTableIndexStr, tabSuffixList.get(i));
@@ -678,17 +696,26 @@ public class ShardingInterceptor extends EmptyInterceptor {
 		}
 
 	}
-
-	private Object getFieldValue(Object entity, String fieldName) {  //检测有多少个？ TODO
+	
+	private Object getFieldValue(Object entity, String fieldName) {
 		if (fieldName == null) return null; // 没设置有分片键时
 		try {
-			Field field = HoneyUtil.getField(entity.getClass(),fieldName);
-			HoneyUtil.setAccessibleTrue(field);
-			return field.get(entity);
+			return getFieldValue0(entity, fieldName);
 		} catch (Exception e) {
-			Logger.debug(e.getMessage(), e);
-			return null;
+			try {
+				// fieldName as column name check again for javabean field name
+				return getFieldValue0(entity, NameTranslateHandle.toFieldName(fieldName, entity.getClass()));
+			} catch (Exception e2) {
+				Logger.debug(e2.getMessage(), e2);
+				return null;
+			}
 		}
+	}
+	
+	private Object getFieldValue0(Object entity, String fieldName) throws Exception { // 检测有多少个？ todo
+		Field field = HoneyUtil.getField(entity.getClass(), fieldName);
+		HoneyUtil.setAccessibleTrue(field);
+		return field.get(entity);
 	}
 	
 //	在类层面定义存ds,tab的List

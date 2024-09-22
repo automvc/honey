@@ -125,9 +125,9 @@ public class NameTranslateHandle {
 		if (ShardingUtil.isSharding() && ShardingRegistry.isBroadcastTab(tableName))
 			return tableName;
 		
-		if(ShardingUtil.hadSharding()) {
-			return tableName+StringConst.ShardingTableIndexStr;
-		}
+//		if(ShardingUtil.hadSharding()) { //close 2.4.0.8
+//			return tableName+StringConst.ShardingTableIndexStr;
+//		}
 		
 		if (tableName.indexOf('.') == -1) {
 			if (StringUtils.isNotBlank(getSchemaNameLocal()))

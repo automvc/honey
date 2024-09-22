@@ -40,8 +40,7 @@ public class ShardingSelectJsonEngine {
 	 * @return
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public JsonResultWrap asynProcess(String sql, BeeSql beeSql, int opType,
-			Class entityClass) {
+	public JsonResultWrap asynProcess(String sql, BeeSql beeSql, Class entityClass) {
 
 		List<String[]> list;
 		String sqls[] = null;

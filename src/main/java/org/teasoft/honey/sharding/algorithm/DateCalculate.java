@@ -20,7 +20,9 @@ public class DateCalculate implements Calculate{
 	 */
 	@Override
 	public String process(String rule, String dateString) {
-		return dateString.substring(0, 7).replace("-", ""); //eg:"202004";
-		//shardingValue为null时，不会流到这； MultiTenancy注解可以用默认值;但Sharding注解，ShardingBean会走全域查所有
+		if (dateString == null) return "";
+//		return dateString.substring(0, 7).replace("-", ""); //eg:"202004";
+		return dateString.replace("-", "").replace("/", "").substring(0, dateString.length() >= 6 ? 6 : dateString.length());
+		// shardingValue为null时，不会流到这； MultiTenancy注解可以用默认值;但Sharding注解，ShardingBean会走全域查所有
 	}
 }

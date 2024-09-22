@@ -625,10 +625,9 @@ public class ConditionHelper {
 			
 			if("*".equals(funExpList.get(i).getField())) {
 				columnName="*";
-			}else { //TODO //不校验字段
+			}else { //todo //不校验字段
 //				//聚合函数,支持复合写法,eg:"DISTINCT(school_id)", 不用检测
-				columnName = HoneyUtil.checkAndProcessSelectFieldViaString(columnNames, null, false,funExpList.get(i).getField());
-				
+				columnName = HoneyUtil.checkAndProcessSelectFieldViaString(columnNames, null, false, funExpList.get(i).getField());
 			}
 			if(isFirst) {
 				isFirst=false;
@@ -762,21 +761,21 @@ public class ConditionHelper {
 		
 		String t_fieldName="";
 		String t_tableName="";
-		String t_tableName_dot;
+//		String t_tableName_dot;
 		String find_tableName="";
 		int index=fieldName.indexOf('.');
 		if(index>-1){
 			t_fieldName=fieldName.substring(index+1);
 			t_tableName=fieldName.substring(0,index);
-			t_tableName_dot=fieldName.substring(0,index+1);
+//			t_tableName_dot=fieldName.substring(0,index+1);
 			// check whether is useSubTableName
-			if(useSubTableNames[0]!=null && useSubTableNames[0].startsWith(t_tableName_dot)){
+			if(useSubTableNames[0]!=null && useSubTableNames[0].equals(t_tableName)){ //fixed bug  2.4.0
 				find_tableName=t_tableName;
-			}else if(useSubTableNames[1]!=null && useSubTableNames[1].startsWith(t_tableName_dot)){
+			}else if(useSubTableNames[1]!=null && useSubTableNames[1].equals(t_tableName)){//fixed bug  2.4.0
 				find_tableName=t_tableName;
 			}else{
 				OneTimeParameter.setTrueForKey(StringConst.DoNotCheckAnnotation);//adjust for @Table
-				find_tableName=NameTranslateHandle.toTableName(t_tableName);
+				find_tableName=NameTranslateHandle.toTableName(t_tableName); 
 			}
 			
 			return find_tableName+"."+NameTranslateHandle.toColumnName(t_fieldName,entityClass);

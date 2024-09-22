@@ -100,8 +100,8 @@ public class OrderByPagingRewriteSql {
 	
 	@SuppressWarnings("rawtypes")
 	public static List<String[]> createSqlsForFullSelect(String sql, Class entityClass) {
-		String tableName = _toTableName(entityClass);
-		String baseTableName = tableName.replace(StringConst.ShardingTableIndexStr, "");
+		String baseTableName = _toTableName(entityClass);
+//		String baseTableName = tableName.replace(StringConst.ShardingTableIndexStr, "");
 
 		List<PreparedValue> listValue = HoneyContext.justGetPreparedValue(sql);
 

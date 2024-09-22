@@ -307,7 +307,7 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 	}
 	
 	private void updatePvList(Select subSelect) {
-		super.getPvList().addAll((List)subSelect.getPvList()); //TODO
+		super.getPvList().addAll((List)subSelect.getPvList()); 
 	}
 	
 	private void _appendTable(String table) {

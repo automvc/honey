@@ -76,7 +76,13 @@ public class AnnoUtil {
 	}
 
 	public static boolean isJson(Field field) {
-		return field.isAnnotationPresent(Json.class);
+//		return field.isAnnotationPresent(Json.class); //close in 2.4.0
+//		2.4.0 just when process result, Jsonb as Json. And Jsonb just for PostgreSQL
+		return field.isAnnotationPresent(Json.class) || field.isAnnotationPresent(Jsonb.class);
+	}
+	
+	public static boolean isJustJsonb(Field field) { //jsonb
+		return field.isAnnotationPresent(Jsonb.class);
 	}
 
 	public static boolean isGenPkAnno(Field field) {

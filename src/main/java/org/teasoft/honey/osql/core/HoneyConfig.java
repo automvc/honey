@@ -90,7 +90,7 @@ public final class HoneyConfig {
 		
 		initHoneyContext();
 		
-		CalculateRegistry.register(1,new DateCalculate());  //2.4.0  用户可以覆盖
+		CalculateRegistry.register(1, new DateCalculate());  //2.4.0  用户可以覆盖
 	}
 	
 	private void initHoneyContext() {
@@ -171,6 +171,8 @@ public final class HoneyConfig {
 
 	//----------------------------- bee.osql
 	// 启动时动态获取
+//	#log4j>slf4j>log4j2>androidLog>harmonyLog>systemLogger>fileLogger>noLogging>jdkLog>commonsLog
+//	#fileLogger 输出到文件; systemLogger 控制台输出
 	@SysValue("${bee.osql.loggerType}")
 	private String loggerType; //v1.8
 	
@@ -186,6 +188,7 @@ public final class HoneyConfig {
 	@SysValue("${bee.osql.dateFormat}")
 	public String dateFormat; //v1.7.2   use in DateUtil
 	
+//	value is:lower,upper
 	@SysValue("${bee.osql.sqlKeyWordCase}")
 	public String sqlKeyWordCase;
 	
@@ -334,7 +337,7 @@ public final class HoneyConfig {
 	boolean pagingWithLimitOffset;
     
     @SysValue("${bee.db.dbs}")
-    private Map<String,Map<String,String>> dbs; //V2.1 配置多个数据源, 属性值与具体工具对应 ;   Map<String,Map<String,String>>这种结构可以在active中只写不同的部分
+	private Map<String, Map<String, String>> dbs; //V2.1 配置多个数据源, 属性值与具体工具对应 ;   Map<String,Map<String,String>>这种结构可以在active中只写不同的部分
 //    {0={password=123, dsName=ds0, driverClassName=com.mysql.jdbc.Driver, jdbcUrl=jdbc:mysql://localhost:3306/bee?characterEncoding=UTF-8&useSSL=false, username=root}, 1={password=123, dsName=ds1, driver-class-name=com.mysql.jdbc.Driver, jdbcUrl=jdbc:mysql://localhost:3306/pro?characterEncoding=UTF-8&useSSL=false, username=root}}
 //  private List<Map<String,String>> dbs; //V2.1 配置多个数据源, 属性值与具体工具对应
     
@@ -343,7 +346,7 @@ public final class HoneyConfig {
     
     
     @SysValue("${bee.db.sharding}")
-    private Map<String,Map<String,String>> sharding; //sharding rule  2.4.0
+	private Map<String, Map<String, String>> sharding; // sharding rule 2.4.0
 
 	//----------------------------- cache start
 	@SysValue("${bee.osql.cache.timeout}")

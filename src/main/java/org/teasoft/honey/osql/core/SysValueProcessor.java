@@ -75,6 +75,7 @@ public class SysValueProcessor {
 		processDbs(obj, prop);
 		
 		processShardingRule(obj, prop);
+		HoneyContext.prcessShardingRuleInProperties();
 	}
 	
 	private static <T> void processDbs(T obj,Properties prop) {
@@ -161,7 +162,4 @@ public class SysValueProcessor {
 		return gm;
 	}
 	
-//	public static void main(String[] args) {
-//		HoneyConfig.getHoneyConfig();
-//	}
 }

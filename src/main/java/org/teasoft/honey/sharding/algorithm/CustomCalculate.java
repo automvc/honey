@@ -12,6 +12,7 @@ package org.teasoft.honey.sharding.algorithm;
 import org.teasoft.bee.sharding.algorithm.Calculate;
 
 /**
+ * As example for Custom Calculate.
  * @author Kingstar
  * @since  2.4.0
  */

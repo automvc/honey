@@ -26,7 +26,7 @@ public class PreLoadInit implements PreLoad{
 	}
 	
 	private static void init() {
-		InterceptorChainRegistry.addInterceptor(new CustomAutoSetInterceptor());//添加定制拦截器.
+		InterceptorChainRegistry.addInterceptor(new CustomAutoSetInterceptor());//添加定制自动设置拦截器.
 		InterceptorChainRegistry.addInterceptor(new ShardingInterceptor()); //分片拦截器
 		InterceptorChainRegistry.addInterceptor(new CustomInterceptor()); //添加定制拦截器.
 	}

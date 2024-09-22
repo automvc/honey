@@ -326,8 +326,8 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 	public <T> long insertAndReturnId(T entity, IncludeType includeType) {
 		if (entity == null) return -1;
 		try {
+		_ObjectToSQLHelper.setInitIdByAuto(entity); // 2.4.0    setInitIdByAuto > doBeforePasreEntity
 		doBeforePasreEntity(entity, SuidType.INSERT);
-		_ObjectToSQLHelper.setInitIdByAuto(entity); // 更改了原来的对象
 
 		long returnId = getMongodbBeeSql().insertAndReturnId(entity, includeType);
 		

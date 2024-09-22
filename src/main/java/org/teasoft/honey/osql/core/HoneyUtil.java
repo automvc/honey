@@ -30,6 +30,8 @@ import org.teasoft.bee.osql.exception.BeeIllegalSQLException;
 import org.teasoft.bee.osql.exception.JoinTableException;
 import org.teasoft.bee.osql.exception.JoinTableParameterException;
 import org.teasoft.bee.osql.interccept.InterceptorChain;
+import org.teasoft.bee.osql.type.PostgreSQLJsonString;
+import org.teasoft.bee.osql.type.PostgreSQLJsonbString2;
 import org.teasoft.bee.osql.type.SetParaTypeConvert;
 import org.teasoft.bee.spi.SqlFormat;
 import org.teasoft.honey.distribution.GenIdFactory;
@@ -75,7 +77,7 @@ public final class HoneyUtil {
 		SetParaTypeConverterRegistry.register(java.util.Date.class, new UtilDotDateTypeToTimestampConvert<java.util.Date>(), DatabaseConst.H2);
 		SetParaTypeConverterRegistry.register(java.util.Date.class, new UtilDotDateTypeToTimestampConvert<java.util.Date>(), DatabaseConst.SQLSERVER); // v2.1.8  
 		SetParaTypeConverterRegistry.register(java.util.Date.class, new UtilDotDateTypeToTimestampConvert<java.util.Date>(), DatabaseConst.ORACLE); // v2.1.8  
-//		SetParaTypeConverterRegistry.register(java.util.Date.class, new UtilDotDateTypeConvert<java.util.Date>()); //bug 会少了时分秒  v2.1.8  
+//		SetParaTypeConverterRegistry.register(java.util.Date.class, new UtilDotDateTypeConvert<java.util.Date>()); // 会少了时分秒  v2.1.8   jdk中,该类的功能就是这样的.
 		
 		TypeHandlerRegistry.register(char.class, new CharTypeHandler<Character>(),true);
 		
@@ -199,6 +201,8 @@ public final class HoneyUtil {
 		String tableName = (String) OneTimeParameter.getAttribute(StringConst.TABLE_NAME);
 		if (tableName == null) {
 			tableName = _toTableName(entity);
+			//2.4.0 分片时,用基本表作为别名
+//			if (ShardingUtil.isSharding()) tableName = tableName.replace(StringConst.ShardingTableIndexStr, ""); // baseTableName 2.4.0
 		}
 		
 		StringBuffer columns = new StringBuffer();
@@ -451,6 +455,12 @@ public final class HoneyUtil {
 				} else {
 					useSubTableName = subTableName[j];
 				}
+				
+				if (ShardingUtil.useTableIndex(tableName)) { //2.4.0.8
+					moreTableStruct[1 + j].subAlias=useSubTableName;
+					moreTableStruct[1 + j].hasSubAlias=true;
+				}
+				
 				if(!"".equals(mainColumn) && !"".equals(subColumn)){
 //				   moreTableStruct[1 + j].joinExpression = tableName + "." + mainColumn + "=" + useSubTableName + "." + subColumn;
 				   //v1.9
@@ -466,7 +476,7 @@ public final class HoneyUtil {
 						if(oneHasOne && j==1) {
 							firstTableName=moreTableStruct[1].useSubTableName;
 						}else {
-							firstTableName=tableName;
+							firstTableName=tableName; 
 						}
 						moreTableStruct[1 + j].joinExpression +=firstTableName + "." + mainColumnArray[i] + "=" + useSubTableName + "." + subColumnArray[i];
 					}
@@ -522,13 +532,11 @@ public final class HoneyUtil {
 		moreTableStruct[0].columnsFull = columns.toString(); //包含从表的列
 		moreTableStruct[0].subDulFieldMap=dulMap;
 
-		//		return columns.toString();
 		return moreTableStruct;
 	}
 	
 	@SuppressWarnings("rawtypes")
 	private static Class createClass(String subClassStr, String packageAndClassName) {
-		//		String subClassStr = joinTable[0].subClass();
 		Class newClazz = null;
 		boolean isOk = false;
 		if (StringUtils.isNotBlank(subClassStr)) {
@@ -571,19 +579,7 @@ public final class HoneyUtil {
 			Set<String> mainFieldSet,Map<String,String> dulMap,boolean checkOneHasOne) {
 		
 		Field field[] = entityClass.getDeclaredFields();
-		
-//	 return	_getBeanFullField_0(field, tableName, entityFullName, mainFieldSet, dulMap, checkOneHasOne, entityField.getName());
-//	}
-//	//for moreTable
-//	static StringBuffer _getBeanFullField_0(Field field[], String tableName,String entityFullName,
-//			Set<String> mainFieldSet,Map<String,String> dulMap,boolean checkOneHasOne,String entityFieldFullName) {
-		
 		String entityFieldFullName=entityClass.getName();
-
-//		tableName传入的也是:useSubTableName
-//		entityFieldFullName just for tip
-
-//		String tableName = _toTableNameByEntityName(entityField.getType().getSimpleName());//有可能用别名
 		StringBuffer columns = new StringBuffer();
 		int len = field.length;
 		boolean isFirst = true;
@@ -596,17 +592,11 @@ public final class HoneyUtil {
 			if (field[i] != null && field[i].isAnnotationPresent(JoinTable.class)) {
 				currentSubNum++;
 				if(checkOneHasOne && currentSubNum==1) subEntityFirstAnnotationField=field[i]; //第一个从表里的第一个连接字段
-				
-////				Logger.error("注解字段的实体: " + entityField.getType().getName() + "里面又包含了注解:" + field[i].getType());
-//				String entityFieldName=entityField.getType().getName();
-//				
-//				if(!entityFieldName.equals(field[i].getType().getName())){ //??
 				   if(checkOneHasOne) {
 					   WarnMsglist.add("Annotation JoinTable field: " +entityFieldFullName+"(in "+ entityFullName + ") still include JoinTable field:" + field[i].getName() + "(will be ignored)!");
 				   }else if(!entityClass.equals(field[i].getType())) {//不是同一个实体自我关联   V1.11 fixed bug
 					   Logger.warn("Annotation JoinTable field: " +entityFieldFullName+"(in "+ entityFullName + ") still include JoinTable field:" + field[i].getName() + "(will be ignored)!");
 				   }
-//				}
 				continue;
 			}
 
@@ -757,6 +747,8 @@ public final class HoneyUtil {
 		javaTypeMap.put("java.time.LocalDate", 31);
 		javaTypeMap.put("java.time.LocalTime", 32);
 		javaTypeMap.put("java.time.LocalDateTime", 33);
+		
+		//34 jsonb for pgsql.   2.4.0
 	}
 
 	public static int getJavaTypeIndex(String javaType) {
@@ -920,11 +912,18 @@ public final class HoneyUtil {
 				pst.setRef(i + 1, (Ref)value);
 				break;
 				
-			case 26:  //Json Annotation  //NOSONAR
+			case 26: // Json Annotation //NOSONAR
 			{
 				SetParaTypeConvert converter = SetParaTypeConverterRegistry.getConverter(Json.class);
 				if (converter != null) {
-					pst.setString(i + 1, (String) converter.convert(value));
+					String jsonStr = (String) converter.convert(value);
+					if (isPostgreSQL()) { // 2.4.0 PostgreSQL donot support string type json, need convert to its type
+						SetParaTypeConvert pgJosnStringConverter = SetParaTypeConverterRegistry.getConverter(PostgreSQLJsonString.class);
+						Object jsonObjct = pgJosnStringConverter.convert(value);
+						pst.setObject(i + 1, jsonObjct);
+					} else {
+						pst.setString(i + 1, jsonStr);
+					}
 					break;
 				}
 			}
@@ -942,6 +941,22 @@ public final class HoneyUtil {
 //				pst.setObject(i + 1, u);  
 //				pst.setObject(i + 1, u, targetSqlType);
 //				break;
+				
+			case 34:
+			{
+				SetParaTypeConvert converter = SetParaTypeConverterRegistry.getConverter(Json.class);
+				if (converter != null) {
+					String jsonStr = (String) converter.convert(value);
+					if (isPostgreSQL()) { // 2.4.0 PostgreSQL donot support string type json, need convert to its type
+						SetParaTypeConvert pgJosnStringConverter2 = SetParaTypeConverterRegistry.getConverter(PostgreSQLJsonbString2.class);
+						Object jsonObjct = pgJosnStringConverter2.convert(value);
+						pst.setObject(i + 1, jsonObjct);
+					} else {
+						pst.setString(i + 1, jsonStr);
+					}
+					break;
+				}
+			}
 			
 			case 19:
 //	        	pst.setBigInteger(i+1, (BigInteger)value);break;
@@ -1218,8 +1233,7 @@ public final class HoneyUtil {
 			value=list.get(j).getValue();
 			
 			//V1.11
-			Field f = list.get(j).getField();
-			if (f != null) {
+			if (list.get(j).getJsonType() >= 1) {
 				SetParaTypeConvert converter = SetParaTypeConverterRegistry.getConverter(Json.class);
 				if (converter != null) {
 					value = converter.convert(value);
@@ -1260,8 +1274,7 @@ public final class HoneyUtil {
 		for (int j = 0; j < size; j++) {
 			value=list.get(j).getValue();
 			//V1.11
-			Field f = list.get(j).getField();
-			if (f != null) {
+			if (list.get(j).getJsonType() >= 1) {
 				SetParaTypeConvert converter = SetParaTypeConverterRegistry.getConverter(Json.class);
 				if (converter != null) {
 					value = converter.convert(value);
@@ -1311,10 +1324,11 @@ public final class HoneyUtil {
 	}
 	
 	public static String checkAndProcessSelectFieldViaString(String columnsdNames,Map<String,String> subDulFieldMap,String ...fields){
-		return checkAndProcessSelectFieldViaString(columnsdNames, subDulFieldMap, true, fields);
+//		return checkAndProcessSelectFieldViaString(columnsdNames, subDulFieldMap, true, fields);
+		return checkAndProcessSelectFieldViaString(columnsdNames, subDulFieldMap, false, fields);
 	}
 	 
-	public static String checkAndProcessSelectFieldViaString(String columnsdNames,Map<String,String> subDulFieldMap,boolean check,String ...fields){
+	public static String checkAndProcessSelectFieldViaString(String columnsdNames,Map<String,String> subDulFieldMap,boolean check, String ...fields){
 		if (fields == null) return null;
 		 
 		columnsdNames=columnsdNames.toLowerCase();//不区分大小写检测
@@ -1449,7 +1463,6 @@ public final class HoneyUtil {
 	}
 	
 	public static boolean isMysql() {
-//		return false;    //test  用来测HoneyContext.justGetPreparedValue("abc"); 检查是否还有元素,  不准确
 		return    DatabaseConst.MYSQL.equalsIgnoreCase(HoneyConfig.getHoneyConfig().getDbName()) 
 			   || DatabaseConst.MariaDB.equalsIgnoreCase(HoneyConfig.getHoneyConfig().getDbName());
 	}
@@ -1492,6 +1505,9 @@ public final class HoneyUtil {
 		return DatabaseConst.MongoDB.equalsIgnoreCase(HoneyConfig.getHoneyConfig().getDbName());
 	}
 	
+	public static boolean isPostgreSQL(){
+		return DatabaseConst.PostgreSQL.equalsIgnoreCase(HoneyConfig.getHoneyConfig().getDbName());
+	}
 	
 	public static boolean setPageNum(List<PreparedValue> list) {
 		int array[] = (int[]) OneTimeParameter.getAttribute("_SYS_Bee_Paing_NumArray");
@@ -1896,6 +1912,7 @@ public final class HoneyUtil {
 	}
 	
 	public static <T extends Serializable> Object copyObject(T obj) {
+		if (obj == null) return obj;
 		try {
 			Serializer jdks = new JdkSerializer();
 			return jdks.unserialize(jdks.serialize(obj));
@@ -2001,6 +2018,10 @@ public final class HoneyUtil {
 	
 	private static boolean isOpenEntityCanExtend() {
 		return HoneyConfig.getHoneyConfig().openEntityCanExtend;
+	}
+	
+	static String toCloumnNameForPks(String pkName, Class entityClass) {
+		return NameTranslateHandle.toColumnName(pkName, entityClass); //返回id的,只支持一个主键
 	}
 	
 	private static char ch[]="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789XY".toCharArray();//64

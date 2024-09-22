@@ -19,6 +19,7 @@ import org.teasoft.honey.util.StringUtils;
 
 /**
  * 操作数据库不依赖javabean结构的类.The class that operation database does not depend on Javabean.
+ * 本类默认不支持Sharding分片功能.
  * @author Kingstar
  * @since  1.9
  */
@@ -151,7 +152,7 @@ public class MapSuidImpl extends AbstractCommOperate implements MapSuid {
 			if (obj != null) {
 				newId = Long.parseLong(obj.toString());
 				if (newId > 1) { // 设置有大于1的值,使用设置的
-					OneTimeParameter.getAttribute(StringConst.PK_Name_For_ReturnId); // 不使用insertAndReturnId,提前消费一次性变量
+					OneTimeParameter.getAttribute(StringConst.PK_Column_For_ReturnId); // 不使用insertAndReturnId,提前消费一次性变量
 					int insertNum = getBeeSql().modify(sql);
 					if (insertNum == 1) {
 						return newId;

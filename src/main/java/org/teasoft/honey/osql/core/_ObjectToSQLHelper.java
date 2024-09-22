@@ -139,7 +139,6 @@ final class _ObjectToSQLHelper {
 				}else if (selectField != null && StringUtils.isNotEmpty(fun)) {
 					columnNames = selectField + "," + fun;
 				}else if (selectField == null && StringUtils.isNotEmpty(fun)) {
-					
 					columnNames = fun;
 				}
 //				else {
@@ -187,9 +186,7 @@ final class _ObjectToSQLHelper {
 						
 						HoneyContext.setCurrentGroupFunStruct(gfStruct);
 					}
-				}
-				
-				
+				} //checkGroup
 				
 			}
 			
@@ -851,7 +848,8 @@ final class _ObjectToSQLHelper {
 		return false;
 	}
 	
-	static void setContext(String sql,List<PreparedValue> list,String tableName){
+	static void setContext(String sql, List<PreparedValue> list, String tableName) {
+		tableName = tableName.replace(StringConst.ShardingTableIndexStr, ""); // 2.4.0.8
 		HoneyContext.setContext(sql, list, tableName);
 	}
 	
@@ -859,8 +857,9 @@ final class _ObjectToSQLHelper {
 		HoneyUtil.checkPackage(entity);
 	}
 	
-	private static String _toTableName(Object entity){
-		return NameTranslateHandle.toTableName(NameUtil.getClassFullName(entity));
+	private static String _toTableName(Object entity) {
+		String tableName = NameTranslateHandle.toTableName(NameUtil.getClassFullName(entity));
+		return ShardingUtil.appendTableIndexIfNeed(tableName); // 2.4.0.8
 	}
 	
 	@SuppressWarnings("rawtypes")
@@ -895,7 +894,10 @@ final class _ObjectToSQLHelper {
 			}
 			if (noId) {
 				pkName = HoneyUtil.getPkFieldName(entity);
-				if("".equals(pkName) || pkName.contains(",")) return ; //just support single primary key.
+				if("".equals(pkName) || pkName==null || pkName.contains(",")) { 
+					Logger.warn("setInitIdByAuto just support single primary key.");
+					return ; //just support single primary key. 自动设置主键值,只支持单主键.
+				}
 				field = HoneyUtil.getField(entity.getClass(), pkName);
 				pkAlias="("+pkName+")";
 			}

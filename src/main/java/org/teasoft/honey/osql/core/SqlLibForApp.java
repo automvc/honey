@@ -794,8 +794,8 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 				obj[i]=list.get(i).getValue();
 				
 				// 提前将Json字段转成Json 字符串????
-				Field f = list.get(i).getField();
-				if (f != null && f.isAnnotationPresent(Json.class)) {
+				int jsonType=list.get(i).getJsonType();
+				if (jsonType == 1) { //jsut json; app no use pgsql, no jsonb	
 					SetParaTypeConvert converter = SetParaTypeConverterRegistry.getConverter(Json.class);
 					if (converter != null) {
 						obj[i] = converter.convert(obj[i]);

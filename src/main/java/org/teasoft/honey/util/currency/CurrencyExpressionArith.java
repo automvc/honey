@@ -79,10 +79,8 @@ protected static String arith(List<String> list,int scale,RoundingMode divideRou
      */
 	static String inToPost(String exp,boolean isNumberCalculate){
     	List<String> list=inToPostList(exp,isNumberCalculate);
-//    	String t="";
     	StringBuffer sbu=new StringBuffer();
     	for (int i = 0; i < list.size(); i++) {
-//    		t+=list.get(i)+"  ";
     		sbu.append(list.get(i));
     		sbu.append("  ");
 		}
@@ -122,7 +120,6 @@ protected static String arith(List<String> list,int scale,RoundingMode divideRou
     	 
          char[] arr = s.toCharArray();
          int len = arr.length;
-//         String out = "";
          List<String> list=new ArrayList<>();
          String temp="";
          boolean isArithOp=false;
@@ -130,11 +127,6 @@ protected static String arith(List<String> list,int scale,RoundingMode divideRou
              char ch = arr[i];
              if(ch == ' ') continue;
 
-//             if(ch >= '0' && ch <= '9') {
-//             if (  ((! isNumber) && ! isOperate(ch) )
-//            	|| (   isNumber && (ch >= '0' && ch <= '9'))
-//            		 ) { //不是操作符
-            
               if(! isOperate(ch)) {
             	  
             	  if(isNumberCalculate && ! (ch >= '0' && ch <= '9')) 
@@ -143,7 +135,6 @@ protected static String arith(List<String> list,int scale,RoundingMode divideRou
                  temp+=(ch+"");
                  if( (i==len-1) || isOperate(arr[i+1]) ) {
                 	 list.add(temp); 
-//                	 System.out.println(list.toString());
                 	 temp="";
                  }
                  isArithOp=false;//不是运算符
@@ -151,19 +142,15 @@ protected static String arith(List<String> list,int scale,RoundingMode divideRou
              }
              
              if(ch == '(') op.push(ch);  // 左括号直接入栈
-//             System.out.println(op);
 
              if(ch == '+' || ch == '-'){
 //            	 有连续两个运算符
             	 if(isArithOp) throw new RuntimeException("There are two consecutive operators: "+arr[i-1]+ch);
             	 isArithOp=true;
                  while(!op.empty() && (op.peek() != '(')) { //栈有 +-*/ 都要出栈,碰到(就停止
-//                	 System.out.println("+-   是否有运行到???????");
                 	 list.add(op.pop()+"");
-//                	 System.out.println(list.toString());
                  }
                  op.push(ch);
-//                 System.out.println(op);
                 
                  continue;
              }
@@ -173,19 +160,15 @@ protected static String arith(List<String> list,int scale,RoundingMode divideRou
             	 if(isArithOp) throw new RuntimeException("There are two consecutive operators: "+arr[i-1]+ch);
             	 isArithOp=true;
                  while(!op.empty() && (op.peek() == '*' || op.peek() == '/' || op.peek() == '%' )) { //栈有同级符号出栈
-//                	 System.out.println("* / 是否有运行到???????");
                 	 list.add(op.pop()+"");
-//                	 System.out.println(list.toString());////遇到*/号,栈有 同级元素*/ 都要出栈
                  }
                  op.push(ch);
-//                 System.out.println(op);
                  continue;
              }
 
              if(ch == ')'){   // ')'不会入栈
                  while(!op.empty() && op.peek() != '(') { 
                 	 list.add(op.pop()+"");//符号出栈,直到遇到( 左括号
-//                	 System.out.println("符号出栈: "+list.toString()); 
                  }//end while
                  op.pop(); //对应"(" 出栈
                  continue;
@@ -193,10 +176,8 @@ protected static String arith(List<String> list,int scale,RoundingMode divideRou
          }
          while(!op.empty()) {
         	 list.add(op.pop()+"");
-//        	 System.out.println(list.toString());
          }
          
-//         System.out.println(list);
          return list;
     }
 	

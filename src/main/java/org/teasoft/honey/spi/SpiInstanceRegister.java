@@ -19,15 +19,15 @@ import org.teasoft.honey.osql.core.Logger;
  * @since  2.0
  */
 public class SpiInstanceRegister implements Registry {
-	
-	private static Map<Class<?>,Serializable> spiInstanceMap=new HashMap<>();
-	
+
+	private static Map<Class<?>, Serializable> spiInstanceMap = new HashMap<>();
+
 	@SuppressWarnings("unchecked")
 	public static <T> T getInstance(Class<T> clazz) {
 		T t = null;
 		try {
-			Serializable s=spiInstanceMap.get(clazz);
-			if(s==null) return t;
+			Serializable s = spiInstanceMap.get(clazz);
+			if (s == null) return t;
 			t = (T) HoneyUtil.copyObject(s);
 		} catch (Exception e) {
 			Logger.debug(e.getMessage());
@@ -35,8 +35,8 @@ public class SpiInstanceRegister implements Registry {
 		return t;
 	}
 
-	public static void register(Class<?> clazz,Serializable instance) {
-		spiInstanceMap.put(clazz,instance);
+	public static void register(Class<?> clazz, Serializable instance) {
+		spiInstanceMap.put(clazz, instance);
 	}
-	
+
 }
