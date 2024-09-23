@@ -1,17 +1,18 @@
 # you can create a new bee.properties file override the default value.
 
+
 #since V1.11
 #1.base main and Override with active, 2.rebase to active(other file)
 #1 : main file + other file; 2 : just active file(other file);    if do not set , will use mail file.
 #bee.profiles.type=0
-#\u547d\u540d\u89c4\u5219 name rule: bee-{active}.properties
+#命名规则 name rule: bee-{active}.properties
 #bee.profiles.active = test
 
 #no dataSource 
 # if use dataSource,no need config in here.
-#\u65e0\u6570\u636e\u6e90,\u76f4\u8fde\u65b9\u5f0f.
-#\u4f7f\u7528xml\u914d\u7f6e\u7b49\u5176\u5b83\u6570\u636e\u6e90\u65f6\uff0cbee.properties\u91cc\u914d\u7f6e\u7684\u9a71\u52a8\u4fe1\u606f\u9ed8\u8ba4\u60c5\u51b5\u4e0b\u5c06\u4e0d\u4f1a\u4f7f\u7528\u3002
-#\u6ca1\u6709\u4f7f\u7528\u6570\u636e\u6e90\u65f6\uff0c\u4f1a\u4f7f\u7528\u8fd9\u91cc\u7684\u914d\u7f6e\u3002
+#无数据源,直连方式.
+#使用xml配置等其它数据源时，bee.properties里配置的驱动信息默认情况下将不会使用。
+#没有使用数据源时，会使用这里的配置。
 ##bee.databaseName   old key name
 ##When only one type of database is used, setting it can improve efficiency
 #bee.db.dbName=MySQL
@@ -20,12 +21,9 @@
 #bee.db.username = userName
 #bee.db.password = YourPassword
 
-#since 2.1.10
+#since 2.1.10, value is:MySQL,Oracle. MySQL is default.
 #bee.db.oceanbaseMode=MySQL
 #bee.db.dbName=OceanBase
-
-#since 2.1.10, value is:mysql,oracle. mysql is default.
-#bee.db.oceanbaseMode=MySQL
 
 #since V1.11
 #some db neee set,like cassandra's keyspace can set here
@@ -51,7 +49,7 @@
 bee.osql.loggerType=systemLogger
 #set log type for systemLoggerType(for develop):debug<info<warn<error
 bee.osql.systemLoggerLevel=info
-#since 1.9.8 value: info,warn,error,  \u8bbe\u7f6eSQL LOG\u65e5\u5fd7\u8f93\u51fa\u7684\u7ea7\u522b
+#since 1.9.8 value: info,warn,error,  设置SQL LOG日志输出的级别
 #bee.osql.sqlLoggerLevel=info
 # since v1.7.2 use in DateUtil
 bee.osql.dateFormat=yyyy-MM-dd HH:mm:ss
@@ -60,30 +58,30 @@ bee.osql.logDonotPrintLevel=true
 #bee.osql.notDeleteWholeRecords=true
 # since v1.7.2. It is not allowed update whole records in one table.Just enable in Object Oriented way.
 #bee.osql.notUpdateWholeRecords=true
-#\u662f\u5426\u6355\u83b7\u5355\u6761\u63d2\u5165\u65f6\u7684\u91cd\u590d\u952e\u5f02\u5e38  V1.11
-#\u4ece2.1\u5f00\u59cb\uff0c\u9ed8\u8ba4\u629b\u51fa\u5f02\u5e38\uff1b\u9632\u6b62\u5728\u4e8b\u52a1\u65f6\uff0c\u4e0d\u6b63\u786e
+#是否捕获单条插入时的重复键异常  V1.11
+#从2.1开始，默认抛出异常；防止在事务时，不正确
 bee.osql.notCatchModifyDuplicateException=true
-#\u662f\u5426\u663e\u793a\u5355\u6761\u63d2\u5165\u65f6\u7684\u91cd\u590d\u952e\u5f02\u5e38  V1.11
+#是否显示单条插入时的重复键异常  V1.11
 #bee.osql.notShowModifyDuplicateException=false
 
-#since 2.1.8 \u5f53mongodb\u67e5\u8be2\u6240\u6709\u5b57\u6bb5\u65f6,\u9ed8\u8ba4\u4e0d\u663e\u793a\u51fa\u6765
+#since 2.1.8 当mongodb查询所有字段时,默认不显示出来
 #bee.osql.showMongoSelectAllFields=false
 
-#\u6279\u91cf\u63d2\u5165\u6700\u5927\u6279\u5904\u7406\u6570  batch size of insert, default is 10000
+#批量插入最大批处理数  batch size of insert, default is 10000
 #bee.osql.insertBatchSize=10000
 
-#since 2.2 \u6279\u91cf\u63d2\u5165\u6bcf\u4e2a\u6279\u6b21\u662f\u5426\u63d0\u4ea4\u4e00\u6b21
+#since 2.2 批量插入每个批次是否提交一次
 bee.osql.eachBatchCommit=false
 
-#\u652f\u6301\u56fd\u9645\u5316,\u9700\u8981\u8bbe\u7f6e
+#支持国际化,需要设置
 #bee.osql.lang=CN
 
-#\u4ece2.1\u5f00\u59cb\u9ed8\u8ba4\u653e\u5f00\uff0c\u82e5\u4e0d\u4f7f\u7528\uff0c\u4e3a\u4e86\u63d0\u9ad8\u6548\u7387\uff0c\u53ef\u4ee5\u624b\u52a8\u914d\u7f6e\u5173\u95ed\u3002
+#从2.1开始默认放开，若不使用，为了提高效率，可以手动配置关闭。
 bee.osql.openDefineColumn=true
-#1.11\u9ed8\u8ba4\u5173\u95ed; 1.17 \u9ed8\u8ba4\u6253\u5f00
+#1.11默认关闭; 1.17 默认打开
 bee.osql.openFieldTypeHandler=true
 
-#since 2.2 \u5b9e\u4f53\u7c7b\u662f\u5426\u652f\u6301\u89e3\u6790\u8d85\u7c7b
+#since 2.2 实体类是否支持解析超类
 #bee.osql.openEntityCanExtend=false
 
 #since 1.8.99
@@ -98,7 +96,7 @@ bee.osql.showShardingSQL=false
 # since v1.8
 #bee.osql.showSql.showType=false
 #bee.osql.showSql.showExecutableSql=false
-#since 2.1.7 \u683c\u5f0f\u5316sql
+#since 2.1.7 格式化sql
 bee.osql.showSql.sqlFormat=false
 # since v1.7.0  it is effect when bee.log.loggerType is :systemLogger or fileLogger.
 #bee.osql.showSql.donotPrintCurrentDate=false
@@ -114,12 +112,12 @@ bee.osql.showSql.sqlFormat=false
 #if want to use other naming rule, you can define a new class implements NameTranslate
 #default value is :1
 bee.osql.naming.translateType=1
-#since 1.17 \u540c\u65f6\u4f7f\u7528\u591a\u7528\u4e0d\u540c\u547d\u540d\u8f6c\u6362
+#since 1.17 同时使用多用不同命名转换
 bee.osql.naming.useMoreTranslateType=false
 
-#\u8981\u662f\u5b57\u6bb5\u540d\u5168\u7528\u5927\u5199,\u5728\u547d\u540d\u8f6c\u6362\u524d\u9700\u8981\u5148\u8f6c\u6210\u5c0f\u5199,\u5982ORDER_NO
-#default: to LowerCase before. \u9ed8\u8ba4\u662f\u5148\u8f6c\u5c0f\u5199,\u56e0\u4e3a\u5982\u4e0d\u8f6c,DB\u5b57\u6bb5\u7528\u5168\u5927\u5199\u65f6\u4f1a\u51fa\u9519
-#\u4f46\u50cfmysql,\u9ed8\u8ba4\u4e0d\u662f\u5168\u5927\u5199\u7684,\u5efa\u8bae\u8bbe\u4e3afalse,\u8fd9\u6837\u8f6c\u6362\u4f1a\u66f4\u7cbe\u51c6.
+#要是字段名全用大写,在命名转换前需要先转成小写,如ORDER_NO
+#default: to LowerCase before. 默认是先转小写,因为如不转,DB字段用全大写时会出错
+#但像mysql,默认不是全大写的,建议设为false,这样转换会更精准.
 bee.osql.naming.toLowerCaseBefore=true
 
 
@@ -129,42 +127,42 @@ bee.osql.naming.toLowerCaseBefore=true
 #bee.osql.sqlGenerate.moreTableSelect.2tablesWithJoinOnStyle=true   #close in v1.9
 #bee.osql.moreTable.twoTablesWithJoinOnStyle=false
 
-#\u67e5\u8be2\u7ed3\u679c\u76f4\u63a5\u8fd4\u56deJson\u662f\u5426\u5ffd\u7565null
+#查询结果直接返回Json是否忽略null
 bee.osql.selectJson.ignoreNull=true
-#\u67e5\u8be2\u7ed3\u679c\u76f4\u63a5\u8fd4\u56deJson\u4e2d, timestamp\u662f\u5426\u7528\u6beb\u79d2\u8868\u793a
+#查询结果直接返回Json中, timestamp是否用毫秒表示
 bee.osql.selectJson.timestampWithMillisecond=false
 bee.osql.selectJson.dateWithMillisecond=false
 bee.osql.selectJson.timeWithMillisecond=false
 #since 1.9.8
 bee.osql.selectJson.longToString=true
 
-#\u67e5\u8be2\u7ed3\u679c\u8fd4\u56deList<String[]>\u65f6,\u662f\u5426\u5c06null\u8f6c\u4e3a""
+#查询结果返回List<String[]>时,是否将null转为""
 bee.osql.returnStringList.nullToEmptyString=false
 
 
 #cache=======================start
-#\u7f13\u5b58\u7c7b\u578b
+#缓存类型
 #bee.osql.cache.type=FIFO
-#\u7f13\u5b58\u96c6\u6570\u636e\u91cf\u6570\u76ee
+#缓存集数据量数目
 #bee.osql.cache.mapSize=20000
-#resultset\u8d85\u8fc7\u4e00\u5b9a\u7684\u503c\u5c06\u4e0d\u4f1a\u653e\u7f13\u5b58
+#resultset超过一定的值将不会放缓存
 #bee.osql.cache.workResultSetSize=300
-#\u7f13\u5b58\u4fdd\u5b58\u65f6\u95f4(\u6beb\u79d2 ms)
+#缓存保存时间(毫秒 ms)
 #bee.osql.cache.timeout=30000
-#\u68c0\u6d4b\u5230\u8d85\u65f6,\u8d85\u8fc7\u8fd9\u4e2a\u4f7f\u7528\u6bd4\u4f8b\u5219\u987a\u4fbf\u8d77\u7ebf\u7a0b\u6e05\u9664\u7f13\u5b58
+#检测到超时,超过这个使用比例则顺便起线程清除缓存
 bee.osql.cache.startDeleteRate=0.6
-#\u7f13\u5b58\u5bb9\u91cf\u4f7f\u7528\u7387;\u6dfb\u52a0\u7f13\u5b58,\u68c0\u6d4b\u8fbe\u5230\u8be5\u4f7f\u7528\u7387\u5219\u6e05\u9664\u4e00\u5b9a\u6bd4\u4f8b\u7f13\u5b58
+#缓存容量使用率;添加缓存,检测达到该使用率则清除一定比例缓存
 bee.osql.cache.fullUsedRate=0.8
-#\u6dfb\u52a0\u7f13\u5b58,\u68c0\u6d4b\u5230\u7f13\u5b58\u5bb9\u91cf\u5feb\u6ee1\u65f6,\u5220\u9664\u7f13\u5b58\u6570\u7684\u6bd4\u4f8b
+#添加缓存,检测到缓存容量快满时,删除缓存数的比例
 bee.osql.cache.fullClearRate=0.2
 
-#\u4ec5\u5206\u5e93\u65f6(bee.dosql.multiDS.type=2),\u53ef\u7528\u683c\u5f0f:  dsName.tableName
+#仅分库时(bee.dosql.multiDS.type=2),可用格式:  dsName.tableName
 #use table name, not entity name
-#\u4e0d\u7f13\u5b58\u8868\u7684\u5217\u8868, \u8868\u540d\u4e0d\u533a\u5206\u5927\u5c0f\u5199.\u89c6\u56fe\u5f3a\u70c8\u5efa\u8bae\u4e0d\u653e\u7f13\u5b58,\u56e0\u4f1a\u4ea7\u751f\u810f\u6570\u636e.
+#不缓存表的列表, 表名不区分大小写.视图强烈建议不放缓存,因会产生脏数据.
 #bee.osql.cache.never=test_user
-#\u6c38\u4e45\u7f13\u5b58\u8868\u7684\u5217\u8868, \u8868\u540d\u4e0d\u533a\u5206\u5927\u5c0f\u5199
+#永久缓存表的列表, 表名不区分大小写
 #bee.osql.cache.forever=constant
-#\u53ea\u6709\u66f4\u6539\u65f6\u624d\u4f1a\u6e05\u9664\u7f13\u5b58,\u4ee5\u4fbf\u540c\u6b65\u65b0\u7684\u503c\u5230\u7f13\u5b58. \u8868\u540d\u4e0d\u533a\u5206\u5927\u5c0f\u5199
+#只有更改时才会清除缓存,以便同步新的值到缓存. 表名不区分大小写
 #bee.osql.cache.modifySyn=para
 
 # since v1.7.2. default value is: false (use cache)
@@ -178,12 +176,12 @@ bee.osql.cache.keyUseMD5=true
 #high safe cache,the javabean(entity) need implements Serializable interface.
 bee.osql.cache.prototype=1
 bee.osql.cache.useLevelTwo=false
-#\u6c38\u4e45\u548c\u957f\u4e45\u7f13\u5b58\u9ed8\u8ba4\u4e0d\u653e\u4e8c\u7ea7\u7f13\u5b58,\u5176\u5b83\u4e00\u7ea7\u7f13\u5b58\u53ef\u901a\u8fc7\u8be5\u914d\u7f6e\u8bbe\u7f6e
+#永久和长久缓存默认不放二级缓存,其它一级缓存可通过该配置设置
 bee.osql.cache.levelOneTolevelTwo=false
-#\u4e8c\u7ea7\u7f13\u5b58\u9ed8\u8ba4\u4fdd\u5b58\u65f6\u95f4(\u79d2 second)
+#二级缓存默认保存时间(秒 second)
 #bee.osql.cache.levelTwoTimeout=180
 
-#\u7528\u8fd9\u79cd,\u4e00\u4e2a\u5b9e\u4f53\u5bf9\u5e94\u591a\u4e2a\u4e0d\u540c\u6570\u636e\u6e90\u5219\u4e0d\u884c?  \u4e5f\u53ef\u4ee5\u8868\u793a\u51e0\u4e2a\u6570\u636e\u6e90\u5bf9\u5e94\u7684\u8868\u90fd\u653e\u7f13\u5b58
+#用这种,一个实体对应多个不同数据源则不行?  也可以表示几个数据源对应的表都放缓存
 #bee.osql.cache.levelTwoEntityList=com.xxx.aa.Orders,com.xxx.bb.*,com.xxx.cc.**
 
 #level 2 cache: Redis
@@ -220,24 +218,24 @@ bee.distribution.genid.replaceOldId=true
 #bee.distribution.pearFlowerId.useHalfWorkId=false
 #unit is second. 
 #bee.distribution.pearFlowerId.switchWorkIdTimeThreshold=120
-#need >=1, default is 2. \u68a8\u82b1\u7b97\u6cd5\u968f\u673a\u5f00\u59cb\u503c\u7684\u6700\u5927\u503c(\u4e0d\u5305\u62ec\u8fb9\u754c)
+#need >=1, default is 2. 梨花算法随机开始值的最大值(不包括边界)
 #bee.distribution.pearFlowerId.randomNumBound=2
 
 #--------Notice: do not support define sql in this model.
 #DOSQL:  Distributed Object SQL
 #bee.dosql.multiDS.enable=true
-#\u652f\u6301\u540c\u65f6\u4f7f\u7528\u591a\u79cd\u7c7b\u578b\u6570\u636e\u5e93\u7684\u6570\u636e\u6e90.support different type database muli-Ds at same time.
+#支持同时使用多种类型数据库的数据源.support different type database muli-Ds at same time.
 #eg: have oracle,mysql,..., datasource
 #bee.dosql.multiDS.differentDbType=true
-#\u7528\u4e8e\u5728HoneyFactory\u83b7\u53d6Suid,SuidRich\u7684\u5bf9\u8c61\u65f6\u751f\u6210Mongodb\u7684
+#用于在HoneyFactory获取Suid,SuidRich的对象时生成Mongodb的
 bee.dosql.multiDS.justMongodb=false
 #bee.dosql.multiDS.defalutDS=ds1
 #bee.dosql.multiDS.sharding=false
 
-#\u4e0d\u662f\u5e7f\u64ad\u8868,\u624d\u6709\u6548(V2.1)  for not Broadcast table(V2.1)
+#不是广播表,才有效(V2.1)  for not Broadcast table(V2.1)
 bee.dosql.sharding.forkJoinBatchInsert=false
 bee.dosql.sharding.jdbcStreamSelect=true
-#since 2.0  \u8bbe\u7f6e\u662f\u5426\u4e0d\u652f\u6301union?  include union,union all
+#since 2.0  设置是否不支持union?  include union,union all
 bee.dosql.sharding.notSupportUnionQuery=false
 #since 2.1.7
 #bee.dosql.sharding.executorSize=0
@@ -255,30 +253,30 @@ bee.dosql.sharding.notSupportUnionQuery=false
 #when type is 2
 #bee.dosql.multiDS.defalutDS=ds1
 #bee.dosql.multiDS.type=2
-#\u4e0d\u540cds\u7528\u5206\u53f7\u9694\u5f00    \u540c\u4e00ds\u7528\u9017\u53f7\u9694\u5f00.Different DS are separated by semicolons and the same DS by commas.
-#\u4ec5\u5206\u5e93\u65f6\uff0c\u4e0d\u540c\u5e93\u6709\u76f8\u540c\u7684\u8868\u540d\uff0c\u5bf9\u5e94\u7684Entity\u6240\u5728\u7684\u5305\u540d\u4e0d\u80fd\u76f8\u540c(\u82e5\u5728java\u4ee3\u7801\u4e2d\u624b\u52a8\u6307\u5b9ads,\u5219\u4f1a\u6c61\u67d3\u4ee3\u7801)
+#不同ds用分号隔开    同一ds用逗号隔开.Different DS are separated by semicolons and the same DS by commas.
+#仅分库时，不同库有相同的表名，对应的Entity所在的包名不能相同(若在java代码中手动指定ds,则会污染代码)
 #bee.dosql.multiDS.matchEntityClassPath=ds2:com.xxx.aa.User,com.xxx.bb.*,com.xxx.cc.**;ds3:com.xxx.dd.User
 #config datasource and table relation
 #bee.dosql.multiDS.matchTable=ds2:test_user
 
-#\u82e5\u6ca1\u6709\u914d\u7f6ebee.dosql.multiDS.type,\u5219\u6839\u636e\u5177\u4f53\u60c5\u51b5\u786e\u5b9a\u6570\u636e\u6e90
+#若没有配置bee.dosql.multiDS.type,则根据具体情况确定数据源
 
 
 
-#############Bee+Spring boot,\u4f7f\u7528\u591a\u4e2a\u6570\u636e\u6e90\u65f6,\u9700\u8981\u5728spring boot\u5de5\u7a0b\u7684Application\u7c7b\u6dfb\u52a0:
+#############Bee+Spring boot,使用多个数据源时,需要在spring boot工程的Application类添加:
 #@SpringBootApplication(exclude = DataSourceAutoConfiguration.class)
-#\u6216\u8005,\u5728application.properties\u91cc\u6dfb\u52a0:
+#或者,在application.properties里添加:
 #spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
 
 #bee.db.dbs[i].type   value :Hikari,Druid,c3p0,dbcp2,Tomcat,BeeMongo, default is : Hikari
 #Hikari
-#Hikari\u4e13\u7528:
+#Hikari专用:
 #bee.db.dbs[0].driverClassName = com.mysql.jdbc.Driver
 #bee.db.dbs[0].jdbcUrl =jdbc:mysql://localhost:3306/bee?characterEncoding=UTF-8&useSSL=false
-#Bee\u4f5c\u4e86\u517c\u5bb9\u5904\u7406  driverName->driverClassName ;  url ->jdbcUrl
+#Bee作了兼容处理  driverName->driverClassName ;  url ->jdbcUrl
 
-#############Bee+Spring boot,\u4f7f\u7528\u591a\u4e2a\u6570\u636e\u6e90,\u914d\u7f6e\u5b9e\u4f8b
-#dbs\u6570\u7ec4,\u5176\u5b83\u4e0b\u6807,\u662f\u5426\u4ece\u9996\u4e2a\u5143\u7d20\u7ee7\u627f\u5c5e\u6027(\u4f46dsName\u4e0d\u80fd\u7ee7\u627f)
+#############Bee+Spring boot,使用多个数据源,配置实例
+#dbs数组,其它下标,是否从首个元素继承属性(但dsName不能继承)
 #bee.db.extendFirst=true
 #
 #bee.db.dbs[0].dsName=ds0
@@ -294,25 +292,25 @@ bee.dosql.sharding.notSupportUnionQuery=false
 #bee.db.dbs[1].password =123456
 
 
-############# Bee+Spring boot,\u4f7f\u7528\u5355\u4e2a\u6570\u636e\u6e90,\u914d\u7f6e\u5b9e\u4f8b
-## \u6570\u636e\u6e90\u914d\u7f6e  ; \u9ed8\u8ba4\u662f:HikariPool
+############# Bee+Spring boot,使用单个数据源,配置实例
+## 数据源配置  ; 默认是:HikariPool
 #spring.datasource.url=jdbc:mysql://localhost:3306/bee?characterEncoding=UTF-8&useSSL=false
 ##spring.datasource.driver-class-name=com.mysql.jdbc.Driver
 #spring.datasource.driverClassName=com.mysql.jdbc.Driver
 #spring.datasource.username=root
 #spring.datasource.password=123456
 
-#Sharding\u5206\u7247properties\u98ce\u683c\u914d\u7f6e(\u4e0espringboot\u6574\u5408\u65f6,\u53ef\u4ee5\u4f7f\u7528yaml\u65b9\u5f0f),since 2.4.0
-#Java\u98ce\u683c\u914d\u7f6e,\u53ef\u53c2\u8003bee-exam\u5de5\u7a0b\u7684ShardingInitData.java
+#Sharding分片properties风格配置(与springboot整合时,可以使用yaml方式),since 2.4.0
+#Java风格配置,可参考bee-exam工程的ShardingInitData.java
 #ShardingConfig.addShardingBean("orders",new ShardingBean("ds[0..1].orders[0..5]", "orderid"));
 #bee.db.sharding[0].baseTableName=orders
-#\u8bbe\u7f6e\u8868\u5bf9\u5e94\u7684Class\u7c7b\u4e5f\u53ef\u4ee5(\u8981\u5305\u62ec\u5305\u540d)
+#设置表对应的Class类也可以(要包括包名)
 #bee.db.sharding[0].className=org.teasoft.exam.Orders
 #bee.db.sharding[0].fullNodes=ds[0..1].orders[0..5]
-#\u7528\u4e8e\u5206\u7247\u7684\u8868\u5b57\u6bb5.
+#用于分片的表字段.
 #bee.db.sharding[0].tabField=orderid
 
-##\u5176\u5b83\u53ef\u8bbe\u7f6e\u5b57\u6bb5  
+##其它可设置字段  
 #bee.db.sharding[0].dsField         =
 #bee.db.sharding[0].dsAlgorithm     =
 #bee.db.sharding[0].tabAssignType   =
@@ -322,5 +320,3 @@ bee.dosql.sharding.notSupportUnionQuery=false
 #bee.db.sharding[0].tabRule         =
 #bee.db.sharding[0].dsShardingValue =
 #bee.db.sharding[0].tabShardingValue=
-
-
