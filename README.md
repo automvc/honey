@@ -9,7 +9,7 @@ Bee
 **Good Feature:**  AI, Timesaving/Tasteful, Easy, Automatic (**AiTeaSoft Style**)   
 
 ## **Good News:**  
-Newest version is:**Bee V2.2 LTS**  
+Newest version is:**Bee V2.4.0 LTS**  
 
 Sharding target: It is mainly transparent to business development and coding, with only a little sharding config.  
 #### [Quick Start:Shardign better example](guide/Quick-start-Sharding.md) 
@@ -88,6 +88,15 @@ MapSql add methods: public void where(Condition condition);
 19.Suid support java.time.LocalDateTime type  
 20.TO_DATE for Oracle filter the record in SQL where part  
 
+21.Fixed bug: MoreTable single insertion, automatic value setting before doBeforePasreEntity
+   InsertAndReturnId in sharding mode need setInitIdByAuto > doBeforePasreEntity  
+   InsertAndReturnId: The pkName passed in should be converted to column name  
+22.enhance:  
+   When inserting multiple tables, if there are no child tables, insert is used for inserting the main table  
+   File generation, add backup of existing files function  
+   TranHandler throws the received exception to the upper level  
+23.support pgsql json/jsonb, but in where part, need write the pgsql special sql  
+24.Improve the sharding function  
 
 **V2.2(2024.1.1·LTS)**  
 1. Javabean entity supports inheritance (configure bee.osql.openEntityCanExtend=true).  
@@ -327,7 +336,7 @@ Quick Start:
        <dependency>
 	      <groupId>org.teasoft</groupId>
 	      <artifactId>bee-all</artifactId>
-	      <version>2.2</version>
+	      <version>2.4.0</version>
         </dependency>
 		
 	    <!-- Mysql config.You need change it to the real database config. -->
@@ -342,9 +351,9 @@ Quick Start:
 Gradle
 
 ```xml
-implementation group: 'org.teasoft', name: 'bee-all', version: '2.2'
+implementation group: 'org.teasoft', name: 'bee-all', version: '2.4.0'
 //Gradle(Short)
-implementation 'org.teasoft:bee-all:2.2'
+implementation 'org.teasoft:bee-all:2.4.0'
 ```
 
 #### 1.2  Of course, can download the jar file directly  
@@ -599,32 +608,6 @@ API-V1.17(Newest) SourceCode contain bee-1.17 CN & EN API,bee-1.17 CN SourceCode
 [wiki Document](../../../bee/wikis)  
 
 [CSDN: ORM Bee Document](https://blog.csdn.net/abckingaa/article/details/121664398)
-
-Enterprise Edition:
-=========	
-In order to provide more and more powerful functions, Bee team cooperates with the enterprise to launch the Enterprise Version.  
-### New Features  
-We hope to provide more easy-to-use Bee functions to further improve the efficiency of development!  
-* 1.Reduce the difficulty of development financial computing projects, simplify financial digital calculation, etc  
-* 2.@AutoSetString annotation ease of use improvement, easy to handle automatic filling functions such as CreateBy,UpdateBy  
-Automatically insert values for tenants  
-* 3.@Desensitize, change some sensitive information to mask characters  
-* 4.@Dict specific field dictionary value conversion  
-* 5.@DictI18n multilingual International Dictionary conversion, global unified setting, no need to set one by one, saving time and effort  
-* 6.@MultiTenancy multi-tenant  
-* 7.@Column when Javabean attribute is inconsistent with the table column name, define the mapping relationship (not recommended for new system, mainly for compatibility with old system)  
-* 8.@Json Entity properties are Javabean and the JSON type column of DB table are converted automatically during parameter setting and query results  
-* 9.Support the automatic generation of EDI XML electronic message  
-**Cheer** !  Except for 1, 5, and 9, other items has been added to the V2.1 LTS version
-
-### Price
-**Enterprise** users:  
-USD 199.00  
-**Personal** users:  
-USD 49.00  
-
-### Expiration Dates
-**Permanent use after purchase,Get upgrades for free**  
 
 ### Technical Support
 **The use of Enterprise Edition, professional technical support and solution consultation are provided by the following companies:**  
