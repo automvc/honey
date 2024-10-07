@@ -1467,14 +1467,18 @@ public final class HoneyUtil {
 			   || DatabaseConst.MariaDB.equalsIgnoreCase(HoneyConfig.getHoneyConfig().getDbName());
 	}
 	
-	//Oracle,SQLite,Sql Server
+	//Oracle,SQLite,Sql Server,and so on.  2.4.2 default just exclude MYSQL,MariaDB,H2
 	public static boolean isConfuseDuplicateFieldDB(){
-		return DatabaseConst.ORACLE.equalsIgnoreCase(HoneyConfig.getHoneyConfig().getDbName())
-			|| DatabaseConst.SQLite.equalsIgnoreCase(HoneyConfig.getHoneyConfig().getDbName())
-			|| (DatabaseConst.SQLSERVER.equalsIgnoreCase(HoneyConfig.getHoneyConfig().getDbName()) 
-//				&& HoneyConfig.getHoneyConfig().getDatabaseMajorVersion()>=11
-			)	
-				;
+//		return DatabaseConst.ORACLE.equalsIgnoreCase(HoneyConfig.getHoneyConfig().getDbName())
+//			|| DatabaseConst.SQLite.equalsIgnoreCase(HoneyConfig.getHoneyConfig().getDbName())
+//			|| DatabaseConst.SQLSERVER.equalsIgnoreCase(HoneyConfig.getHoneyConfig().getDbName()) 
+//			|| DatabaseConst.PostgreSQL.equalsIgnoreCase(HoneyConfig.getHoneyConfig().getDbName()) //2.4.2
+//				;
+		//2.4.2
+		String dbName = HoneyConfig.getHoneyConfig().getDbName();
+		return !DatabaseConst.MYSQL.equalsIgnoreCase(dbName) 
+			&& !DatabaseConst.MariaDB.equalsIgnoreCase(dbName)
+			&& !DatabaseConst.H2.equalsIgnoreCase(dbName);
 	}
 	
 	public static boolean isSQLite() {

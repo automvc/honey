@@ -22,6 +22,7 @@ import java.util.Map;
 import org.teasoft.bee.osql.BeeSql;
 import org.teasoft.bee.osql.FunctionType;
 import org.teasoft.bee.osql.ObjSQLException;
+import org.teasoft.bee.osql.ResultAssemblerRegistry;
 import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.annotation.JoinTable;
 import org.teasoft.bee.osql.annotation.customizable.Json;
@@ -1099,6 +1100,10 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 		}
 		if(isShardingMain()) return null; //sharding时,主线程没有缓存就返回.
 		
+		Class<T> entityClass=toClassT(entity);
+		//Assemble the result by yourself.
+		if(ResultAssemblerRegistry.hadReg(entityClass)) return _moreTableSelectAssemble(sql, entityClass);
+		
 		Connection conn=null;
 		PreparedStatement pst=null;
 		ResultSet rs=null;
@@ -1387,6 +1392,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 						}
 					}catch (SQLException e) {// for after use condition selectField method
 //						fields1[i].set(subObj1,null);
+//						e.printStackTrace();
 					}
 					
 					if(oneHasOne) checkKey2ForOneHasOne.append(v1);
@@ -1538,6 +1544,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 			addInCache(sql, rsList, rsList.size());
 			
 		} catch (SQLException e) {
+//			e.printStackTrace();
 			hasException=true;
 			throw ExceptionHelper.convert(e);
 		} catch (IllegalAccessException e) {
@@ -1561,6 +1568,62 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 //		子表是List类型时，要连原始数据行数也打印日志
 		if(subOneIsList1 || subTwoIsList2)
 		   Logger.logSQL(" | <--  ( select raw record rows: ", recordRow + " )");
+		logSelectRows(rsList.size());
+
+		return rsList;
+	}
+	
+	@SuppressWarnings("unchecked")
+	private <T> Class<T> toClassT(T entity) {
+		return (Class<T>) entity.getClass();
+	}
+	
+	//Assemble the result by yourself.
+	private <T> List<T> _moreTableSelectAssemble(String sql, final Class<T> entityClass) {
+		Connection conn=null;
+		PreparedStatement pst=null;
+		ResultSet rs=null;
+		T targetObj=null;
+		List<T> rsList=null;
+		boolean hasException = false;
+		try {
+			conn = getConn();
+			String exe_sql=HoneyUtil.deleteLastSemicolon(sql);
+			pst = conn.prepareStatement(exe_sql);
+			
+			setPreparedValues(pst, sql);
+
+			rs = pst.executeQuery();
+			rsList = new ArrayList<>();
+			while (rs.next()) {
+				targetObj = ResultAssemblerHandler.rowToEntity(rs, entityClass);
+				rsList.add(targetObj);
+			}
+			
+			addInCache(sql, rsList, rsList.size());
+			
+		} catch (SQLException e) {
+//			e.printStackTrace();
+			hasException=true;
+			throw ExceptionHelper.convert(e);
+		} catch (IllegalAccessException e) {
+			hasException=true;
+			throw ExceptionHelper.convert(e);
+		} catch (InstantiationException e) {
+			hasException=true;
+			throw ExceptionHelper.convert(e);
+		} finally {
+			closeRs(rs);
+			clearContext(sql);
+			if (hasException) {
+				checkClose(pst, null);
+				closeConn(conn);
+			} else {
+				checkClose(pst, conn);
+			}
+			targetObj = null;
+		}
+		
 		logSelectRows(rsList.size());
 
 		return rsList;

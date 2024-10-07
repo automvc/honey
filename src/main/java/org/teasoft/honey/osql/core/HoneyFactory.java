@@ -26,6 +26,7 @@ import org.teasoft.bee.osql.api.SuidRich;
 import org.teasoft.bee.osql.chain.UnionSelect;
 import org.teasoft.bee.osql.dialect.*;
 import org.teasoft.bee.osql.exception.NoConfigException;
+import org.teasoft.bee.osql.exception.NotSupportedException;
 import org.teasoft.bee.osql.interccept.InterceptorChain;
 import org.teasoft.honey.osql.chain.UnionSelectImpl;
 import org.teasoft.honey.osql.dialect.*;
@@ -195,7 +196,12 @@ public class HoneyFactory {
 	}
 	
 	public MoreTable getMoreTable() {
-		if(moreTable==null) return new MoreObjSQL();
+		if (moreTable == null) {
+			if (isMongodb()) {//2.4.2
+				throw new NotSupportedException("MoreTable do not support MongoDB!"); // 2.4.2
+			}
+			return new MoreObjSQL();
+		}
 		return moreTable;
 	}
 
