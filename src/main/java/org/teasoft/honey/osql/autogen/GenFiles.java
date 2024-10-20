@@ -8,6 +8,8 @@ package org.teasoft.honey.osql.autogen;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Map;
 
 import org.teasoft.honey.osql.core.Logger;
@@ -56,4 +58,37 @@ public class GenFiles {
 		}
 		FileUtil.genFile(targetFilePath, sb.toString());
 	}
+	
+	public static void genFileViaStream(String templatePath, Map<String, String> map, String targetFilePath) {
+		String txt = readTemplateFile(templatePath);
+		txt = StringUtil.replaceWithMap(txt, map, "#{", "}");
+		FileUtil.genFile(targetFilePath, txt);
+	}
+
+	private static String readTemplateFile(String filePath) {
+		StringBuilder stringBuilder = new StringBuilder();
+
+//		org\abc\gencode\template\Rest.java.template  //用这种格式，打包成jar后，访问会有问题.
+
+		filePath = filePath.replace("\\", "/"); // 要转换斜杠
+
+//		if (!filePath.trim().startsWith("/"))
+//			filePath = "/" + filePath.trim();
+//		try (InputStream inputStream = GenCode.class.getResourceAsStream(filePath); //不行
+		try (InputStream inputStream = GenFiles.class.getClassLoader()
+				.getResourceAsStream(filePath);
+				BufferedReader reader = new BufferedReader(
+						new InputStreamReader(inputStream))) {
+			String line;
+			while ((line = reader.readLine()) != null) {
+				stringBuilder.append(line).append("\n");
+			}
+		} catch (IOException e) {
+			Logger.error(e.getMessage(),e);
+		}
+
+		return stringBuilder.toString();
+	}
+	
+	
 }
