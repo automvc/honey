@@ -593,7 +593,8 @@ public class ShardingInterceptor extends EmptyInterceptor {
 		return inList;
 	}
 	
-	private static final String DoNotSetTabShadngValue="Do not set the sharding value for table!";
+//	private static final String DoNotSetTabShadngValue="Do not set the sharding value for table!";
+	private static final String DoNotSetTabShadngValue="Do not set the sharding value when insert record to table!";
 
 //	tabName,tabSuffix不会同时设置;当只设置tabSuffix下标时,表基本名称同实体名转化而来.
 	private void setValeueForOneDsOneTab(DsTabStruct dsTabStruct, SuidType suidType) {
