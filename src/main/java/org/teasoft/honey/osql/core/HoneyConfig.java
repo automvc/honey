@@ -616,7 +616,7 @@ public final class HoneyConfig {
 					alreadyPrintDbName = true;
 				}
 			} catch (Exception e) {
-				Logger.warn("Can not get the Connection when check the dbName.  \n"+e.getMessage(),e);
+				Logger.warn("Can not get the Connection when check the dbName. Can set bee.db.dbName item.  \n"+e.getMessage(),e);
 			} finally {
 				try {
 					if (conn != null) conn.close();
