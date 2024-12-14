@@ -9,23 +9,24 @@ package org.teasoft.honey.osql.autogen;
 /**
  * @author Kingstar
  * @since  1.9.8
+ * @since  2.4.2
  */
 public class ColumnBean {
 
-	private String name;
+	private String col;  //old version is name
 	private String type;
-	private Boolean ynnull; //是否允许为空  yes or no null
-	private Boolean ynkey; //是否是主键      yes or no key
+	private Boolean ynNull; //是否允许为空  yes or no null
+	private Boolean ynKey; //是否是主键      yes or no key
 	private String label;//标题,列名注释
 	private String tablename;
 	private String tablecomment;
-
-	public String getName() {
-		return name;
+	
+	public String getCol() {
+		return col;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public void setCol(String col) {
+		this.col = col;
 	}
 
 	public String getType() {
@@ -36,20 +37,20 @@ public class ColumnBean {
 		this.type = type;
 	}
 
-	public Boolean getYnnull() {
-		return ynnull;
+	public Boolean getYnNull() {
+		return ynNull;
 	}
 
-	public void setYnnull(Boolean ynnull) {
-		this.ynnull = ynnull;
+	public void setYnNull(Boolean ynNull) {
+		this.ynNull = ynNull;
 	}
 
-	public Boolean getYnkey() {
-		return ynkey;
+	public Boolean getYnKey() {
+		return ynKey;
 	}
 
-	public void setYnkey(Boolean ynkey) {
-		this.ynkey = ynkey;
+	public void setYnKey(Boolean ynKey) {
+		this.ynKey = ynKey;
 	}
 
 	public String getLabel() {

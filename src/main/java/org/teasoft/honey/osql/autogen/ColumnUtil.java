@@ -23,15 +23,15 @@ public class ColumnUtil {
 
 	public static List<ColumnBean> getColumnList(String tableName) {
 		GenBean bean = new GenBean(null);
-		Table table = bean.getTableInfo(tableName);
+		TableBean tableBean = bean.getTableInfo(tableName);
 
-		if (table == null || table.getColumnNames() == null) return Collections.emptyList();
+		if (tableBean == null || tableBean.getColumnNames() == null) return Collections.emptyList();
 
-		List<String> columnNames = table.getColumnNames();
-		List<String> columnTypes = table.getColumnTypes(); //jdbcType
-		Map<String, String> commentMap = table.getCommentMap();
-		List<Boolean> ynNulls = table.getYnNulls();
-		String newTableName = table.getTableName();
+		List<String> columnNames = tableBean.getColumnNames();
+		List<String> columnTypes = tableBean.getColumnTypes(); //jdbcType
+		Map<String, String> commentMap = tableBean.getCommentMap();
+		List<Boolean> ynNulls = tableBean.getYnNulls();
+		String newTableName = tableBean.getTableName();
 		String tableComment=commentMap.get(newTableName);
 
 		List<ColumnBean> list = new ArrayList<>();
@@ -44,13 +44,13 @@ public class ColumnUtil {
 			String comment = commentMap.get(columnName);
 
 			columnBean = new ColumnBean();
-			columnBean.setName(columnName);
+			columnBean.setCol(columnName);
 			columnBean.setType(HoneyUtil.getFieldType(columnType)); //java type
 			columnBean.setLabel(comment);
-			columnBean.setYnnull(ynNull);
+			columnBean.setYnNull(ynNull);
 			columnBean.setTablename(newTableName);
 			columnBean.setTablecomment(tableComment);
-			columnBean.setYnkey(isKey(columnName,table.getPrimaryKeyNames()));
+			columnBean.setYnKey(isKey(columnName,tableBean.getPrimaryKeyNames()));
 
 			list.add(columnBean);
 		}
