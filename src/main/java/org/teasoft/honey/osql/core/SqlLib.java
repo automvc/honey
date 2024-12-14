@@ -1101,8 +1101,9 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 		if(isShardingMain()) return null; //sharding时,主线程没有缓存就返回.
 		
 		Class<T> entityClass=toClassT(entity);
-		//Assemble the result by yourself.
+		//Assemble the result by yourself.  多表查询是注册有,才会用.
 		if(ResultAssemblerRegistry.hadReg(entityClass)) return _moreTableSelectAssemble(sql, entityClass);
+		//没注册有,则用后面的解析
 		
 		Connection conn=null;
 		PreparedStatement pst=null;
