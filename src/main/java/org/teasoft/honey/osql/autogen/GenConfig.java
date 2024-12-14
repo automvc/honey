@@ -26,9 +26,18 @@ public class GenConfig {
 	private int commentPlace; //1:after field name at the same line; 2:last line
 	private String entityNamePre;
 	
-	//V1.11
-	private boolean override;
+	private boolean genGetSet=true;  //2.1 默认生成
+	private boolean override;//V1.11
 	
+	private boolean genSwagger;//2.1.8
+	
+	
+	//2.1 support lombok
+	private boolean lombokSetter;
+	private boolean lombokGetter;
+	private boolean lombokData;
+	
+	//for FieldFile
 	//V1.11
 	private boolean genFieldFile;
 	private String fieldFileRelativeFolder="field";
@@ -36,17 +45,9 @@ public class GenConfig {
 	private String fieldFileSuffix="_F";
 	private boolean genFieldAll=true; //V1.17
 	private boolean genSelfName=true; //V2.0  first letter is lowerCase
+	private boolean isUpperFieldNameInFieldFile;//2.4.2
 	
-	private boolean genGetSet=true;  //2.1 默认生成
-	
-	//2.1 support lombok
-	private boolean lombokSetter;
-	private boolean lombokGetter;
-	private boolean lombokData;
-	
-	//2.1.8
-	private boolean genSwagger;
-	
+
 	public String getEncode() {
 		return encode;
 	}
@@ -262,6 +263,19 @@ public class GenConfig {
 
 	public void setGenSwagger(boolean genSwagger) {
 		this.genSwagger = genSwagger;
+	}
+
+	public boolean isUpperFieldNameInFieldFile() {
+		return isUpperFieldNameInFieldFile;
+	}
+
+	/**
+	 * set flag Upper FieldName in FieldFile
+	 * @param isUpperFieldNameInFieldFile
+	 * @since 2.4.2
+	 */
+	public void setUpperFieldNameInFieldFile(boolean isUpperFieldNameInFieldFile) {
+		this.isUpperFieldNameInFieldFile = isUpperFieldNameInFieldFile;
 	}
 
 }

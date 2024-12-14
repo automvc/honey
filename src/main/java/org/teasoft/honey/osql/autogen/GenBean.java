@@ -65,11 +65,11 @@ public class GenBean {
 	}
 
 	//	生成指定表对象对应的类文件
-	private boolean genBeanFile(Table table) {
-		String tableName = table.getTableName();
-		List<String> columnNames = table.getColumnNames();
-		List<String> columnTypes = table.getColumnTypes(); //jdbcType
-		Map<String, String> commentMap = table.getCommentMap();
+	private boolean genBeanFile(TableBean tableBean) {
+		String tableName = tableBean.getTableName();
+		List<String> columnNames = tableBean.getColumnNames();
+		List<String> columnTypes = tableBean.getColumnTypes(); //jdbcType
+		Map<String, String> commentMap = tableBean.getCommentMap();
 		// 表名对应的实体类名
 		String entityName = "";
 		entityName = NameTranslateHandle.toEntityName(tableName);
@@ -79,7 +79,7 @@ public class GenBean {
 		if (config.getEntityNamePre() != null) entityName = config.getEntityNamePre() + entityName;
 
 		String tableComment = "";
-		if ((config.isGenComment() || config.isGenSwagger()) && commentMap!=null) tableComment = commentMap.get(table.getTableName());
+		if ((config.isGenComment() || config.isGenSwagger()) && commentMap!=null) tableComment = commentMap.get(tableBean.getTableName());
 
 		String authorComment = "/**" + LINE_SEPARATOR;
 		if (config.isGenComment() && StringUtils.isNotBlank(tableComment)) authorComment += " * " + tableComment + LINE_SEPARATOR;
@@ -129,7 +129,7 @@ public class GenBean {
 		if (config.isGenSerializable()) {
 			importSet.add("import java.io.Serializable;");
 		}
-		List<Boolean> ynNulls = table.getYnNulls();
+		List<Boolean> ynNulls = tableBean.getYnNulls();
 	
 
 		for (int i = 0; i < columnNames.size(); i++) {
@@ -245,8 +245,8 @@ public class GenBean {
 					+ LINE_SEPARATOR;
 
 			if (config.isGenToString()) { //toString()
-				tostr.append("\t\t str.append(\",").append(propertyName).append("=\").append(").append(propertyName).append(");");
-				tostr.append("\t\t " + LINE_SEPARATOR);
+				tostr.append("\t\tstr.append(\",").append(propertyName).append("=\").append(").append(propertyName).append(");");
+				tostr.append(LINE_SEPARATOR);
 			}
 		} //end for
 		
@@ -291,7 +291,7 @@ public class GenBean {
 			bw.write(packageStr + LINE_SEPARATOR);
 			if (!"".equals(importStr)) bw.write(importStr + LINE_SEPARATOR);
 			bw.write(authorComment + LINE_SEPARATOR);
-			if(HoneyUtil.isCassandra()) bw.write("//@Table(\""+table.getSchema()+"."+tableName+"\")" + LINE_SEPARATOR);
+			if(HoneyUtil.isCassandra()) bw.write("//@Table(\""+tableBean.getSchema()+"."+tableName+"\")" + LINE_SEPARATOR);
 			
 			//support lombok
 			if (config.isLombokSetter()) bw.write("@Setter" + LINE_SEPARATOR);
@@ -315,22 +315,22 @@ public class GenBean {
 
 			if (config.isGenToString()) { //toString()
 				tostr.deleteCharAt(tostr.indexOf(","));
-				tostr.insert(0, "\t\t" + LINE_SEPARATOR);
+				tostr.insert(0, LINE_SEPARATOR);
 //				tostring.insert(0,"\t");
 
-				tostr.append("\t\t str.append(\"]\");\t");
-				tostr.append("\t\t " + LINE_SEPARATOR);
-				tostr.append("\t\t return str.toString();\t");
-				tostr.append("\t\t " + LINE_SEPARATOR);
-				tostr.append("\t }");
-				tostr.append("\t\t " + LINE_SEPARATOR);
+				tostr.append("\t\tstr.append(\"]\");");
+				tostr.append(LINE_SEPARATOR);
+				tostr.append("\t\treturn str.toString();");
+				tostr.append(LINE_SEPARATOR);
+				tostr.append("\t}");
+				tostr.append(LINE_SEPARATOR);
 
 //				tostring.insert(0,"\t"+LINE_SEPARATOR ); 
-				tostr.insert(0, "\t\t str.append(\"" + entityName + "[\");\t");
-				tostr.insert(0, "\t" + LINE_SEPARATOR);
-				tostr.insert(0, "\t\t StringBuilder str=new StringBuilder();");
-				tostr.insert(0, "\t" + LINE_SEPARATOR);
-				tostr.insert(0, "\t public String toString(){");
+				tostr.insert(0, "\t\tstr.append(\"" + entityName + "[\");");
+				tostr.insert(0, LINE_SEPARATOR);
+				tostr.insert(0, "\t\tStringBuilder str = new StringBuilder();");
+				tostr.insert(0, LINE_SEPARATOR);
+				tostr.insert(0, "\tpublic String toString() {");
 
 				bw.write(tostr.toString());
 			}
@@ -356,11 +356,11 @@ public class GenBean {
 		}
 	}
 	
-	private void genFieldFile(Table table) {
+	private void genFieldFile(TableBean tableBean) {
 
-		String tableName = table.getTableName();
-		List<String> columnNames = table.getColumnNames();
-		Map<String, String> commentMap = table.getCommentMap();
+		String tableName = tableBean.getTableName();
+		List<String> columnNames = tableBean.getColumnNames();
+		Map<String, String> commentMap = tableBean.getCommentMap();
 
 		// 表名对应的实体类名
 		String entityName = "";
@@ -378,7 +378,7 @@ public class GenBean {
 		}
 
 		String tableComment = "";
-		if (config.isGenComment() && commentMap!=null) tableComment = commentMap.get(table.getTableName());
+		if (config.isGenComment() && commentMap!=null) tableComment = commentMap.get(tableBean.getTableName());
 
 		String authorComment = "/**" + LINE_SEPARATOR;
 		if (config.isGenComment() && !"".equals(tableComment))
@@ -418,11 +418,11 @@ public class GenBean {
 		try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fieldFile)));) {
 			bw.write(packageStr + LINE_SEPARATOR);
 			bw.write(authorComment + LINE_SEPARATOR);
-			bw.write("public class " + fieldFileName);
+			bw.write("public interface " + fieldFileName);
 			bw.write(" {" + LINE_SEPARATOR + LINE_SEPARATOR);
 			
-			bw.write("	private FieldFileName() {}".replace("FieldFileName", fieldFileName));
-			bw.write(LINE_SEPARATOR + LINE_SEPARATOR);
+//			bw.write("	private FieldFileName() {}".replace("FieldFileName", fieldFileName));
+//			bw.write(LINE_SEPARATOR + LINE_SEPARATOR);
 			
             String st="";
             String comment="";
@@ -435,7 +435,11 @@ public class GenBean {
 			for (int i = 0; i < columnNames.size(); i++) {
 				columnName=columnNames.get(i);
 				fieldName = NameTranslateHandle.toFieldName(columnName);
-				st="	public static final String {fieldName} = \"{fieldName}\";".replace("{fieldName}",fieldName);
+				st = "	String {fieldName1} = \"{fieldName2}\";".replace("{fieldName2}", fieldName);
+				if (config.isUpperFieldNameInFieldFile()) // 2.4.2
+					st = st.replace("{fieldName1}", columnName.toUpperCase());
+				else
+					st = st.replace("{fieldName1}", fieldName);
 				
 				if (config.isGenComment() && commentMap != null) {
 					comment = commentMap.get(columnName); //1.17 fixed bug
@@ -457,15 +461,15 @@ public class GenBean {
 			}
 
 			if(genSelfName) {
-				bw.write("	public static final String ENTITY_NAME = \"" + entityName + "\";");
+				bw.write("	String ENTITY_NAME = \"" + entityName + "\";");
 				bw.write(LINE_SEPARATOR);	
 				
-				bw.write("	public static final String TABLE_NAME = \"" + tableName + "\";");
+				bw.write("	String TABLE_NAME = \"" + tableName + "\";");
 				bw.write(LINE_SEPARATOR);	
 			}
 			
 			if (genFieldAll) {
-				bw.write("	public static final String ALL_NAMES = \"" + allFieldName + "\";");
+				bw.write("	String ALL_NAMES = \"" + allFieldName + "\";");
 				bw.write(LINE_SEPARATOR);
 			}
 			
@@ -514,8 +518,8 @@ public class GenBean {
 
 	private void _genBeanForMongodb(Set<Map.Entry<String, Object>> set, int layer,
 			String tableNameOrPropertyName) {
-		Table table = new Table();
-		table.setTableName(tableNameOrPropertyName);
+		TableBean tableBean = new TableBean();
+		tableBean.setTableName(tableNameOrPropertyName);
 		Map<String,String> commentMap=new HashMap<>();
 		String key = "";
 		commentMap.put(tableNameOrPropertyName, tableNameOrPropertyName); //为mongodb字段添加默认注释
@@ -523,7 +527,7 @@ public class GenBean {
 		for (Entry<String, Object> entry : set) {
 			key = entry.getKey();
 			if ("_id".equals(key)) key = "id";
-			table.getColumnNames().add(key);
+			tableBean.getColumnNames().add(key);
 			commentMap.put(key,key);
 //			table.getColumnTypes().add(entry.getValue().getClass().getName());
 
@@ -536,18 +540,18 @@ public class GenBean {
 				layerQueue.add(layer + 1);
 //				nameQueue.add(entry.getValue().getClass().getSimpleName());
 				nameQueue.add(key);
-				table.getColumnTypes().add(key);
+				tableBean.getColumnTypes().add(key);
 //				commentMap.put(key, key);
 			} else {
-				table.getColumnTypes().add(entry.getValue().getClass().getName());
+				tableBean.getColumnTypes().add(entry.getValue().getClass().getName());
 //				String entry.getValue().getClass().getSimpleName();
 //				commentMap.put(, entry.getValue().getClass().getName());
 			}
 		}
-		table.setCommentMap(commentMap);
+		tableBean.setCommentMap(commentMap);
 
-		f1_mongodb=genBeanFile(table);
-		if(config.isGenFieldFile()) genFieldFile(table);
+		f1_mongodb=genBeanFile(tableBean);
+		if(config.isGenFieldFile()) genFieldFile(tableBean);
 		some_mongodb=some_mongodb || f1_mongodb;
 		all_mongodb=all_mongodb && f1_mongodb;
 
@@ -569,23 +573,23 @@ public class GenBean {
 			return;
 		}
 
-		List<Table> tableList = getAllTables();
+		List<TableBean> tableList = getAllTables();
 		_genBeanFiles(tableList);
 	}
 
-	private void _genBeanFiles(List<Table> tables) {
+	private void _genBeanFiles(List<TableBean> tableBeans) {
 		Logger.info("Generating...");
 //		List<Table> tables = getAllTables();
-		Table table = null;
+		TableBean tableBean = null;
 		boolean some=false;
 		boolean all=true;
 		boolean f1;
 		
-		for (int i = 0; i < tables.size(); i++) {
-			table = tables.get(i);
+		for (int i = 0; i < tableBeans.size(); i++) {
+			tableBean = tableBeans.get(i);
 			// 生成实体类
-			f1=genBeanFile(table);
-			if(config.isGenFieldFile()) genFieldFile(table);
+			f1=genBeanFile(tableBean);
+			if(config.isGenFieldFile()) genFieldFile(tableBean);
 			
 			some=some || f1;
 			all=all && f1;
@@ -601,6 +605,10 @@ public class GenBean {
 		if(isNeed) Logger.info("Please check folder: " + config.getBaseDir() + config.getPackagePath().replace(".", File.separator));
 	}
 	
+	/**
+	 * generate Javabean file via some table name.
+	 * @param tableNameList table name list
+	 */
 	public void genSomeBeanFile(String tableNameList) {
 		String[] tableNames = tableNameList.split(",");
 		if (isMongodb()) {
@@ -609,14 +617,14 @@ public class GenBean {
 		}
 
 		Connection con = null;
-		List<Table> tablesList = new ArrayList<>();
+		List<TableBean> tablesList = new ArrayList<>();
 		try {
 			con = SessionFactory.getConnection();
-			Table table = null;
+			TableBean tableBean = null;
 
 			for (int i = 0; i < tableNames.length; i++) {
-				table = getTable(tableNames[i], con);
-				tablesList.add(table);
+				tableBean = getTable(tableNames[i], con);
+				tablesList.add(tableBean);
 			}
 		} catch (Exception e) {
 			Logger.warn(e.getMessage(),e);
@@ -636,7 +644,7 @@ public class GenBean {
 	}
 
 	// 获取所有表信息
-	private List<Table> getAllTables() {
+	private List<TableBean> getAllTables() {
 //		List<Table> tables = new ArrayList<>();
 
 		boolean isCommDb = true;
@@ -663,8 +671,8 @@ public class GenBean {
 			return _otherDbTables();
 	}
 	
-	private List<Table> _mainDbTables(String showTablesSql) {
-		List<Table> tables = new ArrayList<>();
+	private List<TableBean> _mainDbTables(String showTablesSql) {
+		List<TableBean> tableBeans = new ArrayList<>();
 		try (Connection conn = SessionFactory.getConnection();
 				PreparedStatement ps = conn.prepareStatement(showTablesSql);
 				ResultSet rs = ps.executeQuery();) {
@@ -677,18 +685,18 @@ public class GenBean {
 			}
 
 			for (String tab : tabList) {
-				tables.add(getTable(tab, conn));
+				tableBeans.add(getTable(tab, conn));
 			}
 		} catch (SQLException e) {
 //			Logger.error(e.getMessage());
 			throw ExceptionHelper.convert(e);
 		}
 
-		return tables;
+		return tableBeans;
 	}
 	
-	private List<Table> _otherDbTables() {
-		List<Table> tables = new ArrayList<>();
+	private List<TableBean> _otherDbTables() {
+		List<TableBean> tableBeans = new ArrayList<>();
 		Connection conn = SessionFactory.getConnection();
 		boolean has = false;
 		try {
@@ -709,7 +717,7 @@ public class GenBean {
 				has = true;
 			}
 			for (String tab : tabList) {
-				tables.add(getTable(tab, conn));
+				tableBeans.add(getTable(tab, conn));
 			}
 
 		} catch (Exception e) {
@@ -722,16 +730,16 @@ public class GenBean {
 					"There are not default sql, please check the bee.db.dbName in bee.properties is right or not, or define queryTableSql in GenConfig!");
 		}
 
-		return tables;
+		return tableBeans;
 	}
 
-	private Table getTable(String tableName, Connection con) throws SQLException {
+	private TableBean getTable(String tableName, Connection con) throws SQLException {
 		
 		NameCheckUtil.checkName(tableName);
 		
 		PreparedStatement ps = null;
 		ResultSet rs = null;
-		Table table = new Table();
+		TableBean tableBean = new TableBean();
 		try {
 			StringBuilder sql=new StringBuilder();
 			if (HoneyUtil.isCassandra())
@@ -747,47 +755,47 @@ public class GenBean {
 			//该方法不可取.因为要是用关键字作表名,别的suid操作都是要带数据库名.
 			if (HoneyUtil.isCassandra()) {
 				int index=tableName.indexOf(".");
-				if(index>-1) table.setTableName(tableName.substring(index+1));
-				else table.setTableName(tableName);
+				if(index>-1) tableBean.setTableName(tableName.substring(index+1));
+				else tableBean.setTableName(tableName);
 			} else {
-				table.setTableName(tableName);
+				tableBean.setTableName(tableName);
 			}
-			table.setSchema(rmeta.getCatalogName(1));
+			tableBean.setSchema(rmeta.getCatalogName(1));
 //			.println("------------------getCatalogName:");
 //			.println(rmeta.getCatalogName(1));
 //			.println(rmeta.getSchemaName(1));
 			int columCount = rmeta.getColumnCount();
 			for (int i = 1; i <= columCount; i++) {
 //				table.getColumnNames().add(rmeta.getColumnName(i).trim());
-				table.getColumnNames().add(rmeta.getColumnLabel(i).trim()); //V2.1.8
-				table.getColumnTypes().add(rmeta.getColumnTypeName(i).trim());
+				tableBean.getColumnNames().add(rmeta.getColumnLabel(i).trim()); //V2.1.8
+				tableBean.getColumnTypes().add(rmeta.getColumnTypeName(i).trim());
 //				.println("--------------------------------");
 //				.println(rmeta.getColumnName(i).trim()+ "     :    " +rmeta.getColumnTypeName(i).trim());
 //				.println(rmeta.getColumnName(i).trim()+ "     :    " +rmeta.getColumnClassName(i).trim());
-				if (rmeta.isNullable(i) == 1) table.getYnNulls().add(true);
-				else table.getYnNulls().add(false);
+				if (rmeta.isNullable(i) == 1) tableBean.getYnNulls().add(true);
+				else tableBean.getYnNulls().add(false);
 			}
 		} finally {
 			HoneyContext.checkClose(rs, ps, null);
 		}
 		if (config==null || config.isGenComment() || config.isGenSwagger()) { //v1.8.15, V2.1.8
 			//set comment
-			initComment(table, con);
+			initComment(tableBean, con);
 		}
 		
-		if(isNeedKeyColumn) initKeyColumn(table, con);
+		if(isNeedKeyColumn) initKeyColumn(tableBean, con);
 		
-		return table;
+		return tableBean;
 	}
 	
-	private void initKeyColumn(Table table, Connection con) throws SQLException {
+	private void initKeyColumn(TableBean tableBean, Connection con) throws SQLException {
 		DatabaseMetaData dbmd = con.getMetaData();
 
 		ResultSet rs = null;
 		Map<String, String> primaryKeyNames = new HashMap<>();
 
 		try {
-			rs = dbmd.getPrimaryKeys(null, null, table.getTableName());
+			rs = dbmd.getPrimaryKeys(null, null, tableBean.getTableName());
 			while (rs.next()) {
 				String keyName = rs.getString(4);
 				primaryKeyNames.put(keyName, keyName);
@@ -797,10 +805,10 @@ public class GenBean {
 			HoneyContext.checkClose(rs, null, null);
 		}
 		
-		table.setPrimaryKeyNames(primaryKeyNames);
+		tableBean.setPrimaryKeyNames(primaryKeyNames);
 	}
 
-	private void initComment(Table table, Connection con) throws SQLException {
+	private void initComment(TableBean tableBean, Connection con) throws SQLException {
 		String sql = "";
 		String t_sql = null;
 		String dbName="";
@@ -818,7 +826,7 @@ public class GenBean {
 			}
 		}else if (DatabaseConst.MYSQL.equalsIgnoreCase(dbName)
 				|| DatabaseConst.MariaDB.equalsIgnoreCase(dbName)) {
-			sql = "select column_name,column_comment from information_schema.COLUMNS where TABLE_SCHEMA='" + table.getSchema()
+			sql = "select column_name,column_comment from information_schema.COLUMNS where TABLE_SCHEMA='" + tableBean.getSchema()
 					+ "' and TABLE_NAME=?"; //the first select column is column name, second is comment
 		} else if (DatabaseConst.ORACLE.equalsIgnoreCase(dbName)) {
 			sql = "select column_name,comments from user_col_comments where table_name=?";
@@ -833,7 +841,7 @@ public class GenBean {
 		PreparedStatement ps2 = null;
 		try {
 			ps = con.prepareStatement(sql);
-			ps.setString(1, table.getTableName());
+			ps.setString(1, tableBean.getTableName());
 			Map<String, String> map = getCommentMap(ps);
 			//get table comment
 			String sql2 = "";
@@ -850,7 +858,7 @@ public class GenBean {
 				}
 			}else if (DatabaseConst.MYSQL.equalsIgnoreCase(dbName)
 					|| DatabaseConst.MariaDB.equalsIgnoreCase(dbName)) {
-				sql2 = "select TABLE_NAME,TABLE_COMMENT from information_schema.TABLES where TABLE_SCHEMA='" + table.getSchema()
+				sql2 = "select TABLE_NAME,TABLE_COMMENT from information_schema.TABLES where TABLE_SCHEMA='" + tableBean.getSchema()
 						+ "' and TABLE_NAME=?";
 			} else if (DatabaseConst.ORACLE.equalsIgnoreCase(dbName)) {
 				sql2 = "select table_name,comments from user_tab_comments where table_name=?";
@@ -859,11 +867,11 @@ public class GenBean {
 						"There are not default sql, please check the bee.db.dbName in bee.properties is right or not, or define queryTableCommnetSql in GenConfig!");
 			}
 			ps2 = con.prepareStatement(sql2);
-			ps2.setString(1, table.getTableName());
+			ps2.setString(1, tableBean.getTableName());
 			Map<String, String> map2 = getCommentMap(ps2);
 
 			map2.putAll(map);
-			table.setCommentMap(map2);
+			tableBean.setCommentMap(map2);
 		} finally {
 			HoneyContext.checkClose(ps, null);
 			HoneyContext.checkClose(ps2, null);
@@ -887,12 +895,12 @@ public class GenBean {
 		return map;
 	}
 
-	private Table getTalbe(String tableName) {
+	private TableBean getTalbe(String tableName) {
 		Connection con = null;
-		Table table = null;
+		TableBean tableBean = null;
 		try {
 			con = SessionFactory.getConnection();
-			table = getTable(tableName, con);
+			tableBean = getTable(tableName, con);
 		} catch (Exception e) {
 			Logger.info(e.getMessage());
 			if (e.getMessage().contains("You have an error in your SQL syntax;") && e.getMessage().contains("where 1<>1")) {
@@ -907,20 +915,20 @@ public class GenBean {
 				//ignore
 			}
 		}
-		return table;
+		return tableBean;
 	}
 	
-	public Table getTableInfo(String tableName) {
+	public TableBean getTableInfo(String tableName) {
 		isNeedKeyColumn=true;
-		Table table= getTalbe(tableName);
+		TableBean tableBean= getTalbe(tableName);
 		isNeedKeyColumn=false;
-		return table;
+		return tableBean;
 	}
 
 	public List<String> getColumnNames(String tableName) {
-		Table table = getTalbe(tableName);
-		if (table != null) {
-			return table.getColumnNames();
+		TableBean tableBean = getTalbe(tableName);
+		if (tableBean != null) {
+			return tableBean.getColumnNames();
 		}
 		return Collections.emptyList();
 	}
@@ -936,7 +944,7 @@ public class GenBean {
 	}
 }
 
-class Table {
+class TableBean {
 	private String tableName; // 表名
 	private List<String> columnNames = new ArrayList<>(); // 列名集合
 	private List<String> columnTypes = new ArrayList<>(); // 列类型集合，列类型严格对应java类型
