@@ -26,7 +26,7 @@ public class EmptyInterceptor implements Interceptor {
 	protected boolean isSkip(Object entity,SuidType suidType) {
 		if (entity == null) return true; //自定义sql会用到
 
-		if (entity.getClass().equals(Class.class)) { //是Class类型,默认不处理. //deleteById
+		if (entity.getClass().equals(Class.class)) { //是Class类型,默认不处理. //deleteById,selectById,应该要处理,即使全域查询,至少能查到. v2.4.2开始支持
 			if(suidType!=null && suidType==SuidType.DDL) return false;
 			return true;
 		}

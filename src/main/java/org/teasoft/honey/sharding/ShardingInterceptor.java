@@ -65,7 +65,8 @@ public class ShardingInterceptor extends EmptyInterceptor {
 		 //2.0从表对应的从实体,不用来计算分片. 从表分片的下标与主表的一致
 		if(HoneyContext.isInterceptorSubEntity()) return entity;
 		
-		if (isSkip(entity,suidType)) return entity;
+//		if (isSkip(entity,suidType)) return entity; //close in 2.4.2
+		if (entity == null) return entity; //2.4.2
 		
 		boolean moreTableSelectShardingFlag = HoneyContext.isTrueInSysCommStrInheritableLocal(StringConst.MoreTableSelectShardingFlag);
 		
@@ -102,12 +103,36 @@ public class ShardingInterceptor extends EmptyInterceptor {
 			this.ds = HoneyContext.getAppointDS();
 //			return entity;  //不能返回, 还要寻找tab分片
 		}
+		
+		boolean isByIdWithClass=false;
+		if (entity.getClass().equals(Class.class)) { //2.4.2
+			isByIdWithClass=true;
+		}
 
-		String key = partKey + "_beforePasreEntity" + entity.getClass().getName();
+		String key;
+		if (isByIdWithClass)
+			key = partKey + "_beforePasreEntity" + ((Class)entity).getName();
+		else
+			key = partKey + "_beforePasreEntity" + entity.getClass().getName();// TODO 1
+		
 		Boolean flag = HoneyContext.getCustomFlagMap(key);
 		if (Boolean.FALSE.equals(flag)) return entity;
 
-		Field fields[] = HoneyUtil.getFields(entity.getClass());
+		Field fields[] = null;
+		Object oldEntity = null;
+		
+		if (isByIdWithClass) {
+			fields = HoneyUtil.getFields((Class) entity);
+			oldEntity=entity;
+			try {
+				entity=((Class) entity).newInstance();
+			} catch (Exception e) {
+				Logger.warn(e.getMessage());
+			}
+//			OneTimeParameter.getAttribute(StringConst.ByIdWithClassForSharding);
+		} else {
+			fields = HoneyUtil.getFields(entity.getClass()); // TODO 2
+		}
 		
 		
 		int len = fields.length;
@@ -175,6 +200,8 @@ public class ShardingInterceptor extends EmptyInterceptor {
 				// 不用处理condition提前返回
 				if (flag == null) // 原来为null,还没设置的,会进行初次设置
 					HoneyContext.addCustomFlagMap(key, isHas);
+				
+				if (isByIdWithClass) return oldEntity;
 				return entity;
 			} else { //case 2   有sharding注解且condition不为null
 				//要将Sharding注解的转成shardingBean 用了注解,就不再用配置的sharding信息.所以Sharding注解,还有全表的属性
@@ -212,6 +239,7 @@ public class ShardingInterceptor extends EmptyInterceptor {
 						if (flag == null) // 原来为null,还没设置的,会进行初次设置
 							HoneyContext.addCustomFlagMap(key, isHas); // 不需要分片
 //						regFull(suidType);  没有设置,不使用分片规则.
+						if (isByIdWithClass) return oldEntity;
 						return entity;
 					}
 					
@@ -250,6 +278,7 @@ public class ShardingInterceptor extends EmptyInterceptor {
 		if (flag == null) // 原来为null,还没设置的,会进行初次设置
 			HoneyContext.addCustomFlagMap(key, isHas);
 
+		if (isByIdWithClass) return oldEntity;
 		return entity;
 	}
 	

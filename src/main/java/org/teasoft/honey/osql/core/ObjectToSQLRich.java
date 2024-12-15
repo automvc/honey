@@ -260,7 +260,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 				selectAndFun = K.select+" " + funType + "(" + _toColumnName(fieldForFun,entity.getClass()) + ") "+K.from+" ";   // funType要能转大小写风格
 			}
 			sqlBuffer.append(selectAndFun);
-			tableName=ShardingUtil.appendTableIndexIfNeed(tableName);
+//			tableName=ShardingUtil.appendTableIndexIfNeed(tableName);
 			sqlBuffer.append(tableName);
 			boolean firstWhere = true;
 			Field fields[] = HoneyUtil.getFields(entity.getClass());
@@ -528,24 +528,9 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		return wrap;
 	}
 	
-	private <T> String getPkName(T entity) {
-		return getPkName(entity.getClass());
-	}
-	
 	@SuppressWarnings("rawtypes")
 	private String getPkName(Class c) {
-		try {
-			HoneyUtil.getField(c, "id"); //V1.11 因主键可以不是默认id,多了此步检测
-			return "id";
-		} catch (NoSuchFieldException e) {
-			String pkName = HoneyUtil.getPkFieldNameByClass(c);
-			if ("".equals(pkName))
-				throw new ObjSQLException("No primary key in " + c.getName());
-			if (pkName.contains(",")) throw new ObjSQLException(
-					"method of selectById just need one primary key, but more than one primary key in "
-							+ c.getName());
-			return pkName;
-		}
+		return HoneyUtil.getPkName(c);
 	}
 	
 	@Override
@@ -790,7 +775,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 				}
 			}
 			sqlBuffer.append(K.select).append(" ").append(columnNames).append(" ").append(K.from).append(" ");
-			tableName=ShardingUtil.appendTableIndexIfNeed(tableName);
+//			tableName=ShardingUtil.appendTableIndexIfNeed(tableName);
 			sqlBuffer.append(tableName);
 			boolean firstWhere = true;
 			int len = fields.length;
@@ -852,15 +837,16 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	}
 	
 	private String _toTableName(Object entity){
-		return NameTranslateHandle.toTableName(NameUtil.getClassFullName(entity));
-		//TODO
-//		String tableName= NameTranslateHandle.toTableName(NameUtil.getClassFullName(entity));
-//		return ShardingUtil.appendTableIndexIfNeed(tableName); // 2.4.2
+//		return NameTranslateHandle.toTableName(NameUtil.getClassFullName(entity));
+		String tableName= NameTranslateHandle.toTableName(NameUtil.getClassFullName(entity));
+		return ShardingUtil.appendTableIndexIfNeed(tableName); // 2.4.2
 	}
 	
 	@SuppressWarnings("rawtypes")
 	private String _toTableNameByClass(Class c){
-		return NameTranslateHandle.toTableName(c.getName());
+//		return NameTranslateHandle.toTableName(c.getName());
+		String tableName = NameTranslateHandle.toTableName(c.getName());
+		return ShardingUtil.appendTableIndexIfNeed(tableName); // 2.4.2
 	}
 	
 	@SuppressWarnings("rawtypes")

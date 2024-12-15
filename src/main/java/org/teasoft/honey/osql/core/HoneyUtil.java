@@ -2046,4 +2046,21 @@ public final class HoneyUtil {
 		}
 	}
 	
+	@SuppressWarnings("rawtypes")
+	public static String getPkName(Class c) {
+		try {
+			HoneyUtil.getField(c,"id"); // V1.11 因主键可以不是默认id,多了此步检测
+			return "id";
+		} catch (NoSuchFieldException e) {
+			String pkName = HoneyUtil.getPkFieldNameByClass(c);
+			if ("".equals(pkName))
+				throw new ObjSQLException("No primary key in " + c.getName());
+			if (pkName.contains(",")) throw new ObjSQLException(
+					"method of selectById just need one primary key, but more than one primary key in "
+							+ c.getName());
+
+			return pkName;
+		}
+	}
+	
 }

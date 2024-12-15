@@ -15,6 +15,7 @@ import org.teasoft.bee.osql.FunctionType;
 import org.teasoft.bee.osql.IncludeType;
 import org.teasoft.bee.osql.ObjSQLException;
 import org.teasoft.bee.osql.ObjToSQLRich;
+import org.teasoft.bee.osql.Op;
 import org.teasoft.bee.osql.OrderType;
 import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.api.Condition;
@@ -23,6 +24,7 @@ import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
 import org.teasoft.bee.osql.exception.BeeIllegalParameterException;
 import org.teasoft.honey.osql.autogen.DdlToSql;
 import org.teasoft.honey.osql.name.NameUtil;
+import org.teasoft.honey.osql.shortcut.BF;
 import org.teasoft.honey.sharding.ShardingUtil;
 import org.teasoft.honey.sharding.config.ShardingRegistry;
 import org.teasoft.honey.sharding.engine.batch.ShardingBatchInsertEngine;
@@ -299,6 +301,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 		if (condition == null) {
 			list = select(entity, 1);
 		} else {
+			condition = condition.clone();
 			condition.size(1);
 			list = select(entity, condition);
 		}
@@ -317,6 +320,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 		if (entity == null) return null;
 		String s = null;
 		try {
+			if (condition != null) condition = condition.clone();
 			regCondition(condition);
 			doBeforePasreEntity(entity, SuidType.SELECT);
 			String sql = getObjToSQLRich().toSelectFunSQL(entity, functionType, fieldForFun, condition);
@@ -337,6 +341,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 
 	@Override
 	public <T> int count(T entity, Condition condition) {
+		if (condition != null) condition = condition.clone();
 		String total = selectWithFun(entity, FunctionType.COUNT, "*", condition);
 		return StringUtils.isBlank(total) ? 0 : Integer.parseInt(total);
 	}
@@ -500,6 +505,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 		if (entity == null) return null;
 		List<String[]> list = null;
 		try {
+			if (condition != null) condition = condition.clone();
 			regCondition(condition);
 			doBeforePasreEntity(entity, SuidType.SELECT);
 			OneTimeParameter.setTrueForKey(StringConst.Check_Group_ForSharding);
@@ -602,6 +608,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 		}
 		List<T> list = null;
 		try {
+			regByIdForSharding(entityClass, id); // 2.4.2
 			doBeforePasreEntity(entityClass, SuidType.SELECT);
 			String sql = getObjToSQLRich().toSelectByIdSQL(entityClass, id);
 			sql = doAfterCompleteSql(sql);
@@ -624,6 +631,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 		}
 		List<T> list = null;
 		try {
+			regByIdForSharding(entityClass, id); // 2.4.2
 			doBeforePasreEntity(entityClass, SuidType.SELECT);
 			String sql = getObjToSQLRich().toSelectByIdSQL(entityClass, id);
 			sql = doAfterCompleteSql(sql);
@@ -649,6 +657,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 		}
 		List<T> list = null;
 		try {
+			regByIdForSharding(entityClass, id); // 2.4.2
 			doBeforePasreEntity(entityClass, SuidType.SELECT);
 			String sql = getObjToSQLRich().toSelectByIdSQL(entityClass, id);
 			sql = doAfterCompleteSql(sql);
@@ -699,19 +708,16 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 		}
 	}
 	
-//	private void aaa() {
-//		ShardingReg.setTrue(StringConst.ByIdForSharding);
-//	}
-
 	@Override
 	@SuppressWarnings("rawtypes")
-	public int deleteById(Class c, Integer id) {
+	public int deleteById(Class entityClass, Integer id) {
 		if (id == null) Logger.warn("in method deleteById,id is null! ");
-		if (c == null || id == null) return 0;
+		if (entityClass == null || id == null) return 0;
 		try {
-			doBeforePasreEntity(c, SuidType.DELETE);
-			String sql = getObjToSQLRich().toDeleteByIdSQL(c, id);
-			_regEntityClass2(c);
+			regByIdForSharding(entityClass, id); // 2.4.2
+			doBeforePasreEntity(entityClass, SuidType.DELETE);
+			String sql = getObjToSQLRich().toDeleteByIdSQL(entityClass, id);
+			_regEntityClass2(entityClass);
 			sql = doAfterCompleteSql(sql);
 			Logger.logSQL(DELETE_BY_ID_SQL, sql);
 			int a = getBeeSql().modify(sql);
@@ -723,14 +729,15 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 
 	@Override
 	@SuppressWarnings("rawtypes")
-	public int deleteById(Class c, Long id) {
+	public int deleteById(Class entityClass, Long id) {
 		if (id == null) Logger.warn("in method deleteById,id is null! ");
-		if (c == null || id == null) return 0;
+		if (entityClass == null || id == null) return 0;
 		int a = 0;
 		try {
-			doBeforePasreEntity(c, SuidType.DELETE);
-			String sql = getObjToSQLRich().toDeleteByIdSQL(c, id);
-			_regEntityClass2(c);
+			regByIdForSharding(entityClass, id); // 2.4.2
+			doBeforePasreEntity(entityClass, SuidType.DELETE);
+			String sql = getObjToSQLRich().toDeleteByIdSQL(entityClass, id);
+			_regEntityClass2(entityClass);
 			sql = doAfterCompleteSql(sql);
 			Logger.logSQL(DELETE_BY_ID_SQL, sql);
 			a = getBeeSql().modify(sql);
@@ -739,17 +746,28 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 		}
 		return a;
 	}
+	
+	private void regByIdForSharding(Class entityClass, Object idOrIds) {
+//		OneTimeParameter.setAttribute(StringConst.ByIdWithClassForSharding, idOrIds);
+		Condition condition = BF.getCondition();
+		if (entityClass.equals(String.class) && idOrIds.toString().contains(","))
+			condition.op(HoneyUtil.getPkName(entityClass), Op.in, idOrIds);
+		else
+			condition.op(HoneyUtil.getPkName(entityClass), Op.eq, idOrIds);
+		regCondition(condition);
+	}
 
 	@Override
 	@SuppressWarnings("rawtypes")
-	public int deleteById(Class c, String ids) {
+	public int deleteById(Class entityClass, String ids) {
 		if (ids == null) Logger.warn("in method deleteById,ids is null! ");
-		if (c == null || ids == null) return 0;
+		if (entityClass == null || ids == null) return 0;
 		int a = 0;
 		try {
-			doBeforePasreEntity(c, SuidType.DELETE);
-			String sql = getObjToSQLRich().toDeleteByIdSQL(c, ids);
-			_regEntityClass2(c);
+			regByIdForSharding(entityClass, ids); // 2.4.2
+			doBeforePasreEntity(entityClass, SuidType.DELETE);
+			String sql = getObjToSQLRich().toDeleteByIdSQL(entityClass, ids);
+			_regEntityClass2(entityClass);
 			sql = doAfterCompleteSql(sql);
 			Logger.logSQL(DELETE_BY_ID_SQL, sql);
 			a = getBeeSql().modify(sql);
@@ -764,6 +782,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 		if (entity == null) return null;
 		String json = null;
 		try {
+			if (condition != null) condition = condition.clone();
 			regCondition(condition);
 			doBeforePasreEntity(entity, SuidType.SELECT);
 			_regEntityClass1(entity);
@@ -819,6 +838,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 		if (entity == null) return -1;
 		int r = 0;
 		try {
+			if (condition != null) condition = condition.clone();
 			regCondition(condition);
 			doBeforePasreEntity(entity, SuidType.UPDATE);
 			String sql = getObjToSQLRich().toUpdateBySQL(entity, condition, whereFields);// updateBy
@@ -857,6 +877,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 		if (entity == null) return -1;
 		int r = 0;
 		try {
+			if (condition != null) condition = condition.clone();
 			regCondition(condition);
 			doBeforePasreEntity(entity, SuidType.UPDATE);
 			String sql = getObjToSQLRich().toUpdateSQL(entity, condition, updateFields);
@@ -876,6 +897,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 		if (entity == null) return -1;
 		int r = 0;
 		try {
+			if (condition != null) condition = condition.clone();
 			regCondition(condition);
 			doBeforePasreEntity(entity, SuidType.UPDATE);
 			String sql = getObjToSQLRich().toUpdateSQL(entity, condition, "");

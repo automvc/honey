@@ -37,6 +37,7 @@ public final class StringConst {
 	
 	public static final String InterceptorChainForMoreTable="_SYS_Bee_InterceptorChainForMoreTable";
 	public static final String MoreTableSelectShardingFlag="_SYS_Bee_MoreTableSelectShardingFlag";
+//	public static final String ByIdWithClassForSharding="_SYS_Bee_ByIdWithClassForSharding"; //2.4.2
 	
 	public static final String JdbcTranWriterDS="_SYS_Bee_JdbcTran_WriterDS";
 	

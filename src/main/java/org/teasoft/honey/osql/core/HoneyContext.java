@@ -686,7 +686,10 @@ public final class HoneyContext {
 	}
 
 	public static void setConditionLocal(Condition condition) {
-		conditionLocal.set(condition);
+		if (condition != null)
+			conditionLocal.set(condition.clone());
+		else
+			conditionLocal.set(condition);
 	}
 
 	public static void removeConditionLocal() {
@@ -758,7 +761,7 @@ public final class HoneyContext {
 		currentRoute.remove();
 	}
 
-	public static ShardingPageStruct getCurrentShardingPage() {
+	public static ShardingPageStruct getCurrentShardingPage() { //select * from table; 没有分页时,要注意 
 		return currentShardingPage.get();
 	}
 
