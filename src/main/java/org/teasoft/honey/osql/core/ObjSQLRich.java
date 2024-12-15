@@ -46,8 +46,8 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 	private static final String SELECT_JSON_SQL = "selectJson SQL: ";
 	private static final String DELETE_BY_ID_SQL = "deleteById SQL: ";
 	private static final String SELECT_BY_ID_SQL = "selectById SQL: ";
-	private static final String UPDATE_SQL_WHERE_FIELDS = "update SQL(whereFields) :";
-	private static final String UPDATE_SQL_UPDATE_FIELDS = "update SQL(updateFields) :";
+	private static final String UPDATE_SQL_WHERE_FIELDS = "update SQL(updateBy): ";
+	private static final String UPDATE_SQL_UPDATE_FIELDS = "update SQL: ";
 	private static final String ID_IS_NULL = "in method selectById, id is null! ";
 	private static final String START_GREAT_EQ_0 = StringConst.START_GREAT_EQ_0;
 	private static final String SIZE_GREAT_0 = StringConst.SIZE_GREAT_0;
@@ -561,7 +561,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 			String sql = getObjToSQLRich().toSelectSQL(entity, selectField);
 			_regEntityClass1(entity);
 			sql = doAfterCompleteSql(sql);
-			Logger.logSQL("selectJson(T entity, String selectField) SQL: ", sql);
+			Logger.logSQL("selectJson SQL(entity, selectField): ", sql);
 			json = getBeeSql().selectJson(sql);
 		} finally {
 			doBeforeReturn();
@@ -584,7 +584,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 			String sql = getObjToSQLRich().toSelectSQL(entity, start, size, selectFields);
 			_regEntityClass1(entity);
 			sql = doAfterCompleteSql(sql);
-			Logger.logSQL("selectJson(T entity, String selectField, int start, int size) SQL: ", sql);
+			Logger.logSQL("selectJson SQL(entity, start, size, selectField): ", sql);
 			json = getBeeSql().selectJson(sql);
 		} finally {
 			doBeforeReturn();
@@ -698,6 +698,10 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 			doBeforeReturn(list);
 		}
 	}
+	
+//	private void aaa() {
+//		ShardingReg.setTrue(StringConst.ByIdForSharding);
+//	}
 
 	@Override
 	@SuppressWarnings("rawtypes")
@@ -877,7 +881,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 			String sql = getObjToSQLRich().toUpdateSQL(entity, condition, "");
 			_regEntityClass1(entity);
 			sql = doAfterCompleteSql(sql);
-			Logger.logSQL("update SQL(condition) :", sql);
+			Logger.logSQL("update SQL :", sql);
 			r = getBeeSql().modify(sql);
 		} finally {
 			doBeforeReturn();
