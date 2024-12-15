@@ -81,7 +81,7 @@ public class ShardingSelectRsEngine {
 		for (int i = 0; i < size; i++) {
 			try {
 				rs = completionService.take().get(); // 先于getCurrentShardingSort获取
-				if (size == 1) break;
+				if (size == 1) break; //只有一个rs,直接转化
 				
 				if(i==0) {
 					ShardingSortReg.regSort(rs.getMetaData());
@@ -98,7 +98,7 @@ public class ShardingSelectRsEngine {
 		executor.shutdown();
 		
 		List<T> rsList = null;
-		if (size == 1) {// v2.4.0 只有一个数据源时,直接转化
+		if (size == 1) {// v2.4.0 只有一个rs,直接转化
 			rsList = TransformResultSet.rsToListEntity(rs, entityClass);
 		} else {
 			// 放入优先队列后,就转换出需要的数据. 要传入需要多少数据? 在内部处理. 有取中间几条的吗? 有

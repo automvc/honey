@@ -19,6 +19,8 @@ public class PagingSqlDecorator {
 
 	public static String addPaging(String sql) {
 		ShardingPageStruct shardingPage = HoneyContext.getCurrentShardingPage();
+		if (shardingPage == null) return sql; //2.4.2
+		
 		int start = shardingPage.getStart();
 		int size = shardingPage.getSize();
 		if (start == -1)

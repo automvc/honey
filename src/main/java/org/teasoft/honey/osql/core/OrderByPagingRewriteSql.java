@@ -36,7 +36,7 @@ public class OrderByPagingRewriteSql {
 		
 		ShardingPageStruct shardingPage=HoneyContext.getCurrentShardingPage();
 		
-		if(shardingPage==null) {
+		if(shardingPage==null) {//没有分页的,即便可以union all也是走这里.
 			SimpleRewriteSql._createSql(list, tabSuffixList, sql, listValue, tabNameList,tab2DsMap);
 		}else {  //shardingPage!=null  要处理分页
 			
@@ -110,7 +110,7 @@ public class OrderByPagingRewriteSql {
 		ShardingPageStruct shardingPage = HoneyContext.getCurrentShardingPage();
 		if (shardingPage != null) {
 			sql = rewritePaingSql(sql);
-			shardingPage.setPagingType(3); // FullSelectPage
+//			shardingPage.setPagingType(3); // FullSelectPage  close in 2.4.2
 		}
 
 		List<String[]> list = new ArrayList<>();
