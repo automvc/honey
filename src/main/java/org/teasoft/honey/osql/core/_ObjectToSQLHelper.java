@@ -437,7 +437,7 @@ final class _ObjectToSQLHelper {
 			list.addAll(whereList);
 			
 			if(firstSet) {
-				Logger.logSQL("update SQL(updateFields) : ", sqlBuffer.toString());
+				Logger.logSQL("update SQL: ", sqlBuffer.toString());
 				throw new BeeErrorGrammarException("BeeErrorGrammarException: the SQL update set part is empty!");
 			}
 
@@ -605,7 +605,7 @@ final class _ObjectToSQLHelper {
 		list.addAll(whereList);
 
 		if(firstSet) {
-			Logger.logSQL("update SQL(updateFields) : ", sqlBuffer.toString());
+			Logger.logSQL("update SQL(updateBy): ", sqlBuffer.toString());
 			throw new BeeErrorGrammarException("BeeErrorGrammarException: the SQL update set part is empty!");
 		}
 		
@@ -629,7 +629,7 @@ final class _ObjectToSQLHelper {
 		if (firstWhere) {
 			boolean notUpdateWholeRecords = HoneyConfig.getHoneyConfig().notUpdateWholeRecords;
 			if (notUpdateWholeRecords) {
-				Logger.logSQL("update SQL: ", sql);
+				Logger.logSQL("update SQL(updateBy): ", sql);
 				throw new BeeIllegalBusinessException("BeeIllegalBusinessException: It is not allowed update whole records in one table.");
 				//return "";
 			}
@@ -849,7 +849,7 @@ final class _ObjectToSQLHelper {
 	}
 	
 	static void setContext(String sql, List<PreparedValue> list, String tableName) {
-		tableName = tableName.replace(StringConst.ShardingTableIndexStr, ""); // 2.4.0.8
+//		tableName = tableName.replace(StringConst.ShardingTableIndexStr, ""); // 2.4.0.8   close in 2.4.2
 		HoneyContext.setContext(sql, list, tableName);
 	}
 	

@@ -32,6 +32,7 @@ public class ShardingRegistry implements Registry {
 	private static Map<String, Map<String, Set<String>>> fullNodes = new HashMap<>();// 1
 	private static Map<String, String> tabToDsMap = new LinkedHashMap<>(); // 2
 	private static Map<String, Integer> tabSizeMap = new HashMap<>(); // 3
+	private static Map<String, String> tabToBase= new HashMap<>();
 	
 	private static final Byte ONE=1;
 	private static Map<String, Byte> broadcastTabMap = new HashMap<>(); // 4
@@ -123,6 +124,9 @@ public class ShardingRegistry implements Registry {
 		return ONE.equals(broadcastTabMap.get(tabName.toLowerCase()));
 	}
 	
+	public static String getBaseTabName(String tabName) {//2.4.2
+		return tabToBase.get(tabName);
+	}
 	
 	static void register(Class<?> entity, List<ShardingBean> shardingBeanList) {
 		for (ShardingBean shardingBean : shardingBeanList) {
@@ -164,6 +168,7 @@ public class ShardingRegistry implements Registry {
 			addFullNodes(shardingConfigMeta.getFullNodes());
 			addTabToDsMap(shardingConfigMeta.getTabToDsMap());
 			tabSizeMap.put(shardingConfigMeta.getTabBaseName(), shardingConfigMeta.getTabSize());
+			tabToBase.putAll(shardingConfigMeta.getTabToBase());//2.4.2
 			if(StringUtils.isNotEmpty(shardingConfigMeta.getSepTab()))
 				sepTabMap.put(shardingConfigMeta.getTabBaseName(), shardingConfigMeta.getSepTab());
 		} else {

@@ -451,24 +451,29 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 		Class entityClass = (Class) OneTimeParameter.getAttribute(StringConst.Route_EC);
 //		if (sql == null || "".equals(sql)) return -2;
 		if (sql == null || "".equals(sql)) return -1; // 2.4.0
+		boolean clearFlag;
 		if (isSimpleMode()) {
-			return _modify(sql, entityClass); // 1.x版本及不用分片走的分支
+			clearFlag=true;
+			return _modify(sql, entityClass, clearFlag); // 1.x版本及不用分片走的分支
 		} else {
 			if (HoneyContext.getSqlIndexLocal() == null) {// 拦截到的要分片的主线程
 				try {
-					int a = new ShardingModifyEngine().asynProcess(sql, entityClass, this);
-					return a;
+					int num = new ShardingModifyEngine().asynProcess(sql, entityClass, this);
+					logAffectRow(num);
+					clearInCache(sql, "int", SuidType.MODIFY, num); //父线程才清缓存
+					return num;
 				} finally {
 					clearContext(sql); // 2.2 分片的主线程都要清主线程的上下文
 				}
 			} else { // 子线程执行
-				return _modify(sql, entityClass);
+				clearFlag = false;
+				return _modify(sql, entityClass, clearFlag);
 			}
 		}
 	}
 
 	@SuppressWarnings("rawtypes")
-	private int _modify(String sql, final Class entityClass) {
+	private int _modify(String sql, final Class entityClass, boolean clearFlag) {
 
 		initRoute(SuidType.MODIFY, entityClass, sql);
 
@@ -489,7 +494,8 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 			else
 				throw ExceptionHelper.convert(e);
 		} finally {
-			clearInCache(sql, "int", SuidType.MODIFY, num); // has clearContext(sql)
+			if (clearFlag) 
+				clearInCache(sql, "int", SuidType.MODIFY, num); // has clearContext(sql)
 			if (hasException) {
 				checkClose(pst, null);
 				closeConn(conn);

@@ -22,6 +22,8 @@ public class ShardingConfigMeta {
 	//分隔符,只支持"_";  "-"很多数据库都不支持，不要用
 	private String sepTab="";  //separator between table and index, like orders_1;  but recommand use orders1
 	
+	private Map<String, String> tabToBase;  //eg: orders1->orders
+	
 	public Map<String, Map<String, Set<String>>> getFullNodes() {
 		return fullNodes;
 	}
@@ -60,6 +62,14 @@ public class ShardingConfigMeta {
 
 	public void setSepTab(String sepTab) {
 		this.sepTab = sepTab;
+	}
+
+	public Map<String, String> getTabToBase() {
+		return tabToBase;
+	}
+
+	public void setTabToBase(Map<String, String> tabToBase) {
+		this.tabToBase = tabToBase;
 	}
 	
 }

@@ -32,6 +32,7 @@ public class ShardingConfigParse {
 
 		Map<String, Map<String, Set<String>>> fullNodes = new HashMap<>();// 1
 		Map<String, String> tabToDsMap = new LinkedHashMap<>(); // 2
+		Map<String, String> tabToBaseMap = new HashMap<>();
 
 		List<String> dsList = bean.getDsList();
 		List<String> tabList = bean.getTabList();
@@ -47,8 +48,9 @@ public class ShardingConfigParse {
 			int n = size;
 			for (int k = size * i; n > 0 && k < tabNum; k++, n--) {
 				tabIndexSet.add(bean.getSepTab() +tabList.get(k)); //加分隔
-				tabToDsMap.put(bean.getTabBaseName()+bean.getSepTab() + tabList.get(k),
-						bean.getDsBaseName() + dsList.get(i));
+				String tab=bean.getTabBaseName()+bean.getSepTab() + tabList.get(k);
+				tabToDsMap.put(tab, bean.getDsBaseName() + dsList.get(i));
+				tabToBaseMap.put(tab, bean.getTabBaseName());//2.4.2
 			}
 			ds2TabIndexSet.put(bean.getDsBaseName() + dsList.get(i), tabIndexSet);
 		}
@@ -64,6 +66,7 @@ public class ShardingConfigParse {
 		shardingConfigMeta.setTabToDsMap(tabToDsMap);
 		shardingConfigMeta.setTabSize(tabList.size());
 		shardingConfigMeta.setTabBaseName(bean.getTabBaseName());
+		shardingConfigMeta.setTabToBase(tabToBaseMap);//2.4.2
 		
 		shardingConfigMeta.setSepTab(bean.getSepTab());
 

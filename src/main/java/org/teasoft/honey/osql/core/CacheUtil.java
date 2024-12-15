@@ -20,6 +20,8 @@ import java.util.concurrent.ConcurrentMap;
 
 import org.teasoft.bee.osql.Serializer;
 import org.teasoft.honey.distribution.ds.Router;
+import org.teasoft.honey.sharding.ShardingUtil;
+import org.teasoft.honey.sharding.config.ShardingRegistry;
 import org.teasoft.honey.util.ObjectUtils;
 
 /**
@@ -362,9 +364,15 @@ public final class CacheUtil {
 		keys[i] = key; 
 		
 	   synchronized (lock) {
+		String tableName=null;
 		for (int k = 0; tableNameList!=null && k < tableNameList.size(); k++) {
-			_regTabCache(tableNameList.get(k),i);
-			_addIntableNameList(key,tableNameList.get(k));
+			tableName=tableNameList.get(k);
+			if(ShardingUtil.isSharding()) {//2.4.2 
+				String baseTabName = ShardingRegistry.getBaseTabName(tableName);
+				if(baseTabName!=null) tableName=baseTabName+StringConst.ShardingTableIndexStr; //2.4.2 Sharding使用基本表关联
+			}
+			_regTabCache(tableName,i);
+			_addIntableNameList(key,tableName);
 		}
 	  }
 	   
@@ -463,6 +471,10 @@ public final class CacheUtil {
 	//用于相关表有更新时,要清除所有与该表相关的缓存
 	private static void _clearOneTabCache(String tableName){
 		Set<Integer> set=map_tableIndexSet.get(tableName);
+		if (set == null && ShardingUtil.isSharding()) {//2.4.2
+			String baseTabName = ShardingRegistry.getBaseTabName(tableName);
+			set = map_tableIndexSet.get(baseTabName+StringConst.ShardingTableIndexStr);
+		}
 		if(set!=null){
 			//清除相关index
 			for(Integer i : set){
@@ -525,6 +537,10 @@ public final class CacheUtil {
 	//假如不维护tableIndexSet,则在删了缓存后,index给新的缓存用了,要是旧的表有更新,就会把新的缓存也删了.
 	private static void _deleteTableIndexSet(String tableName, int index) {
 		Set<Integer> set = map_tableIndexSet.get(tableName);
+		if (set == null && ShardingUtil.isSharding()) { //2.4.2
+			String baseTabName = ShardingRegistry.getBaseTabName(tableName);
+			set = map_tableIndexSet.get(baseTabName+StringConst.ShardingTableIndexStr);
+		}
 		if (set != null) {
 			set.remove(index);
 		}
