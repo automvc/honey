@@ -17,6 +17,7 @@ import org.teasoft.bee.osql.FunctionType;
 import org.teasoft.bee.osql.IncludeType;
 import org.teasoft.bee.osql.Op;
 import org.teasoft.bee.osql.OrderType;
+import org.teasoft.bee.osql.Serializer;
 import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.api.Condition;
 import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
@@ -31,6 +32,8 @@ import org.teasoft.honey.util.StringUtils;
  * @since  1.6
  */
 public class ConditionImpl implements Condition {
+	
+	private static final long serialVersionUID = 1596710362288L;
 
 	private SuidType suidType;
 	private List<Expression> list = new ArrayList<>();
@@ -620,14 +623,12 @@ public class ConditionImpl implements Condition {
 	
 	@Override
 	public Condition clone() {
+		
 		try {
-			ConditionImpl cloned = (ConditionImpl) super.clone(); // 调用 Object 的 default clone()
-			// 深拷贝 selectField 数组
-			if (this.selectField != null) {
-				cloned.selectField = this.selectField.clone(); // 确保克隆数组
-			}
-			return cloned;
-		} catch (CloneNotSupportedException e) {
+			Serializer jdks = new JdkSerializer();
+			Object cloned = jdks.unserialize(jdks.serialize(this));
+			return (ConditionImpl)cloned;
+		} catch (Exception e) {
 			Logger.debug("Clone Condition error. "+e.getMessage());
 			return this;
 		}

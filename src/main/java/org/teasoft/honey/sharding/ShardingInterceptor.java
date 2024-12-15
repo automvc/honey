@@ -113,7 +113,7 @@ public class ShardingInterceptor extends EmptyInterceptor {
 		if (isByIdWithClass)
 			key = partKey + "_beforePasreEntity" + ((Class)entity).getName();
 		else
-			key = partKey + "_beforePasreEntity" + entity.getClass().getName();// TODO 1
+			key = partKey + "_beforePasreEntity" + entity.getClass().getName();// 1
 		
 		Boolean flag = HoneyContext.getCustomFlagMap(key);
 		if (Boolean.FALSE.equals(flag)) return entity;
@@ -131,7 +131,7 @@ public class ShardingInterceptor extends EmptyInterceptor {
 			}
 //			OneTimeParameter.getAttribute(StringConst.ByIdWithClassForSharding);
 		} else {
-			fields = HoneyUtil.getFields(entity.getClass()); // TODO 2
+			fields = HoneyUtil.getFields(entity.getClass()); // 2
 		}
 		
 		

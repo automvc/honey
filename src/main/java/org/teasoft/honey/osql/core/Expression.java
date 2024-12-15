@@ -6,6 +6,8 @@
 
 package org.teasoft.honey.osql.core;
 
+import java.io.Serializable;
+
 import org.teasoft.bee.osql.Op;
 
 /**
@@ -13,8 +15,10 @@ import org.teasoft.bee.osql.Op;
  * @author Kingstar
  * @since  1.6
  */
-public final class Expression {
+public final class Expression implements Serializable{
 
+	private static final long serialVersionUID = 1592803913607L;
+	
 	String fieldName;
 	String opType;
 	Op op;  //V1.17

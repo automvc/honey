@@ -12,7 +12,7 @@ import org.teasoft.honey.osql.util.AnnoUtil;
  */
 class PreparedValue implements Serializable {
 	
-	private static final long serialVersionUID = 1592803913604L;
+	private static final long serialVersionUID = 1592803913606L;
 	
 	private String type;
 	private Object value;

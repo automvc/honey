@@ -221,7 +221,11 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 	public <T> T selectFirst(T entity, Condition condition) {
 		if (entity == null) return null;
 
-		if (condition == null) condition = BeeFactoryHelper.getCondition();
+		if (condition == null) {
+			condition = BeeFactoryHelper.getCondition();
+		} else {
+			condition = condition.clone();
+		}
 		condition.size(1);
 		
 		List<T> list = select(entity, condition);
@@ -240,6 +244,7 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 		
 		if(FunctionType.COUNT==functionType) return count(entity, condition)+"";
 		try {
+		if (condition != null) condition = condition.clone();
 		regCondition(condition);
 		doBeforePasreEntity(entity,SuidType.SELECT);
 		
@@ -272,6 +277,7 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 
 		if (entity == null) return 0;
 		try {
+		if (condition != null) condition = condition.clone();
 		regCondition(condition);
 		_regFunType(FunctionType.COUNT);
 		doBeforePasreEntity(entity, SuidType.SELECT);
@@ -364,11 +370,12 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 	public <T> List<String[]> selectString(T entity, Condition condition) {
 		if (entity == null) return null;
 		try {
+		if (condition != null) condition = condition.clone();
 		regCondition(condition);
 		doBeforePasreEntity(entity, SuidType.SELECT);
 		List<String[]> list = null;
 
-		if(condition==null) condition = BeeFactoryHelper.getCondition();
+		if(condition==null) condition = BeeFactoryHelper.getCondition(); //TODO 
 				
 		if(condition.getSelectField()==null) {
 			condition.selectField(HoneyUtil.getColumnNames(entity));
@@ -420,11 +427,33 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 	
 	
 	private <T> T selectByIdObject(Class<T> entityClass, Object id) {
-
-		doBeforePasreEntity(entityClass, SuidType.SELECT);
-		List<T> list = null;
+//		try {
+//			T reqObj = entityClass.newInstance();
+////			Field pkField=HoneyUtil.getPkField(entityClass);
+////			HoneyUtil.setAccessibleTrue(pkField);
+////			HoneyUtil.setFieldValue(pkField, reqObj, id); // 对相应Field设置
+//
+//			Condition condition = BF.getCondition();
+//			if (entityClass.equals(String.class) && id.toString().contains(","))
+//				condition.op(HoneyUtil.getPkName(entityClass), Op.in, id);
+//			else
+//				condition.op(HoneyUtil.getPkName(entityClass), Op.eq, id);
+//
+//			List<T> list = super.select(reqObj, condition);
+//			if (ObjectUtils.isEmpty(list))
+//				return null;
+//			else
+//				return list.get(0);
+//
+//		} catch (Exception e) {
+//			Logger.warn(e.getMessage(), e);
+//		}
+		
 		T t = null;
+		List<T> list = null;
 		try {
+//			regByIdForSharding(entityClass, id); // 2.4.2
+			doBeforePasreEntity(entityClass, SuidType.SELECT);
 			list = getMongodbBeeSql().selectById(entityClass, id);
 			if (list == null || list.size() < 1) {
 				t = null;
@@ -484,38 +513,55 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 	public <T> List<T> selectByIds(Class<T> entityClass, String ids) {
 		if (entityClass == null) return null;
 
-		if (ids==null) {
+		if (ids == null) {
 			Logger.warn("in method selectByIds,ids is null! ");
 			return null;
 		}
-		List<T> list =null;
+		List<T> list = null;
 		try {
-		doBeforePasreEntity(entityClass,SuidType.SELECT);
-		
-		list = getMongodbBeeSql().selectById(entityClass, ids);
-		}finally {
-		doBeforeReturn(list);
+//			regByIdForSharding(entityClass, ids); // 2.4.2
+			doBeforePasreEntity(entityClass, SuidType.SELECT);
+			list = getMongodbBeeSql().selectById(entityClass, ids);
+		} finally {
+			doBeforeReturn(list);
 		}
 		return list;
 	}
 	
 	@SuppressWarnings("rawtypes")
-	public int deleteByIdObject(Class c, Object id) {
+	public int deleteByIdObject(Class entityClass, Object id) {
+		
+//		try {
+//			Object reqObj = entityClass.newInstance();
+////			Field pkField=HoneyUtil.getPkField(entityClass);
+////			HoneyUtil.setAccessibleTrue(pkField);
+////			HoneyUtil.setFieldValue(pkField, reqObj, id); // 对相应Field设置
+//
+//			Condition condition = BF.getCondition();
+//			if (entityClass.equals(String.class) && id.toString().contains(","))
+//				condition.op(HoneyUtil.getPkName(entityClass), Op.in, id);
+//			else
+//				condition.op(HoneyUtil.getPkName(entityClass), Op.eq, id);
+//
+//			return super.delete(reqObj, condition);
+//
+//		} catch (Exception e) {
+//			Logger.warn(e.getMessage(), e);
+//		}
+		
 		try {
-		doBeforePasreEntity(c,SuidType.DELETE);
-		
-		int a=getMongodbBeeSql().deleteById(c, id);
-		
-		return a;
-	    }finally {
-		 doBeforeReturn();
+//			regByIdForSharding(entityClass, id); // 2.4.2
+			doBeforePasreEntity(entityClass, SuidType.DELETE);
+			return getMongodbBeeSql().deleteById(entityClass, id);
+		} finally {
+			doBeforeReturn();
 		}
 	}
 
 	@Override
 	@SuppressWarnings("rawtypes")
 	public int deleteById(Class c, Integer id) {
-		if(id==null) Logger.warn("in method deleteById,id is null! ");
+		if(id==null) Logger.warn("in method deleteById, id is null! ");
 		if (c == null || id==null) return 0;
 		
 		return deleteByIdObject(c, id);
@@ -524,7 +570,7 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 	@Override
 	@SuppressWarnings("rawtypes")
 	public int deleteById(Class c, Long id) {
-		if(id==null) Logger.warn("in method deleteById,id is null! ");
+		if(id==null) Logger.warn("in method deleteById, id is null! ");
 		if (c == null || id==null) return 0;
 		
 		return deleteByIdObject(c, id);
@@ -533,11 +579,21 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 	@Override
 	@SuppressWarnings("rawtypes")
 	public int deleteById(Class c, String ids) {
-		if(ids==null) Logger.warn("in method deleteById,ids is null! ");
+		if(ids==null) Logger.warn("in method deleteById, ids is null! ");
 		if (c == null || ids==null) return 0;
 		
 		return deleteByIdObject(c, ids);
 	}
+	
+//	private void regByIdForSharding(Class entityClass, Object idOrIds) {
+////		OneTimeParameter.setAttribute(StringConst.ByIdWithClassForSharding, idOrIds);
+//		Condition condition = BF.getCondition();
+//		if (entityClass.equals(String.class) && idOrIds.toString().contains(","))
+//			condition.op(HoneyUtil.getPkName(entityClass), Op.in, idOrIds);
+//		else
+//			condition.op(HoneyUtil.getPkName(entityClass), Op.eq, idOrIds);
+//		regCondition(condition);
+//	}
 
 	@Override
 	public <T> String selectJson(T entity, Condition condition) {
@@ -591,7 +647,7 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 		if (entity == null) return 0;
         try {
 		doBeforePasreEntity(entity, SuidType.UPDATE);
-
+		if (condition != null) condition = condition.clone();
 		int updateNum = getMongodbBeeSql().updateBy(entity, condition, whereFields);
 
 		return updateNum;
@@ -606,7 +662,8 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 		if (entity == null) return 0;
         try {
 		doBeforePasreEntity(entity, SuidType.UPDATE);
-
+		
+		if (condition != null) condition = condition.clone();
 		int updateNum = getMongodbBeeSql().update(entity, condition, updateFields);
 
 		return updateNum;
