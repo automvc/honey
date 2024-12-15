@@ -296,7 +296,10 @@ public class HoneyFactory {
 	}
 
 	public void setCondition(Condition condition) {
-		this.condition = condition;
+		if (condition != null)
+			this.condition = condition.clone();
+		else
+			this.condition = condition;
 	}
 
 	public MapSql getMapSql() {

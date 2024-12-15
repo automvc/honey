@@ -83,6 +83,7 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 		if (entity == null) return null;
 		List<T> list = null;
 		try {
+			if (condition != null) condition = condition.clone();
 			regCondition(condition);
 			_doBeforePasreEntity(entity); // 因要解析子表,子表下放再执行
 			// 传递要判断是否有group
@@ -103,6 +104,7 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 		if (entity == null) return null;
 		String fun = null;
 		try {
+			if (condition != null) condition = condition.clone();
 			ConditionImpl conditionImpl = (ConditionImpl) condition;
 			List<FunExpress> funExpList = conditionImpl.getFunExpList();
 			if (ObjectUtils.isEmpty(funExpList)) {
@@ -153,6 +155,7 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 	@Override
 	public <T> int count(T entity, Condition condition) {
 		Condition con;
+		if (condition != null) condition = condition.clone();
 		con = condition == null ? BF.getCondition() : condition;
 
 		String total = selectWithFun(entity, con.selectFun(FunctionType.COUNT, "*"));
@@ -164,6 +167,7 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 		if (entity == null) return null;
 		List<String[]> list = null;
 		try {
+			if (condition != null) condition = condition.clone();
 			regCondition(condition);
 			_doBeforePasreEntity(entity); // 因要解析子表,子表下放再执行
 			_regEntityClass1(entity);
@@ -183,6 +187,7 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 		if (entity == null) return null;
 		String json = null;
 		try {
+			if (condition != null) condition = condition.clone();
 			regCondition(condition);
 //			doBeforePasreEntity(entity, SuidType.SELECT);
 			_doBeforePasreEntity(entity); //fixed 2.4.0

@@ -617,6 +617,21 @@ public class ConditionImpl implements Condition {
 	private String _toColumnName(String fieldName) {
 		return NameTranslateHandle.toColumnName(fieldName);
 	}
+	
+	@Override
+	public Condition clone() {
+		try {
+			ConditionImpl cloned = (ConditionImpl) super.clone(); // 调用 Object 的 default clone()
+			// 深拷贝 selectField 数组
+			if (this.selectField != null) {
+				cloned.selectField = this.selectField.clone(); // 确保克隆数组
+			}
+			return cloned;
+		} catch (CloneNotSupportedException e) {
+			Logger.debug("Clone Condition error. "+e.getMessage());
+			return this;
+		}
+	}
 
    public final class FunExpress{
 //		private FunctionType functionType;

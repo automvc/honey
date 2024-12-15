@@ -62,6 +62,7 @@ public class AbstractCommOperate implements CommOperate{
 	}
 	
 	protected void regCondition(Condition condition) {
+		if (condition != null) condition = condition.clone();
 		HoneyContext.setConditionLocal(condition);
 	}
 	

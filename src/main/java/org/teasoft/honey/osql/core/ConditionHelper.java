@@ -73,6 +73,7 @@ public class ConditionHelper {
 		
 		Class entityClass = (Class) OneTimeParameter.getAttribute(StringConst.Column_EC);
 		if(condition==null) return null;
+//		condition = condition.clone();
 		
 		ConditionImpl conditionImpl = (ConditionImpl) condition;
 		List<Expression> updateSetList = conditionImpl.getUpdateExpList();
@@ -173,6 +174,7 @@ public class ConditionHelper {
 		Class entityClass = (Class) OneTimeParameter.getAttribute(StringConst.Column_EC);
 		
 		if(condition==null) return firstWhere;
+//		condition = condition.clone();
 		
 		boolean isNeedAnd = true;
 		

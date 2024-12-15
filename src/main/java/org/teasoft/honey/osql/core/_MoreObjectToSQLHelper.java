@@ -56,7 +56,8 @@ public class _MoreObjectToSQLHelper {
 			includeType = -1;
 		else
 			includeType = condition.getIncludeType().getValue();
-
+		
+//		condition=condition.clone();
 		return _toSelectSQL(entity, includeType, condition, -1, -1);
 	}
 	
@@ -68,9 +69,12 @@ public class _MoreObjectToSQLHelper {
 	private static <T> String _toSelectSQL(T entity, int includeType,Condition condition, int start, int size) {
 			
 		checkPackage(entity);
-		String sql="";
-		Set<String> whereFields=null;
-		if(condition!=null) whereFields=condition.getWhereFields();
+		String sql = "";
+		Set<String> whereFields = null;
+		if (condition != null) {
+//			condition = condition.clone();
+			whereFields = condition.getWhereFields();
+		}
 		StringBuffer sqlBuffer = new StringBuffer();
 		StringBuffer sqlBufferMainWhere = new StringBuffer();//放主表的where条件
 		StringBuffer sqlBuffer2 = new StringBuffer();

@@ -110,6 +110,7 @@ final class _ObjectToSQLHelper {
 				HoneyContext.addBeanField(packageAndClassName, columnNames);
 			}
 			if (condition != null) {
+//				condition=condition.clone();
 				condition.setSuidType(SuidType.SELECT);
 				
 				//V2.0
@@ -315,8 +316,11 @@ final class _ObjectToSQLHelper {
 //		Set<String> conditionFieldSet = null;
 //		if (condition != null) conditionFieldSet = condition.getWhereFields();
 		
-		Set<String> updatefieldSet=null;
-		if (condition != null) updatefieldSet=condition.getUpdatefields();
+		Set<String> updatefieldSet = null;
+		if (condition != null) {
+//			condition = condition.clone();
+			updatefieldSet = condition.getUpdatefields();
+		}
 		
 //		if (updateFields.length == 0 || "".equals(updateFieldList.trim()))
 		
@@ -481,8 +485,11 @@ final class _ObjectToSQLHelper {
 	static <T> String _toUpdateBySQL(T entity, String whereColumns[], int includeType, Condition condition){
 		checkPackage(entity);
 		
-		Set<String> conditionFieldSet=null;
-		if(condition!=null) conditionFieldSet=condition.getWhereFields();
+		Set<String> conditionFieldSet = null;
+		if (condition != null) {
+//			condition = condition.clone();
+			conditionFieldSet = condition.getWhereFields();
+		}
 		
 		Set<String> updatefieldSet=null;
 		if (condition != null) updatefieldSet=condition.getUpdatefields();
@@ -801,6 +808,7 @@ final class _ObjectToSQLHelper {
 			}//end for
 			
 			if(condition!=null){
+//				condition=condition.clone();
 				 condition.setSuidType(SuidType.DELETE); //delete
 				 OneTimeParameter.setAttribute(StringConst.Column_EC, entity.getClass());
 				 firstWhere= ConditionHelper.processCondition(sqlBuffer, list, condition, firstWhere);

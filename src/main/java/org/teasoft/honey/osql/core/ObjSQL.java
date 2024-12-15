@@ -204,6 +204,7 @@ public class ObjSQL extends AbstractCommOperate implements Suid {
 		if (entity == null) return null;
 		List<T> list = null;
 		try {
+			if (condition != null) condition = condition.clone();
 			regCondition(condition);
 			doBeforePasreEntity(entity, SuidType.SELECT);
 			// 传递要判断是否有group
@@ -222,6 +223,7 @@ public class ObjSQL extends AbstractCommOperate implements Suid {
 	public <T> int delete(T entity, Condition condition) {
 		if (entity == null) return -1;
 		try {
+			if (condition != null) condition = condition.clone();
 			regCondition(condition);
 			doBeforePasreEntity(entity, SuidType.DELETE);
 			String sql = getObjToSQL().toDeleteSQL(entity, condition);

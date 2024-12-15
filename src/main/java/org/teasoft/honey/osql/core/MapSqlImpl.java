@@ -102,11 +102,15 @@ public class MapSqlImpl implements MapSql {
 
 	@Override
 	public void where(Condition condition) { // 2.4.0
-		this.whereCondition = condition;
+		if (condition != null)
+			this.whereCondition = condition.clone();
+		else
+			this.whereCondition = condition;
 	}
 	
 	@Override
 	public void updateSet(Condition condition) {// 2.4.0
+		if (condition != null) condition = condition.clone();
 		if (!setSuidTypeForUpdate) {
 			setSuidTypeForUpdate = true;
 			if (condition != null) condition.setSuidType(SuidType.UPDATE);
