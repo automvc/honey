@@ -75,9 +75,9 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		}
 
 		if (start == -1)
-			Logger.logSQL("select SQL(entity,size): ", sql);
+			Logger.logSQL("select SQL(entity, size): ", sql);
 		else
-			Logger.logSQL("select(entity,start,size) SQL: ", sql);
+			Logger.logSQL("select SQL(entity, start, size): ", sql);
 		return sql;
 	}
 	
@@ -107,7 +107,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			setContext(sql, wrap.getList(), wrap.getTableNames());
 		}
 
-		Logger.logSQL("select(entity,selectFields,start,size) SQL: ", sql);
+		Logger.logSQL("select SQL(entity, start, size, selectFields): ", sql);
 		return sql;
 	}
 	
@@ -138,7 +138,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 //		sql=sql.replace("#fieldNames#", fieldList);
 //		sql=sql.replace("#fieldNames#", newSelectFields);  //打印值会有问题
 
-		Logger.logSQL("select SQL(selectFields) : ", sql);
+		Logger.logSQL("select SQL(entity, selectFields): ", sql);
 
 		return sql;
 	}
@@ -565,9 +565,9 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	@Override
 	public <T> String toSelectByIdSQL(Class<T> entityClazz, String ids) {
 		if(ids==null || "".equals(ids.trim())) return null;
-		SqlValueWrap sqlBuffer=toSelectByIdSQL0(entityClazz);
+		SqlValueWrap sqlValueWrap=toSelectByIdSQL0(entityClazz);
 		String pkName=getPkName(entityClazz);
-		return _toSelectAndDeleteByIdSQL(sqlBuffer,ids,getIdType(entityClazz,pkName),pkName,entityClazz);
+		return _toSelectAndDeleteByIdSQL(sqlValueWrap,ids,getIdType(entityClazz,pkName),pkName,entityClazz);
 	}
 	
 	private <T> String getIdType(Class<T> entityClazz,String pkName) {
@@ -674,40 +674,39 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	
 	private String _toSelectAndDeleteByIdSQL(SqlValueWrap wrap, String ids, String idType,String pkName,Class entityClass) {
 
-		StringBuffer sqlBuffer=wrap.getValueBuffer(); //sqlBuffer
+		StringBuffer sqlBuffer=wrap.getValueBuffer();
 		List<PreparedValue> list=new ArrayList<>();
 		PreparedValue preparedValue=null;
 
 		String idArray[]=ids.split(",");
 		StringUtils.trim(idArray);
-//		String t_ids="id=?";
 		String id0=_id(pkName,entityClass) + "=?";
-		String t_ids=id0;
+		String t_ids="";
 
-		preparedValue=new PreparedValue();
-//		preparedValue.setType(numType);//id的类型Object
-		if (idType != null) {
-			preparedValue.setType(idType);
-			if ("Long".equals(idType) || "long".equals(idType)) {
-				preparedValue.setValue(Long.parseLong(idArray[0]));
-			} else if ("Integer".equals(idType) || "int".equals(idType)) {
-				preparedValue.setValue(Integer.parseInt(idArray[0]));
-			} else if ("Short".equals(idType) || "short".equals(idType)) {
-				preparedValue.setValue(Short.parseShort(idArray[0]));
+//		preparedValue=new PreparedValue();
+//		if (idType != null) {
+//			preparedValue.setType(idType);
+//			if ("Long".equals(idType) || "long".equals(idType)) {
+//				preparedValue.setValue(Long.parseLong(idArray[0]));
+//			} else if ("Integer".equals(idType) || "int".equals(idType)) {
+//				preparedValue.setValue(Integer.parseInt(idArray[0]));
+//			} else if ("Short".equals(idType) || "short".equals(idType)) {
+//				preparedValue.setValue(Short.parseShort(idArray[0]));
+//			} else {
+//				preparedValue.setValue(idArray[0]);
+//			}
+//		} else {
+//			preparedValue.setValue(idArray[0]);
+//		}
+//		list.add(preparedValue);
+
+		for (int i = 0; i < idArray.length; i++) {
+			preparedValue = new PreparedValue();
+			if (i == 0) {
+				t_ids = id0;
 			} else {
-				preparedValue.setValue(idArray[0]);
+				t_ids += " " + K.or + " " + id0;
 			}
-		} else {
-			preparedValue.setValue(idArray[0]);
-		}
-
-		list.add(preparedValue);
-
-		for (int i=1; i < idArray.length; i++) { //i from 1
-			preparedValue=new PreparedValue();
-//			t_ids+=" or id=?";
-			t_ids+=" " + K.or + " " + id0;
-//			preparedValue.setType(numType);//id的类型Object
 			if (idType != null) {
 				preparedValue.setType(idType);
 
@@ -723,7 +722,6 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			} else {
 				preparedValue.setValue(idArray[i]);
 			}
-
 			list.add(preparedValue);
 		}
 
@@ -751,7 +749,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		sqlBuffer.append(tableName) //下一版本将支持分片
 		.append(" ").append(K.where).append(" ");
 
-		wrap.setValueBuffer(sqlBuffer); //sqlBuffer
+		wrap.setValueBuffer(sqlBuffer);
 		wrap.setTableNames(tableName);
 
 		return wrap;
@@ -855,6 +853,9 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	
 	private String _toTableName(Object entity){
 		return NameTranslateHandle.toTableName(NameUtil.getClassFullName(entity));
+		//TODO
+//		String tableName= NameTranslateHandle.toTableName(NameUtil.getClassFullName(entity));
+//		return ShardingUtil.appendTableIndexIfNeed(tableName); // 2.4.2
 	}
 	
 	@SuppressWarnings("rawtypes")
