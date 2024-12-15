@@ -6,6 +6,7 @@
 
 package org.teasoft.honey.osql.core;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -623,7 +624,6 @@ public class ConditionImpl implements Condition {
 	
 	@Override
 	public Condition clone() {
-		
 		try {
 			Serializer jdks = new JdkSerializer();
 			Object cloned = jdks.unserialize(jdks.serialize(this));
@@ -634,7 +634,9 @@ public class ConditionImpl implements Condition {
 		}
 	}
 
-   public final class FunExpress{
+   public final class FunExpress implements Serializable{
+	   private static final long serialVersionUID = 1596710362289L;
+	   
 //		private FunctionType functionType;
 		private String functionType;
 		private String field;
