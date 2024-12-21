@@ -389,6 +389,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 		return list;
 	}
 
+	//do not support sharding
 	@Override
 	@SuppressWarnings("unchecked")
 	public List<Map<String, Object>> selectMapList(String sql) {

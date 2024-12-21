@@ -119,9 +119,9 @@ public class ShardingInterceptor extends EmptyInterceptor {
 		if (Boolean.FALSE.equals(flag)) return entity;
 
 		Field fields[] = null;
-		Object oldEntity = null;
+		Object oldEntity = null; //the type is class
 		
-		if (isByIdWithClass) {
+		if (isByIdWithClass) {//仅将class转成实体对象;id放在condtion,不用在实体设置
 			fields = HoneyUtil.getFields((Class) entity);
 			oldEntity=entity;
 			try {
