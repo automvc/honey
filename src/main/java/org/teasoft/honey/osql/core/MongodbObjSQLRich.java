@@ -13,6 +13,7 @@ import java.util.List;
 import org.teasoft.bee.osql.FunctionType;
 import org.teasoft.bee.osql.IncludeType;
 import org.teasoft.bee.osql.ObjSQLException;
+import org.teasoft.bee.osql.Op;
 import org.teasoft.bee.osql.OrderType;
 import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.api.Condition;
@@ -20,6 +21,7 @@ import org.teasoft.bee.osql.api.SuidRich;
 import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
 import org.teasoft.bee.osql.exception.BeeIllegalParameterException;
 import org.teasoft.honey.osql.name.NameUtil;
+import org.teasoft.honey.osql.shortcut.BF;
 import org.teasoft.honey.sharding.ShardingUtil;
 import org.teasoft.honey.sharding.config.ShardingRegistry;
 import org.teasoft.honey.sharding.engine.batch.ShardingBatchInsertEngine;
@@ -452,7 +454,7 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 		T t = null;
 		List<T> list = null;
 		try {
-//			regByIdForSharding(entityClass, id); // 2.4.2
+			regByIdForSharding(entityClass, id); // 2.5.0
 			doBeforePasreEntity(entityClass, SuidType.SELECT);
 			list = getMongodbBeeSql().selectById(entityClass, id);
 			if (list == null || list.size() < 1) {
@@ -519,7 +521,7 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 		}
 		List<T> list = null;
 		try {
-//			regByIdForSharding(entityClass, ids); // 2.4.2
+			regByIdForSharding(entityClass, ids); // 2.5.0
 			doBeforePasreEntity(entityClass, SuidType.SELECT);
 			list = getMongodbBeeSql().selectById(entityClass, ids);
 		} finally {
@@ -550,7 +552,7 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 //		}
 		
 		try {
-//			regByIdForSharding(entityClass, id); // 2.4.2
+			regByIdForSharding(entityClass, id); // 2.5.0
 			doBeforePasreEntity(entityClass, SuidType.DELETE);
 			return getMongodbBeeSql().deleteById(entityClass, id);
 		} finally {
@@ -585,15 +587,16 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 		return deleteByIdObject(c, ids);
 	}
 	
-//	private void regByIdForSharding(Class entityClass, Object idOrIds) {
-////		OneTimeParameter.setAttribute(StringConst.ByIdWithClassForSharding, idOrIds);
-//		Condition condition = BF.getCondition();
-//		if (entityClass.equals(String.class) && idOrIds.toString().contains(","))
-//			condition.op(HoneyUtil.getPkName(entityClass), Op.in, idOrIds);
-//		else
-//			condition.op(HoneyUtil.getPkName(entityClass), Op.eq, idOrIds);
-//		regCondition(condition);
-//	}
+	//2.5.0
+	private void regByIdForSharding(Class entityClass, Object idOrIds) {
+//		OneTimeParameter.setAttribute(StringConst.ByIdWithClassForSharding, idOrIds);
+		Condition condition = BF.getCondition();
+		if (entityClass.equals(String.class) && idOrIds.toString().contains(","))
+			condition.op(HoneyUtil.getPkName(entityClass), Op.in, idOrIds);
+		else
+			condition.op(HoneyUtil.getPkName(entityClass), Op.eq, idOrIds);
+		regCondition(condition);
+	}
 
 	@Override
 	public <T> String selectJson(T entity, Condition condition) {
