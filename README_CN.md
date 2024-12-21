@@ -35,6 +35,16 @@ Bee2.2 + Spring boot3.0.13对应版本**2.2.boot3.0.13 需要JDK17**
 [主要功能介绍](../../../bee/blob/master/main-feature.md)  
 
 ## 最新功能简介: 
+### **V2.4.2(2024.冬至·LTS版)**  
+1. GenFiles增加genFileViaStream,支持读取jar里的配置文件  
+2. Genbean:更新方法genFieldFile,toString, 添加方法setUpperFieldNameInFieldFile用于指定变量大小写风格 
+3. 更新DoNotSetTabShadngValue提示信息(分片插入需要设置分片键的值)  
+4. SuidRich selectById,deleteById支持sharding  
+5. Condition支持clone  
+6. fixed bug:  
+sharding select all(no paging)  
+sharding modify cache  
+
 ### **V2.4.0(2024.国庆·LTS版)**  
 1.chaing SQL编程支持占位符预编译,防止注入攻击;增加update,delete的chaing编程支持  
 2.没有指定表名则不放缓存  
@@ -382,6 +392,11 @@ public class SuidExam {
 		for (int i = 0; i < list1.size(); i++) {
 			System.out.println(list1.get(i).toString());
 		}
+		
+		//在实体里,默认的运行符是等号,除了等号,Bee是用比较符合书写习惯的方法, 可以任意写不同的条件.
+          //Condition condition=BF.getCondition();   //SuidRich接口有很多带Condition参数的方法
+          //condition.op(Orders_F.userid, Op.ge, 0);   //userid>=0
+          //Op支持除了"="外的,>,<,>=,<=,!=, like, in, not in 等
 		
 		//2:update更新实例
 		orders1.setName("Bee--ORM Framework");

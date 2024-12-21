@@ -63,7 +63,12 @@ https://github.com/automvc/bee-ext
 ### **V2.4.2**  
 1. GenFiles support genFileViaStream  
 2. Genbean:update genFieldFile,toString, add method setUpperFieldNameInFieldFile 
-3. update DoNotSetTabShadngValue tip message(Sharding insert need set the sharding value)   
+3. update DoNotSetTabShadngValue tip message(Sharding insert need set the sharding value)  
+4. SuidRich selectById,deleteById support sharding  
+5. Condition support clone  
+6. fixed bug:  
+sharding select all(no paging)  
+sharding modify cache  
 
 ### **V2.4.0**  
 
@@ -395,6 +400,10 @@ public class SuidExamEN {
 			for (int i = 0; i < list1.size(); i++) {
 				Logger.info(list1.get(i).toString());
 			}
+			
+			//Condition condition=BF.getCondition(); // The SuidRich interface has many methods with the Condition parameter
+               //condition.op(Orders_F.userid, Op.ge, 0); // userid>=0
+              //Op supports: =,>,<,>=,<=,!=, Like, in, not in, etc
 
 			orders1.setName("Bee(ORM Framework)");
 			int updateNum = suid.update(orders1); //2. update
