@@ -800,11 +800,11 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 	public <T> boolean createTable(Class<T> entityClass, boolean isDropExistTable) {
 		if (entityClass == null) return false;
 		try {
-		doBeforePasreEntity(entityClass, SuidType.DDL);
-		boolean f=getMongodbBeeSql().createTable(entityClass,isDropExistTable);
-		return f;
-		}finally {
-		 doBeforeReturn();
+			doBeforePasreEntity(entityClass, SuidType.DDL);
+			boolean f = getMongodbBeeSql().createTable(entityClass, isDropExistTable);
+			return f;
+		} finally {
+			doBeforeReturn();
 		}
 	}
 	
