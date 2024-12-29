@@ -15,6 +15,7 @@ import org.teasoft.bee.osql.FunctionType;
 import org.teasoft.bee.osql.IncludeType;
 import org.teasoft.bee.osql.ObjSQLException;
 import org.teasoft.bee.osql.ObjToSQLRich;
+import org.teasoft.bee.osql.OneMethod;
 import org.teasoft.bee.osql.Op;
 import org.teasoft.bee.osql.OrderType;
 import org.teasoft.bee.osql.SuidType;
@@ -67,17 +68,42 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 	}
 
 	@Override
-	public <T> List<T> select(T entity, int size) {
+	public <T> List<T> select(final T entity, final int size) {
 		if (entity == null) return null;
 		if (size == 0) {
 			Logger.warn(TIP_SIZE_0);
 			return Collections.emptyList();
 		}
 		if (size < 0) throw new BeeIllegalParameterException(SIZE_GREAT_0);
+
+		return selectByTemplate(entity, new OneMethod<String>() {
+			public String doOneMethod() {
+				return getObjToSQLRich().toSelectSQL(entity, -1, size);
+			}
+		});
+		
+		
+		
+//		List<T> list = null;
+//		try {
+//			doBeforePasreEntity(entity, SuidType.SELECT);
+//			String sql = getObjToSQLRich().toSelectSQL(entity, -1, size);
+//			sql = doAfterCompleteSql(sql);
+//
+//			list = getBeeSql().select(sql, toClassT(entity));
+//		} finally {
+//			doBeforeReturn(list);
+//		}
+//
+//		return list;
+	}
+	
+	private <T> List<T> selectByTemplate(T entity, OneMethod<String> toSqlMethod) {
 		List<T> list = null;
 		try {
 			doBeforePasreEntity(entity, SuidType.SELECT);
-			String sql = getObjToSQLRich().toSelectSQL(entity, -1, size);
+//			String sql = getObjToSQLRich().toSelectSQL(entity, -1, size);
+			String sql = toSqlMethod.doOneMethod();
 			sql = doAfterCompleteSql(sql);
 
 			list = getBeeSql().select(sql, toClassT(entity));
@@ -89,7 +115,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 	}
 
 	@Override
-	public <T> List<T> select(T entity, int start, int size) {
+	public <T> List<T> select(final T entity, final int start, final int size) {
 		if (entity == null) return null;
 		if (size == 0) {
 			Logger.warn(TIP_SIZE_0);
@@ -97,36 +123,51 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 		}
 		if (size < 0) throw new BeeIllegalParameterException(SIZE_GREAT_0);
 		if (start < 0) throw new BeeIllegalParameterException(START_GREAT_EQ_0);
-		List<T> list = null;
-		try {
-			doBeforePasreEntity(entity, SuidType.SELECT);
-			String sql = getObjToSQLRich().toSelectSQL(entity, start, size);
-			sql = doAfterCompleteSql(sql);
 
-			list = getBeeSql().select(sql, toClassT(entity));
-		} finally {
-			doBeforeReturn(list);
-		}
-		return list;
+		return selectByTemplate(entity, new OneMethod<String>() {
+			public String doOneMethod() {
+				return getObjToSQLRich().toSelectSQL(entity, start, size);
+			}
+		});
+		
+//		List<T> list = null;
+//		try {
+//			doBeforePasreEntity(entity, SuidType.SELECT);
+//			String sql = getObjToSQLRich().toSelectSQL(entity, start, size);
+//			sql = doAfterCompleteSql(sql);
+//
+//			list = getBeeSql().select(sql, toClassT(entity));
+//		} finally {
+//			doBeforeReturn(list);
+//		}
+//		return list;
 	}
 
 	@Override
-	public <T> List<T> select(T entity, String... selectFields) {
+	public <T> List<T> select(final T entity, final String... selectFields) {
 		if (entity == null) return null;
-		List<T> list = null;
-		try {
-			doBeforePasreEntity(entity, SuidType.SELECT);
-			String sql = getObjToSQLRich().toSelectSQL(entity, selectFields);
-			sql = doAfterCompleteSql(sql);
-			list = getBeeSql().selectSomeField(sql, toClassT(entity));
-		} finally {
-			doBeforeReturn(list);
-		}
-		return list;
+
+		return selectByTemplate(entity, new OneMethod<String>() {
+			public String doOneMethod() {
+				return getObjToSQLRich().toSelectSQL(entity, selectFields);
+			}
+		});
+		
+		
+//		List<T> list = null;
+//		try {
+//			doBeforePasreEntity(entity, SuidType.SELECT);
+//			String sql = getObjToSQLRich().toSelectSQL(entity, selectFields);
+//			sql = doAfterCompleteSql(sql);
+//			list = getBeeSql().selectSomeField(sql, toClassT(entity));
+//		} finally {
+//			doBeforeReturn(list);
+//		}
+//		return list;
 	}
 
 	@Override
-	public <T> List<T> select(T entity, int start, int size, String... selectFields) {
+	public <T> List<T> select(final T entity, final int start, int size, final String... selectFields) {
 		if (entity == null) return null;
 		if (size == 0) {
 			Logger.warn(TIP_SIZE_0);
@@ -134,16 +175,24 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 		}
 		if (size < 0) throw new BeeIllegalParameterException(SIZE_GREAT_0);
 		if (start < 0) throw new BeeIllegalParameterException(START_GREAT_EQ_0);
-		List<T> list = null;
-		try {
-			doBeforePasreEntity(entity, SuidType.SELECT);
-			String sql = getObjToSQLRich().toSelectSQL(entity, start, size, selectFields);
-			sql = doAfterCompleteSql(sql);
-			list = getBeeSql().selectSomeField(sql, toClassT(entity));
-		} finally {
-			doBeforeReturn(list);
-		}
-		return list;
+		
+		return selectByTemplate(entity, new OneMethod<String>() {
+			public String doOneMethod() {
+				return getObjToSQLRich().toSelectSQL(entity, selectFields);
+			}
+		});
+		
+		
+//		List<T> list = null;
+//		try {
+//			doBeforePasreEntity(entity, SuidType.SELECT);
+//			String sql = getObjToSQLRich().toSelectSQL(entity, start, size, selectFields);
+//			sql = doAfterCompleteSql(sql);
+//			list = getBeeSql().selectSomeField(sql, toClassT(entity));
+//		} finally {
+//			doBeforeReturn(list);
+//		}
+//		return list;
 	}
 
 	@Override

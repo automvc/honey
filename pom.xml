@@ -4,7 +4,7 @@
 	<groupId>org.teasoft</groupId>
 	<artifactId>honey</artifactId>
 	<name>honey</name>
-	<version>2.5.0</version>
+	<version>2.5.2</version>
 	<packaging>jar</packaging>
 
 	<properties>

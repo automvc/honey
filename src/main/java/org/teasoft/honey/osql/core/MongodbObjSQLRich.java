@@ -454,7 +454,7 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 		T t = null;
 		List<T> list = null;
 		try {
-			regByIdForSharding(entityClass, id); // 2.5.0
+			regByIdForSharding(entityClass, id); // 2.5.2
 			doBeforePasreEntity(entityClass, SuidType.SELECT);
 			list = getMongodbBeeSql().selectById(entityClass, id);
 			if (list == null || list.size() < 1) {
@@ -521,7 +521,7 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 		}
 		List<T> list = null;
 		try {
-			regByIdForSharding(entityClass, ids); // 2.5.0
+			regByIdForSharding(entityClass, ids); // 2.5.2
 			doBeforePasreEntity(entityClass, SuidType.SELECT);
 			list = getMongodbBeeSql().selectById(entityClass, ids);
 		} finally {
@@ -552,7 +552,7 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 //		}
 		
 		try {
-			regByIdForSharding(entityClass, id); // 2.5.0
+			regByIdForSharding(entityClass, id); // 2.5.2
 			doBeforePasreEntity(entityClass, SuidType.DELETE);
 			return getMongodbBeeSql().deleteById(entityClass, id);
 		} finally {
@@ -587,7 +587,7 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 		return deleteByIdObject(c, ids);
 	}
 	
-	//2.5.0
+	//2.5.2
 	private void regByIdForSharding(Class entityClass, Object idOrIds) {
 //		OneTimeParameter.setAttribute(StringConst.ByIdWithClassForSharding, idOrIds);
 		Condition condition = BF.getCondition();

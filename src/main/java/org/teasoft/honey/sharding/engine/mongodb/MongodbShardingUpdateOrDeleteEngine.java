@@ -23,7 +23,7 @@ import org.teasoft.honey.sharding.engine.ThreadPoolUtil;
 /**
  * Update or Delete Sharing Engine for MongoDB.
  * @author Kingstar
- * @since  2.5.0
+ * @since  2.5.2
  */
 public class MongodbShardingUpdateOrDeleteEngine {
 

@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.teasoft.bee.osql.OneMethod;
 import org.teasoft.honey.osql.core.HoneyContext;
 import org.teasoft.honey.osql.core.StringConst;
 import org.teasoft.honey.sharding.config.ShardingRegistry;
@@ -18,9 +19,9 @@ import org.teasoft.honey.sharding.config.ShardingRegistry;
 /**
  * 在单线程环境下，对所有分片执行操作.
  * @author Kingstar
- * @since  2.5.0
+ * @since  2.5.2
  */
-public class FullOpTemplate<T> {
+public class ShardingFullOpTemplate<T> {
 
 	protected String ds;
 	protected String tab;
@@ -28,7 +29,7 @@ public class FullOpTemplate<T> {
 	private String baseTableName;
 	private OneMethod<T> oneMethod;
 
-	public FullOpTemplate(String baseTableName, OneMethod<T> oneMethod) {
+	public ShardingFullOpTemplate(String baseTableName, OneMethod<T> oneMethod) {
 		if (baseTableName.endsWith(StringConst.ShardingTableIndexStr)) {
 			baseTableName = baseTableName.replace(StringConst.ShardingTableIndexStr, "");
 		}

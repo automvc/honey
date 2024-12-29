@@ -122,6 +122,7 @@ class ProcessDataSourceMap {
 				throw new ConfigWrongException(
 						"Did not config the DataSourceBuilder for " + type);
 			}
+			map.remove("type"); // V2.5.2
 			dataSourceMap.put(dsNames[i], builder.build(map));
 		}
 
