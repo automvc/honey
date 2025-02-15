@@ -36,7 +36,7 @@ public abstract class ShardingAbstractMongoBeeSQLExecutorEngine<T> extends Shard
 		return doSharding();
 	}
 	
-	private MongodbBeeSql copy(MongodbBeeSql mongodbBeeSql) {
+	private MongodbBeeSql copy(MongodbBeeSql mongodbBeeSql) {// MongodbSqlLib have serial.
 		try {
 			Serializer jdks = new JdkSerializer();
 			return (MongodbBeeSql) jdks.unserialize(jdks.serialize(mongodbBeeSql));

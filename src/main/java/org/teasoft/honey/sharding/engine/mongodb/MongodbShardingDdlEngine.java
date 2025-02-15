@@ -64,12 +64,15 @@ public class MongodbShardingDdlEngine {
 		boolean f = false;
 		for (int i = 0; i < size; i++) {
 			try {
-				f = f || completionService.take().get();
+				boolean t = completionService.take().get();
+				if (i == 0) f = t;
+				else f = f && t;
 			} catch (Exception e) {
 				Logger.error(e.getMessage(), e);
 				Thread.currentThread().interrupt();
 			}
 		}
+		executor.shutdown();
 
 		return f;
 	}
