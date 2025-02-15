@@ -24,80 +24,81 @@ import org.teasoft.honey.util.StringUtils;
  * @since  2.0
  */
 public class OrderByPagingRewriteSql {
-	
-   public static List<String[]> createSqlsAndInit(String sql) {
-		
-		List<String[]> list=new ArrayList<>();
-		List<String> tabNameList=HoneyContext.getListLocal(StringConst.TabNameListLocal);
-		List<String> tabSuffixList=HoneyContext.getListLocal(StringConst.TabSuffixListLocal);
-		Map<String, String> tab2DsMap=HoneyContext.getCustomMapLocal(StringConst.ShardingTab2DsMap);
-		
+
+	public static List<String[]> createSqlsAndInit(String sql) {
+
+		List<String[]> list = new ArrayList<>();
+		List<String> tabNameList = HoneyContext.getListLocal(StringConst.TabNameListLocal);
+		List<String> tabSuffixList = HoneyContext.getListLocal(StringConst.TabSuffixListLocal);
+		Map<String, String> tab2DsMap = HoneyContext.getCustomMapLocal(StringConst.ShardingTab2DsMap);
+
 		List<PreparedValue> listValue = HoneyContext.justGetPreparedValue(sql);
-		
-		ShardingPageStruct shardingPage=HoneyContext.getCurrentShardingPage();
-		
-		if(shardingPage==null) {//没有分页的,即便可以union all也是走这里.
-			SimpleRewriteSql._createSql(list, tabSuffixList, sql, listValue, tabNameList,tab2DsMap);
-		}else {  //shardingPage!=null  要处理分页
-			
-			List<String> dsNameList= HoneyContext.getListLocal(StringConst.DsNameListLocal);
-			
-			//ReWriteSQL  
-			//a)rewrite paging sql
-			sql=rewritePaingSql(sql);
 
-			//只涉及一个Ds,且支持用union all语法
-			if(dsNameList.size()==1 && ! HoneyUtil.isNotSupportUnionQuery() && !ShardingUtil.isMoreTableQuery()) {//一库多表,即多个表个在同一个库中. //还要支持union all
-				shardingPage.setPagingType(1); //"MoreTablesInSameDsUseUnionAll"
-				
-                //b)sql语句替换表下标
-				String sqls[]=createShardingSql(tabSuffixList, sql);
-				
-				//c)union all  
-				//d)生成新的复合查询语句；
-				String newSql=createUnionAllSql(sqls);
-				
-				//e)加排序子句；
-				newSql=OrderBySqlDecorator.addOrderBy(newSql);
+		ShardingPageStruct shardingPage = HoneyContext.getCurrentShardingPage();
 
-				//f)加分页,取指定页的一页记录
-				newSql=PagingSqlDecorator.addPaging(newSql);
-				
-				//g)调整参数缓存
-				//g) adjust PreparedValue
+		if (shardingPage == null) {// 没有分页的,即便可以union all也是走这里.
+			SimpleRewriteSql._createSql(list, tabSuffixList, sql, listValue, tabNameList, tab2DsMap);
+		} else { // shardingPage!=null 要处理分页
+
+			List<String> dsNameList = HoneyContext.getListLocal(StringConst.DsNameListLocal);
+
+			// ReWriteSQL
+			// a)rewrite paging sql
+			sql = rewritePaingSql(sql);
+
+			// 只涉及一个Ds,且支持用union all语法
+			if (dsNameList.size() == 1 && !HoneyUtil.isNotSupportUnionQuery() && !ShardingUtil.isMoreTableQuery()) {// 一库多表,即多个表个在同一个库中.
+																													// //还要支持union
+																													// all
+				shardingPage.setPagingType(1); // "MoreTablesInSameDsUseUnionAll"
+
+				// b)sql语句替换表下标
+				String sqls[] = createShardingSql(tabSuffixList, sql);
+
+				// c)union all
+				// d)生成新的复合查询语句；
+				String newSql = createUnionAllSql(sqls);
+
+				// e)加排序子句；
+				newSql = OrderBySqlDecorator.addOrderBy(newSql);
+
+				// f)加分页,取指定页的一页记录
+				newSql = PagingSqlDecorator.addPaging(newSql);
+
+				// g)调整参数缓存
+				// g) adjust PreparedValue
 //				List newListValue =copyObject(listValue); 
 //				for (int j = 1; j < sqls.length; j++) {
 //					newListValue.addAll(listValue); //
 //				}
 //				HoneyContext.setPreparedValue(newSql, newListValue);
-				
-				List<PreparedValue> newListValue =new ArrayList<>();
+
+				List<PreparedValue> newListValue = new ArrayList<>();
 				newListValue.addAll(listValue);
 				for (int j = 1; j < sqls.length; j++) {
 //					listValue.addAll(listValue); 
 					newListValue.addAll(listValue);
 				}
 				HoneyContext.setPreparedValue(newSql, newListValue);
-				
-				list.add(new String[] { newSql }); //合成一条sql了， sql也不用加随机前缀 V2.2
+
+				list.add(new String[] { newSql }); // 合成一条sql了， sql也不用加随机前缀 V2.2
 				list.add(new String[] { dsNameList.get(0) });
-			}else {
+			} else {
 				Logger.warn("Involved many dataSource or not supported union all!! ");
 //				是否还要按库分,然后,不同库的使用union?  取决于union all 和IO 哪个用的时间更少!!
-				//其它的,应该可以重用.  只不过涉及分页的,sql重新使用新的扩大的分页参数生成
-				
-				shardingPage.setPagingType(2); //ManyDs
-				SimpleRewriteSql._createSql(list, tabSuffixList, sql, listValue, tabNameList,tab2DsMap);
-				
-				//合并结果后,要重新排序(在List排),然后再取需要的页的数据.  
-				//两种情况,都要放缓存. 查询时,也要能从缓存中,取出. todo
+				// 其它的,应该可以重用. 只不过涉及分页的,sql重新使用新的扩大的分页参数生成
+
+				shardingPage.setPagingType(2); // ManyDs
+				SimpleRewriteSql._createSql(list, tabSuffixList, sql, listValue, tabNameList, tab2DsMap);
+
+				// 合并结果后,要重新排序(在List排),然后再取需要的页的数据.
+				// 两种情况,都要放缓存. 查询时,也要能从缓存中,取出. todo
 			}
 		}
-		
-		
+
 		return list;
 	}
-	
+
 	@SuppressWarnings("rawtypes")
 	public static List<String[]> createSqlsForFullSelect(String sql, Class entityClass) {
 		String baseTableName = _toTableName(entityClass);
@@ -118,20 +119,20 @@ public class OrderByPagingRewriteSql {
 
 		return list;
 	}
-	
+
 	@SuppressWarnings("rawtypes")
-	private static String _toTableName(Class entityClass){
+	private static String _toTableName(Class entityClass) {
 		return NameTranslateHandle.toTableName(entityClass.getName());
 	}
 
 	private static DbFeature getDbFeature() {
 		return BeeFactory.getHoneyFactory().getDbFeature();
 	}
-	
-    private static int firstRecordIndex() {
-    	return ShardingUtil.firstRecordIndex();
-    }
-    
+
+	private static int firstRecordIndex() {
+		return ShardingUtil.firstRecordIndex();
+	}
+
 	private static String rewritePaingSql(String sql) {
 		ShardingPageStruct shardingPage = HoneyContext.getCurrentShardingPage();
 		if (shardingPage == null) return sql;
@@ -144,24 +145,24 @@ public class OrderByPagingRewriteSql {
 
 		return sql;
 	}
-   
-   private static String[] createShardingSql(List<String> tabSuffixList,String sql) {
-		String sqls[]= new String[tabSuffixList.size()];
+
+	private static String[] createShardingSql(List<String> tabSuffixList, String sql) {
+		String sqls[] = new String[tabSuffixList.size()];
 		for (int i = 0; i < tabSuffixList.size(); i++) {
-			sqls[i]=sql.replace(StringConst.ShardingTableIndexStr,tabSuffixList.get(i)); //eg: 占位符替换成下标等
+			sqls[i] = sql.replace(StringConst.ShardingTableIndexStr, tabSuffixList.get(i)); // eg: 占位符替换成下标等
 		}
 		return sqls;
-   }
-   
-   private static String createUnionAllSql(String sqls[]) {
-	   UnionSelect unionSelect=BeeFactoryHelper.getUnionSelect();
-		String newSql=unionSelect.unionAll(sqls).toSQL();
-		if(StringUtils.isBlank(newSql)) {
+	}
+
+	private static String createUnionAllSql(String sqls[]) {
+		UnionSelect unionSelect = BeeFactoryHelper.getUnionSelect();
+		String newSql = unionSelect.unionAll(sqls).toSQL();
+		if (StringUtils.isBlank(newSql)) {
 			Logger.warn("newSql is empty!");
 		}
-		newSql=K.select+" * "+K.from+K.space+"("+newSql +") _union_select";
-		
+		newSql = K.select + " * " + K.from + K.space + "(" + newSql + ") _union_select";
+
 		return newSql;
-   }
+	}
 
 }

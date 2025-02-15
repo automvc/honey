@@ -15,59 +15,54 @@ import org.teasoft.bee.osql.search.Operator;
 import org.teasoft.bee.osql.search.Search;
 import org.teasoft.honey.util.StringUtils;
 
-
 /**
  * 复杂查询的Search结构处理器.Search Processor.
  * @author Kingstar
  * @since  1.9.8
  */
 public class SearchProcessor {
-	
+
 	private SearchProcessor() {}
-	
+
 	public static Condition parseSearch(Search search[]) {
-		
-		Condition condition=BeeFactoryHelper.getCondition();
-		
+
+		Condition condition = BeeFactoryHelper.getCondition();
+
 		for (int i = 0; i < search.length; i++) {
-			
-			String field=search[i].getField();
-			Operator operator=search[i].getOp();
-			String value=search[i].getValue1();
-			String value2=search[i].getValue2();
-			String op2=search[i].getOp2();
-			op2=trim(op2);
-			
+
+			String field = search[i].getField();
+			Operator operator = search[i].getOp();
+			String value = search[i].getValue1();
+			String value2 = search[i].getValue2();
+			String op2 = search[i].getOp2();
+			op2 = trim(op2);
+
 //			or("or"),
 //			and("and")	//default
-			if("or".equalsIgnoreCase(op2)) condition.or();
-			else if("(".equals(op2)) condition.lParentheses();
-			else if(")".equals(op2)) condition.rParentheses();
-			else if("or (".equalsIgnoreCase(op2)) condition.or().lParentheses();
-			else if(") or".equalsIgnoreCase(op2)) condition.rParentheses().or();
-			else if("and (".equalsIgnoreCase(op2)) condition.and().lParentheses();
-			else if(") and".equalsIgnoreCase(op2)) condition.rParentheses().and();
-			
-			
-			if(operator==null) continue;
-			
+			if ("or".equalsIgnoreCase(op2)) condition.or();
+			else if ("(".equals(op2)) condition.lParentheses();
+			else if (")".equals(op2)) condition.rParentheses();
+			else if ("or (".equalsIgnoreCase(op2)) condition.or().lParentheses();
+			else if (") or".equalsIgnoreCase(op2)) condition.rParentheses().or();
+			else if ("and (".equalsIgnoreCase(op2)) condition.and().lParentheses();
+			else if (") and".equalsIgnoreCase(op2)) condition.rParentheses().and();
+
+			if (operator == null) continue;
+
 			switch (operator) {
 				case like:
-					if ("Left".equalsIgnoreCase(value2))
-						condition.op(field, Op.likeLeft, value);
-					else if ("Right".equalsIgnoreCase(value2))
-						condition.op(field, Op.likeRight, value);
-					else if ("LeftRight".equalsIgnoreCase(value2))
-						condition.op(field, Op.likeLeftRight, value);
+					if ("Left".equalsIgnoreCase(value2)) condition.op(field, Op.likeLeft, value);
+					else if ("Right".equalsIgnoreCase(value2)) condition.op(field, Op.likeRight, value);
+					else if ("LeftRight".equalsIgnoreCase(value2)) condition.op(field, Op.likeLeftRight, value);
 					else {
 						condition.op(field, Op.like, value);
 					}
 					break;
 				case notLike:
-					value=adjustValueForLike(value,value2);
+					value = adjustValueForLike(value, value2);
 					condition.op(field, Op.notLike, value);
 					break;
-					
+
 				case between:
 					checkForBetween(value, value2);
 					setBetweenValue(field, value, value2, condition);
@@ -77,81 +72,78 @@ public class SearchProcessor {
 //					condition.notBetween(field, value, value2);
 					setNotBetweenValue(field, value, value2, condition);
 					break;
-					
+
 				case in:
 					condition.op(field, Op.in, value);
 					break;
 				case notIn:
 					condition.op(field, Op.notIn, value);
 					break;
-					
-				//简单sql,函数只能select用??	
+
+				// 简单sql,函数只能select用??
 				case max:
-					if (StringUtils.isNotBlank(value)) { //value 为别名 alias
+					if (StringUtils.isNotBlank(value)) { // value 为别名 alias
 						condition.selectFun(FunctionType.MAX, field, value);
 					} else {
 						condition.selectFun(FunctionType.MAX, field);
 					}
 					break;
 				case min:
-					if (StringUtils.isNotBlank(value)) { //value 为别名 alias
+					if (StringUtils.isNotBlank(value)) { // value 为别名 alias
 						condition.selectFun(FunctionType.MIN, field, value);
 					} else {
 						condition.selectFun(FunctionType.MIN, field);
 					}
 					break;
 				case sum:
-					if (StringUtils.isNotBlank(value)) { //value 为别名 alias
+					if (StringUtils.isNotBlank(value)) { // value 为别名 alias
 						condition.selectFun(FunctionType.SUM, field, value);
 					} else {
 						condition.selectFun(FunctionType.SUM, field);
 					}
 					break;
 				case avg:
-					if (StringUtils.isNotBlank(value)) { //value 为别名 alias
+					if (StringUtils.isNotBlank(value)) { // value 为别名 alias
 						condition.selectFun(FunctionType.AVG, field, value);
 					} else {
 						condition.selectFun(FunctionType.AVG, field);
 					}
 					break;
 				case count:
-					if (StringUtils.isNotBlank(value)) { //value 为别名 alias
+					if (StringUtils.isNotBlank(value)) { // value 为别名 alias
 						condition.selectFun(FunctionType.COUNT, field, value);
 					} else {
 						condition.selectFun(FunctionType.COUNT, field);
 					}
-					break;	
+					break;
 				case distinct:
-					if (StringUtils.isNotBlank(value)) { //value 为别名 alias
+					if (StringUtils.isNotBlank(value)) { // value 为别名 alias
 						condition.selectDistinctField(field, value);
 					} else {
 						condition.selectDistinctField(field);
 					}
-					break;		
-					
+					break;
+
 //			    select特有		
 //				groupBy("groupBy"),
 //				having("having"),
 //				orderBy("orderBy"),	
 				case groupBy:
 					condition.groupBy(field);
-					break;		
+					break;
 //				case having:   
 //					condition.having(functionType, field, Op, value);  //要判断Op
 //					break;	
-				case orderBy:   //一次只能设置一个字段
-					if (StringUtils.isNotBlank(value)) { //orderType
-						if("asc".equalsIgnoreCase(value))
-						   condition.orderBy(field, OrderType.ASC);
-						else if("desc".equalsIgnoreCase(value))
-							condition.orderBy(field, OrderType.DESC);
+				case orderBy: // 一次只能设置一个字段
+					if (StringUtils.isNotBlank(value)) { // orderType
+						if ("asc".equalsIgnoreCase(value)) condition.orderBy(field, OrderType.ASC);
+						else if ("desc".equalsIgnoreCase(value)) condition.orderBy(field, OrderType.DESC);
 						else throw new BeeErrorGrammarException("OrderType just support ASC or DESC !");
-					}else {
+					} else {
 						condition.orderBy(field);
 					}
-					break;	
-					
-				
+					break;
+
 				case eq:
 					condition.op(field, Op.eq, value);
 					break;
@@ -170,44 +162,44 @@ public class SearchProcessor {
 				case lt:
 					condition.op(field, Op.lt, value);
 					break;
-					
+
 				default:
 					break;
-					
+
 			}
-		 }
-		
+		}
+
 		return condition;
 	}
-	
-	private static String adjustValueForLike(String value,String value2) {
-		if (StringUtils.isNotBlank(value2)) { 
-			if("Left".equalsIgnoreCase(value2)) value="%"+value;
-			else if("Right".equalsIgnoreCase(value2)) value=value+"%";
-			else if("LeftRight".equalsIgnoreCase(value2)) value="%"+value+"%";
+
+	private static String adjustValueForLike(String value, String value2) {
+		if (StringUtils.isNotBlank(value2)) {
+			if ("Left".equalsIgnoreCase(value2)) value = "%" + value;
+			else if ("Right".equalsIgnoreCase(value2)) value = value + "%";
+			else if ("LeftRight".equalsIgnoreCase(value2)) value = "%" + value + "%";
 		}
-		
+
 		return value;
 	}
-	
-	private static void checkForBetween(String value,String value2) {
-		if (StringUtils.isBlank(value)) { 
+
+	private static void checkForBetween(String value, String value2) {
+		if (StringUtils.isBlank(value)) {
 			throw new BeeErrorGrammarException("the min value of Between invalid!");
 		}
-		if (StringUtils.isBlank(value2)) { 
+		if (StringUtils.isBlank(value2)) {
 			throw new BeeErrorGrammarException("the max value of Between invalid!");
 		}
 	}
-	
+
 	private static String trim(String str) {
-		if(str!=null) str=str.trim();
+		if (str != null) str = str.trim();
 		return str;
 	}
-	
-	private static void setBetweenValue(String field,String value, String value2,Condition condition) {
+
+	private static void setBetweenValue(String field, String value, String value2, Condition condition) {
 		try {
 			if (StringUtils.isInteger(value) && StringUtils.isInteger(value2)) {
-				condition.between(field, Long.parseLong(value),Long.parseLong(value2));
+				condition.between(field, Long.parseLong(value), Long.parseLong(value2));
 			} else if (StringUtils.isNumber(value) && StringUtils.isNumber(value2)) {
 				condition.between(field, Double.parseDouble(value), Double.parseDouble(value2));
 			} else {
@@ -217,11 +209,11 @@ public class SearchProcessor {
 			condition.between(field, value, value2);
 		}
 	}
-	
-	private static void setNotBetweenValue(String field,String value, String value2,Condition condition) {
+
+	private static void setNotBetweenValue(String field, String value, String value2, Condition condition) {
 		try {
 			if (StringUtils.isInteger(value) && StringUtils.isInteger(value2)) {
-				condition.notBetween(field, Long.parseLong(value),Long.parseLong(value2));
+				condition.notBetween(field, Long.parseLong(value), Long.parseLong(value2));
 			} else if (StringUtils.isNumber(value) && StringUtils.isNumber(value2)) {
 				condition.notBetween(field, Double.parseDouble(value), Double.parseDouble(value2));
 			} else {

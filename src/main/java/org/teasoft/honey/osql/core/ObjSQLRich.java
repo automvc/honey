@@ -81,9 +81,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 				return getObjToSQLRich().toSelectSQL(entity, -1, size);
 			}
 		});
-		
-		
-		
+
 //		List<T> list = null;
 //		try {
 //			doBeforePasreEntity(entity, SuidType.SELECT);
@@ -97,7 +95,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 //
 //		return list;
 	}
-	
+
 	private <T> List<T> selectByTemplate(T entity, OneMethod<String> toSqlMethod) {
 		List<T> list = null;
 		try {
@@ -129,7 +127,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 				return getObjToSQLRich().toSelectSQL(entity, start, size);
 			}
 		});
-		
+
 //		List<T> list = null;
 //		try {
 //			doBeforePasreEntity(entity, SuidType.SELECT);
@@ -152,8 +150,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 				return getObjToSQLRich().toSelectSQL(entity, selectFields);
 			}
 		});
-		
-		
+
 //		List<T> list = null;
 //		try {
 //			doBeforePasreEntity(entity, SuidType.SELECT);
@@ -175,14 +172,13 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 		}
 		if (size < 0) throw new BeeIllegalParameterException(SIZE_GREAT_0);
 		if (start < 0) throw new BeeIllegalParameterException(START_GREAT_EQ_0);
-		
+
 		return selectByTemplate(entity, new OneMethod<String>() {
 			public String doOneMethod() {
 				return getObjToSQLRich().toSelectSQL(entity, selectFields);
 			}
 		});
-		
-		
+
 //		List<T> list = null;
 //		try {
 //			doBeforePasreEntity(entity, SuidType.SELECT);
@@ -265,16 +261,16 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 			} else {
 				try {
 					String tableName = _toTableName(entity[0]);
-					Logger.logSQL("Batch insert, tableName:" + tableName + "  dsNameList:" + dsNameListForBatch + "  tabNameList:"
-							+ tabNameListForBatch);
+					Logger.logSQL("Batch insert, tableName:" + tableName + "  dsNameList:" + dsNameListForBatch
+							+ "  tabNameList:" + tabNameListForBatch);
 					boolean isBroadcastTab = ShardingRegistry.isBroadcastTab(tableName);
 					boolean forkJoin = HoneyConfig.getHoneyConfig().sharding_forkJoinBatchInsert;
 					if (forkJoin && !isBroadcastTab)
 						a = new ShardingForkJoinBatchInsertEngine<T>().batchInsert(entity, batchSize, excludeFields,
 								tabNameListForBatch, this);
 					else
-						a = new ShardingBatchInsertEngine<T>().batchInsert(entity, batchSize, excludeFields, tabNameListForBatch,
-								this);
+						a = new ShardingBatchInsertEngine<T>().batchInsert(entity, batchSize, excludeFields,
+								tabNameListForBatch, this);
 				} catch (Exception e) {
 					Logger.error(e.getMessage(), e);
 				} finally {
@@ -451,7 +447,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 		if (entity == null) return -1;
 		int r = 0;
 		try {
-			_ObjectToSQLHelper.setInitIdByAuto(entity); //2.4.0
+			_ObjectToSQLHelper.setInitIdByAuto(entity); // 2.4.0
 			doBeforePasreEntity(entity, SuidType.INSERT);
 			String sql = getObjToSQLRich().toInsertSQL(entity, includeType);
 			_regEntityClass1(entity);
@@ -474,7 +470,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 	public <T> long insertAndReturnId(T entity, IncludeType includeType) {
 		if (entity == null) return -1;
 		try {
-			_ObjectToSQLHelper.setInitIdByAuto(entity); //2.4.0
+			_ObjectToSQLHelper.setInitIdByAuto(entity); // 2.4.0
 			doBeforePasreEntity(entity, SuidType.INSERT);
 			String sql = getObjToSQLRich().toInsertSQL(entity, includeType);
 			sql = doAfterCompleteSql(sql);
@@ -702,7 +698,8 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 			return null;
 		}
 		if (id.contains(",")) {
-			throw new BeeIllegalParameterException("The parameter 'id' of method selectById does not allow to contain comma!");
+			throw new BeeIllegalParameterException(
+					"The parameter 'id' of method selectById does not allow to contain comma!");
 		}
 		List<T> list = null;
 		try {
@@ -756,7 +753,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 			doBeforeReturn(list);
 		}
 	}
-	
+
 	@Override
 	@SuppressWarnings("rawtypes")
 	public int deleteById(Class entityClass, Integer id) {
@@ -795,7 +792,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 		}
 		return a;
 	}
-	
+
 	private void regByIdForSharding(Class entityClass, Object idOrIds) {
 //		OneTimeParameter.setAttribute(StringConst.ByIdWithClassForSharding, idOrIds);
 		Condition condition = BF.getCondition();
@@ -1048,7 +1045,8 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 		Logger.debug(newEntityFullName);
 
 		if (!oldEntityFullName.equals(newEntityFullName)) {
-			throw new BeeErrorGrammarException("BeeErrorGrammarException: the oldEntity and newEntity must be same type!");
+			throw new BeeErrorGrammarException(
+					"BeeErrorGrammarException: the oldEntity and newEntity must be same type!");
 		}
 
 		doBeforePasreEntity(newEntity, SuidType.UPDATE); // 拦截器只处理新实体； 旧实体oldEntity作为条件不在拦截器处理。
@@ -1102,7 +1100,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 
 		if (entityClass == null) return false;
 		doBeforePasreEntity(entityClass, SuidType.DDL);
-		String tableName=_toTableNameByClass(entityClass);
+		String tableName = _toTableNameByClass(entityClass);
 		if (isDropExistTable) {
 //			doBeforePasreEntity(entityClass, SuidType.DDL);
 			_regEntityClass2(entityClass);
@@ -1129,17 +1127,17 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 			} finally {
 				doBeforeReturn();
 			}
-		} //else: 若已有存,则删除时,会报错.
-		
+		} // else: 若已有存,则删除时,会报错.
+
 		doBeforePasreEntity(entityClass, SuidType.DDL); // fixed bug 2.1
 		_regEntityClass2(entityClass);
 		String sql = DdlToSql.toCreateTableSQL(entityClass, tableName);
 		return _ddlModify(entityClass, sql);
 	}
-	
+
 	@SuppressWarnings("rawtypes")
-	private static String _toTableNameByClass(Class c){
-		String tableName= NameTranslateHandle.toTableName(c.getName()); //ddl,tableName引用于表名
+	private static String _toTableNameByClass(Class c) {
+		String tableName = NameTranslateHandle.toTableName(c.getName()); // ddl,tableName引用于表名
 		return ShardingUtil.appendTableIndexIfNeed(tableName);
 	}
 
@@ -1169,8 +1167,8 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 		_index(entityClass, fields, indexName, PREFIX, IndexTypeTip, IndexType);
 	}
 
-	private <T> void _index(Class<T> entityClass, String fields, String indexName, String PREFIX, 
-			String IndexTypeTip, String IndexType) {
+	private <T> void _index(Class<T> entityClass, String fields, String indexName, String PREFIX, String IndexTypeTip,
+			String IndexType) {
 
 		doBeforePasreEntity(entityClass, SuidType.DDL);
 		_regEntityClass2(entityClass);

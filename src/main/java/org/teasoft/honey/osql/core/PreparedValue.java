@@ -11,20 +11,20 @@ import org.teasoft.honey.osql.util.AnnoUtil;
  * @since  1.0
  */
 class PreparedValue implements Serializable {
-	
+
 	private static final long serialVersionUID = 1592803913606L;
-	
+
 	private String type;
 	private Object value;
-	//用于识别设置PreparedStatement json参数的类型,日志输出/缓存用到的参数值.
+	// 用于识别设置PreparedStatement json参数的类型,日志输出/缓存用到的参数值.
 //	private transient Field field;//V1.11    没有序列化到, 是否有影响?  已改用 jsonType    close on 2.4.0
-	
-	//0: not json, 1:json, 2:bjson
-	//设置参数时才要区分,查询返回值处理,不需要.
-	private int jsonType=0; //2.4.0
-	
-	public PreparedValue(){}
-	
+
+	// 0: not json, 1:json, 2:bjson
+	// 设置参数时才要区分,查询返回值处理,不需要.
+	private int jsonType = 0; // 2.4.0
+
+	public PreparedValue() {}
+
 	public String getType() {
 		return type;
 	}
@@ -56,15 +56,17 @@ class PreparedValue implements Serializable {
 	 * @since 1.11
 	 */
 	public void setField(Field field) {
-		
-		if(AnnoUtil.isJustJsonb(field)) this.jsonType=2;
-		else this.jsonType=1;
-		
+
+		if (AnnoUtil.isJustJsonb(field))
+			this.jsonType = 2;
+		else
+			this.jsonType = 1;
+
 //		this.field = field; //close on 2.4.0
 	}
 
 	public int getJsonType() {
 		return jsonType;
 	}
-	
+
 }

@@ -852,10 +852,12 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 					}
 					preparedValueList.addAll(oneRecoreList); // 用于mysql批量插入时设置值
 					if ((i + 1) % batchSize == 0) { // i+1 i+1不可能为0
-						HoneyContext.setPreparedValue(insertSql[0] + "  [Batch:" + (i / batchSize) + INDEX3, preparedValueList); // i
+						HoneyContext.setPreparedValue(insertSql[0] + "  [Batch:" + (i / batchSize) + INDEX3,
+								preparedValueList); // i
 						preparedValueList = new ArrayList<>();
 					} else if (i == (size - 1)) {
-						HoneyContext.setPreparedValue(insertSql[0] + "  [Batch:" + (i / batchSize) + INDEX3, preparedValueList); // i
+						HoneyContext.setPreparedValue(insertSql[0] + "  [Batch:" + (i / batchSize) + INDEX3,
+								preparedValueList); // i
 					}
 				}
 				if (HoneyUtil.isMysql() && !showSQL) {

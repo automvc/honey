@@ -28,7 +28,7 @@ import org.teasoft.honey.util.StringUtils;
  * @since  2.1
  */
 class ProcessDataSourceMap {
-	
+
 	private ProcessDataSourceMap() {}
 
 	static void parseDbNameByDsMap(Map<String, DataSource> dsMap) {
@@ -49,8 +49,7 @@ class ProcessDataSourceMap {
 
 		}
 //		HoneyContext.setDsName2DbName(dsName2DbName);
-		Logger.info("[Bee] Parse DataSourceMap: dataSource name to database name , result: "
-				+ dsName2DbName);
+		Logger.info("[Bee] Parse DataSourceMap: dataSource name to database name , result: " + dsName2DbName);
 //		HoneyConfig.getHoneyConfig().dbName=dbName;
 		HoneyConfig.getHoneyConfig().setDbName(dbName); // 默认设置第1个数据源
 		HoneyContext.setDsName2DbName(dsName2DbName);
@@ -62,20 +61,19 @@ class ProcessDataSourceMap {
 //		List<Map<String, String>> dbsList = HoneyConfig.getHoneyConfig().getDbs();
 		Map<String, Map<String, String>> dsMap = HoneyConfig.getHoneyConfig().getDbs();
 		if (dsMap == null || dsMap.size() == 0) return null;
-		
-		List<Map<String, String>> dbsList=new ArrayList<>();
+
+		List<Map<String, String>> dbsList = new ArrayList<>();
 		for (Map.Entry<String, Map<String, String>> entry : dsMap.entrySet()) {
 //		    Map<String, String> innerMap = entry.getValue();
 //		    dbsList.add(innerMap);
 			dbsList.add(entry.getValue());
 		}
-		
-		
+
 		if (dbsList == null || dbsList.size() == 0) return null;
 
 		boolean extendFirst = HoneyConfig.getHoneyConfig().extendFirst;
-		notifyClass("DataSourceToolRegHandler"); //是否需要判断再显示??   不需要,可以一下注册多个,DataSourceToolRegHandler只是注册bee框架的包装类, 真正到使用某个builder时,没有jar才会报错.
-
+		notifyClass("DataSourceToolRegHandler"); // 是否需要判断再显示?? 不需要,可以一下注册多个,DataSourceToolRegHandler只是注册bee框架的包装类,
+													// 真正到使用某个builder时,没有jar才会报错.
 		int size = dbsList.size();
 		String dsNames[] = new String[size];
 		Map<String, DataSource> dataSourceMap = new HashMap<>();
@@ -110,17 +108,16 @@ class ProcessDataSourceMap {
 				String url = map.get("url");
 				if (url != null && url.startsWith("mongodb://")) type = "BeeMongo";
 			}
-			
+
 			if (StringUtils.isBlank(type)) {
 				type = "Hikari"; // 兼容spirng boot,默认为Hikari
-			}else if ("BeeMongo".equalsIgnoreCase(type)) {
+			} else if ("BeeMongo".equalsIgnoreCase(type)) {
 				notifyClass("BeeMongodbRegHandler");
 			}
 
 			DataSourceBuilder builder = DataSourceBuilderFactory.getDataSourceBuilder(type);
 			if (builder == null) {
-				throw new ConfigWrongException(
-						"Did not config the DataSourceBuilder for " + type);
+				throw new ConfigWrongException("Did not config the DataSourceBuilder for " + type);
 			}
 			map.remove("type"); // V2.5.2
 			dataSourceMap.put(dsNames[i], builder.build(map));
@@ -128,16 +125,15 @@ class ProcessDataSourceMap {
 
 		return dataSourceMap;
 	}
-	
+
 	private static void notifyClass(String className) {
 		try {
 //			Class.forName("org.teasoft.beex.ds.DataSourceToolRegHandler");
-			Class.forName("org.teasoft.beex.ds."+className);
+			Class.forName("org.teasoft.beex.ds." + className);
 		} catch (Exception e) {
 			Logger.debug(e.getMessage(), e);
 		}
 	}
-	
 
 	@SuppressWarnings("unchecked")
 	private static Map<String, String> copyMap(Map<String, String> obj) {
@@ -158,8 +154,7 @@ class ProcessDataSourceMap {
 			if (conn != null) {
 				dbName = conn.getMetaData().getDatabaseProductName();
 				if (dbName.contains("Microsoft Access")) {
-					Logger.debug("Transform the dbName:'" + dbName + "' to '"
-							+ DatabaseConst.MsAccess + "'");
+					Logger.debug("Transform the dbName:'" + dbName + "' to '" + DatabaseConst.MsAccess + "'");
 					dbName = DatabaseConst.MsAccess;
 				}
 			}

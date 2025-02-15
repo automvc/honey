@@ -22,28 +22,28 @@ import org.teasoft.honey.util.StringUtils;
  * @since  1.4
  */
 public class SysValueProcessor {
-	
+
 	private SysValueProcessor() {}
-	
+
 	public static <T> void process(T obj) {
-		process(obj,BeeProp.getBeeProp());
+		process(obj, BeeProp.getBeeProp());
 	}
-	
-	public static <T> void process(T obj,Properties prop) {
+
+	public static <T> void process(T obj, Properties prop) {
 		Field[] f = obj.getClass().getDeclaredFields();
 		String value;
 		String key = "";
 		String proValue;
-		boolean printOverride=OneTimeParameter.isTrue(StringConst.PREFIX+"need_override_properties");
+		boolean printOverride = OneTimeParameter.isTrue(StringConst.PREFIX + "need_override_properties");
 		for (int i = 0; i < f.length; i++) {
 			if (f[i].isAnnotationPresent(SysValue.class)) {
 				SysValue sysValue = f[i].getAnnotation(SysValue.class);
 
 				value = sysValue.value();
 				if (value == null) {
-					//do nothing
+					// do nothing
 				} else if ("".equals(value.trim())) {
-					//do nothing
+					// do nothing
 				} else {
 					value = value.trim();
 					if (value.startsWith("${") && value.endsWith("}")) { // ${bee.properties.key}
@@ -56,7 +56,7 @@ public class SysValueProcessor {
 						} else if (StringUtils.isBlank(proValue) && !String.class.equals(f[i].getType())) {
 							continue;
 						} else {
-							if(printOverride) System.out.println("[Bee] new config,  "+key+":" + proValue+"   ;");// NOSONAR
+							if (printOverride) System.out.println("[Bee] new config,  " + key + ":" + proValue + "   ;");// NOSONAR
 							try {
 								Class<?> c = f[i].getType();
 								HoneyUtil.setAccessibleTrue(f[i]);
@@ -70,34 +70,34 @@ public class SysValueProcessor {
 					}
 				}
 			}
-		}//end for
-		
+		} // end for
+
 		processDbs(obj, prop);
-		
+
 		processShardingRule(obj, prop);
 		HoneyContext.prcessShardingRuleInProperties();
 	}
-	
-	private static <T> void processDbs(T obj,Properties prop) {
+
+	private static <T> void processDbs(T obj, Properties prop) {
 //		GroupMap beePropertiesDbs=null;  //未必是bee.properties;可能已经过更改
 //		if(OneTimeParameter.isTrue(StringConst.PREFIX+"need_override_properties")) { //Bee内部,获取旧的dbs
 //			beePropertiesDbs =getGroupMap(BeeProp.getBeeProp(),null);
 //		}
-		
+
 //		GroupMap oldGroupMap=HoneyConfig.getHoneyConfig().getDbsGroupMap();
-		
-		Map<String, Map<String, String>> oldDbs=HoneyConfig.getHoneyConfig().getDbs();
-		
-		GroupMap gm =getGroupMap(prop,oldDbs);
-		if (gm!=null && ! gm.isEmpty()) {
+
+		Map<String, Map<String, String>> oldDbs = HoneyConfig.getHoneyConfig().getDbs();
+
+		GroupMap gm = getGroupMap(prop, oldDbs);
+		if (gm != null && !gm.isEmpty()) {
 			try {
 				Field dbsF = obj.getClass().getDeclaredField("dbs");
-				
+
 //				[下标或其它标识] 未必能按回list的顺序下标
 //				List<Map<String, Object>> list=  (List<Map<String, Object>>)dbsF.get(obj);
 //				if(list==null || list.size()==0) list=gm.toList();
 //				else list.addAll(c);
-				
+
 				HoneyUtil.setAccessibleTrue(dbsF);
 //				HoneyUtil.setFieldValue(dbsF, obj, gm.toList());
 				HoneyUtil.setFieldValue(dbsF, obj, gm.getMap());
@@ -106,23 +106,23 @@ public class SysValueProcessor {
 			}
 		}
 	}
-	
-	//V2.1.10
-	private static GroupMap getGroupMap(Properties prop,Map<String, Map<String, String>> oldDbs) {
+
+	// V2.1.10
+	private static GroupMap getGroupMap(Properties prop, Map<String, Map<String, String>> oldDbs) {
 		Set<String> keySet = prop.getKeys();
 		GroupMap gm = null;
 //			gm.add("0", "name", "name0");
-		if(keySet.isEmpty()) return gm;
-		
+		if (keySet.isEmpty()) return gm;
+
 		boolean has = false;
-		int len="bee.db.dbs[".length();
+		int len = "bee.db.dbs[".length();
 		for (String k : keySet) {
 			if (k.startsWith("bee.db.dbs[")) {
 				if (!has) {
 					has = true;
-					if(oldDbs!=null && ! oldDbs.isEmpty()) {
-						gm =new GroupMap(oldDbs);
-					}else {
+					if (oldDbs != null && !oldDbs.isEmpty()) {
+						gm = new GroupMap(oldDbs);
+					} else {
 						gm = new GroupMap();
 					}
 				}
@@ -133,7 +133,7 @@ public class SysValueProcessor {
 		}
 		return gm;
 	}
-	
+
 	private static <T> void processShardingRule(T obj, Properties prop) {
 		GroupMap gm = getGroupMap(prop);
 		if (gm != null && !gm.isEmpty()) {
@@ -146,7 +146,7 @@ public class SysValueProcessor {
 			}
 		}
 	}
-	
+
 	private static GroupMap getGroupMap(Properties prop) {
 		Set<String> keySet = prop.getKeys();
 		GroupMap gm = new GroupMap();
@@ -161,5 +161,5 @@ public class SysValueProcessor {
 		}
 		return gm;
 	}
-	
+
 }

@@ -83,7 +83,7 @@ public class ObjSQL extends AbstractCommOperate implements Suid {
 
 		if (entity == null) return -1;
 		try {
-			_ObjectToSQLHelper.setInitIdByAuto(entity); // 2.4.0    setInitIdByAuto > doBeforePasreEntity
+			_ObjectToSQLHelper.setInitIdByAuto(entity); // 2.4.0 setInitIdByAuto > doBeforePasreEntity
 			doBeforePasreEntity(entity, SuidType.INSERT);
 			String sql = getObjToSQL().toInsertSQL(entity);
 			_regEntityClass(entity);
@@ -120,10 +120,10 @@ public class ObjSQL extends AbstractCommOperate implements Suid {
 	}
 
 	private <T> String _toInsertAndReturnSql(T entity) {
-		
-		// 2.4.0    setInitIdByAuto > doBeforePasreEntity
+
+		// 2.4.0 setInitIdByAuto > doBeforePasreEntity
 		_ObjectToSQLHelper.setInitIdByAuto(entity); // 更改了原来的对象 //这里会生成id,如果需要
-		//要先进行id自动设置,再到分片等拦截器,否则分片键的值没有会出错.   20.4.0
+		// 要先进行id自动设置,再到分片等拦截器,否则分片键的值没有会出错. 20.4.0
 		doBeforePasreEntity(entity, SuidType.INSERT);
 		String sql = getObjToSQL().toInsertSQL(entity);
 		sql = doAfterCompleteSql(sql);
@@ -172,9 +172,10 @@ public class ObjSQL extends AbstractCommOperate implements Suid {
 		}
 
 		String pkName = HoneyUtil.getPkFieldName(entity);
-		if ("".equals(pkName) || pkName.contains(",")) pkName = "id";  //insertAndReturnId 返回id,只支持一个主键,没有或超过一个改为用id.
+		if ("".equals(pkName) || pkName.contains(",")) pkName = "id"; // insertAndReturnId 返回id,只支持一个主键,没有或超过一个改为用id.
 //		fixed 2.4.0   use column name
-		OneTimeParameter.setAttribute(StringConst.PK_Column_For_ReturnId, HoneyUtil.toCloumnNameForPks(pkName, entity.getClass()));
+		OneTimeParameter.setAttribute(StringConst.PK_Column_For_ReturnId,
+				HoneyUtil.toCloumnNameForPks(pkName, entity.getClass()));
 		// id will gen by db
 		returnId = getBeeSql().insertAndReturnId(sql);
 //		doBeforeReturn();

@@ -30,8 +30,8 @@ import org.teasoft.honey.util.StringUtils;
 public final class SessionFactory {
 
 	private static BeeFactory beeFactory = null;
-	private static boolean isFirst=true;
-	private static boolean isFirstWithOriginal=true;
+	private static boolean isFirst = true;
+	private static boolean isFirstWithOriginal = true;
 
 	public static BeeFactory getBeeFactory() {
 		if (beeFactory == null) {
@@ -39,19 +39,19 @@ public final class SessionFactory {
 		}
 		return beeFactory;
 	}
-	
+
 	public void setBeeFactory(BeeFactory beeFactory) {
 		_setBeeFactory(beeFactory);
 	}
-	
+
 	private static void _setBeeFactory(BeeFactory beeFactory0) {
 		SessionFactory.beeFactory = beeFactory0;
 	}
 
 	public SessionFactory() {
-		//empty
+		// empty
 	}
-	
+
 	public static DatabaseClientConnection getDatabaseConnection() {
 		DatabaseClientConnection dbConnection = null;
 		try {
@@ -73,15 +73,15 @@ public final class SessionFactory {
 
 		return dbConnection;
 	}
-	
+
 	public static Connection getConnection() {
 		Connection conn = null;
 		try {
 			DataSource ds = getBeeFactory().getDataSource();
 
-			if (ds == null) { //V1.11
+			if (ds == null) { // V1.11
 				boolean isJndiType = HoneyConfig.getHoneyConfig().jndiType;
-				if (isJndiType) {//Jndi type
+				if (isJndiType) {// Jndi type
 					ds = new JndiDataSource().getDataSource();
 					if (ds != null) {
 						getBeeFactory().setDataSource(ds);
@@ -94,7 +94,7 @@ public final class SessionFactory {
 			} else {// do not set the dataSource
 				conn = getOriginalConn();
 				if (isFirstWithOriginal || HoneyConfig.getHoneyConfig().multiDS_enable) {
-					isFirstWithOriginal=false;
+					isFirstWithOriginal = false;
 					Logger.debug("Use OriginalConn!");
 				}
 			}
@@ -121,13 +121,13 @@ public final class SessionFactory {
 				String c = "";
 				if (isAndroid)      c = "org.teasoft.beex.android.SQLiteTransaction";
 				else if (isHarmony) c = "org.teasoft.beex.harmony.SQLiteTransaction";
-				
+
 				try {
 					return (Transaction) Class.forName(c).newInstance();
 				} catch (Exception e) {
 					Logger.error(e.getMessage(), e);
 				}
-			}else if (HoneyUtil.isMongoDB()) {
+			} else if (HoneyUtil.isMongoDB()) {
 				String c = "org.teasoft.beex.mongodb.MongodbTransaction";
 				try {
 					return (Transaction) Class.forName(c).newInstance();
@@ -135,15 +135,15 @@ public final class SessionFactory {
 					Logger.error(e.getMessage(), e);
 				}
 			}
-			
-			tran = new JdbcTransaction();  //  put into context
-			
+
+			tran = new JdbcTransaction(); // put into context
+
 //			tran=HoneyContext.getCurrentTransaction();
 //			if(tran==null){
 //				tran = new JdbcTransaction();
 //				HoneyContext.setCurrentTransaction(tran);
 //			}
-			
+
 		} else {
 			tran = getBeeFactory().getTransaction();
 		}
@@ -157,8 +157,8 @@ public final class SessionFactory {
 		String url = HoneyConfig.getHoneyConfig().getUrl();
 		String username = HoneyConfig.getHoneyConfig().getUsername();
 		String p = HoneyConfig.getHoneyConfig().getPassword();
-		
-		if (StringUtils.isBlank(url)) { //check from application.properties
+
+		if (StringUtils.isBlank(url)) { // check from application.properties
 			BootApplicationProp prop = new BootApplicationProp();
 			url = prop.getPropText(DbConfigConst.DB_URL);
 
@@ -179,38 +179,40 @@ public final class SessionFactory {
 
 		return getOriginalConnForIntra(url, username, p, driverName);
 	}
-	
-	
-	public static Connection getOriginalConnForIntra(String url,String username,String p,String driverName) throws ClassNotFoundException, SQLException,Exception {
+
+	public static Connection getOriginalConnForIntra(String url, String username, String p, String driverName)
+			throws ClassNotFoundException, SQLException, Exception {
 
 		String nullInfo = "";
 		final String DO_NOT_CONFIG = " do not config; ";
 		if (driverName == null) nullInfo += DbConfigConst.DB_DRIVERNAME + DO_NOT_CONFIG;
 		if (url == null) nullInfo += DbConfigConst.DB_URL + DO_NOT_CONFIG;
-		
+
 		if (url == null) {
-			if(HoneyConfig.getHoneyConfig().multiDS_enable) Logger.warn("Now is multi-DataSource model, please confirm whether set the config !!!");
-			throw new Exception("The url can not be null when get the Connection directly from DriverManager!  ("+nullInfo+")");
+			if (HoneyConfig.getHoneyConfig().multiDS_enable)
+				Logger.warn("Now is multi-DataSource model, please confirm whether set the config !!!");
+			throw new Exception(
+					"The url can not be null when get the Connection directly from DriverManager!  (" + nullInfo + ")");
 		}
-		
+
 		if (username == null) nullInfo += DbConfigConst.DB_USERNAM + DO_NOT_CONFIG;
 		if (p == null) nullInfo += DbConfigConst.DB_PWORD + DO_NOT_CONFIG;
 
-		if (!"".equals(nullInfo) && HoneyConfig.getHoneyConfig().getDbs()==null) {  //V2.1.8 add && getDbs
-			if(isFirst){
-			  Logger.warn("Do not set the database info: " + nullInfo); 
-			  isFirst=false;
+		if (!"".equals(nullInfo) && HoneyConfig.getHoneyConfig().getDbs() == null) { // V2.1.8 add && getDbs
+			if (isFirst) {
+				Logger.warn("Do not set the database info: " + nullInfo);
+				isFirst = false;
 			}
 		}
 		Connection conn = null;
-		if (StringUtils.isNotBlank(driverName)) Class.forName(driverName);  //some db,no need set the driverName //v1.8.15
+		if (StringUtils.isNotBlank(driverName)) Class.forName(driverName); // some db,no need set the driverName //v1.8.15
 
-		if (username!=null && p != null) {
-			if(url.trim().startsWith("mongodb:")) return new MongodbConnection();
+		if (username != null && p != null) {
+			if (url.trim().startsWith("mongodb:")) return new MongodbConnection();
 			conn = DriverManager.getConnection(url, username, p);
-		}else {
-			if(url.trim().startsWith("mongodb:")) return new MongodbConnection();
-			conn = DriverManager.getConnection(url);  //v1.8.15
+		} else {
+			if (url.trim().startsWith("mongodb:")) return new MongodbConnection();
+			conn = DriverManager.getConnection(url); // v1.8.15
 		}
 		return conn;
 	}

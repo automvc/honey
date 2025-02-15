@@ -48,7 +48,7 @@ public class TokenUtil {
 					value.append(",");
 					value.append(sbf.substring(start + len1, end));
 //			        if(replaceStr!=null) sbf.replace(start, end+1,replaceStr);
-					if (replaceStr != null) sbf.replace(start, end + len2, replaceStr); //v1.9 //replaceStr为null,则不替换
+					if (replaceStr != null) sbf.replace(start, end + len2, replaceStr); // v1.9 //replaceStr为null,则不替换
 				}
 			}
 			if (replaceStr != null) {
@@ -61,20 +61,20 @@ public class TokenUtil {
 		if (value.length() > 0) value.deleteCharAt(0);
 
 		wrap.setSql(sbf.toString());
-		wrap.setValueBuffer(value); //just for map's key
+		wrap.setValueBuffer(value); // just for map's key
 
 		return wrap;
 	}
 
-	//@since 1.7.2 
-	//v1.9
+	// @since 1.7.2
+	// v1.9
 	public static String processWithMap(String text, String startToken, String endToken, Map<String, String> map) {
 
 		if (StringUtils.isEmpty(text) || map == null) {
-			return text; //return original
+			return text; // return original
 		}
 		int start = text.indexOf(startToken);
-		if (start < 0) return text; //return original
+		if (start < 0) return text; // return original
 
 		StringBuffer sbf = new StringBuffer(text);
 		int end;
@@ -92,44 +92,42 @@ public class TokenUtil {
 				end = sbf.indexOf(endToken, start);
 				if (end > 0) {
 					key = sbf.substring(start + len1, end);
-					if (key.endsWith("?up1")) { //#{entityName?up1}  entityName upper case 1st letter 
+					if (key.endsWith("?up1")) { // #{entityName?up1} entityName upper case 1st letter
 						key = key.substring(0, key.length() - 4);
 						mapValue = map.get(key);
-						mapValue = mapValue.substring(0, 1).toUpperCase()
-								+ mapValue.substring(1, mapValue.length());
+						mapValue = mapValue.substring(0, 1).toUpperCase() + mapValue.substring(1, mapValue.length());
 					} else {
 						mapValue = map.get(key);
 					}
 
 					if (mapValue != null) {
-						//						sbf.replace(start, end + 1, mapValue);
-						sbf.replace(start, end + len2, mapValue);//v1.9
+						// sbf.replace(start, end + 1, mapValue);
+						sbf.replace(start, end + len2, mapValue);// v1.9
 						len3 = mapValue.length();
 					}
 				} else {
-					return sbf.toString(); //can not find , return  //v1.9
+					return sbf.toString(); // can not find , return //v1.9
 				}
 			}
 			if (mapValue != null) {
 				start = sbf.indexOf(startToken, start + len3);
 			} else {
-				start = sbf.indexOf(startToken, start + len1); //没找到key和没找到结束标签都应该从所找到开始标签的下一个位置开始,这样更加安全
-				//				if(end>0) {
-				////				   start = sbf.indexOf(startToken, end + len2);
-				//				   start = sbf.indexOf(startToken, start + len1); 
-				//				}else {
-				//				  start = sbf.indexOf(startToken, start + len1);
-				//				}
+				start = sbf.indexOf(startToken, start + len1); // 没找到key和没找到结束标签都应该从所找到开始标签的下一个位置开始,这样更加安全
+				// if(end>0) {
+				//// start = sbf.indexOf(startToken, end + len2);
+				// start = sbf.indexOf(startToken, start + len1);
+				// }else {
+				// start = sbf.indexOf(startToken, start + len1);
+				// }
 			}
 
-			len3 = 0; //reset
-			mapValue = null; //v1.9
+			len3 = 0; // reset
+			mapValue = null; // v1.9
 		}
 		return sbf.toString();
 	}
 
-	static SqlValueWrap process2(String text, String startToken, String endToken, String replaceStr,
-			Map map) {
+	static SqlValueWrap process2(String text, String startToken, String endToken, String replaceStr, Map map) {
 
 		if (StringUtils.isBlank(text)) {
 			return null;
@@ -145,7 +143,7 @@ public class TokenUtil {
 
 		doProcessJudgeToken(sbf, map);
 
-		start = sbf.indexOf(startToken); //处理判断标签后,要重新计算
+		start = sbf.indexOf(startToken); // 处理判断标签后,要重新计算
 
 		int end;
 		int len1 = startToken.length();
@@ -173,13 +171,13 @@ public class TokenUtil {
 					goBack = 0;
 
 					preparedValue = new PreparedValue();
-					if (key.contains("%")) { //since 1.17 , add escape the like parameter value.
+					if (key.contains("%")) { // since 1.17 , add escape the like parameter value.
 						Object v = processPecent(key, map);
 						preparedValue.setValue(v);
 						if (v != null)
 							preparedValue.setType(v.getClass().getName());
 						else
-							preparedValue.setType(Object.class.getName()); //V2.1.6
+							preparedValue.setType(Object.class.getName()); // V2.1.6
 						list.add(preparedValue);
 					} else if (key.endsWith(CustomAutoSqlToken.atIn)) {
 //						Object objIn = map.get(key.substring(0, key.length() - 3));
@@ -228,9 +226,9 @@ public class TokenUtil {
 				start = sbf.indexOf(startToken, end + len2);
 			}
 
-			len3 = 0; //reset
+			len3 = 0; // reset
 
-		} //end while
+		} // end while
 
 		wrap.setList(list);
 		wrap.setSql(sbf.toString());
@@ -249,52 +247,52 @@ public class TokenUtil {
 		list.add(preparedValue);
 	}
 
-	//处理包含%的
+	// 处理包含%的
 	private static Object processPecent(String key, Map map) {
-		//since 1.17 , add escape the like parameter value.
+		// since 1.17 , add escape the like parameter value.
 		int len = key.length();
 		Object value = "";
 		String v;
 		if (key.startsWith("%")) {
-			if (key.endsWith("%")) { //    %para%
+			if (key.endsWith("%")) { // %para%
 				key = key.substring(1, len - 1);
-				v=(String)map.get(key);
+				v = (String) map.get(key);
 				logNullTip(v);
-				if(v==null) value=v; //V2.1.6
+				if (v == null) value = v; // V2.1.6
 				else value = "%" + escapeLikeForCustomSql(v) + "%";
-			} else { //   %para
+			} else { // %para
 				key = key.substring(1, len);
-				v=(String)map.get(key);
+				v = (String) map.get(key);
 				logNullTip(v);
-				if(v==null) value=v; //V2.1.6
+				if (v == null) value = v; // V2.1.6
 				else value = "%" + escapeLikeForCustomSql(v);
 			}
-		} else if (key.endsWith("%")) { //  para%
+		} else if (key.endsWith("%")) { // para%
 			key = key.substring(0, len - 1);
-			v=(String)map.get(key);
+			v = (String) map.get(key);
 			logNullTip(v);
-			if(v==null) value=v; //V2.1.6
+			if (v == null) value = v; // V2.1.6
 			else value = escapeLikeForCustomSql(v) + "%";
 		} else {
 			value = map.get(key);
-			checkLike((String)value);
+			checkLike((String) value);
 		}
 		return value;
 	}
-	
+
 	private static void checkLike(String value) {
 		if ("".equals(value) || StringUtils.justLikeChar(value)) {
-			throw new BeeIllegalSQLException("Like has SQL injection risk! " + " like '" + value+"'");
+			throw new BeeIllegalSQLException("Like has SQL injection risk! " + " like '" + value + "'");
 		}
 	}
-	
+
 	private static String escapeLikeForCustomSql(String value) {
 		checkLike(value);
 		return StringUtils.escapeLike(value);
 	}
-	
+
 	private static void logNullTip(String v) {
-		if (v == null) Logger.warn("the parameter value in like is null !",new BeeIllegalSQLException());
+		if (v == null) Logger.warn("the parameter value in like is null !", new BeeIllegalSQLException());
 	}
 
 	static String getKey(String text, String startToken, String endToken) {
@@ -364,24 +362,22 @@ public class TokenUtil {
 	}
 
 	static StringBuffer processJudgeToken(StringBuffer sbf, String startToken, String endToken, Map map) {
-		//		eg:"select * from orders where <if isNotNull> userid in #{userid@in}"
+		// eg:"select * from orders where <if isNotNull> userid in #{userid@in}"
 		int len1 = startToken.length();
 		int len2 = endToken.length();
 		TokenStruct struct = getKeyStruct(sbf, startToken, endToken);
 		if (struct != null) {
 			String key1 = struct.key;
 			String key2 = getKey(key1, "#{", "}");
-			//去除%,@in ...
+			// 去除%,@in ...
 			if (StringUtils.isNotBlank(key2)) {
 				String key3 = key2.replace("%", "").replace(CustomAutoSqlToken.atIn, "")
-						.replace(CustomAutoSqlToken.toIsNULL1, "")
-						.replace(CustomAutoSqlToken.toIsNULL2, "");
+						.replace(CustomAutoSqlToken.toIsNULL1, "").replace(CustomAutoSqlToken.toIsNULL2, "");
 
 				Object v = map.get(key3.trim());
-				
-				if ((v == null && CustomAutoSqlToken.isNotNull.equals(startToken))
-						|| ( (v instanceof String) && (StringUtils.isBlank((String) v))
-								&& CustomAutoSqlToken.isNotBlank.equals(startToken))) {
+
+				if ((v == null && CustomAutoSqlToken.isNotNull.equals(startToken)) || ((v instanceof String)
+						&& (StringUtils.isBlank((String) v)) && CustomAutoSqlToken.isNotBlank.equals(startToken))) {
 					sbf.replace(struct.start, struct.end + len2, "");
 				} else {
 					sbf.replace(struct.start, struct.start + len1, "");
@@ -389,13 +385,13 @@ public class TokenUtil {
 				}
 			}
 
-			return processJudgeToken(sbf, startToken, endToken, map); //loop
+			return processJudgeToken(sbf, startToken, endToken, map); // loop
 		} else {
 			String sql = sbf.toString().trim();
 			String sql2 = sql.toLowerCase();
-			if (sql2.endsWith("where")) { //delete the last where and empty string
-				//				String sql3=sql2.substring(0,sql2.length()-5).trim();
-				//				 sbf=new StringBuffer(sql3);  //不能新定义
+			if (sql2.endsWith("where")) { // delete the last where and empty string
+				// String sql3=sql2.substring(0,sql2.length()-5).trim();
+				// sbf=new StringBuffer(sql3); //不能新定义
 				return sbf.replace(sql2.length() - 5, sbf.length(), "");
 			} else {
 				return sbf;
@@ -410,21 +406,21 @@ public class TokenUtil {
 		int end;
 	}
 
-	//	public static void main(String[] args) {
-	//		//		String sql="select * from orders where <if isNotNull>userid in #{userid@in}</if>";
-	//		String sql = "select * from orders where <if isNotNull> userid in #{userid@in}</if>  <if isNotNull>and name=#{name}</if>";
-	//		sql = sql.trim();
-	//		StringBuffer sbf = new StringBuffer(sql);
-	//		Map map = new HashMap();
-	//		map.put("userid", "has");
-	//		//					map.put("userid0", "has");
-	//		//			map.put("userid", "");
+	// public static void main(String[] args) {
+	// // String sql="select * from orders where <if isNotNull>userid in #{userid@in}</if>";
+	// String sql = "select * from orders where <if isNotNull> userid in #{userid@in}</if> <if isNotNull>and name=#{name}</if>";
+	// sql = sql.trim();
+	// StringBuffer sbf = new StringBuffer(sql);
+	// Map map = new HashMap();
+	// map.put("userid", "has");
+	// // map.put("userid0", "has");
+	// // map.put("userid", "");
 	//
-	//		map.put("name", "has");
-	//		//		map.put("name0", "has");
+	// map.put("name", "has");
+	// // map.put("name0", "has");
 	//
-	//		doProcessJudgeToken(sbf, map);
-	//		.err.println(sbf.toString());
-	//	}
+	// doProcessJudgeToken(sbf, map);
+	// .err.println(sbf.toString());
+	// }
 
 }

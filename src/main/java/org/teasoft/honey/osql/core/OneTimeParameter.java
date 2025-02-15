@@ -16,11 +16,11 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since  1.8
  */
 class OneTimeParameter {
-	
-	private static ThreadLocal<Map<String, Object>> local= new ThreadLocal<>();
-	//会引起Sharding批量插入,有时少了参数.  线程问题
+
+	private static ThreadLocal<Map<String, Object>> local = new ThreadLocal<>();
+	// 会引起Sharding批量插入,有时少了参数. 线程问题
 //	private static ThreadLocal<Map<String, Object>> local= new InheritableThreadLocal<>(); // closed. fixed bug v2.1.6
-	
+
 	private OneTimeParameter() {}
 
 	static Object getAttribute(String key) {
@@ -36,21 +36,21 @@ class OneTimeParameter {
 		if (obj == null) return;
 		Map<String, Object> map = local.get();
 		if (map == null) map = new ConcurrentHashMap<>();
-		map.put(key, obj); 
+		map.put(key, obj);
 		local.set(map);
 	}
-	
+
 	static void setTrueForKey(String key) {
 		setAttribute(key, StringConst.tRue);
 	}
-	
+
 	public static boolean isTrue(String key) {
 		Object value = getAttribute(key);
 		return StringConst.tRue.equals(value) ? true : false;
 	}
-	
+
 	static void remove() {
 		local.remove();
 	}
-	
+
 }
