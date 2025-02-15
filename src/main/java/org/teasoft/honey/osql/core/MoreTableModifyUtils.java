@@ -28,8 +28,7 @@ class MoreTableModifyUtils {
 		return _getMoreTableModifyStruct(entity, false);
 	}
 
-	static <T> MoreTableModifyStruct _getMoreTableModifyStruct(T entity,
-			boolean isOneHasOneCheck) {
+	static <T> MoreTableModifyStruct _getMoreTableModifyStruct(T entity, boolean isOneHasOneCheck) {
 		if (entity == null) return null;
 
 		Field field[] = HoneyUtil.getFields(entity.getClass());
@@ -45,7 +44,7 @@ class MoreTableModifyUtils {
 		boolean oneHasOne = false;
 
 		String ref0[] = null;
-		String ref1[]= null;
+		String ref1[] = null;
 		String foreignKey0[] = null;
 		String foreignKey1[] = null;
 
@@ -78,8 +77,8 @@ class MoreTableModifyUtils {
 
 		if (subEntityFieldNum > 2) { // 只支持一个实体里最多关联两个实体
 			String entityFullName = entity.getClass().getName();
-			throw new BeeException("One entity only supports two FK Annotation at most! "
-					+ entityFullName + " has " + subEntityFieldNum + " now !");
+			throw new BeeException("One entity only supports two FK Annotation at most! " + entityFullName + " has "
+					+ subEntityFieldNum + " now !");
 		} else if (isOneHasOneCheck && subEntityFieldNum == 2) {
 			throw new BeeException("The sub entity does not allow two fields to use FK Annotation!");
 		}

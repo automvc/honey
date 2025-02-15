@@ -25,28 +25,28 @@ public class MapSqlImpl implements MapSql {
 
 	private Map<MapSqlKey, String> sqlkeyMap = new HashMap<>();
 	private Map<String, Object> kv = new LinkedHashMap<>();
-	private Map<String, Object> newKv = new LinkedHashMap<>(); //just for update set part
+	private Map<String, Object> newKv = new LinkedHashMap<>(); // just for update set part
 	private Map<MapSqlSetting, Boolean> settingMap = new HashMap<>();
-	private boolean setSuidTypeForUpdate=false;
-	
+	private boolean setSuidTypeForUpdate = false;
+
 	private Condition whereCondition;
 	private Condition updateSetCondition;
-	
+
 	@Override
 	public void put(MapSqlKey key, String value) {
 		sqlkeyMap.put(key, value);
 	}
-	
+
 	@Override
 	public void put(String fieldName, Object value) {
 		kv.put(fieldName, value);
 	}
-	
+
 	@Override
 	public void put(Map<String, ? extends Object> map) {
 		kv.putAll(map);
 	}
-	
+
 	@Override
 	public void put(MapSqlSetting MapSqlSetting, boolean value) {
 		settingMap.put(MapSqlSetting, value);
@@ -59,7 +59,7 @@ public class MapSqlImpl implements MapSql {
 	Map<String, Object> getKvMap() {
 		return kv;
 	}
-	
+
 	Map<MapSqlSetting, Boolean> getSqlSettingMap() {
 		return settingMap;
 	}
@@ -68,17 +68,17 @@ public class MapSqlImpl implements MapSql {
 	public void putNew(String fieldName, Object newValue) {
 		newKv.put(fieldName, newValue);
 	}
-	
+
 	@Override
 	public void putNew(Map<String, ? extends Object> map) {
 		newKv.putAll(map);
 	}
 
-	//just for update set part
+	// just for update set part
 	Map<String, Object> getNewKvMap() {
 		return newKv;
 	}
-	
+
 	private Integer start;
 	private Integer size;
 
@@ -91,7 +91,7 @@ public class MapSqlImpl implements MapSql {
 	public void size(Integer size) {
 		this.size = size;
 	}
-	
+
 	public Integer getStart() {
 		return start;
 	}
@@ -107,7 +107,7 @@ public class MapSqlImpl implements MapSql {
 		else
 			this.whereCondition = condition;
 	}
-	
+
 	@Override
 	public void updateSet(Condition condition) {// 2.4.0
 		if (condition != null) condition = condition.clone();
@@ -122,30 +122,30 @@ public class MapSqlImpl implements MapSql {
 	public Condition getWhereCondition() {
 		return whereCondition;
 	}
-	
+
 	// 2.4.0
 	public Condition getUpdateSetCondition() {
 		return updateSetCondition;
 	}
 
-	MapSqlImpl copyForCount(){
+	MapSqlImpl copyForCount() {
 		MapSqlImpl n = new MapSqlImpl();
 		n.kv = this.getKvMap();
 //		n.sqlkeyMap = old.getSqlkeyMap();
 		n.newKv = this.getNewKvMap();
 		n.settingMap = this.getSqlSettingMap();
-		
-		n.whereCondition=this.getWhereCondition(); //2.4.0
-		
+
+		n.whereCondition = this.getWhereCondition(); // 2.4.0
+
 //		n.start(old.getStart()); //ignore
 //		n.size(old.getSize()); //ignore
-		
-		Map<MapSqlKey, String> map=this.getSqlkeyMap();
+
+		Map<MapSqlKey, String> map = this.getSqlkeyMap();
 		for (Map.Entry<MapSqlKey, String> entry : map.entrySet()) {
 			n.put(entry.getKey(), entry.getValue());
 		}
-		
+
 		return n;
 	}
-	
+
 }

@@ -18,7 +18,7 @@ import java.lang.reflect.Field;
 class MoreTableModifyStruct {
 
 	Field subField[];
-	boolean subIsList[];  //子属性是否是List类型
+	boolean subIsList[]; // 子属性是否是List类型
 
 	String ref[][];
 	String foreignKey[][];

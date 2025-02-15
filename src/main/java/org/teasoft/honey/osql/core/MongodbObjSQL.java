@@ -58,15 +58,15 @@ public class MongodbObjSQL extends AbstractCommOperate implements Suid {
 	public <T> int insert(T entity) {
 
 		if (entity == null) return -1;
-		
-		if (ShardingUtil.isSharding()){ 
+
+		if (ShardingUtil.isSharding()) {
 			T array[] = (T[]) new Object[1];
-			array[0]=entity;
-			return new MongodbObjSQLRich().insert(array); //todo
+			array[0] = entity;
+			return new MongodbObjSQLRich().insert(array); // todo
 		}
-		
+
 		try {
-			_ObjectToSQLHelper.setInitIdByAuto(entity); // 2.4.0    setInitIdByAuto > doBeforePasreEntity
+			_ObjectToSQLHelper.setInitIdByAuto(entity); // 2.4.0 setInitIdByAuto > doBeforePasreEntity
 			doBeforePasreEntity(entity, SuidType.INSERT);
 
 			int insertNum = 0;
@@ -85,7 +85,7 @@ public class MongodbObjSQL extends AbstractCommOperate implements Suid {
 		if (entity == null) return -1;
 		checkShardingSupport();
 		try {
-			_ObjectToSQLHelper.setInitIdByAuto(entity); // 2.4.0    setInitIdByAuto > doBeforePasreEntity
+			_ObjectToSQLHelper.setInitIdByAuto(entity); // 2.4.0 setInitIdByAuto > doBeforePasreEntity
 			doBeforePasreEntity(entity, SuidType.INSERT);
 
 			long insertNum = 0;
@@ -199,10 +199,11 @@ public class MongodbObjSQL extends AbstractCommOperate implements Suid {
 	public void setMongodbBeeSql(MongodbBeeSql mongodbBeeSql) {
 		this.mongodbBeeSql = mongodbBeeSql;
 	}
-	
+
 	private void checkShardingSupport() {
 		if (ShardingUtil.isSharding()) {
-			Logger.warn("Please notice this method do not support Sharding funtion by default! But you can use HintManager set the sharding table and dataSource name.");
+			Logger.warn(
+					"Please notice this method do not support Sharding funtion by default! But you can use HintManager set the sharding table and dataSource name.");
 		}
 	}
 

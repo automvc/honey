@@ -13,8 +13,8 @@ import org.teasoft.bee.osql.Cache;
  * @author Kingstar
  * @since  1.4
  */
-public class NoCache implements Cache{
-	
+public class NoCache implements Cache {
+
 	private static final long serialVersionUID = 1L;
 
 	@Override
@@ -24,12 +24,12 @@ public class NoCache implements Cache{
 
 	@Override
 	public void add(String key, Object rs) {
-		//do nothing
+		// do nothing
 	}
-	
+
 	@Override
 	public void clear(String tableCacheKey) {
-		//do nothing
+		// do nothing
 	}
 
 }

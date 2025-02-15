@@ -28,11 +28,11 @@ import org.teasoft.honey.sharding.ShardingUtil;
  * @since  1.1
  */
 public class TransformResultSet {
-	
+
 	private TransformResultSet() {}
 
 	@SuppressWarnings("rawtypes")
-	public static JsonResultWrap toJson(ResultSet rs,Class entityClass) throws SQLException {
+	public static JsonResultWrap toJson(ResultSet rs, Class entityClass) throws SQLException {
 		StringBuffer json = new StringBuffer("");
 		ResultSetMetaData rmeta = rs.getMetaData();
 		int columnCount = rmeta.getColumnCount();
@@ -43,53 +43,53 @@ public class TransformResultSet {
 		boolean timeWithMillisecond = HoneyConfig.getHoneyConfig().selectJson_timeWithMillisecond;
 		boolean timestampWithMillisecond = HoneyConfig.getHoneyConfig().selectJson_timestampWithMillisecond;
 		boolean longToString = HoneyConfig.getHoneyConfig().selectJson_longToString;
-        int rowCount=0;
-        boolean isJsonString=false;
-        Field currField=null;
-        String fieldName="";
-        String fieldTypeName="";
-        
+		int rowCount = 0;
+		boolean isJsonString = false;
+		Field currField = null;
+		String fieldName = "";
+		String fieldTypeName = "";
+
 		while (rs.next()) {
 			rowCount++;
 			json.append(",{");
-			for (int i = 1; i <= columnCount; i++) { //1..n
+			for (int i = 1; i <= columnCount; i++) { // 1..n
 				if (rs.getString(i) == null && ignoreNull) {
 					continue;
 				}
-				
-				isJsonString=false;
+
+				isJsonString = false;
 //				fieldName=_toFieldName(rmeta.getColumnName(i),entityClass);
-				fieldName=_toFieldName(rmeta.getColumnLabel(i),entityClass);//V2.1.8
-				fieldTypeName=HoneyUtil.getFieldType(rmeta.getColumnTypeName(i));
-				
+				fieldName = _toFieldName(rmeta.getColumnLabel(i), entityClass);// V2.1.8
+				fieldTypeName = HoneyUtil.getFieldType(rmeta.getColumnTypeName(i));
+
 				json.append("\"");
 				json.append(fieldName);
 				json.append("\":");
 
 				if (rs.getString(i) != null) {
-					
-					temp=rs.getString(i);
-					
-					//Json类型,不用再转换引号
-					if ("JSON".equals(fieldTypeName) ) {
-						isJsonString=true;
-					}else if(entityClass!=null){
+
+					temp = rs.getString(i);
+
+					// Json类型,不用再转换引号
+					if ("JSON".equals(fieldTypeName)) {
+						isJsonString = true;
+					} else if (entityClass != null) {
 						try {
 							currField = HoneyUtil.getField(entityClass, fieldName);
-							isJsonString=isJoson(currField);
+							isJsonString = isJoson(currField);
 						} catch (NoSuchFieldException e) {
-							//ignore
+							// ignore
 						}
 					}
-					
-					if(isJsonString) {
+
+					if (isJsonString) {
 						json.append(temp);
-					}else if ("String".equals(fieldTypeName)) { // equals改为不区分大小写  其它几个也是.  不需要,Map中值是这种命名风格的
+					} else if ("String".equals(fieldTypeName)) { // equals改为不区分大小写 其它几个也是. 不需要,Map中值是这种命名风格的
 						json.append("\"");
-						
-						temp=temp.replace("\\", "\\\\"); //1
-						temp=temp.replace("\"", "\\\""); //2
-						
+
+						temp = temp.replace("\\", "\\\\"); // 1
+						temp = temp.replace("\"", "\\\""); // 2
+
 						json.append(temp);
 						json.append("\"");
 					} else if ("Date".equals(fieldTypeName)) {
@@ -98,7 +98,7 @@ public class TransformResultSet {
 						} else {
 							try {
 //								temp = rs.getString(i);
-								Long.valueOf(temp); //test value
+								Long.valueOf(temp); // test value
 								json.append(temp);
 							} catch (NumberFormatException e) {
 								json.append("\"");
@@ -112,7 +112,7 @@ public class TransformResultSet {
 						} else {
 							try {
 //								temp = rs.getString(i);
-								Long.valueOf(temp); //test value
+								Long.valueOf(temp); // test value
 								json.append(temp);
 							} catch (NumberFormatException e) {
 								json.append("\"");
@@ -126,7 +126,7 @@ public class TransformResultSet {
 						} else {
 							try {
 //								temp = rs.getString(i);
-								Long.valueOf(temp); //test value
+								Long.valueOf(temp); // test value
 								json.append(temp);
 							} catch (NumberFormatException e) {
 								json.append("\"");
@@ -146,27 +146,27 @@ public class TransformResultSet {
 					json.append(rs.getString(i));
 				}
 
-				if (i != columnCount) json.append(",");  //fixed bug.  if last field is null and ignore.
-			} //one record end
-			if(json.toString().endsWith(",")) json.deleteCharAt(json.length()-1); //fix bug
+				if (i != columnCount) json.append(","); // fixed bug. if last field is null and ignore.
+			} // one record end
+			if (json.toString().endsWith(",")) json.deleteCharAt(json.length() - 1); // fix bug
 			json.append("}");
-		}//array end
+		} // array end
 		if (json.length() > 0) {
 			json.deleteCharAt(0);
 		}
 		json.insert(0, "[");
 		json.append("]");
-		
-		JsonResultWrap wrap =new JsonResultWrap();
+
+		JsonResultWrap wrap = new JsonResultWrap();
 		wrap.setResultJson(json.toString());
 		wrap.setRowCount(rowCount);
-		
+
 		return wrap;
 	}
-	
+
 	@SuppressWarnings("rawtypes")
-	private static String _toFieldName(String columnName,Class entityClass) {
-		return NameTranslateHandle.toFieldName(columnName,entityClass);
+	private static String _toFieldName(String columnName, Class entityClass) {
+		return NameTranslateHandle.toFieldName(columnName, entityClass);
 	}
 
 	public static List<String[]> toStringsList(ResultSet rs) throws SQLException {
@@ -175,7 +175,7 @@ public class TransformResultSet {
 		int columnCount = rmeta.getColumnCount();
 		boolean nullToEmptyString = HoneyConfig.getHoneyConfig().returnStringList_nullToEmptyString;
 		String str[] = null;
-		boolean firstRow=true;
+		boolean firstRow = true;
 		while (rs.next()) {
 			str = new String[columnCount];
 			for (int i = 0; i < columnCount; i++) {
@@ -184,8 +184,8 @@ public class TransformResultSet {
 				} else {
 					str[i] = rs.getString(i + 1);
 				}
-				if(firstRow) { //2.0
-					firstRow=false;
+				if (firstRow) { // 2.0
+					firstRow = false;
 					regSort(rmeta);
 				}
 			}
@@ -193,7 +193,7 @@ public class TransformResultSet {
 		}
 		return list;
 	}
-	
+
 	// 2.0
 	static void regSort(ResultSetMetaData rmeta) {
 		if (!ShardingUtil.hadSharding()) return;
@@ -216,7 +216,7 @@ public class TransformResultSet {
 			int columnCount = rmeta.getColumnCount();
 			for (int i = 0; i < columnCount; i++) {
 //				fieldName = _toFieldName(rmeta.getColumnName(i + 1), null);
-				fieldName = _toFieldName(rmeta.getColumnLabel(i + 1), null); //V2.1.8
+				fieldName = _toFieldName(rmeta.getColumnLabel(i + 1), null); // V2.1.8
 //				if (!isOrderField(orderFields, fieldName)) continue;
 				for (int j = 0; j < orderFieldsLen; j++) {
 					if (fieldName.equals(orderFields[j])) {
@@ -238,30 +238,30 @@ public class TransformResultSet {
 			Logger.debug(e.getMessage(), e);
 		}
 	}
-		
-	public static List<Map<String,Object>> toMapList(ResultSet rs) throws SQLException {
-		List<Map<String,Object>> list = new ArrayList<>();
+
+	public static List<Map<String, Object>> toMapList(ResultSet rs) throws SQLException {
+		List<Map<String, Object>> list = new ArrayList<>();
 		ResultSetMetaData rmeta = rs.getMetaData();
 		int columnCount = rmeta.getColumnCount();
-		Map<String,Object> rowMap=null;
+		Map<String, Object> rowMap = null;
 		while (rs.next()) {
 //			rowMap=new HashMap<>();
-			rowMap=new LinkedHashMap<>(); //2021-06-13
+			rowMap = new LinkedHashMap<>(); // 2021-06-13
 			for (int i = 1; i <= columnCount; i++) {
 //				rowMap.put(_toFieldName(rmeta.getColumnName(i),null), rs.getObject(i)); //ignore Column annotation
-				//V2.1.8
-				rowMap.put(_toFieldName(rmeta.getColumnLabel(i),null), rs.getObject(i)); //ignore Column annotation
+				// V2.1.8
+				rowMap.put(_toFieldName(rmeta.getColumnLabel(i), null), rs.getObject(i)); // ignore Column annotation
 			}
 			list.add(rowMap);
 		}
 		return list;
 	}
-	
-	//检测是否有Json注解
+
+	// 检测是否有Json注解
 	private static boolean isJoson(Field field) {
 		return AnnoUtil.isJson(field);
 	}
-	
+
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private static Object jsonHandlerProcess(Field field, Object obj, TypeHandler jsonHandler) {
 		if (List.class.isAssignableFrom(field.getType())) {
@@ -274,13 +274,13 @@ public class TransformResultSet {
 		}
 		return obj;
 	}
-	
-	private static Object _getObjectByindex(ResultSet rs,Field field, int index) throws SQLException{
-		return HoneyUtil.getResultObjectByIndex(rs, field.getType().getName(),index);
+
+	private static Object _getObjectByindex(ResultSet rs, Field field, int index) throws SQLException {
+		return HoneyUtil.getResultObjectByIndex(rs, field.getType().getName(), index);
 	}
-	
+
 	private static boolean openFieldTypeHandler = HoneyConfig.getHoneyConfig().openFieldTypeHandler;
-	
+
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static <T> T rowToEntity(ResultSet rs, Class<T> clazz)
 			throws SQLException, IllegalAccessException, InstantiationException {
@@ -357,12 +357,12 @@ public class TransformResultSet {
 				if (!alreadyProcess) {
 					HoneyUtil.setFieldValue(field, targetObj, obj);
 				}
-			} 
+			}
 		}
-		
+
 		return targetObj;
 	}
-	
+
 	public static <T> List<T> rsToListEntity(ResultSet rs, Class<T> entityClass) {
 		List<T> rsList = null;
 		T targetObj = null;
