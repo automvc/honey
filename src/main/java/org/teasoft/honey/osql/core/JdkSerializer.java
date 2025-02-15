@@ -26,7 +26,7 @@ public class JdkSerializer implements Serializer {
 		byte b[] = null;
 		if (obj == null) return b; // V2.1.8
 		try (ByteArrayOutputStream out = new ByteArrayOutputStream();
-				ObjectOutputStream objOut = new ObjectOutputStream(out)) {//V2.1.10
+				ObjectOutputStream objOut = new ObjectOutputStream(out)) {// V2.1.10
 			objOut.writeObject(obj);
 			b = out.toByteArray();
 			return b;

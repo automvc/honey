@@ -29,7 +29,7 @@ class BeeActiveProp implements Properties {
 	public String getPropText(String key) {
 		return beePropReader.getValueText(key);
 	}
-	
+
 	public Set<String> getKeys() {
 		return beePropReader.getKeys();
 	}

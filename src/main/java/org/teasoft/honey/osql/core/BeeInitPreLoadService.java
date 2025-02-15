@@ -31,15 +31,15 @@ public class BeeInitPreLoadService {
 	static void initLoad() {
 		if (notStart) {
 			notStart = false;
-			
-			Logger.info("[Bee] ========= BeeInitPreLoadService initLoad..."); 
-			
+
+			Logger.info("[Bee] ========= BeeInitPreLoadService initLoad...");
+
 			loadServiceInstance(PreLoad.class);
 			loadServiceInstanceAndReg(JsonTransform.class);
 			loadServiceInstanceAndReg(SqlFormat.class);
 		}
 	}
-	
+
 	private static <T> void loadServiceInstance(Class<T> clazz) {
 		ServiceLoader<T> loads = ServiceLoader.load(clazz);
 		Iterator<T> loadIterator = loads.iterator();
@@ -51,13 +51,13 @@ public class BeeInitPreLoadService {
 			}
 		}
 	}
-	
+
 	private static <T extends Serializable> void loadServiceInstanceAndReg(Class<T> clazz) {
 		ServiceLoader<T> loads = ServiceLoader.load(clazz);
 		Iterator<T> loadIterator = loads.iterator();
 		while (loadIterator.hasNext()) {
 			try {
-				T obj=loadIterator.next();
+				T obj = loadIterator.next();
 				SpiInstanceRegister.register(clazz, obj);
 			} catch (ServiceConfigurationError e) {
 				Logger.error(e.getMessage(), e);

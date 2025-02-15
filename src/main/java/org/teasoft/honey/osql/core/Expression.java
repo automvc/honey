@@ -15,25 +15,25 @@ import org.teasoft.bee.osql.Op;
  * @author Kingstar
  * @since  1.6
  */
-public final class Expression implements Serializable{
+public final class Expression implements Serializable {
 
 	private static final long serialVersionUID = 1592803913607L;
-	
+
 	String fieldName;
 	String opType;
-	Op op;  //V1.17
+	Op op; // V1.17
 	Object value;
 	int opNum;
 	Object value2;
 	Object value3;
-	Object value4; //for having
+	Object value4; // for having
 
 	public Expression() {}
 
 	public Expression(String field, Op opType, Object value) {
 		this.fieldName = field;
 		this.opType = opType.getOperator();
-		this.op=opType; //V1.17  for likeLeft,likeRight,likeLeftRight
+		this.op = opType; // V1.17 for likeLeft,likeRight,likeLeftRight
 		this.value = value;
 		this.opNum = 2;
 	}
@@ -60,7 +60,7 @@ public final class Expression implements Serializable{
 	public void setOpType(String opType) {
 		this.opType = opType;
 	}
-	
+
 	/**
 	 * 
 	 * @return
@@ -118,5 +118,5 @@ public final class Expression implements Serializable{
 	public void setValue4(Object value4) {
 		this.value4 = value4;
 	}
-	
+
 }

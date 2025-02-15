@@ -40,7 +40,7 @@ import org.teasoft.honey.util.StringUtils;
  * @since  1.0
  */
 public final class HoneyContext {
-	
+
 	private static ConcurrentMap<String, String> beanMap;
 
 	// since 1.11
@@ -110,25 +110,24 @@ public final class HoneyContext {
 	private static ConcurrentMap<String, Boolean> customFlagMap;
 
 	static {
-		HoneyConfig.getHoneyConfig(); //V2.1.8   与config相互引用时,这句不一定保险
+		HoneyConfig.getHoneyConfig(); // V2.1.8 与config相互引用时,这句不一定保险
 
 		beanMap = new ConcurrentHashMap<>();
 		beanCustomPKey = new ConcurrentHashMap<>();
 		customMap = new ConcurrentHashMap<>();
 
-		if(cacheLocal!=null) cacheLocal.remove();
-		if(sqlServerPaging!=null) sqlServerPaging.remove();
-		if(customMapLocal!=null) customMapLocal.remove();
-		if(sysCommStrLocal!=null) sysCommStrLocal.remove();
+		if (cacheLocal != null) cacheLocal.remove();
+		if (sqlServerPaging != null) sqlServerPaging.remove();
+		if (customMapLocal != null) customMapLocal.remove();
+		if (sysCommStrLocal != null) sysCommStrLocal.remove();
 		if (sysCommStrInheritableLocal != null) sysCommStrInheritableLocal.remove();
-		if(listLocal!=null) listLocal.remove();
-		if(sqlPreValueLocal!=null) sqlPreValueLocal.remove();
-		if(sqlIndexLocal!=null) sqlIndexLocal.remove();
-		if(conditionLocal!=null) conditionLocal.remove();
-		
-		
+		if (listLocal != null) listLocal.remove();
+		if (sqlPreValueLocal != null) sqlPreValueLocal.remove();
+		if (sqlIndexLocal != null) sqlIndexLocal.remove();
+		if (conditionLocal != null) conditionLocal.remove();
+
 		initTL();
-		
+
 		sqlIndexLocal = new InheritableThreadLocal<>();
 		conditionLocal = new InheritableThreadLocal<>();
 //		tabNameListLocal = new ThreadLocal<>(); //每个子线程都有一个具体表名,不需要.
@@ -145,8 +144,8 @@ public final class HoneyContext {
 //			conneForSelectRs = new InheritableThreadLocal<>();
 //			conneForSelectRs.set(new CopyOnWriteArrayList<Connection>()); // 一开始就要设值,在主线程才能处理子线程加入的元素
 //		}
-		conneForSelectRs=new ConcurrentHashMap<>();
-		
+		conneForSelectRs = new ConcurrentHashMap<>();
+
 		currentAppDB = new ThreadLocal<>();
 		currentNameTranslate = new ThreadLocal<>();
 
@@ -179,27 +178,28 @@ public final class HoneyContext {
 	static void initLoad() {
 		BeeInitPreLoadService.initLoad();
 	}
-	
+
 	static void initTL() {
-		if (HoneyConfig.getHoneyConfig().multiDS_sharding) { //当使用分片模式,某些表又没有实行分片时,不宜使用parallelStream()并行操作
+		if (HoneyConfig.getHoneyConfig().multiDS_sharding) { // 当使用分片模式,某些表又没有实行分片时,不宜使用parallelStream()并行操作
 			sqlPreValueLocal = new InheritableThreadLocal<>();
-			
+
 			currentRoute = new InheritableThreadLocal<>();
 			cacheLocal = new InheritableThreadLocal<>();
 			sysCommStrLocal = new InheritableThreadLocal<>();
 			appointDS = new InheritableThreadLocal<>();
-		}else {//2.2
+		} else {// 2.2
 //			https://blog.csdn.net/abckingaa/article/details/135408582
-			sqlPreValueLocal = new ThreadLocal<>();  //2.2 fixed bug:  parallelStream().map + InheritableThreadLocal 才会出现   No value specified for parameter 1
-			
+			sqlPreValueLocal = new ThreadLocal<>(); // 2.2 fixed bug: parallelStream().map + InheritableThreadLocal 才会出现 No value
+													// specified for parameter 1
+
 			currentRoute = new ThreadLocal<>();
 			cacheLocal = new ThreadLocal<>();
 			sysCommStrLocal = new ThreadLocal<>();
 			appointDS = new ThreadLocal<>();
 		}
 	}
-	
-	static void initTLRefresh() { //initTL 默认时,走else;  当在代码设置了multiDS_sharding,才要刷新.
+
+	static void initTLRefresh() { // initTL 默认时,走else; 当在代码设置了multiDS_sharding,才要刷新.
 //		if (HoneyConfig.getHoneyConfig().multiDS_sharding) { //当使用分片模式,某些表又没有实行分片时,不宜使用parallelStream()并行操作
 //			//因parallelStream()+InheritableThreadLocal会有问题,但分片又必要要用InheritableThreadLocal,所以分片时,不支持parallelStream并行操作
 //			sqlPreValueLocal = new InheritableThreadLocal<>();
@@ -209,7 +209,7 @@ public final class HoneyContext {
 //			sysCommStrLocal = new InheritableThreadLocal<>();
 //			appointDS = new InheritableThreadLocal<>();
 //		}
-		
+
 		initTL();
 	}
 
@@ -226,8 +226,7 @@ public final class HoneyContext {
 	}
 
 	private static void initEntity2Table() {
-		String entity2tableMappingList = HoneyConfig
-				.getHoneyConfig().naming_entity2tableMappingList;
+		String entity2tableMappingList = HoneyConfig.getHoneyConfig().naming_entity2tableMappingList;
 		if (entity2tableMappingList != null) {
 			String entity2table_array[] = entity2tableMappingList.split(",");
 			String item[];
@@ -250,8 +249,7 @@ public final class HoneyContext {
 	}
 
 	private static void initTable2Entity() {
-		String entity2tableMappingList = HoneyConfig
-				.getHoneyConfig().naming_entity2tableMappingList;
+		String entity2tableMappingList = HoneyConfig.getHoneyConfig().naming_entity2tableMappingList;
 		if (entity2tableMappingList != null) {
 			String entity2table_array[] = entity2tableMappingList.split(",");
 			String item[];
@@ -264,8 +262,8 @@ public final class HoneyContext {
 					// entity2table.put(item[0].trim(), item[1].trim());
 
 					if (table2entity.containsKey(item[1].trim())) { // check 只是生成javabean时会用到,SqlLib不会用到.因会传入T entity 所以不会引起混淆
-						Logger.warn(table2entity.get(item[1].trim()) + " and " + item[0].trim()
-								+ " mapping same table: " + item[1].trim());
+						Logger.warn(table2entity.get(item[1].trim()) + " and " + item[0].trim() + " mapping same table: "
+								+ item[1].trim());
 					}
 					table2entity.put(item[1].trim(), item[0].trim());
 				}
@@ -311,8 +309,7 @@ public final class HoneyContext {
 
 	public static void addCustomMap(String key, Map<String, String> mapValue) {
 		if (key == null) {
-			Logger.warn("Do not support the null key!",
-					new BeeIllegalParameterException("Do not support the null key!"));
+			Logger.warn("Do not support the null key!", new BeeIllegalParameterException("Do not support the null key!"));
 			return;
 		}
 		customMap.put(key, mapValue);
@@ -375,7 +372,7 @@ public final class HoneyContext {
 		Map<String, String> map = sysCommStrLocal.get();
 		if (map != null) map.remove(key);
 	}
-	
+
 	public static void setSysCommStrInheritableLocal(String key, String value) {
 		if (value == null) return;
 		if (key == null || "".equals(key.trim())) return;
@@ -403,7 +400,7 @@ public final class HoneyContext {
 	public static boolean isTrueInSysCommStrLocal(String key) {
 		return StringConst.tRue.equals(HoneyContext.getSysCommStrLocal(key));
 	}
-	
+
 	public static void setTrueInSysCommStrInheritableLocal(String key) {
 		setSysCommStrInheritableLocal(key, StringConst.tRue);
 	}
@@ -445,7 +442,7 @@ public final class HoneyContext {
 		map.put(sqlStr, list);
 		sqlPreValueLocal.set(map);
 	}
-	
+
 	static List<PreparedValue> justGetPreparedValue(String sqlStr) {
 		Map<String, List<PreparedValue>> map = sqlPreValueLocal.get();
 		if (map == null || sqlStr == null) return null;
@@ -463,7 +460,7 @@ public final class HoneyContext {
 	static List<PreparedValue> getAndClearPreparedValue(String sqlStr) {
 		Map<String, List<PreparedValue>> map = sqlPreValueLocal.get();
 		if (map == null || sqlStr == null) return null;
-		
+
 		List<PreparedValue> list = map.get(sqlStr);
 		if (map.containsKey(sqlStr)) map.remove(sqlStr);
 		return list;
@@ -490,8 +487,7 @@ public final class HoneyContext {
 		if (map != null) map.remove(sqlStr);
 	}
 
-	public static void setSqlServerPagingStruct(String sqlStr,
-			SqlServerPagingStruct sqlServerPagingStruct) {
+	public static void setSqlServerPagingStruct(String sqlStr, SqlServerPagingStruct sqlServerPagingStruct) {
 		if (sqlServerPagingStruct == null) return;
 		if (sqlStr == null || "".equals(sqlStr.trim())) return;
 		Map<String, SqlServerPagingStruct> map = sqlServerPaging.get();
@@ -526,20 +522,20 @@ public final class HoneyContext {
 	}
 
 	public synchronized static void regConnForSelectRs(Connection conn) {
-		String threadFlag=HoneyContext.getSysCommStrInheritableLocal(StringConst.ShardingSelectRs_ThreadFlag);
+		String threadFlag = HoneyContext.getSysCommStrInheritableLocal(StringConst.ShardingSelectRs_ThreadFlag);
 		Integer subThreadIndex = HoneyContext.getSqlIndexLocal();
-		String key=threadFlag+subThreadIndex;
+		String key = threadFlag + subThreadIndex;
 		conneForSelectRs.put(key, conn);
 	}
 
 	public synchronized static void clearConnForSelectRs(String key) {
-		Connection conn=conneForSelectRs.get(key);
-		if(conn!=null) {
+		Connection conn = conneForSelectRs.get(key);
+		if (conn != null) {
 			try {
 				conn.close();
 			} catch (Exception e) {
-				Logger.debug(e.getMessage(),e);
-			}finally {
+				Logger.debug(e.getMessage(), e);
+			} finally {
 				conneForSelectRs.remove(key);
 			}
 		}
@@ -569,15 +565,13 @@ public final class HoneyContext {
 	}
 
 	private static boolean isAppDBObject(String className) {
-		return "android.database.sqlite.SQLiteDatabase".equals(className)
-				|| "ohos.data.rdb.RdbStore".equals(className);
+		return "android.database.sqlite.SQLiteDatabase".equals(className) || "ohos.data.rdb.RdbStore".equals(className);
 	}
 
 	public static NameTranslate getCurrentNameTranslate() {
 		return currentNameTranslate.get();
 	}
 
-		
 	/**
 	 * 设置只一次有效.AbstractCommOperate在执行SUID操作返回前会清除.
 	 * 若整个应用只有一个自定义的NameTranslate,可以使用
@@ -585,7 +579,7 @@ public final class HoneyContext {
 	 * @param nameTranslate
 	 */
 //	public static void setCurrentNameTranslate(NameTranslate nameTranslate) { //closed on V2.4.0
-    static void setCurrentNameTranslateOneTime(NameTranslate nameTranslate) {
+	static void setCurrentNameTranslateOneTime(NameTranslate nameTranslate) {
 		HoneyContext.clearFieldNameCache();
 		currentNameTranslate.set(nameTranslate);
 	}
@@ -686,10 +680,8 @@ public final class HoneyContext {
 	}
 
 	public static void setConditionLocal(Condition condition) {
-		if (condition != null)
-			conditionLocal.set(condition.clone());
-		else
-			conditionLocal.set(condition);
+		if (condition != null) conditionLocal.set(condition.clone());
+		else conditionLocal.set(condition);
 	}
 
 	public static void removeConditionLocal() {
@@ -724,7 +716,8 @@ public final class HoneyContext {
 		// V1..17 for Android
 		if (HoneyConfig.getHoneyConfig().isAndroid || HoneyConfig.getHoneyConfig().isHarmony) { // Harmony只是删除上下文保存的,但是否关闭不在这负责
 			if (OneTimeParameter.isTrue(StringConst.SAME_CONN_BEGIN)) { // all get from cache. 设置标志后,都是从缓存获取. 所以没有消费这个标识
-				Logger.warn("Do not get the new Connection in the SameConnection. Maybe all the results get from cache! ");
+				Logger.warn(
+						"Do not get the new Connection in the SameConnection. Maybe all the results get from cache! ");
 			}
 			HoneyContext.removeCurrentAppDB(); // 同一连接结束时要删除上下文
 
@@ -738,7 +731,8 @@ public final class HoneyContext {
 //				next select will get every conn like normal case.
 //				若报异常后到调用endSameConnection()之时, 1)没有新获取连接,则直接到这个方法;  不用特别处理
 //				2)有新的连接,用完后,正常关闭,到这里,也是这个提示.
-				Logger.warn("Do not use same Connection, because have exception in between the begin and end SameConnection !");
+				Logger.warn(
+						"Do not use same Connection, because have exception in between the begin and end SameConnection !");
 			} else { // miss beginSameConnection
 				Logger.warn("Calling the endSameConnection(), but miss the beginSameConnection()");
 			}
@@ -761,7 +755,7 @@ public final class HoneyContext {
 		currentRoute.remove();
 	}
 
-	public static ShardingPageStruct getCurrentShardingPage() { //select * from table; 没有分页时,要注意 
+	public static ShardingPageStruct getCurrentShardingPage() { // select * from table; 没有分页时,要注意
 		return currentShardingPage.get();
 	}
 
@@ -784,8 +778,7 @@ public final class HoneyContext {
 	public static void removeCurrentShardingSort() {
 		currentShardingSort.remove();
 	}
-	
-	
+
 	public static GroupFunStruct getCurrentGroupFunStruct() {
 		return currentGroupFunStruct.get();
 	}
@@ -836,8 +829,7 @@ public final class HoneyContext {
 		if (conn == null) {
 			boolean isSameConn = OneTimeParameter.isTrue(StringConst.SAME_CONN_BEGIN);
 			if (isSameConn) {
-				checkShadingHasMoreDs(
-						"Donot support SameConnection in more DataSources at one time!");
+				checkShadingHasMoreDs("Donot support SameConnection in more DataSources at one time!");
 				setSameConnectionDoing(); // 提前设置,因RW时,同一连接要改为默认走写库
 			}
 
@@ -851,7 +843,7 @@ public final class HoneyContext {
 
 		return conn;
 	}
-	
+
 	public static DatabaseClientConnection getDatabaseConnection() {
 		DatabaseClientConnection conn = null;
 		conn = SessionFactory.getDatabaseConnection();
@@ -860,8 +852,7 @@ public final class HoneyContext {
 
 	public static void checkShadingHasMoreDs(String exceptionMsg) {
 		if (ShardingUtil.hadSharding()) {// 有分片时,涉及多个DS
-			List<String> dsNameListLocal = HoneyContext
-					.getListLocal(StringConst.DsNameListLocal);
+			List<String> dsNameListLocal = HoneyContext.getListLocal(StringConst.DsNameListLocal);
 			if (dsNameListLocal != null && dsNameListLocal.size() > 1) {
 //				throw new ShardingErrorException("Donot support SameConnection in more DataSources!");
 				throw new ShardingErrorException(exceptionMsg);
@@ -879,17 +870,17 @@ public final class HoneyContext {
 		} finally {
 //			"在事务中间报异常也要删除;"? 不在这里删   应该由程序在事务中调用rollback
 //			"事务结束时要删除;"   在事务直接调用，不在这里
-			
+
 //			removeCurrentConnection(); // 同一conn也要删除  已移到以下括号内;   closed 2.2
 			if (StringConst.tRue.equals(getSameConnectionDoing())) {
-				removeCurrentConnection(); //2.2
+				removeCurrentConnection(); // 2.2
 				removesameConnectionDoing(); // 同一conn
 				OneTimeParameter.setTrueForKey(StringConst.SAME_CONN_EXCEPTION);
 			}
 		}
 	}
-	
-	public static boolean isTransactionConn() { //正在处理事务： 有当前Conn且不是同一连接
+
+	public static boolean isTransactionConn() { // 正在处理事务： 有当前Conn且不是同一连接
 		return getCurrentConnection() != null && !StringConst.tRue.equals(getSameConnectionDoing());
 	}
 
@@ -931,13 +922,12 @@ public final class HoneyContext {
 			} catch (SQLException e) {
 				Logger.debug(e.getMessage());
 				throw ExceptionHelper.convert(e);
-			} 
+			}
 		}
 	}
 
 	// for SqlLib
-	static boolean updateInfoInCache(String sql, String returnType, SuidType suidType,
-			Class entityClass) {
+	static boolean updateInfoInCache(String sql, String returnType, SuidType suidType, Class entityClass) {
 		CacheSuidStruct struct = getCacheInfo(sql);
 		if (struct != null) {
 			struct.setReturnType(returnType);
@@ -994,12 +984,10 @@ public final class HoneyContext {
 		_parseListToMap(entityList_excludes, entityList_excludes_Map, entityListWithStar_ex);
 
 		String levelTwoEntityList = HoneyConfig.getHoneyConfig().cache_levelTwoEntityList; // cache level 2
-		_parseListToMap(levelTwoEntityList, entityList_levelTwo_Map,
-				entityListWithStar_levelTwo);
+		_parseListToMap(levelTwoEntityList, entityList_levelTwo_Map, entityListWithStar_levelTwo);
 	}
 
-	private static void _parseListToMap(String str, Map<String, String> map,
-			List<String> starList) {
+	private static void _parseListToMap(String str, Map<String, String> map, List<String> starList) {
 		// com.xxx.aa.User,com.xxx.bb.*,com.xxx.cc.**
 		if (str == null || "".equals(str.trim())) return;
 
@@ -1021,8 +1009,7 @@ public final class HoneyContext {
 	}
 
 	@SuppressWarnings("rawtypes")
-	private static boolean _isConfig(Class clazz, Map<String, String> map,
-			List<String> starList) {
+	private static boolean _isConfig(Class clazz, Map<String, String> map, List<String> starList) {
 
 		if (clazz == null) return false;
 
@@ -1054,18 +1041,13 @@ public final class HoneyContext {
 		boolean needGenId = false;
 		boolean genAll = HoneyConfig.getHoneyConfig().genid_forAllTableLongId;
 		if (genAll) {
-			if (isConfigForEntityEX(clazz))
-				needGenId = false; // 有排除,则 不生成的
-			else
-				needGenId = true;
+			if (isConfigForEntityEX(clazz)) needGenId = false; // 有排除,则 不生成的
+			else needGenId = true;
 		} else {
-			if (isConfigForEntityEX(clazz))
-				needGenId = false; // 有排除,则 不生成的
+			if (isConfigForEntityEX(clazz)) needGenId = false; // 有排除,则 不生成的
 			else {
-				if (isConfigForEntityIN(clazz))
-					needGenId = true;
-				else
-					needGenId = false;
+				if (isConfigForEntityIN(clazz)) needGenId = true;
+				else needGenId = false;
 			}
 		}
 
@@ -1082,7 +1064,7 @@ public final class HoneyContext {
 		boolean enableMultiDs = HoneyConfig.getHoneyConfig().multiDS_enable;
 		boolean isDifferentDbType = HoneyConfig.getHoneyConfig().multiDS_differentDbType;
 		if (enableMultiDs && isDifferentDbType) {
-			if(getDsName2DbName()==null || getDsName2DbName().size()<=1) return false; //V2.1.10 只有一个数据源时,返回false
+			if (getDsName2DbName() == null || getDsName2DbName().size() <= 1) return false; // V2.1.10 只有一个数据源时,返回false
 			return true;
 		} else {
 			if (useStructForLevel2()) return true;// 1.17 fixed
@@ -1112,8 +1094,7 @@ public final class HoneyContext {
 			boolean differentDbType = HoneyConfig.getHoneyConfig().multiDS_differentDbType;
 			if (!(multiDsType == 1 && !differentDbType)) // 不是(模式1(RW)的同种DB) //sameDbType= !differentDbType
 				return true;
-			else
-				return false;
+			else return false;
 		} else {
 			return false;
 		}
@@ -1159,45 +1140,46 @@ public final class HoneyContext {
 	public static void setConfigRefresh(boolean configRefresh) {
 		HoneyContext.configRefresh = configRefresh;
 		HoneyConfig.setChangeDataSource(true); // 1.17
-		
+
 //		if(configRefresh) initTLRefresh(); //2.2       2.4.0 close   multiDS_sharding应该在系统启动前就定好. 运行过程,不应该更改.
 	}
 
-	private static final Integer ONE=1;
+	private static final Integer ONE = 1;
+
 	public static void updateConfig(Map<String, Object> map) {
-		
+
 		if (ObjectUtils.isEmpty(map)) return;
-		
-		//------V2.1.8----start--
+
+		// ------V2.1.8----start--
 //		String activeKey="bee.profiles.active"; //bug
 //		String typeKey="bee.profiles.type";//bug
-		
-		String activeKey="active"; //V2.1.10 fixed bug     使用的是HoneyConfig的属性名
-		String typeKey="type"; //V2.1.10 fixed bug
-		
-		String active=(String)map.get(activeKey);
-		Integer type=(Integer)map.get(typeKey);
-		if(StringUtils.isNotBlank(active)) {
-			if(ONE.equals(type)) {
-				HoneyConfig.getHoneyConfig().overrideByActive(active); //先处理bee-{active}.properties; 后面再处理bee-spring-boot框架里的其它配置
-			} 
+
+		String activeKey = "active"; // V2.1.10 fixed bug 使用的是HoneyConfig的属性名
+		String typeKey = "type"; // V2.1.10 fixed bug
+
+		String active = (String) map.get(activeKey);
+		Integer type = (Integer) map.get(typeKey);
+		if (StringUtils.isNotBlank(active)) {
+			if (ONE.equals(type)) {
+				HoneyConfig.getHoneyConfig().overrideByActive(active); // 先处理bee-{active}.properties; 后面再处理bee-spring-boot框架里的其它配置
+			}
 		}
-		//不需要删除active和type两个key; 因不会触发新刷新, 更新后,也可以从HoneyConfig知道当前是什么值.
-		//------V2.1.8----end--
-		
+		// 不需要删除active和type两个key; 因不会触发新刷新, 更新后,也可以从HoneyConfig知道当前是什么值.
+		// ------V2.1.8----end--
+
 		Object obj = HoneyConfig.getHoneyConfig();
 		Class<?> clazz = obj.getClass();
-		boolean hasShardingMap=false;
-		boolean hasMultiDS_sharding=false;
-		
+		boolean hasShardingMap = false;
+		boolean hasMultiDS_sharding = false;
+
 		for (Map.Entry<String, Object> entry : map.entrySet()) {
 			try {
 				Field field = clazz.getDeclaredField(entry.getKey());
 				if (field != null) {
 					HoneyUtil.setAccessibleTrue(field);
 					HoneyUtil.setFieldValue(field, obj, entry.getValue());
-					if("multiDS_sharding".equals(entry.getKey())) hasMultiDS_sharding=true;
-					else if("sharding".equals(entry.getKey())) hasShardingMap=true;
+					if ("multiDS_sharding".equals(entry.getKey())) hasMultiDS_sharding = true;
+					else if ("sharding".equals(entry.getKey())) hasShardingMap = true;
 				}
 			} catch (Exception e) {
 				throw ExceptionHelper.convert(e);
@@ -1205,12 +1187,12 @@ public final class HoneyContext {
 		}
 
 		setConfigRefresh(true);
-		setDsMapConfigRefresh(true);  //是否应该有数据源配置时,才设置更新?    解析时会先判断相关属性的
-	
-		//2.4.0
+		setDsMapConfigRefresh(true); // 是否应该有数据源配置时,才设置更新? 解析时会先判断相关属性的
+
+		// 2.4.0
 		if (hasMultiDS_sharding) initTLRefresh();
 		if (hasMultiDS_sharding && hasShardingMap) prcessShardingRuleInProperties();
-		
+
 	}
 
 	public static boolean getModifiedFlagForCache2(String tableName) {
@@ -1244,48 +1226,48 @@ public final class HoneyContext {
 	public static boolean isInterceptorSubEntity() {
 		return OneTimeParameter.isTrue(StringConst.InterceptorSubEntity);
 	}
-	
-	//V2.1
+
+	// V2.1
 	public static void setDataSource(DataSource dataSource) {
 		BeeFactory.getInstance().setDataSource(dataSource);
 		setConfigRefresh(true);
 	}
-	
-	//V2.1
+
+	// V2.1
 	public static void setDataSourceMap(Map<String, DataSource> dataSourceMap) {
-		BeeFactory.getInstance().setDataSourceMap(dataSourceMap); //这里设置,会重新设置dbName
+		BeeFactory.getInstance().setDataSourceMap(dataSourceMap); // 这里设置,会重新设置dbName
 	}
-	
-	//V2.1.8
+
+	// V2.1.8
 	public static void refreshDataSourceMap() {
 		if (HoneyContext.isDsMapConfigRefresh()) {
 			Map<String, DataSource> map = ProcessDataSourceMap.refreshDataSourceMap();
 			if (map != null && map.size() > 0) {
 //			HoneyConfig.getHoneyConfig().dbName=null; //不需要,会重新解析的
 				setDataSourceMap(map);
-				
-				CacheUtil.clear(); //V2.1.10
-				
+
+				CacheUtil.clear(); // V2.1.10
+
 //				prcessShardingRuleInProperties(); //2.4.0
 			}
 			HoneyContext.setDsMapConfigRefresh(false);
 		}
 	}
-	
-   static void prcessShardingRuleInProperties() {
+
+	static void prcessShardingRuleInProperties() {
 		Map<String, Map<String, String>> shardingMap = HoneyConfig.getHoneyConfig().getSharding();
-		
+
 		if (shardingMap == null || shardingMap.isEmpty()) return;
 		if (!ShardingUtil.isSharding()) return;
-		
+
 		for (Map.Entry<String, Map<String, String>> entry : shardingMap.entrySet()) {
 
 			Map<String, String> map = entry.getValue();
 			if (map == null || map.size() == 0) continue;
-			
+
 			String baseTableName = map.get("baseTableName");
 			String className = map.get("className");
-			
+
 			boolean baseTableNameEmpty = false;
 			boolean classNameEmpty = false;
 			if (StringUtils.isBlank(baseTableName)) {
@@ -1296,23 +1278,23 @@ public final class HoneyContext {
 			}
 
 			if (baseTableNameEmpty && classNameEmpty) {
-				Logger.warn("bee.db.sharding[" + entry.getKey() + "]"
-						+ "must define baseTableName or className");
+				Logger.warn("bee.db.sharding[" + entry.getKey() + "]" + "must define baseTableName or className");
 			} else {
 				if (!baseTableNameEmpty) {
-					ShardingConfig.addShardingBean(baseTableName,new ShardingBean(entry.getValue()));
+					ShardingConfig.addShardingBean(baseTableName, new ShardingBean(entry.getValue()));
 				} else if (!classNameEmpty) {
 					try {
-						ShardingConfig.addShardingBean(Class.forName(className),new ShardingBean(entry.getValue()));
+						ShardingConfig.addShardingBean(Class.forName(className), new ShardingBean(entry.getValue()));
 					} catch (Exception e) {
-						Logger.warn("Can not find the class: "+className,e);
+						Logger.warn("Can not find the class: " + className, e);
 					}
 				}
 			}
 		}
 	}
-   
-    private static final String field2Column=StringConst.PREFIX+"Field2Column";
+
+	private static final String field2Column = StringConst.PREFIX + "Field2Column";
+
 	static void initParseDefineColumn(Class entityClass) {
 		try {
 			if (entityClass == null) return;
@@ -1320,9 +1302,9 @@ public final class HoneyContext {
 				Logger.debug("The parameter entityClass is from Java library");
 				return;
 			}
-			
+
 			Field fields[] = HoneyUtil.getFields(entityClass);
-			String entityFullName=entityClass.getName();
+			String entityFullName = entityClass.getName();
 			String defineColumn = "";
 			String fiName = "";
 			int len = fields.length;
@@ -1333,30 +1315,29 @@ public final class HoneyContext {
 				if (HoneyUtil.isSkipField(fields[i])) continue;
 				HoneyUtil.setAccessibleTrue(fields[i]);
 				if (AnnoUtil.isColumn(fields[i])) {
-					defineColumn=AnnoUtil.getValue(fields[i]);
+					defineColumn = AnnoUtil.getValue(fields[i]);
 					if (NameCheckUtil.isIllegal(defineColumn)) {
-						throw new BeeIllegalParameterException(
-								"Annotation Column set wrong value:" + defineColumn);
+						throw new BeeIllegalParameterException("Annotation Column set wrong value:" + defineColumn);
 					}
 
 					fiName = fields[i].getName();
 					kv.put(fiName, defineColumn);
-					column2Field.put(defineColumn, fiName); //单表查询拼结果会用到
+					column2Field.put(defineColumn, fiName); // 单表查询拼结果会用到
 //					if (findName.equals(fiName)) findDefineColumn = defineColumn;
 					has = true;
 				}
-			} //end for
+			} // end for
 
 			if (has) {
 				HoneyContext.addCustomMap(field2Column + entityFullName, kv);
-				HoneyContext.addCustomMap(StringConst.Column2Field + entityFullName, column2Field); //SqlLib, select会用到. 
+				HoneyContext.addCustomMap(StringConst.Column2Field + entityFullName, column2Field); // SqlLib, select会用到.
 				HoneyContext.addCustomFlagMap(field2Column + entityFullName, Boolean.TRUE);
 			} else {
 				HoneyContext.addCustomFlagMap(field2Column + entityFullName, Boolean.FALSE);
 			}
 		} catch (Exception e) {
 			Logger.debug(e.getMessage(), e);
-			//ignore
+			// ignore
 		}
 	}
 

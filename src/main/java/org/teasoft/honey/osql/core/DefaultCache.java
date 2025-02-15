@@ -16,7 +16,7 @@ import org.teasoft.bee.osql.Cache;
  * @since  1.4
  */
 public class DefaultCache implements Cache, Serializable {
-	
+
 	private static final long serialVersionUID = 1596710362260L;
 
 	@Override
@@ -28,10 +28,10 @@ public class DefaultCache implements Cache, Serializable {
 	public void add(String sql, Object result) {
 		CacheUtil.add(sql, result);
 	}
-	
+
 	@Override
 	public void clear(String sql) {
-	    CacheUtil.clear(sql);
+		CacheUtil.clear(sql);
 	}
-	
+
 }

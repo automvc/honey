@@ -18,10 +18,10 @@ public class BeeFactory extends BeeAbstractFactory {
 	private static BeeFactory instance = new BeeFactory();
 //	private static HoneyFactory honeyFactory = null;
 	static {
-		HoneyConfig.getHoneyConfig(); //V2.1.8 先加载config,  多数据源时用到
+		HoneyConfig.getHoneyConfig(); // V2.1.8 先加载config, 多数据源时用到
 		HoneyContext.initLoad();
 	}
-	
+
 	private BeeFactory() {}
 
 	public static BeeFactory getInstance() {
@@ -34,12 +34,12 @@ public class BeeFactory extends BeeAbstractFactory {
 //	}
 
 	public static HoneyFactory getHoneyFactory() {
-		 return HoneyFactoryHolder.HF;
+		return HoneyFactoryHolder.HF;
 	}
-	
-    private static class HoneyFactoryHolder {
-        private static final HoneyFactory HF = new HoneyFactory();  
-    }  
+
+	private static class HoneyFactoryHolder {
+		private static final HoneyFactory HF = new HoneyFactory();
+	}
 
 	@Override
 	public DataSource getDataSource() {
@@ -51,8 +51,8 @@ public class BeeFactory extends BeeAbstractFactory {
 //			}
 //			HoneyContext.setDsMapConfigRefresh(false);
 //		}
-		
-		HoneyContext.refreshDataSourceMap(); //V2.1.8
+
+		HoneyContext.refreshDataSourceMap(); // V2.1.8
 
 		if (super.getDataSourceMap() == null) {
 			return super.getDataSource();
@@ -64,12 +64,10 @@ public class BeeFactory extends BeeAbstractFactory {
 	private DataSource _getDsFromDsMap() {
 		String dsName = Router.getDsName();
 
-		Logger.info(
-				"[Bee] ========= the current DataSource name is :" + dsName + shardingIndex()); // V1.17
+		Logger.info("[Bee] ========= the current DataSource name is :" + dsName + shardingIndex()); // V1.17
 //		Logger.logSQL("使用logSQL, 会引发异常", ""); //因为在Config首先获取dbName时,要使用这个方法,而logSQL这个方法又要使用Config里的信息.
 		DataSource ds = getDataSourceMap().get(dsName);
-		if (ds == null) Logger
-				.warn("Can not find the DataSource from DataSource Map with dsName: " + dsName);
+		if (ds == null) Logger.warn("Can not find the DataSource from DataSource Map with dsName: " + dsName);
 		return ds;
 	}
 

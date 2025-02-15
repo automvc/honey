@@ -70,9 +70,9 @@ public class CallableSqlLib extends AbstractCommOperate implements CallableSql {
 			}
 			checkClose(cstmt, conn);
 			doBeforeReturn(rsList);
-		    targetObj = null;
+			targetObj = null;
 		}
-		
+
 		return rsList;
 	}
 
@@ -279,7 +279,7 @@ public class CallableSqlLib extends AbstractCommOperate implements CallableSql {
 		Object entity = null;
 		super.doBeforePasreEntity(entity, SuidType.MODIFY);
 	}
-	
+
 	private static boolean isShowSQL() {
 		return HoneyConfig.getHoneyConfig().showSQL;
 	}

@@ -24,58 +24,61 @@ import org.teasoft.bee.osql.chain.UnionSelect;
  * @since  1.9
  */
 public class BeeFactoryHelper {
-	
+
 	public static Suid getSuid() {
 		return BeeFactory.getHoneyFactory().getSuid();
 	}
-	
+
 	public static SuidRich getSuidRich() {
 		return BeeFactory.getHoneyFactory().getSuidRich();
 	}
-	
+
 	public static Condition getCondition() {
-        return BeeFactory.getHoneyFactory().getCondition();
+		return BeeFactory.getHoneyFactory().getCondition();
 	}
-	
+
 	public static MoreTable getMoreTable() {
 		return BeeFactory.getHoneyFactory().getMoreTable();
 	}
-	
+
 	public static PreparedSql getPreparedSql() {
 		return BeeFactory.getHoneyFactory().getPreparedSql();
 	}
-	
+
 	public static MapSuid getMapSuid() {
 		return BeeFactory.getHoneyFactory().getMapSuid();
 	}
-	
+
 	public static MapSql getMapSql() {
 		return BeeFactory.getHoneyFactory().getMapSql();
 	}
-	
-	//2.0
+
+	// 2.0
 	public static UnionSelect getUnionSelect() {
 		return BeeFactory.getHoneyFactory().getUnionSelect();
 	}
-	//2.0
+
+	// 2.0
 	public static Suid getSuidForMongodb() {
 		return BeeFactory.getHoneyFactory().getSuidForMongodb();
 	}
-	//2.0
+
+	// 2.0
 	public static SuidRich getSuidRichForMongodb() {
 		return BeeFactory.getHoneyFactory().getSuidRichForMongodb();
 	}
 
-	//2.1
+	// 2.1
 	public static ObjSQLService getObjSQLService() {
 		return BeeFactory.getHoneyFactory().getObjSQLService();
 	}
-	//2.1
+
+	// 2.1
 	public static ObjSQLRichService getObjSQLRichService() {
 		return BeeFactory.getHoneyFactory().getObjSQLRichService();
 	}
-	
-	//2.1
+
+	// 2.1
 	public static MongodbRawSql getMongodbRawSql() {
 		return BeeFactory.getHoneyFactory().getMongodbRawSql();
 	}
