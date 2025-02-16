@@ -61,7 +61,6 @@ public class ShardingForkJoinBatchInsertEngine<T> {
 			taskTab.add(tabName);
 		}
 
-//		Logger.logSQL("========= Do sharding , the size of sub operation is :"+taskTab.size());
 		ShardingLogReg.log(taskTab.size());
 
 		return doTask(new ShardingRecursiveBatchInsert(newEntityArrayList, batchSize, excludeFields, taskDs, taskTab,
@@ -145,7 +144,6 @@ public class ShardingForkJoinBatchInsertEngine<T> {
 		@Override
 		protected Integer compute() {
 			if (end == start) {
-//			Logger.info(">>>>>>>>>>>do sharding "+start);
 				return doOneTask(newEntityArrayList.get(start), batchSize, excludeFields, start);
 			} else {
 //			int mid = (end + start) / 2;

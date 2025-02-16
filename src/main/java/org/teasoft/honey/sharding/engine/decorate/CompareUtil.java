@@ -70,7 +70,6 @@ public class CompareUtil {
 		Integer number = null;
 		if ("Integer".equalsIgnoreCase(type) || "int".equalsIgnoreCase(type) || "Short".equalsIgnoreCase(type)
 				|| "Byte".equalsIgnoreCase(type)
-//				|| "short".equalsIgnoreCase(type) || "byte".equalsIgnoreCase(type)
 		) {
 			number = Integer.compare(Integer.parseInt(thisValue), Integer.parseInt(otherValue));
 		} else if ("Long".equalsIgnoreCase(type)) {

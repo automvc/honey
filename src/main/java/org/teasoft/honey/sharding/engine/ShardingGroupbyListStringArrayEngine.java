@@ -42,11 +42,8 @@ public class ShardingGroupbyListStringArrayEngine {
 
 	private final static int List_String_Array = 1;
 	private final static int List_T = 2;
-//	private final static int List_StringJson = 3;
 
-//	@SuppressWarnings("rawtypes")
 	public <T> Object asynProcess(String sql, BeeSql beeSql, Class<T> entityClass, int returnType) {
-//	public Object asynProcess(String sql, BeeSql beeSql, Class entityClass) {
 
 		List<String[]> list;
 		String sqls[] = null;
