@@ -24,14 +24,13 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 
 	private static final String STAR = "*";
 	private static final String DISTINCT = K.distinct;
-	
-	//for where condition
+
+	// for where condition
 	private static final String L_PARENTHESES = "(";
 	private static final String R_PARENTHESES = ")";
 	private static final String COMMA = ",";
 	private static final String SPACE = " ";
-	private static final String AND = " "+K.and+" ";
-	
+	private static final String AND = " " + K.and + " ";
 
 	private boolean isStartField = true;
 //	private boolean isStartWhere = true;
@@ -41,12 +40,12 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 	private boolean isStartGroupBy = true;
 	private boolean isStartHaving = true;
 	private boolean isStartOrderBy = true;
-	
-	public SelectImpl(){
+
+	public SelectImpl() {
 // some one maybe just need where part
 //		sql.append("select ");
 	}
-	
+
 	@Override
 	public Select select() {
 		if (isStartField) {
@@ -72,11 +71,10 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 
 		return this;
 	}
-	
 
 	@Override
 	public Select distinct(String fieldName, String alias) {
-		return select(K.distinct+L_PARENTHESES+fieldName+R_PARENTHESES+K.space+K.as+alias);
+		return select(K.distinct + L_PARENTHESES + fieldName + R_PARENTHESES + K.space + K.as + alias);
 	}
 
 	@Override
@@ -95,13 +93,13 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 	public Select from(String table) {
 		checkExpression(table);
 		_appendTable(table);
-		
-		if (isStartField) { //2.4.0 //select *
+
+		if (isStartField) { // 2.4.0 //select *
 			sql.append(K.select).append(SPACE);
 			sql.append(STAR); // *
 			isStartField = false;
 		}
-		
+
 		sql.append(SPACE).append(K.from).append(SPACE);
 		sql.append(table);
 		return this;
@@ -145,7 +143,7 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 		sql.append(anotherTable);
 		return this;
 	}
-	
+
 	@Override
 	public Select on() {
 		sql.append(SPACE).append(K.on).append(SPACE);
@@ -234,7 +232,7 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 		}
 		return this;
 	}
-	
+
 	private Select useSubSelect(String keyword, String subSelect) { // exists, not exists
 
 		sql.append(keyword);
@@ -244,11 +242,11 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 		sql.append(R_PARENTHESES);
 		return this;
 	}
-	
-	private Select useSubSelect(String field,String keyword, String subSelect) { // in, not in
+
+	private Select useSubSelect(String field, String keyword, String subSelect) { // in, not in
 //		checkField(field);
 		checkFieldOrExpression(field);
-		
+
 		sql.append(field);
 		sql.append(SPACE);
 		sql.append(keyword);
@@ -280,12 +278,12 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 	@Override
 	public Select notIn(String field, Select subSelect) {
 		updatePvList(subSelect);
-		return useSubSelect(field, K.notIn, subSelect.toSQL());  //subSelect.toSQL() 不需要加缓存 ？？？
+		return useSubSelect(field, K.notIn, subSelect.toSQL()); // subSelect.toSQL() 不需要加缓存 ？？？
 	}
-	
+
 	private static final String START_GREAT_EQ_0 = StringConst.START_GREAT_EQ_0;
 	private static final String SIZE_GREAT_0 = StringConst.SIZE_GREAT_0;
-	
+
 	@Override
 	public Select start(int start) {
 		if (start < 0) throw new BeeIllegalParameterException(START_GREAT_EQ_0);
@@ -299,20 +297,19 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 		this.size = size;
 		return this;
 	}
-	
+
 	@Override
 	public Select forUpdate() {
 		sql.append(SPACE).append(K.forUpdate);
 		return this;
 	}
-	
+
 	private void updatePvList(Select subSelect) {
-		super.getPvList().addAll((List)subSelect.getPvList()); 
+		super.getPvList().addAll((List) subSelect.getPvList());
 	}
-	
+
 	private void _appendTable(String table) {
 		super.appendTable(table);
 	}
-	
-	
+
 }

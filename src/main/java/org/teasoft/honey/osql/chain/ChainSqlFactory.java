@@ -22,7 +22,7 @@ public class ChainSqlFactory {
 	private Update update;
 	private Insert insert;
 	private Delete delete;
-	
+
 	private UnionSelect unionSelect;
 
 	public Select getSelect() {
@@ -62,7 +62,7 @@ public class ChainSqlFactory {
 	}
 
 	public UnionSelect getUnionSelect() {
-		if(unionSelect==null) return new UnionSelectImpl();
+		if (unionSelect == null) return new UnionSelectImpl();
 		return unionSelect;
 	}
 

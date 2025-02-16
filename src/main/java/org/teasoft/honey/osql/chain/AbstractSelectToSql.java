@@ -18,9 +18,9 @@ public class AbstractSelectToSql extends WhereImpl<Select> {
 	protected Integer start;
 //	protected Integer size=100; //默认100
 	protected Integer size;
-	
-	//can not add paing default, or may gen do not support sql,like below.
-	//select * from orders where id in (select id from orders limit 0,100) limit 0,100
+
+	// can not add paing default, or may gen do not support sql,like below.
+	// select * from orders where id in (select id from orders limit 0,100) limit 0,100
 
 	// select的要加分页
 	public String toSQL(boolean noSemicolon) { // toSQL()也会调用这个方法

@@ -16,12 +16,11 @@ import org.teasoft.honey.osql.core.K;
  */
 public class UpdateImpl extends WhereImpl<Update> implements Update {
 
-	
 	private static final String MUL = "*";
 	private static final String ADD = "+";
 	private boolean isStartTable = true;
 	private boolean isStartSet = true;
-	
+
 	private static final String COMMA = ",";
 	private static final String SPACE = " ";
 
@@ -48,28 +47,27 @@ public class UpdateImpl extends WhereImpl<Update> implements Update {
 	public Update set(String field, String value) {
 
 		checkExpression(field);
-		
+
 		adjustComma();
 		sql.append(field);
 		sql.append("=");
-		
+
 		if (isUsePlaceholder()) {
 			sql.append("?");
-		    addValue(value);
+			addValue(value);
 		} else {
 			sql.append("'");
 			sql.append(value);
 			sql.append("'");
 		}
-		
-		
+
 		return this;
 	}
-	
+
 	@Override
 	public Update set(String field, Number value) {
 		checkExpression(field);
-		
+
 		adjustComma();
 		sql.append(field);
 		sql.append("=");
@@ -81,7 +79,7 @@ public class UpdateImpl extends WhereImpl<Update> implements Update {
 		}
 		return this;
 	}
-	
+
 	@Override
 	public Update setAdd(String field, Number num) {
 		return _set0(field, num, ADD);
@@ -91,17 +89,16 @@ public class UpdateImpl extends WhereImpl<Update> implements Update {
 	public Update setMultiply(String field, Number num) {
 		return _set0(field, num, MUL);
 	}
-	
-	
+
 	private Update _set0(String field, Number value, String operator) {
 		checkExpression(field);
-		
+
 		adjustComma();
 		sql.append(field);
 		sql.append("=");
 		sql.append(field);
 		sql.append(operator);
-		
+
 		if (isUsePlaceholder()) {
 			sql.append("?");
 			addValue(value);
@@ -126,19 +123,19 @@ public class UpdateImpl extends WhereImpl<Update> implements Update {
 	public Update setMultiply(String field, String otherFieldName) {
 		return _set1(field, otherFieldName, MUL);
 	}
-	
+
 //	update table_name set f1=f1+alph;
 	private Update _set1(String field, String otherFieldName, String operator) {
 		checkExpression(field);
 		checkExpression(otherFieldName);
-		
+
 		adjustComma();
 		sql.append(field);
 		sql.append("=");
 		sql.append(field);
 		sql.append(operator);
 		sql.append(otherFieldName);
-		
+
 		return this;
 	}
 
@@ -149,7 +146,7 @@ public class UpdateImpl extends WhereImpl<Update> implements Update {
 	public Update setWithField(String field1, String field2) {
 		checkExpression(field1);
 		checkExpression(field2);
-		
+
 		adjustComma();
 		sql.append(field1);
 		sql.append("=");
@@ -157,13 +154,11 @@ public class UpdateImpl extends WhereImpl<Update> implements Update {
 
 		return this;
 	}
-	
-	
 
 	@Override
 	public Update setNull(String fieldName) {
 		checkExpression(fieldName);
-		
+
 		adjustComma();
 		sql.append(fieldName);
 		sql.append("=");
@@ -175,7 +170,7 @@ public class UpdateImpl extends WhereImpl<Update> implements Update {
 	private void _appendTable(String table) {
 		super.appendTable(table);
 	}
-	
+
 	private void adjustComma() {
 		if (!isStartSet)
 			sql.append(" , ");

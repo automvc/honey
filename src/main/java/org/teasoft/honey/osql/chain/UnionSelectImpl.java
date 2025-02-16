@@ -25,15 +25,15 @@ public class UnionSelectImpl extends AbstractToSqlForChain implements UnionSelec
 	private static final String L_PARENTHESES = "(";
 	private static final String R_PARENTHESES = ")";
 	private static final String ONE_SPACE = " ";
-	
+
 //	private StringBuffer sql = new StringBuffer(); //fixed bug.
-	
+
 	public UnionSelectImpl() {}
 
 	private UnionSelect useUnionSelect(String keyword, String subSelect1, String subSelect2) {
-		
-		sql=new StringBuffer();
-		
+
+		sql = new StringBuffer();
+
 		sql.append(L_PARENTHESES);
 		sql.append(subSelect1);
 		sql.append(R_PARENTHESES);
@@ -51,8 +51,8 @@ public class UnionSelectImpl extends AbstractToSqlForChain implements UnionSelec
 	@Override
 	public UnionSelect union(Select subSelect1, Select subSelect2) {
 		pvList = new ArrayList<>();
-		getPvList().addAll((List)subSelect1.getPvList());   //接口要加Select
-		getPvList().addAll((List)subSelect2.getPvList());   //接口要加Select
+		getPvList().addAll((List) subSelect1.getPvList()); // 接口要加Select
+		getPvList().addAll((List) subSelect2.getPvList()); // 接口要加Select
 		return union(subSelect1.toSQL(), subSelect2.toSQL());
 	}
 
@@ -64,8 +64,8 @@ public class UnionSelectImpl extends AbstractToSqlForChain implements UnionSelec
 	@Override
 	public UnionSelect unionAll(Select subSelect1, Select subSelect2) {
 		pvList = new ArrayList<>();
-		getPvList().addAll((List)subSelect1.getPvList());   //接口要加Select
-		getPvList().addAll((List)subSelect2.getPvList());   //接口要加Select
+		getPvList().addAll((List) subSelect1.getPvList()); // 接口要加Select
+		getPvList().addAll((List) subSelect2.getPvList()); // 接口要加Select
 		return unionAll(subSelect1.toSQL(), subSelect2.toSQL());
 	}
 
@@ -73,25 +73,25 @@ public class UnionSelectImpl extends AbstractToSqlForChain implements UnionSelec
 	public UnionSelect unionAll(String subSelect1, String subSelect2) {
 		return useUnionSelect(K.unionAll, subSelect1, subSelect2);
 	}
-	
-	//2.4.0
+
+	// 2.4.0
 	@Override
-	public UnionSelect union(String[] subSelects) { //无法使用占位符
+	public UnionSelect union(String[] subSelects) { // 无法使用占位符
 		return useUnionSelect(K.union, subSelects);
 	}
-	
+
 	@Override
-	public UnionSelect unionAll(String[] subSelects) { //无法使用占位符
+	public UnionSelect unionAll(String[] subSelects) { // 无法使用占位符
 		return useUnionSelect(K.unionAll, subSelects);
 	}
-	
+
 	private UnionSelect useUnionSelect(String keyword, String[] subSelects) {
-		
+
 		clearContext();
-		
-        if(subSelects==null || subSelects.length==0) {
-        	//do nothing
-        }else if (subSelects.length == 1) {
+
+		if (subSelects == null || subSelects.length == 0) {
+			// do nothing
+		} else if (subSelects.length == 1) {
 			sql.append(subSelects[0]);
 		} else {
 			sql.append(L_PARENTHESES);
@@ -110,11 +110,11 @@ public class UnionSelectImpl extends AbstractToSqlForChain implements UnionSelec
 		}
 		return this;
 	}
-	
-	//every time use UnionSelectImpl as with new object, so need clear the old context.
+
+	// every time use UnionSelectImpl as with new object, so need clear the old context.
 	private void clearContext() {
-		sql=new StringBuffer();
+		sql = new StringBuffer();
 		pvList = new ArrayList<>();
 	}
-	
+
 }

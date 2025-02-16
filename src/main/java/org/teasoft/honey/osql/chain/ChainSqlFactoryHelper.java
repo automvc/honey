@@ -17,27 +17,30 @@ import org.teasoft.bee.osql.chain.Update;
  * @since  2.4.0
  */
 public class ChainSqlFactoryHelper {
-	
+
 	private static ChainSqlFactory factory;
 	static {
-		factory=new ChainSqlFactory();
+		factory = new ChainSqlFactory();
 	}
-	
+
 	public static Select getSelect() {
 		return factory.getSelect();
 	}
+
 	public static Update getUpdate() {
 		return factory.getUpdate();
 	}
+
 	public static Insert getInsert() {
 		return factory.getInsert();
 	}
+
 	public static Delete getDelete() {
 		return factory.getDelete();
 	}
-	
+
 	public static UnionSelect getUnionSelect() {
 		return factory.getUnionSelect();
 	}
-	
+
 }

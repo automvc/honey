@@ -81,4 +81,3 @@ public class DeleteImpl extends WhereImpl<Delete> implements Delete {
 	}
 
 }
-
