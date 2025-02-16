@@ -40,31 +40,30 @@ import org.teasoft.honey.osql.core.Logger;
  * @author Kingstar
  * @since  1.8
  */
-public class SerialUniqueId implements GenId{
-	
-	private AtomicLong sequenceNumber= null;
-	
+public class SerialUniqueId implements GenId {
+
+	private AtomicLong sequenceNumber = null;
+
 	private Worker worker;
 
-	private long workerId = getWorker().getWorkerId(); //10
+	private long workerId = getWorker().getWorkerId(); // 10
 	private long timestamp; // second 31
 	private static final long segment = 0L; // 3
 	private static final long sequence = 1L; // 19
-	
+
 //	private final long workerIdBits = 10L;
-	private static final long timeBits=31L;
+	private static final long timeBits = 31L;
 	private static final long segmentBits = 3L;
 	private static final long sequenceBits = 19L;
-	
-	private static final long workerIdShift = sequenceBits+segmentBits+timeBits;
-	private static final long timestampLeftShift = sequenceBits+segmentBits;
-	private static final long segmentShift = sequenceBits;
 
+	private static final long workerIdShift = sequenceBits + segmentBits + timeBits;
+	private static final long timestampLeftShift = sequenceBits + segmentBits;
+	private static final long segmentShift = sequenceBits;
 
 //	private long startSecond = 1483200000; // 单位：s    2017-01-01 (yyyy-MM-dd)
 	private long startSecond = Start.getStartSecond();
 	private long initNum;
-	
+
 	/**
 	 * !注意:每次新建都会重置开始号码.
 	 */
@@ -74,7 +73,7 @@ public class SerialUniqueId implements GenId{
 		initNum = (workerId << workerIdShift) | ((timestamp - startSecond) << timestampLeftShift) | (segment << segmentShift) | (sequence);
 		sequenceNumber = new AtomicLong(initNum);
 	}
-	
+
 	private long _curSecond() {
 		return (System.currentTimeMillis()) / 1000L;
 	}
@@ -90,30 +89,30 @@ public class SerialUniqueId implements GenId{
 
 	@Override
 	public synchronized long get() {
-		 long id=sequenceNumber.getAndIncrement();
-		 
-		 testSpeedLimit(id);
-		 return id;
+		long id = sequenceNumber.getAndIncrement();
+
+		testSpeedLimit(id);
+		return id;
 	}
 
 	@Override
 	public synchronized long[] getRangeId(int sizeOfIds) {
-		long r[]=new long[2];
-		r[0]=sequenceNumber.getAndIncrement();
-		r[1]=r[0]+sizeOfIds-1;
-		setSequenceNumber(r[0]+sizeOfIds);
-		
-		//使用乐观锁的话,会浪费ID号
-		
+		long r[] = new long[2];
+		r[0] = sequenceNumber.getAndIncrement();
+		r[1] = r[0] + sizeOfIds - 1;
+		setSequenceNumber(r[0] + sizeOfIds);
+
+		// 使用乐观锁的话,会浪费ID号
+
 		testSpeedLimit(r[1]);
-		
+
 		return r;
 	}
-	
-	private void setSequenceNumber(long newNum){
+
+	private void setSequenceNumber(long newNum) {
 		sequenceNumber.set(newNum);
 	}
-	
+
 	private synchronized void testSpeedLimit(long currentLong) {
 
 		long spentTime = _curSecond() - timestamp + 1;
@@ -128,7 +127,7 @@ public class SerialUniqueId implements GenId{
 			Logger.error(e.getMessage(), e);
 			Thread.currentThread().interrupt();
 		} catch (Exception e) {
-		  Logger.error(e.getMessage());
+			Logger.error(e.getMessage());
 		}
 	}
 
