@@ -24,46 +24,41 @@ import org.teasoft.honey.osql.core.Logger;
  * @author Kingstar
  * @since  1.7.1
  */
-public class FileHandle implements FileCreator{
-	
+public class FileHandle implements FileCreator {
+
 	private String charsetName;
-	
 
 	@Override
 	public void setCharsetName(String charsetName) {
-		this.charsetName=charsetName;
+		this.charsetName = charsetName;
 	}
-	
+
 	public String getCharsetName() {
-		if (this.charsetName == null || "".equals(charsetName.trim()))
-			return "UTF-8";
-		else
-			return this.charsetName;
+		if (this.charsetName == null || "".equals(charsetName.trim())) return "UTF-8";
+		else return this.charsetName;
 	}
 
 	@Override
 	public void genFile(String fullPathAndName, String content) {
 		File f = new File(fullPathAndName);
-		
-		if(f.exists()) {
+
+		if (f.exists()) {
 			Logger.info("The file already exist.");
 			backFile(f);
-		}else if (!f.exists()) {
-			String substr=fullPathAndName.substring(0,fullPathAndName.lastIndexOf(File.separator));
+		} else if (!f.exists()) {
+			String substr = fullPathAndName.substring(0, fullPathAndName.lastIndexOf(File.separator));
 			new File(substr).mkdirs();
-			Logger.info("Create file: "+fullPathAndName);
+			Logger.info("Create file: " + fullPathAndName);
 		}
-		
-		try (
-			  BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f),getCharsetName()));
-			){
+
+		try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f), getCharsetName()));) {
 			bw.write(content);
 			bw.flush();
 			logGenFile(fullPathAndName);
 		} catch (Exception e) {
 			Logger.error(e.getMessage());
 		}
-		
+
 	}
 
 	@Override
@@ -87,9 +82,8 @@ public class FileHandle implements FileCreator{
 				backFile(entityFile);
 			}
 		}
-		try(
-			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(entityFile),getCharsetName()));
-			) {
+		try (BufferedWriter bw = new BufferedWriter(
+				new OutputStreamWriter(new FileOutputStream(entityFile), getCharsetName()));) {
 			bw.write(content);
 			bw.flush();
 			logGenFile(fullPath + fileName);
@@ -97,30 +91,29 @@ public class FileHandle implements FileCreator{
 			Logger.error(e.getMessage());
 		}
 	}
-	
+
 	@Override
 	public void genFile(String basePath, String packagePath, String fileName, String content) {
-		
+
 		if (!basePath.endsWith(File.separator)) basePath += File.separator;
 		String fullPath = basePath + packagePath.replace(".", File.separator) + File.separator;
-		genFile( fullPath,  fileName,  content);
+		genFile(fullPath, fileName, content);
 	}
-	
-	
+
 	private String LINE_SEPARATOR = System.getProperty("line.separator"); // 换行符
-	
+
 	@Override
 	public void genAppendFile(String fullPathAndName, String content) {
 		File f = new File(fullPathAndName);
-		
+
 		if (!f.exists()) {
-			String substr=fullPathAndName.substring(0,fullPathAndName.lastIndexOf(File.separator));
+			String substr = fullPathAndName.substring(0, fullPathAndName.lastIndexOf(File.separator));
 			new File(substr).mkdirs();
 		}
-		
-		try (
-			  BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f,true),getCharsetName()));//true,追加的方式
-			){
+
+		try (BufferedWriter bw = new BufferedWriter(
+				new OutputStreamWriter(new FileOutputStream(f, true), getCharsetName()));// true,追加的方式
+		) {
 			bw.write(content);
 			bw.append(LINE_SEPARATOR);
 			bw.flush();
@@ -128,9 +121,9 @@ public class FileHandle implements FileCreator{
 		} catch (Exception e) {
 			Logger.error(e.getMessage());
 		}
-		
+
 	}
-	
+
 	@Override
 	public BufferedReader readFile(String fullPathAndName) {
 		File file = new File(fullPathAndName);
@@ -147,11 +140,11 @@ public class FileHandle implements FileCreator{
 		}
 		return reader;
 	}
-	
+
 	private void logGenFile(String pathAndName) {
 		Logger.info("Generate file successful. path: " + pathAndName);
 	}
-	
+
 	/**
 	 * back the file
 	 * @param f
@@ -173,5 +166,5 @@ public class FileHandle implements FileCreator{
 			Logger.debug("Backup file failed: " + backupFile.getAbsolutePath());
 		}
 	}
-	
+
 }

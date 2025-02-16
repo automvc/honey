@@ -16,9 +16,9 @@ import org.teasoft.honey.jdbc.EmptyDatabaseMetaData;
  * @since  2.0
  */
 public class MongodbDatabaseMetaData extends EmptyDatabaseMetaData {
-	
+
 	@Override
 	public String getDatabaseProductName() throws SQLException {
-		return DatabaseConst.MongoDB; //为了兼容JDBC
+		return DatabaseConst.MongoDB; // 为了兼容JDBC
 	}
 }

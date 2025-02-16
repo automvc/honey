@@ -13,34 +13,41 @@ import org.teasoft.bee.osql.SuidType;
  * @since  1.8
  */
 public class RouteStruct {
-	
-	private String tableNames; //用##间隔
+
+	private String tableNames; // 用##间隔
 //	private String returnType; 
-	private SuidType suidType; 
+	private SuidType suidType;
 	private String beanString;
-	private Class entityClass;  //maybe is null
-	
+	private Class entityClass; // maybe is null
+
 	public String getTableNames() {
 		return tableNames;
 	}
+
 	public void setTableNames(String tableNames) {
 		this.tableNames = tableNames;
 	}
+
 	public SuidType getSuidType() {
 		return suidType;
 	}
+
 	public void setSuidType(SuidType suidType) {
 		this.suidType = suidType;
 	}
+
 	public String getBeanString() {
 		return beanString;
 	}
+
 	public void setBeanString(String beanString) {
 		this.beanString = beanString;
 	}
+
 	public Class getEntityClass() {
 		return entityClass;
 	}
+
 	public void setEntityClass(Class entityClass) {
 		this.entityClass = entityClass;
 	}

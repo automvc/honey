@@ -42,7 +42,7 @@ public class SimpleDataSource extends EmptyDataSource {
 
 		init();
 	}
-	
+
 	/**
 	 * @param url
 	 * @since 2.4.0
@@ -77,16 +77,17 @@ public class SimpleDataSource extends EmptyDataSource {
 	// get,set
 
 	public String getUrl() {
-		//Ms Access
-		if(StringUtils.isNotBlank(this.password) && url!=null && url.startsWith("jdbc:ucanaccess:") && !url.contains("jackcessOpener=")) {
-			return url+";jackcessOpener=org.teasoft.beex.access.BeeAccessCryptOpener";
+		// Ms Access
+		if (StringUtils.isNotBlank(this.password) && url != null && url.startsWith("jdbc:ucanaccess:")
+				&& !url.contains("jackcessOpener=")) {
+			return url + ";jackcessOpener=org.teasoft.beex.access.BeeAccessCryptOpener";
 		}
 		return url;
 	}
 
 	public void setUrl(String url) {
 		this.url = url;
-		counter= 1;
+		counter = 1;
 	}
 
 	public String getUsername() {

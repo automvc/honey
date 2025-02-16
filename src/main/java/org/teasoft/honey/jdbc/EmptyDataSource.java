@@ -18,7 +18,7 @@ import javax.sql.DataSource;
  * @author Kingstar
  * @since  2.0
  */
-public class EmptyDataSource implements DataSource{
+public class EmptyDataSource implements DataSource {
 
 	@Override
 	public <T> T unwrap(Class<T> iface) throws SQLException {
@@ -37,12 +37,12 @@ public class EmptyDataSource implements DataSource{
 
 	@Override
 	public void setLogWriter(PrintWriter out) throws SQLException {
-		
+
 	}
 
 	@Override
 	public void setLoginTimeout(int seconds) throws SQLException {
-		
+
 	}
 
 	@Override

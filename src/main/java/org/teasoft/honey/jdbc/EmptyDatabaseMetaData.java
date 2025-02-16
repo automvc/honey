@@ -18,9 +18,9 @@ import org.teasoft.bee.osql.exception.NotSupportedException;
  * @author Kingstar
  * @since  2.0
  */
-public class EmptyDatabaseMetaData implements DatabaseMetaData{
-	
-	private static final String MSG="Do not support this method!";
+public class EmptyDatabaseMetaData implements DatabaseMetaData {
+
+	private static final String MSG = "Do not support this method!";
 
 	@Override
 	public <T> T unwrap(Class<T> iface) throws SQLException {
@@ -623,20 +623,20 @@ public class EmptyDatabaseMetaData implements DatabaseMetaData{
 	}
 
 	@Override
-	public ResultSet getProcedures(String catalog, String schemaPattern,
-			String procedureNamePattern) throws SQLException {
+	public ResultSet getProcedures(String catalog, String schemaPattern, String procedureNamePattern)
+			throws SQLException {
 		throw new NotSupportedException(MSG);
 	}
 
 	@Override
-	public ResultSet getProcedureColumns(String catalog, String schemaPattern,
-			String procedureNamePattern, String columnNamePattern) throws SQLException {
+	public ResultSet getProcedureColumns(String catalog, String schemaPattern, String procedureNamePattern,
+			String columnNamePattern) throws SQLException {
 		throw new NotSupportedException(MSG);
 	}
 
 	@Override
-	public ResultSet getTables(String catalog, String schemaPattern, String tableNamePattern,
-			String[] types) throws SQLException {
+	public ResultSet getTables(String catalog, String schemaPattern, String tableNamePattern, String[] types)
+			throws SQLException {
 		throw new NotSupportedException(MSG);
 	}
 
@@ -656,57 +656,52 @@ public class EmptyDatabaseMetaData implements DatabaseMetaData{
 	}
 
 	@Override
-	public ResultSet getColumns(String catalog, String schemaPattern, String tableNamePattern,
-			String columnNamePattern) throws SQLException {
+	public ResultSet getColumns(String catalog, String schemaPattern, String tableNamePattern, String columnNamePattern)
+			throws SQLException {
 		return null;
 	}
 
 	@Override
-	public ResultSet getColumnPrivileges(String catalog, String schema, String table,
-			String columnNamePattern) throws SQLException {
-		throw new NotSupportedException(MSG);
-	}
-
-	@Override
-	public ResultSet getTablePrivileges(String catalog, String schemaPattern,
-			String tableNamePattern) throws SQLException {
-		 throw new SQLException("Do not support this method!");
-	}
-
-	@Override
-	public ResultSet getBestRowIdentifier(String catalog, String schema, String table,
-			int scope, boolean nullable) throws SQLException {
-		throw new NotSupportedException(MSG);
-	}
-
-	@Override
-	public ResultSet getVersionColumns(String catalog, String schema, String table)
+	public ResultSet getColumnPrivileges(String catalog, String schema, String table, String columnNamePattern)
 			throws SQLException {
 		throw new NotSupportedException(MSG);
 	}
 
 	@Override
-	public ResultSet getPrimaryKeys(String catalog, String schema, String table)
+	public ResultSet getTablePrivileges(String catalog, String schemaPattern, String tableNamePattern)
+			throws SQLException {
+		throw new SQLException("Do not support this method!");
+	}
+
+	@Override
+	public ResultSet getBestRowIdentifier(String catalog, String schema, String table, int scope, boolean nullable)
 			throws SQLException {
 		throw new NotSupportedException(MSG);
 	}
 
 	@Override
-	public ResultSet getImportedKeys(String catalog, String schema, String table)
-			throws SQLException {
+	public ResultSet getVersionColumns(String catalog, String schema, String table) throws SQLException {
 		throw new NotSupportedException(MSG);
 	}
 
 	@Override
-	public ResultSet getExportedKeys(String catalog, String schema, String table)
-			throws SQLException {
+	public ResultSet getPrimaryKeys(String catalog, String schema, String table) throws SQLException {
 		throw new NotSupportedException(MSG);
 	}
 
 	@Override
-	public ResultSet getCrossReference(String parentCatalog, String parentSchema,
-			String parentTable, String foreignCatalog, String foreignSchema,
-			String foreignTable) throws SQLException {
+	public ResultSet getImportedKeys(String catalog, String schema, String table) throws SQLException {
+		throw new NotSupportedException(MSG);
+	}
+
+	@Override
+	public ResultSet getExportedKeys(String catalog, String schema, String table) throws SQLException {
+		throw new NotSupportedException(MSG);
+	}
+
+	@Override
+	public ResultSet getCrossReference(String parentCatalog, String parentSchema, String parentTable,
+			String foreignCatalog, String foreignSchema, String foreignTable) throws SQLException {
 		throw new NotSupportedException(MSG);
 	}
 
@@ -716,8 +711,8 @@ public class EmptyDatabaseMetaData implements DatabaseMetaData{
 	}
 
 	@Override
-	public ResultSet getIndexInfo(String catalog, String schema, String table, boolean unique,
-			boolean approximate) throws SQLException {
+	public ResultSet getIndexInfo(String catalog, String schema, String table, boolean unique, boolean approximate)
+			throws SQLException {
 		throw new NotSupportedException(MSG);
 	}
 
@@ -782,8 +777,8 @@ public class EmptyDatabaseMetaData implements DatabaseMetaData{
 	}
 
 	@Override
-	public ResultSet getUDTs(String catalog, String schemaPattern, String typeNamePattern,
-			int[] types) throws SQLException {
+	public ResultSet getUDTs(String catalog, String schemaPattern, String typeNamePattern, int[] types)
+			throws SQLException {
 		throw new NotSupportedException(MSG);
 	}
 
@@ -813,14 +808,12 @@ public class EmptyDatabaseMetaData implements DatabaseMetaData{
 	}
 
 	@Override
-	public ResultSet getSuperTypes(String catalog, String schemaPattern, String typeNamePattern)
-			throws SQLException {
+	public ResultSet getSuperTypes(String catalog, String schemaPattern, String typeNamePattern) throws SQLException {
 		return null;
 	}
 
 	@Override
-	public ResultSet getSuperTables(String catalog, String schemaPattern,
-			String tableNamePattern) throws SQLException {
+	public ResultSet getSuperTables(String catalog, String schemaPattern, String tableNamePattern) throws SQLException {
 		return null;
 	}
 
@@ -901,20 +894,19 @@ public class EmptyDatabaseMetaData implements DatabaseMetaData{
 	}
 
 	@Override
-	public ResultSet getFunctions(String catalog, String schemaPattern,
-			String functionNamePattern) throws SQLException {
+	public ResultSet getFunctions(String catalog, String schemaPattern, String functionNamePattern) throws SQLException {
 		throw new NotSupportedException(MSG);
 	}
 
 	@Override
-	public ResultSet getFunctionColumns(String catalog, String schemaPattern,
-			String functionNamePattern, String columnNamePattern) throws SQLException {
+	public ResultSet getFunctionColumns(String catalog, String schemaPattern, String functionNamePattern,
+			String columnNamePattern) throws SQLException {
 		throw new NotSupportedException(MSG);
 	}
 
 	@Override
-	public ResultSet getPseudoColumns(String catalog, String schemaPattern,
-			String tableNamePattern, String columnNamePattern) throws SQLException {
+	public ResultSet getPseudoColumns(String catalog, String schemaPattern, String tableNamePattern,
+			String columnNamePattern) throws SQLException {
 		throw new NotSupportedException(MSG);
 	}
 

@@ -18,7 +18,7 @@ import org.teasoft.honey.osql.core.HoneyUtil;
  * @since  1.9.8
  */
 public class ColumnUtil {
-	
+
 	private ColumnUtil() {}
 
 	public static List<ColumnBean> getColumnList(String tableName) {
@@ -28,11 +28,11 @@ public class ColumnUtil {
 		if (tableBean == null || tableBean.getColumnNames() == null) return Collections.emptyList();
 
 		List<String> columnNames = tableBean.getColumnNames();
-		List<String> columnTypes = tableBean.getColumnTypes(); //jdbcType
+		List<String> columnTypes = tableBean.getColumnTypes(); // jdbcType
 		Map<String, String> commentMap = tableBean.getCommentMap();
 		List<Boolean> ynNulls = tableBean.getYnNulls();
 		String newTableName = tableBean.getTableName();
-		String tableComment=commentMap.get(newTableName);
+		String tableComment = commentMap.get(newTableName);
 
 		List<ColumnBean> list = new ArrayList<>();
 		ColumnBean columnBean = null;
@@ -45,22 +45,22 @@ public class ColumnUtil {
 
 			columnBean = new ColumnBean();
 			columnBean.setCol(columnName);
-			columnBean.setType(HoneyUtil.getFieldType(columnType)); //java type
+			columnBean.setType(HoneyUtil.getFieldType(columnType)); // java type
 			columnBean.setLabel(comment);
 			columnBean.setYnNull(ynNull);
 			columnBean.setTablename(newTableName);
 			columnBean.setTablecomment(tableComment);
-			columnBean.setYnKey(isKey(columnName,tableBean.getPrimaryKeyNames()));
+			columnBean.setYnKey(isKey(columnName, tableBean.getPrimaryKeyNames()));
 
 			list.add(columnBean);
 		}
 
 		return list;
 	}
-	
-	private static boolean isKey(String col,Map<String, String> primaryKeyMap) {
-        if(primaryKeyMap==null || col==null) return false;
-		return primaryKeyMap.get(col)!=null;
+
+	private static boolean isKey(String col, Map<String, String> primaryKeyMap) {
+		if (primaryKeyMap == null || col == null) return false;
+		return primaryKeyMap.get(col) != null;
 	}
 
 }
