@@ -118,12 +118,12 @@ public class AbstractCommOperate implements CommOperate {
 	private void initParseDefineColumn(Object entity) {
 		if (entity == null) return;
 		Class entityClass;
-		//2.4.0.8
+		// 2.4.0.8
 		if (entity instanceof Class)
 			entityClass = (Class) entity;
 		else
 			entityClass = entity.getClass();
-		
+
 		String entityFullName = entityClass.getName();
 		Boolean flag = HoneyContext.getCustomFlagMap(field2Column + entityFullName);
 		if (flag == null) {// 还没检测的

@@ -170,7 +170,8 @@ final class _ObjectToSQLHelper {
 						} else {
 							columnNames += "," + g;
 						}
-						if (isEmptyOrderByMap) condition.orderBy(g);
+						if (isEmptyOrderByMap)
+							condition.orderBy(g);
 						else {
 							if (!needGroupWhenNoFun && !orderByMap.containsKey(g)) needGroupWhenNoFun = true;
 						}
@@ -664,7 +665,8 @@ final class _ObjectToSQLHelper {
 		String tableName = _toTableName(entity);
 		if (HoneyUtil.isMysql() && AnnoUtil.isReplaceInto(entity)) // V1.11
 			sqlBuffer.append(REPLACE_INTO);
-		else sqlBuffer.append(INSERT_INTO);
+		else
+			sqlBuffer.append(INSERT_INTO);
 		sqlBuffer.append(tableName);
 		sqlBuffer.append("(");
 

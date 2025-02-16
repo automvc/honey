@@ -55,8 +55,10 @@ public abstract class AbstractToSqlForChain implements ToSql {
 	}
 
 	public void appendTable(String table) {
-		if (StringUtils.isBlank(this.table)) this.table = table;
-		else this.table += StringConst.TABLE_SEPARATOR + table;
+		if (StringUtils.isBlank(this.table))
+			this.table = table;
+		else
+			this.table += StringConst.TABLE_SEPARATOR + table;
 	}
 
 	public boolean isUsePlaceholder() {

@@ -56,7 +56,7 @@ public class _MoreObjectToSQLHelper {
 			includeType = -1;
 		else
 			includeType = condition.getIncludeType().getValue();
-		
+
 //		condition=condition.clone();
 		return _toSelectSQL(entity, includeType, condition, -1, -1);
 	}
@@ -244,7 +244,8 @@ public class _MoreObjectToSQLHelper {
 								columnNames += "," + g;
 							}
 						}
-						if (isEmptyOrderByMap) condition.orderBy(g); // will adjust name in ConditionHelper
+						if (isEmptyOrderByMap)
+							condition.orderBy(g); // will adjust name in ConditionHelper
 						else {
 							if (!needGroupWhenNoFun && !orderByMap.containsKey(g)) needGroupWhenNoFun = true;
 						}
@@ -319,37 +320,36 @@ public class _MoreObjectToSQLHelper {
 					|| (twoTablesWithJoinOnStyle && moreTableStruct[0].joinTableNum == 1))
 					&& (StringUtils.isNotBlank(moreTableStruct[1].joinExpression))) { // 需要有表达式
 
-						addJoinPart(sqlBuffer, moreTableStruct[1], tableNamesForCache);
+				addJoinPart(sqlBuffer, moreTableStruct[1], tableNamesForCache);
 
-					} else {// where写法
-						// 从表 最多两个
-						for (int s = 1; s <= 2; s++) { // 从表在数组下标是1和2. 0是主表
-							if (moreTableStruct[s] != null) {
+			} else {// where写法
+				// 从表 最多两个
+				for (int s = 1; s <= 2; s++) { // 从表在数组下标是1和2. 0是主表
+					if (moreTableStruct[s] != null) {
 
-								useSubTableNames[s - 1] = moreTableStruct[s].useSubTableName; // for conditon parse todo ??????
+						useSubTableNames[s - 1] = moreTableStruct[s].useSubTableName; // for conditon parse todo ??????
 
-								sqlBuffer.append(COMMA);
-								sqlBuffer.append(ShardingUtil.appendTableIndexIfNeed(moreTableStruct[s].tableName));
+						sqlBuffer.append(COMMA);
+						sqlBuffer.append(ShardingUtil.appendTableIndexIfNeed(moreTableStruct[s].tableName));
 //					tableNamesForCache+="##"+moreTableStruct[s].tableName; //V1.9
-								tableNamesForCache.append(StringConst.TABLE_SEPARATOR)
-										.append(moreTableStruct[s].tableName);// v1.9.8
-								if (moreTableStruct[s].hasSubAlias) {// 从表定义有别名
-									sqlBuffer.append(ONE_SPACE);
-									sqlBuffer.append(moreTableStruct[s].subAlias);
-								}
+						tableNamesForCache.append(StringConst.TABLE_SEPARATOR).append(moreTableStruct[s].tableName);// v1.9.8
+						if (moreTableStruct[s].hasSubAlias) {// 从表定义有别名
+							sqlBuffer.append(ONE_SPACE);
+							sqlBuffer.append(moreTableStruct[s].subAlias);
+						}
 
-								if (StringUtils.isNotBlank(moreTableStruct[s].joinExpression)) {
-									if (firstWhere) {
-										sqlBuffer2.append(" ").append(K.where).append(" ");
-										firstWhere = false;
-									} else {
-										sqlBuffer2.append(" ").append(K.and).append(" ");
-									}
-									sqlBuffer2.append(moreTableStruct[s].joinExpression);
-								}
+						if (StringUtils.isNotBlank(moreTableStruct[s].joinExpression)) {
+							if (firstWhere) {
+								sqlBuffer2.append(" ").append(K.where).append(" ");
+								firstWhere = false;
+							} else {
+								sqlBuffer2.append(" ").append(K.and).append(" ");
 							}
-						} // for end
+							sqlBuffer2.append(moreTableStruct[s].joinExpression);
+						}
 					}
+				} // for end
+			}
 
 			// 添加解析主表实体的where条件
 //			sqlBuffer2.append(sqlBuffer0);
@@ -560,8 +560,10 @@ public class _MoreObjectToSQLHelper {
 			Logger.warn("Pleae confirm the Database supports 'full join' type!");
 		}
 
-		if (HoneyUtil.isSqlKeyWordUpper()) sqlBuffer.append(moreTableStruct.joinType.getType().toUpperCase());
-		else sqlBuffer.append(moreTableStruct.joinType.getType());
+		if (HoneyUtil.isSqlKeyWordUpper())
+			sqlBuffer.append(moreTableStruct.joinType.getType().toUpperCase());
+		else
+			sqlBuffer.append(moreTableStruct.joinType.getType());
 		sqlBuffer.append(moreTableStruct.tableName);
 		// 只加表下标占位字符
 		if (ShardingUtil.useTableIndex(moreTableStruct.tableName)) sqlBuffer.append(StringConst.ShardingTableIndexStr);
