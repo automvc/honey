@@ -11,7 +11,7 @@ package org.teasoft.honey.database;
  * @since  2.0
  */
 public interface ClientConnection {
-	
+
 	public Object getDbConnection();
-	
+
 }

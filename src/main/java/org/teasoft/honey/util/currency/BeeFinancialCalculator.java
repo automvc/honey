@@ -17,15 +17,15 @@ import java.math.RoundingMode;
  * @since  1.11-E
  */
 public class BeeFinancialCalculator {
-	
+
 	private BeeFinancialCalculator() {
-		
+
 	}
-	
+
 	public static String preCheckExpression(String exp) {
 		return CurrencyExpressionArith.preCheckExpression(exp);
 	}
-	
+
 	public static String calculate(String expression) {
 		return arith(inToPostList(expression));
 	}
@@ -37,5 +37,5 @@ public class BeeFinancialCalculator {
 	public static String calculate(String expression, int scale, RoundingMode divideRoundingMode) {
 		return arith(inToPostList(expression), scale, divideRoundingMode);
 	}
-	
+
 }

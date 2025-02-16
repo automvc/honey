@@ -14,9 +14,9 @@ import java.math.RoundingMode;
  * @since  2.0
  */
 public class CurrencyArithmetic {
-	
+
 	private CurrencyArithmetic() {
-		
+
 	}
 
 //	private static int DEFAULT_ROUND_MODE=BigDecimal.ROUND_HALF_UP;
@@ -115,7 +115,7 @@ public class CurrencyArithmetic {
 	public static String calculate(String a, String op, String b, int scale) {
 		return calculate(a, op, b, scale, DEFAULT_ROUND_MODE);
 	}
-	
+
 	/**
 	 * a % b
 	 * @param a
@@ -130,8 +130,6 @@ public class CurrencyArithmetic {
 
 		return r.toPlainString();
 	}
-	
-	
 
 	/**
 	 * 对两个操作数进行加减乘除运行 a op b  
@@ -150,8 +148,8 @@ public class CurrencyArithmetic {
 			return subtract(a, b);
 		else if ("*".equals(op))
 			return multiply(a, b);
-		else if ("/".equals(op)) 
-			return divide(a, b, scale, roundingMode); //V2.1.8
+		else if ("/".equals(op))
+			return divide(a, b, scale, roundingMode); // V2.1.8
 		else if ("%".equals(op))
 			return remainder(a, b);
 		return null;

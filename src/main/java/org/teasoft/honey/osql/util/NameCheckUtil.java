@@ -21,11 +21,11 @@ import org.teasoft.honey.osql.core.Logger;
  * @since  1.9
  */
 public class NameCheckUtil {
-	
+
 	private static Set<String> keywordSet;
-	
+
 	private NameCheckUtil() {}
-	
+
 	static {
 		keywordSet = _keywordSet();
 	}
@@ -49,7 +49,7 @@ public class NameCheckUtil {
 				set.add(fields[i].get(entity).toString());
 			}
 		} catch (Exception e) {
-		    //ignore
+			// ignore
 		}
 
 		return set;
@@ -65,7 +65,7 @@ public class NameCheckUtil {
 	public static boolean isNotValidName(String name) {
 		return !isValidName(name);
 	}
-	
+
 	public static void checkName(String name) {
 		if (name != null && name.contains(",")) {
 			String n[] = name.split(",");
@@ -78,10 +78,10 @@ public class NameCheckUtil {
 	}
 
 	private static void _checkName(String name) {
-		
-		if(name==null) throw new BeeErrorNameException("The name is null.");
-		
-		if("count(*)".equalsIgnoreCase(name)) return ;
+
+		if (name == null) throw new BeeErrorNameException("The name is null.");
+
+		if ("count(*)".equalsIgnoreCase(name)) return;
 
 		if (NameCheckUtil.isKeyName(name)) {
 			Logger.warn("The name : '" + name + "' , it is key word name!");
@@ -94,26 +94,22 @@ public class NameCheckUtil {
 				throw new BeeErrorNameException("The name: '" + name + "' is illegal!");
 			} else {
 //				Logger.debug("The name is '" + name + "' , does not conform to naming conventions!",new Exception()); 
-				Logger.debug("The name is '" + name + "' , does not conform to naming conventions!"); 
+				Logger.debug("The name is '" + name + "' , does not conform to naming conventions!");
 			}
 		}
 
 	}
 
-	//是否非法名称
+	// 是否非法名称
 	public static boolean isIllegal(String fieldName) {
-		if (fieldName == null || fieldName.contains(" ") || fieldName.contains("-")
-				|| fieldName.contains("#") || fieldName.contains("|") || fieldName.contains("+")
-				|| fieldName.contains("/*")
-				|| fieldName.contains(";")
-				|| fieldName.contains("//")
-				) {
+		if (fieldName == null || fieldName.contains(" ") || fieldName.contains("-") || fieldName.contains("#")
+				|| fieldName.contains("|") || fieldName.contains("+") || fieldName.contains("/*")
+				|| fieldName.contains(";") || fieldName.contains("//")) {
 			return true;
 		}
 		return false;
 	}
-	
-	
+
 	public static boolean isContainCommentString(String fieldName) {
 
 		if (fieldName == null) return false;

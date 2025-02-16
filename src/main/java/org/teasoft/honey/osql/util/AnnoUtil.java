@@ -29,7 +29,7 @@ public class AnnoUtil {
 
 	static {
 		initAnnoAdapterInstance();
-		NameRegistry.registerColumnHandler(new DefaultColumnHandler()); //字段自定义命名转换
+		NameRegistry.registerColumnHandler(new DefaultColumnHandler()); // 字段自定义命名转换
 	}
 
 	private AnnoUtil() {}
@@ -58,7 +58,7 @@ public class AnnoUtil {
 	public static boolean isMultiTenancyAnno(Field field) {
 		return field.isAnnotationPresent(MultiTenancy.class);
 	}
-	
+
 	public static boolean isShardingAnno(Field field) {
 		return field.isAnnotationPresent(Sharding.class);
 	}
@@ -80,31 +80,30 @@ public class AnnoUtil {
 //		2.4.0 just when process result, Jsonb as Json. And Jsonb just for PostgreSQL
 		return field.isAnnotationPresent(Json.class) || field.isAnnotationPresent(Jsonb.class);
 	}
-	
-	public static boolean isJustJsonb(Field field) { //jsonb
+
+	public static boolean isJustJsonb(Field field) { // jsonb
 		return field.isAnnotationPresent(Jsonb.class);
 	}
 
 	public static boolean isGenPkAnno(Field field) {
-		return field.isAnnotationPresent(GenId.class)
-				|| field.isAnnotationPresent(GenUUID.class);
+		return field.isAnnotationPresent(GenId.class) || field.isAnnotationPresent(GenUUID.class);
 	}
-	
-	//2.1.8
+
+	// 2.1.8
 	public static boolean isFK(Field field) {
 		return field.isAnnotationPresent(FK.class);
 	}
-	
-	//2.1.8
+
+	// 2.1.8
 	public static boolean isGridFs(Field field) {
 		return field.isAnnotationPresent(GridFs.class);
 	}
-	
+
 	public static boolean isGridFsMetadata(Field field) {
 		return field.isAnnotationPresent(GridFsMetadata.class);
 	}
-	
-	//----------support SPI-------start--<<<<<<<-
+
+	// ----------support SPI-------start--<<<<<<<-
 	public static boolean isColumn(Field field) {
 //		return field.isAnnotationPresent(Column.class);
 		return annoAdapter.isColumn(field);
@@ -117,11 +116,10 @@ public class AnnoUtil {
 	public static boolean isPrimaryKey(Field field) {
 		return annoAdapter.isPrimaryKey(field);
 	}
-	
+
 	public static boolean isIgnore(Field field) {
 		return annoAdapter.isIgnore(field);
 	}
-	
 
 	public static String getValue(Field field) {
 		return annoAdapter.getValue(field);
@@ -148,8 +146,8 @@ public class AnnoUtil {
 	}
 
 	private static void initAnnoAdapterInstance2() {
-		boolean f1=false;
-		boolean f2=false;
+		boolean f1 = false;
+		boolean f2 = false;
 
 		try {
 			Class.forName("jakarta.persistence.Table"); // check
@@ -158,7 +156,7 @@ public class AnnoUtil {
 			// maybe donot add the bee-ext.
 //			annoAdapter = new AnnoAdapterBeeDefault();
 //			return;
-			f1=true;
+			f1 = true;
 		}
 
 		try {
@@ -167,10 +165,10 @@ public class AnnoUtil {
 			// maybe donot add the bee-ext.
 //			annoAdapter = new AnnoAdapterBeeDefault();
 //			return;
-			f2=true;
+			f2 = true;
 		}
-		
-		if (f1 && f2) { //没有用JPA
+
+		if (f1 && f2) { // 没有用JPA
 			annoAdapter = new AnnoAdapterBeeDefault();
 			return;
 		}
@@ -183,7 +181,7 @@ public class AnnoUtil {
 			annoAdapter = new AnnoAdapterBeeDefault();
 		}
 	}
-	
-	//----------support SPI-------end-->>>>>>>>-
+
+	// ----------support SPI-------end-->>>>>>>>-
 
 }

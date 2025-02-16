@@ -22,44 +22,40 @@ import org.teasoft.honey.util.StringUtils;
  * @since  1.4
  */
 public class DateUtil {
-	
+
 	private DateUtil() {}
-	
+
 	private static SimpleDateFormat getSimpleDateFormat() {
-		SimpleDateFormat defaultFormat =null;  
+		SimpleDateFormat defaultFormat = null;
 		String dateFormatStr = HoneyConfig.getHoneyConfig().dateFormat;
 		if (dateFormatStr != null && !"".equals(dateFormatStr.trim())) {
 			try {
 				defaultFormat = new SimpleDateFormat(dateFormatStr);
 			} catch (Exception e) {
-				Logger.warn("In DateUtil: it is error date format String :"+dateFormatStr);
+				Logger.warn("In DateUtil: it is error date format String :" + dateFormatStr);
 				defaultFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 			}
-		}else {
+		} else {
 			defaultFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		}
-		
-		
+
 		return defaultFormat;
 	}
-	
-	public static String currentDate(){
+
+	public static String currentDate() {
 		return getSimpleDateFormat().format(new Date());
 	}
-	
-	public static String currentDate(String formatStr){
-		SimpleDateFormat format =null;  
-		if(formatStr==null || "".trim().equals(formatStr)) 
-			format=getSimpleDateFormat();
-		else 
-		   format = new SimpleDateFormat(formatStr);
+
+	public static String currentDate(String formatStr) {
+		SimpleDateFormat format = null;
+		if (formatStr == null || "".trim().equals(formatStr)) format = getSimpleDateFormat();
+		else format = new SimpleDateFormat(formatStr);
 		return format.format(new Date());
 	}
-	
-	public static java.sql.Date currentSqlDate(){
+
+	public static java.sql.Date currentSqlDate() {
 		return new java.sql.Date(System.currentTimeMillis());
 	}
-	
 
 	/**
 	 * java.util.Date transfer to  java.sql.Date.
@@ -68,9 +64,9 @@ public class DateUtil {
 	 * @return
 	 */
 	public static java.sql.Date toSqlDate(Date date) {
-		return new java.sql.Date(date.getTime()); //会丢失时分秒
+		return new java.sql.Date(date.getTime()); // 会丢失时分秒
 	}
-	
+
 	public static Timestamp toTimestamp(String dateString) {
 		try {
 			Date date = getSimpleDateFormat().parse(dateString);
@@ -81,7 +77,7 @@ public class DateUtil {
 
 		return null;
 	}
-	
+
 	public static Timestamp toTimestamp(Date date) {
 		try {
 			return new Timestamp(date.getTime());
@@ -91,7 +87,7 @@ public class DateUtil {
 
 		return null;
 	}
-	
+
 //	/**
 //	 * 
 //	 * @param dateString
@@ -106,7 +102,7 @@ public class DateUtil {
 //		}
 //		return null;
 //	}
-	
+
 	/**
 	 * 
 	 * @param date
@@ -121,7 +117,7 @@ public class DateUtil {
 		}
 		return null;
 	}
-	
+
 //	/**
 //	 * 
 //	 * @return
@@ -135,9 +131,7 @@ public class DateUtil {
 //		}
 //		return null;
 //	}
-	
-	
-	
+
 	/**
 	 * 往前或往后指定天数
 	 * @param days
@@ -149,16 +143,16 @@ public class DateUtil {
 //		cal.add(Calendar.DAY_OF_MONTH, days);
 //		return cal.getTime();
 //	}
-	
+
 	/**
 	 * 获取当前Timestamp
 	 * @return 当前Timestamp
 	 * @since 1.11
 	 */
-	public static Timestamp currentTimestamp(){
+	public static Timestamp currentTimestamp() {
 		return new Timestamp(System.currentTimeMillis());
 	}
-	
+
 	/**
 	 * 往前或往后指定天数
 	 * @param days
@@ -166,49 +160,46 @@ public class DateUtil {
 	 * @since 1.11
 	 */
 	public static Timestamp jumpDaysExact(int days) {
-		Calendar cal = Calendar.getInstance();//使用默认时区和语言环境获得一个日历。    
+		Calendar cal = Calendar.getInstance();// 使用默认时区和语言环境获得一个日历。
 		cal.add(Calendar.DAY_OF_MONTH, days);
-		return new Timestamp(cal.getTimeInMillis()); 
+		return new Timestamp(cal.getTimeInMillis());
 	}
-	
+
 	/**
 	 * 往前或往后指定天数,指定天最后秒设置为23:59:59
 	 * @param days
 	 * @return Timestamp对象.instance of Timestamp.
 	 */
 	public static Timestamp jumpDays(int days) {
-		Calendar cal = Calendar.getInstance();//使用默认时区和语言环境获得一个日历。    
+		Calendar cal = Calendar.getInstance();// 使用默认时区和语言环境获得一个日历。
 		cal.add(Calendar.DAY_OF_MONTH, days);
 		cal.set(Calendar.HOUR, 23);
 		cal.set(Calendar.MINUTE, 59);
 		cal.set(Calendar.SECOND, 59);
-		return new Timestamp(cal.getTimeInMillis()); 
+		return new Timestamp(cal.getTimeInMillis());
 	}
-	
-	
+
 	public static Timestamp jumpDays(Timestamp base, int days) {
-		Calendar cal = Calendar.getInstance();//使用默认时区和语言环境获得一个日历。   
-		
-		cal.setTime(base); //set to base
-		
+		Calendar cal = Calendar.getInstance();// 使用默认时区和语言环境获得一个日历。
+
+		cal.setTime(base); // set to base
+
 		cal.add(Calendar.DAY_OF_MONTH, days);
-		
-		return new Timestamp(cal.getTimeInMillis()); 
+
+		return new Timestamp(cal.getTimeInMillis());
 	}
-	
-	
+
 	public static boolean isNowEffect(Timestamp expirationDate) {
 		Calendar now = Calendar.getInstance();
 		return now.getTime().before(expirationDate);
 	}
-	
-	
-    /**
-     * return the age
-     * @param birthDate String with format yyyy-MM-dd
-     * @return the int of age
-     * @since 2.1.8
-     */
+
+	/**
+	 * return the age
+	 * @param birthDate String with format yyyy-MM-dd
+	 * @return the int of age
+	 * @since 2.1.8
+	 */
 	public static int countAge(String birthDateString) {
 		// 创建日期格式化对象
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -232,15 +223,13 @@ public class DateUtil {
 		// 如果当前月份小于出生月份，或者当前月份等于出生月份但是当前日期小于出生日期，则年龄减1
 		if (currentDate.get(Calendar.MONTH) < birthCalendar.get(Calendar.MONTH)
 				|| (currentDate.get(Calendar.MONTH) == birthCalendar.get(Calendar.MONTH)
-						&& currentDate.get(Calendar.DAY_OF_MONTH) < birthCalendar
-								.get(Calendar.DAY_OF_MONTH))) {
+						&& currentDate.get(Calendar.DAY_OF_MONTH) < birthCalendar.get(Calendar.DAY_OF_MONTH))) {
 			age--;
 		}
 
 		return age;
 	}
 
-	
 //	private static String regexComm = "^([1-2]\\d{3}-)((0[1-9]-)|([1][0-2]-))(0[1-9]|[12][0-9]|30|31)$";   //ok
 //	private static String regexComm = "^([1-2]\\d{3})-((0[1-9])|([1][0-2]))-(0[1-9]|[12][0-9]|30|31)$";  //ok  否使用^和$是没有区别
 //	private static String regexComm = "([1-2]\\d{3})-((0[1-9])|([1][0-2]))-(0[1-9]|[12][0-9]|30|31)";  //ok
@@ -280,15 +269,13 @@ public class DateUtil {
 			if ("02".equals(tempMM)) {
 				int d1 = dateFormatStr.indexOf('d');
 				String tempdd = dataStr.substring(d1, d1 + 2);
-				if ("30".equals(tempdd) || "31".equals(tempdd))
-					return false;
+				if ("30".equals(tempdd) || "31".equals(tempdd)) return false;
 				else if ("29".equals(tempdd)) {
 					//// 02-29 不返回，在后面处理
 				} else {
 					return true;
 				}
-			} else if ("04".equals(tempMM) || "06".equals(tempMM) || "09".equals(tempMM)
-					|| "11".equals(tempMM)) {
+			} else if ("04".equals(tempMM) || "06".equals(tempMM) || "09".equals(tempMM) || "11".equals(tempMM)) {
 				int d1 = dateFormatStr.indexOf('d');
 				String tempdd = dataStr.substring(d1, d1 + 2);
 				if ("31".equals(tempdd))
@@ -308,9 +295,7 @@ public class DateUtil {
 		}
 
 	}
-	
-	
-	
+
 //	private static final String regex = "\\d{4}-\\d{2}-\\d{2}";
 //	private static String regex = "^([1-2]\\d{3}-)(([0]{1}[1-9]-)|([1][0-2]-))(([0-3]{1}[0-9]))$";
 
@@ -319,7 +304,6 @@ public class DateUtil {
 	private static String regex1 = "^([1-2]\\d{3}-)(((0[1-9]|1[0-2])-(0[1-9]|[12][0-9]))|((0[13578]|1[02])-3[01])|((0[469]|11)-30))$";
 
 	private static String regex2 = "^([1-2]\\d{3})(((0[1-9]|1[0-2])(0[1-9]|[12][0-9]))|((0[13578]|1[02])3[01])|((0[469]|11)30))$";
-
 
 	/**
 	 * check the date string whether is 1000-01-01 ~ 2999-12-31 (yyyy-MM-dd)
@@ -371,5 +355,5 @@ public class DateUtil {
 			}
 		}
 	}
-	
+
 }

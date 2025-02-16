@@ -17,7 +17,7 @@ public class SpiInstanceFactory {
 
 	private static boolean DONE = false;
 
-	//change in V2.1
+	// change in V2.1
 	public static JsonTransform getJsonTransform() {
 
 		JsonTransform jsonTransform = SpiInstanceRegister.getInstance(JsonTransform.class);
@@ -30,8 +30,7 @@ public class SpiInstanceFactory {
 						DONE = true;
 						Logger.info("Use the json jar is com.fasterxml.jackson!");
 					}
-					jsonTransform = (JsonTransform) Class
-							.forName("org.teasoft.beex.spi.JsonTransformDefault")
+					jsonTransform = (JsonTransform) Class.forName("org.teasoft.beex.spi.JsonTransformDefault")
 							.getDeclaredConstructor().newInstance();
 				}
 			} catch (Exception e) {
@@ -39,15 +38,14 @@ public class SpiInstanceFactory {
 			}
 
 			try {
-				// 2.fastjson  V2.1
+				// 2.fastjson V2.1
 				if (jsonTransform == null) {
 					Class.forName("com.alibaba.fastjson.JSON");
 					if (!DONE) {
 						DONE = true;
 						Logger.info("Use the json jar is com.alibaba.fastjson!");
 					}
-					jsonTransform = (JsonTransform) Class
-							.forName("org.teasoft.beex.spi.FastJsonTransform")
+					jsonTransform = (JsonTransform) Class.forName("org.teasoft.beex.spi.FastJsonTransform")
 							.getDeclaredConstructor().newInstance();
 				}
 			} catch (Exception e) {
