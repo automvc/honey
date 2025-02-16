@@ -22,7 +22,7 @@ import org.teasoft.honey.osql.core.Logger;
  * @since  1.9
  */
 public final class SuidHelper {
-	
+
 	private SuidHelper() {}
 
 	/**
@@ -95,7 +95,8 @@ public final class SuidHelper {
 	 * @param entity 要转成的结构.the structure to be transformed into.
 	 * @return 实体List. list of entity.
 	 */
-	public static <T> List<T> parseToEntity(List<String[]> list, int startRow, int endRow, String[] fieldName, final T entity) {
+	public static <T> List<T> parseToEntity(List<String[]> list, int startRow, int endRow, String[] fieldName,
+			final T entity) {
 		T targetObj = null;
 		List<T> rsList = null;
 		Field field = null;
@@ -106,23 +107,23 @@ public final class SuidHelper {
 		rsList = new ArrayList<>();
 		if (startRow < 0) startRow = 0;
 
-		if (endRow > list.size()-1) endRow = list.size() - 1;
+		if (endRow > list.size() - 1) endRow = list.size() - 1;
 		try {
 			for (int i = startRow; i <= endRow; i++) {
 				col = list.get(i);
-				if(col==null || (col.length==1 && fieldName.length!=1)) continue; //忽略空行
+				if (col == null || (col.length == 1 && fieldName.length != 1)) continue; // 忽略空行
 				targetObj = (T) entity.getClass().newInstance();
 				for (int j = 0; j < fieldName.length; j++) {
-					if(StringUtils.isBlank(fieldName[j])) continue;
+					if (StringUtils.isBlank(fieldName[j])) continue;
 					try {
-						field = HoneyUtil.getField(entity.getClass(),fieldName[j]);//可能会找不到Javabean的字段
+						field = HoneyUtil.getField(entity.getClass(), fieldName[j]);// 可能会找不到Javabean的字段
 					} catch (NoSuchFieldException e) {
 						if (i == startRow) Logger.warn("Can not find the field name : " + fieldName[j]);
 						continue;
 					}
 					HoneyUtil.setAccessibleTrue(field);
 					try {
-						HoneyUtil.setFieldValue(field, targetObj, ObjectCreatorFactory.create(col[j], field.getType())); //对相应Field设置
+						HoneyUtil.setFieldValue(field, targetObj, ObjectCreatorFactory.create(col[j], field.getType())); // 对相应Field设置
 					} catch (IllegalArgumentException e) {
 						Logger.error(e.getMessage());
 					}
@@ -139,7 +140,7 @@ public final class SuidHelper {
 
 		return rsList;
 	}
-	
+
 	/**
 	 * 将to在from有的属性,都复制到to中.
 	 * @param from
@@ -151,19 +152,19 @@ public final class SuidHelper {
 		if (from == null || to == null) return to;
 
 		Field field = null;
-		Field fields[] = HoneyUtil.getFields(to.getClass()); 
-		
+		Field fields[] = HoneyUtil.getFields(to.getClass());
+
 		int len = fields.length;
 
 		for (int i = 0; i < len; i++) {
-			int modifiers=fields[i].getModifiers();
-			if(modifiers==8 || modifiers==16 || modifiers==24 || modifiers==26) {
-				continue; //static,final,private static final
+			int modifiers = fields[i].getModifiers();
+			if (modifiers == 8 || modifiers == 16 || modifiers == 24 || modifiers == 26) {
+				continue; // static,final,private static final
 			}
 			HoneyUtil.setAccessibleTrue(fields[i]);
-			
+
 			try {
-				field = HoneyUtil.getField(from.getClass(),fields[i].getName());
+				field = HoneyUtil.getField(from.getClass(), fields[i].getName());
 			} catch (NoSuchFieldException e) {
 				continue;
 			}
@@ -178,7 +179,7 @@ public final class SuidHelper {
 
 		return to;
 	}
-	
+
 	/**
 	 * 将entity实体转为Map,字段为serialVersionUID,JoinTable,Ignore,值为null,将被忽略.
 	 * entity To Map, if the value of field is null will be ignored.
@@ -197,7 +198,7 @@ public final class SuidHelper {
 		for (int i = 0; i < fields.length; i++) {
 			if (i == 0) map = new LinkedHashMap<>();
 			HoneyUtil.setAccessibleTrue(fields[i]);
-			
+
 			try {
 				v = fields[i].get(entity);
 				if (v == null) continue;
@@ -209,7 +210,7 @@ public final class SuidHelper {
 		}
 		return map;
 	}
-	
+
 	public static <T> List<T> copyListEntity(List<?> fromList, Class<T> toClassType) {
 		List<T> toList = null;
 
@@ -223,7 +224,7 @@ public final class SuidHelper {
 					toList.add(t);
 				}
 			} catch (Exception e) {
-				Logger.warn(e.getMessage(),e);
+				Logger.warn(e.getMessage(), e);
 			}
 		}
 

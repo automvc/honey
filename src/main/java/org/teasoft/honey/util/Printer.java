@@ -15,7 +15,7 @@ import org.teasoft.honey.osql.core.Logger;
  * @since  2.0
  */
 public class Printer {
-	
+
 	private Printer() {}
 
 	public static void print(List<String[]> list) {
@@ -31,7 +31,7 @@ public class Printer {
 			Logger.info(row);
 		}
 	}
-	
+
 	public static void printList(List<?> list) {
 		if (list == null) {
 			Logger.info("null");

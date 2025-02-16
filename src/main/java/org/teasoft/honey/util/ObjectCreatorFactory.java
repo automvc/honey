@@ -18,18 +18,17 @@ import org.teasoft.honey.osql.core.Logger;
  * @since  1.9
  */
 public class ObjectCreatorFactory {
-	
+
 	private ObjectCreatorFactory() {}
-	
+
 	@SuppressWarnings("rawtypes")
 	public static Object create(String s, Class c) {
 
-		if (c == null || s==null) return null;
-		
-		if (c.equals(String.class))
-			return ObjectCreator.createString(s);
-			
-		s=s.trim();
+		if (c == null || s == null) return null;
+
+		if (c.equals(String.class)) return ObjectCreator.createString(s);
+
+		s = s.trim();
 		if (c.equals(int.class) || c.equals(Integer.class)) {
 			return ObjectCreator.createInt(s);
 		} else if (c.equals(short.class) || c.equals(Short.class)) {
@@ -44,20 +43,20 @@ public class ObjectCreatorFactory {
 			return ObjectCreator.createBoolean(s);
 		} else if (c.equals(float.class) || c.equals(Float.class)) {
 			return ObjectCreator.createFloat(s);
-		} else if (c.equals(BigDecimal.class)) {//2.0
+		} else if (c.equals(BigDecimal.class)) {// 2.0
 			return ObjectCreator.createBigDecimal(s);
-		} else if (c.equals(BigInteger.class)) {//2.0
+		} else if (c.equals(BigInteger.class)) {// 2.0
 			return ObjectCreator.createBigInteger(s);
 		} else {
-			Logger.warn("when create Object, do not support this type :"+c.getName());
+			Logger.warn("when create Object, do not support this type :" + c.getName());
 			return null;
 		}
 	}
-	
+
 	@SuppressWarnings("rawtypes")
-	private static Map<String,Class> classMap=null;
+	private static Map<String, Class> classMap = null;
 	static {
-		classMap=new HashMap<>();
+		classMap = new HashMap<>();
 		classMap.put("int", int.class);
 		classMap.put("short", short.class);
 		classMap.put("byte", byte.class);
@@ -65,8 +64,8 @@ public class ObjectCreatorFactory {
 		classMap.put("float", float.class);
 		classMap.put("long", long.class);
 		classMap.put("boolean", boolean.class);
-		classMap.put("char", char.class); 
-		
+		classMap.put("char", char.class);
+
 		classMap.put("java.lang.Integer", Integer.class);
 		classMap.put("java.lang.Short", Short.class);
 		classMap.put("java.lang.Byte", Byte.class);
@@ -77,10 +76,10 @@ public class ObjectCreatorFactory {
 		classMap.put("java.lang.Character", Character.class);
 		classMap.put("java.math.BigDecimal", BigDecimal.class);
 		classMap.put("java.math.BigInteger", BigInteger.class);
-		
+
 		classMap.put("java.lang.String", String.class);
 	}
-	
+
 	public static Object createByString(String s, String className) {
 		return create(className, classMap.get(className));
 	}

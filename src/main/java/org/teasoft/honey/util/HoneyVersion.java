@@ -11,7 +11,7 @@ package org.teasoft.honey.util;
  * @since  1.11
  */
 public final class HoneyVersion {
-	
+
 	private HoneyVersion() {}
 
 	public static final String version = "2.5.2";

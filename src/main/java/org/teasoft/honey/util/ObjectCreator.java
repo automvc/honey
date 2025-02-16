@@ -14,21 +14,21 @@ import java.math.BigInteger;
  * @since  1.9
  */
 public class ObjectCreator {
-	
+
 	private ObjectCreator() {}
 
 	public static Long createLong(String s) {
 		if (StringUtils.isBlank(s)) return null;
 		try {
 			return Long.parseLong(s);
-		//V2.1
+			// V2.1
 		} catch (Exception e) {
-			if(s.endsWith(".0")) {
-				return Long.parseLong(s.substring(0,s.length()-2));
-			}else if(s.endsWith(".00")) {
-				return Long.parseLong(s.substring(0,s.length()-3));
-			}else if(s.endsWith(".000")) {
-				return Long.parseLong(s.substring(0,s.length()-4));
+			if (s.endsWith(".0")) {
+				return Long.parseLong(s.substring(0, s.length() - 2));
+			} else if (s.endsWith(".00")) {
+				return Long.parseLong(s.substring(0, s.length() - 3));
+			} else if (s.endsWith(".000")) {
+				return Long.parseLong(s.substring(0, s.length() - 4));
 			}
 		}
 		Double d = createDouble(s);
@@ -42,17 +42,17 @@ public class ObjectCreator {
 		if (StringUtils.isBlank(s)) return null;
 		try {
 			return Integer.parseInt(s);
-		//V2.1
+			// V2.1
 		} catch (Exception e) {
-			if(s.endsWith(".0")) {
-				return Integer.parseInt(s.substring(0,s.length()-2));
-			}else if(s.endsWith(".00")) {
-				return Integer.parseInt(s.substring(0,s.length()-3));
-			}else if(s.endsWith(".000")) {
-				return Integer.parseInt(s.substring(0,s.length()-4));
+			if (s.endsWith(".0")) {
+				return Integer.parseInt(s.substring(0, s.length() - 2));
+			} else if (s.endsWith(".00")) {
+				return Integer.parseInt(s.substring(0, s.length() - 3));
+			} else if (s.endsWith(".000")) {
+				return Integer.parseInt(s.substring(0, s.length() - 4));
 			}
 		}
-		
+
 		Double d = createDouble(s);
 		if (d != null)
 			return d.intValue();
@@ -83,12 +83,12 @@ public class ObjectCreator {
 		if (StringUtils.isBlank(s)) return null;
 		return Double.parseDouble(s);
 	}
-	
+
 	public static Float createFloat(String s) {
 		if (StringUtils.isBlank(s)) return null;
 		return Float.parseFloat(s);
 	}
-	
+
 	/**
 	 * create BigDecimal value
 	 * @param v
@@ -98,7 +98,7 @@ public class ObjectCreator {
 	public static BigDecimal createBigDecimal(String v) {
 		return new BigDecimal(v);
 	}
-	
+
 	/**
 	 * create BigInteger value
 	 * @param v

@@ -13,13 +13,13 @@ import java.util.Random;
  * @since  2.1.8
  */
 public class NumUtil {
-	
+
 	private static final String n = "0123456789";
 	private static final char[] num = n.toCharArray();
 	private static Random random = new Random();
-	
+
 	private NumUtil() {}
-	
+
 	/**
 	 * get Random number, the amount is size.
 	 * @param size
@@ -46,7 +46,6 @@ public class NumUtil {
 		return num[a];
 	}
 
-	
 	/**
 	 * 检测是否是11位手机号.
 	 * @param mobileNum

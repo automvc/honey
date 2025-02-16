@@ -15,7 +15,7 @@ import java.util.Properties;
  * @since  2.1
  */
 public class Converter {
-	
+
 	private Converter() {}
 
 	/**
@@ -32,7 +32,7 @@ public class Converter {
 		}
 		return p;
 	}
-	
+
 	/**
 	 * change the key of map, eg: driver-class-name -> driverClassName
 	 * @param map
@@ -47,7 +47,7 @@ public class Converter {
 		}
 		return map2;
 	}
-	
+
 	/**
 	 * eg: driver-class-name -> driverClassName
 	 * @param str
@@ -55,15 +55,14 @@ public class Converter {
 	 */
 	public static String transfer(String str) {
 		if (StringUtils.isBlank(str)) return str;
-		
-		StringBuffer buf=new StringBuffer(str);
+
+		StringBuffer buf = new StringBuffer(str);
 		for (int i = 0; i < buf.length(); i++) {
-			if('-'==buf.charAt(i)) {
+			if ('-' == buf.charAt(i)) {
 				buf.deleteCharAt(i);
-				if(i<buf.length() ) {
-					char temp=buf.charAt(i);
-					if(temp>='a' && temp<='z')
-					    buf.setCharAt(i, (char)(temp-32));
+				if (i < buf.length()) {
+					char temp = buf.charAt(i);
+					if (temp >= 'a' && temp <= 'z') buf.setCharAt(i, (char) (temp - 32));
 				}
 			}
 		}

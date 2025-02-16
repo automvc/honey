@@ -20,14 +20,12 @@ public class SqlKeyCheck {
 
 	private static final String ONE = "1";
 	private static Map<String, String> keyMap = new TreeMap<>();
-	private static final String keyStr = "table,column,key," 
-	        + "Explain,comment,"
-			+ "group,By,order,Null,is,for," 
+	private static final String keyStr = "table,column,key," + "Explain,comment," + "group,By,order,Null,is,for,"
 			+ "inner,left,right,join";
 
 	static {
 		initKeyMap(keyStr);
-		
+
 		if (HoneyUtil.isOracle()) {
 			String oracleKey = "user,level,role";
 			initKeyMap(oracleKey);
@@ -36,7 +34,7 @@ public class SqlKeyCheck {
 		String fs = EntityUtil.getColumnNames(new LowerKey());
 		initKeyMap2(fs);
 	}
-	
+
 	private SqlKeyCheck() {}
 
 	private static void initKeyMap(String keyStr) {
@@ -46,12 +44,11 @@ public class SqlKeyCheck {
 		}
 	}
 
-	//不包含大写字母才是独立关键字
+	// 不包含大写字母才是独立关键字
 	private static void initKeyMap2(String keyStr) {
 		String keys[] = keyStr.split(",");
 		for (int i = 0; i < keys.length; i++) {
-			if (!StringUtils.isContainUpperCase(keys[i])) 
-				keyMap.put(keys[i].toLowerCase(), ONE);
+			if (!StringUtils.isContainUpperCase(keys[i])) keyMap.put(keys[i].toLowerCase(), ONE);
 		}
 	}
 
