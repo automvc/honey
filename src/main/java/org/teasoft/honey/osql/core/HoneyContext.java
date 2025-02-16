@@ -680,8 +680,10 @@ public final class HoneyContext {
 	}
 
 	public static void setConditionLocal(Condition condition) {
-		if (condition != null) conditionLocal.set(condition.clone());
-		else conditionLocal.set(condition);
+		if (condition != null)
+			conditionLocal.set(condition.clone());
+		else
+			conditionLocal.set(condition);
 	}
 
 	public static void removeConditionLocal() {
@@ -1041,13 +1043,18 @@ public final class HoneyContext {
 		boolean needGenId = false;
 		boolean genAll = HoneyConfig.getHoneyConfig().genid_forAllTableLongId;
 		if (genAll) {
-			if (isConfigForEntityEX(clazz)) needGenId = false; // 有排除,则 不生成的
-			else needGenId = true;
+			if (isConfigForEntityEX(clazz))
+				needGenId = false; // 有排除,则 不生成的
+			else
+				needGenId = true;
 		} else {
-			if (isConfigForEntityEX(clazz)) needGenId = false; // 有排除,则 不生成的
+			if (isConfigForEntityEX(clazz))
+				needGenId = false; // 有排除,则 不生成的
 			else {
-				if (isConfigForEntityIN(clazz)) needGenId = true;
-				else needGenId = false;
+				if (isConfigForEntityIN(clazz))
+					needGenId = true;
+				else
+					needGenId = false;
 			}
 		}
 
@@ -1094,7 +1101,8 @@ public final class HoneyContext {
 			boolean differentDbType = HoneyConfig.getHoneyConfig().multiDS_differentDbType;
 			if (!(multiDsType == 1 && !differentDbType)) // 不是(模式1(RW)的同种DB) //sameDbType= !differentDbType
 				return true;
-			else return false;
+			else
+				return false;
 		} else {
 			return false;
 		}
@@ -1178,7 +1186,8 @@ public final class HoneyContext {
 				if (field != null) {
 					HoneyUtil.setAccessibleTrue(field);
 					HoneyUtil.setFieldValue(field, obj, entry.getValue());
-					if ("multiDS_sharding".equals(entry.getKey())) hasMultiDS_sharding = true;
+					if ("multiDS_sharding".equals(entry.getKey()))
+						hasMultiDS_sharding = true;
 					else if ("sharding".equals(entry.getKey())) hasShardingMap = true;
 				}
 			} catch (Exception e) {

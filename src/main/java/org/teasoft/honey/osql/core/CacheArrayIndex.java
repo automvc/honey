@@ -49,8 +49,10 @@ public class CacheArrayIndex {
 
 	public int getUsedSize() {
 		int t = getHigh() - getLow();
-		if (t >= 0) return t;
-		else return t + size;
+		if (t >= 0)
+			return t;
+		else
+			return t + size;
 	}
 
 	public int getEmptySize() {

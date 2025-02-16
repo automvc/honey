@@ -54,7 +54,7 @@ public class ObjectToSQL implements ObjToSQL {
 
 		if (condition == null || condition.getIncludeType() == null)
 			return _ObjectToSQLHelper._toSelectSQL(entity, -1, condition); // 过滤NULL和空字符串
-		else 
+		else
 			return _ObjectToSQLHelper._toSelectSQL(entity, condition.getIncludeType().getValue(), condition); // v1.7.0
 	}
 
@@ -63,7 +63,7 @@ public class ObjectToSQL implements ObjToSQL {
 	public <T> String toDeleteSQL(T entity, Condition condition) {
 		if (condition == null || condition.getIncludeType() == null)
 			return _ObjectToSQLHelper._toDeleteSQL(entity, -1, condition); // 过滤NULL和空字符串
-		else 
+		else
 			return _ObjectToSQLHelper._toDeleteSQL(entity, condition.getIncludeType().getValue(), condition);
 	}
 

@@ -231,8 +231,10 @@ public final class CacheUtil {
 		if (keys[i] != null) {
 			map.remove(keys[i]);
 			// 要考虑维护表相关的index
-			if (includeTableName) _delTableIndexSetByKey(keys[i], i); // 表有更新时,整个set都被删除,不用在这里一个个删 该方法内也会维护map_tableNameList
-			else map_tableNameList.remove(keys[i]);
+			if (includeTableName)
+				_delTableIndexSetByKey(keys[i], i); // 表有更新时,整个set都被删除,不用在这里一个个删 该方法内也会维护map_tableNameList
+			else
+				map_tableNameList.remove(keys[i]);
 		}
 		time[i] = -1;
 		obj[i] = null;
@@ -242,8 +244,10 @@ public final class CacheUtil {
 	private static boolean _isTimeout(int index) {
 		long now = System.currentTimeMillis();
 //		time[index]=-1 或0 无效
-		if (time[index] > 0 && (now - time[index] > timeout)) return true;
-		else return false;
+		if (time[index] > 0 && (now - time[index] > timeout))
+			return true;
+		else
+			return false;
 	}
 
 	/**
@@ -552,8 +556,10 @@ public final class CacheUtil {
 				return true;
 			} else {
 				String ds = Router.getDsName();
-				if (map.get((ds + "." + tableName).toLowerCase()) != null) return true;
-				else return false;
+				if (map.get((ds + "." + tableName).toLowerCase()) != null)
+					return true;
+				else
+					return false;
 			}
 		}
 //		}

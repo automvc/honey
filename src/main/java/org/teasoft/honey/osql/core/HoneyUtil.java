@@ -78,16 +78,19 @@ public final class HoneyUtil {
 		SetParaTypeConverterRegistry.register(java.util.Date.class, new UtilDotDateTypeToTimestampConvert<java.util.Date>(), DatabaseConst.SQLSERVER); // v2.1.8  
 		SetParaTypeConverterRegistry.register(java.util.Date.class, new UtilDotDateTypeToTimestampConvert<java.util.Date>(), DatabaseConst.ORACLE); // v2.1.8  
 //		SetParaTypeConverterRegistry.register(java.util.Date.class, new UtilDotDateTypeConvert<java.util.Date>()); // 会少了时分秒  v2.1.8   jdk中,该类的功能就是这样的.
-		
-		TypeHandlerRegistry.register(char.class, new CharTypeHandler<Character>(),true);
-		
-		//单DS  或者  DsMap中包含有   才执行.   触发时间,应该是在被更改配置时,调用一次
-		if ((!HoneyConfig.getHoneyConfig().multiDS_enable)
-		  || (HoneyContext.getDsName2DbName() != null && HoneyContext.getDsName2DbName().containsValue(DatabaseConst.SQLite))) {
-			
-		    TypeHandlerRegistry.register(Timestamp.class, new TimestampTypeHandler<Timestamp>(),DatabaseConst.SQLite,true);
-			TypeHandlerRegistry.register(java.util.Date.class, new UtilDotDateTypeHandler<java.util.Date>(), DatabaseConst.SQLite,true);
-			TypeHandlerRegistry.register(java.sql.Date.class, new SqlDotDateTypeHandler<java.util.Date>(), DatabaseConst.SQLite,true);
+
+		TypeHandlerRegistry.register(char.class, new CharTypeHandler<Character>(), true);
+
+		// 单DS 或者 DsMap中包含有 才执行. 触发时间,应该是在被更改配置时,调用一次
+		if ((!HoneyConfig.getHoneyConfig().multiDS_enable) || (HoneyContext.getDsName2DbName() != null
+				&& HoneyContext.getDsName2DbName().containsValue(DatabaseConst.SQLite))) {
+
+			TypeHandlerRegistry.register(Timestamp.class, new TimestampTypeHandler<Timestamp>(), DatabaseConst.SQLite,
+					true);
+			TypeHandlerRegistry.register(java.util.Date.class, new UtilDotDateTypeHandler<java.util.Date>(),
+					DatabaseConst.SQLite, true);
+			TypeHandlerRegistry.register(java.sql.Date.class, new SqlDotDateTypeHandler<java.util.Date>(),
+					DatabaseConst.SQLite, true);
 		}
 	}
 
@@ -502,8 +505,10 @@ public final class HoneyUtil {
 					} else if (j == 1 && subTwoIsList) {
 						if (ObjectUtils.isNotEmpty(listTwo)) moreTableStruct[1 + j].subObject = listTwo.get(0);
 					} else if (j == 1 && oneHasOne) {
-						if (moreTableStruct[1].subObject == null) moreTableStruct[1 + j].subObject = null;
-						else moreTableStruct[1 + j].subObject = subField[j].get(moreTableStruct[1].subObject);
+						if (moreTableStruct[1].subObject == null)
+							moreTableStruct[1 + j].subObject = null;
+						else
+							moreTableStruct[1 + j].subObject = subField[j].get(moreTableStruct[1].subObject);
 					} else {
 						moreTableStruct[1 + j].subObject = subField[j].get(entity); // need entity , not class
 					}
@@ -1409,8 +1414,9 @@ public final class HoneyUtil {
 		} // end for
 
 		if (!"".equals(errorField)) {
-			if (check) throw new BeeErrorFieldException("ErrorField: " + errorField);
-			else { // 2.4.0 fun 不检测字段是否是实体的
+			if (check) {
+				throw new BeeErrorFieldException("ErrorField: " + errorField);
+			} else { // 2.4.0 fun 不检测字段是否是实体的
 				Logger.debug("Please confirm the field(s) is right or not :" + errorField);
 			}
 		}
@@ -1472,8 +1478,10 @@ public final class HoneyUtil {
 			errorMsg += "subField is empty! ";
 			errorCount++;
 		}
-		if (errorCount == 1) return errorMsg;
-		else return "";
+		if (errorCount == 1)
+			return errorMsg;
+		else
+			return "";
 	}
 
 	public static boolean isMysql() {
@@ -1763,12 +1771,14 @@ public final class HoneyUtil {
 
 				HoneyUtil.setAccessibleTrue(field);
 				try {
-					if (_ObjectToSQLHelper.isInt(field0)) HoneyUtil.setFieldValue(field, entity[i], (int) id);
+					if (_ObjectToSQLHelper.isInt(field0))
+						HoneyUtil.setFieldValue(field, entity[i], (int) id);
 					else if (!hasGenUUIDAnno && isStringField) // 没有用GenUUID又是String
 						HoneyUtil.setFieldValue(field, entity[i], id + "");
 					else if (hasGenUUIDAnno && isStringField) // 用GenUUID
 						HoneyUtil.setFieldValue(field, entity[i], UUID.getId(useSeparatorInUUID));
-					else HoneyUtil.setFieldValue(field, entity[i], id);
+					else
+						HoneyUtil.setFieldValue(field, entity[i], id);
 					if (hasValue) {
 						Logger.warn(" [ID WOULD BE REPLACED] entity[" + i + "] : " + entity[0].getClass() + " 's id field"
 								+ pkAlias + " value is " + obj.toString() + " would be replace by " + id);
@@ -1819,8 +1829,10 @@ public final class HoneyUtil {
 //			if (isSkipFieldForMoreTable(field[i])) continue; //JoinTable可以与PrimaryKey合用? 实际不会同时用
 			if (isSkipField(field[i]) && !AnnoUtil.isFK(field[i])) continue; // V2.1.8 是FK,也有可能是Primary
 			if (AnnoUtil.isPrimaryKey(field[i])) {
-				if (isFirst) isFirst = false;
-				else pkey += ",";
+				if (isFirst)
+					isFirst = false;
+				else
+					pkey += ",";
 				pkey += field[i].getName();
 			}
 		} // end for

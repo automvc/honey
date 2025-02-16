@@ -121,8 +121,10 @@ public class HoneyFactory {
 					ca = cacheIterator.next();
 					num++;
 					className = ca.getClass().getName();
-					if ("org.teasoft.beex.cache.redis.BeeExtRedisCache".equals(className)) cache1 = ca;
-					else cache2 = ca;
+					if ("org.teasoft.beex.cache.redis.BeeExtRedisCache".equals(className))
+						cache1 = ca;
+					else
+						cache2 = ca;
 					Logger.warn("[Bee] ==========load Cache's Service by ServiceLoader:" + className);
 				} catch (ServiceConfigurationError e) {
 					Logger.error(e.getMessage(), e);
@@ -148,8 +150,10 @@ public class HoneyFactory {
 
 	public Suid getSuid() {
 		if (suid == null) {
-			if (isMongodb()) return new MongodbObjSQL(); // 2.0
-			else return new ObjSQL();
+			if (isMongodb())
+				return new MongodbObjSQL(); // 2.0
+			else
+				return new ObjSQL();
 		}
 		return suid; // 可以通过配置spring bean的方式注入
 	}
@@ -160,8 +164,10 @@ public class HoneyFactory {
 
 	public SuidRich getSuidRich() {
 		if (suidRich == null) {
-			if (isMongodb()) return new MongodbObjSQLRich(); // 2.0
-			else return new ObjSQLRich();
+			if (isMongodb())
+				return new MongodbObjSQLRich(); // 2.0
+			else
+				return new ObjSQLRich();
 		}
 		return suidRich;
 	}
@@ -290,8 +296,10 @@ public class HoneyFactory {
 	}
 
 	public void setCondition(Condition condition) {
-		if (condition != null) this.condition = condition.clone();
-		else this.condition = condition;
+		if (condition != null)
+			this.condition = condition.clone();
+		else
+			this.condition = condition;
 	}
 
 	public MapSql getMapSql() {
@@ -365,8 +373,10 @@ public class HoneyFactory {
 			return _getDbDialectFeature(dbName);
 		}
 //		dbName == null则表示不同时使用多种数据库
-		if (dbFeature != null) return dbFeature;
-		else return _getDbDialectFeature();
+		if (dbFeature != null)
+			return dbFeature;
+		else
+			return _getDbDialectFeature();
 	}
 
 	public void setDbFeature(DbFeature dbFeature) {
@@ -422,8 +432,10 @@ public class HoneyFactory {
 				isOceanBasePrintFirst = false;
 				Logger.logSQL("Using OceanBase,the Mode is : " + oceanbaseMode, "");
 			}
-			if (DatabaseConst.ORACLE.equalsIgnoreCase(oceanbaseMode)) return new OracleFeature();
-			else return new MySqlFeature();
+			if (DatabaseConst.ORACLE.equalsIgnoreCase(oceanbaseMode))
+				return new OracleFeature();
+			else
+				return new MySqlFeature();
 		} else if (dbName != null) {
 			return new NoPagingSupported(); // v1.8.15 当没有用到分页功能时,不至于报错.
 		} else { // 要用setDbFeature(DbFeature dbFeature)设置自定义的实现类

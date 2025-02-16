@@ -495,8 +495,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 			else
 				throw ExceptionHelper.convert(e);
 		} finally {
-			if (clearFlag) 
-				clearInCache(sql, "int", SuidType.MODIFY, num); // has clearContext(sql)
+			if (clearFlag) clearInCache(sql, "int", SuidType.MODIFY, num); // has clearContext(sql)
 			if (hasException) {
 				checkClose(pst, null);
 				closeConn(conn);
@@ -1425,12 +1424,16 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 					if (field[i] != null && field[i].isAnnotationPresent(JoinTable.class)) {
 						HoneyUtil.setAccessibleTrue(field[i]);
 						if (field[i].getName().equals(variableName[0])) {
-							if (subOneIsList1) subOneListField = field[i]; // 子表1字段是List
-							else HoneyUtil.setFieldValue(field[i], targetObj, subObj1); // 设置子表1的对象
+							if (subOneIsList1)
+								subOneListField = field[i]; // 子表1字段是List
+							else
+								HoneyUtil.setFieldValue(field[i], targetObj, subObj1); // 设置子表1的对象
 						} else if (!oneHasOne && subField[1] != null && field[i].getName().equals(variableName[1])) {
 							// oneHasOne在遍历子表1时设置
-							if (subTwoIsList2) subTwoListField = field[i];
-							else HoneyUtil.setFieldValue(field[i], targetObj, subObj2); // 设置子表2的对象
+							if (subTwoIsList2)
+								subTwoListField = field[i];
+							else
+								HoneyUtil.setFieldValue(field[i], targetObj, subObj2); // 设置子表2的对象
 						}
 						continue; // go back
 					}
