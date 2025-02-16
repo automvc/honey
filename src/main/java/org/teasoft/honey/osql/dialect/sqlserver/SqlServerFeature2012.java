@@ -19,83 +19,81 @@ import org.teasoft.honey.util.StringUtils;
  * @since  1.17
  */
 public class SqlServerFeature2012 extends AbstractSqlServerFeature implements DbFeature {
-	
+
 	private static String PAGING = " order by id offset #start row fetch next #size rows only";
-	private static String DISTINCT ="distinct";
-	private boolean initFlag=false;
-	
-	
-	private void init(){ //不使用一般{}块,防止在HoneyConfig使用new SqlServerFeature2012()重复加载.
+	private static String DISTINCT = "distinct";
+	private boolean initFlag = false;
+
+	private void init() { // 不使用一般{}块,防止在HoneyConfig使用new SqlServerFeature2012()重复加载.
 		if (HoneyUtil.isSqlKeyWordUpper()) {
 			PAGING = PAGING.toUpperCase();
-			DISTINCT=DISTINCT.toUpperCase();
+			DISTINCT = DISTINCT.toUpperCase();
 		}
 	}
-	
+
 	/**
 	 * start从0开始.
 	 * OFFSET从0开始
 	 */
 	public String toPageSql(String sql, int start, int size) {
-		sql=HoneyUtil.deleteLastSemicolon(sql);
-		
-		if(!initFlag) {
+		sql = HoneyUtil.deleteLastSemicolon(sql);
+
+		if (!initFlag) {
 			init();
-			initFlag=true;
+			initFlag = true;
 		}
-		
-		if(start<=0 && sql.indexOf(DISTINCT)>-1) return toPageSql(sql, size);
-		
-		String processSql=PAGING;
-		
+
+		if (start <= 0 && sql.indexOf(DISTINCT) > -1) return toPageSql(sql, size);
+
+		String processSql = PAGING;
+
 		SqlServerPagingStruct struct = HoneyContext.getAndRemoveSqlServerPagingStruct(sql);
 		if (struct != null) {
 			String pkName = struct.getOrderColumn();
 			String orderType = struct.getOrderType().getName();
-			boolean hasOrderBy=struct.isHasOrderBy();
-			
-			if (hasOrderBy) {//有排序,则删除默认的
+			boolean hasOrderBy = struct.isHasOrderBy();
+
+			if (hasOrderBy) {// 有排序,则删除默认的
 				processSql = adjustSqlServerPaging11(processSql);
-			}else {
+			} else {
 				processSql = adjustSqlServerPagingPk11(processSql, pkName, orderType);
 			}
 		}
-		
-		
+
 		if (HoneyUtil.isSqlKeyWordUpper()) {
-			sql +=processSql.replace("#START", start+"").replace("#SIZE", size+"");
-		}else {
-			sql +=processSql.replace("#start", start+"").replace("#size", size+"");
+			sql += processSql.replace("#START", start + "").replace("#SIZE", size + "");
+		} else {
+			sql += processSql.replace("#start", start + "").replace("#size", size + "");
 		}
-		
+
 		return sql;
 	}
-	
+
 	public String toPageSql(String sql, int size) {
 //		if (sql.indexOf(DISTINCT) == -1) return toPageSql(sql, 0, size); //新语法太多限制.
-		
-		if(!initFlag) {
+
+		if (!initFlag) {
 			init();
-			initFlag=true;
+			initFlag = true;
 		}
-		return super.toPageSql(sql, size); //使用top n
+		return super.toPageSql(sql, size); // 使用top n
 	}
-	
+
 	// 处理不可能有排序的情况, 只需调整自定义主键即可(如果有)
-	private String adjustSqlServerPagingPk11(String processSql, String pkName,String orderType) {
-		
-		if(StringUtils.isBlank(pkName)) return processSql;
-		
+	private String adjustSqlServerPagingPk11(String processSql, String pkName, String orderType) {
+
+		if (StringUtils.isBlank(pkName)) return processSql;
+
 		String ID = "id";
 		if (HoneyUtil.isSqlKeyWordUpper()) {
 			ID = ID.toUpperCase();
-			orderType=orderType.toUpperCase();
+			orderType = orderType.toUpperCase();
 		}
-		
-		if("desc".equalsIgnoreCase(orderType)) return processSql.replace(ID, pkName + " " + orderType);
+
+		if ("desc".equalsIgnoreCase(orderType)) return processSql.replace(ID, pkName + " " + orderType);
 		else return processSql.replace(ID, pkName);
 	}
-	
+
 	// 已有排序,要去掉.
 	private String adjustSqlServerPaging11(String processSql) {
 		String str = " order by id ";

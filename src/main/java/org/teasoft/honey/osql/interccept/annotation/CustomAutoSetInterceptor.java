@@ -29,7 +29,7 @@ public class CustomAutoSetInterceptor extends EmptyInterceptor {
 
 	@Override
 	public Object beforePasreEntity(Object entity, SuidType suidType) {
-		if (isSkip(entity,suidType)) return entity;
+		if (isSkip(entity, suidType)) return entity;
 
 		String key = partKey + "_beforePasreEntity" + entity.getClass().getName();
 		Boolean flag = HoneyContext.getCustomFlagMap(key);

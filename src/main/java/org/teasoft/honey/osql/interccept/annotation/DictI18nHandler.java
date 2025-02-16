@@ -13,18 +13,17 @@ import java.util.List;
  * @author Kingstar
  * @since  1.11-E
  */
-public class DictI18nHandler{
-	
-	private static DictI18nDefaultHandler handler=new DictI18nDefaultHandler();
-	
+public class DictI18nHandler {
+
+	private static DictI18nDefaultHandler handler = new DictI18nDefaultHandler();
+
 	private DictI18nHandler() {
-		
+
 	}
-	
+
 	@SuppressWarnings("rawtypes")
 	public static void process(Field field, List list) {
-	       handler.process(field, list);
+		handler.process(field, list);
 	}
-	
 
 }

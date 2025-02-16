@@ -15,8 +15,8 @@ import org.teasoft.bee.osql.OrderType;
 public class SqlServerPagingStruct {
 
 	private String orderColumn;
-	private OrderType orderType=OrderType.ASC;
-	private boolean hasOrderBy; //用于>=2012版本,order by id offset语法
+	private OrderType orderType = OrderType.ASC;
+	private boolean hasOrderBy; // 用于>=2012版本,order by id offset语法
 	private boolean justChangeOrderColumn;
 
 	public String getOrderColumn() {

@@ -40,8 +40,8 @@ public class DesensitizeHandler {
 
 			for (int i = 0; i < list.size(); i++) {
 				Object obj = list.get(i);
-				Field f = HoneyUtil.getField(obj.getClass(),field.getName());
-				
+				Field f = HoneyUtil.getField(obj.getClass(), field.getName());
+
 				HoneyUtil.setAccessibleTrue(f);
 				String targetStr = (String) f.get(obj);
 				HoneyUtil.setFieldValue(f, obj, replace(targetStr, start, end, s));
@@ -62,13 +62,14 @@ public class DesensitizeHandler {
 	private static String replace(String targetStr, int start, int size, String mask) {
 		if (StringUtils.isBlank(targetStr)) return targetStr;
 		if (start > targetStr.length()) {
-			Logger.warn("The start position exceeds the length of the string!", new Exception());//加new Exception()有得追踪位置. 但systemLogger体现不出来.
+			Logger.warn("The start position exceeds the length of the string!", new Exception());// 加new Exception()有得追踪位置.
+																									// 但systemLogger体现不出来.
 			return targetStr;
 		}
 
 		if (start < 0) start = 0;
 		int end = start + size;
-		if (size == -1) end = targetStr.length(); //V2.0
+		if (size == -1) end = targetStr.length(); // V2.0
 
 		StringBuffer b = new StringBuffer(targetStr);
 		for (int i = start; i < end && i < targetStr.length(); i++) {

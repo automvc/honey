@@ -25,13 +25,13 @@ public class DefaultInterceptor implements Interceptor {
 	private String ds;
 	private String tabName;
 	private String tabSuffix;
-	
+
 	private static final long serialVersionUID = 1595293159215L;
 
 	@Override
 	public Object beforePasreEntity(Object entity, SuidType suidType) {
 
-		if (entity == null) return entity;  //自定义sql,MapSuid会用到.  放在chain
+		if (entity == null) return entity; // 自定义sql,MapSuid会用到. 放在chain
 
 		if (entity.getClass().equals(Class.class)) {
 //			.println("是Class类型,默认不处理."); //deleteById

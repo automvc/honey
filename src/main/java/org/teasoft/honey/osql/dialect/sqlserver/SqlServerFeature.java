@@ -13,24 +13,24 @@ import org.teasoft.honey.util.StringUtils;
  * @since  1.0
  */
 public class SqlServerFeature extends AbstractSqlServerFeature implements DbFeature {
-	
-	private static String part1="select * from (select top ? row_number() over (order by id) as rownum,";
-	private static String part2=") as table_ where table_.rownum >=?";
-	
-	private static String part1_1="select * from (";
-	private static String part1_2=" top ? row_number() over (order by id) as rownum,";
-	
+
+	private static String part1 = "select * from (select top ? row_number() over (order by id) as rownum,";
+	private static String part2 = ") as table_ where table_.rownum >=?";
+
+	private static String part1_1 = "select * from (";
+	private static String part1_2 = " top ? row_number() over (order by id) as rownum,";
+
 	{
 		if (HoneyUtil.isSqlKeyWordUpper()) {
 			setStr();
 		}
 	}
-	
+
 	private static void setStr() {
 		part1 = part1.toUpperCase();
 		part2 = part2.toUpperCase();
-		part1_1=part1_1.toUpperCase();
-		part1_2=part1_2.toUpperCase();
+		part1_1 = part1_1.toUpperCase();
+		part1_2 = part1_2.toUpperCase();
 	}
 
 	// 2012之前的语法,start是从1开始
@@ -62,11 +62,9 @@ public class SqlServerFeature extends AbstractSqlServerFeature implements DbFeat
 		}
 
 		if (index2 < 0) {
-			sql2 = processSql.replace("?", start + size - 1 + "") + sql.substring(6)
-					+ part2.replace("?", start + "");
+			sql2 = processSql.replace("?", start + size - 1 + "") + sql.substring(6) + part2.replace("?", start + "");
 		} else {
-			sql2 = part1_1 + sql.substring(0, index2 + 15)
-					+ processSql.replace("?", start + size - 1 + "")
+			sql2 = part1_1 + sql.substring(0, index2 + 15) + processSql.replace("?", start + size - 1 + "")
 					+ sql.substring(index2 + 15, sql.length()) + part2.replace("?", start + "");
 		}
 
@@ -96,22 +94,22 @@ public class SqlServerFeature extends AbstractSqlServerFeature implements DbFeat
 		String replaceStr = " over (order by id) ";
 		String ID = "id";
 		String newStr = replaceStr;
-		boolean orign=true;
+		boolean orign = true;
 		if (HoneyUtil.isSqlKeyWordUpper()) {
 			replaceStr = replaceStr.toUpperCase();
 			ID = ID.toUpperCase();
 			if ("desc".equals(orderType)) orderType = "DESC";
 		}
-		if ("desc".equalsIgnoreCase(orderType)) { //可能只添加DESC(不改主键)
+		if ("desc".equalsIgnoreCase(orderType)) { // 可能只添加DESC(不改主键)
 			newStr = newStr.replace(ID, ID + " " + orderType); // 只添加desc
-			orign=false;
+			orign = false;
 		}
-		if(StringUtils.isNotBlank(pkName)) {
-		   newStr = newStr.replace(ID, pkName);
-		   orign=false;
+		if (StringUtils.isNotBlank(pkName)) {
+			newStr = newStr.replace(ID, pkName);
+			orign = false;
 		}
-		
-		if(orign) return processSql; //没有改动
+
+		if (orign) return processSql; // 没有改动
 
 		return processSql.replace(replaceStr, newStr);
 	}

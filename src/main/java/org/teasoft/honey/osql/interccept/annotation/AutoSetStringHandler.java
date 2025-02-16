@@ -34,14 +34,14 @@ public class AutoSetStringHandler {
 			if (!(setSuidType == sqlSuidType || setSuidType == SuidType.SUID
 					|| (setSuidType == SuidType.MODIFY && (sqlSuidType == SuidType.UPDATE
 							|| sqlSuidType == SuidType.INSERT || sqlSuidType == SuidType.DELETE))))
-				return; //操作类型不对,则返回
+				return; // 操作类型不对,则返回
 
 			HoneyUtil.setAccessibleTrue(field);
-			if (!override && field.get(entity) != null) { //不允许覆盖,原来有值则返回
+			if (!override && field.get(entity) != null) { // 不允许覆盖,原来有值则返回
 				return;
 			}
 
-			Class c = anno.handler(); //获取具体实现的处理器
+			Class c = anno.handler(); // 获取具体实现的处理器
 			AnnotationHandler obj = (AnnotationHandler) c.newInstance();
 			HoneyUtil.setFieldValue(field, entity, obj.process());
 

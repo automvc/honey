@@ -27,8 +27,7 @@ public class HSqlDbFrontLimitPaging implements DbFeature {
 		int index = temp.indexOf(KEY);
 		if (index >= 0) {
 			String part = K.limit + " " + start + " " + size + " ";
-			return sql.substring(0, index + KEY.length()) + part
-					+ sql.substring(index + KEY.length(), sql.length());
+			return sql.substring(0, index + KEY.length()) + part + sql.substring(index + KEY.length(), sql.length());
 		} else {
 			Logger.debug("Error, the sql is not select type!");
 			return sql;

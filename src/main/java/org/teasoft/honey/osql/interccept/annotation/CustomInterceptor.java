@@ -52,7 +52,7 @@ public class CustomInterceptor extends EmptyInterceptor {
 		}
 
 		Object entity = list.get(0);
-		if (isSkip(entity,null)) {
+		if (isSkip(entity, null)) {
 			return;
 		}
 

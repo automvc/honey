@@ -28,7 +28,7 @@ public class DictI18nDefaultHandler extends AbstractDictI18nDefaultHandler {
 
 	private static Map<String, Map> dictMap = new HashMap<>();
 
-	//有需要可以放到配置文件
+	// 有需要可以放到配置文件
 	static String CommTableName = "_comm";
 	static boolean useCommTabl = true;
 
@@ -67,7 +67,7 @@ public class DictI18nDefaultHandler extends AbstractDictI18nDefaultHandler {
 		try {
 			Object obj0 = list.get(0);
 
-			String tableName = _toTableName(obj0).toLowerCase(); //表名不区分大小写
+			String tableName = _toTableName(obj0).toLowerCase(); // 表名不区分大小写
 			String fieldName = field.getName();
 			String columnName = _toColumnName(fieldName, obj0.getClass());
 
@@ -91,22 +91,22 @@ public class DictI18nDefaultHandler extends AbstractDictI18nDefaultHandler {
 				Logger.warn("In language:" + getLang() + ",  can not find the dict map(tableName:columnName):" + tableName
 						+ ":" + columnName, e);
 			}
-			if (langMap==null || pairMap == null) {
+			if (langMap == null || pairMap == null) {
 				return;
 			} else {
 				for (int i = 0; i < list.size(); i++) {
 					Map<String, String> commPairMap = null;
 					Object obj = list.get(i);
-					Field f = HoneyUtil.getField(obj.getClass(),field.getName());
+					Field f = HoneyUtil.getField(obj.getClass(), field.getName());
 					HoneyUtil.setAccessibleTrue(f);
 					Object value = f.get(obj);
 
-					String v = pairMap.get((String) value); //没有映射则不替换  //值为null也可以转化
-					if (v != null)
-						HoneyUtil.setFieldValue(f, obj, v);
-					else { //支持一个字段的字典值一部分自己配,一部分用公共的
-						if (useCommTabl) commPairMap = (Map<String, String>) langMap.get(CommTableName + ":" + columnName);
-						if (commPairMap != null) { //再从公共找,可以为null
+					String v = pairMap.get((String) value); // 没有映射则不替换 //值为null也可以转化
+					if (v != null) HoneyUtil.setFieldValue(f, obj, v);
+					else { // 支持一个字段的字典值一部分自己配,一部分用公共的
+						if (useCommTabl)
+							commPairMap = (Map<String, String>) langMap.get(CommTableName + ":" + columnName);
+						if (commPairMap != null) { // 再从公共找,可以为null
 							v = commPairMap.get((String) value);
 							if (v != null) HoneyUtil.setFieldValue(f, obj, v);
 						}

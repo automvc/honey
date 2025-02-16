@@ -21,7 +21,7 @@ import org.teasoft.honey.util.StringUtils;
  * @since 1.11-E
  */
 public class DictHandler {
-	
+
 	private static final String placeholderStr = "@#placeholderStr(default do not process)";
 
 	private DictHandler() {
@@ -40,7 +40,7 @@ public class DictHandler {
 			String mapStr = anno.map(); // eg:0=No,1=Yes
 
 			Map<String, String> dictMap = new HashMap<>();
-			
+
 			if (StringUtils.isNotBlank(mapStr)) {
 				String kvPair[] = mapStr.split(",");
 				String kv[];
@@ -59,7 +59,7 @@ public class DictHandler {
 
 			for (int i = 0; i < list.size(); i++) {
 				Object obj = list.get(i);
-				Field f = HoneyUtil.getField(obj.getClass(),field.getName());
+				Field f = HoneyUtil.getField(obj.getClass(), field.getName());
 				HoneyUtil.setAccessibleTrue(f);
 				Object value = f.get(obj);
 				if (value == null) {

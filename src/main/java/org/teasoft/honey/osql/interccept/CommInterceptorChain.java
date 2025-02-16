@@ -25,21 +25,21 @@ import org.teasoft.honey.util.StringUtils;
  * @since  1.11
  */
 public class CommInterceptorChain implements InterceptorChain {
-	
+
 	private static final long serialVersionUID = 1595293159213L;
-	
+
 	private final List<Interceptor> chain = new ArrayList<>();
-	private final Set<Class<?>> set=new HashSet<>();
+	private final Set<Class<?>> set = new HashSet<>();
 
 	public void addInterceptor(Interceptor interceptor) {
-		if (!set.add(interceptor.getClass())) 
-			Logger.warn("The InterceptorChain already contain the Interceptor, type: " + interceptor.getClass().getName());
+		if (!set.add(interceptor.getClass())) Logger
+				.warn("The InterceptorChain already contain the Interceptor, type: " + interceptor.getClass().getName());
 		chain.add(interceptor);
 	}
 
 	@Override
 	public Object beforePasreEntity(Object entity, SuidType suidType) {
-		for (int i = 0; entity != null && i < chain.size(); i++) { //自定义sql,MapSuid会传入null
+		for (int i = 0; entity != null && i < chain.size(); i++) { // 自定义sql,MapSuid会传入null
 			chain.get(i).beforePasreEntity(entity, suidType);
 		}
 
@@ -60,12 +60,12 @@ public class CommInterceptorChain implements InterceptorChain {
 
 	@Override
 	public void setDataSourceOneTime(String ds) {
-		//do nothing
+		// do nothing
 	}
 
 	@Override
 	public String getOneTimeDataSource() {
-		//do nothing
+		// do nothing
 		return null;
 	}
 
@@ -74,40 +74,40 @@ public class CommInterceptorChain implements InterceptorChain {
 		int count = 0;
 		int countTab = 0;
 		int countTabSuffix = 0;
-		String ds,tabName,tabSuffix;
+		String ds, tabName, tabSuffix;
 		for (int i = 0; i < chain.size(); i++) {
 			ds = chain.get(i).getOneTimeDataSource();
-			tabName=chain.get(i).getOneTimeTabName();
-			tabSuffix=chain.get(i).getOneTimeTabSuffix();
+			tabName = chain.get(i).getOneTimeTabName();
+			tabSuffix = chain.get(i).getOneTimeTabSuffix();
 
 			if (StringUtils.isNotBlank(ds)) {
 				count++;
-				HoneyContext.setAppointDS(ds);   //拦截器里获取的,  而拦截器则是从@MultiTenancy等获取到.
+				HoneyContext.setAppointDS(ds); // 拦截器里获取的, 而拦截器则是从@MultiTenancy等获取到.
 				Logger.info("[Bee] Reset the DataSource OneTime, ds name:" + ds);
 			}
-			
+
 			if (StringUtils.isNotBlank(tabName)) {
 				countTab++;
 				HoneyContext.setAppointTab(tabName);
 				Logger.info("[Bee] Reset the tabName OneTime, tabName:" + tabName);
 			}
-			
-			if(StringUtils.isNotBlank(tabSuffix)) {
+
+			if (StringUtils.isNotBlank(tabSuffix)) {
 				countTabSuffix++;
-				HoneyContext.setTabSuffix(tabSuffix); 
+				HoneyContext.setTabSuffix(tabSuffix);
 				Logger.info("[Bee] Reset the tabName OneTime, tabSuffix:" + tabSuffix);
 			}
-			
+
 		}
-		if (count > 1) Logger.warn(
-				"[Bee] Just the last DataSource is effective,if set the OneTime DataSource more than one!");
-	
-		if (countTab > 1) Logger.warn(
-				"[Bee] Just the last tabName is effective,if set the OneTime tabName more than one!");
-	
-		if (countTabSuffix > 1) Logger.warn(
-				"[Bee] Just the last TabSuffix is effective,if set the OneTime TabSuffix more than one!");
-	
+		if (count > 1)
+			Logger.warn("[Bee] Just the last DataSource is effective,if set the OneTime DataSource more than one!");
+
+		if (countTab > 1)
+			Logger.warn("[Bee] Just the last tabName is effective,if set the OneTime tabName more than one!");
+
+		if (countTabSuffix > 1)
+			Logger.warn("[Bee] Just the last TabSuffix is effective,if set the OneTime TabSuffix more than one!");
+
 	}
 
 	@Override
@@ -119,7 +119,7 @@ public class CommInterceptorChain implements InterceptorChain {
 		return sql;
 	}
 
-	//用于有返回Javabean结构的查询
+	// 用于有返回Javabean结构的查询
 	@Override
 	@SuppressWarnings("rawtypes")
 	public void beforeReturn(List list) {
@@ -132,7 +132,7 @@ public class CommInterceptorChain implements InterceptorChain {
 		}
 	}
 
-	//用于update,insert,delete及没有返回Javabean结构的查询方法
+	// 用于update,insert,delete及没有返回Javabean结构的查询方法
 	@Override
 	public void beforeReturn() {
 		try {
@@ -143,30 +143,33 @@ public class CommInterceptorChain implements InterceptorChain {
 			_remove();
 		}
 	}
-	
+
 	private void _remove() {
-		HoneyContext.removeAppointDS(); //放在这可能影响异步. 
+		HoneyContext.removeAppointDS(); // 放在这可能影响异步.
 		HoneyContext.removeCurrentRoute();
-		HoneyContext.removeAppointTab(); //V1.17
-		HoneyContext.removeTabSuffix();//V1.17
+		HoneyContext.removeAppointTab(); // V1.17
+		HoneyContext.removeTabSuffix();// V1.17
 	}
 
 	@Override
 	public void setTabNameOneTime(String tabName) {
-		//do nothing
+		// do nothing
 	}
+
 	@Override
 	public void setTabSuffixOneTime(String tabSuffix) {
-		//do nothing
+		// do nothing
 	}
+
 	@Override
 	public String getOneTimeTabName() {
-		//do nothing
+		// do nothing
 		return null;
 	}
+
 	@Override
 	public String getOneTimeTabSuffix() {
-		//do nothing
+		// do nothing
 		return null;
 	}
 

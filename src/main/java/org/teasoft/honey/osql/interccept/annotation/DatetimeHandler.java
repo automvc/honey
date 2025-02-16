@@ -23,7 +23,7 @@ import org.teasoft.honey.util.StringUtils;
  * @since  1.11-E
  */
 public class DatetimeHandler {
-	
+
 	private DatetimeHandler() {}
 
 	public static void process(Field field, Object entity, SuidType suidType) {
@@ -32,7 +32,7 @@ public class DatetimeHandler {
 		String formatter = datetime.formatter();
 		boolean override = datetime.override();
 		SuidType setSuidType = datetime.suidType();
-		//		String value=datetime.value();
+		// String value=datetime.value();
 
 		process(field, entity, suidType, formatter, override, setSuidType);
 	}
@@ -57,27 +57,27 @@ public class DatetimeHandler {
 		process(field, entity, suidType, formatter, override, setSuidType);
 	}
 
-	private static void process(Field field, Object entity, SuidType sqlSuidType, String formatter,
-			boolean override, SuidType setSuidType) {
+	private static void process(Field field, Object entity, SuidType sqlSuidType, String formatter, boolean override,
+			SuidType setSuidType) {
 
 		try {
 			if (!(setSuidType == sqlSuidType || setSuidType == SuidType.SUID
 					|| (setSuidType == SuidType.MODIFY && (sqlSuidType == SuidType.UPDATE
 							|| sqlSuidType == SuidType.INSERT || sqlSuidType == SuidType.DELETE))))
-				return; //操作类型不对,则返回
-			
+				return; // 操作类型不对,则返回
+
 			HoneyUtil.setAccessibleTrue(field);
-			if (!override) { //不允许覆盖,原来有值则返回
+			if (!override) { // 不允许覆盖,原来有值则返回
 				if (field.get(entity) != null) return;
 			}
 
-			if(field.getType().equals(Timestamp.class)) {
+			if (field.getType().equals(Timestamp.class)) {
 				HoneyUtil.setFieldValue(field, entity, DateUtil.currentTimestamp());
-			}else if(field.getType().equals(java.sql.Date.class)) {
+			} else if (field.getType().equals(java.sql.Date.class)) {
 				HoneyUtil.setFieldValue(field, entity, DateUtil.currentSqlDate());
-			}else if(field.getType().equals(java.util.Date.class)) {
+			} else if (field.getType().equals(java.util.Date.class)) {
 				HoneyUtil.setFieldValue(field, entity, new java.util.Date());
-			}else {
+			} else {
 				if (StringUtils.isNotBlank(formatter))
 					HoneyUtil.setFieldValue(field, entity, DateUtil.currentDate(formatter));
 				else

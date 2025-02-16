@@ -14,19 +14,19 @@ import org.teasoft.honey.osql.core.K;
  * @since  1.17
  */
 public class AbstractSqlServerFeature {
-	
+
 	public String toPageSql(String sql, int size) {
-		sql=HoneyUtil.deleteLastSemicolon(sql);
+		sql = HoneyUtil.deleteLastSemicolon(sql);
 
-		int index1=sql.toLowerCase().indexOf("select");
-		int index2=sql.toLowerCase().indexOf("select distinct");
-		int insertIndex=index1 + (index2 == index1 ? 15 : 6);
+		int index1 = sql.toLowerCase().indexOf("select");
+		int index2 = sql.toLowerCase().indexOf("select distinct");
+		int insertIndex = index1 + (index2 == index1 ? 15 : 6);
 
-		StringBuilder sb=new StringBuilder(sql.length() + 6 + (size + "").length()).append(sql);
-		if(index2 != index1) sb.insert(insertIndex, " " + K.top + " " + size );
-		else                 sb.insert(insertIndex, " " + K.top + " " + size + " ");
-		
+		StringBuilder sb = new StringBuilder(sql.length() + 6 + (size + "").length()).append(sql);
+		if (index2 != index1) sb.insert(insertIndex, " " + K.top + " " + size);
+		else sb.insert(insertIndex, " " + K.top + " " + size + " ");
+
 		return sb.toString();
 	}
-	
+
 }
