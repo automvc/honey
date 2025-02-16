@@ -31,8 +31,8 @@ import org.teasoft.honey.sharding.engine.decorate.SortStringArrayListDecorator;
 public class MongodbShardingSelectListStringArrayEngine {
 
 //	@SuppressWarnings("rawtypes")
-	public <T> List<String[]> asynProcess(Class<T> entityClass, MongodbBeeSql mongodbBeeSql,MongoSqlStruct struct) {
-		
+	public <T> List<String[]> asynProcess(Class<T> entityClass, MongodbBeeSql mongodbBeeSql, MongoSqlStruct struct) {
+
 		List<String[]> list;
 		String dsArray[];
 		String tabArray[];
@@ -45,18 +45,18 @@ public class MongodbShardingSelectListStringArrayEngine {
 		dsArray = list.get(0);
 		tabArray = list.get(1);
 
-		final List<Callable<List<String[]>>> tasks = new ArrayList<>(); 
+		final List<Callable<List<String[]>>> tasks = new ArrayList<>();
 
 		for (int i = 0; dsArray != null && i < dsArray.length; i++) {
-			tasks.add(new ShardingBeeSQLExecutorEngine<T>(tabArray[i], i + 1, mongodbBeeSql,
-					dsArray[i], entityClass, struct));
+			tasks.add(new ShardingBeeSQLExecutorEngine<T>(tabArray[i], i + 1, mongodbBeeSql, dsArray[i], entityClass,
+					struct));
 		}
-		
+
 		if (dsArray != null) ShardingLogReg.log(dsArray.length);
-		
-		int size=tasks.size();
-		if(size==0) return null;
-		
+
+		int size = tasks.size();
+		if (size == 0) return null;
+
 //		Bee SQL Executor Engine
 		ExecutorService executor = ThreadPoolUtil.getThreadPool(size);
 		CompletionService<List<String[]>> completionService = new ExecutorCompletionService<>(executor);
@@ -64,30 +64,28 @@ public class MongodbShardingSelectListStringArrayEngine {
 			completionService.submit(tasks.get(i));
 		}
 
-		//Result Merge
+		// Result Merge
 		List<String[]> rsList = ResultMergeEngine.merge(completionService, size);
 
 		executor.shutdown();
-		
+
 		// 排序装饰
 		SortStringArrayListDecorator.sort(rsList);
 
 		// 分页装饰
 		// 获取指定的一页数据
 		ResultPagingDecorator.pagingList(rsList);
-		
+
 		return rsList;
 	}
 
-
-	private class ShardingBeeSQLExecutorEngine<T>
-			extends ShardingAbstractMongoBeeSQLExecutorEngine<List<String[]>> {
+	private class ShardingBeeSQLExecutorEngine<T> extends ShardingAbstractMongoBeeSQLExecutorEngine<List<String[]>> {
 
 		private Class<T> entityClass;
 		private MongoSqlStruct struct;
 
-		public ShardingBeeSQLExecutorEngine(String tab, int index, MongodbBeeSql mongodbBeeSql,
-				String ds, Class<T> entityClass, MongoSqlStruct struct) {
+		public ShardingBeeSQLExecutorEngine(String tab, int index, MongodbBeeSql mongodbBeeSql, String ds,
+				Class<T> entityClass, MongoSqlStruct struct) {
 			super(tab, index, mongodbBeeSql, ds);
 			this.entityClass = entityClass;
 			this.struct = struct.copy();

@@ -22,8 +22,7 @@ public abstract class ShardingAbstractMongoBeeSQLExecutorEngine<T> extends Shard
 
 	protected MongodbBeeSql mongodbBeeSql;
 
-	public ShardingAbstractMongoBeeSQLExecutorEngine(String tab, int index, MongodbBeeSql mongodbBeeSql,
-			String ds) {
+	public ShardingAbstractMongoBeeSQLExecutorEngine(String tab, int index, MongodbBeeSql mongodbBeeSql, String ds) {
 		super.tab = tab;
 		this.mongodbBeeSql = copy(mongodbBeeSql);
 
@@ -35,7 +34,7 @@ public abstract class ShardingAbstractMongoBeeSQLExecutorEngine<T> extends Shard
 	public T call() throws Exception {
 		return doSharding();
 	}
-	
+
 	private MongodbBeeSql copy(MongodbBeeSql mongodbBeeSql) {// MongodbSqlLib have serial.
 		try {
 			Serializer jdks = new JdkSerializer();
@@ -43,6 +42,6 @@ public abstract class ShardingAbstractMongoBeeSQLExecutorEngine<T> extends Shard
 		} catch (Exception e) {
 			Logger.debug(e.getMessage(), e);
 		}
-		return mongodbBeeSql; //有异常返回原来的
+		return mongodbBeeSql; // 有异常返回原来的
 	}
 }

@@ -26,28 +26,27 @@ import org.teasoft.honey.util.StringUtils;
  * @since  2.0
  */
 public class ShardingRegistry implements Registry {
-	
-	private static final Map<Class<?>, ShardingBean> shardingMap = new ConcurrentHashMap<>();  
-	private static final Map<String, ShardingBean> shardingTableKeyMap = new ConcurrentHashMap<>();  
+
+	private static final Map<Class<?>, ShardingBean> shardingMap = new ConcurrentHashMap<>();
+	private static final Map<String, ShardingBean> shardingTableKeyMap = new ConcurrentHashMap<>();
 	private static Map<String, Map<String, Set<String>>> fullNodes = new HashMap<>();// 1
 	private static Map<String, String> tabToDsMap = new LinkedHashMap<>(); // 2
 	private static Map<String, Integer> tabSizeMap = new HashMap<>(); // 3
-	private static Map<String, String> tabToBase= new HashMap<>();
-	
-	private static final Byte ONE=1;
+	private static Map<String, String> tabToBase = new HashMap<>();
+
+	private static final Byte ONE = 1;
 	private static Map<String, Byte> broadcastTabMap = new HashMap<>(); // 4
-	
-	private static Map<String, String> sepTabMap = new HashMap<>(); //since 2.1   tabBaseName:separator
-	
+
+	private static Map<String, String> sepTabMap = new HashMap<>(); // since 2.1 tabBaseName:separator
+
 	public static ShardingBean getShardingBean(Class<?> entity) {
 		return shardingMap.get(entity);
 	}
-	
+
 	public static ShardingBean getShardingBean(String baseTableName) {
 		return shardingTableKeyMap.get(baseTableName.toLowerCase());
 	}
 
-	
 	public static String getDsShardingField(Class<?> entity) {
 		ShardingBean bean = shardingMap.get(entity);
 		if (bean != null) return bean.getDsField();
@@ -69,11 +68,11 @@ public class ShardingRegistry implements Registry {
 		// 考虑ds0,ds1里的表名都是:orders0,orders1,orders2时,如何区分?? 不在此解析.获取不到,上游再判断??
 		return tabToDsMap.get(tabName);
 	}
-	
+
 	public static Integer getTabSize(String tabBaseName) {
 		return tabSizeMap.get(tabBaseName);
 	}
-	
+
 	public static String getSepTab(String tabBaseName) {
 		return sepTabMap.get(tabBaseName);
 	}
@@ -88,9 +87,9 @@ public class ShardingRegistry implements Registry {
 //		return:  "ds0"->[orders0,orders1,orders2],"ds1"->[orders3,orders4,orders5]
 		return fullNodes.get(baseTableName.toLowerCase());
 	}
-	
-	private static final ThreadLocalRandom RAND=ThreadLocalRandom.current();
-	
+
+	private static final ThreadLocalRandom RAND = ThreadLocalRandom.current();
+
 	public static String getRandDs(String baseTableName) {
 		Map<String, Set<String>> map = getFullNodes(baseTableName);
 		if (map == null || map.size() < 1) return null;
@@ -107,7 +106,7 @@ public class ShardingRegistry implements Registry {
 
 		return null;
 	}
-	
+
 	public static List<String> getAllDs(String baseTableName) {
 		Map<String, Set<String>> map = getFullNodes(baseTableName);
 		if (map == null || map.size() < 1) return null;
@@ -119,15 +118,15 @@ public class ShardingRegistry implements Registry {
 		}
 		return allDs;
 	}
-	
+
 	public static boolean isBroadcastTab(String tabName) {
 		return ONE.equals(broadcastTabMap.get(tabName.toLowerCase()));
 	}
-	
-	public static String getBaseTabName(String tabName) {//2.4.2
+
+	public static String getBaseTabName(String tabName) {// 2.4.2
 		return tabToBase.get(tabName);
 	}
-	
+
 	static void register(Class<?> entity, List<ShardingBean> shardingBeanList) {
 		for (ShardingBean shardingBean : shardingBeanList) {
 			register(entity, shardingBean);
@@ -138,14 +137,14 @@ public class ShardingRegistry implements Registry {
 		if (entity == null || shardingBean == null) return;
 		shardingMap.put(entity, shardingBean);
 
-		parseFullNodesStringAndregister(shardingBean.getFullNodes(),shardingBean.getTabAssignType(), entity);
+		parseFullNodesStringAndregister(shardingBean.getFullNodes(), shardingBean.getTabAssignType(), entity);
 	}
-	
+
 	static void register(String baseTableName, ShardingBean shardingBean) {
 		if (baseTableName == null || shardingBean == null) return;
 		shardingTableKeyMap.put(baseTableName.toLowerCase(), shardingBean);
 
-		parseFullNodesStringAndregister(shardingBean.getFullNodes(),shardingBean.getTabAssignType(), null);
+		parseFullNodesStringAndregister(shardingBean.getFullNodes(), shardingBean.getTabAssignType(), null);
 	}
 
 	static void addTabToDsMap(Map<String, String> someTabToDsMap) {
@@ -157,19 +156,18 @@ public class ShardingRegistry implements Registry {
 	}
 
 	static void parseFullNodesStringAndregister(String fullNodes) {
-		parseFullNodesStringAndregister(fullNodes,0, null);
+		parseFullNodesStringAndregister(fullNodes, 0, null);
 	}
 
-	private static void parseFullNodesStringAndregister(String fullNodes,int tabAssignType,
-			Class<?> entity) {
+	private static void parseFullNodesStringAndregister(String fullNodes, int tabAssignType, Class<?> entity) {
 		ShardingConfigParse t = new ShardingConfigParse();
 		ShardingConfigMeta shardingConfigMeta = t.parseForSharding(fullNodes);
 		if (shardingConfigMeta != null) {
 			addFullNodes(shardingConfigMeta.getFullNodes());
 			addTabToDsMap(shardingConfigMeta.getTabToDsMap());
 			tabSizeMap.put(shardingConfigMeta.getTabBaseName(), shardingConfigMeta.getTabSize());
-			tabToBase.putAll(shardingConfigMeta.getTabToBase());//2.4.2
-			if(StringUtils.isNotEmpty(shardingConfigMeta.getSepTab()))
+			tabToBase.putAll(shardingConfigMeta.getTabToBase());// 2.4.2
+			if (StringUtils.isNotEmpty(shardingConfigMeta.getSepTab()))
 				sepTabMap.put(shardingConfigMeta.getTabBaseName(), shardingConfigMeta.getSepTab());
 		} else {
 			String msg = "Can not parse the fullNodes:" + fullNodes;
@@ -177,13 +175,13 @@ public class ShardingRegistry implements Registry {
 			Logger.warn(msg, new BeeException());
 		}
 	}
-	
+
 	static void addBroadcastTabList(List<String> broadTabList) {
 		for (String tab : broadTabList) {
 			broadcastTabMap.put(tab.toLowerCase(), ONE);
 		}
 	}
-	
+
 	static void addBroadcastTabList(String broadTab) {
 		broadcastTabMap.put(broadTab.toLowerCase(), ONE);
 	}

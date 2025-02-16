@@ -23,103 +23,100 @@ import org.teasoft.honey.util.ObjectUtils;
  * @since  2.0
  */
 public class ShardingReg {
-	
-	
-	//<<<<<<<<<<<<<<<<<<<<<<<<<解析时用.  start
-	
+
+	// <<<<<<<<<<<<<<<<<<<<<<<<<解析时用. start
+
 	public static void regHadSharding() {
 		ShardingUtil.setTrue(StringConst.HadSharding);
 	}
 
-	//下游还会判断,是否涉及多个库.
+	// 下游还会判断,是否涉及多个库.
 	public static void regShardingManyTables(List<String> dsNameList, List<String> tabNameList,
 			List<String> tabSuffixList, Map<String, String> tab2DsMap) {
 		HoneyContext.setListLocal(StringConst.TabNameListLocal, tabNameList);
 		HoneyContext.setListLocal(StringConst.TabSuffixListLocal, tabSuffixList);
-		//一般用于判断,是否是某个数据源
-		HoneyContext.setListLocal(StringConst.DsNameListLocal, dsNameList); //极少用于指定ds;  一般用反查或tab2DsMap
+		// 一般用于判断,是否是某个数据源
+		HoneyContext.setListLocal(StringConst.DsNameListLocal, dsNameList); // 极少用于指定ds; 一般用反查或tab2DsMap
 		HoneyContext.setCustomMapLocal(StringConst.ShardingTab2DsMap, tab2DsMap);
 	}
-	
+
 	public static void regFullInModifyAllNodes(SuidType suidType) {
-		if(suidType!=SuidType.SELECT) {
+		if (suidType != SuidType.SELECT) {
 			setTrue(StringConst.ShardingFullSelect);
 			regHadSharding();
 		}
 	}
-	
+
 	public static void regFull(SuidType suidType) {
-		//来到这里,说明是涉及全域操作,是没有设置分片值的.
-		
-		if(suidType==SuidType.SELECT || suidType==SuidType.DELETE  || suidType==SuidType.UPDATE) { //全域
+		// 来到这里,说明是涉及全域操作,是没有设置分片值的.
+
+		if (suidType == SuidType.SELECT || suidType == SuidType.DELETE || suidType == SuidType.UPDATE) { // 全域
 			setTrue(StringConst.ShardingFullSelect);
 			regHadSharding();
-		}else if (SuidType.INSERT == suidType) {
-			//记录插入时,分表的分片值,要设置
+		} else if (SuidType.INSERT == suidType) {
+			// 记录插入时,分表的分片值,要设置
 			triggerDoNotSetTabShadngValueException();
 		}
 	}
-	
-	//分片值只计算得数据源名称,应该查其下的所有表.
+
+	// 分片值只计算得数据源名称,应该查其下的所有表.
 	public static void regSomeDsFull(SuidType suidType) {
-		regFull(suidType); //若有异常,会在这句抛出.
+		regFull(suidType); // 若有异常,会在这句抛出.
 		setTrue(StringConst.ShardingSomeDsFullSelect);
 	}
-	
-	public static void regShardingJustDs(List<String> dsNameList) {  //一般用于判断,是否是某个数据源
-		HoneyContext.setListLocal(StringConst.DsNameListLocal, dsNameList);  //极少用于指定ds;  一般用反查或tab2DsMap
+
+	public static void regShardingJustDs(List<String> dsNameList) { // 一般用于判断,是否是某个数据源
+		HoneyContext.setListLocal(StringConst.DsNameListLocal, dsNameList); // 极少用于指定ds; 一般用反查或tab2DsMap
 	}
-	
-	private static final String DoNotSetTabShadngValue="Do not set the sharding value for table!";
+
+	private static final String DoNotSetTabShadngValue = "Do not set the sharding value for table!";
+
 	private static void triggerDoNotSetTabShadngValueException() {
 		clearContext();
-		//记录插入时,分表的分片值,要设置
-        throw new ShardingErrorException(DoNotSetTabShadngValue);
+		// 记录插入时,分表的分片值,要设置
+		throw new ShardingErrorException(DoNotSetTabShadngValue);
 	}
-	
+
 	public static void regBatchInsert(List<String> tabNameListForBatch, List<String> dsNameListForBatch) {
 		HoneyContext.setListLocal(StringConst.TabNameListForBatchLocal, tabNameListForBatch);
 		HoneyContext.setListLocal(StringConst.DsNameListForBatchLocal, dsNameListForBatch);
 	}
-	
-	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>解析时用.  end
-	
-	
-	
-	
-	//<<<<<<<<<<<<<<<<<<<<<<<<<重写,排序,分页时用.  start
-	
+
+	// >>>>>>>>>>>>>>>>>>>>>>>>>>>>解析时用. end
+
+	// <<<<<<<<<<<<<<<<<<<<<<<<<重写,排序,分页时用. start
+
 	public static void regShadingPage(String beforeSql, String pagingSql, Integer start, Integer size) {
-		
-		if(size==null || (start==null && size==null)) return ;
-		
-		//  可能一些标记还要保留
+
+		if (size == null || (start == null && size == null)) return;
+
+		// 可能一些标记还要保留
 		if (ShardingUtil.hadSharding()) {// 有分片才要记录
-			ShardingPageStruct struct=new ShardingPageStruct();
+			ShardingPageStruct struct = new ShardingPageStruct();
 			struct.setBeforeSql(beforeSql);
 			struct.setPagingSql(pagingSql);
 //			struct.setPagingType(pagingType);
-			if(start!=null && start!=-1) struct.setStart(start);
+			if (start != null && start != -1) struct.setStart(start);
 			struct.setSize(size);
-			
-			//没设置有库分片值时,不会有值.
+
+			// 没设置有库分片值时,不会有值.
 //			List<String> dsNameListLocal=HoneyContext.getListLocal(StringConst.DsNameListLocal);
 //			if(dsNameListLocal!=null && dsNameListLocal.size()==1) struct.setPagingType("SameDS");
 //			else struct.setPagingType("MoreDS");
-			
+
 			HoneyContext.setCurrentShardingPage(struct);
 		}
 	}
-	
-	//selectOrderBy
+
+	// selectOrderBy
 	public static void regShardingSort(String orderSql, String[] orderFields, OrderType[] orderTypes) {
 		if (!ShardingUtil.hadSharding()) return;
-		
+
 		ShardingSortStruct struct = new ShardingSortStruct(orderSql, orderFields, orderTypes);
 		HoneyContext.setCurrentShardingSort(struct);
 	}
-	
-	//带condition
+
+	// 带condition
 	public static void regShardingSort(ShardingSortStruct struct) {
 		if (!ShardingUtil.hadSharding()) return;
 		HoneyContext.setCurrentShardingSort(struct);
@@ -130,7 +127,7 @@ public class ShardingReg {
 
 		if (!ShardingUtil.hadSharding()) return;
 		if (ObjectUtils.isEmpty(orderByMap)) return;
-		
+
 //		String orderFields[] = new String[orderByMap.size()];
 //		OrderType[] orderTypes = new OrderType[orderByMap.size()];
 //		int lenA = orderFields.length;
@@ -150,58 +147,53 @@ public class ShardingReg {
 //		}
 //
 //		regShardingSort(orderBy, orderFields, orderTypes);
-		
+
 		regShardingSort(ShardingUtil.parseOrderByMap(orderByMap));
-		
+
 	}
-	
+
 	public static void regMoreTableQuery() {
 		setTrue(StringConst.MoreTableQuery);
 	}
-	
-	
-	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>重写,排序,分页时用.  end
-	
-	
-	
+
+	// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>重写,排序,分页时用. end
+
 	public static void regShardingBatchInsertDoing() {
 		setTrue(StringConst.ShardingBatchInsertDoing);
 	}
-	
-	
-	
-	//2.0
+
+	// 2.0
 	public static void clearContext() {
-			if(! ShardingUtil.isSharding()) return ;
-			
-			HoneyContext.removeConditionLocal();
-			HoneyContext.removeSysCommStrInheritableLocal(StringConst.HadSharding);
-			HoneyContext.removeSysCommStrInheritableLocal(StringConst.ShardingFullSelect);
-			HoneyContext.removeSysCommStrInheritableLocal(StringConst.ShardingSomeDsFullSelect);
-			HoneyContext.removeSysCommStrInheritableLocal(StringConst.HintDs);
-			HoneyContext.removeSysCommStrInheritableLocal(StringConst.HintTab);
-			HoneyContext.removeSysCommStrInheritableLocal(StringConst.FunType);
-			HoneyContext.removeSysCommStrInheritableLocal(StringConst.MoreTableQuery);
-			HoneyContext.removeSysCommStrInheritableLocal(StringConst.MoreTableSelectShardingFlag);
-			
-			HoneyContext.removeListLocal(StringConst.TabNameListLocal);
-			HoneyContext.removeListLocal(StringConst.TabSuffixListLocal);
-			HoneyContext.removeListLocal(StringConst.DsNameListLocal);
-			
-			HoneyContext.removeListLocal(StringConst.TabNameListForBatchLocal);
-			HoneyContext.removeListLocal(StringConst.DsNameListForBatchLocal);
-			
-			HoneyContext.removeCustomMapLocal(StringConst.ShardingTab2DsMap);
-			
-			HoneyContext.removeCurrentShardingPage();
-			HoneyContext.removeCurrentShardingSort();
-			HoneyContext.removeCurrentGroupFunStruct();
-			
-			HoneyContext.removeCurrentGroupFunStruct();
-		}
-	
+		if (!ShardingUtil.isSharding()) return;
+
+		HoneyContext.removeConditionLocal();
+		HoneyContext.removeSysCommStrInheritableLocal(StringConst.HadSharding);
+		HoneyContext.removeSysCommStrInheritableLocal(StringConst.ShardingFullSelect);
+		HoneyContext.removeSysCommStrInheritableLocal(StringConst.ShardingSomeDsFullSelect);
+		HoneyContext.removeSysCommStrInheritableLocal(StringConst.HintDs);
+		HoneyContext.removeSysCommStrInheritableLocal(StringConst.HintTab);
+		HoneyContext.removeSysCommStrInheritableLocal(StringConst.FunType);
+		HoneyContext.removeSysCommStrInheritableLocal(StringConst.MoreTableQuery);
+		HoneyContext.removeSysCommStrInheritableLocal(StringConst.MoreTableSelectShardingFlag);
+
+		HoneyContext.removeListLocal(StringConst.TabNameListLocal);
+		HoneyContext.removeListLocal(StringConst.TabSuffixListLocal);
+		HoneyContext.removeListLocal(StringConst.DsNameListLocal);
+
+		HoneyContext.removeListLocal(StringConst.TabNameListForBatchLocal);
+		HoneyContext.removeListLocal(StringConst.DsNameListForBatchLocal);
+
+		HoneyContext.removeCustomMapLocal(StringConst.ShardingTab2DsMap);
+
+		HoneyContext.removeCurrentShardingPage();
+		HoneyContext.removeCurrentShardingSort();
+		HoneyContext.removeCurrentGroupFunStruct();
+
+		HoneyContext.removeCurrentGroupFunStruct();
+	}
+
 	public static void setTrue(String key) {
-		if(! ShardingUtil.isSharding()) return ; //2.4.0
+		if (!ShardingUtil.isSharding()) return; // 2.4.0
 		HoneyContext.setSysCommStrInheritableLocal(key, StringConst.tRue);
 	}
 

@@ -39,61 +39,61 @@ import org.teasoft.honey.util.ObjectCreatorFactory;
  * @since  2.0
  */
 public class ShardingGroupbyListStringArrayEngine {
-	
+
 	private final static int List_String_Array = 1;
 	private final static int List_T = 2;
 //	private final static int List_StringJson = 3;
 
 //	@SuppressWarnings("rawtypes")
-	public <T> Object asynProcess(String sql, BeeSql beeSql,Class<T> entityClass, int returnType) {
+	public <T> Object asynProcess(String sql, BeeSql beeSql, Class<T> entityClass, int returnType) {
 //	public Object asynProcess(String sql, BeeSql beeSql, Class entityClass) {
-		
+
 		List<String[]> list;
-		String sqls[]=null;
-		String dsArray[]=null;
-		
+		String sqls[] = null;
+		String dsArray[] = null;
+
 		if (ShardingUtil.hadShardingFullSelect()) {// 全域查询
 			list = OrderByPagingRewriteSql.createSqlsForFullSelect(sql, entityClass);
 		} else {
 			list = OrderByPagingRewriteSql.createSqlsAndInit(sql); // 涉及部分分片
 		}
-		
-		sqls=list.get(0);
-		dsArray=list.get(1);
-		
-		if(sqls==null || sqls.length==0) return null;
+
+		sqls = list.get(0);
+		dsArray = list.get(1);
+
+		if (sqls == null || sqls.length == 0) return null;
 		ExecutorService executor = ThreadPoolUtil.getThreadPool(sqls.length);
 		CompletionService<List<String[]>> completionService = new ExecutorCompletionService<>(executor);
-		
-		final List<Callable<List<String[]>>> tasks = new ArrayList<>(); 
+
+		final List<Callable<List<String[]>>> tasks = new ArrayList<>();
 
 		for (int i = 0; sqls != null && i < sqls.length; i++) {
 			tasks.add(new ShardingBeeSQLExecutorEngine(sqls[i], i + 1, beeSql, dsArray[i]));
 		}
-		
+
 		if (sqls != null) ShardingLogReg.log(sqls.length);
-		
+
 //		Bee SQL Executor Engine
-		int size=tasks.size();
+		int size = tasks.size();
 		for (int i = 0; tasks != null && i < size; i++) {
 			completionService.submit(tasks.get(i));
 		}
 
-		//Result Merge
+		// Result Merge
 		List<String[]> rsList = ResultMergeEngine.merge(completionService, size);
 
 		executor.shutdown();
-		
-		//group and aggregate List<String[]>,if necessary
+
+		// group and aggregate List<String[]>,if necessary
 		ShardingGroupByDecorator.groupAndAggregateStringArray(rsList);
-		
+
 		// 排序装饰
 		SortStringArrayListDecorator.sort(rsList);
 
 		// 分页装饰
 		// 获取指定的一页数据
 		ResultPagingDecorator.pagingList(rsList);
-		
+
 		if (returnType == List_String_Array) { // String[]
 			// 要去掉多余的列 ,在groupAndAggregateStringArray已处理
 			return (List<String[]>) rsList;
@@ -101,11 +101,11 @@ public class ShardingGroupbyListStringArrayEngine {
 //			要转化成List<T>或json的List即List<String>   
 			List<T> entityList = new ArrayList<>(rsList.size());
 
-			// 将List<String[]>转成List<T> 
+			// 将List<String[]>转成List<T>
 			T targetObj = null;
 
 			try {
-			
+
 				GroupFunStruct groupFunStruct = HoneyContext.getCurrentGroupFunStruct();
 				for (int i = 0; i < rsList.size(); i++) {
 					targetObj = entityClass.newInstance();
@@ -120,14 +120,14 @@ public class ShardingGroupbyListStringArrayEngine {
 						String name = null;
 						try {
 							name = _toFieldName(columnName, entityClass);
-							field = HoneyUtil.getField(entityClass,name);// 可能会找不到Javabean的字段
+							field = HoneyUtil.getField(entityClass, name);// 可能会找不到Javabean的字段
 						} catch (NoSuchFieldException e) {
 							continue;
 						}
 						Object obj = ObjectCreatorFactory.create(value, field.getType());
 						HoneyUtil.setAccessibleTrue(field);
 						HoneyUtil.setFieldValue(field, targetObj, obj);
-					}//处理一行记录结束
+					} // 处理一行记录结束
 					entityList.add(targetObj);
 				}
 			} catch (IllegalAccessException | InstantiationException e) {
@@ -147,9 +147,9 @@ public class ShardingGroupbyListStringArrayEngine {
 				if (rsList.size() == 0) {
 					json = "[]";
 					rowCount = 0;
-				}else {
-				  JsonTransform jsonTransform = SpiInstanceFactory.getJsonTransform();
-				  json = jsonTransform.toJson(entityList);
+				} else {
+					JsonTransform jsonTransform = SpiInstanceFactory.getJsonTransform();
+					json = jsonTransform.toJson(entityList);
 				}
 				rowCount = entityList.size();
 
@@ -160,12 +160,11 @@ public class ShardingGroupbyListStringArrayEngine {
 			}
 		}
 	}
-		
+
 	@SuppressWarnings("rawtypes")
 	private String _toFieldName(String columnName, Class entityClass) {
 		return NameTranslateHandle.toFieldName(columnName, entityClass);
 	}
-
 
 //	Return ListStringArray
 	private class ShardingBeeSQLExecutorEngine extends ShardingAbstractBeeSQLExecutorEngine<List<String[]>> {

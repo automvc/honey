@@ -27,7 +27,7 @@ public abstract class ShardingMongodbTemplate<T> {
 			HoneyContext.setAppointTab(tab);
 
 			return shardingWork();
-			
+
 		} finally {
 			HoneyContext.removeAppointTab();
 			HoneyContext.removeAppointDS();

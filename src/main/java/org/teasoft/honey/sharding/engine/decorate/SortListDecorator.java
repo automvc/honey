@@ -60,8 +60,7 @@ public class SortListDecorator {
 				if (orderFields != null) {
 					int i = 0;
 					for (String orderField : orderFields) {
-						int result = CompareUtil.compareTo(getValue(a, orderField),
-								getValue(b, orderField), struct, i);
+						int result = CompareUtil.compareTo(getValue(a, orderField), getValue(b, orderField), struct, i);
 						if (result != 0) {
 							return result;
 						}
@@ -83,7 +82,7 @@ public class SortListDecorator {
 				return obj.toString();
 			}
 		} catch (IllegalAccessException | NoSuchFieldException e) {
-			
+
 		}
 		return null;
 	}

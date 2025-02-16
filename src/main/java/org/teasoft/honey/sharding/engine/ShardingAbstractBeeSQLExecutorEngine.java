@@ -17,14 +17,12 @@ import org.teasoft.honey.osql.core.Logger;
  * @author AiTeaSoft
  * @since  2.0
  */
-public abstract class ShardingAbstractBeeSQLExecutorEngine<T> extends ShardingTemplate<T>
-		implements Callable<T> {
+public abstract class ShardingAbstractBeeSQLExecutorEngine<T> extends ShardingTemplate<T> implements Callable<T> {
 
 	protected String sql;
 	protected BeeSql beeSql;
 
-	public ShardingAbstractBeeSQLExecutorEngine(String sql, int index, BeeSql beeSql,
-			String ds) {
+	public ShardingAbstractBeeSQLExecutorEngine(String sql, int index, BeeSql beeSql, String ds) {
 		this.sql = sql;
 //		this.beeSql = beeSql;
 		this.beeSql = copy(beeSql);
@@ -37,7 +35,7 @@ public abstract class ShardingAbstractBeeSQLExecutorEngine<T> extends ShardingTe
 	public T call() throws Exception {
 		return doSharding();
 	}
-	
+
 	private BeeSql copy(BeeSql beeSql) {
 		try {
 			Serializer jdks = new JdkSerializer();
@@ -45,6 +43,6 @@ public abstract class ShardingAbstractBeeSQLExecutorEngine<T> extends ShardingTe
 		} catch (Exception e) {
 			Logger.debug(e.getMessage(), e);
 		}
-		return beeSql; //有异常返回原来的
+		return beeSql; // 有异常返回原来的
 	}
 }

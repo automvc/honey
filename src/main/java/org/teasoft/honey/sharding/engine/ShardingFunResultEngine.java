@@ -19,7 +19,7 @@ import org.teasoft.honey.util.currency.CurrencyArithmetic;
  * @since  2.0
  */
 public class ShardingFunResultEngine {
-	
+
 	public static String funResultEngine(List<String> rsList) {
 		String funType = HoneyContext.getSysCommStrInheritableLocal(StringConst.FunType);
 		Double temp = 0D;

@@ -41,10 +41,10 @@ public class ShardingSelectFunEngine {
 		sqls = list.get(0);
 		dsArray = list.get(1);
 
-		if(sqls==null || sqls.length==0) return null;
+		if (sqls == null || sqls.length == 0) return null;
 		ExecutorService executor = ThreadPoolUtil.getThreadPool(sqls.length);
 		CompletionService<String> completionService = new ExecutorCompletionService<>(executor);
-		final List<Callable<String>> tasks = new ArrayList<>(); 
+		final List<Callable<String>> tasks = new ArrayList<>();
 
 		for (int i = 0; sqls != null && i < sqls.length; i++) {
 			tasks.add(new ShardingBeeSQLFunExecutorEngine(sqls[i], i + 1, beeSql, dsArray[i]));
@@ -52,7 +52,7 @@ public class ShardingSelectFunEngine {
 
 		if (sqls != null) ShardingLogReg.log(sqls.length);
 
-		int size=tasks.size();
+		int size = tasks.size();
 		for (int i = 0; tasks != null && i < size; i++) {
 			completionService.submit(tasks.get(i));
 		}
@@ -64,7 +64,6 @@ public class ShardingSelectFunEngine {
 		return ShardingFunResultEngine.funResultEngine(rsList);
 	}
 
-	
 //	Return String 
 	private class ShardingBeeSQLFunExecutorEngine extends ShardingAbstractBeeSQLExecutorEngine<String> {
 

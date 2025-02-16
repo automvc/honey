@@ -25,10 +25,10 @@ import org.teasoft.honey.util.StringUtils;
  */
 public class MultiTenancyHandlerController {
 
-	private MultiTenancyHandlerController(){
-		
+	private MultiTenancyHandlerController() {
+
 	}
-	
+
 	@SuppressWarnings("rawtypes")
 	public static DsTabStruct process(Field field, Object entity, SuidType sqlSuidType) {
 		DsTabStruct dsTabStruct = null;
@@ -48,15 +48,15 @@ public class MultiTenancyHandlerController {
 				dsTabStruct.setTabName(appointTab);
 				isAppoint = true;
 			}
-			
-			//只指明了一个,另一个还要计算吗???　bug??
+
+			// 只指明了一个,另一个还要计算吗??? bug??
 			if (isAppoint) return dsTabStruct;
 
 			HoneyUtil.setAccessibleTrue(field);
-			Object tenancyValue = field.get(entity); //可能是null,如何处理???
-			
+			Object tenancyValue = field.get(entity); // 可能是null,如何处理???
+
 			// 分库分表时,分片字段的值是null是,要查所有库表,怎么知道所有的库和表?
-			//交给具体处理器处理. 2022-05-02
+			// 交给具体处理器处理. 2022-05-02
 //			if (tenancyValue == null) {  
 //				Logger.error("多租户字段值是null.");
 //				return null;
@@ -75,13 +75,13 @@ public class MultiTenancyHandlerController {
 
 			Class c = anno.handler();
 
-			if (c.equals(DsTabHandler.class)) {//只是默认的接口
-				//使用系统定义的
+			if (c.equals(DsTabHandler.class)) {// 只是默认的接口
+				// 使用系统定义的
 				dsTabStruct = new DefaultAnnoDsTabHandler().process(sharding);
 //			} else if (c.isAssignableFrom(DsTabHandler.class)) { //是AnnotationHandler的实现类 
-		 	
+
 //			}  else if(Modifier.isAbstract(c.getModifiers())){//如何判断是抽象类??
-			} else if (! c.isInterface()  && !Modifier.isAbstract(c.getModifiers())) {//不是接口和不是抽象类
+			} else if (!c.isInterface() && !Modifier.isAbstract(c.getModifiers())) {// 不是接口和不是抽象类
 				DsTabHandler obj = (DsTabHandler) c.newInstance();
 				dsTabStruct = obj.process(sharding);
 

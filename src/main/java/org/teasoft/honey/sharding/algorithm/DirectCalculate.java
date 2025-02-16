@@ -13,7 +13,7 @@ import org.teasoft.honey.util.currency.LongCalculator;
  * @author Kingstar
  * @since  1.11-E
  */
-public class DirectCalculate implements Calculate{
+public class DirectCalculate implements Calculate {
 
 	@Override
 	public String process(String rule, String oneValue) {

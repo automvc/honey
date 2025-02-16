@@ -22,13 +22,13 @@ import org.teasoft.honey.util.StringUtils;
  * @since  2.0
  */
 public class ShardingConfigParse {
-	
+
 	public ShardingConfigMeta parseForSharding(String str, int assignType) {
 //		String str="ds[0..2].orders[0..5]";
 
 		if (StringUtils.isBlank(str)) return null;
 
-		NodeBean bean = parse(str,assignType);
+		NodeBean bean = parse(str, assignType);
 
 		Map<String, Map<String, Set<String>>> fullNodes = new HashMap<>();// 1
 		Map<String, String> tabToDsMap = new LinkedHashMap<>(); // 2
@@ -47,10 +47,10 @@ public class ShardingConfigParse {
 			Set<String> tabIndexSet = new TreeSet<>();
 			int n = size;
 			for (int k = size * i; n > 0 && k < tabNum; k++, n--) {
-				tabIndexSet.add(bean.getSepTab() +tabList.get(k)); //加分隔
-				String tab=bean.getTabBaseName()+bean.getSepTab() + tabList.get(k);
+				tabIndexSet.add(bean.getSepTab() + tabList.get(k)); // 加分隔
+				String tab = bean.getTabBaseName() + bean.getSepTab() + tabList.get(k);
 				tabToDsMap.put(tab, bean.getDsBaseName() + dsList.get(i));
-				tabToBaseMap.put(tab, bean.getTabBaseName());//2.4.2
+				tabToBaseMap.put(tab, bean.getTabBaseName());// 2.4.2
 			}
 			ds2TabIndexSet.put(bean.getDsBaseName() + dsList.get(i), tabIndexSet);
 		}
@@ -58,16 +58,17 @@ public class ShardingConfigParse {
 		fullNodes.put(bean.getTabBaseName().toLowerCase(), ds2TabIndexSet);
 
 		Logger.info("[Bee] fullNodes: " + fullNodes.toString());
-		Logger.info("[Bee] tabToDsMap: " + tabToDsMap.toString()); //只分库时,map只会保留最后一个的
-		if(StringUtils.isNotEmpty(bean.getSepTab())) Logger.info("[Bee] "+bean.getTabBaseName()+", its sepTab is: '"+bean.getSepTab()+"'");
+		Logger.info("[Bee] tabToDsMap: " + tabToDsMap.toString()); // 只分库时,map只会保留最后一个的
+		if (StringUtils.isNotEmpty(bean.getSepTab()))
+			Logger.info("[Bee] " + bean.getTabBaseName() + ", its sepTab is: '" + bean.getSepTab() + "'");
 
 		ShardingConfigMeta shardingConfigMeta = new ShardingConfigMeta();
 		shardingConfigMeta.setFullNodes(fullNodes);
 		shardingConfigMeta.setTabToDsMap(tabToDsMap);
 		shardingConfigMeta.setTabSize(tabList.size());
 		shardingConfigMeta.setTabBaseName(bean.getTabBaseName());
-		shardingConfigMeta.setTabToBase(tabToBaseMap);//2.4.2
-		
+		shardingConfigMeta.setTabToBase(tabToBaseMap);// 2.4.2
+
 		shardingConfigMeta.setSepTab(bean.getSepTab());
 
 		return shardingConfigMeta;
@@ -76,7 +77,7 @@ public class ShardingConfigParse {
 	public ShardingConfigMeta parseForSharding(String str) {
 		return parseForSharding(str, 0); // table 节点按顺序平均分配
 	}
-	
+
 	private NodeBean parse(String str, int assignType) {
 		NodeBean nodes = new NodeBean();
 
@@ -133,13 +134,13 @@ public class ShardingConfigParse {
 			}
 			nodes.setTabList(tabList);
 		}
-		String temp_tabBaseName=str.substring(mid + 2, index2);
-		String sepTab="";
-		if(temp_tabBaseName!=null && (temp_tabBaseName.endsWith("_") || temp_tabBaseName.endsWith("-")) ) {
-			int len=temp_tabBaseName.length();
-			sepTab=temp_tabBaseName.substring(len-1,len);
+		String temp_tabBaseName = str.substring(mid + 2, index2);
+		String sepTab = "";
+		if (temp_tabBaseName != null && (temp_tabBaseName.endsWith("_") || temp_tabBaseName.endsWith("-"))) {
+			int len = temp_tabBaseName.length();
+			sepTab = temp_tabBaseName.substring(len - 1, len);
 			nodes.setSepTab(sepTab);
-			temp_tabBaseName=temp_tabBaseName.substring(0,len-1);
+			temp_tabBaseName = temp_tabBaseName.substring(0, len - 1);
 		}
 		nodes.setTabBaseName(temp_tabBaseName);
 
@@ -161,9 +162,9 @@ public class ShardingConfigParse {
 
 		private String dsBaseName;
 		private String tabBaseName;
-		
-		//分隔符,只支持"_";  "-"很多数据库都不支持，不要用
-		private String sepTab="";  //separator between table and index, like orders_1;  but recommand use orders1
+
+		// 分隔符,只支持"_"; "-"很多数据库都不支持，不要用
+		private String sepTab = ""; // separator between table and index, like orders_1; but recommand use orders1
 
 		private int dsIndex0 = -1;
 		private int dsIndex1;
@@ -206,7 +207,7 @@ public class ShardingConfigParse {
 		public void setTabBaseName(String tabBaseName) {
 			this.tabBaseName = tabBaseName;
 		}
-		
+
 		/**
 		 * separator between table and index, like orders_1;  
 		 * but recommand donot use separator,like: orders1

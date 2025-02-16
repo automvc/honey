@@ -15,12 +15,12 @@ import org.teasoft.honey.osql.core.StringConst;
  * @since  2.0
  */
 public class HintManager {
-	
+
 	public static void setDataSourceName(String dsName) {
 		HoneyContext.setAppointDS(dsName);
 		HoneyContext.setSysCommStrInheritableLocal(StringConst.HintDs, StringConst.tRue);
 	}
-	
+
 	/**
 	 * 强制当次操作使用的表名;只设置tableName,框架会先通过反查确定ds
 	 * @param tableName
@@ -29,5 +29,5 @@ public class HintManager {
 		HoneyContext.setAppointTab(tableName);
 		HoneyContext.setSysCommStrInheritableLocal(StringConst.HintTab, StringConst.tRue);
 	}
-	
+
 }

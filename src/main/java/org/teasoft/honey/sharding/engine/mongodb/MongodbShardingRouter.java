@@ -29,8 +29,7 @@ public class MongodbShardingRouter {
 
 		List<String> tabNameList = HoneyContext.getListLocal(StringConst.TabNameListLocal);
 		List<String> tabSuffixList = HoneyContext.getListLocal(StringConst.TabSuffixListLocal);
-		Map<String, String> tab2DsMap = HoneyContext
-				.getCustomMapLocal(StringConst.ShardingTab2DsMap);
+		Map<String, String> tab2DsMap = HoneyContext.getCustomMapLocal(StringConst.ShardingTab2DsMap);
 
 		String dsArray[] = new String[tabSuffixList.size()];
 		for (int i = 0; i < tabSuffixList.size(); i++) {
@@ -38,7 +37,7 @@ public class MongodbShardingRouter {
 //			if (StringUtils.isBlank(dsName)) {
 //				dsName = ShardingRegistry.getDsByTab(tabNameList.get(i));
 //			}
-			String dsName=ShardingUtil.findDs(tab2DsMap, tabSuffixList.get(i), tabNameList.get(i));
+			String dsName = ShardingUtil.findDs(tab2DsMap, tabSuffixList.get(i), tabNameList.get(i));
 			dsArray[i] = dsName;
 		}
 
@@ -59,7 +58,7 @@ public class MongodbShardingRouter {
 	static List<String[]> _findDsTabForFull(Class entityClass) {
 
 		String baseTableName = _toTableName(entityClass);
-		
+
 		List<String> dsList = new ArrayList<>();
 		List<String> tabList = new ArrayList<>();
 
@@ -74,7 +73,7 @@ public class MongodbShardingRouter {
 			Set<String> tabIndexSet = entry.getValue();
 			for (String tabIndex : tabIndexSet) {
 				dsList.add(dsName);
-				tabList.add(baseTableName + tabIndex);  //加分隔 ? ,不用另外加,  FullNodes的已加有
+				tabList.add(baseTableName + tabIndex); // 加分隔 ? ,不用另外加, FullNodes的已加有
 			}
 		}
 

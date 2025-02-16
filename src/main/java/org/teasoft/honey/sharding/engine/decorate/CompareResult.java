@@ -23,27 +23,28 @@ public class CompareResult implements Comparable<CompareResult> {
 	private Object orderValues[]; // 利用排序结构,解析排序字段,放入
 	private final ResultSet resultSet;
 	private ShardingSortStruct struct;
-	private boolean has = false; 
+	private boolean has = false;
 
 	public CompareResult(ResultSet resultSet, ShardingSortStruct struct) {
 		this.resultSet = resultSet;
 		this.struct = struct;
 		initOrderValues();
 	}
-	
-	public boolean hasNext() { //may be  .可能有下一元素,则当前一定有元素.
+
+	public boolean hasNext() { // may be .可能有下一元素,则当前一定有元素.
 		return has;
 	}
 
 	private void initOrderValues() {
 		try {
-			if (this.resultSet.next()) {  //不能是while
+			if (this.resultSet.next()) { // 不能是while
 				has = true;
 				if (struct != null && struct.getOrderFields() != null) {
 					this.orderValues = new Object[struct.getOrderFields().length];
 					for (int k = 0; k < struct.getOrderFields().length; k++) {
 //						if(k==0) this.orderValues = new Object[struct.getOrderFields().length];
-						this.orderValues[k] = this.resultSet.getObject(_toColumnName(struct.getOrderFields()[k])); // fixed bug 转字段  V2.1
+						this.orderValues[k] = this.resultSet.getObject(_toColumnName(struct.getOrderFields()[k])); // fixed bug
+																													// 转字段 V2.1
 					} // end for
 				}
 			} // end if next
@@ -51,7 +52,7 @@ public class CompareResult implements Comparable<CompareResult> {
 			Logger.debug(e.getMessage(), e);
 		}
 	}
-	
+
 	private String _toColumnName(String fieldName) {
 		return NameTranslateHandle.toColumnName(fieldName);
 	}
@@ -60,10 +61,10 @@ public class CompareResult implements Comparable<CompareResult> {
 	@Override
 	public int compareTo(final CompareResult other) {
 		if (struct == null) return 0;
-		if(!this.hasNext()) return -1;
-		if(!other.hasNext()) return -1;  //放在队头, 会先处理,再次取出时,不符合,则可 减少排列元素数量.
+		if (!this.hasNext()) return -1;
+		if (!other.hasNext()) return -1; // 放在队头, 会先处理,再次取出时,不符合,则可 减少排列元素数量.
 //		if(!other.hasNext() && !this.hasNext()) return 0;
-		
+
 		for (int i = 0; i < orderValues.length; i++) {
 			int result = CompareUtil.compareTo(ObjectUtils.string(this.orderValues[i]), ObjectUtils.string(other.orderValues[i]), struct, i);
 			if (0 != result) {
@@ -73,7 +74,7 @@ public class CompareResult implements Comparable<CompareResult> {
 
 		return 0;
 	}
-	
+
 	public ResultSet getResultSet() {
 		return resultSet;
 	}
@@ -89,5 +90,5 @@ public class CompareResult implements Comparable<CompareResult> {
 	public ShardingSortStruct getStruct() {
 		return struct;
 	}
-	
+
 }

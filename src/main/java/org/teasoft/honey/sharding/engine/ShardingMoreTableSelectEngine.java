@@ -29,9 +29,9 @@ import org.teasoft.honey.sharding.engine.decorate.SortListDecorator;
  * @since  2.0
  */
 public class ShardingMoreTableSelectEngine {
-	
+
 	private boolean showShardingSQL = getShowShardingSQL();
-	
+
 	private boolean getShowShardingSQL() {
 		return HoneyConfig.getHoneyConfig().showSQL && HoneyConfig.getHoneyConfig().showShardingSQL;
 	}
@@ -50,39 +50,39 @@ public class ShardingMoreTableSelectEngine {
 		sqls = list.get(0);
 		dsArray = list.get(1);
 
-		if(sqls==null || sqls.length==0) return null;
+		if (sqls == null || sqls.length == 0) return null;
 		ExecutorService executor = ThreadPoolUtil.getThreadPool(sqls.length);
 		CompletionService<List<T>> completionService = new ExecutorCompletionService<>(executor);
-		final List<Callable<List<T>>> tasks = new ArrayList<>(); 
+		final List<Callable<List<T>>> tasks = new ArrayList<>();
 
 		for (int i = 0; sqls != null && i < sqls.length; i++) {
 			tasks.add(new ShardingBeeSQLExecutorEngine<T>(sqls[i], i + 1, beeSql, dsArray[i], entity));
 		}
 
-		if(sqls!=null) ShardingLogReg.log(sqls.length);
-		
+		if (sqls != null) ShardingLogReg.log(sqls.length);
+
 //		Bee SQL Executor Engine
 //		tasks.forEach(completionService::submit);
-		int size=tasks.size();
+		int size = tasks.size();
 		for (int i = 0; tasks != null && i < size; i++) {
 			completionService.submit(tasks.get(i));
 		}
 
-		//Result Merge
+		// Result Merge
 		List<T> rsList = ResultMergeEngine.merge(completionService, size);
-		
+
 		executor.shutdown();
 
 		// 排序装饰
 		SortListDecorator.sort(rsList);
 
-		if(showShardingSQL) Logger.debug("before ResultPagingDecorator, rows: "+rsList.size());
-		
+		if (showShardingSQL) Logger.debug("before ResultPagingDecorator, rows: " + rsList.size());
+
 		// 分页装饰
 		// 获取指定的一页数据
 		ResultPagingDecorator.pagingList(rsList);
-		
-		if(showShardingSQL) Logger.debug("after  ResultPagingDecorator, rows: "+rsList.size());
+
+		if (showShardingSQL) Logger.debug("after  ResultPagingDecorator, rows: " + rsList.size());
 
 		return rsList;
 	}
@@ -91,8 +91,7 @@ public class ShardingMoreTableSelectEngine {
 
 		private T entity;
 
-		public ShardingBeeSQLExecutorEngine(String sql, int index, BeeSql beeSql, String ds,
-				T entity) {
+		public ShardingBeeSQLExecutorEngine(String sql, int index, BeeSql beeSql, String ds, T entity) {
 			super(sql, index, beeSql, ds);
 			this.entity = entity;
 		}

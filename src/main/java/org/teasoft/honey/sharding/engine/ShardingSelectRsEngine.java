@@ -38,7 +38,7 @@ import org.teasoft.honey.sharding.engine.decorate.OrderByStreamResult;
  * @since  2.0
  */
 public class ShardingSelectRsEngine {
-	
+
 	public <T> List<T> asynProcess(String sql, Class<T> entityClass, BeeSql beeSql) {
 
 		List<String[]> list;
@@ -53,41 +53,41 @@ public class ShardingSelectRsEngine {
 		sqls = list.get(0);
 		dsArray = list.get(1);
 
-		if(sqls==null || sqls.length==0) return null;
+		if (sqls == null || sqls.length == 0) return null;
 		ExecutorService executor = ThreadPoolUtil.getThreadPool(sqls.length);
 		CompletionService<ResultSet> completionService = new ExecutorCompletionService<>(executor);
-		final List<Callable<ResultSet>> tasks = new ArrayList<>(); 
-		
-		//fixed bug
-		String threadFlag=getSelectRsThreadFlag();
+		final List<Callable<ResultSet>> tasks = new ArrayList<>();
+
+		// fixed bug
+		String threadFlag = getSelectRsThreadFlag();
 		ShardingUtil.regSelectRsThreadFlag(threadFlag);
 
 		for (int i = 0; sqls != null && i < sqls.length; i++) {
-			tasks.add(new ShardingBeeSQLExecutorEngine<T>(sqls[i], i + 1, beeSql, dsArray[i])); //获取RS
+			tasks.add(new ShardingBeeSQLExecutorEngine<T>(sqls[i], i + 1, beeSql, dsArray[i])); // 获取RS
 		}
 
-		if(sqls!=null) ShardingLogReg.log(sqls.length);
-		
+		if (sqls != null) ShardingLogReg.log(sqls.length);
+
 //		Bee SQL Executor Engine
-		int size=tasks.size();
+		int size = tasks.size();
 		for (int i = 0; tasks != null && i < size; i++) {
 			completionService.submit(tasks.get(i));
 		}
-		
-		ResultSet rs=null;
-		//Result Merge
-		ShardingSortStruct struct =null;
-		Queue<CompareResult> queue= new PriorityQueue<>(size);
+
+		ResultSet rs = null;
+		// Result Merge
+		ShardingSortStruct struct = null;
+		Queue<CompareResult> queue = new PriorityQueue<>(size);
 		for (int i = 0; i < size; i++) {
 			try {
 				rs = completionService.take().get(); // 先于getCurrentShardingSort获取
-				if (size == 1) break; //只有一个rs,直接转化
-				
-				if(i==0) {
+				if (size == 1) break; // 只有一个rs,直接转化
+
+				if (i == 0) {
 					ShardingSortReg.regSort(rs.getMetaData());
 					struct = HoneyContext.getCurrentShardingSort();
 				}
-				queue.offer(new CompareResult(rs,struct));
+				queue.offer(new CompareResult(rs, struct));
 			} catch (InterruptedException e) {
 				Logger.error(e.getMessage(), e);
 				Thread.currentThread().interrupt();
@@ -96,7 +96,7 @@ public class ShardingSelectRsEngine {
 			}
 		}
 		executor.shutdown();
-		
+
 		List<T> rsList = null;
 		if (size == 1) {// v2.4.0 只有一个rs,直接转化
 			rsList = TransformResultSet.rsToListEntity(rs, entityClass);
@@ -104,11 +104,11 @@ public class ShardingSelectRsEngine {
 			// 放入优先队列后,就转换出需要的数据. 要传入需要多少数据? 在内部处理. 有取中间几条的吗? 有
 			rsList = new OrderByStreamResult<>(queue, entityClass).getOnePageList();
 		}
-		
+
 		for (int i = 0; i < size; i++) { // fixed bug
 			HoneyContext.clearConnForSelectRs(threadFlag + (i + 1));
 		}
-		
+
 		return rsList;
 	}
 
@@ -123,11 +123,12 @@ public class ShardingSelectRsEngine {
 			return beeSql.selectRs(this.sql);
 		}
 	}
-	
+
 	private SecureRandom sr = new SecureRandom();
+
 	private String getSelectRsThreadFlag() {
-		long gid=GenIdFactory.get(StringConst.ShardingSelectRs_ThreadFlag, GenIdFactory.GenType_OneTimeSnowflakeId);
-		String threadFlag=gid+""+sr.nextDouble();
+		long gid = GenIdFactory.get(StringConst.ShardingSelectRs_ThreadFlag, GenIdFactory.GenType_OneTimeSnowflakeId);
+		String threadFlag = gid + "" + sr.nextDouble();
 		return threadFlag;
 	}
 

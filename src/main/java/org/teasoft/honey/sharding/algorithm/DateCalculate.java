@@ -13,8 +13,8 @@ import org.teasoft.bee.sharding.algorithm.Calculate;
  * @since  2.4.0
  */
 
-public class DateCalculate implements Calculate{
- 
+public class DateCalculate implements Calculate {
+
 	/**
 	 * 默认获取日期的前6位字符.Get the first 6 characters of the date by default.
 	 */

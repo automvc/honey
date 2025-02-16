@@ -55,7 +55,7 @@ public class ShardingSelectJsonEngine {
 		sqls = list.get(0);
 		dsArray = list.get(1);
 
-		if(sqls==null || sqls.length==0) return null;
+		if (sqls == null || sqls.length == 0) return null;
 		ExecutorService executor = ThreadPoolUtil.getThreadPool(sqls.length);
 		CompletionService<String> completionService = new ExecutorCompletionService<>(executor);
 		final List<Callable<String>> tasks = new ArrayList<>();
@@ -66,12 +66,12 @@ public class ShardingSelectJsonEngine {
 
 		if (sqls != null) ShardingLogReg.log(sqls.length);
 
-		int size=tasks.size();
+		int size = tasks.size();
 		for (int i = 0; tasks != null && i < size; i++) {
 			completionService.submit(tasks.get(i));
 		}
 
-		List<String> rsList =ResultMergeEngine.mergeJsonResult(completionService, size);
+		List<String> rsList = ResultMergeEngine.mergeJsonResult(completionService, size);
 
 		executor.shutdown();
 
@@ -92,8 +92,8 @@ public class ShardingSelectJsonEngine {
 					entityList.addAll(jsonTransform.toEntity(rsList.get(i), List.class, entityClass));
 				}
 			}
-			
-			//group and aggregate Entity,if necessary
+
+			// group and aggregate Entity,if necessary
 			ShardingGroupByDecorator.groupAndAggregateEntity(rsList);
 
 			// 排序装饰
@@ -113,7 +113,7 @@ public class ShardingSelectJsonEngine {
 
 		return wrap;
 	}
-	
+
 //	Return String 
 	private class ShardingBeeSQLJsonExecutorEngine extends ShardingAbstractBeeSQLExecutorEngine<String> {
 

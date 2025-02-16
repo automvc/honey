@@ -15,7 +15,7 @@ import org.teasoft.honey.util.StringUtils;
  * @since  2.0
  */
 public class CompareUtil {
-	
+
 	private static final String EMPTY = "";
 
 	/**
@@ -26,15 +26,13 @@ public class CompareUtil {
 	 * @param i element index
 	 * @return
 	 */
-	public static int compareTo(final String thisValue, final String otherValue,
-			ShardingSortStruct struct, int i) {
+	public static int compareTo(final String thisValue, final String otherValue, ShardingSortStruct struct, int i) {
 
 		if (struct == null) return 0;
 
 		OrderType orderType = struct.getOrderTypes()[i];
 		boolean nullFirst = struct.getNullFirst() != null ? struct.getNullFirst()[i] : false;
-		boolean caseSensitive = struct.getCaseSensitive() != null ? struct.getCaseSensitive()[i]
-				: false;
+		boolean caseSensitive = struct.getCaseSensitive() != null ? struct.getCaseSensitive()[i] : false;
 
 		if (thisValue == null && otherValue == null) {
 			return 0;
@@ -52,44 +50,41 @@ public class CompareUtil {
 		if (number != null) return OrderType.ASC == orderType ? number : -number;
 
 		if (!caseSensitive && thisValue instanceof String && otherValue instanceof String) {
-			return compareCaseInsensitiveString((String) thisValue, (String) otherValue,
-					orderType);
+			return compareCaseInsensitiveString((String) thisValue, (String) otherValue, orderType);
 		}
 		int t = thisValue.compareTo(otherValue);
 		return OrderType.ASC == orderType ? t : -t;
 	}
 
-	private static Integer compareNumber(String thisValue, String otherValue,
-			final String type) {
-		boolean oneIsZero=false;
+	private static Integer compareNumber(String thisValue, String otherValue, final String type) {
+		boolean oneIsZero = false;
 		if (StringUtils.isBlank(thisValue)) {
 			thisValue = "0";
-			oneIsZero=true;
+			oneIsZero = true;
 		}
 		if (StringUtils.isBlank(otherValue)) {
-			if(oneIsZero) return 0;
+			if (oneIsZero) return 0;
 			otherValue = "0";
 		}
-		
+
 		Integer number = null;
-		if ("Integer".equalsIgnoreCase(type) || "int".equalsIgnoreCase(type)
-				|| "Short".equalsIgnoreCase(type) || "Byte".equalsIgnoreCase(type)
+		if ("Integer".equalsIgnoreCase(type) || "int".equalsIgnoreCase(type) || "Short".equalsIgnoreCase(type)
+				|| "Byte".equalsIgnoreCase(type)
 //				|| "short".equalsIgnoreCase(type) || "byte".equalsIgnoreCase(type)
-				) {
+		) {
 			number = Integer.compare(Integer.parseInt(thisValue), Integer.parseInt(otherValue));
-		} else if ("Long".equalsIgnoreCase(type) ) {
+		} else if ("Long".equalsIgnoreCase(type)) {
 			number = Long.compare(Long.parseLong(thisValue), Long.parseLong(otherValue));
 		} else if ("Double".equalsIgnoreCase(type)) {
-			number = Double.compare(Double.parseDouble(thisValue),
-					Double.parseDouble(otherValue));
+			number = Double.compare(Double.parseDouble(thisValue), Double.parseDouble(otherValue));
 		} else if ("Float".equalsIgnoreCase(type)) {
 			number = Float.compare(Float.parseFloat(thisValue), Float.parseFloat(otherValue));
 		}
 		return number;
 	}
 
-	private static int compareCaseInsensitiveString(final String thisValue,
-			final String otherValue, final OrderType orderDirection) {
+	private static int compareCaseInsensitiveString(final String thisValue, final String otherValue,
+			final OrderType orderDirection) {
 		int n = thisValue.toLowerCase().compareTo(otherValue.toLowerCase());
 		return OrderType.ASC == orderDirection ? n : -n;
 	}

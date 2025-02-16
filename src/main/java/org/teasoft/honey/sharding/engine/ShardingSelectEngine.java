@@ -30,13 +30,13 @@ import org.teasoft.honey.sharding.engine.decorate.SortListDecorator;
  * @since  2.0
  */
 public class ShardingSelectEngine {
-	
+
 	private boolean showShardingSQL = getShowShardingSQL();
-	
+
 	private boolean getShowShardingSQL() {
 		return HoneyConfig.getHoneyConfig().showSQL && HoneyConfig.getHoneyConfig().showShardingSQL;
 	}
-	
+
 	public <T> List<T> asynProcess(String sql, Class<T> entityClass, BeeSql beeSql) {
 
 		List<String[]> list;
@@ -51,7 +51,7 @@ public class ShardingSelectEngine {
 		sqls = list.get(0);
 		dsArray = list.get(1);
 
-		if(sqls==null || sqls.length==0) return null;
+		if (sqls == null || sqls.length == 0) return null;
 		ExecutorService executor = ThreadPoolUtil.getThreadPool(sqls.length);
 		CompletionService<List<T>> completionService = new ExecutorCompletionService<>(executor);
 		final List<Callable<List<T>>> tasks = new ArrayList<>();
@@ -60,30 +60,30 @@ public class ShardingSelectEngine {
 			tasks.add(new ShardingBeeSQLExecutorEngine<T>(sqls[i], i + 1, beeSql, dsArray[i], entityClass));
 		}
 
-		if(sqls!=null) ShardingLogReg.log(sqls.length);
-		
-		int size=tasks.size();
+		if (sqls != null) ShardingLogReg.log(sqls.length);
+
+		int size = tasks.size();
 		for (int i = 0; tasks != null && i < size; i++) {
 			completionService.submit(tasks.get(i));
 		}
 
-		//Result Merge
+		// Result Merge
 		List<T> rsList = ResultMergeEngine.merge(completionService, size);
 		executor.shutdown();
-		
-		//group and aggregate Entity,if necessary
+
+		// group and aggregate Entity,if necessary
 		ShardingGroupByDecorator.groupAndAggregateEntity(rsList);
 
 		// 排序装饰
 		SortListDecorator.sort(rsList);
 
-		if(showShardingSQL) Logger.debug("before ResultPagingDecorator, rows: "+rsList.size());
-		
+		if (showShardingSQL) Logger.debug("before ResultPagingDecorator, rows: " + rsList.size());
+
 		// 分页装饰
 		// 获取指定的一页数据
 		ResultPagingDecorator.pagingList(rsList);
-		
-		if(showShardingSQL) Logger.debug("after  ResultPagingDecorator, rows: "+rsList.size());
+
+		if (showShardingSQL) Logger.debug("after  ResultPagingDecorator, rows: " + rsList.size());
 
 		return rsList;
 	}
@@ -92,15 +92,14 @@ public class ShardingSelectEngine {
 
 		private Class<T> entityClass;
 
-		public ShardingBeeSQLExecutorEngine(String sql, int index, BeeSql beeSql, String ds,
-				Class<T> entityClass) {
+		public ShardingBeeSQLExecutorEngine(String sql, int index, BeeSql beeSql, String ds, Class<T> entityClass) {
 			super(sql, index, beeSql, ds);
 			this.entityClass = entityClass;
 		}
 
 		public List<T> shardingWork() {
 			ShardingLogReg.regShardingSqlLog("select SQL", index, sql);
-			return beeSql.selectSomeField(this.sql, entityClass); 
+			return beeSql.selectSomeField(this.sql, entityClass);
 		}
 
 	}

@@ -41,7 +41,7 @@ public class MongodbShardingSelectJsonEngine {
 	 * @return
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public JsonResultWrap asynProcess(Class entityClass, MongodbBeeSql mongodbBeeSql,MongoSqlStruct struct) {
+	public JsonResultWrap asynProcess(Class entityClass, MongodbBeeSql mongodbBeeSql, MongoSqlStruct struct) {
 
 		List<String[]> list;
 		String dsArray[];
@@ -55,25 +55,25 @@ public class MongodbShardingSelectJsonEngine {
 		dsArray = list.get(0);
 		tabArray = list.get(1);
 
-		final List<Callable<String>> tasks = new ArrayList<>(); 
+		final List<Callable<String>> tasks = new ArrayList<>();
 
 		for (int i = 0; dsArray != null && i < dsArray.length; i++) {
-			tasks.add(new ShardingBeeSQLJsonExecutorEngine(tabArray[i], i + 1, mongodbBeeSql,
-					dsArray[i], entityClass, struct));
+			tasks.add(new ShardingBeeSQLJsonExecutorEngine(tabArray[i], i + 1, mongodbBeeSql, dsArray[i], entityClass,
+					struct));
 		}
 
 		if (dsArray != null) ShardingLogReg.log(dsArray.length);
 
-		int size=tasks.size();
-		if(size==0) return null;
-		
+		int size = tasks.size();
+		if (size == 0) return null;
+
 		ExecutorService executor = ThreadPoolUtil.getThreadPool(size);
 		CompletionService<String> completionService = new ExecutorCompletionService<>(executor);
 		for (int i = 0; tasks != null && i < size; i++) {
 			completionService.submit(tasks.get(i));
 		}
 
-		List<String> rsList =ResultMergeEngine.mergeJsonResult(completionService, size);
+		List<String> rsList = ResultMergeEngine.mergeJsonResult(completionService, size);
 
 		executor.shutdown();
 
@@ -112,17 +112,15 @@ public class MongodbShardingSelectJsonEngine {
 
 		return wrap;
 	}
-	
+
 //	Return String 
 	@SuppressWarnings("rawtypes")
-	private class ShardingBeeSQLJsonExecutorEngine
-			extends ShardingAbstractMongoBeeSQLExecutorEngine<String> 
-	{
+	private class ShardingBeeSQLJsonExecutorEngine extends ShardingAbstractMongoBeeSQLExecutorEngine<String> {
 		private Class entityClass;
 		private MongoSqlStruct struct;
 
-		public ShardingBeeSQLJsonExecutorEngine(String tab, int index, MongodbBeeSql mongodbBeeSql,
-				String ds, Class entityClass, MongoSqlStruct struct) {
+		public ShardingBeeSQLJsonExecutorEngine(String tab, int index, MongodbBeeSql mongodbBeeSql, String ds,
+				Class entityClass, MongoSqlStruct struct) {
 			super(tab, index, mongodbBeeSql, ds);
 			this.entityClass = entityClass;
 			this.struct = struct.copy();
@@ -132,7 +130,7 @@ public class MongodbShardingSelectJsonEngine {
 		@SuppressWarnings("unchecked")
 		public String shardingWork() {
 			ShardingLogReg.regShardingSqlLog("selectJson SQL", index, tab);
-			return mongodbBeeSql.selectJson(struct,entityClass);
+			return mongodbBeeSql.selectJson(struct, entityClass);
 		}
 	}
 

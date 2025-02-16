@@ -29,55 +29,54 @@ import org.teasoft.honey.sharding.engine.decorate.SortStringArrayListDecorator;
 public class ShardingSelectListStringArrayEngine {
 
 	@SuppressWarnings("rawtypes")
-	public List<String[]> asynProcess(String sql, BeeSql beeSql,Class entityClass) {
-		
+	public List<String[]> asynProcess(String sql, BeeSql beeSql, Class entityClass) {
+
 //		Logger.info(" asyn(任务分发前) 当前线程id:  " + Thread.currentThread().getId());
-		
+
 		List<String[]> list;
-		String sqls[]=null;
-		String dsArray[]=null;
-		
+		String sqls[] = null;
+		String dsArray[] = null;
+
 		if (ShardingUtil.hadShardingFullSelect()) {// 全域查询
 			list = OrderByPagingRewriteSql.createSqlsForFullSelect(sql, entityClass);
 		} else {
 			list = OrderByPagingRewriteSql.createSqlsAndInit(sql); // 涉及部分分片
 		}
-		
-		sqls=list.get(0);
-		dsArray=list.get(1);
 
-		if(sqls==null || sqls.length==0) return null;
+		sqls = list.get(0);
+		dsArray = list.get(1);
+
+		if (sqls == null || sqls.length == 0) return null;
 		ExecutorService executor = ThreadPoolUtil.getThreadPool(sqls.length);
 		CompletionService<List<String[]>> completionService = new ExecutorCompletionService<>(executor);
-		final List<Callable<List<String[]>>> tasks = new ArrayList<>(); 
+		final List<Callable<List<String[]>>> tasks = new ArrayList<>();
 
 		for (int i = 0; sqls != null && i < sqls.length; i++) {
 			tasks.add(new ShardingBeeSQLExecutorEngine(sqls[i], i + 1, beeSql, dsArray[i]));
 		}
-		
+
 		if (sqls != null) ShardingLogReg.log(sqls.length);
-		
+
 //		Bee SQL Executor Engine
-		int size=tasks.size();
+		int size = tasks.size();
 		for (int i = 0; tasks != null && i < size; i++) {
 			completionService.submit(tasks.get(i));
 		}
 
-		//Result Merge
+		// Result Merge
 		List<String[]> rsList = ResultMergeEngine.merge(completionService, size);
 
 		executor.shutdown();
-		
+
 		// 排序装饰
 		SortStringArrayListDecorator.sort(rsList);
 
 		// 分页装饰
 		// 获取指定的一页数据
 		ResultPagingDecorator.pagingList(rsList);
-		
+
 		return rsList;
 	}
-
 
 //	Return ListStringArray
 	private class ShardingBeeSQLExecutorEngine extends ShardingAbstractBeeSQLExecutorEngine<List<String[]>> {

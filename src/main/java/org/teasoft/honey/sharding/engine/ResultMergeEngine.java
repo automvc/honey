@@ -18,7 +18,7 @@ import org.teasoft.honey.util.ObjectUtils;
  * @since  2.0
  */
 public class ResultMergeEngine {
-	
+
 	// result merge
 	public static <T> List<T> merge(CompletionService<List<T>> completionService, int size) {
 
@@ -37,15 +37,13 @@ public class ResultMergeEngine {
 
 		return rsList;
 	}
-	
-	
+
 	public static List<String> mergeJsonResult(CompletionService<String> completionService, int size) {
 		List<String> rsList = new ArrayList<>();
 		for (int i = 0; i < size; i++) {
 			try {
 				String tempStr = completionService.take().get();
-				if (ObjectUtils.isNotEmpty(tempStr) && !"[]".equals(tempStr))
-					rsList.add(tempStr);
+				if (ObjectUtils.isNotEmpty(tempStr) && !"[]".equals(tempStr)) rsList.add(tempStr);
 			} catch (InterruptedException e) {
 				Logger.error(e.getMessage(), e);
 				Thread.currentThread().interrupt();
@@ -55,14 +53,13 @@ public class ResultMergeEngine {
 		}
 		return rsList;
 	}
-	
+
 	public static List<String> mergeFunResult(CompletionService<String> completionService, int size) {
 		List<String> rsList = new ArrayList<>();
 		for (int i = 0; i < size; i++) {
 			try {
 				String tempStr = completionService.take().get();
-				if (ObjectUtils.isNotEmpty(tempStr))
-					rsList.add(tempStr);
+				if (ObjectUtils.isNotEmpty(tempStr)) rsList.add(tempStr);
 			} catch (InterruptedException e) {
 				Logger.error(e.getMessage(), e);
 				Thread.currentThread().interrupt();
@@ -72,7 +69,7 @@ public class ResultMergeEngine {
 		}
 		return rsList;
 	}
-	
+
 	public static int mergeInteger(CompletionService<Integer> completionService, int size) {
 		int r = 0;
 		for (int i = 0; i < size; i++) {

@@ -28,8 +28,8 @@ import org.teasoft.honey.util.StringUtils;
 public class ShardingForkJoinBatchInsertEngine<T> {
 
 	@SuppressWarnings("unchecked")
-	public int batchInsert(T entity[], int batchSize, String excludeFields,
-			List<String> tabNameListForBatch, SuidRich suidRich) {
+	public int batchInsert(T entity[], int batchSize, String excludeFields, List<String> tabNameListForBatch,
+			SuidRich suidRich) {
 
 //	           集合大小一致
 //		.println(tabNameListForBatch.size() == entity.length);
@@ -63,13 +63,13 @@ public class ShardingForkJoinBatchInsertEngine<T> {
 
 //		Logger.logSQL("========= Do sharding , the size of sub operation is :"+taskTab.size());
 		ShardingLogReg.log(taskTab.size());
-		
-		return doTask(new ShardingRecursiveBatchInsert(newEntityArrayList, batchSize,
-				excludeFields, taskDs, taskTab, suidRich));
+
+		return doTask(new ShardingRecursiveBatchInsert(newEntityArrayList, batchSize, excludeFields, taskDs, taskTab,
+				suidRich));
 	}
 
 	private int doTask(ShardingRecursiveBatchInsert work) {
-		
+
 //		final ForkJoinPool forkJoinPool = new ForkJoinPool();
 //		ForkJoinTask<Integer> task = forkJoinPool.submit(work);
 //		int a = 0;
@@ -81,10 +81,9 @@ public class ShardingForkJoinBatchInsertEngine<T> {
 //			Logger.error(e.getMessage(), e);
 //		}
 //		return a;
-		
-		
-        ForkJoinPool pool = new ForkJoinPool();
-        pool.invoke(work);
+
+		ForkJoinPool pool = new ForkJoinPool();
+		pool.invoke(work);
 		return work.join();
 	}
 
@@ -101,7 +100,6 @@ public class ShardingForkJoinBatchInsertEngine<T> {
 
 		return tabMap;
 	}
-
 
 	/**
 	 * 批量插入分片,使用RecursiveTask,进行ForkJoin
@@ -121,9 +119,8 @@ public class ShardingForkJoinBatchInsertEngine<T> {
 		private List<String> taskDs = new ArrayList<>();
 		private List<String> taskTab = new ArrayList<>();
 
-		public ShardingRecursiveBatchInsert(List<Object[]> newEntityArrayList, int batchSize,
-				String excludeFields, List<String> taskDs, List<String> taskTab,
-				SuidRich suidRich) {
+		public ShardingRecursiveBatchInsert(List<Object[]> newEntityArrayList, int batchSize, String excludeFields,
+				List<String> taskDs, List<String> taskTab, SuidRich suidRich) {
 
 			this.start = 0;
 			this.end = newEntityArrayList.size() - 1;
@@ -136,9 +133,8 @@ public class ShardingForkJoinBatchInsertEngine<T> {
 			this.taskTab = taskTab;
 		}
 
-		public ShardingRecursiveBatchInsert(List<Object[]> newEntityArrayList, int batchSize,
-				String excludeFields, List<String> taskDs, List<String> taskTab,
-				SuidRich suidRich, int start, int end) {
+		public ShardingRecursiveBatchInsert(List<Object[]> newEntityArrayList, int batchSize, String excludeFields,
+				List<String> taskDs, List<String> taskTab, SuidRich suidRich, int start, int end) {
 
 			this(newEntityArrayList, batchSize, excludeFields, taskDs, taskTab, suidRich);
 
@@ -150,16 +146,15 @@ public class ShardingForkJoinBatchInsertEngine<T> {
 		protected Integer compute() {
 			if (end == start) {
 //			Logger.info(">>>>>>>>>>>do sharding "+start);
-				return doOneTask(newEntityArrayList.get(start), batchSize, excludeFields,
-						start);
+				return doOneTask(newEntityArrayList.get(start), batchSize, excludeFields, start);
 			} else {
 //			int mid = (end + start) / 2;
-				ShardingRecursiveBatchInsert task1 = new ShardingRecursiveBatchInsert(
-						newEntityArrayList, batchSize, excludeFields, taskDs, taskTab, suidRich,
+				ShardingRecursiveBatchInsert task1 = new ShardingRecursiveBatchInsert(newEntityArrayList, batchSize,
+						excludeFields, taskDs, taskTab, suidRich,
 //					start, mid);
 						start, start); // 按顺序分派
-				ShardingRecursiveBatchInsert task2 = new ShardingRecursiveBatchInsert(
-						newEntityArrayList, batchSize, excludeFields, taskDs, taskTab, suidRich,
+				ShardingRecursiveBatchInsert task2 = new ShardingRecursiveBatchInsert(newEntityArrayList, batchSize,
+						excludeFields, taskDs, taskTab, suidRich,
 //					mid + 1, end);
 						start + 1, end);
 

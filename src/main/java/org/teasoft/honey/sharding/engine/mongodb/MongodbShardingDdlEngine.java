@@ -26,8 +26,7 @@ import org.teasoft.honey.sharding.engine.ThreadPoolUtil;
  */
 public class MongodbShardingDdlEngine {
 
-	public <T> boolean asynProcess(Class<T> entityClass, MongodbBeeSql mongodbBeeSql,
-			boolean isDropExistTable) {
+	public <T> boolean asynProcess(Class<T> entityClass, MongodbBeeSql mongodbBeeSql, boolean isDropExistTable) {
 
 		List<String[]> list;
 		String dsArray[];
@@ -44,15 +43,15 @@ public class MongodbShardingDdlEngine {
 		final List<Callable<Boolean>> tasks = new ArrayList<>();
 
 		for (int i = 0; dsArray != null && i < dsArray.length; i++) {
-			tasks.add(new ShardingBeeSQLExecutorEngine<T>(tabArray[i], i + 1, mongodbBeeSql,
-					dsArray[i], entityClass, isDropExistTable));
+			tasks.add(new ShardingBeeSQLExecutorEngine<T>(tabArray[i], i + 1, mongodbBeeSql, dsArray[i], entityClass,
+					isDropExistTable));
 		}
 
 		if (dsArray != null) ShardingLogReg.log(dsArray.length);
-		
+
 		int size = tasks.size();
-		if(size==0) return false;
-		
+		if (size == 0) return false;
+
 //		Bee SQL Executor Engine
 		ExecutorService executor = ThreadPoolUtil.getThreadPool(dsArray.length);
 		CompletionService<Boolean> completionService = new ExecutorCompletionService<>(executor);
@@ -77,14 +76,13 @@ public class MongodbShardingDdlEngine {
 		return f;
 	}
 
-	private class ShardingBeeSQLExecutorEngine<T>
-			extends ShardingAbstractMongoBeeSQLExecutorEngine<Boolean> {
+	private class ShardingBeeSQLExecutorEngine<T> extends ShardingAbstractMongoBeeSQLExecutorEngine<Boolean> {
 
 		private Class<T> entityClass;
 		private boolean isDropExistTable;
 
-		public ShardingBeeSQLExecutorEngine(String tab, int index, MongodbBeeSql mongodbBeeSql,
-				String ds, Class<T> entityClass, boolean isDropExistTable) {
+		public ShardingBeeSQLExecutorEngine(String tab, int index, MongodbBeeSql mongodbBeeSql, String ds,
+				Class<T> entityClass, boolean isDropExistTable) {
 			super(tab, index, mongodbBeeSql, ds);
 			this.entityClass = entityClass;
 			this.isDropExistTable = isDropExistTable;

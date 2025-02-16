@@ -30,7 +30,7 @@ public abstract class ShardingBatchInsertTemplate<T> {
 			HoneyContext.setAppointDS(taskDs.get(index));
 
 			return shardingWork();
-			
+
 		} finally {
 			HoneyContext.removeAppointDS();
 			HoneyContext.removeAppointTab();

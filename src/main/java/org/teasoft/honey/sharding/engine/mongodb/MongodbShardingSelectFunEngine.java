@@ -32,8 +32,7 @@ import org.teasoft.honey.sharding.engine.ThreadPoolUtil;
  */
 public class MongodbShardingSelectFunEngine {
 
-	public <T> String asynProcess(Class<T> entityClass, MongodbBeeSql mongodbBeeSql,
-			MongoSqlStruct struct) {
+	public <T> String asynProcess(Class<T> entityClass, MongodbBeeSql mongodbBeeSql, MongoSqlStruct struct) {
 
 		List<String[]> list;
 		String dsArray[];
@@ -47,18 +46,18 @@ public class MongodbShardingSelectFunEngine {
 		dsArray = list.get(0);
 		tabArray = list.get(1);
 
-		final List<Callable<String>> tasks = new ArrayList<>(); 
+		final List<Callable<String>> tasks = new ArrayList<>();
 
 		for (int i = 0; dsArray != null && i < dsArray.length; i++) {
-			tasks.add(new ShardingBeeSQLFunExecutorEngine(tabArray[i], i + 1, mongodbBeeSql,
-					dsArray[i], entityClass, struct));
+			tasks.add(new ShardingBeeSQLFunExecutorEngine(tabArray[i], i + 1, mongodbBeeSql, dsArray[i], entityClass,
+					struct));
 		}
 
 		if (dsArray != null) ShardingLogReg.log(dsArray.length);
 
-		int size=tasks.size();
-		if(size==0) return null;
-		
+		int size = tasks.size();
+		if (size == 0) return null;
+
 		ExecutorService executor = ThreadPoolUtil.getThreadPool(size);
 		CompletionService<String> completionService = new ExecutorCompletionService<>(executor);
 		for (int i = 0; tasks != null && i < size; i++) {
@@ -74,15 +73,13 @@ public class MongodbShardingSelectFunEngine {
 
 //	Return String 	
 	@SuppressWarnings("rawtypes")
-	private class ShardingBeeSQLFunExecutorEngine
-			extends ShardingAbstractMongoBeeSQLExecutorEngine<String> {
+	private class ShardingBeeSQLFunExecutorEngine extends ShardingAbstractMongoBeeSQLExecutorEngine<String> {
 
 		private Class entityClass;
 		private MongoSqlStruct struct;
 
-		public ShardingBeeSQLFunExecutorEngine(String tab, int index,
-				MongodbBeeSql mongodbBeeSql, String ds, Class entityClass,
-				MongoSqlStruct struct) {
+		public ShardingBeeSQLFunExecutorEngine(String tab, int index, MongodbBeeSql mongodbBeeSql, String ds,
+				Class entityClass, MongoSqlStruct struct) {
 			super(tab, index, mongodbBeeSql, ds);
 			this.entityClass = entityClass;
 			this.struct = struct.copy();

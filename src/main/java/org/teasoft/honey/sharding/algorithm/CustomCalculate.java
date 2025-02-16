@@ -40,10 +40,9 @@ public class CustomCalculate implements Calculate {
 //			return "Default-Value"; 
 //
 //		// shardingValue为null时，不会流到这； MultiTenancy注解可以用默认值;但Sharding注解，ShardingBean会走全域查所有
-	
-		
-		return ""; //just example here.
-	
+
+		return ""; // just example here.
+
 	}
 
 }

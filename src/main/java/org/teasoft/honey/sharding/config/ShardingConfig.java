@@ -16,24 +16,22 @@ import org.teasoft.bee.sharding.ShardingBean;
  */
 public class ShardingConfig {
 
-
 	public static void addShardingBean(Class<?> entity, ShardingBean shardingBean) {
 		ShardingRegistry.register(entity, shardingBean);
 	}
-	
+
 	public static void addShardingBean(String baseTableName, ShardingBean shardingBean) {
 		ShardingRegistry.register(baseTableName, shardingBean);
 	}
-	
+
 //	public static void addShardingBean(Class<?> entity, List<ShardingBean> shardingBeanList) {
 //		ShardingRegistry.register(entity, shardingBeanList);
 //	}
 
-
 	public static void addBroadcastTable(List<String> broadcastTabList) {
 		ShardingRegistry.addBroadcastTabList(broadcastTabList);
 	}
-	
+
 	public static void addBroadcastTable(String broadcastTab) {
 		ShardingRegistry.addBroadcastTabList(broadcastTab);
 	}

@@ -36,7 +36,7 @@ public class ShardingUtil {
 		firstIndexMap.put(DatabaseConst.MariaDB.toLowerCase(), ZERO);
 		firstIndexMap.put(DatabaseConst.ORACLE.toLowerCase(), ONE);
 	}
-	
+
 	private ShardingUtil() {}
 
 	public static int firstRecordIndex() {
@@ -46,71 +46,70 @@ public class ShardingUtil {
 
 		return 0;
 	}
-	
+
 	public static boolean isSharding() {
 		return HoneyContext.isMultiDs() && HoneyConfig.getHoneyConfig().getMultiDsSharding();
 	}
-	
-	public static boolean hadSharding() {//要分片,且有分片
+
+	public static boolean hadSharding() {// 要分片,且有分片
 		return isSharding() && isTrue(StringConst.HadSharding);
 	}
-	
+
 	public static boolean useTableIndex(String tableName) {
-		return ShardingUtil.isSharding() 
-				&& !ShardingRegistry.isBroadcastTab(tableName) && ShardingUtil.hadSharding()
-				&& StringUtils.isBlank(HoneyContext.getAppointTab()) //没有指定tableName  2.4.0.8
-				;
+		return ShardingUtil.isSharding() && !ShardingRegistry.isBroadcastTab(tableName) && ShardingUtil.hadSharding()
+				&& StringUtils.isBlank(HoneyContext.getAppointTab()) // 没有指定tableName 2.4.0.8
+		;
 	}
-	
+
 	public static String appendTableIndexIfNeed(String tableName) {
 		if (useTableIndex(tableName))
 			return tableName + StringConst.ShardingTableIndexStr;
 		else
 			return tableName;
 	}
-	
+
 	public static boolean hadGroupSharding() {
-		return HoneyContext.getCurrentGroupFunStruct()!=null;
+		return HoneyContext.getCurrentGroupFunStruct() != null;
 	}
-	
-	public static boolean hadAvgSharding() {//要分片,且有AVG分组
+
+	public static boolean hadAvgSharding() {// 要分片,且有AVG分组
 		return hadGroupSharding() && HoneyContext.getCurrentGroupFunStruct().isHasAvg();
 	}
-	
-	public static boolean hadShardingFullSelect() {//要分片,且要全域查询
+
+	public static boolean hadShardingFullSelect() {// 要分片,且要全域查询
 		return isSharding() && isTrue(StringConst.ShardingFullSelect);
 	}
-	
-	public static boolean hadShardingSomeDsFullSelect() {//分片值只计算得数据源名称,应该查其下的所有表.
+
+	public static boolean hadShardingSomeDsFullSelect() {// 分片值只计算得数据源名称,应该查其下的所有表.
 		return isSharding() && isTrue(StringConst.ShardingSomeDsFullSelect);
 	}
-	
+
 	public static boolean isMoreTableQuery() {
 		return isTrue(StringConst.MoreTableQuery);
 	}
-	
+
 	public static void setTrue(String key) {
 		HoneyContext.setTrueInSysCommStrInheritableLocal(key);
 	}
-	
+
 	public static boolean isTrue(String key) {
 		return HoneyContext.isTrueInSysCommStrInheritableLocal(key);
 	}
-	
+
 	public static void regSelectRsThreadFlag(String threadFlag) {
 		HoneyContext.setSysCommStrInheritableLocal(StringConst.ShardingSelectRs_ThreadFlag, threadFlag);
 	}
-	
+
 	public static boolean isShardingBatchInsertDoing() {
 		return isTrue(StringConst.ShardingBatchInsertDoing);
 	}
-	
+
 	public static int hashInt(String str) {
 		if (str == null) return 0;
 		int a = str.hashCode();
 		return a < 0 ? -a : a;
 	}
-	
+
 	public static ShardingSortStruct parseOrderByMap(Map<String, String> orderByMap) {
 		String orderFields[] = new String[orderByMap.size()];
 		OrderType[] orderTypes = new OrderType[orderByMap.size()];
@@ -129,24 +128,23 @@ public class ShardingUtil {
 			if (i < lenA - 1) orderBy += ",";
 			i++;
 		}
-		
+
 		return new ShardingSortStruct(orderBy, orderFields, orderTypes);
 	}
-	
-	
-	public static String findDs(Map<String, String> tab2DsMap,String tabSuffix,String tabName) {
-		
-		String dsName = HoneyContext.getAppointDS(); //用在只指定了ds,不使用反查
-		
+
+	public static String findDs(Map<String, String> tab2DsMap, String tabSuffix, String tabName) {
+
+		String dsName = HoneyContext.getAppointDS(); // 用在只指定了ds,不使用反查
+
 		if (StringUtils.isBlank(dsName)) {
 //			tab2DsMap.get(tabSuffix); //sonar 7.8发现不了, 9.6可以
 			dsName = tab2DsMap.get(tabSuffix); // 只在使用注解时, 分库与分表同属于一个分片键,才有用. //fixed bug 2.1
 		}
-		
+
 		if (StringUtils.isBlank(dsName)) {
 			dsName = ShardingRegistry.getDsByTab(tabName);
 		}
-		
+
 		return dsName;
 	}
 

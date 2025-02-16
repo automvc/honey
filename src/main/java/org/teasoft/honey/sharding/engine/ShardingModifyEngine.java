@@ -32,7 +32,7 @@ public class ShardingModifyEngine {
 		String sqls[] = null;
 		String dsArray[] = null;
 
-		if (ShardingUtil.hadShardingFullSelect()) {// 全域查询 ,  modify也是这个
+		if (ShardingUtil.hadShardingFullSelect()) {// 全域查询 , modify也是这个
 			list = SimpleRewriteSql.createSqlsForFull(sql, entityClass);
 		} else {
 			list = SimpleRewriteSql.createSqlsAndInit(sql); // 涉及部分分片
@@ -40,25 +40,25 @@ public class ShardingModifyEngine {
 		sqls = list.get(0);
 		dsArray = list.get(1);
 
-		if(sqls==null || sqls.length==0) return 0;
+		if (sqls == null || sqls.length == 0) return 0;
 		ExecutorService executor = ThreadPoolUtil.getThreadPool(sqls.length);
 		CompletionService<Integer> completionService = new ExecutorCompletionService<>(executor);
-		final List<Callable<Integer>> tasks = new ArrayList<>(); 
+		final List<Callable<Integer>> tasks = new ArrayList<>();
 
 		for (int i = 0; sqls != null && i < sqls.length; i++) {
 			tasks.add(new ShardingBeeSQLModifyExecutorEngine(sqls[i], i + 1, beeSql, dsArray[i]));
 		}
 
-		if(sqls!=null) ShardingLogReg.log(sqls.length);
-		
-		int size=tasks.size();
+		if (sqls != null) ShardingLogReg.log(sqls.length);
+
+		int size = tasks.size();
 		for (int i = 0; tasks != null && i < size; i++) {
 			completionService.submit(tasks.get(i));
 		}
 
-		//Merge Result
+		// Merge Result
 		int r = ResultMergeEngine.mergeInteger(completionService, size);
-		
+
 		executor.shutdown();
 
 		return r;

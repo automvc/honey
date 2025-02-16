@@ -39,8 +39,8 @@ import org.teasoft.honey.util.StringUtils;
 public class ShardingBatchInsertEngine<T> {
 
 	@SuppressWarnings("unchecked")
-	public int batchInsert(T entity[], int batchSize, String excludeFields,
-			List<String> tabNameListForBatch, SuidRich suidRich) {
+	public int batchInsert(T entity[], int batchSize, String excludeFields, List<String> tabNameListForBatch,
+			SuidRich suidRich) {
 
 		ShardingReg.regShardingBatchInsertDoing();
 
@@ -84,8 +84,8 @@ public class ShardingBatchInsertEngine<T> {
 			}
 
 			for (int i = 0; i < newEntityArrayList.size(); i++) {
-				tasks.add(new ShardingBeeSQLBatchInsertExecutorEngine(newEntityArrayList.get(i),
-						batchSize, excludeFields, taskDs, taskTab, suidRich, i));
+				tasks.add(new ShardingBeeSQLBatchInsertExecutorEngine(newEntityArrayList.get(i), batchSize, excludeFields,
+						taskDs, taskTab, suidRich, i));
 			}
 
 			time = newEntityArrayList.size();
@@ -93,19 +93,19 @@ public class ShardingBatchInsertEngine<T> {
 		} else { // BroadcastTab insert
 
 			time = dsNameListForBatch.size();
-			
-			taskTab=HoneyContext.getListLocal(StringConst.TabNameListForBatchLocal); //广播表,一库一表
+
+			taskTab = HoneyContext.getListLocal(StringConst.TabNameListForBatchLocal); // 广播表,一库一表
 			for (int i = 0; i < time; i++) {
-				tasks.add(new ShardingBeeSQLBatchInsertExecutorEngine(entity, batchSize,
-						excludeFields, dsNameListForBatch, taskTab, suidRich, i));
+				tasks.add(new ShardingBeeSQLBatchInsertExecutorEngine(entity, batchSize, excludeFields,
+						dsNameListForBatch, taskTab, suidRich, i));
 			}
 		}
 
 		ShardingLogReg.log(time);
 
 		int size = tasks.size();
-		if(size==0) return 0;
-		
+		if (size == 0) return 0;
+
 		ExecutorService executor = ThreadPoolUtil.getThreadPool(size);
 		CompletionService<Integer> completionService = new ExecutorCompletionService<>(executor);
 		for (int i = 0; tasks != null && i < size; i++) {
@@ -133,13 +133,13 @@ public class ShardingBatchInsertEngine<T> {
 
 		return tabMap;
 	}
-	
+
 	private String _toTableName(Object entity) {
 		return NameTranslateHandle.toTableName(NameUtil.getClassFullName(entity));
 	}
 
-	private class ShardingBeeSQLBatchInsertExecutorEngine
-			extends ShardingBatchInsertTemplate<Integer> implements Callable<Integer> {
+	private class ShardingBeeSQLBatchInsertExecutorEngine extends ShardingBatchInsertTemplate<Integer>
+			implements Callable<Integer> {
 
 		private int batchSize;
 		private String excludeFields;
@@ -148,9 +148,8 @@ public class ShardingBatchInsertEngine<T> {
 		private Object[] newEntityArray;
 
 //		public ShardingBeeSQLBatchInsertExecutorEngine(List<Object[]> newEntityArrayList,
-		public ShardingBeeSQLBatchInsertExecutorEngine(Object[] newEntityArray,
-				int batchSize, String excludeFields, List<String> taskDs, List<String> taskTab,
-				SuidRich suidRich, int index) {
+		public ShardingBeeSQLBatchInsertExecutorEngine(Object[] newEntityArray, int batchSize, String excludeFields,
+				List<String> taskDs, List<String> taskTab, SuidRich suidRich, int index) {
 
 			this.batchSize = batchSize;
 			this.excludeFields = excludeFields;
@@ -165,7 +164,7 @@ public class ShardingBatchInsertEngine<T> {
 
 		@Override
 		public Integer shardingWork() {
-		    int b = copy(suidRich).insert(newEntityArray, batchSize, excludeFields);
+			int b = copy(suidRich).insert(newEntityArray, batchSize, excludeFields);
 			return b;
 		}
 
@@ -173,7 +172,7 @@ public class ShardingBatchInsertEngine<T> {
 		public Integer call() throws Exception {
 			return doSharding();
 		}
-		
+
 		private SuidRich copy(SuidRich suidRich) {
 			try {
 				Serializer jdks = new JdkSerializer();
@@ -181,7 +180,7 @@ public class ShardingBatchInsertEngine<T> {
 			} catch (Exception e) {
 				Logger.debug(e.getMessage(), e);
 			}
-			return suidRich; //没有序列化(有异常)返回原来的
+			return suidRich; // 没有序列化(有异常)返回原来的
 		}
 	}
 

@@ -15,8 +15,7 @@ import org.teasoft.bee.sharding.algorithm.CalculateRegistry;
  */
 public class CalculateFactory {
 
-	private CalculateFactory() {
-	}
+	private CalculateFactory() {}
 
 	public static Calculate getCalculate(int type) {
 		if (type == 0)
