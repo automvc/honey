@@ -13,13 +13,13 @@ import java.util.Map;
  * @author Jade
  * @since  2.0
  */
-public class EasyMapUtil{
-	
+public class EasyMapUtil {
+
 	private EasyMapUtil() {}
-	
+
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static Map createMap(Object key,Object value) {
-		Map map=new LinkedHashMap();
+	public static Map createMap(Object key, Object value) {
+		Map map = new LinkedHashMap();
 		map.put(key, value);
 		return map;
 	}

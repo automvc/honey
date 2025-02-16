@@ -14,9 +14,9 @@ import org.teasoft.bee.osql.Registry;
  * @since  2.0
  */
 public class MongodbBeeSqlRegister implements Registry {
-	
+
 	private static MongodbBeeSql mongodbBeeSql0 = null;
-	
+
 	static {
 		NotifyExtMongodbDefaultReg.init();
 	}

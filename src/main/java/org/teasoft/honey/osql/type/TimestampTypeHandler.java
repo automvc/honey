@@ -28,7 +28,7 @@ public class TimestampTypeHandler<T> implements TypeHandler<Timestamp> {
 		if (result == null) return null;
 		if (result.getClass().equals(String.class)) {
 			try {
-				Long timeNum = Long.parseLong((String) result); //存的是数字
+				Long timeNum = Long.parseLong((String) result); // 存的是数字
 				return new Timestamp(timeNum);
 			} catch (NumberFormatException e) {
 			}

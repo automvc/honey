@@ -19,11 +19,11 @@ import org.teasoft.honey.osql.core.HoneyConfig;
  * @author Kingstar
  * @since  1.11
  */
-public final class SetParaTypeConverterRegistry implements Registry{
+public final class SetParaTypeConverterRegistry implements Registry {
 
 	private static final Map<Class<?>, SetParaTypeConvert<?>> convertersMap = new HashMap<>();
-	
-	private static final Map<String,Map<Class<?>, SetParaTypeConvert<?>>> convertersMapForSpecialDB = new HashMap<>();
+
+	private static final Map<String, Map<Class<?>, SetParaTypeConvert<?>>> convertersMapForSpecialDB = new HashMap<>();
 
 	/**
 	 * register SetParaTypeConvert,it will effect if can not process by default.
@@ -33,11 +33,10 @@ public final class SetParaTypeConverterRegistry implements Registry{
 	public static <T> void register(Class<T> fieldType, SetParaTypeConvert<? extends T> converter) {
 		convertersMap.put(fieldType, converter);
 	}
-	
-	
-	public static <T> void register(Class<T> fieldType, SetParaTypeConvert<? extends T> converter,String database) {
-		Map<Class<?>, SetParaTypeConvert<?>> map=convertersMapForSpecialDB.get(database);
-		if(map==null) map=new HashMap<>(); 
+
+	public static <T> void register(Class<T> fieldType, SetParaTypeConvert<? extends T> converter, String database) {
+		Map<Class<?>, SetParaTypeConvert<?>> map = convertersMapForSpecialDB.get(database);
+		if (map == null) map = new HashMap<>();
 		map.put(fieldType, converter);
 		convertersMapForSpecialDB.put(database, map);
 	}
@@ -50,7 +49,7 @@ public final class SetParaTypeConverterRegistry implements Registry{
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> SetParaTypeConvert<T> getConverter(Class<T> fieldType) {
-        
+
 		SetParaTypeConvert<?> converter = null;
 		Map<Class<?>, SetParaTypeConvert<?>> map = convertersMapForSpecialDB
 				.get(HoneyConfig.getHoneyConfig().getDbName());

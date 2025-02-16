@@ -14,6 +14,6 @@ import org.teasoft.honey.osql.chain.ChainSqlFactoryHelper;
  * @author Kingstar
  * @since  2.4.0
  */
-public class CSF extends ChainSqlFactoryHelper{
+public class CSF extends ChainSqlFactoryHelper {
 
 }

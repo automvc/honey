@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
-
 /**
  * 解析条件表达式
  * Parse Expression Map
@@ -23,18 +22,18 @@ public class ParseExpMap {
 
 	private static final String OR = "or";
 	private static final String AND = "and";
-	
+
 	private ParseExpMap() {}
 
 	public static Map parse(Stack s) {
-		Stack helper=new Stack<>();
+		Stack helper = new Stack<>();
 		while (!s.isEmpty()) {
 			if (")".equals(s.peek())) {
 				helper.push(s.pop());
 				continue;
-			}else if ("(".equals(s.peek())) {
+			} else if ("(".equals(s.peek())) {
 				s.pop();
-				if(!helper.isEmpty()) helper.pop();
+				if (!helper.isEmpty()) helper.pop();
 				continue;
 			}
 
@@ -42,45 +41,45 @@ public class ParseExpMap {
 //				.err.println("helper是否为空?? "+helper.isEmpty());
 				return (Map) s.pop();
 			}
-			
+
 			// 判断当前的
-			Map c = (Map) s.pop(); //首个元素
-			String peek=(String)s.peek(); //第二个元素
-			
+			Map c = (Map) s.pop(); // 首个元素
+			String peek = (String) s.peek(); // 第二个元素
+
 			if (AND.equals(peek) || OR.equals(peek)) {
 				s.pop(); // 出 AND || OR
-				 Map n=null;
-				if(")".equals(s.peek())) {
+				Map n = null;
+				if (")".equals(s.peek())) {
 					helper.push(c);
 					helper.push(peek);
-					helper.push(s.pop());  //")"
+					helper.push(s.pop()); // ")"
 					continue;
-				}else {
+				} else {
 					n = op((Map) s.pop(), c, peek);
 				}
 				s.push(n);
 			} else if ("(".equals(s.peek())) {
 				s.pop(); // 出左括号
 				if (!helper.isEmpty()) {
-					helper.pop(); //出对应的右括号
+					helper.pop(); // 出对应的右括号
 					if (!helper.isEmpty()) {
-						if (")".equals(helper.peek())) { //还有一重右括号,先放回s
+						if (")".equals(helper.peek())) { // 还有一重右括号,先放回s
 							s.push(c);
 							continue;
 						}
-						
+
 						String op = (String) helper.pop();
 						Map old = (Map) helper.pop();
 						Map n = op(c, old, op);
 						s.push(n);
-					}else {
-						 s.push(c);
+					} else {
+						s.push(c);
 					}
 //					}
-				}else {
-				  s.push(c);
+				} else {
+					s.push(c);
 				}
-			} 
+			}
 		}
 		return null;
 	}
@@ -92,7 +91,6 @@ public class ParseExpMap {
 		Map n = EasyMapUtil.createMap("$" + op, list);
 		return n;
 	}
-
 
 /*	
 	public static void main(String[] args) {
@@ -197,5 +195,5 @@ public class ParseExpMap {
 
 		System.out.println(parse(stack));
 	}*/
-	
+
 }
