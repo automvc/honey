@@ -147,6 +147,7 @@ public class SearchProcessor {
 				case eq:
 					condition.op(field, Op.eq, value);
 					break;
+				case ne:
 				case nq:
 					condition.op(field, Op.nq, value);
 					break;
