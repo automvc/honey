@@ -53,6 +53,7 @@ public final class StringConst {
 	public static final String SAME_CONN_BEGIN = "_SYS_Bee_SAME_CONN_BEGIN";
 	public static final String SAME_CONN_EXCEPTION = "_SYS_Bee_SAME_CONN_EXCEPTION";
 	public static final String SAME_CONN_END = "_SYS_Bee_SAME_CONN_END";
+	public static final String TIMER_START = "_SYS_Bee_TIMER_START";
 
 	// Sharding<<<<<<<<<<<<<<<<<<<<<<<<<<
 	public static final String HadSharding = PREFIX + "HadSharding";

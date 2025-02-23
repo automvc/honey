@@ -70,22 +70,24 @@ public class AbstractCommOperate implements CommOperate {
 		initParseDefineColumn(entity); // 2.4.0
 //		about entity: if necessary, can test whether it is Class type.
 		getInterceptorChain().beforePasreEntity(entity, SuidType);
+		timerStart();
 	}
 
 	void doBeforePasreEntity(Object entityArray[], SuidType SuidType) {
 		_doBeforePasreEntity(SuidType);
 		if (entityArray != null && entityArray.length > 0) initParseDefineColumn(entityArray[0]); // 2.4.0
 		getInterceptorChain().beforePasreEntity(entityArray, SuidType);
+		timerStart();
 	}
 
-	void _doBeforePasreEntity(SuidType suidType) {
+	private void _doBeforePasreEntity(SuidType suidType) {
 		regSuidType(suidType);
 		if (this.nameTranslate != null) HoneyContext.setCurrentNameTranslateOneTime(nameTranslate); // enhance V2.1
 		if (this.dsName != null) HoneyContext.setTempDS(dsName);
 	}
 
 	String doAfterCompleteSql(String sql) {
-		// if change the sql,need update the context.
+		// if change the sql, need update the context.
 		sql = getInterceptorChain().afterCompleteSql(sql);
 		return sql;
 	}
@@ -102,6 +104,7 @@ public class AbstractCommOperate implements CommOperate {
 	}
 
 	private void _doBeforeReturn() {
+		timerEnd();
 		if (this.dsName != null) HoneyContext.removeTempDS();
 		if (this.nameTranslate != null) HoneyContext.removeCurrentNameTranslate();
 		this.nameTranslate = null; // 2.1 仅允许一次有效. 因整个应用周期内,只有一个bean时,会影响到其它情况的使用(如spring整合)
@@ -129,6 +132,27 @@ public class AbstractCommOperate implements CommOperate {
 		if (flag == null) {// 还没检测的
 			HoneyContext.initParseDefineColumn(entityClass);
 			flag = HoneyContext.getCustomFlagMap(field2Column + entityFullName);
+		}
+	}
+	
+	private boolean showSqlExecuteTime() {
+		return HoneyConfig.getHoneyConfig().showSqlExecuteTime;
+	}
+
+	private void timerStart() {
+		if (!showSqlExecuteTime()) return;
+		long t = System.currentTimeMillis();
+		OneTimeParameter.setAttribute(StringConst.TIMER_START, t);
+	}
+
+	private void timerEnd() {
+		if (!showSqlExecuteTime()) return;
+		// TODO sharding时,还要加一个随机码; sql也要输出,才能关联标识? 直接输出sharding index标识?
+		long t = (long) OneTimeParameter.getAttribute(StringConst.TIMER_START);
+		if (t > 0) {
+			long spentTime = System.currentTimeMillis() - t;
+			int min = HoneyConfig.getHoneyConfig().minSqlExecuteTime;
+			if (spentTime >= min) Logger.logSQL("------ spent time(ms): " + spentTime);
 		}
 	}
 

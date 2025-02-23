@@ -109,7 +109,7 @@ public class ObjSQL extends AbstractCommOperate implements Suid {
 //		Object pk = HoneyUtil.getIdValue(entity); // 原始id
 //		boolean hasGenPkAnno = HoneyUtil.hasGenPkAnno(entity); // V1.17可以使用注解.
 
-		boolean isOk = ((HoneyUtil.isMysql() || HoneyUtil.isOracle() || HoneyUtil.isSQLite()) // 即可java端没生成,数据库也可以生成
+		boolean isOk = ((HoneyUtil.isMysql() || HoneyUtil.isOracle() || HoneyUtil.isSQLite()) // 即使java端没生成,数据库也可以生成
 				|| HoneyContext.isNeedGenId(entity.getClass()) || HoneyUtil.getIdValue(entity) != null
 				|| HoneyUtil.hasGenPkAnno(entity));
 		if (!isOk) {
@@ -145,7 +145,7 @@ public class ObjSQL extends AbstractCommOperate implements Suid {
 		}
 	}
 
-	<T> long _insertAndReturnId(T entity, String sql) {
+	protected <T> long _insertAndReturnId(T entity, String sql) {
 
 		_regEntityClass(entity);
 

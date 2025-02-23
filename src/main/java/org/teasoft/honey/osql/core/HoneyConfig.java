@@ -231,6 +231,12 @@ public final class HoneyConfig {
 
 	@SysValue("${bee.osql.showShardingSQL}") // 属于 bee.osql
 	public boolean showShardingSQL = false;
+	
+	@SysValue("${bee.osql.showSqlExecuteTime}") // 2.5.2
+	public boolean showSqlExecuteTime = false;
+
+	@SysValue("${bee.osql.minSqlExecuteTime}") // 2.5.2
+	public int minSqlExecuteTime = 0;
 
 	// ----------------------------- showSql start
 
