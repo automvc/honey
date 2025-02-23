@@ -190,10 +190,10 @@ public class MongoConditionHelper {
 					continue;
 				}
 
-			if (expression.getValue() == null) { // column is null
-				stack.push(EasyMapUtil.createMap(columnName, null));
-				isNeedAnd = true;
-			} else {
+//			if (expression.getValue() == null) { // column is null
+//				stack.push(EasyMapUtil.createMap(columnName, null));
+//				isNeedAnd = true;
+//			} else {
 				boolean find = true;
 				String type = expression.getOpType();
 				switch (type) {
@@ -227,7 +227,7 @@ public class MongoConditionHelper {
 						find = false;
 				}
 				if (find) isNeedAnd = true;
-			}
+//			}
 
 		} // end expList for
 
