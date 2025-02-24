@@ -33,6 +33,7 @@ public class CacheSuidStruct {
 	}
 
 	public void setTableNames(String tableNames) {
+		if (tableNames != null) tableNames = tableNames.toLowerCase(); // sync form V2.1.8
 		this.tableNames = tableNames;
 	}
 

@@ -24,7 +24,7 @@ public class DefaultBeeExtCache implements BeeExtCache {
 
 //	private static boolean useLevelTwo = HoneyConfig.getHoneyConfig().cache_useLevelTwo;
 	
-	private static boolean levelOneTolevelTwo = HoneyConfig.getHoneyConfig().cache_levelOneTolevelTwo;
+//	private static boolean levelOneTolevelTwo = HoneyConfig.getHoneyConfig().cache_levelOneTolevelTwo;
 
 	private static String logCache2Msg = "==========get from Level 2 Cache.";
 	private static boolean isShowSql = false;
@@ -39,6 +39,11 @@ public class DefaultBeeExtCache implements BeeExtCache {
 	private static boolean getUseLevelTwo() {
 		return HoneyConfig.getHoneyConfig().cache_useLevelTwo;
 	}
+	
+	private static boolean getLevelOneTolevelTwo() {
+		return HoneyConfig.getHoneyConfig().cache_levelOneTolevelTwo;
+	}
+	
 
 	@Override
 	public Object get(String sql) {
@@ -53,7 +58,7 @@ public class DefaultBeeExtCache implements BeeExtCache {
 			//按表来区分 
 			if (!isModified) {
 				boolean canGetInLevelTow = false;
-				if (levelOneTolevelTwo) {
+				if (getLevelOneTolevelTwo()) {
 					canGetInLevelTow = true;
 				} else {
 					RouteStruct routeStruct = HoneyContext.getCurrentRoute();
@@ -96,7 +101,7 @@ public class DefaultBeeExtCache implements BeeExtCache {
 			boolean isModified = getModified(sql);
 			if (!isModified) {//没被修改过才放缓存
 				boolean canAddInLevelTow = false;
-				if (f && levelOneTolevelTwo) { //放一级缓存,要levelOneTolevelTwo=true,才放二级(永久和长久缓存默认不放二级缓存,其它一级缓存可通过该配置设置)     
+				if (f && getLevelOneTolevelTwo()) { //放一级缓存,要levelOneTolevelTwo=true,才放二级(永久和长久缓存默认不放二级缓存,其它一级缓存可通过该配置设置)     
 					canAddInLevelTow = true;
 				} else {
 					//不放一级缓存, 二级也有可能放        这种情况不多,所以只需要特别声明只放二级缓存的即可

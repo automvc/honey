@@ -1256,7 +1256,11 @@ public class SqlLib implements BeeSql {
 						if (isConfuseDuplicateFieldDB()) {
 							v = rs.getObject(_toColumnName(field[i].getName(), entity.getClass()));
 						} else {
-							v = rs.getObject(tableName + "."+ _toColumnName(field[i].getName(), entity.getClass()));
+							try {
+							    v = rs.getObject(tableName + "."+ _toColumnName(field[i].getName(), entity.getClass()));
+							} catch (SQLException e) {
+								v = rs.getObject( _toColumnName(field[i].getName(), entity.getClass()));//condition.selectFun(FunctionType.COUNT, "*", "count1"); //像这种不带表名
+							}
 						}
 						
 						boolean processAsJson = false;
@@ -1416,14 +1420,23 @@ public class SqlLib implements BeeSql {
 		if (isConfuseDuplicateFieldDB()) {//主表时会用到
 			return HoneyUtil.getResultObject(rs, field.getType().getName(), _toColumnName(field.getName(),entityClass));
 		} else {
-			return HoneyUtil.getResultObject(rs, field.getType().getName(), tableName + "." + _toColumnName(field.getName(),entityClass));
+			try {
+				return HoneyUtil.getResultObject(rs, field.getType().getName(), tableName + "." + _toColumnName(field.getName(), entityClass));
+			} catch (SQLException e) {
+				return HoneyUtil.getResultObject(rs, field.getType().getName(), _toColumnName(field.getName(), entityClass)); // no table name, 不带表名
+			}
 		}
 	}
 	
 	// not  oracle,SQLite
 	@SuppressWarnings("rawtypes")
-	private Object _getObjectForMoreTable_NoConfuse(ResultSet rs, String tableName, Field field,Class entityClass) throws SQLException {
-		return HoneyUtil.getResultObject(rs, field.getType().getName(), tableName + "." + _toColumnName(field.getName(),entityClass));
+	private Object _getObjectForMoreTable_NoConfuse(ResultSet rs, String tableName, Field field,
+			Class entityClass) throws SQLException {
+		try {
+			return HoneyUtil.getResultObject(rs, field.getType().getName(), tableName + "." + _toColumnName(field.getName(), entityClass));
+		} catch (SQLException e) {
+			return HoneyUtil.getResultObject(rs, field.getType().getName(),  _toColumnName(field.getName(), entityClass));  // no table name, 不带表名
+		}
 	}
 	
 	//oracle,SQLite

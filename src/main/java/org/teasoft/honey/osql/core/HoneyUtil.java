@@ -120,7 +120,7 @@ public final class HoneyUtil {
 		String c = "";
 		String fName = NameTranslateHandle.toColumnName(field.getName());
 		if (isSQLite()) {
-			c = expression + K.as + fName;
+			c = expression + " "+ K.as + " "+fName; //fixed bug V2.1.8
 		} else {
 			c = expression + " " + fName;
 		}
@@ -2125,6 +2125,20 @@ public final class HoneyUtil {
 			Logger.debug(e.getMessage(), e);
 		}
 		return null;
+	}
+	
+	public static String toTableName(Object entity) {
+		if (entity instanceof Class) return _toTableNameByClass((Class) entity); // fixed bug 2.1
+		if (entity instanceof String) return _toTableName2((String) entity);// fixed bug 2.1
+		return NameTranslateHandle.toTableName(NameUtil.getClassFullName(entity));
+	}
+	
+	private static String _toTableName2(String entityName) {
+		return NameTranslateHandle.toTableName(entityName);
+	}
+	
+	private static String _toTableNameByClass(Class c) {
+		return NameTranslateHandle.toTableName(c.getName());
 	}
 
 }

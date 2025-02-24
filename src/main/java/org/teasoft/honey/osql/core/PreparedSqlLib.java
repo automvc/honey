@@ -10,7 +10,6 @@ import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.dialect.DbFeature;
 import org.teasoft.bee.osql.exception.BeeIllegalParameterException;
 import org.teasoft.bee.osql.exception.SqlNullException;
-import org.teasoft.honey.osql.name.NameUtil;
 import org.teasoft.honey.util.ObjectUtils;
 
 /**
@@ -583,7 +582,8 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 	}
 
 	private static String _toTableName(Object entity) {
-		return NameTranslateHandle.toTableName(NameUtil.getClassFullName(entity));
+//		return NameTranslateHandle.toTableName(NameUtil.getClassFullName(entity));
+		return HoneyUtil.toTableName(entity);  //fixed bug 2.1
 	}
 
 	private void regPagePlaceholder() {

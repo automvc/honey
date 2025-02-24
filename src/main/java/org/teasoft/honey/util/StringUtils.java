@@ -6,6 +6,7 @@
 
 package org.teasoft.honey.util;
 
+import java.util.List;
 import java.util.regex.Pattern;
 
 /**
@@ -64,44 +65,44 @@ public final class StringUtils {
 	}
 	
 	/**
-	 * 字符串数组转为用逗号分隔的字符串.string array to Strings separated by commas.
+	 * 字符串数组(或变长参数)转为用逗号分隔的字符串.string array to Strings separated by commas.
 	 * @param stringArray string array.
 	 * @return
 	 */
-	public static String toCommasString (String[] stringArray) {
+	public static String toCommasString (String... stringArray) {
 		
 		if (stringArray == null) return null;
-		if (stringArray.length == 0) return "";
-		if (stringArray.length == 1) return stringArray[1];
-		String idsStr = "";
+		if (stringArray.length == 0) return null;
+		if (stringArray.length == 1) return stringArray[0];
+		StringBuilder idsStr = new StringBuilder();
 		for (int i = 0; i < stringArray.length; i++) {
-			if (i != 0) idsStr += ",";
-			idsStr += stringArray[i];
+			if (i != 0) idsStr.append(",");
+			idsStr.append(stringArray[i].trim());
 		}
 
-		return idsStr;
+		return idsStr.toString();
 	}
 	
 	/**
-	 * 数字数组转为用逗号分隔的字符串.number array to Strings separated by commas.
+	 * 数字数组(或变长参数)转为用逗号分隔的字符串.number array to Strings separated by commas.
 	 * @param numArray number array.
 	 * @return
 	 */
-	public static String toCommasString (Number[] numArray) {
+	public static String toCommasString (Number... numArray) {
 		
 		if (numArray == null) return null;
-		if (numArray.length == 0) return "";
+		if (numArray.length == 0) return null;
 		if (numArray.length == 1) {
-			if (numArray[1] == null) return null;
-			else return numArray[1]+"";
+			if (numArray[0] == null) return null;
+			else return numArray[0]+"";
 		}
-		String idsStr = "";
+		StringBuilder idsStr = new StringBuilder();
 		for (int i = 0; i < numArray.length; i++) {
-			idsStr += numArray[i];
-			if (i != numArray.length - 1) idsStr += ",";
+			idsStr.append(numArray[i]);
+			if (i != numArray.length - 1) idsStr.append(",");
 		}
 
-		return idsStr;
+		return idsStr.toString();
 	}
 	
 	
@@ -134,7 +135,7 @@ public final class StringUtils {
 		return pattern.matcher(name).find();
 	}
 	
-	//已转义的,unicode测不再转
+	//已转义的,unicode则不再转
 	public static String escapeLike(String value) {
 		if(value==null) return value;
 		
@@ -154,6 +155,40 @@ public final class StringUtils {
 		return buf.toString();
 	}
 	
+	public static String escapeMatch(String value) {
+		if(value==null) return value;
+		
+		StringBuffer buf = new StringBuffer(value);
+		char temp;
+		for (int i = 0; i < buf.length(); i++) {
+			temp=buf.charAt(i);
+//			if (temp=='\\') {
+//				i++;
+//			}else if (temp=='*' || temp=='?' || temp=='$' || temp=='+' || temp=='^' || temp=='.') {
+//			}else {
+				switch (temp) {
+					case '\\':
+//						if(i+1< buf.length()  && buf.charAt(i+1)=='u') 
+//							break;
+		            case '*':
+		            case '+':
+		            case '?':
+		            case '{':
+		            case '$':
+		            case '.':
+		            case '^':
+		            case '(':
+		            case '[':
+		            case '|':
+		            case ')':
+				       buf.insert(i++, '\\'); break;
+				    default : break;
+			}
+//		}
+		}
+		return buf.toString();
+	}
+	
 	public static String getUnicode(String str) {
 		String strTemp = "";
 		if (str != null) {
@@ -167,13 +202,29 @@ public final class StringUtils {
 		}
 		return strTemp;
 	}
+	  
+	public static String subRight(String str, int len) {
+		if (str == null || "".equals(str) || str.length() <= len) return str;
 
+		return str.substring(str.length() - len);
+	}
+	
+	public static String[] listToArray(List<String> list) {
+		if (list == null) return null;
+		String[] arry = new String[list.size()];
+		for (int i = 0; i < arry.length; i++) {
+			arry[i] = list.get(i);
+		}
+		return arry;
+	}
+	
 	public static void trim(String str[]) {
-
-		if (str == null || str.length == 0) return;
+		
+		if (str == null || str.length == 0) return ;
 
 		for (int i = 0; i < str.length; i++) {
-			str[i] = str[i].trim();
+			if(str[i]!=null) str[i] = str[i].trim(); //from V2.1.10
 		}
 	}
+	
 }

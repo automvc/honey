@@ -151,8 +151,10 @@ public class SystemLogger implements Log{
 	}
 	
 	private void _printStackTrace(Throwable t) {
-		if (t != null) {
-			t.printStackTrace(); // SystemLogger print the error message to console.
+		if (t != null) {  //没问题的,这方法仅用于本地开发时使用.
+			// NOSONAR
+			t.printStackTrace(); // NOSONAR
+			//No problem.Just use in dev(local). SystemLogger print the error message to console.
 		}
 	}
 	
@@ -180,12 +182,20 @@ public class SystemLogger implements Log{
 		
 		b.append(msg);
 		
-		if (ERROR.equals(level) || WARN.equals(level))
+		if(ERROR.equals(level) || WARN.equals(level) || DEBUG.equals(level)) //为了便于识别,DEBUG在SystemLogger使用err,让其显示为红色.
 			printerr(b.toString());
 		else
 			printout(b.toString());
 		
 	}
+	
+    private void printerr(String msg) {
+    	System.err.println(msg);
+    }
+    
+    private void printout(String msg) {
+    	System.out.println(msg);
+    }
 	
 	private void print(String level,String msg,String className){
 		StringBuffer b=new StringBuffer();
@@ -217,17 +227,9 @@ public class SystemLogger implements Log{
 		
 		 .append(msg);
 		
-		if (ERROR.equals(level) || WARN.equals(level))
+		if(ERROR.equals(level) || WARN.equals(level) || DEBUG.equals(level))
 			printerr(b.toString());
 		else
 			printout(b.toString());
-	}
-	
-	private void printerr(String str) {
-		System.err.println(str);
-	}
-	
-	private void printout(String str) {
-		System.out.println(str);
 	}
 }

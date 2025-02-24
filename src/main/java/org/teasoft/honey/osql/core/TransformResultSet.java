@@ -53,7 +53,8 @@ public class TransformResultSet {
 				}
 				
 				isJsonString=false;
-				fieldName=_toFieldName(rmeta.getColumnName(i),entityClass);
+//				fieldName=_toFieldName(rmeta.getColumnName(i),entityClass);
+				fieldName=_toFieldName(rmeta.getColumnLabel(i),entityClass);//V2.1.8
 				fieldTypeName=HoneyUtil.getFieldType(rmeta.getColumnTypeName(i));
 				
 				json.append("\"");
@@ -198,7 +199,9 @@ public class TransformResultSet {
 //			rowMap=new HashMap<>();
 			rowMap=new LinkedHashMap<>(); //2021-06-13
 			for (int i = 1; i <= columnCount; i++) {
-				rowMap.put(_toFieldName(rmeta.getColumnName(i),null), rs.getObject(i)); //ignore Column annotation
+//				rowMap.put(_toFieldName(rmeta.getColumnName(i),null), rs.getObject(i)); //ignore Column annotation
+				//V2.1.8
+				rowMap.put(_toFieldName(rmeta.getColumnLabel(i),null), rs.getObject(i)); //ignore Column annotation
 			}
 			list.add(rowMap);
 		}

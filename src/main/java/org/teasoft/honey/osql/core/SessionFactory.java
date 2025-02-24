@@ -117,7 +117,26 @@ public final class SessionFactory {
 		String driverName = HoneyConfig.getHoneyConfig().getDriverName();
 		String url = HoneyConfig.getHoneyConfig().getUrl();
 		String username = HoneyConfig.getHoneyConfig().getUsername();
-		String password = HoneyConfig.getHoneyConfig().getPassword();
+		String p = HoneyConfig.getHoneyConfig().getPassword();
+		
+		//sync from V2.1.8, V2.1.10
+		if (StringUtils.isBlank(url)) { //check from application.properties
+			BootApplicationProp prop = new BootApplicationProp();
+			url = prop.getPropText(DbConfigConst.DB_URL);
+
+			if (StringUtils.isBlank(url)) {// if null, use spring boot application.properties; easy for main class type
+				url = prop.getPropText(BootApplicationProp.DATASOURCE_URL);
+				username = prop.getPropText(BootApplicationProp.DATASOURCE_USERNAME);
+				p = prop.getPropText(BootApplicationProp.DATASOURCE_PW);
+				String driverClass1 = prop.getPropText(BootApplicationProp.DATASOURCE_DRIVER_CLASS_NAME);
+				String driverClass2 = prop.getPropText(BootApplicationProp.DATASOURCE_DRIVER_CLASS_NAME2);
+				driverName = (driverClass1 != null ? driverClass1 : driverClass2);
+			} else {
+				username = prop.getPropText(DbConfigConst.DB_USERNAM);
+				p = prop.getPropText(DbConfigConst.DB_PWORD);
+				driverName = prop.getPropText(DbConfigConst.DB_DRIVERNAME);
+			}
+		}
 
 		String nullInfo = "";
 		final String DO_NOT_CONFIG = " do not config; ";
@@ -132,7 +151,7 @@ public final class SessionFactory {
 		}
 		
 		if (username == null) nullInfo += DbConfigConst.DB_USERNAM + DO_NOT_CONFIG;
-		if (password == null) nullInfo += DbConfigConst.DB_PWORD + DO_NOT_CONFIG;
+		if (p == null) nullInfo += DbConfigConst.DB_PWORD + DO_NOT_CONFIG;
 
 		if (!"".equals(nullInfo)) {
 //			throw new NoConfigException("NoConfigException,Do not set the database info: " + nullInfo);
@@ -144,8 +163,8 @@ public final class SessionFactory {
 		Connection conn = null;
 		if (StringUtils.isNotBlank(driverName)) Class.forName(driverName);  //some db,no need set the driverName //v1.8.15
 
-		if (StringUtils.isNotBlank(username) && password != null)
-			conn = DriverManager.getConnection(url, username, password);
+		if (StringUtils.isNotBlank(username) && p != null)
+			conn = DriverManager.getConnection(url, username, p);
 		else
 			conn = DriverManager.getConnection(url);  //v1.8.15
 
