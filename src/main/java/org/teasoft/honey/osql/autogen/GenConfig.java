@@ -1,5 +1,7 @@
 package org.teasoft.honey.osql.autogen;
 
+import java.io.File;
+
 import org.teasoft.honey.osql.core.HoneyConfig;
 
 /**
@@ -55,7 +57,7 @@ public class GenConfig {
 
 	public String getBaseDir() {
 		if("".equals(baseDir)) {
-			baseDir=System.getProperty("user.dir")+"\\src\\main\\java\\";
+			baseDir=System.getProperty("user.dir")+"#src#main#java#".replace("#", File.separator); //syn 2.4.0
 		}
 		return baseDir;
 	}
