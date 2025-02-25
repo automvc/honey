@@ -72,7 +72,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		if (start == -1)
 			Logger.logSQL("select SQL(entity,size): ", sql);
 		else
-		   Logger.logSQL("select(entity,start,size) SQL: ", sql);
+		   Logger.logSQL("select SQL(entity,start,size) : ", sql);
 		return sql;
 	}
 
@@ -100,7 +100,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			setContext(sql, wrap.getList(), wrap.getTableNames());
 		}
 
-		Logger.logSQL("select(entity,selectFields,start,size) SQL: ", sql);
+		Logger.logSQL("select SQL(entity, start, size, selectFields): ", sql);
 		return sql;
 	}
 	
@@ -131,7 +131,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 //		sql=sql.replace("#fieldNames#", fieldList);
 //		sql=sql.replace("#fieldNames#", newSelectFields);  //打印值会有问题
 
-		Logger.logSQL("select SQL(selectFields) : ", sql);
+		Logger.logSQL("select SQL(entity, selectFields): ", sql);
 
 		return sql;
 	}
@@ -279,11 +279,9 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 					}
 
 					if (firstWhere) {
-//						sqlBuffer.append(" where ");
 						sqlBuffer.append(" ").append(K.where).append(" ");
 						firstWhere = false;
 					} else {
-//						sqlBuffer.append(" and ");
 						sqlBuffer.append(" ").append(K.and).append(" ");
 					}
 					sqlBuffer.append(_toColumnName(fields[i].getName(),entity.getClass()));
@@ -345,9 +343,9 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	public <T> String toInsertSQL(T entity, IncludeType includeType) {
 		String sql = null;
 		try {
-			_ObjectToSQLHelper.setInitIdByAuto(entity);
-			sql = _ObjectToSQLHelper._toInsertSQL0(entity, includeType.getValue(),"");
-//			HoneyUtil.revertId(entity); //v1.9 bug
+//			_ObjectToSQLHelper.setInitIdByAuto(entity);   //move to last layer.
+			sql = _ObjectToSQLHelper._toInsertSQL0(entity, includeType.getValue(), "");
+//			HoneyUtil.revertId(entity); //v1.9  bug
 		} catch (IllegalAccessException e) {
 			throw ExceptionHelper.convert(e);
 		}
@@ -380,7 +378,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		try {
 			int len = entity.length;
 			
-//			HoneyUtil.setInitArrayIdByAuto(entity);  //移到上游 2.1
+//			HoneyUtil.setInitArrayIdByAuto(entity);  //移到上游 2.1 syn 
 			
 			sql = new String[len];  //只用sql[0]
 			String t_sql = "";
@@ -741,7 +739,6 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			HoneyContext.addBeanField(packageAndClassName, columnNames);
 		}
 
-//		sqlBuffer.append(K.select+" " + columnNames + " "+K.from+" ");
 		sqlBuffer.append(K.select).append(" ").append(columnNames).append(" ").append(K.from).append(" ");
 		sqlBuffer.append(tableName).append(" ").append(K.where).append(" ");
 
@@ -839,7 +836,8 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		if(c==null) return;
 //		String packageName=c.getPackage().getName();  //bug
 		String classFullName=c.getName();
-		if(classFullName.startsWith("java.") || classFullName.startsWith("javax.")){
+		if (classFullName.startsWith("java.") || classFullName.startsWith("javax.")
+				|| classFullName.startsWith("jakarta.")) {
 			throw new BeeIllegalEntityException("BeeIllegalEntityException: Illegal Entity, "+c.getName());
 		}
 	}
