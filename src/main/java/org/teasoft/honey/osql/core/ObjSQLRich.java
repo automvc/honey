@@ -291,6 +291,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 	@Override
 	public <T> int insert(T entity, IncludeType includeType) {
 		if (entity == null) return -1;
+		_ObjectToSQLHelper.setInitIdByAuto(entity); // 2.4.0 syn
 		doBeforePasreEntity(entity,SuidType.INSERT);
 		String sql = getObjToSQLRich().toInsertSQL(entity, includeType);
 		_regEntityClass1(entity);
