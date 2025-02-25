@@ -256,6 +256,13 @@ public class ConditionHelper {
 				for (int i = 1; i < len; i++) { //start 1
 					sqlBuffer.append(",?");
 				}
+				
+				if(len==0) { //syn V2.2
+					PreparedValue p = new PreparedValue();
+					p.setValue(null);
+					p.setType(Object.class.getName());
+					list.add(p);
+				}
 
 				sqlBuffer.append(")");
 
