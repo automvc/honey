@@ -106,11 +106,7 @@ public class MongodbShardingSelectJsonEngine {
 			rowCount = entityList.size();
 		}
 
-		JsonResultWrap wrap = new JsonResultWrap();
-		wrap.setResultJson(json.toString());
-		wrap.setRowCount(rowCount);
-
-		return wrap;
+		return new JsonResultWrap(json, rowCount);
 	}
 
 //	Return String 

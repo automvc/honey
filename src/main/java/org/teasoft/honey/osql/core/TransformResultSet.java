@@ -156,12 +156,8 @@ public class TransformResultSet {
 		}
 		json.insert(0, "[");
 		json.append("]");
-
-		JsonResultWrap wrap = new JsonResultWrap();
-		wrap.setResultJson(json.toString());
-		wrap.setRowCount(rowCount);
-
-		return wrap;
+		
+		return new JsonResultWrap(json.toString(), rowCount);
 	}
 
 	@SuppressWarnings("rawtypes")

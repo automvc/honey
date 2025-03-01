@@ -107,11 +107,7 @@ public class ShardingSelectJsonEngine {
 			rowCount = entityList.size();
 		}
 
-		JsonResultWrap wrap = new JsonResultWrap();
-		wrap.setResultJson(json);
-		wrap.setRowCount(rowCount);
-
-		return wrap;
+		return new JsonResultWrap(json, rowCount);
 	}
 
 //	Return String 

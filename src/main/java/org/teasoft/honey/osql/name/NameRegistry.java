@@ -12,7 +12,7 @@ import org.teasoft.bee.osql.annotation.ColumnHandler;
 import org.teasoft.honey.osql.core.NameTranslateHandle;
 
 /**
- * 命令转换注册器.Name Translate Registry.
+ * 命名转换注册器.Name Translate Registry.
  * @author Kingstar
  * @since  1.11
  */

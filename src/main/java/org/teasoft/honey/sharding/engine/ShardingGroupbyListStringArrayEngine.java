@@ -149,11 +149,8 @@ public class ShardingGroupbyListStringArrayEngine {
 					json = jsonTransform.toJson(entityList);
 				}
 				rowCount = entityList.size();
-
-				JsonResultWrap wrap = new JsonResultWrap();
-				wrap.setResultJson(json);
-				wrap.setRowCount(rowCount);
-				return wrap;
+				
+				return new JsonResultWrap(json, rowCount);
 			}
 		}
 	}

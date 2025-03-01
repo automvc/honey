@@ -14,6 +14,14 @@ public class JsonResultWrap {
 
 	private String resultJson;
 	private int rowCount;
+	
+	public JsonResultWrap() {}
+
+	// 2.5.2
+	public JsonResultWrap(String resultJson, int rowCount) {
+		this.resultJson = resultJson;
+		this.rowCount = rowCount;
+	}
 
 	public String getResultJson() {
 		return resultJson;
