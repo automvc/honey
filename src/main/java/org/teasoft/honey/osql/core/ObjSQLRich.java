@@ -755,8 +755,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 	}
 
 	@Override
-	@SuppressWarnings("rawtypes")
-	public int deleteById(Class entityClass, Integer id) {
+	public int deleteById(Class<?> entityClass, Integer id) {
 		if (id == null) Logger.warn("in method deleteById,id is null! ");
 		if (entityClass == null || id == null) return 0;
 		try {
@@ -774,8 +773,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 	}
 
 	@Override
-	@SuppressWarnings("rawtypes")
-	public int deleteById(Class entityClass, Long id) {
+	public int deleteById(Class<?> entityClass, Long id) {
 		if (id == null) Logger.warn("in method deleteById,id is null! ");
 		if (entityClass == null || id == null) return 0;
 		int a = 0;
@@ -793,7 +791,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 		return a;
 	}
 
-	private void regByIdForSharding(Class entityClass, Object idOrIds) {
+	private void regByIdForSharding(Class<?> entityClass, Object idOrIds) {
 //		OneTimeParameter.setAttribute(StringConst.ByIdWithClassForSharding, idOrIds);
 		Condition condition = BF.getCondition();
 		if (entityClass.equals(String.class) && idOrIds.toString().contains(","))
@@ -804,8 +802,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 	}
 
 	@Override
-	@SuppressWarnings("rawtypes")
-	public int deleteById(Class entityClass, String ids) {
+	public int deleteById(Class<?> entityClass, String ids) {
 		if (ids == null) Logger.warn("in method deleteById,ids is null! ");
 		if (entityClass == null || ids == null) return 0;
 		int a = 0;

@@ -210,31 +210,24 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	public <T> String toUpdateSQL(T entity, String... updateFieldList) {
 		if (updateFieldList == null) return null;
 
-		String sql = "";
-//		String updateFields[] = updateFieldList.split(",");
-
 		String updateFields[] = adjustVariableString(updateFieldList);
 
 		if (updateFields.length == 0 || "".equals(updateFieldList[0].trim()))
 			throw new ObjSQLException("ObjSQLException:updateFieldList at least include one field.");
 
-		sql = _ObjectToSQLHelper._toUpdateSQL(entity, updateFields, -1);
-		return sql;
+		return _ObjectToSQLHelper._toUpdateSQL(entity, updateFields, -1);
 	}
 
 	@Override
 	public <T> String toUpdateSQL(T entity, IncludeType includeType, String... updateFieldList) {
 		if (updateFieldList == null) return null;
 
-		String sql = "";
-//		String updateFields[] = updateFieldList.split(",");
 		String updateFields[] = adjustVariableString(updateFieldList);
 
 		if (updateFields.length == 0 || "".equals(updateFieldList[0].trim()))
 			throw new ObjSQLException("ObjSQLException:updateFieldList at least include one field.");
 
-		sql = _ObjectToSQLHelper._toUpdateSQL(entity, updateFields, includeType.getValue());
-		return sql;
+		return _ObjectToSQLHelper._toUpdateSQL(entity, updateFields, includeType.getValue());
 	}
 
 	@Override
@@ -255,11 +248,8 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			String selectAndFun;
 			funType = FunAndOrderTypeMap.transfer(funType); // v1.9
 			if ("count".equalsIgnoreCase(funType) && "*".equals(fieldForFun)) {
-//		        selectAndFun = " select " + funType + "(" + fieldForFun + ") from ";  //  count(*)
-//				selectAndFun = "select count(*) from ";
 				selectAndFun = K.select + " " + K.count + "(*) " + K.from + " ";
 			} else {
-//				selectAndFun = "select " + funType + "(" + _toColumnName(fieldForFun) + ") from ";
 				selectAndFun = K.select + " " + funType + "(" + _toColumnName(fieldForFun, entity.getClass()) + ") "
 						+ K.from + " "; // funType要能转大小写风格
 			}

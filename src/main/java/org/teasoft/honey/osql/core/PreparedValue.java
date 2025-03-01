@@ -41,11 +41,6 @@ class PreparedValue implements Serializable {
 		this.value = value;
 	}
 
-	/**
-	 * get field
-	 * @return
-	 * @since 1.11
-	 */
 //	public Field getField() { //close on 2.4.0
 //		return field;
 //	}

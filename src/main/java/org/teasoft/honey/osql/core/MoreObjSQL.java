@@ -162,19 +162,32 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 		String total = selectWithFun(entity, con.selectFun(FunctionType.COUNT, "*"));
 		return StringUtils.isBlank(total) ? 0 : Integer.parseInt(total);
 	}
+	
+	private <T> String processAndReturnSql(T entity, Condition condition) {
+		if (condition != null) condition = condition.clone();
+		regCondition(condition);
+		_doBeforePasreEntity(entity); // 因要解析子表,子表下放再执行
+		_regEntityClass1(entity);
+		OneTimeParameter.setTrueForKey(StringConst.Check_Group_ForSharding);
+		String sql = getMoreObjToSQL().toSelectSQL(entity, condition);
+		sql = doAfterCompleteSql(sql);
+		return sql;
+	}
 
 	@Override
 	public <T> List<String[]> selectString(T entity, Condition condition) {
 		if (entity == null) return null;
 		List<String[]> list = null;
 		try {
-			if (condition != null) condition = condition.clone();
-			regCondition(condition);
-			_doBeforePasreEntity(entity); // 因要解析子表,子表下放再执行
-			_regEntityClass1(entity);
-			OneTimeParameter.setTrueForKey(StringConst.Check_Group_ForSharding);
-			String sql = getMoreObjToSQL().toSelectSQL(entity, condition);
-			sql = doAfterCompleteSql(sql);
+//			if (condition != null) condition = condition.clone();
+//			regCondition(condition);
+//			_doBeforePasreEntity(entity); // 因要解析子表,子表下放再执行
+//			_regEntityClass1(entity);
+//			OneTimeParameter.setTrueForKey(StringConst.Check_Group_ForSharding);
+//			String sql = getMoreObjToSQL().toSelectSQL(entity, condition);
+//			sql = doAfterCompleteSql(sql);
+			
+			String sql=processAndReturnSql(entity, condition);
 			Logger.logSQL("select SQL(return List<String[]>): ", sql);
 			list = getBeeSql().select(sql); // 要测试分片时,是否合适? 有T entity参数,是可以的.
 		} finally {
@@ -188,16 +201,17 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 		if (entity == null) return null;
 		String json = null;
 		try {
-			if (condition != null) condition = condition.clone();
-			regCondition(condition);
-//			doBeforePasreEntity(entity, SuidType.SELECT);
-			_doBeforePasreEntity(entity); // fixed 2.4.0
-			_regEntityClass1(entity);
-			OneTimeParameter.setTrueForKey(StringConst.Check_Group_ForSharding);
-			String sql = getMoreObjToSQL().toSelectSQL(entity, condition);
-			sql = doAfterCompleteSql(sql);
+//			if (condition != null) condition = condition.clone();
+//			regCondition(condition);
+////			doBeforePasreEntity(entity, SuidType.SELECT);
+//			_doBeforePasreEntity(entity); // fixed 2.4.0
+//			_regEntityClass1(entity);
+//			OneTimeParameter.setTrueForKey(StringConst.Check_Group_ForSharding);
+//			String sql = getMoreObjToSQL().toSelectSQL(entity, condition);
+//			sql = doAfterCompleteSql(sql);
+			
+			String sql=processAndReturnSql(entity, condition);
 			Logger.logSQL(SELECT_JSON_SQL, sql);
-
 			json = getBeeSql().selectJson(sql);
 		} finally {
 			doBeforeReturn();
