@@ -22,6 +22,7 @@ import org.teasoft.honey.osql.core.Expression;
 import org.teasoft.honey.osql.core.HoneyUtil;
 import org.teasoft.honey.osql.core.Logger;
 import org.teasoft.honey.osql.core.NameTranslateHandle;
+import org.teasoft.honey.osql.core.OpType;
 import org.teasoft.honey.util.StringUtils;
 
 /**
@@ -30,11 +31,8 @@ import org.teasoft.honey.util.StringUtils;
  */
 public class MongoConditionHelper {
 	private static final String OR = "or";
-
 	private static final String AND = "and";
-	private static final String GROUP_BY = "groupBy";
-	private static final String HAVING = "having";
-
+	
 	private MongoConditionHelper() {}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -56,12 +54,11 @@ public class MongoConditionHelper {
 
 		int len = expList.size();
 		for (int k = 0; k < len - 2; k++) { // 将between,like,in,op两则的()删除
-			if (expList.get(k).getOpNum() == -2 && expList.get(k + 2).getOpNum() == -1) {
-				String opType = expList.get(k + 1).getOpType();
-				if (" between ".equalsIgnoreCase(opType) || " not between ".equalsIgnoreCase(opType)
-						|| (Op.like.getOperator().equalsIgnoreCase(opType) || Op.notLike.getOperator().equalsIgnoreCase(opType))
-						|| (Op.in.getOperator().equalsIgnoreCase(opType) || Op.notIn.getOperator().equalsIgnoreCase(opType))
-						|| expList.get(k + 1).getOpNum() == 2) {
+			if (expList.get(k).getOpType() == OpType.L_PARENTHESES
+					&& expList.get(k + 2).getOpType() == OpType.R_PARENTHESES) {
+				OpType opType = expList.get(k + 1).getOpType();
+				if (OpType.BETWEEN == opType || OpType.NOT_BETWEEN == opType || OpType.LIKE == opType
+						|| OpType.IN == opType || OpType.OP2 == opType) {
 					expList.remove(k + 2);
 					expList.remove(k);
 					len = expList.size();
@@ -74,43 +71,40 @@ public class MongoConditionHelper {
 		Stack stack = new Stack<>();
 		for (int j = 0; j < expList.size(); j++) {
 			expression = expList.get(j);
+			OpType opType = expression.getOpType();
+			Op op = expression.getOp();
 
-			if (expression.getOpNum() == -2) { // (
+			if (opType==OpType.L_PARENTHESES) { // (
 				stack.push("(");
 				continue;
-			} else if (expression.getOpNum() == -1) {// )
+			} else if (opType==OpType.R_PARENTHESES) {// )
 				stack.push(")");
 				isNeedAnd = true;
 				continue;
 
-			} else if (expression.getOpNum() == 1) { // or || and operation, 还有: not (2.1.10)
+			} else if (opType == OpType.ONE) { // or, and, not (2.1.10)
 				stack.push(expression.getValue().toString().toLowerCase());
 				isNeedAnd = false;
 				continue;
 			}
 
-			String opType = expression.getOpType();
-
-			if (GROUP_BY.equalsIgnoreCase(opType) || HAVING.equalsIgnoreCase(opType)) {
+			if(opType == OpType.GROUP_BY || opType == OpType.HAVING){
 				if (SuidType.SELECT != conditionImpl.getSuidType()) {
 					throw new BeeErrorGrammarException(
 							conditionImpl.getSuidType() + " do not support the opType: " + opType + "!");
 				}
 			}
 
-			if (GROUP_BY.equalsIgnoreCase(opType)) {
-//				Logger.debug("------------------process in selectWithGroupBy...");
+			if(opType == OpType.GROUP_BY) {
 //				在 selectWithGroupBy 处理
 				continue;
 			}
 
-			if ("orderBy".equalsIgnoreCase(opType)) {
+			if (OpType.ORDER_BY2 == opType || OpType.ORDER_BY3 == opType || OpType.ORDER_BY4 == opType) {
 				continue;
 			} // end orderBy
 
-//			columnName=_toColumnName(expression.getFieldName(),useSubTableNames,entityClass);
 			columnName = _toColumnName(expression.getFieldName(), null);
-
 			if ("id".equalsIgnoreCase(columnName)) {// 替换id为_id
 				columnName = "_id";
 			}
@@ -119,30 +113,25 @@ public class MongoConditionHelper {
 				stack.push(AND);
 			}
 
-			if (Op.in.getOperator().equalsIgnoreCase(opType) || Op.notIn.getOperator().equalsIgnoreCase(opType)) {
-
+			if (opType==OpType.IN) {
 				Object v = expression.getValue();
 				if (v == null) continue;
-
 				Object listOrSet = processIn(v);
 
-				if (Op.in.getOperator().equalsIgnoreCase(opType)) {
+				if (Op.in == op) {
 //					documentAsMap.put(columnName, EasyMapUtil.createMap("$in", listOrSet));
 					stack.push(EasyMapUtil.createMap(columnName, EasyMapUtil.createMap("$in", listOrSet)));
-				} else if (Op.notIn.getOperator().equalsIgnoreCase(opType)) {
+				} else if (Op.notIn == op) {
 					stack.push(EasyMapUtil.createMap(columnName, EasyMapUtil.createMap("$nin", listOrSet)));
 				}
 
 				isNeedAnd = true;
 				continue;
-			} else
-				if (Op.like.getOperator().equalsIgnoreCase(opType) || Op.notLike.getOperator().equalsIgnoreCase(opType)) {
+			} else if (opType==OpType.LIKE) {
 
 					String v = (String) expression.getValue(); // mongodb 有这种用法吗
 					String v2 = "^$"; // 只匹配空字符
 					if (v != null && !"".equals(v)) {
-						Op op = expression.getOp();
-
 						v = StringUtils.escapeMatch(v);
 
 						if (Op.likeLeft == op) {
@@ -169,16 +158,16 @@ public class MongoConditionHelper {
 
 					isNeedAnd = true;
 					continue;
-				} else if (" between ".equalsIgnoreCase(opType) || " not between ".equalsIgnoreCase(opType)) {
+				} else if (OpType.BETWEEN == opType || OpType.NOT_BETWEEN == opType) {
 
-					if (" between ".equalsIgnoreCase(opType)) { // eg: price between 1 and 2 -> (price >=1 and price<=2)
+					if (OpType.BETWEEN == opType) { // eg: price between 1 and 2 -> (price >=1 and price<=2)
 						stack.push("(");
 						stack.push(EasyMapUtil.createMap(columnName, EasyMapUtil.createMap("$gte", expression.getValue())));
 						stack.push(AND);
 						stack.push(EasyMapUtil.createMap(columnName, EasyMapUtil.createMap("$lte", expression.getValue2())));
 						stack.push(")");
 
-					} else if (" not between ".equalsIgnoreCase(opType)) { // price not between 1 and 2 -> (price <1 and price>2)
+					} else if (OpType.NOT_BETWEEN == opType) { // price not between 1 and 2 -> (price <1 or price>2)
 						stack.push("(");
 						stack.push(EasyMapUtil.createMap(columnName, EasyMapUtil.createMap("$lt", expression.getValue())));
 						stack.push(OR);
@@ -195,7 +184,7 @@ public class MongoConditionHelper {
 //				isNeedAnd = true;
 //			} else {
 				boolean find = true;
-				String type = expression.getOpType();
+				String type = expression.getOp().getOperator();
 				switch (type) {
 					case "=":
 //					list.add(Filters.eq(columnName, expression.getValue()));

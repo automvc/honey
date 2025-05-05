@@ -14,36 +14,28 @@ import org.teasoft.bee.osql.Op;
  * Expression
  * @author Kingstar
  * @since  1.6
+ * @since  2.5.2
  */
 public final class Expression implements Serializable {
 
 	private static final long serialVersionUID = 1592803913607L;
 
-	String fieldName;
-	String opType;
-	Op op; // V1.17
-	Object value;
-	int opNum;
-	Object value2;
-	Object value3;
-	Object value4; // for having
+	private OpType opType; //2.5.2
+	private String fieldName;
+	private Op op;
+	private Object value;
+	private Object value2;
+	private Object value3;
+	private Object value4; // for having
 
 	public Expression() {}
 
-	public Expression(String field, Op opType, Object value) {
+	public Expression(String field, Op op, Object value,OpType opType) {
 		this.fieldName = field;
-		this.opType = opType.getOperator();
-		this.op = opType; // V1.17 for likeLeft,likeRight,likeLeftRight
+		this.opType = opType;
+		this.op = op;
 		this.value = value;
-		this.opNum = 2;
 	}
-
-//	public Expression(String field, Object value) {
-//		this.fieldName = field;
-//		this.opType = Op.eq.getOperator();
-//		this.value = value;
-//		this.opNum = 2;
-//	}
 
 	public String getFieldName() {
 		return fieldName;
@@ -51,14 +43,6 @@ public final class Expression implements Serializable {
 
 	public void setFieldName(String fieldName) {
 		this.fieldName = fieldName;
-	}
-
-	public String getOpType() {
-		return opType;
-	}
-
-	public void setOpType(String opType) {
-		this.opType = opType;
 	}
 
 	/**
@@ -87,12 +71,12 @@ public final class Expression implements Serializable {
 		this.value = value;
 	}
 
-	public int getOpNum() {
-		return opNum;
+	public OpType getOpType() {
+		return opType;
 	}
 
-	public void setOpNum(int opNum) {
-		this.opNum = opNum;
+	public void setOpType(OpType opType) {
+		this.opType = opType;
 	}
 
 	public Object getValue2() {

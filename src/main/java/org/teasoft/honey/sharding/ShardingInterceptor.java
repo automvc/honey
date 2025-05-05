@@ -28,9 +28,9 @@ import org.teasoft.honey.osql.core.Expression;
 import org.teasoft.honey.osql.core.HoneyConfig;
 import org.teasoft.honey.osql.core.HoneyContext;
 import org.teasoft.honey.osql.core.HoneyUtil;
-import org.teasoft.honey.osql.core.K;
 import org.teasoft.honey.osql.core.Logger;
 import org.teasoft.honey.osql.core.NameTranslateHandle;
+import org.teasoft.honey.osql.core.OpType;
 import org.teasoft.honey.osql.core.StringConst;
 import org.teasoft.honey.osql.interccept.EmptyInterceptor;
 import org.teasoft.honey.osql.util.AnnoUtil;
@@ -354,11 +354,10 @@ public class ShardingInterceptor extends EmptyInterceptor {
 			}
 			if (!isShardingField(shardingBean, fieldName)) continue;
 
-			String opType = expression.getOpType();
-//			int opNum = expression.getOpNum();
+			OpType opType = expression.getOpType();
+			Op op=expression.getOp();
 			boolean foundSharding = false;
-//			if (opNum == 2 && !"orderBy".equalsIgnoreCase(opType)) {
-			if (Op.eq.getOperator().equalsIgnoreCase(opType)) {
+			if (Op.eq == op) {
 				// id>1 像这种没办法精确路由 会引起全路由
 /*				if (dsField != null) {
 					if (dsField.equals(expression.getFieldName())) {
@@ -387,12 +386,12 @@ public class ShardingInterceptor extends EmptyInterceptor {
 					shardingBean.setTabShardingValue(null);
 				}
 
-			} else if (Op.in.getOperator().equalsIgnoreCase(opType) || (" " + K.between + " ").equalsIgnoreCase(opType)) {
+			} else if (OpType.IN == opType || OpType.BETWEEN == opType || OpType.NOT_BETWEEN == opType) {
 
 				Object v = expression.getValue();
 
 				List<?> inList;
-				if (Op.in.getOperator().equalsIgnoreCase(opType)) {
+				if (OpType.IN == opType) {
 					inList = processIn(v);
 				} else { // between v and v2 -> [v,v2]
 					String tableName = _toTableName(entity);
