@@ -221,22 +221,22 @@ public final class HoneyConfig {
 	public boolean openFieldTypeHandler = true; // 从1.17默认打开
 
 	@SysValue("${bee.osql.openEntityCanExtend}")
-	public boolean openEntityCanExtend = false; // 2.2
+	public boolean openEntityCanExtend = true; // since 2.2; from 2.5.2 default true 
 
 	@SysValue("${bee.osql.closeDefaultParaResultRegistry}")
 	public boolean closeDefaultParaResultRegistry; // V1.17.21,V2.1.6
 
 	@SysValue("${bee.osql.showSQL}") // 属于 bee.osql
-	public boolean showSQL = false;
+	public boolean showSQL = true; //from 2.5.2 default true 
 
 	@SysValue("${bee.osql.showShardingSQL}") // 属于 bee.osql
-	public boolean showShardingSQL = false;
+	public boolean showShardingSQL = true; //from 2.5.2 default true 
 	
 	@SysValue("${bee.osql.showSqlExecuteTime}") // 2.5.2
-	public boolean showSqlExecuteTime = false;
+	public boolean showSqlExecuteTime = true;
 
 	@SysValue("${bee.osql.minSqlExecuteTime}") // 2.5.2
-	public int minSqlExecuteTime = 0;
+	public int minSqlExecuteTime = 5;   //ms
 
 	// ----------------------------- showSql start
 
@@ -256,6 +256,8 @@ public final class HoneyConfig {
 	@SysValue("${bee.osql.naming.toLowerCaseBefore}")
 	public boolean naming_toLowerCaseBefore = true; // default : to LowerCase before
 
+	//	1 : order_no<-->orderNo(DB<-->Java), 2: ORDER_NO<-->orderNo(DB<-->Java), 
+	//	# 3: original,  4 : DbUpperAndJavaLower, ORDER_NO<-->order_no(DB<-->Java)
 	@SysValue("${bee.osql.naming.translateType}")
 	public int naming_translateType = 1;
 
