@@ -25,7 +25,8 @@ public class UnderScoreAndCamelName implements NameTranslate {
 
 	@Override
 	public String toColumnName(String fieldName) {
-		return NameUtil.toUnderscoreNaming(fieldName);
+//		return NameUtil.toUnderscoreNaming(fieldName);
+		return KeyWord.transformNameIfKeyWork(NameUtil.toUnderscoreNaming(fieldName));
 	}
 
 	@Override

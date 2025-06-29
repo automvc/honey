@@ -26,7 +26,8 @@ public class OriginalName implements NameTranslate {
 
 	@Override
 	public String toColumnName(String fieldName) {
-		return fieldName;
+//		return fieldName;
+		return KeyWord.transformNameIfKeyWork(fieldName);
 	}
 
 	@Override
