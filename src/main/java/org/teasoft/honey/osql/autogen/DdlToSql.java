@@ -12,6 +12,7 @@ import java.util.Map;
 
 import org.teasoft.bee.osql.DatabaseConst;
 import org.teasoft.bee.osql.exception.BeeErrorNameException;
+import org.teasoft.bee.osql.exception.NotSupportedException;
 import org.teasoft.honey.osql.core.HoneyConfig;
 import org.teasoft.honey.osql.core.HoneyContext;
 import org.teasoft.honey.osql.core.HoneyUtil;
@@ -22,7 +23,6 @@ import org.teasoft.honey.osql.util.AnnoUtil;
 import org.teasoft.honey.osql.util.NameCheckUtil;
 import org.teasoft.honey.sharding.ShardingUtil;
 import org.teasoft.honey.util.EntityUtil;
-import org.teasoft.honey.util.SqlKeyCheck;
 import org.teasoft.honey.util.StringUtils;
 
 /**
@@ -123,7 +123,12 @@ public class DdlToSql {
 	}
 
 	private static Map<String, String> getJava2DbType() { // 可能返回null
-		return Java2DbType.getJava2DbType(HoneyContext.getDbDialect());
+		Map<String, String> java2DbType = Java2DbType.getJava2DbType(HoneyContext.getDbDialect());
+		if (java2DbType == null) {
+			throw new NotSupportedException("Java2DbType do not support this Database: " + HoneyContext.getDbDialect()
+					+ ". \nYou can use Java2DbType's method setJava2DbType define it.");
+		}
+		return java2DbType;
 	}
 
 	private static String getType(Field field) {
@@ -173,8 +178,7 @@ public class DdlToSql {
 		Field fields[] = HoneyUtil.getFields(entityClass);
 		for (int i = 0; i < fields.length; i++) {
 			if (isSkipField(fields[i])) {
-				if (i == fields.length - 1)
-					sqlBuffer.delete(sqlBuffer.length() - 5, sqlBuffer.length() - 2);
+				if (i == fields.length - 1) sqlBuffer.delete(sqlBuffer.length() - 5, sqlBuffer.length() - 2);
 				continue;
 			}
 			sqlBuffer.append(_toColumnName(fields[i].getName(), entityClass)).append("  ");
@@ -280,8 +284,7 @@ public class DdlToSql {
 		boolean hasCurrentTime = false;
 		for (int i = 0; i < fields.length; i++) {
 			if (isSkipField(fields[i])) {
-				if (i == fields.length - 1)
-					sqlBuffer.delete(sqlBuffer.length() - 5, sqlBuffer.length() - 2);
+				if (i == fields.length - 1) sqlBuffer.delete(sqlBuffer.length() - 5, sqlBuffer.length() - 2);
 				continue;
 			}
 			sqlBuffer.append(_toColumnName(fields[i].getName(), entityClass)).append("  ");
@@ -333,9 +336,9 @@ public class DdlToSql {
 	@SuppressWarnings("rawtypes")
 	private static String _toColumnName(String fieldName, Class entityClass) {
 		String name = NameTranslateHandle.toColumnName(fieldName, entityClass);
-		if (SqlKeyCheck.isKeyWord(name)) {
-			Logger.warn("The '" + name + "' is Sql Keyword. Do not recommend!");
-		}
+//		if (SqlKeyCheck.isKeyWord(name)) {
+//			Logger.warn("The '" + name + "' is Sql Keyword. Do not recommend!");
+//		}
 		return name;
 	}
 
@@ -481,15 +484,14 @@ public class DdlToSql {
 				dropSql = "DROP INDEX table_name.index_name";
 			} else if (HoneyUtil.isOracle() || HoneyUtil.isSQLite()
 					|| DatabaseConst.DB2.equalsIgnoreCase(HoneyConfig.getHoneyConfig().getDbName())) {
-						dropSql = "DROP INDEX index_name";
-					} else
-				if (HoneyUtil.isMysql()
-						|| DatabaseConst.MsAccess.equalsIgnoreCase(HoneyConfig.getHoneyConfig().getDbName())) {
+				dropSql = "DROP INDEX index_name";
+			} else if (HoneyUtil.isMysql()
+					|| DatabaseConst.MsAccess.equalsIgnoreCase(HoneyConfig.getHoneyConfig().getDbName())) {
 //				用于 MS Access 等的 DROP INDEX 语法：
-							dropSql = "DROP INDEX index_name ON table_name";
-						} else {
-							dropSql = "DROP INDEX index_name";
-						}
+				dropSql = "DROP INDEX index_name ON table_name";
+			} else {
+				dropSql = "DROP INDEX index_name";
+			}
 
 			return dropSql.replace("table_name", tableName).replace("index_name", indexName);
 

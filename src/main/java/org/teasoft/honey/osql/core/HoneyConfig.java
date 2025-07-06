@@ -18,6 +18,7 @@ import org.teasoft.honey.logging.LoggerFactory;
 import org.teasoft.honey.osql.constant.DbConfigConst;
 import org.teasoft.honey.osql.dialect.LimitOffsetPaging;
 import org.teasoft.honey.osql.dialect.sqlserver.SqlServerFeature2012;
+import org.teasoft.honey.osql.name.KeyWord;
 import org.teasoft.honey.sharding.algorithm.DateCalculate;
 import org.teasoft.honey.util.HoneyVersion;
 import org.teasoft.honey.util.StringUtils;
@@ -563,11 +564,16 @@ public final class HoneyConfig {
 		return dbName;
 	}
 
+	/**
+	 * set dbName like in DatabaseConst.
+	 * @param dbName dbName like in DatabaseConst.
+	 */
 	public void setDbName(String dbName) {
 		this.dbName = dbName;
 		Logger.info("[Bee] ========= reset the dbName in HoneyConfig is :" + dbName);
 //		BeeFactory.getHoneyFactory().setDbFeature(BeeFactory.getHoneyFactory()._getDbDialectFeature());  //循环调用
 		BeeFactory.getHoneyFactory().setDbFeature(null);
+		KeyWord.appendKW2BloomFilterForDialect(dbName);// 2.5.2
 	}
 
 	public int getDatabaseMajorVersion() {
