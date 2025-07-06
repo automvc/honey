@@ -90,9 +90,10 @@ public class BloomFilter {
 			hashes[2] = bytesToInt(md5Hash, 4);
 
 		} catch (NoSuchAlgorithmException e) {
-			hashes[1] = hashes[0];
-			hashes[2] = hashes[0];
+//			hashes[1] = hashes[0];
+//			hashes[2] = hashes[0];
 			Logger.error("Have Exception when generate MD5. " + e.getMessage());
+			return new int[] { hashes[0] };
 		}
 		return hashes;
 	}
