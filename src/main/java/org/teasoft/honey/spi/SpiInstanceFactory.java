@@ -53,11 +53,11 @@ public class SpiInstanceFactory {
 			}
 
 			if (jsonTransform == null) {
-				Logger.error("Can not find any json jar !");
+				Logger.warn("Can not find any json jar !");
 			}
 
 		} catch (Exception e) {
-			Logger.error(e.getMessage(), e);
+			Logger.warn(e.getMessage(), e);
 		}
 
 		return jsonTransform;

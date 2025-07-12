@@ -28,10 +28,10 @@ public class ResultMergeEngine {
 				List<T> t = completionService.take().get();
 				if (ObjectUtils.isNotEmpty(t)) rsList.addAll(t);
 			} catch (InterruptedException e) {
-				Logger.error(e.getMessage(), e);
+				Logger.warn(e.getMessage(), e);
 				Thread.currentThread().interrupt();
 			} catch (Exception e) {
-				Logger.error(e.getMessage(), e);
+				Logger.warn(e.getMessage(), e);
 			}
 		}
 
@@ -45,10 +45,10 @@ public class ResultMergeEngine {
 				String tempStr = completionService.take().get();
 				if (ObjectUtils.isNotEmpty(tempStr) && !"[]".equals(tempStr)) rsList.add(tempStr);
 			} catch (InterruptedException e) {
-				Logger.error(e.getMessage(), e);
+				Logger.warn(e.getMessage(), e);
 				Thread.currentThread().interrupt();
 			} catch (Exception e) {
-				Logger.error(e.getMessage(), e);
+				Logger.warn(e.getMessage(), e);
 			}
 		}
 		return rsList;
@@ -61,10 +61,10 @@ public class ResultMergeEngine {
 				String tempStr = completionService.take().get();
 				if (ObjectUtils.isNotEmpty(tempStr)) rsList.add(tempStr);
 			} catch (InterruptedException e) {
-				Logger.error(e.getMessage(), e);
+				Logger.warn(e.getMessage(), e);
 				Thread.currentThread().interrupt();
 			} catch (Exception e) {
-				Logger.error(e.getMessage(), e);
+				Logger.warn(e.getMessage(), e);
 			}
 		}
 		return rsList;
@@ -77,10 +77,10 @@ public class ResultMergeEngine {
 				Integer part = completionService.take().get();
 				if (part != null) r += part;
 			} catch (InterruptedException e) {
-				Logger.error(e.getMessage(), e);
+				Logger.warn(e.getMessage(), e);
 				Thread.currentThread().interrupt();
 			} catch (Exception e) { // java.lang.NullPointerException, 在分片批量插入时,多线程下,有可能pkName设置不成功(在HoneyUtil)引起.
-				Logger.error(e.getMessage(), e);
+				Logger.warn(e.getMessage(), e);
 			}
 		}
 		return r;

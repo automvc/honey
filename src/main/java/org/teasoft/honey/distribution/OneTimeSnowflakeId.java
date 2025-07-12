@@ -83,7 +83,7 @@ public class OneTimeSnowflakeId implements GenId {
 	public synchronized long[] getRangeId(int sizeOfIds) {
 
 		if (sizeOfIds > maxSequence) {
-			Logger.error("parameter sizeOfIds(" + sizeOfIds + ") greate maxSequence(" + maxSequence + ") will cause range Id do not continue!");
+			Logger.warn("parameter sizeOfIds(" + sizeOfIds + ") greate maxSequence(" + maxSequence + ") will cause range Id do not continue!");
 			return null;
 		}
 
@@ -142,10 +142,10 @@ public class OneTimeSnowflakeId implements GenId {
 			wait(10);
 			testSpeedLimit();
 		} catch (InterruptedException e) {
-			Logger.error(e.getMessage(), e);
+			Logger.warn(e.getMessage(), e);
 			Thread.currentThread().interrupt();
 		} catch (Exception e) {
-			Logger.error(e.getMessage());
+			Logger.warn(e.getMessage());
 		}
 	}
 

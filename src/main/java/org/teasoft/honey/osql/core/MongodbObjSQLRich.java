@@ -168,7 +168,7 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 					else 
 						a = new ShardingBatchInsertEngine<T>().batchInsert(entity, batchSize, excludeFields, tabNameListForBatch, this);
 				} catch (Exception e) {
-					Logger.error(e.getMessage(), e);
+					Logger.warn(e.getMessage(), e);
 				} finally {
 					HoneyContext.removeSysCommStrInheritableLocal(StringConst.ShardingBatchInsertDoing);
 				}

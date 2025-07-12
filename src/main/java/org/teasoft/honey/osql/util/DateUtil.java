@@ -72,7 +72,7 @@ public class DateUtil {
 			Date date = getSimpleDateFormat().parse(dateString);
 			return new Timestamp(date.getTime());
 		} catch (Exception e) {
-			Logger.error(e.getMessage(), e);
+			Logger.warn(e.getMessage(), e);
 		}
 
 		return null;
@@ -82,7 +82,7 @@ public class DateUtil {
 		try {
 			return new Timestamp(date.getTime());
 		} catch (Exception e) {
-			Logger.error(e.getMessage(), e);
+			Logger.warn(e.getMessage(), e);
 		}
 
 		return null;
@@ -113,7 +113,7 @@ public class DateUtil {
 		try {
 			return getSimpleDateFormat().format(date);
 		} catch (Exception e) {
-			Logger.error(e.getMessage(), e);
+			Logger.warn(e.getMessage(), e);
 		}
 		return null;
 	}

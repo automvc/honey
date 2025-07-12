@@ -46,7 +46,7 @@ public class AutoSetStringHandler {
 			HoneyUtil.setFieldValue(field, entity, obj.process());
 
 		} catch (Exception e) {
-			Logger.error(e.getMessage(), e);
+			Logger.warn(e.getMessage(), e);
 		}
 	}
 

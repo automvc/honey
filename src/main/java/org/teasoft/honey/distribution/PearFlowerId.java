@@ -97,7 +97,7 @@ public class PearFlowerId implements GenId {
 	@Override
 	public synchronized long[] getRangeId(int sizeOfIds) {
 		if (sizeOfIds > maxSequence) {
-			Logger.error("parameter sizeOfIds(" + sizeOfIds + ") greate maxSequence(" + maxSequence + ") will cause range Id do not continue!");
+			Logger.warn("parameter sizeOfIds(" + sizeOfIds + ") greate maxSequence(" + maxSequence + ") will cause range Id do not continue!");
 			return null;
 		}
 		long r[] = new long[2];

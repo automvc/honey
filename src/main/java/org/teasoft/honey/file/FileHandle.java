@@ -56,7 +56,7 @@ public class FileHandle implements FileCreator {
 			bw.flush();
 			logGenFile(fullPathAndName);
 		} catch (Exception e) {
-			Logger.error(e.getMessage());
+			Logger.warn(e.getMessage());
 		}
 
 	}
@@ -88,7 +88,7 @@ public class FileHandle implements FileCreator {
 			bw.flush();
 			logGenFile(fullPath + fileName);
 		} catch (Exception e) {
-			Logger.error(e.getMessage());
+			Logger.warn(e.getMessage());
 		}
 	}
 
@@ -119,7 +119,7 @@ public class FileHandle implements FileCreator {
 			bw.flush();
 //			Logger.info("genAppendFile, file name: " + fullPathAndName); //no need, so many log
 		} catch (Exception e) {
-			Logger.error(e.getMessage());
+			Logger.warn(e.getMessage());
 		}
 
 	}
@@ -136,7 +136,7 @@ public class FileHandle implements FileCreator {
 		try {
 			reader = new BufferedReader(new FileReader(file));
 		} catch (IOException e) {
-			Logger.error(e.getMessage());
+			Logger.warn(e.getMessage());
 		}
 		return reader;
 	}

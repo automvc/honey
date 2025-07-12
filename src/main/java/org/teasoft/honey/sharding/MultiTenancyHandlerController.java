@@ -88,7 +88,7 @@ public class MultiTenancyHandlerController {
 			}
 
 		} catch (Exception e) {
-			Logger.error(e.getMessage(), e);
+			Logger.warn(e.getMessage(), e);
 		}
 
 		return dsTabStruct;

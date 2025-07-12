@@ -89,10 +89,10 @@ public class ShardingSelectRsEngine {
 				}
 				queue.offer(new CompareResult(rs, struct));
 			} catch (InterruptedException e) {
-				Logger.error(e.getMessage(), e);
+				Logger.warn(e.getMessage(), e);
 				Thread.currentThread().interrupt();
 			} catch (Exception e) {
-				Logger.error(e.getMessage(), e);
+				Logger.warn(e.getMessage(), e);
 			}
 		}
 		executor.shutdown();

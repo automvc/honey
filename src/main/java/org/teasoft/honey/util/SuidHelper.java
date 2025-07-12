@@ -125,7 +125,7 @@ public final class SuidHelper {
 					try {
 						HoneyUtil.setFieldValue(field, targetObj, ObjectCreatorFactory.create(col[j], field.getType())); // 对相应Field设置
 					} catch (IllegalArgumentException e) {
-						Logger.error(e.getMessage());
+						Logger.warn(e.getMessage());
 					}
 				}
 				rsList.add(targetObj);
@@ -205,7 +205,7 @@ public final class SuidHelper {
 				if (HoneyUtil.isSkipField(fields[i])) continue;
 				map.put(fields[i].getName(), v);
 			} catch (Exception e) {
-				Logger.error(e.getMessage(), e);
+				Logger.warn(e.getMessage(), e);
 			}
 		}
 		return map;

@@ -67,7 +67,7 @@ public class MongodbShardingDdlEngine {
 				if (i == 0) f = t;
 				else f = f && t;
 			} catch (Exception e) {
-				Logger.error(e.getMessage(), e);
+				Logger.warn(e.getMessage(), e);
 				Thread.currentThread().interrupt();
 			}
 		}

@@ -89,10 +89,10 @@ public class IntSerialId {
 			wait(10);
 			testSpeedLimit(currentLong);
 		} catch (InterruptedException e) {
-			Logger.error(e.getMessage(), e);
+			Logger.warn(e.getMessage(), e);
 			Thread.currentThread().interrupt();
 		} catch (Exception e) {
-			Logger.error(e.getMessage());
+			Logger.warn(e.getMessage());
 		}
 	}
 

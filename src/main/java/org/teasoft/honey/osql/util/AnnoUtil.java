@@ -137,7 +137,7 @@ public class AnnoUtil {
 			try {
 				annoAdapter = annoIterator.next();
 			} catch (ServiceConfigurationError e) {
-				Logger.error(e.getMessage(), e);
+				Logger.warn(e.getMessage(), e);
 				initAnnoAdapterInstance2();
 			}
 		} else {

@@ -480,7 +480,7 @@ public class ShardingInterceptor extends EmptyInterceptor {
 				if (StringUtils.isNotBlank(dsName))
 					dsNameList.add(dsName);
 				else
-					Logger.error("Table name :" + tabNameList.get(i) + " , can not find its dataSoure name!");
+					Logger.warn("Table name :" + tabNameList.get(i) + " , can not find its dataSoure name!");
 			}
 
 //			HoneyContext.setListLocal(StringConst.TabNameListLocal, tabNameList);

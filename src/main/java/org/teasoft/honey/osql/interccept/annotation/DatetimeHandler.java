@@ -84,7 +84,7 @@ public class DatetimeHandler {
 					HoneyUtil.setFieldValue(field, entity, DateUtil.currentDate());
 			}
 		} catch (Exception e) {
-			Logger.error(e.getMessage(), e);
+			Logger.warn(e.getMessage(), e);
 		}
 
 	}

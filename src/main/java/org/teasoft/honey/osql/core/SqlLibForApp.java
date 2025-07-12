@@ -517,7 +517,7 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 							}
 
 						} catch (IllegalArgumentException e) {
-							Logger.error(e.getMessage(), e);
+							Logger.warn(e.getMessage(), e);
 						}
 					}
 				}
@@ -606,7 +606,7 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 							HoneyUtil.setFieldValue(fields1[i], subObj1, v1);
 						}
 					} catch (IllegalArgumentException e) {
-						Logger.error(e.getMessage(), e);
+						Logger.warn(e.getMessage(), e);
 					}
 
 					if (oneHasOne) checkKey2ForOneHasOne.append(v1);
@@ -682,7 +682,7 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 						HoneyUtil.setFieldValue(field[i], targetObj, v);
 						checkKey.append(v);
 					} catch (IllegalArgumentException e) {
-						Logger.error(e.getMessage(), e);
+						Logger.warn(e.getMessage(), e);
 					} catch (Exception e) { // for after use condition selectField method
 						HoneyUtil.setFieldValue(field[i], targetObj, null);
 					}
