@@ -204,8 +204,12 @@ public class KeyWord {
 		if (name == null) return false;
 
 		// first check with Bloom Filter
-		boolean bf = bloomFilter.contains(name);
-		if (!bf) return bf;
+		try {
+			boolean bf = bloomFilter.contains(name);
+			if (!bf) return bf;
+		} catch (Exception e) {
+			
+		}
 
 		if (isSqlKeyWord(name)) return true;
 
