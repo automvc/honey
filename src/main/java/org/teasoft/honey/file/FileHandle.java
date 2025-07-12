@@ -55,7 +55,7 @@ public class FileHandle implements FileCreator{
 			bw.flush();
 //			bw.close();
 		} catch (Exception e) {
-			Logger.error(e.getMessage());
+			Logger.warn(e.getMessage());
 		}
 		
 	}
@@ -79,7 +79,7 @@ public class FileHandle implements FileCreator{
 			bw.flush();
 //			bw.close();
 		} catch (Exception e) {
-			Logger.error(e.getMessage());
+			Logger.warn(e.getMessage());
 		}
 	}
 	
@@ -111,7 +111,7 @@ public class FileHandle implements FileCreator{
 			bw.flush();
 //			bw.close();
 		} catch (Exception e) {
-			Logger.error(e.getMessage());
+			Logger.warn(e.getMessage());
 		}
 		
 	}
@@ -128,7 +128,7 @@ public class FileHandle implements FileCreator{
 		try {
 			reader = new BufferedReader(new FileReader(file));
 		} catch (IOException e) {
-			Logger.error(e.getMessage());
+			Logger.warn(e.getMessage());
 		}
 		return reader;
 	}

@@ -44,13 +44,13 @@ public class GenFiles {
 			}
 			br.close();
 		} catch (IOException e) {
-			Logger.error(e.getMessage());
+			Logger.warn(e.getMessage());
 		} finally {
 			if (br != null) {
 				try {
 					br.close();
 				} catch (IOException ioe) {
-					Logger.error(ioe.getMessage());
+					Logger.warn(ioe.getMessage());
 				}
 			}
 		}

@@ -65,7 +65,7 @@ public final class HoneyConfig {
 		if (type == 1 || type == 2) {
 			if (StringUtils.isBlank(active)) {
 				String msg="The value of bee.profiles.active is empty!";
-				Logger.error(msg,new ConfigWrongException(msg));
+				Logger.warn(msg,new ConfigWrongException(msg));
 			} else {
 				String fileName = "bee-{active}.properties".replace("{active}", active);
 				beeActiveProp = new BeeActiveProp(fileName);
@@ -488,7 +488,7 @@ public final class HoneyConfig {
 				try {
 					if (conn != null) conn.close();
 				} catch (Exception e2) {
-					Logger.error(e2.getMessage(),e2);
+					Logger.warn(e2.getMessage(),e2);
 				}
 				
 				if(alreadyPrintDbName && changeDataSource) { //alreadyPrintDbName只打印过

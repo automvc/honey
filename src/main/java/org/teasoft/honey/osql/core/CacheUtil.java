@@ -46,6 +46,7 @@ public final class CacheUtil {
 	
 	private static Map<String,String> neverCacheTableMap=new HashMap<>();
 	private static Map<String,Integer> foreverCacheTableMap=new HashMap<>();  //table is forever or not
+	//TODO 同一个表，不同的sql查询，是否能区分；  永久，长久但可更新.   ????
 	private static Map<String,Integer> foreverCacheTableMap_sqlkey2exist=new HashMap<>(); //sql of forever table is exist or not
 	private static Map<String,Integer> foreverCacheModifySynTableMap=new HashMap<>();
 	private static final String NEVER="1";

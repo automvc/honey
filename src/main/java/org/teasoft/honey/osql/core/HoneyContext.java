@@ -191,7 +191,7 @@ public final class HoneyContext {
 			for (int i = 0; i < entity2table_array.length; i++) {
 				item = entity2table_array[i].trim().split(":"); //User2:temp_user,com.abc.user.User:temp_user
 				if (item.length != 2) {
-					Logger.error("[" + entity2table_array[i].trim()
+					Logger.warn("[" + entity2table_array[i].trim()
 							+ "] wrong formatter,separate option is not colon(:). (in bee.properties file, key: bee.osql.name.mapping.entity2table)");
 				} else {
 					entity2table.put(item[0].trim(), item[1].trim());
@@ -213,7 +213,7 @@ public final class HoneyContext {
 			for (int i = 0; i < entity2table_array.length; i++) {
 				item = entity2table_array[i].trim().split(":"); //User2:temp_user,com.abc.user.User:temp_user
 				if (item.length != 2) {
-					Logger.error("[" + entity2table_array[i].trim()
+					Logger.warn("[" + entity2table_array[i].trim()
 							+ "] wrong formatter,separate option is not colon(:). (in bee.properties file, key: bee.osql.name.mapping.entity2table)");
 				} else {
 					//					entity2table.put(item[0].trim(), item[1].trim());

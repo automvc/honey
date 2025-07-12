@@ -615,7 +615,7 @@ public class SqlLibForApp extends SqlLib {
 							}
 							
 						} catch (IllegalArgumentException e) {
-							Logger.error(e.getMessage(),e);
+							Logger.warn(e.getMessage(),e);
 						
 //							//get v2
 //							if(isConfuseDuplicateFieldDB()){
@@ -854,7 +854,7 @@ public class SqlLibForApp extends SqlLib {
 						field[i].set(targetObj, v);
 						checkKey.append(v);
 					} catch (IllegalArgumentException e) {
-						Logger.error(e.getMessage(),e);
+						Logger.warn(e.getMessage(),e);
 					
 //						v = _getObjectForMoreTable(rs, tableName, field[i], entity.getClass());
 

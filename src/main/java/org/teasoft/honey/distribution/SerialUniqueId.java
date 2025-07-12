@@ -125,7 +125,7 @@ public class SerialUniqueId implements GenId{
 			wait(10);
 			testSpeedLimit(currentLong);
 		} catch (Exception e) {
-		  Logger.error(e.getMessage());
+		  Logger.warn(e.getMessage());
 		}
 	}
 

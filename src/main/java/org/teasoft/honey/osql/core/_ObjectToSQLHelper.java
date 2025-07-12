@@ -1091,7 +1091,7 @@ final class _ObjectToSQLHelper {
 			//is no id field , ignore.
 			return ;
 		} catch (Exception e) {
-			Logger.error(e.getMessage());
+			Logger.warn(e.getMessage());
 			return ;
 		}
 

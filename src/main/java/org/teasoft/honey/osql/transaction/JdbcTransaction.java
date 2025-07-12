@@ -121,7 +121,7 @@ public class JdbcTransaction implements Transaction {
 	@Override
 	public void setTimeout(int second) {
 		//todo
-		Logger.error("Donot support setTimeout(int second) in JdbcTransaction");
+		Logger.warn("Donot support setTimeout(int second) in JdbcTransaction");
 	}
 
 	private void setOldAutoCommit(boolean oldAutoCommit) {

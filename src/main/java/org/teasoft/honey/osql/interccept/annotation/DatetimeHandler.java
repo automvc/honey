@@ -84,7 +84,7 @@ public class DatetimeHandler {
 					field.set(entity, DateUtil.currentDate());
 			}
 		} catch (Exception e) {
-			Logger.error(e.getMessage(), e);
+			Logger.warn(e.getMessage(), e);
 		}
 
 	}

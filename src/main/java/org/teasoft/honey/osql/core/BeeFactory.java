@@ -93,12 +93,12 @@ public class BeeFactory extends BeeAbstractFactory {
 				dbName = conn.getMetaData().getDatabaseProductName();
 			}
 		} catch (Exception e) {
-			Logger.error(e.getMessage(),e);
+			Logger.warn(e.getMessage(),e);
 		} finally {
 			try {
 				if (conn != null) conn.close();
 			} catch (Exception e2) {
-				Logger.error(e2.getMessage(),e2);
+				Logger.warn(e2.getMessage(),e2);
 			}
 		}
 		

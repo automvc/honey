@@ -684,7 +684,7 @@ public class GenBean {
 			}
 
 		} catch (Exception e) {
-			Logger.error(e.getMessage());
+			Logger.warn(e.getMessage());
 			has = false;
 		}
 

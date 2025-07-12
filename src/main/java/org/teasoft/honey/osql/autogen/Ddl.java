@@ -131,7 +131,7 @@ public class Ddl {
 			ddlModify(toCreateTableSQL(entity, tableName));
 			result = true;
 		} catch (Exception e) {
-			Logger.error(e.getMessage(), e);
+			Logger.warn(e.getMessage(), e);
 			result = false;
 		}
 

@@ -1577,7 +1577,7 @@ public final class HoneyUtil {
 					throw ExceptionHelper.convert(e);
 				} catch (Exception e) {
 //					e.printStackTrace();
-					Logger.error(e.getMessage(),e);
+					Logger.warn(e.getMessage(),e);
 				}
 			}
 		}
@@ -1718,7 +1718,7 @@ public final class HoneyUtil {
 			//is no id field , ignore.
 			return;
 		} catch (Exception e) {
-			Logger.error(e.getMessage(),e);
+			Logger.warn(e.getMessage(),e);
 			return;
 		}
 	}

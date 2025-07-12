@@ -25,7 +25,7 @@ public class MD5 {
 		try {
 			secretBytes = MessageDigest.getInstance("md5").digest(text.getBytes("utf8"));
 		} catch (Exception e) {
-			Logger.error("Have Exception when generate MD5. "+e.getMessage());
+			Logger.warn("Have Exception when generate MD5. "+e.getMessage());
 			return null;
 		}
 		re = new BigInteger(1, secretBytes).toString(16);

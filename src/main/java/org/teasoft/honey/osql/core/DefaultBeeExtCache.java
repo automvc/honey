@@ -72,7 +72,7 @@ public class DefaultBeeExtCache implements BeeExtCache {
 					try {
 						obj = getInExtCache(key); //通过sql生成key,要执行两次,效率???
 					} catch (Exception e) {
-						Logger.error(e.getMessage(), e);
+						Logger.warn(e.getMessage(), e);
 					}
 
 					if (isShowSql && obj != null) Logger.logSQL(logCache2Msg, "");
@@ -116,7 +116,7 @@ public class DefaultBeeExtCache implements BeeExtCache {
 					try {
 						addInExtCache(key, result);
 					} catch (Exception e) {
-						Logger.error(e.getMessage(), e);
+						Logger.warn(e.getMessage(), e);
 					}
 
 					List<String> tableNameList = CacheKey.genTableNameList(sql);
@@ -148,7 +148,7 @@ public class DefaultBeeExtCache implements BeeExtCache {
 				try {
 					clearInExtCache(sqlKey);
 				} catch (Exception e) {
-					Logger.error(e.getMessage(), e);
+					Logger.warn(e.getMessage(), e);
 				}
 			}
 			//最后将set=null;

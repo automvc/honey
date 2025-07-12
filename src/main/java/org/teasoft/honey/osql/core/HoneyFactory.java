@@ -99,7 +99,7 @@ public class HoneyFactory {
 						cache2 = ca;
 					Logger.warn("[Bee] ==========load Cache's Service by ServiceLoader:" + className);
 				} catch (ServiceConfigurationError e) {
-					Logger.error(e.getMessage(), e);
+					Logger.warn(e.getMessage(), e);
 				}
 			}
 		

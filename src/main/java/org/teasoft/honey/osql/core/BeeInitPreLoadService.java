@@ -35,7 +35,7 @@ public class BeeInitPreLoadService {
 				try {
 					loadIterator.next();
 				} catch (ServiceConfigurationError e) {
-					Logger.error(e.getMessage(), e);
+					Logger.warn(e.getMessage(), e);
 				}
 			}
 		}
