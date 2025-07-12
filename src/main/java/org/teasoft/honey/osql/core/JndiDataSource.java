@@ -43,7 +43,7 @@ public class JndiDataSource {
 			dataSource = (DataSource) ctx.lookup(getJndiName());
 			Logger.info("[Bee] ==========get the DataSource with Jndi Type!");
 		} catch (Exception e) {
-			Logger.warn(e.getMessage(), e);
+			Logger.error(e.getMessage(), e);
 		}
 	}
 
