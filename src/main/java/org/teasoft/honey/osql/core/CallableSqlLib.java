@@ -210,7 +210,7 @@ public class CallableSqlLib extends AbstractCommOperate implements CallableSql {
 	}
 
 	private void logSelectRows(int size) {
-		Logger.logSQL(" | <--  select rows: ", size + "");
+		Logger.logSQL(" | <--  select rows: "+ size);
 	}
 
 	private String getCallSql(String callSql) {

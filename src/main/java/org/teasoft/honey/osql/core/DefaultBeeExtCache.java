@@ -72,7 +72,7 @@ public class DefaultBeeExtCache implements BeeExtCache {
 						Logger.warn(e.getMessage(), e);
 					}
 
-					if (isShowSql && obj != null) Logger.logSQL(logCache2Msg, "");
+					if (isShowSql && obj != null) Logger.logSQL(logCache2Msg);
 				}
 			}
 		}

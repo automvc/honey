@@ -262,7 +262,7 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 		} finally {
 			clearInCache(sql, "int", SuidType.MODIFY, num); // has clearContext(sql)
 		}
-		Logger.logSQL(" | <--  Affected rows: ", num + "");
+		Logger.logSQL(" | <--  Affected rows: "+ num);
 
 		return num;
 	}
@@ -283,7 +283,7 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 		} finally {
 			clearInCache(sql, "int", SuidType.INSERT, num);
 		}
-		Logger.logSQL(" | <--  Affected rows: ", num + "");
+		Logger.logSQL(" | <--  Affected rows: "+ num);
 
 		return returnId;
 	}
@@ -341,7 +341,7 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 		List<Object[]> listBindArgs = new ArrayList<>(end - start);
 		for (int i = start; i < end; i++) { // start... (end-1)
 			if (showSQL) {
-				if (i == 0) Logger.logSQL(INSERT_ARRAY_SQL, sql);
+				if (i == 0) HoneyUtil.logSQL(INSERT_ARRAY_SQL, sql);
 
 				OneTimeParameter.setAttribute("_SYS_Bee_BatchInsert", i + "");
 				String sql_i = INDEX1 + i + INDEX2 + sql;
@@ -749,7 +749,7 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 		}
 
 //		子表是List类型时，要连原始数据行数也打印日志
-		if (subOneIsList1 || subTwoIsList2) Logger.logSQL(" | <--  ( select raw record rows: ", recordRow + " )");
+		if (subOneIsList1 || subTwoIsList2) Logger.logSQL(" | <--  ( select raw record rows: "+ recordRow + " )");
 		logSelectRows(rsList.size());
 
 		return rsList;
