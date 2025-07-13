@@ -44,7 +44,7 @@ public class MapSuidImpl extends AbstractCommOperate implements MapSuid {
 
 			String sql = MapSqlProcessor.toSelectSqlByMap(mapSql);
 			sql = doAfterCompleteSql(sql);
-			Logger.logSQL("In MapSuid, select List<String[]> SQL: ", sql);
+			logSQL("In MapSuid, select List<String[]> SQL: ", sql);
 			list = getBeeSql().select(sql);
 		} finally {
 			doBeforeReturn();
@@ -59,7 +59,7 @@ public class MapSuidImpl extends AbstractCommOperate implements MapSuid {
 			doBeforePasreEntity(SuidType.SELECT);
 			String sql = MapSqlProcessor.toSelectSqlByMap(mapSql);
 			sql = doAfterCompleteSql(sql);
-			Logger.logSQL("In MapSuid, selectJson SQL: ", sql);
+			logSQL("In MapSuid, selectJson SQL: ", sql);
 			json = getBeeSql().selectJson(sql);
 		} finally {
 			doBeforeReturn();
@@ -74,7 +74,7 @@ public class MapSuidImpl extends AbstractCommOperate implements MapSuid {
 			doBeforePasreEntity(SuidType.SELECT);
 			String sql = MapSqlProcessor.toSelectSqlByMap(mapSql);
 			sql = doAfterCompleteSql(sql);
-			Logger.logSQL("In MapSuid, select List<Map> SQL: ", sql);
+			logSQL("In MapSuid, select List<Map> SQL: ", sql);
 			list = getBeeSql().selectMapList(sql);
 		} finally {
 			doBeforeReturn();
@@ -89,7 +89,7 @@ public class MapSuidImpl extends AbstractCommOperate implements MapSuid {
 			doBeforePasreEntity(SuidType.SELECT);
 			String sql = MapSqlProcessor.toCountSqlByMap(mapSql);
 			sql = doAfterCompleteSql(sql);
-			Logger.logSQL("In MapSuid, count SQL: ", sql);
+			logSQL("In MapSuid, count SQL: ", sql);
 			total = getBeeSql().selectFun(sql);
 		} finally {
 			doBeforeReturn();
@@ -104,7 +104,7 @@ public class MapSuidImpl extends AbstractCommOperate implements MapSuid {
 			doBeforePasreEntity(SuidType.SELECT);
 			String sql = MapSqlProcessor.toSelectSqlByMap(mapSql);
 			sql = doAfterCompleteSql(sql);
-			Logger.logSQL("In MapSuid, selectOne Map SQL: ", sql);
+			logSQL("In MapSuid, selectOne Map SQL: ", sql);
 			list = getBeeSql().selectMapList(sql);
 		} finally {
 			doBeforeReturn();
@@ -125,7 +125,7 @@ public class MapSuidImpl extends AbstractCommOperate implements MapSuid {
 
 			String sql = MapSqlProcessor.toInsertSqlByMap(mapSql);
 			sql = doAfterCompleteSql(sql);
-			Logger.logSQL("In MapSuid, insert SQL: ", sql);
+			logSQL("In MapSuid, insert SQL: ", sql);
 
 			insertNum = getBeeSql().modify(sql);
 		} finally {
@@ -145,7 +145,7 @@ public class MapSuidImpl extends AbstractCommOperate implements MapSuid {
 			doBeforePasreEntity(SuidType.INSERT);
 			String sql = MapSqlProcessor.toInsertSqlByMap(mapSql, true); // will get pkName and set into OneTimeParameter
 			sql = doAfterCompleteSql(sql);
-			Logger.logSQL("In MapSuid, insertAndReturnId SQL: ", sql);
+			logSQL("In MapSuid, insertAndReturnId SQL: ", sql);
 
 			Object obj = OneTimeParameter.getAttribute(StringConst.MapSuid_Insert_Has_ID);
 
@@ -183,7 +183,7 @@ public class MapSuidImpl extends AbstractCommOperate implements MapSuid {
 			doBeforePasreEntity(SuidType.DELETE);
 			String sql = MapSqlProcessor.toDeleteSqlByMap(mapSql);
 			sql = doAfterCompleteSql(sql);
-			Logger.logSQL("In MapSuid, delete SQL: ", sql);
+			logSQL("In MapSuid, delete SQL: ", sql);
 			a = getBeeSql().modify(sql);
 		} finally {
 			doBeforeReturn();
@@ -198,7 +198,7 @@ public class MapSuidImpl extends AbstractCommOperate implements MapSuid {
 			doBeforePasreEntity(SuidType.UPDATE);
 			String sql = MapSqlProcessor.toUpdateSqlByMap(mapSql);
 			sql = doAfterCompleteSql(sql);
-			Logger.logSQL("In MapSuid, update SQL: ", sql);
+			logSQL("In MapSuid, update SQL: ", sql);
 			a = getBeeSql().modify(sql);
 		} finally {
 			doBeforeReturn();
@@ -209,6 +209,10 @@ public class MapSuidImpl extends AbstractCommOperate implements MapSuid {
 	private void doBeforePasreEntity(SuidType suidType) {
 		Object entity = null;
 		super.doBeforePasreEntity(entity, suidType);
+	}
+	
+	private static void logSQL(String hardStr, String sql) {
+		HoneyUtil.logSQL(hardStr, sql);
 	}
 
 }

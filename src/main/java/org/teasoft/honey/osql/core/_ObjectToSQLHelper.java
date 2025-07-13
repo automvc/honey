@@ -445,7 +445,7 @@ final class _ObjectToSQLHelper {
 			list.addAll(whereList);
 
 			if (firstSet) {
-				Logger.logSQL("update SQL: ", sqlBuffer.toString());
+				logSQL("update SQL: ", sqlBuffer.toString());
 				throw new BeeErrorGrammarException("BeeErrorGrammarException: the SQL update set part is empty!");
 			}
 
@@ -470,7 +470,7 @@ final class _ObjectToSQLHelper {
 		if (firstWhere) {
 			boolean notUpdateWholeRecords = HoneyConfig.getHoneyConfig().notUpdateWholeRecords;
 			if (notUpdateWholeRecords) {
-				Logger.logSQL("update SQL: ", sql);
+				logSQL("update SQL: ", sql);
 				throw new BeeIllegalBusinessException(
 						"BeeIllegalBusinessException: It is not allowed update whole records in one table.");
 				// return "";
@@ -619,7 +619,7 @@ final class _ObjectToSQLHelper {
 			list.addAll(whereList);
 
 			if (firstSet) {
-				Logger.logSQL("update SQL(updateBy): ", sqlBuffer.toString());
+				logSQL("update SQL(updateBy): ", sqlBuffer.toString());
 				throw new BeeErrorGrammarException("BeeErrorGrammarException: the SQL update set part is empty!");
 			}
 
@@ -643,7 +643,7 @@ final class _ObjectToSQLHelper {
 		if (firstWhere) {
 			boolean notUpdateWholeRecords = HoneyConfig.getHoneyConfig().notUpdateWholeRecords;
 			if (notUpdateWholeRecords) {
-				Logger.logSQL("update SQL(updateBy): ", sql);
+				logSQL("update SQL(updateBy): ", sql);
 				throw new BeeIllegalBusinessException(
 						"BeeIllegalBusinessException: It is not allowed update whole records in one table.");
 				// return "";
@@ -832,7 +832,7 @@ final class _ObjectToSQLHelper {
 			if (firstWhere) {
 				boolean notDeleteWholeRecords = HoneyConfig.getHoneyConfig().notDeleteWholeRecords;
 				if (notDeleteWholeRecords) {
-					Logger.logSQL("delete SQL: ", sql);
+					logSQL("delete SQL: ", sql);
 					throw new BeeIllegalBusinessException(
 							"BeeIllegalBusinessException: It is not allowed delete whole records in one table.");
 				}
@@ -1016,5 +1016,9 @@ final class _ObjectToSQLHelper {
 	private static boolean isPrimaryKey(Field field) {
 		if ("id".equalsIgnoreCase(field.getName())) return true;
 		return AnnoUtil.isPrimaryKey(field);
+	}
+	
+	private static void logSQL(String hardStr, String sql) {
+		HoneyUtil.logSQL(hardStr, sql);
 	}
 }

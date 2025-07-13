@@ -75,9 +75,9 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		}
 
 		if (start == -1)
-			Logger.logSQL("select SQL(entity, size): ", sql);
+			logSQL("select SQL(entity, size): ", sql);
 		else
-			Logger.logSQL("select SQL(entity, start, size): ", sql);
+			logSQL("select SQL(entity, start, size): ", sql);
 		return sql;
 	}
 
@@ -107,7 +107,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			setContext(sql, wrap.getList(), wrap.getTableNames());
 		}
 
-		Logger.logSQL("select SQL(entity, start, size, selectFields): ", sql);
+		logSQL("select SQL(entity, start, size, selectFields): ", sql);
 		return sql;
 	}
 
@@ -138,7 +138,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 //		sql=sql.replace("#fieldNames#", fieldList);
 //		sql=sql.replace("#fieldNames#", newSelectFields);  //打印值会有问题
 
-		Logger.logSQL("select SQL(entity, selectFields): ", sql);
+		logSQL("select SQL(entity, selectFields): ", sql);
 
 		return sql;
 	}
@@ -322,7 +322,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 				throw new ObjSQLIllegalSQLStringException(
 						"ObjSQLIllegalSQLStringException:sql statement with function is illegal. " + sql);
 			}
-			Logger.logSQL("select fun SQL : ", sql);
+			logSQL("select fun SQL : ", sql);
 			if (!isContainField) throw new ObjSQLException("ObjSQLException:Miss The Field! The entity(" + tableName
 					+ ") don't contain the field:" + fieldForFun);
 
@@ -858,5 +858,9 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 
 	private boolean isNeedRealTimeDb() {
 		return HoneyContext.isNeedRealTimeDb();
+	}
+	
+	private static void logSQL(String hardStr, String sql) {
+		HoneyUtil.logSQL(hardStr, sql);
 	}
 }

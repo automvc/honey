@@ -26,7 +26,7 @@ public class MongodbRawSqlLib extends AbstractCommOperate implements MongodbRawS
 		try {
 			doBeforePasreEntity(returnTypeClass, SuidType.SELECT);// returnType的值,虽然不用作占位参数的值,但可以用作拦截器的业务逻辑判断
 			commandStr = doAfterCompleteSql(commandStr);
-			Logger.logSQL("MongodbRawSql select SQL: \n", commandStr);
+			logSQL("MongodbRawSql select SQL: \n", commandStr);
 			list = getMongodbBeeSql().select(commandStr, returnTypeClass);
 		} finally {
 			doBeforeReturn(list);
@@ -40,7 +40,7 @@ public class MongodbRawSqlLib extends AbstractCommOperate implements MongodbRawS
 		try {
 			doBeforePasreEntity();
 			sql = doAfterCompleteSql(sql);
-			Logger.logSQL("MongodbRawSql selectJson SQL: \n", sql);
+			logSQL("MongodbRawSql selectJson SQL: \n", sql);
 			r = getMongodbBeeSql().selectJson(sql);
 		} finally {
 			doBeforeReturn();
@@ -54,7 +54,7 @@ public class MongodbRawSqlLib extends AbstractCommOperate implements MongodbRawS
 		try {
 			doBeforePasreEntity2();
 			sql = doAfterCompleteSql(sql);
-			Logger.logSQL("MongodbRawSql modify SQL: \n", sql);
+			logSQL("MongodbRawSql modify SQL: \n", sql);
 			r = getMongodbBeeSql().modify(sql);
 		} finally {
 			doBeforeReturn();
@@ -68,7 +68,7 @@ public class MongodbRawSqlLib extends AbstractCommOperate implements MongodbRawS
 		try {
 			doBeforePasreEntity();
 			sql = doAfterCompleteSql(sql);
-			Logger.logSQL("MongodbRawSql selectMapList SQL: \n", sql);
+			logSQL("MongodbRawSql selectMapList SQL: \n", sql);
 			list = getMongodbBeeSql().selectMapList(sql);
 		} finally {
 			doBeforeReturn();
@@ -93,6 +93,10 @@ public class MongodbRawSqlLib extends AbstractCommOperate implements MongodbRawS
 	private void doBeforePasreEntity2() {
 		Object entity = null;
 		super.doBeforePasreEntity(entity, SuidType.MODIFY);
+	}
+	
+	private static void logSQL(String hardStr, String sql) {
+		HoneyUtil.logSQL(hardStr, sql);
 	}
 
 }

@@ -52,7 +52,7 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 			_doBeforePasreEntity(entity); // 因要解析子表,子表下放再执行
 			String sql = getMoreObjToSQL().toSelectSQL(entity);
 			sql = doAfterCompleteSql(sql);
-			Logger.logSQL(SELECT_SQL, sql);
+			logSQL(SELECT_SQL, sql);
 			list = getBeeSql().moreTableSelect(sql, entity);
 		} finally {
 			doBeforeReturn(list);
@@ -70,7 +70,7 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 			_doBeforePasreEntity(entity); // 因要解析子表,子表下放再执行
 			String sql = getMoreObjToSQL().toSelectSQL(entity, start, size);
 			sql = doAfterCompleteSql(sql);
-			Logger.logSQL(SELECT_SQL, sql);
+			logSQL(SELECT_SQL, sql);
 			list = getBeeSql().moreTableSelect(sql, entity);
 		} finally {
 			doBeforeReturn(list);
@@ -90,7 +90,7 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 			OneTimeParameter.setTrueForKey(StringConst.Check_Group_ForSharding);
 			String sql = getMoreObjToSQL().toSelectSQL(entity, condition);
 			sql = doAfterCompleteSql(sql);
-			Logger.logSQL(SELECT_SQL, sql);
+			logSQL(SELECT_SQL, sql);
 			list = getBeeSql().moreTableSelect(sql, entity);
 		} finally {
 			doBeforeReturn(list);
@@ -122,7 +122,7 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 			String sql = getMoreObjToSQL().toSelectSQL(entity, condition);
 			sql = doAfterCompleteSql(sql);
 			fun = getBeeSql().selectFun(sql); // 因是select max(id) from ...的形式,只会返回一个字段还可以多表的也共用
-			Logger.logSQL(SELECT_SQL, sql);
+			logSQL(SELECT_SQL, sql);
 		} finally {
 			doBeforeReturn();
 		}
@@ -188,7 +188,7 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 //			sql = doAfterCompleteSql(sql);
 			
 			String sql=processAndReturnSql(entity, condition);
-			Logger.logSQL("select SQL(return List<String[]>): ", sql);
+			logSQL("select SQL(return List<String[]>): ", sql);
 			list = getBeeSql().select(sql); // 要测试分片时,是否合适? 有T entity参数,是可以的.
 		} finally {
 			doBeforeReturn();
@@ -211,7 +211,7 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 //			sql = doAfterCompleteSql(sql);
 			
 			String sql=processAndReturnSql(entity, condition);
-			Logger.logSQL(SELECT_JSON_SQL, sql);
+			logSQL(SELECT_JSON_SQL, sql);
 			json = getBeeSql().selectJson(sql);
 		} finally {
 			doBeforeReturn();
@@ -589,6 +589,10 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 	private class OneHasOne {
 		long returnId1;
 		Object subEntity;
+	}
+	
+	private static void logSQL(String hardStr, String sql) {
+		HoneyUtil.logSQL(hardStr, sql);
 	}
 
 }

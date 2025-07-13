@@ -2063,5 +2063,9 @@ public final class HoneyUtil {
 			return pkName;
 		}
 	}
+	
+	static void logSQL(String hardStr, String sql) {
+		Logger.logSQL(hardStr, sql);
+	}
 
 }

@@ -24,7 +24,7 @@ public class ShardingLogReg {
 	public static void regShardingSqlLog(String sqlTitle, int index, String sql) {
 		if (!showShardingSQL()) return;
 
-		Logger.logSQL(sqlTitle + "(sharding " + index + ") : ", sql);
+		HoneyUtil.logSQL(sqlTitle + "(sharding " + index + ") : ", sql);
 	}
 
 }

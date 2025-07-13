@@ -564,7 +564,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 			}
 		}
 
-		Logger.logSQL(" | <--  Affected rows: ", num + "");
+		logSQL(" | <--  Affected rows: ", num + "");
 
 		return returnId; // id
 	}
@@ -715,9 +715,9 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 							// do not return in batch loop
 							String affectNum = "?";
 							if (HoneyUtil.isOracle() || HoneyUtil.isSQLite() || HoneyUtil.isSqlServer()) affectNum = "0";
-							Logger.logSQL(" | <-- index[" + (start) + "~" + (end - 1) + INDEX3 + " Affected rows: "
+							logSQL(" | <-- index[" + (start) + "~" + (end - 1) + INDEX3 + " Affected rows: "
 									+ affectNum + "  , this batch have exception !", "" + shardingIndex());
-							if (HoneyUtil.isH2()) Logger.logSQL("the number of affected rows is inaccurate !");
+							if (HoneyUtil.isH2()) logSQL("the number of affected rows is inaccurate !");
 						} else {// 不捕获,则重新抛出异常
 							throw new SQLException(e);
 						}
@@ -746,9 +746,9 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 					int end = len;
 					String affectNum = "?";
 					if (HoneyUtil.isOracle() || HoneyUtil.isSQLite() || HoneyUtil.isSqlServer()) affectNum = "0";
-					Logger.logSQL(" | <-- index[" + (start) + "~" + (end - 1) + INDEX3 + " Affected rows: " + affectNum
+					logSQL(" | <-- index[" + (start) + "~" + (end - 1) + INDEX3 + " Affected rows: " + affectNum
 							+ "  , the " + flag + " batch have exception !", "" + shardingIndex());
-					if (HoneyUtil.isH2()) Logger.logSQL("the number of affected rows is inaccurate!");
+					if (HoneyUtil.isH2()) logSQL("the number of affected rows is inaccurate!");
 				}
 				logAffectRow(total);
 				return total; // 外层try,处理异常后就会返回
@@ -789,11 +789,11 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 		for (int i = start; i < end; i++) { // start... (end-1)
 
 			if (showSQL) {
-				if (i == 0) Logger.logSQL(INSERT_ARRAY_SQL, sql);
+				if (i == 0) logSQL(INSERT_ARRAY_SQL, sql);
 				OneTimeParameter.setAttribute("_SYS_Bee_BatchInsert", i + "");
 				String sql_i;
 				sql_i = INDEX1 + i + INDEX2 + shardingIndex() + sql;// V2.2
-				Logger.logSQL(INSERT_ARRAY_SQL, sql_i);
+				logSQL(INSERT_ARRAY_SQL, sql_i);
 			}
 			setAndClearPreparedValues(pst, INDEX1 + i + INDEX2 + shardingIndex() + sql);// V2.2
 			pst.addBatch();
@@ -810,7 +810,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 
 		eachBatchCommitIfNeed(conn); // if need
 
-		Logger.logSQL(" | <-- index[" + (start) + "~" + (end - 1) + INDEX3 + " Affected rows: ",
+		logSQL(" | <-- index[" + (start) + "~" + (end - 1) + INDEX3 + " Affected rows: ",
 				a + "" + shardingIndex());
 
 		return a;
@@ -888,7 +888,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 						hasException = true; // finally要用到
 						if (catchModifyDuplicateException(e)) {
 							// do not return in batch loop
-							Logger.logSQL(" | <-- index[" + (start) + "~" + (end - 1) + INDEX3
+							logSQL(" | <-- index[" + (start) + "~" + (end - 1) + INDEX3
 									+ " Affected rows: 0  , this batch have exception !", "" + shardingIndex());
 						} else {
 							throw new SQLException(e);
@@ -917,7 +917,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 					if (first) flag = "first";
 					int start = len - (len % batchSize);
 					int end = len;
-					Logger.logSQL(" | <-- index[" + (start) + "~" + (end - 1) + INDEX3 + " Affected rows: 0  , the "
+					logSQL(" | <-- index[" + (start) + "~" + (end - 1) + INDEX3 + " Affected rows: 0  , the "
 							+ flag + " batch have exception !", "" + shardingIndex());
 				}
 				logAffectRow(total);
@@ -971,7 +971,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 			// print log
 			if (start == 0 || (end - start != batchSize)) {
 //				if(batchSize==1) OneTimeParameter.setTrueForKey("_SYS_Bee_BatchInsertFirst");
-				Logger.logSQL(INSERT_ARRAY_SQL, batchSqlForPrint);
+				logSQL(INSERT_ARRAY_SQL, batchSqlForPrint);
 			}
 
 			for (int i = start; i < end; i++) { // start... (end-1)
@@ -982,7 +982,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 //				else
 				sql_i = INDEX1 + i + INDEX2 + shardingIndex() + sql;
 
-				Logger.logSQL(INSERT_ARRAY_SQL, sql_i);
+				logSQL(INSERT_ARRAY_SQL, sql_i);
 			}
 		}
 
@@ -993,7 +993,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 
 		eachBatchCommitIfNeed(conn); // if need
 
-		Logger.logSQL(" | <-- [Batch:" + (start / batchSize) + INDEX3 + " Affected rows: ", a + "" + shardingIndex());
+		logSQL(" | <-- [Batch:" + (start / batchSize) + INDEX3 + " Affected rows: ", a + "" + shardingIndex());
 
 		return a;
 	}
@@ -1579,7 +1579,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 		}
 
 //		子表是List类型时，要连原始数据行数也打印日志
-		if (subOneIsList1 || subTwoIsList2) Logger.logSQL(" | <--  ( select raw record rows: ", recordRow + " )");
+		if (subOneIsList1 || subTwoIsList2) logSQL(" | <--  ( select raw record rows: ", recordRow + " )");
 		logSelectRows(rsList.size());
 
 		return rsList;
@@ -1712,6 +1712,10 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 
 	private boolean isShardingMain() {// 有分片(多个)
 		return HoneyContext.getSqlIndexLocal() == null && ShardingUtil.hadSharding(); // 前提要是HoneyContext.hadSharding()
+	}
+	
+	private static void logSQL(String hardStr, String sql) {
+		HoneyUtil.logSQL(hardStr, sql);
 	}
 
 }

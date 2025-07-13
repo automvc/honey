@@ -48,7 +48,7 @@ public class CallableSqlLib extends AbstractCommOperate implements CallableSql {
 			cstmt = conn.prepareCall(callSql);
 
 			StringBuffer values = initPreparedValues(cstmt, preValues);
-			Logger.logSQL(CALLABLE_SQL, callSql + VALUES + values);
+			logSQL(CALLABLE_SQL, callSql + VALUES + values);
 			rs = cstmt.executeQuery();
 
 			rsList = new ArrayList<>();
@@ -95,7 +95,7 @@ public class CallableSqlLib extends AbstractCommOperate implements CallableSql {
 			cstmt = conn.prepareCall(callSql);
 
 			StringBuffer values = initPreparedValues(cstmt, preValues);
-			Logger.logSQL(CALLABLE_SQL, callSql + VALUES + values);
+			logSQL(CALLABLE_SQL, callSql + VALUES + values);
 			result = cstmt.executeUpdate();
 
 		} catch (SQLException e) {
@@ -117,7 +117,7 @@ public class CallableSqlLib extends AbstractCommOperate implements CallableSql {
 			conn = getConn();
 			callSql = getCallSql(callSql);
 			cstmt = conn.prepareCall(callSql);
-			Logger.logSQL("Callable SQL,getCallableStatement: ", callSql);
+			logSQL("Callable SQL,getCallableStatement: ", callSql);
 			String key = getIdString(cstmt);
 			setConnLocal(key, conn);
 
@@ -160,7 +160,7 @@ public class CallableSqlLib extends AbstractCommOperate implements CallableSql {
 			cstmt = conn.prepareCall(callSql);
 
 			StringBuffer values = initPreparedValues(cstmt, preValues);
-			Logger.logSQL(CALLABLE_SQL, callSql + VALUES + values);
+			logSQL(CALLABLE_SQL, callSql + VALUES + values);
 			rs = cstmt.executeQuery();
 
 			list = TransformResultSet.toStringsList(rs);
@@ -191,7 +191,7 @@ public class CallableSqlLib extends AbstractCommOperate implements CallableSql {
 			cstmt = conn.prepareCall(callSql);
 
 			StringBuffer values = initPreparedValues(cstmt, preValues);
-			Logger.logSQL(CALLABLE_SQL, callSql + VALUES + values);
+			logSQL(CALLABLE_SQL, callSql + VALUES + values);
 			rs = cstmt.executeQuery();
 
 			JsonResultWrap wrap = TransformResultSet.toJson(rs, null);
@@ -282,6 +282,10 @@ public class CallableSqlLib extends AbstractCommOperate implements CallableSql {
 
 	private static boolean isShowSQL() {
 		return HoneyConfig.getHoneyConfig().showSQL;
+	}
+	
+	private static void logSQL(String hardStr, String sql) {
+		HoneyUtil.logSQL(hardStr, sql);
 	}
 
 }
