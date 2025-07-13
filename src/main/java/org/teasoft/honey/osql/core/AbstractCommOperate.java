@@ -152,7 +152,7 @@ public class AbstractCommOperate implements CommOperate {
 		if (t > 0) {
 			long spentTime = System.currentTimeMillis() - t;
 			int min = HoneyConfig.getHoneyConfig().minSqlExecuteTime;
-			if (spentTime >= min) Logger.logSQL("------ spent time(ms): " + spentTime);
+			if (spentTime >= min) HoneyUtil.logSQL("------ spent time(ms): " + spentTime);
 		}
 	}
 

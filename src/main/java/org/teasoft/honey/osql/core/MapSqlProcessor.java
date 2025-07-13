@@ -275,7 +275,7 @@ public class MapSqlProcessor {
 		if (firstWhere) {
 			boolean notUpdateWholeRecords = HoneyConfig.getHoneyConfig().notUpdateWholeRecords;
 			if (notUpdateWholeRecords) {
-				Logger.logSQL("In MapSuid, update SQL: ", sql);
+				logSQL("In MapSuid, update SQL: ", sql);
 				throw new BeeIllegalBusinessException(
 						"BeeIllegalBusinessException: It is not allowed update whole records in one table.");
 			}

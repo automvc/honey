@@ -18,7 +18,7 @@ public class ShardingLogReg {
 
 	public static void log(int size) {
 		if (!showShardingSQL()) return;
-		Logger.logSQL("========= Do sharding , the size of sub operation is :" + size);
+		HoneyUtil.logSQL("========= Do sharding , the size of sub operation is :" + size);
 	}
 
 	public static void regShardingSqlLog(String sqlTitle, int index, String sql) {

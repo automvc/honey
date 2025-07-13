@@ -159,7 +159,7 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 			} else {
 				try {
 					String tableName = _toTableName(entity[0]);
-					Logger.logSQL("Mongodb::batch insert, Collection:" + tableName + "  dsNameList:" + dsNameListForBatch
+					HoneyUtil.logSQL("Mongodb::batch insert, Collection:" + tableName + "  dsNameList:" + dsNameListForBatch
 							+ "  collectionNameList:" + tabNameListForBatch);
 					boolean isBroadcastTab = ShardingRegistry.isBroadcastTab(tableName);
 					boolean forkJoin = HoneyConfig.getHoneyConfig().sharding_forkJoinBatchInsert;

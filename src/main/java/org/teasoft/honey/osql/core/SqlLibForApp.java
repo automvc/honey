@@ -262,7 +262,7 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 		} finally {
 			clearInCache(sql, "int", SuidType.MODIFY, num); // has clearContext(sql)
 		}
-		Logger.logSQL(" | <--  Affected rows: "+ num);
+		logSQL(" | <--  Affected rows: "+ num);
 
 		return num;
 	}
@@ -283,7 +283,7 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 		} finally {
 			clearInCache(sql, "int", SuidType.INSERT, num);
 		}
-		Logger.logSQL(" | <--  Affected rows: "+ num);
+		logSQL(" | <--  Affected rows: "+ num);
 
 		return returnId;
 	}
@@ -345,7 +345,7 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 
 				OneTimeParameter.setAttribute("_SYS_Bee_BatchInsert", i + "");
 				String sql_i = INDEX1 + i + INDEX2 + sql;
-				Logger.logSQL(INSERT_ARRAY_SQL, sql_i);
+				HoneyUtil.logSQL(INSERT_ARRAY_SQL, sql_i);
 			}
 
 			listBindArgs.add(toObjArray(INDEX1 + i + INDEX2 + sql, false));
@@ -354,7 +354,7 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 		sql = HoneyUtil.deleteLastSemicolon(sql);// 上面的sql还不能执行去分号,要先拿了缓存.
 		a = getBeeSqlForApp().batchInsert(sql, listBindArgs);
 
-		Logger.logSQL(" | <-- index[" + (start) + "~" + (end - 1) + INDEX3 + " Affected rows: ", a + "");
+		logSQL(" | <-- index[" + (start) + "~" + (end - 1) + INDEX3 + " Affected rows: "+ a);
 
 		return a;
 	}
@@ -749,7 +749,7 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 		}
 
 //		子表是List类型时，要连原始数据行数也打印日志
-		if (subOneIsList1 || subTwoIsList2) Logger.logSQL(" | <--  ( select raw record rows: "+ recordRow + " )");
+		if (subOneIsList1 || subTwoIsList2) logSQL(" | <--  ( select raw record rows: "+ recordRow + " )");
 		logSelectRows(rsList.size());
 
 		return rsList;
@@ -802,5 +802,5 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 			return obj;
 		}
 	}
-
+	
 }

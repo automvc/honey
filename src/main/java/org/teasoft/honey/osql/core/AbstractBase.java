@@ -102,19 +102,19 @@ public abstract class AbstractBase {
 
 	protected void logSelectRows(int size) {
 		if (ShardingUtil.isSharding() && !showShardingSQL) return;
-		Logger.logSQL(" | <--  select rows: "+ size + "" + shardingIndex());
+		logSQL(" | <--  select rows: "+ size + "" + shardingIndex());
 	}
 
 	protected void logAffectRow(int num) {
 		if (ShardingUtil.isSharding() && !showShardingSQL) return;
-		Logger.logSQL(" | <--  Affected rows: "+ num + "" + shardingIndex());
+		logSQL(" | <--  Affected rows: "+ num + "" + shardingIndex());
 	}
 
 	protected void logDsTab() {
 		if (!showShardingSQL) return;
 		List<String> dsNameListLocal = HoneyContext.getListLocal(StringConst.DsNameListLocal);
 		List<String> tabNameList = HoneyContext.getListLocal(StringConst.TabNameListLocal);
-		Logger.logSQL("========= Involved DataSource: " + dsNameListLocal + "  ,Involved Table: " + tabNameList);
+		logSQL("========= Involved DataSource: " + dsNameListLocal + "  ,Involved Table: " + tabNameList);
 	}
 
 	// 主线程才打印（不需要分片或不是子线程） colse 2.1
@@ -124,7 +124,7 @@ public abstract class AbstractBase {
 //	}
 	// @since 2.1
 	protected static void logSQL(String hardStr) {
-		Logger.logSQL(hardStr);
+		HoneyUtil.logSQL(hardStr);
 	}
 
 	protected static final String INDEX1 = "_SYS[index";
