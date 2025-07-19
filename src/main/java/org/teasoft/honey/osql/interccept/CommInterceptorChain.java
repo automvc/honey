@@ -15,8 +15,8 @@ import org.teasoft.bee.osql.SuidType;
 //import org.teasoft.bee.osql.annotation.customizable.MultiTenancy;
 import org.teasoft.bee.osql.interccept.Interceptor;
 import org.teasoft.bee.osql.interccept.InterceptorChain;
+import org.teasoft.honey.logging.Logger;
 import org.teasoft.honey.osql.core.HoneyContext;
-import org.teasoft.honey.osql.core.Logger;
 import org.teasoft.honey.util.StringUtils;
 
 /**

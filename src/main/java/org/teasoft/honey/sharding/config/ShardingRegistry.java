@@ -18,7 +18,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import org.teasoft.bee.osql.BeeException;
 import org.teasoft.bee.osql.Registry;
 import org.teasoft.bee.sharding.ShardingBean;
-import org.teasoft.honey.osql.core.Logger;
+import org.teasoft.honey.logging.Logger;
 import org.teasoft.honey.util.StringUtils;
 
 /**

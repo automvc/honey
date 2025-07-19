@@ -7,9 +7,9 @@
 package org.teasoft.honey.osql.dialect;
 
 import org.teasoft.bee.osql.dialect.DbFeature;
+import org.teasoft.honey.logging.Logger;
 import org.teasoft.honey.osql.core.HoneyUtil;
 import org.teasoft.honey.osql.core.K;
-import org.teasoft.honey.osql.core.Logger;
 
 /**
  * @author Kingstar

@@ -15,7 +15,7 @@ import java.security.NoSuchAlgorithmException;
  */
 import java.util.BitSet;
 
-import org.teasoft.honey.osql.core.Logger;
+import org.teasoft.honey.logging.Logger;
 
 public class BloomFilter {
 	private static final String MD5 = "MD5";

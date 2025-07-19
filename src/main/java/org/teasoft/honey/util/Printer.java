@@ -8,7 +8,7 @@ package org.teasoft.honey.util;
 
 import java.util.List;
 
-import org.teasoft.honey.osql.core.Logger;
+import org.teasoft.honey.logging.Logger;
 
 /**
  * @author Kingstar

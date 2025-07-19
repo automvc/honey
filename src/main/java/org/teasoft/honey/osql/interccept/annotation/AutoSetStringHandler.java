@@ -11,8 +11,8 @@ import java.lang.reflect.Field;
 import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.annotation.AnnotationHandler;
 import org.teasoft.bee.osql.annotation.AutoSetString;
+import org.teasoft.honey.logging.Logger;
 import org.teasoft.honey.osql.core.HoneyUtil;
-import org.teasoft.honey.osql.core.Logger;
 
 /**
  * @author Kingstar

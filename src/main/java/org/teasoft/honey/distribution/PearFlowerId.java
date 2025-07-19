@@ -10,8 +10,8 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import org.teasoft.bee.distribution.GenId;
 import org.teasoft.bee.distribution.Worker;
+import org.teasoft.honey.logging.Logger;
 import org.teasoft.honey.osql.core.HoneyConfig;
-import org.teasoft.honey.osql.core.Logger;
 
 /**
  * <p>改进的雪花算法——姑且称为梨花算法(PearFlowerId)吧  （忽如一夜春风来，千树万树梨花开）。

@@ -10,8 +10,8 @@ import java.util.concurrent.Callable;
 
 import org.teasoft.bee.mongodb.MongodbBeeSql;
 import org.teasoft.bee.osql.Serializer;
+import org.teasoft.honey.logging.Logger;
 import org.teasoft.honey.osql.core.JdkSerializer;
-import org.teasoft.honey.osql.core.Logger;
 
 /**
  * @author AiTeaSoft

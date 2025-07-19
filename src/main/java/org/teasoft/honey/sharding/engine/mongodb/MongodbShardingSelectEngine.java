@@ -15,8 +15,8 @@ import java.util.concurrent.ExecutorService;
 
 import org.teasoft.bee.mongodb.MongoSqlStruct;
 import org.teasoft.bee.mongodb.MongodbBeeSql;
+import org.teasoft.honey.logging.Logger;
 import org.teasoft.honey.osql.core.HoneyConfig;
-import org.teasoft.honey.osql.core.Logger;
 import org.teasoft.honey.osql.core.ShardingLogReg;
 import org.teasoft.honey.sharding.ShardingUtil;
 import org.teasoft.honey.sharding.engine.ResultMergeEngine;

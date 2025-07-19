@@ -8,6 +8,7 @@ import java.util.Set;
 
 import org.teasoft.bee.osql.exception.BeeIllegalSQLException;
 import org.teasoft.bee.osql.token.CustomAutoSqlToken;
+import org.teasoft.honey.logging.Logger;
 import org.teasoft.honey.util.StringUtils;
 
 /**

@@ -12,9 +12,9 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+import org.teasoft.honey.logging.Logger;
 import org.teasoft.honey.osql.core.ExceptionHelper;
 import org.teasoft.honey.osql.core.HoneyConfig;
-import org.teasoft.honey.osql.core.Logger;
 import org.teasoft.honey.util.StringUtils;
 
 /**

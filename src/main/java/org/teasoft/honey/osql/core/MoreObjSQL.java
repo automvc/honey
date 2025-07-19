@@ -20,6 +20,7 @@ import org.teasoft.bee.osql.api.MoreTable;
 import org.teasoft.bee.osql.api.SuidRich;
 import org.teasoft.bee.osql.exception.BeeIllegalParameterException;
 import org.teasoft.bee.osql.exception.BeeIllegalSQLException;
+import org.teasoft.honey.logging.Logger;
 import org.teasoft.honey.osql.core.ConditionImpl.FunExpress;
 import org.teasoft.honey.osql.shortcut.BF;
 import org.teasoft.honey.osql.util.AnnoUtil;

@@ -10,7 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.teasoft.bee.sharding.ShardingSortStruct;
-import org.teasoft.honey.osql.core.Logger;
+import org.teasoft.honey.logging.Logger;
 import org.teasoft.honey.osql.core.NameTranslateHandle;
 import org.teasoft.honey.util.ObjectUtils;
 

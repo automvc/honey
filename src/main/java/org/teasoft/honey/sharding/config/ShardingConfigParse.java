@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.teasoft.honey.osql.core.Logger;
+import org.teasoft.honey.logging.Logger;
 import org.teasoft.honey.util.StringUtils;
 
 /**

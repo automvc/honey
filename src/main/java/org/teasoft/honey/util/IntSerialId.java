@@ -8,8 +8,8 @@ package org.teasoft.honey.util;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.teasoft.honey.logging.Logger;
 import org.teasoft.honey.osql.core.HoneyConfig;
-import org.teasoft.honey.osql.core.Logger;
 import org.teasoft.honey.osql.util.DateUtil;
 
 /**

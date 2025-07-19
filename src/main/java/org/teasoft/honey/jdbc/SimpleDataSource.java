@@ -9,7 +9,7 @@ package org.teasoft.honey.jdbc;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import org.teasoft.honey.osql.core.Logger;
+import org.teasoft.honey.logging.Logger;
 import org.teasoft.honey.osql.core.SessionFactory;
 import org.teasoft.honey.util.StringUtils;
 

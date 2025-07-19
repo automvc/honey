@@ -24,6 +24,7 @@ import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
 import org.teasoft.bee.osql.exception.BeeIllegalSQLException;
 import org.teasoft.bee.sharding.FunStruct;
 import org.teasoft.bee.sharding.GroupFunStruct;
+import org.teasoft.honey.logging.Logger;
 import org.teasoft.honey.osql.core.ConditionImpl.FunExpress;
 import org.teasoft.honey.osql.dialect.sqlserver.SqlServerPagingStruct;
 import org.teasoft.honey.osql.util.NameCheckUtil;

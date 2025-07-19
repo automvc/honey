@@ -12,6 +12,7 @@ import org.teasoft.bee.mongodb.MongodbBeeSql;
 import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.api.Condition;
 import org.teasoft.bee.osql.api.Suid;
+import org.teasoft.honey.logging.Logger;
 import org.teasoft.honey.sharding.ShardingUtil;
 import org.teasoft.honey.util.StringUtils;
 

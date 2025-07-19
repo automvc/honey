@@ -13,8 +13,8 @@ import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.annotation.Createtime;
 import org.teasoft.bee.osql.annotation.Datetime;
 import org.teasoft.bee.osql.annotation.Updatetime;
+import org.teasoft.honey.logging.Logger;
 import org.teasoft.honey.osql.core.HoneyUtil;
-import org.teasoft.honey.osql.core.Logger;
 import org.teasoft.honey.osql.util.DateUtil;
 import org.teasoft.honey.util.StringUtils;
 

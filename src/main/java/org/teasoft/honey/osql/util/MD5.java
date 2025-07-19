@@ -9,7 +9,7 @@ package org.teasoft.honey.osql.util;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 
-import org.teasoft.honey.osql.core.Logger;
+import org.teasoft.honey.logging.Logger;
 
 /**
  * @author Kingstar

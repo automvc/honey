@@ -14,6 +14,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import org.teasoft.bee.osql.BeeExtCache;
 import org.teasoft.honey.distribution.ds.RouteStruct;
+import org.teasoft.honey.logging.Logger;
 
 /**
  * 默认的扩展缓存实现.Default Bee Ext Cache.

@@ -10,6 +10,7 @@ import org.teasoft.bee.osql.api.PreparedSql;
 import org.teasoft.bee.osql.dialect.DbFeature;
 import org.teasoft.bee.osql.exception.BeeIllegalParameterException;
 import org.teasoft.bee.osql.exception.SqlNullException;
+import org.teasoft.honey.logging.Logger;
 import org.teasoft.honey.util.ObjectUtils;
 import org.teasoft.honey.util.StringUtils;
 

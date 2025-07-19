@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.teasoft.bee.app.BeeSqlForApp;
+import org.teasoft.honey.logging.Logger;
 
 /**
  * 用于Android或Harmony

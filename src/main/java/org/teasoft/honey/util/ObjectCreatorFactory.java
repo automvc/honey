@@ -11,8 +11,7 @@ import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.teasoft.honey.osql.core.Logger;
-
+import org.teasoft.honey.logging.Logger;
 /**
  * @author Kingstar
  * @since  1.9

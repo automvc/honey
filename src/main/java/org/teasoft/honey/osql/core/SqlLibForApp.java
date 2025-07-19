@@ -22,6 +22,7 @@ import org.teasoft.bee.osql.annotation.JoinTable;
 import org.teasoft.bee.osql.annotation.customizable.Json;
 import org.teasoft.bee.osql.type.SetParaTypeConvert;
 import org.teasoft.bee.osql.type.TypeHandler;
+import org.teasoft.honey.logging.Logger;
 import org.teasoft.honey.osql.type.SetParaTypeConverterRegistry;
 import org.teasoft.honey.osql.type.TypeHandlerRegistry;
 import org.teasoft.honey.util.ObjectCreatorFactory;

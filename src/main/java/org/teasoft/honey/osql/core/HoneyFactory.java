@@ -28,6 +28,7 @@ import org.teasoft.bee.osql.dialect.*;
 import org.teasoft.bee.osql.exception.NoConfigException;
 import org.teasoft.bee.osql.exception.NotSupportedException;
 import org.teasoft.bee.osql.interccept.InterceptorChain;
+import org.teasoft.honey.logging.Logger;
 import org.teasoft.honey.osql.chain.UnionSelectImpl;
 import org.teasoft.honey.osql.dialect.*;
 import org.teasoft.honey.osql.dialect.mysql.MySqlFeature;
@@ -88,6 +89,7 @@ public class HoneyFactory {
 	private static final byte[] lock = new byte[0];
 
 	static {
+		System.out.println("---------------HoneyFactory--------------------");
 		cache = initCache();
 	}
 

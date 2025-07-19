@@ -16,6 +16,7 @@ import org.teasoft.bee.osql.exception.BeeIllegalBusinessException;
 import org.teasoft.bee.sharding.GroupFunStruct;
 import org.teasoft.honey.distribution.GenIdFactory;
 import org.teasoft.honey.distribution.UUID;
+import org.teasoft.honey.logging.Logger;
 import org.teasoft.honey.osql.name.NameUtil;
 import org.teasoft.honey.osql.util.AnnoUtil;
 import org.teasoft.honey.sharding.ShardingUtil;

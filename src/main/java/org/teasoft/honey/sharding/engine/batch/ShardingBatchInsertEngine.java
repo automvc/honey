@@ -17,9 +17,9 @@ import java.util.concurrent.ExecutorService;
 
 import org.teasoft.bee.osql.Serializer;
 import org.teasoft.bee.osql.api.SuidRich;
+import org.teasoft.honey.logging.Logger;
 import org.teasoft.honey.osql.core.HoneyContext;
 import org.teasoft.honey.osql.core.JdkSerializer;
-import org.teasoft.honey.osql.core.Logger;
 import org.teasoft.honey.osql.core.NameTranslateHandle;
 import org.teasoft.honey.osql.core.ShardingLogReg;
 import org.teasoft.honey.osql.core.StringConst;

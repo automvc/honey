@@ -7,7 +7,7 @@
 package org.teasoft.honey.spi;
 
 import org.teasoft.bee.spi.PreLoad;
-import org.teasoft.honey.osql.core.Logger;
+import org.teasoft.honey.logging.Logger;
 import org.teasoft.honey.osql.interccept.InterceptorChainRegistry;
 import org.teasoft.honey.osql.interccept.annotation.CustomAutoSetInterceptor;
 import org.teasoft.honey.osql.interccept.annotation.CustomInterceptor;

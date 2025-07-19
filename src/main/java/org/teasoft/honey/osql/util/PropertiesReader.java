@@ -8,7 +8,7 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.teasoft.bee.osql.exception.ConfigWrongException;
-import org.teasoft.honey.osql.core.Logger;
+import org.teasoft.honey.logging.Logger;
 
 /**
  * @author Kingstar

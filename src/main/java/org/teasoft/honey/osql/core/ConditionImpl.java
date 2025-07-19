@@ -24,6 +24,7 @@ import org.teasoft.bee.osql.api.Condition;
 import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
 import org.teasoft.bee.osql.exception.BeeErrorNameException;
 import org.teasoft.bee.osql.exception.BeeIllegalParameterException;
+import org.teasoft.honey.logging.Logger;
 import org.teasoft.honey.osql.util.NameCheckUtil;
 import org.teasoft.honey.util.StringUtils;
 

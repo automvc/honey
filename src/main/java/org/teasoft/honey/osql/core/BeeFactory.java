@@ -6,6 +6,7 @@ import javax.sql.DataSource;
 
 import org.teasoft.bee.osql.BeeAbstractFactory;
 import org.teasoft.honey.distribution.ds.Router;
+import org.teasoft.honey.logging.Logger;
 
 /**
  * 

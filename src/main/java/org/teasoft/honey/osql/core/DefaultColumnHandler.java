@@ -7,6 +7,7 @@
 package org.teasoft.honey.osql.core;
 
 import org.teasoft.bee.osql.annotation.ColumnHandler;
+import org.teasoft.honey.logging.Logger;
 import org.teasoft.honey.util.ObjectUtils;
 
 /**

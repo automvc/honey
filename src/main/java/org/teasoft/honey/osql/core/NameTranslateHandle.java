@@ -15,6 +15,7 @@ import org.teasoft.bee.osql.annotation.ColumnHandler;
 import org.teasoft.bee.osql.annotation.Entity;
 import org.teasoft.bee.osql.exception.BeeErrorNameException;
 import org.teasoft.bee.osql.exception.BeeIllegalParameterException;
+import org.teasoft.honey.logging.Logger;
 import org.teasoft.honey.osql.util.AnnoUtil;
 import org.teasoft.honey.osql.util.NameCheckUtil;
 import org.teasoft.honey.sharding.ShardingUtil;

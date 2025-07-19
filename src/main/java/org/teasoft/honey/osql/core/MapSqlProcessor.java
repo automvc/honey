@@ -19,6 +19,7 @@ import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
 import org.teasoft.bee.osql.exception.BeeIllegalBusinessException;
 import org.teasoft.bee.osql.exception.BeeIllegalSQLException;
 import org.teasoft.honey.distribution.GenIdFactory;
+import org.teasoft.honey.logging.Logger;
 import org.teasoft.honey.osql.dialect.sqlserver.SqlServerPagingStruct;
 import org.teasoft.honey.osql.util.NameCheckUtil;
 import org.teasoft.honey.util.ObjectUtils;

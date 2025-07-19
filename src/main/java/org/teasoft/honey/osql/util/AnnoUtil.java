@@ -15,8 +15,8 @@ import org.teasoft.bee.osql.annotation.*;
 import org.teasoft.bee.osql.annotation.customizable.Json;
 import org.teasoft.bee.spi.AnnoAdapter;
 import org.teasoft.bee.spi.defaultimpl.AnnoAdapterBeeDefault;
+import org.teasoft.honey.logging.Logger;
 import org.teasoft.honey.osql.core.DefaultColumnHandler;
-import org.teasoft.honey.osql.core.Logger;
 import org.teasoft.honey.osql.name.NameRegistry;
 
 /**

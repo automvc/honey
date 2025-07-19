@@ -8,7 +8,7 @@ package org.teasoft.honey.distribution;
 
 import org.teasoft.bee.distribution.GenId;
 import org.teasoft.bee.distribution.Worker;
-import org.teasoft.honey.osql.core.Logger;
+import org.teasoft.honey.logging.Logger;
 
 /**
  * OneTimeSnowflakeId，进一步改进了梨花算法。

@@ -13,8 +13,8 @@ import java.util.regex.Pattern;
 
 import org.teasoft.bee.osql.LowerKey;
 import org.teasoft.bee.osql.exception.BeeErrorNameException;
+import org.teasoft.honey.logging.Logger;
 import org.teasoft.honey.osql.core.HoneyUtil;
-import org.teasoft.honey.osql.core.Logger;
 
 /**
  * @author Kingstar

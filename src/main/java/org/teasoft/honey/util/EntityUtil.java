@@ -13,8 +13,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.teasoft.honey.logging.Logger;
 import org.teasoft.honey.osql.core.HoneyUtil;
-import org.teasoft.honey.osql.core.Logger;
 import org.teasoft.honey.osql.core.NameTranslateHandle;
 
 /**

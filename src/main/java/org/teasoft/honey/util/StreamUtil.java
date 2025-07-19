@@ -17,8 +17,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.Map;
 
+import org.teasoft.honey.logging.Logger;
 import org.teasoft.honey.osql.core.ExceptionHelper;
-import org.teasoft.honey.osql.core.Logger;
 
 /**
  * InputStream流转字符串的工具

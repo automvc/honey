@@ -14,6 +14,7 @@ import java.util.ServiceLoader;
 import org.teasoft.bee.spi.JsonTransform;
 import org.teasoft.bee.spi.PreLoad;
 import org.teasoft.bee.spi.SqlFormat;
+import org.teasoft.honey.logging.Logger;
 import org.teasoft.honey.spi.SpiInstanceRegister;
 
 /**

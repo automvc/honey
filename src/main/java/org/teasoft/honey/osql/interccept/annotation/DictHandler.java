@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.teasoft.bee.osql.annotation.Dict;
+import org.teasoft.honey.logging.Logger;
 import org.teasoft.honey.osql.core.HoneyUtil;
-import org.teasoft.honey.osql.core.Logger;
 import org.teasoft.honey.util.StringUtils;
 
 /**

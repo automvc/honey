@@ -12,7 +12,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Map;
 
-import org.teasoft.honey.osql.core.Logger;
+import org.teasoft.honey.logging.Logger;
 import org.teasoft.honey.osql.util.FileUtil;
 import org.teasoft.honey.osql.util.StringUtil;
 

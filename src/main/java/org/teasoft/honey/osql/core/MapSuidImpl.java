@@ -14,6 +14,7 @@ import org.teasoft.bee.osql.BeeSql;
 import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.api.MapSql;
 import org.teasoft.bee.osql.api.MapSuid;
+import org.teasoft.honey.logging.Logger;
 import org.teasoft.honey.util.ObjectUtils;
 import org.teasoft.honey.util.StringUtils;
 

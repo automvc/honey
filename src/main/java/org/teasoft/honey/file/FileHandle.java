@@ -18,7 +18,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
 import org.teasoft.bee.file.FileCreator;
-import org.teasoft.honey.osql.core.Logger;
+import org.teasoft.honey.logging.Logger;
 
 /**
  * @author Kingstar

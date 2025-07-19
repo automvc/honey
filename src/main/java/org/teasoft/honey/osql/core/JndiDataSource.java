@@ -10,6 +10,8 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
 
+import org.teasoft.honey.logging.Logger;
+
 /**
  * Jndi DataSource.
  * @author Kingstar

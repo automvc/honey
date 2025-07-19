@@ -10,6 +10,7 @@ import java.lang.reflect.Field;
 import java.util.List;
 import org.teasoft.bee.osql.BeeException;
 import org.teasoft.bee.osql.annotation.FK;
+import org.teasoft.honey.logging.Logger;
 import org.teasoft.honey.osql.util.AnnoUtil;
 
 /**

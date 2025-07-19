@@ -14,6 +14,7 @@ import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.api.Condition;
 import org.teasoft.bee.osql.api.Suid;
 import org.teasoft.bee.osql.exception.NotSupportedException;
+import org.teasoft.honey.logging.Logger;
 
 /**
  * 通过对象来操作数据库，并返回结果.

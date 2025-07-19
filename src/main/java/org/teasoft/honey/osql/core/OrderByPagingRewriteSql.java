@@ -14,6 +14,7 @@ import java.util.Map;
 import org.teasoft.bee.osql.chain.UnionSelect;
 import org.teasoft.bee.osql.dialect.DbFeature;
 import org.teasoft.bee.sharding.ShardingPageStruct;
+import org.teasoft.honey.logging.Logger;
 import org.teasoft.honey.sharding.ShardingUtil;
 import org.teasoft.honey.sharding.engine.decorate.OrderBySqlDecorator;
 import org.teasoft.honey.sharding.engine.decorate.PagingSqlDecorator;

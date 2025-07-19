@@ -27,6 +27,7 @@ import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.annotation.JoinTable;
 import org.teasoft.bee.osql.annotation.customizable.Json;
 import org.teasoft.bee.osql.type.TypeHandler;
+import org.teasoft.honey.logging.Logger;
 import org.teasoft.honey.osql.type.TypeHandlerRegistry;
 import org.teasoft.honey.sharding.ShardingUtil;
 import org.teasoft.honey.sharding.engine.ShardingAvgEngine;

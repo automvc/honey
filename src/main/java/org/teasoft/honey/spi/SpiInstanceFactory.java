@@ -7,7 +7,7 @@
 package org.teasoft.honey.spi;
 
 import org.teasoft.bee.spi.JsonTransform;
-import org.teasoft.honey.osql.core.Logger;
+import org.teasoft.honey.logging.Logger;
 
 /**
  * @author AiTeaSoft

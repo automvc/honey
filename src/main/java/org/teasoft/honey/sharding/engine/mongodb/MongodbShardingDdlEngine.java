@@ -14,7 +14,7 @@ import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 
 import org.teasoft.bee.mongodb.MongodbBeeSql;
-import org.teasoft.honey.osql.core.Logger;
+import org.teasoft.honey.logging.Logger;
 import org.teasoft.honey.osql.core.ShardingLogReg;
 import org.teasoft.honey.sharding.ShardingUtil;
 import org.teasoft.honey.sharding.engine.ThreadPoolUtil;

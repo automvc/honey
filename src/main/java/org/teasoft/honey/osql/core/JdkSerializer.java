@@ -13,6 +13,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 import org.teasoft.bee.osql.Serializer;
+import org.teasoft.honey.logging.Logger;
 
 /**
  * Jdk序列化工具.JdkSerializer.

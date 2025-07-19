@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.teasoft.bee.distribution.GenId;
 import org.teasoft.bee.distribution.Worker;
-import org.teasoft.honey.osql.core.Logger;
+import org.teasoft.honey.logging.Logger;
 
 /**
  * 在一个workerid内连续唯一的ID生成方法(绝对连续单调递增，全局唯一).Serial Unique Id in one workerid.
