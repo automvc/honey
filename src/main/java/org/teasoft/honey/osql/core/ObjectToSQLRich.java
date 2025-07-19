@@ -20,6 +20,7 @@ import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.api.Condition;
 import org.teasoft.bee.osql.dialect.DbFeature;
 import org.teasoft.bee.osql.exception.BeeIllegalEntityException;
+import org.teasoft.honey.logging.Logger;
 import org.teasoft.honey.osql.dialect.sqlserver.SqlServerPagingStruct;
 import org.teasoft.honey.osql.name.NameUtil;
 import org.teasoft.honey.osql.util.AnnoUtil;
@@ -75,9 +76,9 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		}
 
 		if (start == -1)
-			logSQL("select SQL(entity, size): ", sql);
+			Logger.logSQL(LogSqlParse.parseSql("select SQL(entity, size): ", sql));
 		else
-			logSQL("select SQL(entity, start, size): ", sql);
+			Logger.logSQL(LogSqlParse.parseSql("select SQL(entity, start, size): ", sql));
 		return sql;
 	}
 
@@ -107,7 +108,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 			setContext(sql, wrap.getList(), wrap.getTableNames());
 		}
 
-		logSQL("select SQL(entity, start, size, selectFields): ", sql);
+		Logger.logSQL(LogSqlParse.parseSql("select SQL(entity, start, size, selectFields): ", sql));
 		return sql;
 	}
 
@@ -138,7 +139,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 //		sql=sql.replace("#fieldNames#", fieldList);
 //		sql=sql.replace("#fieldNames#", newSelectFields);  //打印值会有问题
 
-		logSQL("select SQL(entity, selectFields): ", sql);
+		Logger.logSQL(LogSqlParse.parseSql("select SQL(entity, selectFields): ", sql));
 
 		return sql;
 	}
@@ -322,7 +323,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 				throw new ObjSQLIllegalSQLStringException(
 						"ObjSQLIllegalSQLStringException:sql statement with function is illegal. " + sql);
 			}
-			logSQL("select fun SQL : ", sql);
+			Logger.logSQL(LogSqlParse.parseSql("select fun SQL : ", sql));
 			if (!isContainField) throw new ObjSQLException("ObjSQLException:Miss The Field! The entity(" + tableName
 					+ ") don't contain the field:" + fieldForFun);
 
@@ -860,7 +861,4 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		return HoneyContext.isNeedRealTimeDb();
 	}
 	
-	private static void logSQL(String hardStr, String sql) {
-		HoneyUtil.logSQL(hardStr, sql);
-	}
 }

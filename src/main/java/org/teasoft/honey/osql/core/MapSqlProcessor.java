@@ -194,7 +194,7 @@ public class MapSqlProcessor {
 		if (firstWhere) {
 			boolean notDeleteWholeRecords = HoneyConfig.getHoneyConfig().notDeleteWholeRecords;
 			if (notDeleteWholeRecords) {
-				logSQL("In MapSuid, delete SQL: ", sql);
+				Logger.logSQL(LogSqlParse.parseSql("In MapSuid, delete SQL: ", sql));
 				throw new BeeIllegalBusinessException(
 						"BeeIllegalBusinessException: It is not allowed delete whole records in one table.");
 			}
@@ -267,7 +267,7 @@ public class MapSqlProcessor {
 		String sql = sqlBuffer.toString();
 
 		if (firstSet) {
-			logSQL("In MapSuid, update SQL: ", sql);
+			Logger.logSQL(LogSqlParse.parseSql("In MapSuid, update SQL: ", sql));
 			throw new BeeErrorGrammarException("BeeErrorGrammarException: the SQL update set part is empty!");
 		}
 
@@ -276,7 +276,7 @@ public class MapSqlProcessor {
 		if (firstWhere) {
 			boolean notUpdateWholeRecords = HoneyConfig.getHoneyConfig().notUpdateWholeRecords;
 			if (notUpdateWholeRecords) {
-				logSQL("In MapSuid, update SQL: ", sql);
+				Logger.logSQL(LogSqlParse.parseSql("In MapSuid, update SQL: ", sql));
 				throw new BeeIllegalBusinessException(
 						"BeeIllegalBusinessException: It is not allowed update whole records in one table.");
 			}
@@ -604,10 +604,6 @@ public class MapSqlProcessor {
 				map.put(entry.getKey(), Boolean.parseBoolean(v));
 			}
 		}
-	}
-	
-	private static void logSQL(String hardStr, String sql) {
-		HoneyUtil.logSQL(hardStr, sql);
 	}
 
 }

@@ -42,7 +42,7 @@ public class ObjSQL extends AbstractCommOperate implements Suid {
 
 			sql = doAfterCompleteSql(sql);
 
-			logSQL("select SQL: ", sql);
+			Logger.logSQL(LogSqlParse.parseSql("select SQL: ", sql));
 			list = getBeeSql().select(sql, toClassT(entity)); // 返回值用到泛型
 		} finally {
 			doBeforeReturn(list);
@@ -70,7 +70,7 @@ public class ObjSQL extends AbstractCommOperate implements Suid {
 			_regEntityClass(entity);
 			sql = doAfterCompleteSql(sql);
 
-			logSQL("update SQL: ", sql);
+			Logger.logSQL(LogSqlParse.parseSql("update SQL: ", sql));
 			updateNum = getBeeSql().modify(sql);
 
 			return updateNum;
@@ -90,7 +90,7 @@ public class ObjSQL extends AbstractCommOperate implements Suid {
 			_regEntityClass(entity);
 			sql = doAfterCompleteSql(sql);
 			int insertNum = -1;
-			logSQL("insert SQL: ", sql);
+			Logger.logSQL(LogSqlParse.parseSql("insert SQL: ", sql));
 
 			HoneyUtil.revertId(entity); // v1.9
 			if (OneTimeParameter.isTrue("_SYS_Bee_NullObjectInsert")) {
@@ -128,7 +128,7 @@ public class ObjSQL extends AbstractCommOperate implements Suid {
 		doBeforePasreEntity(entity, SuidType.INSERT);
 		String sql = getObjToSQL().toInsertSQL(entity);
 		sql = doAfterCompleteSql(sql);
-		logSQL("insert SQL: ", sql);
+		Logger.logSQL(LogSqlParse.parseSql("insert SQL: ", sql));
 
 		return sql;
 	}
@@ -193,7 +193,7 @@ public class ObjSQL extends AbstractCommOperate implements Suid {
 			_regEntityClass(entity);
 			sql = doAfterCompleteSql(sql);
 			int deleteNum = -1;
-			logSQL("delete SQL: ", sql);
+			Logger.logSQL(LogSqlParse.parseSql("delete SQL: ", sql));
 			deleteNum = getBeeSql().modify(sql);
 			return deleteNum;
 		} finally {
@@ -213,7 +213,7 @@ public class ObjSQL extends AbstractCommOperate implements Suid {
 			OneTimeParameter.setTrueForKey(StringConst.Check_Group_ForSharding);
 			String sql = getObjToSQL().toSelectSQL(entity, condition);
 			sql = doAfterCompleteSql(sql);
-			logSQL("select SQL: ", sql);
+			Logger.logSQL(LogSqlParse.parseSql("select SQL: ", sql));
 			list = getBeeSql().select(sql, toClassT(entity));
 		} finally {
 			doBeforeReturn(list);
@@ -233,7 +233,7 @@ public class ObjSQL extends AbstractCommOperate implements Suid {
 			sql = doAfterCompleteSql(sql);
 			int deleteNum = -1;
 			if (!"".equals(sql)) {
-				logSQL("delete SQL: ", sql);
+				Logger.logSQL(LogSqlParse.parseSql("delete SQL: ", sql));
 			}
 			deleteNum = getBeeSql().modify(sql);
 			return deleteNum;
@@ -284,8 +284,4 @@ public class ObjSQL extends AbstractCommOperate implements Suid {
 		this.objToSQL = objToSQL;
 	}
 	
-	private static void logSQL(String hardStr, String sql) {
-		HoneyUtil.logSQL(hardStr, sql);
-	}
-
 }
