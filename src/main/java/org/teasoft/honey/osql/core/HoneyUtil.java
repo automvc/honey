@@ -36,6 +36,7 @@ import org.teasoft.bee.osql.type.SetParaTypeConvert;
 import org.teasoft.bee.spi.SqlFormat;
 import org.teasoft.honey.distribution.GenIdFactory;
 import org.teasoft.honey.distribution.UUID;
+import org.teasoft.honey.logging.Logger;
 import org.teasoft.honey.osql.constant.NullEmpty;
 import org.teasoft.honey.osql.name.NameUtil;
 import org.teasoft.honey.osql.type.*;
@@ -56,6 +57,7 @@ public final class HoneyUtil {
 	private static Map<String, Integer> javaTypeMap = new HashMap<>();
 
 	static {
+		System.out.println("---------------HoneyUtil--------------------");
 		initJavaTypeMap();
 		initSetParaAndResultTypeHandlerRegistry();
 	}
@@ -1963,11 +1965,11 @@ public final class HoneyUtil {
 	}
 
 	public static void setFieldValue(Field field, Object targetObj, Object value) throws IllegalAccessException {
-		field.set(targetObj, value); // NOSONAR
+		CoreUtil.setFieldValue(field, targetObj, value);
 	}
 
 	public static void setAccessibleTrue(Field field) {
-		field.setAccessible(true); // NOSONAR
+		CoreUtil.setAccessibleTrue(field);
 	}
 
 	public static <T> Field[] getFields(Class<T> entityClass) {
@@ -2064,13 +2066,15 @@ public final class HoneyUtil {
 		}
 	}
 	
+//	// 专门用于Bee框架输出SQL日志.
+//	static void logSQL(String hardStr) {
+////		LogSqlParse.logSQL(hardStr);
+//		Logger.logSQL(hardStr);
+//	}
 	// 专门用于Bee框架输出SQL日志.
-	static void logSQL(String hardStr) {
-		LogSqlParse.logSQL(hardStr);
-	}
-	// 专门用于Bee框架输出SQL日志.
-	static void logSQL(String hardStr, String sql) {
-		LogSqlParse.logSQL(hardStr, sql);
-	}
+//	static void logSQL(String hardStr, String sql) {
+////		LogSqlParse.logSQL(hardStr, sql);
+//		Logger.logSQL(LogSqlParse.parseSql(hardStr, sql));
+//	}
 
 }

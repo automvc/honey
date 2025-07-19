@@ -59,8 +59,8 @@ public class SysValueProcessor {
 							if (printOverride) System.out.println("[Bee] new config,  " + key + ":" + proValue + "   ;");// NOSONAR
 							try {
 								Class<?> c = f[i].getType();
-								HoneyUtil.setAccessibleTrue(f[i]);
-								HoneyUtil.setFieldValue(f[i], obj, ObjectCreatorFactory.create(proValue, c));
+								CoreUtil.setAccessibleTrue(f[i]);
+								CoreUtil.setFieldValue(f[i], obj, ObjectCreatorFactory.create(proValue, c));
 							} catch (IllegalAccessException e) {
 								throw ExceptionHelper.convert(e);
 							}
@@ -75,7 +75,8 @@ public class SysValueProcessor {
 		processDbs(obj, prop);
 
 		processShardingRule(obj, prop);
-		HoneyContext.prcessShardingRuleInProperties();
+//		HoneyContext.prcessShardingRuleInProperties();
+		ConfigRefreshUtil.prcessShardingRuleInProperties();  //   里面的其它类要保证不能引用到HoneyContext
 	}
 
 	private static <T> void processDbs(T obj, Properties prop) {
@@ -98,9 +99,8 @@ public class SysValueProcessor {
 //				if(list==null || list.size()==0) list=gm.toList();
 //				else list.addAll(c);
 
-				HoneyUtil.setAccessibleTrue(dbsF);
-//				HoneyUtil.setFieldValue(dbsF, obj, gm.toList());
-				HoneyUtil.setFieldValue(dbsF, obj, gm.getMap());
+				CoreUtil.setAccessibleTrue(dbsF);
+				CoreUtil.setFieldValue(dbsF, obj, gm.getMap());
 			} catch (Exception e) {
 				// ignore
 			}
@@ -139,8 +139,8 @@ public class SysValueProcessor {
 		if (gm != null && !gm.isEmpty()) {
 			try {
 				Field dbsF = obj.getClass().getDeclaredField("sharding");
-				HoneyUtil.setAccessibleTrue(dbsF);
-				HoneyUtil.setFieldValue(dbsF, obj, gm.getMap());
+				CoreUtil.setAccessibleTrue(dbsF);
+				CoreUtil.setFieldValue(dbsF, obj, gm.getMap());
 			} catch (Exception e) {
 				// ignore
 			}

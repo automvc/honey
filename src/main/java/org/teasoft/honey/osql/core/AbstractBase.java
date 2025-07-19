@@ -118,16 +118,6 @@ public abstract class AbstractBase {
 		Logger.logSQL("========= Involved DataSource: " + dsNameListLocal + "  ,Involved Table: " + tabNameList);
 	}
 
-	// 主线程才打印（不需要分片或不是子线程） colse 2.1
-//	protected static void logSQLForMain(String hardStr) {
-//		if (!ShardingUtil.hadSharding() || HoneyContext.getSqlIndexLocal() == null)
-//			Logger.logSQL(hardStr);
-//	}
-	// @since 2.1
-	protected static void logSQL(String hardStr) {
-		Logger.logSQL(hardStr);
-	}
-
 	protected static final String INDEX1 = "_SYS[index";
 	protected static final String INDEX2 = "]_End ";
 
