@@ -6,6 +6,8 @@
 
 package org.teasoft.honey.osql.core;
 
+import org.teasoft.honey.logging.Logger;
+
 /**
  * @author AiTeaSoft
  * @since  2.0
@@ -18,7 +20,7 @@ public class ShardingLogReg {
 
 	public static void log(int size) {
 		if (!showShardingSQL()) return;
-		HoneyUtil.logSQL("========= Do sharding , the size of sub operation is :" + size);
+		Logger.logSQL("========= Do sharding , the size of sub operation is :" + size);
 	}
 
 	public static void regShardingSqlLog(String sqlTitle, int index, String sql) {

@@ -12,6 +12,7 @@ import java.util.Map;
 
 import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.api.CallableSql;
+import org.teasoft.honey.logging.Logger;
 
 /**
  * 存储过程方式Sql操作DB的接口CallableSql的实现类.Procedure sql operate the DB.
@@ -210,7 +211,7 @@ public class CallableSqlLib extends AbstractCommOperate implements CallableSql {
 	}
 
 	private void logSelectRows(int size) {
-		HoneyUtil.logSQL(" | <--  select rows: "+ size);
+		Logger.logSQL(" | <--  select rows: "+ size);
 	}
 
 	private String getCallSql(String callSql) {

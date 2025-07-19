@@ -14,6 +14,7 @@ import java.util.List;
 import org.teasoft.bee.osql.Cache;
 import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.type.TypeHandler;
+import org.teasoft.honey.logging.Logger;
 import org.teasoft.honey.osql.util.AnnoUtil;
 import org.teasoft.honey.sharding.ShardingUtil;
 
@@ -102,19 +103,19 @@ public abstract class AbstractBase {
 
 	protected void logSelectRows(int size) {
 		if (ShardingUtil.isSharding() && !showShardingSQL) return;
-		logSQL(" | <--  select rows: "+ size + "" + shardingIndex());
+		Logger.logSQL(" | <--  select rows: "+ size + "" + shardingIndex());
 	}
 
 	protected void logAffectRow(int num) {
 		if (ShardingUtil.isSharding() && !showShardingSQL) return;
-		logSQL(" | <--  Affected rows: "+ num + "" + shardingIndex());
+		Logger.logSQL(" | <--  Affected rows: "+ num + "" + shardingIndex());
 	}
 
 	protected void logDsTab() {
 		if (!showShardingSQL) return;
 		List<String> dsNameListLocal = HoneyContext.getListLocal(StringConst.DsNameListLocal);
 		List<String> tabNameList = HoneyContext.getListLocal(StringConst.TabNameListLocal);
-		logSQL("========= Involved DataSource: " + dsNameListLocal + "  ,Involved Table: " + tabNameList);
+		Logger.logSQL("========= Involved DataSource: " + dsNameListLocal + "  ,Involved Table: " + tabNameList);
 	}
 
 	// 主线程才打印（不需要分片或不是子线程） colse 2.1
@@ -124,7 +125,7 @@ public abstract class AbstractBase {
 //	}
 	// @since 2.1
 	protected static void logSQL(String hardStr) {
-		HoneyUtil.logSQL(hardStr);
+		Logger.logSQL(hardStr);
 	}
 
 	protected static final String INDEX1 = "_SYS[index";

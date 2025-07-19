@@ -371,7 +371,7 @@ public class HoneyFactory {
 		String dbName = HoneyContext.getRealTimeDbName();
 		if (dbName != null) {
 			String logMsg = "========= get the dbName in real time is :" + dbName;
-			HoneyUtil.logSQL(logMsg);
+			Logger.logSQL(logMsg);
 			return _getDbDialectFeature(dbName);
 		}
 //		dbName == null则表示不同时使用多种数据库
@@ -432,7 +432,7 @@ public class HoneyFactory {
 			boolean isDifferentDbType = HoneyConfig.getHoneyConfig().multiDS_differentDbType;
 			if (isDifferentDbType || isOceanBasePrintFirst) {
 				isOceanBasePrintFirst = false;
-				HoneyUtil.logSQL("Using OceanBase,the Mode is : " + oceanbaseMode);
+				Logger.logSQL("Using OceanBase,the Mode is : " + oceanbaseMode);
 			}
 			if (DatabaseConst.ORACLE.equalsIgnoreCase(oceanbaseMode))
 				return new OracleFeature();

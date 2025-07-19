@@ -262,7 +262,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 			} else {
 				try {
 					String tableName = _toTableName(entity[0]);
-					HoneyUtil.logSQL("Batch insert, tableName:" + tableName + "  dsNameList:" + dsNameListForBatch
+					Logger.logSQL("Batch insert, tableName:" + tableName + "  dsNameList:" + dsNameListForBatch
 							+ "  tabNameList:" + tabNameListForBatch);
 					boolean isBroadcastTab = ShardingRegistry.isBroadcastTab(tableName);
 					boolean forkJoin = HoneyConfig.getHoneyConfig().sharding_forkJoinBatchInsert;

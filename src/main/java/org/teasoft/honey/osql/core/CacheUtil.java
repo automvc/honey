@@ -125,7 +125,7 @@ public final class CacheUtil {
 				}
 				return null;
 			}
-			if (isShowSql) logSQL(logCacheMsg);
+			if (isShowSql) Logger.logSQL(logCacheMsg);
 
 			// 要是能返回缓存的结果集,说明不用上下文的缓存结构信息了. 可以删
 			HoneyContext.deleteCacheInfo(sql);
@@ -144,7 +144,7 @@ public final class CacheUtil {
 						Object obj0 = foreverCacheObjectMap.get(key);
 						if (obj0 != null) { // 是该查询放缓存才删缓存cacheStruct信息
 							HoneyContext.deleteCacheInfo(sql);
-							if (isShowSql) logSQL(logCacheMsg);
+							if (isShowSql) Logger.logSQL(logCacheMsg);
 						}
 
 //						return obj0;
@@ -160,7 +160,7 @@ public final class CacheUtil {
 					Object obj1 = foreverModifySynCacheObjectMap.get(key);
 					if (obj1 != null) { // 放缓存了
 						HoneyContext.deleteCacheInfo(sql);// 是该查询放缓存才删缓存cacheStruct信息
-						if (isShowSql) logSQL(logCacheMsg);
+						if (isShowSql) Logger.logSQL(logCacheMsg);
 					}
 
 					return copyObjectForGet(obj1);
@@ -657,7 +657,4 @@ public final class CacheUtil {
 		return Serializable.class.isAssignableFrom(rs.getClass());
 	}
 	
-	private static void logSQL(String hardStr) {
-		HoneyUtil.logSQL(hardStr);
-	}
 }
