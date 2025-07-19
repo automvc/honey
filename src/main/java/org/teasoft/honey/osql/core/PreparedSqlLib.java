@@ -57,7 +57,7 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 			initPreparedValues(sql, preValues, entityClass);
 			sql = doAfterCompleteSql(sql);
 
-			logSQL(SELECT_SQL, sql);
+			Logger.logSQL(LogSqlParse.parseSql(SELECT_SQL, sql));
 			list = getBeeSql().select(sql, entityClass);
 		} finally {
 			doBeforeReturn(list);
@@ -94,7 +94,7 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 			initPreparedValues(sql, preValues, entityClass);
 
 			sql = doAfterCompleteSql(sql);
-			logSQL(SELECT_SQL, sql);
+			Logger.logSQL(LogSqlParse.parseSql(SELECT_SQL, sql));
 			list = getBeeSql().select(sql, entityClass);
 		} finally {
 			doBeforeReturn(list);
@@ -109,7 +109,7 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 			doBeforePasreEntity(entity, SuidType.SELECT);
 			String sql = initPrepareValuesViaMap(sqlStr, map, entity);
 			sql = doAfterCompleteSql(sql);
-			logSQL(SELECT_SQL, sql);
+			Logger.logSQL(LogSqlParse.parseSql(SELECT_SQL, sql));
 			list = getBeeSql().select(sql, toClassT(entity));
 
 		} finally {
@@ -146,7 +146,7 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 			String pageSql = getDbFeature().toPageSql(sqlStr, start, size);
 			String sql = initPrepareValuesViaMap(pageSql, map, entity);
 			sql = doAfterCompleteSql(sql);
-			logSQL(SELECT_SQL, sql);
+			Logger.logSQL(LogSqlParse.parseSql(SELECT_SQL, sql));
 			list = getBeeSql().select(sql, toClassT(entity));
 
 		} finally {
@@ -164,7 +164,7 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 
 			initPreparedValues(sql, preValues, entity);
 			sql = doAfterCompleteSql(sql);
-			logSQL(SELECT_SOME_FIELD_SQL, sql);
+			Logger.logSQL(LogSqlParse.parseSql(SELECT_SOME_FIELD_SQL, sql));
 			list = getBeeSql().selectSomeField(sql, toClassT(entity));
 		} finally {
 			doBeforeReturn(list);
@@ -194,7 +194,7 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 			sql = getDbFeature().toPageSql(sql, start, size);
 			initPreparedValues(sql, preValues, entity);
 			sql = doAfterCompleteSql(sql);
-			logSQL(SELECT_SOME_FIELD_SQL, sql);
+			Logger.logSQL(LogSqlParse.parseSql(SELECT_SOME_FIELD_SQL, sql));
 			list = getBeeSql().selectSomeField(sql, toClassT(entity));
 		} finally {
 			doBeforeReturn(list);
@@ -210,7 +210,7 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 
 			String sql = initPrepareValuesViaMap(sqlStr, map, entity);
 			sql = doAfterCompleteSql(sql);
-			logSQL(SELECT_SOME_FIELD_SQL, sql);
+			Logger.logSQL(LogSqlParse.parseSql(SELECT_SOME_FIELD_SQL, sql));
 			list = getBeeSql().selectSomeField(sql, toClassT(entity));
 		} finally {
 			doBeforeReturn(list);
@@ -241,7 +241,7 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 			String sql = initPrepareValuesViaMap(pageSql, map, entity);
 
 			sql = doAfterCompleteSql(sql);
-			logSQL(SELECT_SOME_FIELD_SQL, sql);
+			Logger.logSQL(LogSqlParse.parseSql(SELECT_SOME_FIELD_SQL, sql));
 			list = getBeeSql().selectSomeField(sql, toClassT(entity));
 
 		} finally {
@@ -259,7 +259,7 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 
 			initPreparedValues(sql, preValues);
 			sql = doAfterCompleteSql(sql);
-			logSQL("PreparedSql selectFun SQL: ", sql);
+			Logger.logSQL(LogSqlParse.parseSql("PreparedSql selectFun SQL: ", sql));
 			s = getBeeSql().selectFun(sql);
 		} finally {
 			doBeforeReturn();
@@ -276,7 +276,7 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 
 			String sql = initPrepareValuesViaMap(sqlStr, parameterMap);
 			sql = doAfterCompleteSql(sql);
-			logSQL("PreparedSql selectFun SQL: ", sql);
+			Logger.logSQL(LogSqlParse.parseSql("PreparedSql selectFun SQL: ", sql));
 			s = getBeeSql().selectFun(sql);
 		} finally {
 			doBeforeReturn();
@@ -291,7 +291,7 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 			doBeforePasreEntity();
 			initPreparedValues(sql, preValues);
 			sql = doAfterCompleteSql(sql);
-			logSQL(SELECT_SQL, sql);
+			Logger.logSQL(LogSqlParse.parseSql(SELECT_SQL, sql));
 			list = getBeeSql().select(sql);
 		} finally {
 			doBeforeReturn();
@@ -313,7 +313,7 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 			initPreparedValues(sql, preValues);
 
 			sql = doAfterCompleteSql(sql);
-			logSQL(SELECT_SQL, sql);
+			Logger.logSQL(LogSqlParse.parseSql(SELECT_SQL, sql));
 			list = getBeeSql().select(sql);
 		} finally {
 			doBeforeReturn();
@@ -331,7 +331,7 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 			String sql = initPrepareValuesViaMap(sqlStr, map);
 
 			sql = doAfterCompleteSql(sql);
-			logSQL(SELECT_SQL, sql);
+			Logger.logSQL(LogSqlParse.parseSql(SELECT_SQL, sql));
 			list = getBeeSql().select(sql);
 
 		} finally {
@@ -354,7 +354,7 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 			String sql = initPrepareValuesViaMap(pageSql, map);
 
 			sql = doAfterCompleteSql(sql);
-			logSQL(SELECT_SQL, sql);
+			Logger.logSQL(LogSqlParse.parseSql(SELECT_SQL, sql));
 			list = getBeeSql().select(sql);
 
 		} finally {
@@ -372,7 +372,7 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 			initPreparedValues(sql, preValues);
 
 			sql = doAfterCompleteSql(sql);
-			logSQL("PreparedSql modify SQL: ", sql);
+			Logger.logSQL(LogSqlParse.parseSql("PreparedSql modify SQL: ", sql));
 			r = getBeeSql().modify(sql);
 		} finally {
 			doBeforeReturn();
@@ -389,7 +389,7 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 			String sql = initPrepareValuesViaMap(sqlStr, map);
 
 			sql = doAfterCompleteSql(sql);
-			logSQL("PreparedSql modify SQL: ", sql);
+			Logger.logSQL(LogSqlParse.parseSql("PreparedSql modify SQL: ", sql));
 			r = getBeeSql().modify(sql);
 		} finally {
 			doBeforeReturn();
@@ -412,7 +412,7 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 
 			initPreparedValues(sql, preValues);
 			sql = doAfterCompleteSql(sql);
-			logSQL(SELECT_JSON_SQL, sql);
+			Logger.logSQL(LogSqlParse.parseSql(SELECT_JSON_SQL, sql));
 
 			json = getBeeSql().selectJson(sql);
 		} finally {
@@ -435,7 +435,7 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 			initPreparedValues(sql, preValues);
 
 			sql = doAfterCompleteSql(sql);
-			logSQL(SELECT_JSON_SQL, sql);
+			Logger.logSQL(LogSqlParse.parseSql(SELECT_JSON_SQL, sql));
 
 			json = getBeeSql().selectJson(sql);
 		} finally {
@@ -454,7 +454,7 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 			String sql = initPrepareValuesViaMap(sqlStr, map);
 
 			sql = doAfterCompleteSql(sql);
-			logSQL(SELECT_JSON_SQL, sql);
+			Logger.logSQL(LogSqlParse.parseSql(SELECT_JSON_SQL, sql));
 
 			json = getBeeSql().selectJson(sql);
 		} finally {
@@ -477,7 +477,7 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 			String sql = initPrepareValuesViaMap(pageSql, map);
 
 			sql = doAfterCompleteSql(sql);
-			logSQL(SELECT_JSON_SQL, sql);
+			Logger.logSQL(LogSqlParse.parseSql(SELECT_JSON_SQL, sql));
 
 			json = getBeeSql().selectJson(sql);
 		} finally {
@@ -713,7 +713,7 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 			doBeforePasreEntity();
 			String sql = initPrepareValuesViaMap(sqlStr, parameterMap);
 			sql = doAfterCompleteSql(sql);
-			logSQL("PreparedSql selectMapList SQL: ", sql);
+			Logger.logSQL(LogSqlParse.parseSql("PreparedSql selectMapList SQL: ", sql));
 
 			list = getBeeSql().selectMapList(sql);
 		} finally {
@@ -738,7 +738,7 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 			String sql = initPrepareValuesViaMap(pageSql, parameterMap);
 
 			sql = doAfterCompleteSql(sql);
-			logSQL("PreparedSql selectMapList SQL: ", sql);
+			Logger.logSQL(LogSqlParse.parseSql("PreparedSql selectMapList SQL: ", sql));
 			list = getBeeSql().selectMapList(sql);
 		} finally {
 			doBeforeReturn();
@@ -758,7 +758,7 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 			doBeforePasreEntity(entity, SuidType.SELECT);
 			String sql = initPrepareValuesViaMap(sqlStr, map, entity);
 			sql = doAfterCompleteSql(sql);
-			logSQL(SELECT_MoreTable_SQL, sql);
+			Logger.logSQL(LogSqlParse.parseSql(SELECT_MoreTable_SQL, sql));
 			list = getBeeSql().select(sql, toClassT(entity));
 
 		} finally {
@@ -795,7 +795,7 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 		List<T> list = null;
 		try {
 			String sql = _moreTableSelect(sqlStr, entity, map, start, size);
-			logSQL(SELECT_MoreTable_SQL, sql);
+			Logger.logSQL(LogSqlParse.parseSql(SELECT_MoreTable_SQL, sql));
 			list = getBeeSql().moreTableSelect(sql, entity);
 		} finally {
 			doBeforeReturn(list);
@@ -918,10 +918,6 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 	private void doBeforePasreEntity2() {
 		Object entity = null;
 		super.doBeforePasreEntity(entity, SuidType.MODIFY);
-	}
-	
-	private static void logSQL(String hardStr, String sql) {
-		HoneyUtil.logSQL(hardStr, sql);
 	}
 
 }

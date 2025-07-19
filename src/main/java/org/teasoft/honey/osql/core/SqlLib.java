@@ -565,7 +565,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 			}
 		}
 
-		Logger.logSQL(" | <--  Affected rows: "+ num + "");
+		Logger.logSQL(" | <--  Affected rows: "+ num);
 
 		return returnId; // id
 	}
