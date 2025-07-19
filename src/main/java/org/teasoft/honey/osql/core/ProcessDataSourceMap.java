@@ -20,6 +20,7 @@ import org.teasoft.bee.ds.DataSourceBuilderFactory;
 import org.teasoft.bee.osql.DatabaseConst;
 import org.teasoft.bee.osql.Serializer;
 import org.teasoft.bee.osql.exception.ConfigWrongException;
+import org.teasoft.honey.logging.Logger;
 import org.teasoft.honey.util.Converter;
 import org.teasoft.honey.util.StringUtils;
 
@@ -52,6 +53,7 @@ class ProcessDataSourceMap {
 		Logger.info("[Bee] Parse DataSourceMap: dataSource name to database name , result: " + dsName2DbName);
 //		HoneyConfig.getHoneyConfig().dbName=dbName;
 		HoneyConfig.getHoneyConfig().setDbName(dbName); // 默认设置第1个数据源
+		HoneyContext.resetAferSetDbName();
 		HoneyContext.setDsName2DbName(dsName2DbName);
 		HoneyUtil.refreshSetParaAndResultTypeHandlerRegistry();
 	}

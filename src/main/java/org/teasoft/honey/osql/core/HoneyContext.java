@@ -14,23 +14,32 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.sql.DataSource;
 
+import org.teasoft.bee.osql.DatabaseConst;
 import org.teasoft.bee.osql.FunctionType;
 import org.teasoft.bee.osql.NameTranslate;
 import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.api.Condition;
+import org.teasoft.bee.osql.dialect.DbFeatureRegistry;
 import org.teasoft.bee.osql.exception.BeeIllegalParameterException;
+import org.teasoft.bee.osql.exception.ConfigWrongException;
 import org.teasoft.bee.osql.exception.ShardingErrorException;
 import org.teasoft.bee.sharding.GroupFunStruct;
-import org.teasoft.bee.sharding.ShardingBean;
+//import org.teasoft.bee.sharding.ShardingBean;
 import org.teasoft.bee.sharding.ShardingPageStruct;
 import org.teasoft.bee.sharding.ShardingSortStruct;
+import org.teasoft.bee.sharding.algorithm.CalculateRegistry;
 import org.teasoft.honey.database.DatabaseClientConnection;
 import org.teasoft.honey.distribution.ds.RouteStruct;
+import org.teasoft.honey.distribution.ds.Router;
+import org.teasoft.honey.logging.Logger;
+import org.teasoft.honey.osql.dialect.LimitOffsetPaging;
+//import org.teasoft.honey.logging.LoggerFactory;
 import org.teasoft.honey.osql.dialect.sqlserver.SqlServerPagingStruct;
+import org.teasoft.honey.osql.name.KeyWord;
 import org.teasoft.honey.osql.util.AnnoUtil;
 import org.teasoft.honey.osql.util.NameCheckUtil;
 import org.teasoft.honey.sharding.ShardingUtil;
-import org.teasoft.honey.sharding.config.ShardingConfig;
+import org.teasoft.honey.sharding.algorithm.DateCalculate;
 import org.teasoft.honey.util.ObjectUtils;
 import org.teasoft.honey.util.StringUtils;
 
@@ -110,7 +119,8 @@ public final class HoneyContext {
 	private static ConcurrentMap<String, Boolean> customFlagMap;
 
 	static {
-		HoneyConfig.getHoneyConfig(); // V2.1.8 与config相互引用时,这句不一定保险
+		
+		HoneyConfig.getHoneyConfig(); // V2.1.8 与config相互引用时,这句不一定保险 V2.5.2 HoneyConfig不再引用Context
 
 		beanMap = new ConcurrentHashMap<>();
 		beanCustomPKey = new ConcurrentHashMap<>();
@@ -169,6 +179,8 @@ public final class HoneyContext {
 		modifiedFlagMapForCache2 = new ConcurrentHashMap<>();
 		entityInterceptorFlag = new ConcurrentHashMap<>();
 		customFlagMap = new ConcurrentHashMap<>();
+		
+		init();
 
 		initLoad();
 	}
@@ -199,7 +211,7 @@ public final class HoneyContext {
 		}
 	}
 
-	static void initTLRefresh() { // initTL 默认时,走else; 当在代码设置了multiDS_sharding,才要刷新.
+	public static void initAfterChangeMultiDsSharding() { // initTL 默认时,走else; 当在代码设置了multiDS_sharding,才要刷新.
 //		if (HoneyConfig.getHoneyConfig().multiDS_sharding) { //当使用分片模式,某些表又没有实行分片时,不宜使用parallelStream()并行操作
 //			//因parallelStream()+InheritableThreadLocal会有问题,但分片又必要要用InheritableThreadLocal,所以分片时,不支持parallelStream并行操作
 //			sqlPreValueLocal = new InheritableThreadLocal<>();
@@ -1090,7 +1102,16 @@ public final class HoneyContext {
 	static String getRealTimeDbName() {
 		String dbName = null;
 		if (isNeedRealTimeDb()) {
-			return HoneyConfig.getHoneyConfig().getDbName();
+			String dsName = Router.getDsName();
+			if (dsName != null && HoneyContext.getDsName2DbName() != null) {
+				String temp_dbName = HoneyContext.getDsName2DbName().get(dsName);
+				if (temp_dbName == null) { // V1.17
+					Logger.warn("Did not find the dataSource name : " + dsName); //数据源池里没有,应该抛异常
+					throw new ConfigWrongException("Did not find the dataSource name : " + dsName);
+				} else {
+					return temp_dbName;
+				}
+			}
 		}
 		return dbName;
 	}
@@ -1120,8 +1141,8 @@ public final class HoneyContext {
 		HoneyContext.dsName2DbName = dsName2DbName;
 	}
 
-	private static boolean configRefresh = false;
-	private static boolean dsMapConfigRefresh = false;
+	private static boolean configRefresh = true; //TODO
+	private static boolean dsMapConfigRefresh = true; //TODO
 //	private volatile static boolean dsMapConfigRefresh = false;
 
 	public static boolean isConfigRefresh() {
@@ -1170,6 +1191,9 @@ public final class HoneyContext {
 		if (StringUtils.isNotBlank(active)) {
 			if (ONE.equals(type)) {
 				HoneyConfig.getHoneyConfig().overrideByActive(active); // 先处理bee-{active}.properties; 后面再处理bee-spring-boot框架里的其它配置
+				// V2.1.10
+				HoneyContext.setConfigRefresh(true);
+				HoneyContext.setDsMapConfigRefresh(true); // 直接设置, 因解析时会判断相应属性后才进行相应解析
 			}
 		}
 		// 不需要删除active和type两个key; 因不会触发新刷新, 更新后,也可以从HoneyConfig知道当前是什么值.
@@ -1199,8 +1223,8 @@ public final class HoneyContext {
 		setDsMapConfigRefresh(true); // 是否应该有数据源配置时,才设置更新? 解析时会先判断相关属性的
 
 		// 2.4.0
-		if (hasMultiDS_sharding) initTLRefresh();
-		if (hasMultiDS_sharding && hasShardingMap) prcessShardingRuleInProperties();
+		if (hasMultiDS_sharding) initAfterChangeMultiDsSharding();
+		if (hasMultiDS_sharding && hasShardingMap) ConfigRefreshUtil.prcessShardingRuleInProperties();
 
 	}
 
@@ -1263,45 +1287,6 @@ public final class HoneyContext {
 		}
 	}
 
-	static void prcessShardingRuleInProperties() {
-		Map<String, Map<String, String>> shardingMap = HoneyConfig.getHoneyConfig().getSharding();
-
-		if (shardingMap == null || shardingMap.isEmpty()) return;
-		if (!ShardingUtil.isSharding()) return;
-
-		for (Map.Entry<String, Map<String, String>> entry : shardingMap.entrySet()) {
-
-			Map<String, String> map = entry.getValue();
-			if (map == null || map.size() == 0) continue;
-
-			String baseTableName = map.get("baseTableName");
-			String className = map.get("className");
-
-			boolean baseTableNameEmpty = false;
-			boolean classNameEmpty = false;
-			if (StringUtils.isBlank(baseTableName)) {
-				baseTableNameEmpty = true;
-			}
-			if (StringUtils.isBlank(className)) {
-				classNameEmpty = true;
-			}
-
-			if (baseTableNameEmpty && classNameEmpty) {
-				Logger.warn("bee.db.sharding[" + entry.getKey() + "]" + "must define baseTableName or className");
-			} else {
-				if (!baseTableNameEmpty) {
-					ShardingConfig.addShardingBean(baseTableName, new ShardingBean(entry.getValue()));
-				} else if (!classNameEmpty) {
-					try {
-						ShardingConfig.addShardingBean(Class.forName(className), new ShardingBean(entry.getValue()));
-					} catch (Exception e) {
-						Logger.warn("Can not find the class: " + className, e);
-					}
-				}
-			}
-		}
-	}
-
 	private static final String field2Column = StringConst.PREFIX + "Field2Column";
 
 	static void initParseDefineColumn(Class entityClass) {
@@ -1348,6 +1333,45 @@ public final class HoneyContext {
 			Logger.debug(e.getMessage(), e);
 			// ignore
 		}
+	}
+	
+	public static void resetAferSetDbName(){
+		BeeFactory.getHoneyFactory().setDbFeature(null); 
+		KeyWord.appendKW2BloomFilterForDialect(HoneyConfig.getHoneyConfig().getDbName());// 2.5.2
+	}
+	
+	
+	/**
+	 * In production, this attribute should be set in the configuration file using "bee.dosql.multiDS.sharding".
+	 * <br>And the running process should not be changed, otherwise relevant configuration and contextual information will be lost.
+	 * <br>此方法,只建议在测试时使用.在生产上,此属性应该在配置文件中使用bee.dosql.multiDS.sharding设置,
+	 * <br>且运行过程不宜更改,否则会丢失有关配置和上下文信息.
+	 * @param multiDsSharding
+	 * @since 2.5.2
+	 */
+	public static void resetMultiDsSharding(boolean multiDsSharding) {
+		HoneyConfig.getHoneyConfig().setMultiDsSharding(multiDsSharding);
+		initAfterChangeMultiDsSharding();
+	}
+	
+	
+	//after reset config, need call init
+	public static void init() {
+		HoneyContext.setConfigRefresh(true);
+		HoneyContext.setDsMapConfigRefresh(true); // 直接设置, 因解析时会判断相应属性后才进行相应解析
+		HoneyContext.refreshDataSourceMap(); 
+
+		HoneyContext.initLoad();
+		
+		HoneyConfig config=HoneyConfig.getHoneyConfig();
+		
+		if (config.isAndroid || config.isHarmony) {// V1.17
+			config.setDbName(DatabaseConst.SQLite);
+			resetAferSetDbName();
+			DbFeatureRegistry.register(DatabaseConst.SQLite, new LimitOffsetPaging()); 
+		}
+
+		CalculateRegistry.register(1, new DateCalculate()); // 2.4.0 用户可以覆盖
 	}
 
 }

@@ -1,25 +1,18 @@
 package org.teasoft.honey.osql.core;
 
 import java.io.InputStream;
-import java.sql.Connection;
 import java.util.Map;
 
-import javax.sql.DataSource;
-
+import org.teasoft.bee.logging.LogSqlConfig;
+import org.teasoft.bee.logging.LoggerTypeConfig;
 import org.teasoft.bee.osql.BeeVersion;
 import org.teasoft.bee.osql.DatabaseConst;
 import org.teasoft.bee.osql.Properties;
 import org.teasoft.bee.osql.annotation.SysValue;
-import org.teasoft.bee.osql.dialect.DbFeatureRegistry;
 import org.teasoft.bee.osql.exception.ConfigWrongException;
-import org.teasoft.bee.sharding.algorithm.CalculateRegistry;
-import org.teasoft.honey.distribution.ds.Router;
+import org.teasoft.honey.logging.Logger;
 import org.teasoft.honey.logging.LoggerFactory;
 import org.teasoft.honey.osql.constant.DbConfigConst;
-import org.teasoft.honey.osql.dialect.LimitOffsetPaging;
-import org.teasoft.honey.osql.dialect.sqlserver.SqlServerFeature2012;
-import org.teasoft.honey.osql.name.KeyWord;
-import org.teasoft.honey.sharding.algorithm.DateCalculate;
 import org.teasoft.honey.util.HoneyVersion;
 import org.teasoft.honey.util.StringUtils;
 
@@ -28,24 +21,24 @@ import org.teasoft.honey.util.StringUtils;
  * @author Kingstar
  * @since  1.0
  */
-public final class HoneyConfig {
+public final class HoneyConfig implements LoggerTypeConfig, LogSqlConfig {
 
-	private static HoneyConfig honeyConfig = null;
+//	private static HoneyConfig honeyConfig = null;
+	private static HoneyConfig honeyConfig = new HoneyConfig();
+	private static volatile boolean isNew = true;
+	
 	static {
-		honeyConfig = new HoneyConfig();
-
+//		honeyConfig = new HoneyConfig();
 		honeyConfig.init(); // just run one time
-
-		printVersion();
+		printVersion(); 
 	}
 
-	private HoneyConfig() {}
-
-//	{   //放在这,会报异常.
-//		honeyConfig.init(); // just run one time
-//	}
-
+	private HoneyConfig() {
+		isNew = true;
+	}
+	
 	private static void printVersion() {
+//		Logger.info("");
 		Logger.info("[Bee] -------- Bee    " + BeeVersion.version + " -------- ");
 		Logger.info("[Bee] -------- Honey  " + HoneyVersion.version + " -------- ");
 		try {
@@ -59,108 +52,7 @@ public final class HoneyConfig {
 	public static HoneyConfig getHoneyConfig() {
 		return honeyConfig;
 	}
-
-	private void init() {
-		SysValueProcessor.process(honeyConfig);
-
-//		#1.base main and Override with active, 2.rebase to active(other file)
-//		#1 : main file + other file; 2 : just active file(other file);    if do not set , will use mail file.
-		if (type == 1 || type == 2) {
-			if (StringUtils.isBlank(active)) {
-				String msg = "The value of bee.profiles.active is empty!";
-				Logger.warn(msg, new ConfigWrongException(msg));
-			} else {
-				if (type == 2) _setHoneyConfig();// rebase
-				_overrideByActive(active);
-				// use the key in active override the main file.
-			}
-		} else {// 在main方法,操作数据库时,有时需要获取dbName;需要先解析一次
-			try {
-				initHoneyContext();
-				HoneyContext.refreshDataSourceMap();
-			} catch (Exception e) {
-				Logger.debug(e.getMessage(), e);
-			}
-		}
-
-		if (isAndroid || isHarmony) {// V1.17
-			dbName = DatabaseConst.SQLite;
-			DbFeatureRegistry.register(DatabaseConst.SQLite, new LimitOffsetPaging());
-		}
-
-		initHoneyContext();
-
-		CalculateRegistry.register(1, new DateCalculate()); // 2.4.0 用户可以覆盖
-	}
-
-	private void initHoneyContext() {
-		HoneyContext.setConfigRefresh(true);
-		HoneyContext.setDsMapConfigRefresh(true); // 直接设置, 因解析时会判断相应属性后才进行相应解析
-
-//		HoneyContext.refreshDataSourceMap(); //V2.1.8  立即刷新         V2.1.10 要是有部分配置在如bee-dev(如密码在那),则会因配置信息不全而报错;   首次加载时,还没有拿完所有信息
-
-		HoneyContext.initLoad();
-	}
-
-	private void _overrideByActive(String active) {
-
-		OneTimeParameter.setTrueForKey(StringConst.PREFIX + "need_override_properties");
-
-		String fileName = "bee-{active}.properties".replace("{active}", active);
-		Properties beeActiveProp = new BeeActiveProp(fileName);
-		SysValueProcessor.process(honeyConfig, beeActiveProp);
-	}
-
-	/**
-	 * override by Active file
-	 * @param active
-	 * @since 2.1.8
-	 */
-	public void overrideByActive(String active) {
-		_overrideByActive(active);
-
-		// V2.1.10
-		HoneyContext.setConfigRefresh(true);
-		HoneyContext.setDsMapConfigRefresh(true); // 直接设置, 因解析时会判断相应属性后才进行相应解析
-	}
-
-	/**
-	 * 使用指定路径的bee.properties进行配置.set the folder path of bee.properties
-	 * 若使用第三方框架管理配置,不建议在此处重置配置.
-	 * @param folderPath bee.properties所在的路径. the folder path of bee.properties
-	 * @since 1.9.8
-	 */
-	public void resetBeeProperties(String folderPath) {
-		try {
-			BeeProp.resetBeeProperties(folderPath);
-			_setHoneyConfig();
-			honeyConfig.init();
-			LoggerFactory.setConfigRefresh(true);
-			Logger.warn("[Bee] ========= reset the bee.properties with folderPath:" + folderPath);
-		} catch (Exception e) {
-			Logger.warn(e.getMessage());
-		}
-	}
-
-	/**
-	 * @since 1.17
-	 */
-	public void resetBeeProperties(InputStream inputStream) {
-		try {
-			BeeProp.resetBeeProperties(inputStream);
-			_setHoneyConfig();
-			honeyConfig.init();
-			LoggerFactory.setConfigRefresh(true);
-			Logger.warn("[Bee] ========= reset the bee.properties by inputStream");
-		} catch (Exception e) {
-			Logger.warn(e.getMessage());
-		}
-	}
-
-	private static void _setHoneyConfig() {
-		HoneyConfig.honeyConfig = new HoneyConfig();
-	}
-
+	
 	// ----------------------------- bee.profiles
 	@SysValue("${bee.profiles.type}")
 	int type;
@@ -237,7 +129,18 @@ public final class HoneyConfig {
 	public boolean showSqlExecuteTime = true;
 
 	@SysValue("${bee.osql.minSqlExecuteTime}") // 2.5.2
-	public int minSqlExecuteTime = 5;   //ms
+	public int minSqlExecuteTime = 5;   //ms  //TODO change name
+	
+	@Override
+	public boolean isShowSQL() {
+		return showSQL;
+	}
+
+	@Override
+	public String getSqlLoggerLevel() {
+		return sqlLoggerLevel;
+	}
+	
 
 	// ----------------------------- showSql start
 
@@ -516,14 +419,14 @@ public final class HoneyConfig {
 	/**
 	 * In production, this attribute should be set in the configuration file using "bee.dosql.multiDS.sharding".
 	 * <br>And the running process should not be changed, otherwise relevant configuration and contextual information will be lost.
-	 * <br>在生产上,此属性应该在配置文件中使用bee.dosql.multiDS.sharding设置,
+	 * <br>此方法,只建议在测试时使用.在生产上,此属性应该在配置文件中使用bee.dosql.multiDS.sharding设置,
 	 * <br>且运行过程不宜更改,否则会丢失有关配置和上下文信息.
 	 * @param multiDsSharding
 	 * @since 2.4.0
 	 */
-	public void setMultiDsSharding(boolean multiDsSharding) {
+	void setMultiDsSharding(boolean multiDsSharding) {
 		this.multiDS_sharding = multiDsSharding;
-		HoneyContext.initTLRefresh();
+//		HoneyContext.initAfterChangeMultiDsSharding();// 为了防止循环依赖,在Config不能引用Context.
 	}
 	// ----------------------------- multiDs end
 
@@ -543,39 +446,30 @@ public final class HoneyConfig {
 	public int sharding_executorSize = 0; // fixed V2.1.10
 
 	// ----------------------------- sharding end
-
-	public String getDbName() {
-
-		checkAndRefreshDbNameForSingleDs(); // 单个DS
-		// 多DS时,在BeeFactory解析parseDbNameByDsMap时设置
-
-		if (HoneyContext.isNeedRealTimeDb()) { // 支持同时使用多种数据库的,需要动态获取,才准确
-			String dsName = Router.getDsName();
-			if (dsName != null && HoneyContext.getDsName2DbName() != null) {
-				String temp_dbName = HoneyContext.getDsName2DbName().get(dsName);
-				if (temp_dbName == null) { // V1.17
-//					Logger.warn("Did not find the dataSource name : " + dsName); //数据源池里没有,应该抛异常
-					throw new ConfigWrongException("Did not find the dataSource name : " + dsName);
-				} else {
-					return temp_dbName;
-				}
-			}
-		}
-		return dbName;
-	}
-
+	
+	
+	
 	/**
 	 * set dbName like in DatabaseConst.
+	 * need call HoneyContext.resetAferSetDbName()
 	 * @param dbName dbName like in DatabaseConst.
 	 */
 	public void setDbName(String dbName) {
 		this.dbName = dbName;
-		Logger.info("[Bee] ========= reset the dbName in HoneyConfig is :" + dbName);
-//		BeeFactory.getHoneyFactory().setDbFeature(BeeFactory.getHoneyFactory()._getDbDialectFeature());  //循环调用
-		BeeFactory.getHoneyFactory().setDbFeature(null);
-		KeyWord.appendKW2BloomFilterForDialect(dbName);// 2.5.2
+		//TODO use resetAferSetDbName  in Context
 	}
+	
+	/**
+	 * sharding, multi-ds 直接从config拿dbName则不会.
+	 * @return
+	 */
+	public String getDbName() {
+		checkAndRefreshDbNameForSingleDs(); // 单个DS
+		// 多DS时,在BeeFactory解析parseDbNameByDsMap时设置
 
+		return dbName;
+	}
+	
 	public int getDatabaseMajorVersion() {
 		return databaseMajorVersion;
 	}
@@ -583,87 +477,33 @@ public final class HoneyConfig {
 	public void setDatabaseMajorVersion(int databaseMajorVersion) {
 		this.databaseMajorVersion = databaseMajorVersion;
 	}
-
-	private static boolean alreadyPrintDbName = false;
-	private static boolean changeDataSource = false;
-
-	private static void checkAndRefreshDbNameForSingleDs() {
-		// 单库时, dbName是null或有更改Ds才要重新设置
-		if (!HoneyConfig.getHoneyConfig().multiDS_enable
-				&& (HoneyConfig.getHoneyConfig().dbName == null || changeDataSource)) {
-
-			Connection conn = null;
-			try {
-				String newDbName = null;
-				newDbName = getDbNameByUrl(); // V2.1.7 先使用url判断
-
-				if (newDbName == null) conn = SessionFactory.getConnection();
-				if (conn != null) {
-					newDbName = conn.getMetaData().getDatabaseProductName();
-				}
-				if (newDbName != null) {
-					HoneyConfig.getHoneyConfig().setDatabaseMajorVersion(0); // clear
-					if (DatabaseConst.SQLSERVER.equalsIgnoreCase(newDbName) && conn != null) { // V1.17 for SQL SERVER
-						int majorVersion = conn.getMetaData().getDatabaseMajorVersion();
-						HoneyConfig.getHoneyConfig().setDatabaseMajorVersion(majorVersion);
-						if (majorVersion >= 11) {
-							DbFeatureRegistry.register(DatabaseConst.SQLSERVER, new SqlServerFeature2012());
-						}
-					} else if (newDbName.contains("Microsoft Access")) {
-						Logger.debug("Transform the dbName:'" + newDbName + "' to '" + DatabaseConst.MsAccess + "'");
-						newDbName = DatabaseConst.MsAccess;
-					}
-
-					if (changeDataSource) {
-						HoneyConfig.getHoneyConfig().setDbName(newDbName);
-					} else {
-						HoneyConfig.getHoneyConfig().dbName = newDbName;
-					}
-					String logMsg;
-					String dbName = HoneyConfig.getHoneyConfig().dbName;
-					if (conn != null) logMsg = "[Bee] ========= get the dbName from the Connection is: " + dbName;
-					else logMsg = "[Bee] ========= get the dbName via url is: " + dbName;
-					Logger.info(logMsg);
-					printOceanbaseMode(dbName);
-					alreadyPrintDbName = true;
-				}
-			} catch (Exception e) {
-				Logger.warn("Can not get the Connection when check the dbName. Can set bee.db.dbName item.  \n"
-						+ e.getMessage(), e);
-			} finally {
-				try {
-					if (conn != null) conn.close();
-				} catch (Exception e2) {
-					Logger.warn(e2.getMessage(), e2);
-				}
-
-				if (alreadyPrintDbName && changeDataSource) { // alreadyPrintDbName只打印过
-					changeDataSource = false;
-					HoneyUtil.refreshSetParaAndResultTypeHandlerRegistry(); // 里面有用到dbName
-				}
-			}
-		} else {
-			if (!alreadyPrintDbName) {
-				String dbName = HoneyConfig.getHoneyConfig().dbName;
-				Logger.info("[Bee] ========= get the dbName from HoneyConfig is: " + dbName);
-				printOceanbaseMode(dbName);
-				alreadyPrintDbName = true;
-			}
-		}
+	
+	public void setDriverName(String driverName) {
+		this.driverName = driverName;
 	}
 
-	private static void printOceanbaseMode(String dbName) {
-		if (DatabaseConst.OceanBase.equalsIgnoreCase(dbName))
-			Logger.info("[Bee] ========= the OceanBase mode is: " + HoneyConfig.getHoneyConfig().oceanbaseMode);
+	public void setUrl(String url) {
+		HoneyConfig.setChangeDataSource(true);
+		this.url = url;
 	}
 
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+	
+	
 	// V2.1.7
-	private static String getDbNameByUrl() {
+	// V2.5.2
+	private String getDbNameByUrl() {
 		String dbName = null;
-		DataSource ds = BeeFactory.getInstance().getDataSource();
-		if (ds == null) {
-			String t_url = getHoneyConfig().getUrl();
-//			if(StringUtils.isNotBlank(t_url)) {
+//		DataSource ds = BeeFactory.getInstance().getDataSource();
+//		if (ds == null) {
+			String t_url = getUrl();
+			
 			if (t_url != null && !"".equals(t_url.trim())) { // sonar problem
 				t_url = t_url.trim();
 				if (t_url.startsWith("jdbc:mysql:")) dbName = DatabaseConst.MYSQL;
@@ -676,29 +516,8 @@ public final class HoneyConfig {
 				else if (t_url.startsWith("jdbc:cassandra:")) dbName = DatabaseConst.Cassandra;
 				else if (t_url.startsWith("jdbc:ucanaccess:")) dbName = DatabaseConst.MsAccess;
 			}
-		}
+//		}
 		return dbName;
-	}
-
-	public void setDriverName(String driverName) {
-		this.driverName = driverName;
-	}
-
-	public void setUrl(String url) {
-		HoneyConfig.setChangeDataSource(true);
-		this.url = url;
-	}
-
-	static void setChangeDataSource(boolean flag) {
-		HoneyConfig.changeDataSource = true;
-	}
-
-	public void setUsername(String username) {
-		this.username = username;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
 	}
 
 	public String getDriverName() {
@@ -730,13 +549,17 @@ public final class HoneyConfig {
 		this.schemaName = schemaName;
 	}
 
+	@Override
 	public String getLoggerType() {
 		return loggerType;
 	}
 
+	/**
+	 * if change loggerType, need call LoggerFactory.init(LoggerTypeConfig loggerTypeConfig);
+	 * @param loggerType
+	 */
 	public void setLoggerType(String loggerType) {
 		this.loggerType = loggerType;
-		LoggerFactory.setConfigRefresh(true);
 	}
 
 	public Map<String, Map<String, String>> getDbs() {
@@ -753,6 +576,151 @@ public final class HoneyConfig {
 
 	public void setSharding(Map<String, Map<String, String>> sharding) {
 		this.sharding = sharding;
+	}
+
+	void init() {
+
+		SysValueProcessor.process(honeyConfig);
+
+//		#1.base main and Override with active, 2.rebase to active(other file)
+//		#1 : main file + other file; 2 : just active file(other file);    if do not set , will use mail file.
+		if (type == 1 || type == 2) {
+			if (StringUtils.isBlank(active)) {
+				String msg = "The value of bee.profiles.active is empty!";
+				Logger.warn(msg, new ConfigWrongException(msg));
+			} else {
+				if (type == 2) _setHoneyConfig();// rebase
+				_overrideByActive(active);
+				// use the key in active override the main file.
+			}
+		}
+
+		if (isNew) {
+			LoggerFactory.init(honeyConfig);
+			Logger.init(honeyConfig);
+			isNew = false;
+		}
+	}
+
+	private void _overrideByActive(String active) {
+
+		OneTimeParameter.setTrueForKey(StringConst.PREFIX + "need_override_properties"); // OneTimeParameter
+
+		String fileName = "bee-{active}.properties".replace("{active}", active);
+		Properties beeActiveProp = new BeeActiveProp(fileName);
+		SysValueProcessor.process(honeyConfig, beeActiveProp);
+	}
+
+	/**
+	 * override by Active file
+	 * @param active
+	 * @since 2.1.8
+	 */
+	public void overrideByActive(String active) { //TODO
+		_overrideByActive(active);
+
+//		// V2.1.10  TODO
+//		HoneyContext.setConfigRefresh(true);
+//		HoneyContext.setDsMapConfigRefresh(true); // 直接设置, 因解析时会判断相应属性后才进行相应解析
+	}
+
+	/**
+	 * 使用指定路径的bee.properties进行配置.set the folder path of bee.properties
+	 * 若使用第三方框架管理配置,不建议在此处重置配置.
+	 * if change loggerType, need call LoggerFactory.init(LoggerTypeConfig loggerTypeConfig);
+	 * @param folderPath bee.properties所在的路径. the folder path of bee.properties
+	 * @since 1.9.8
+	 */
+	public void resetBeeProperties(String folderPath) {
+		try {
+			BeeProp.resetBeeProperties(folderPath);
+			_setHoneyConfig();
+			honeyConfig.init();
+			printWarn("[Bee] ========= reset the bee.properties with folderPath:" + folderPath);
+		} catch (Exception e) {
+			printWarn(e.getMessage());
+		}
+	}
+
+	/**
+	 * reset the config with InputStream of BeeProperties.
+	 * if change loggerType, need call LoggerFactory.init(LoggerTypeConfig loggerTypeConfig);
+	 * @since 1.17
+	 */
+	public void resetBeeProperties(InputStream inputStream) {
+		try {
+			BeeProp.resetBeeProperties(inputStream);
+			_setHoneyConfig();
+			honeyConfig.init();
+			printWarn("[Bee] ========= reset the bee.properties by inputStream");
+		} catch (Exception e) {
+			printWarn(e.getMessage());
+		}
+	}
+
+	private static void _setHoneyConfig() {
+		HoneyConfig.honeyConfig = new HoneyConfig();
+	}
+
+
+	private static boolean _alreadyPrintDbName = false;
+	private static boolean _changeDataSource = false;
+	
+	static void setChangeDataSource(boolean flag) {
+		HoneyConfig._changeDataSource = true;
+	}
+
+	private void checkAndRefreshDbNameForSingleDs() {
+		// 单库时, dbName是null或有更改Ds才要重新设置
+		if (!HoneyConfig.getHoneyConfig().multiDS_enable
+				&& (HoneyConfig.getHoneyConfig().dbName == null || _changeDataSource)) {
+			try {
+				String newDbName = null;
+				newDbName = getDbNameByUrl(); // V2.1.7 先使用url判断
+				if (newDbName != null) {
+					if (_changeDataSource) {
+						HoneyConfig.getHoneyConfig().setDbName(newDbName);  //TODO need call HoneyContext.resetAferSetDbName();
+					} else {
+						HoneyConfig.getHoneyConfig().dbName = newDbName;
+					}
+					String logMsg;
+					String dbName = HoneyConfig.getHoneyConfig().dbName;
+					logMsg = "[Bee] ========= get the dbName via url is: " + dbName;
+					printInfo(logMsg);
+					printOceanbaseMode(dbName);
+					_alreadyPrintDbName = true;
+				}
+			} catch (Exception e) {
+				printWarn("Can not get the Connection when check the dbName. Can set bee.db.dbName item.  \n"+ e.getMessage());
+			} finally {
+
+				if (_alreadyPrintDbName && _changeDataSource) { // alreadyPrintDbName只打印过
+					_changeDataSource = false;
+//					HoneyUtil.refreshSetParaAndResultTypeHandlerRegistry(); // 里面有用到dbName  TODO
+				}
+			}
+		} else {
+			if (!_alreadyPrintDbName) {
+				String dbName = HoneyConfig.getHoneyConfig().dbName;
+				printInfo("[Bee] ========= get the dbName from HoneyConfig is: " + dbName);
+				printOceanbaseMode(dbName);
+				_alreadyPrintDbName = true;
+			}
+		}
+	}
+
+	private void printOceanbaseMode(String dbName) {
+		if (DatabaseConst.OceanBase.equalsIgnoreCase(dbName)) {
+			printInfo("[Bee] ========= the OceanBase mode is: " + HoneyConfig.getHoneyConfig().oceanbaseMode);
+		}
+	}
+	
+	private void printInfo(String msg) {
+		Logger.info(msg);
+	}
+	
+	private void printWarn(String msg) {
+		Logger.warn(msg);
 	}
 
 }

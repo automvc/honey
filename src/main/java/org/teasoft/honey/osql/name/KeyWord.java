@@ -12,9 +12,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.teasoft.bee.osql.DatabaseConst;
+import org.teasoft.honey.logging.Logger;
 import org.teasoft.honey.osql.core.HoneyConfig;
 import org.teasoft.honey.osql.core.HoneyContext;
-import org.teasoft.honey.osql.core.Logger;
 import org.teasoft.honey.util.StringUtils;
 
 /**
