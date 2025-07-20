@@ -19,31 +19,29 @@ import org.teasoft.honey.osql.util.FileUtil;
  * @author Kingstar
  * @since  1.4
  */
-public class FileLogger implements Log{
-	
-	private String className=null;
-	
+public class FileLogger implements Log {
+
+	private String className = null;
+
 	private String LINE_SEPARATOR = System.getProperty("line.separator"); // 换行符
-	
-	private static final String TRACE="TRACE";
-	private static final String DEBUG="DEBUG";
-	private static final String INFO="INFO";
-	private static final String WARN="WARN";
-	private static final String ERROR="ERROR";
-	private static final String SPACE=" ";
-	private static final String LEFT="[";
-	private static final String RIGHT="]";
-	
-	private static boolean donotPrintCurrentDate=HoneyConfig.getHoneyConfig().showSql_donotPrintCurrentDate;
-	private static boolean donotPrintLevel=HoneyConfig.getHoneyConfig().logDonotPrintLevel;
-	
-	public FileLogger(){
+
+	private static final String TRACE = "TRACE";
+	private static final String DEBUG = "DEBUG";
+	private static final String INFO = "INFO";
+	private static final String WARN = "WARN";
+	private static final String ERROR = "ERROR";
+	private static final String SPACE = " ";
+	private static final String LEFT = "[";
+	private static final String RIGHT = "]";
+
+	private static boolean donotPrintCurrentDate = HoneyConfig.getHoneyConfig().showSql_donotPrintCurrentDate;
+	private static boolean donotPrintLevel = HoneyConfig.getHoneyConfig().logDonotPrintLevel;
+
+	public FileLogger() {}
+
+	public FileLogger(String className) {
+		this.className = className;
 	}
-	
-	public FileLogger(String className){
-		this.className=className;
-	}
-	
 
 	@Override
 	public boolean isTraceEnabled() {
@@ -52,10 +50,10 @@ public class FileLogger implements Log{
 
 	@Override
 	public void trace(String msg) {
-		if(this.className!=null) 
-			print(TRACE,msg,className);
+		if (this.className != null)
+			print(TRACE, msg, className);
 		else
-			print(TRACE,msg);
+			print(TRACE, msg);
 	}
 
 	@Override
@@ -65,18 +63,18 @@ public class FileLogger implements Log{
 
 	@Override
 	public void debug(String msg) {
-		if(this.className!=null) 
-			print(DEBUG,msg,className);
+		if (this.className != null)
+			print(DEBUG, msg, className);
 		else
-			print(DEBUG,msg);
+			print(DEBUG, msg);
 	}
-	
+
 	@Override
 	public void debug(String msg, Throwable t) {
-		if(this.className!=null) 
-			print(DEBUG,msg+LINE_SEPARATOR+t.getMessage(),className);
+		if (this.className != null)
+			print(DEBUG, msg + LINE_SEPARATOR + t.getMessage(), className);
 		else
-			print(DEBUG,msg+LINE_SEPARATOR+t.getMessage());	
+			print(DEBUG, msg + LINE_SEPARATOR + t.getMessage());
 	}
 
 	@Override
@@ -86,10 +84,10 @@ public class FileLogger implements Log{
 
 	@Override
 	public void info(String msg) {
-		if(this.className!=null) 
-			print(INFO,msg,className);
+		if (this.className != null)
+			print(INFO, msg, className);
 		else
-			print(INFO,msg);
+			print(INFO, msg);
 	}
 
 	@Override
@@ -99,18 +97,18 @@ public class FileLogger implements Log{
 
 	@Override
 	public void warn(String msg) {
-		if(this.className!=null) 
-			print(WARN,msg,className);
+		if (this.className != null)
+			print(WARN, msg, className);
 		else
-			print(WARN,msg);
+			print(WARN, msg);
 	}
-	
+
 	@Override
 	public void warn(String msg, Throwable t) {
-		if(this.className!=null) 
-			print(WARN,msg+LINE_SEPARATOR+t.getMessage(),className);
+		if (this.className != null)
+			print(WARN, msg + LINE_SEPARATOR + t.getMessage(), className);
 		else
-			print(WARN,msg+LINE_SEPARATOR+t.getMessage());	
+			print(WARN, msg + LINE_SEPARATOR + t.getMessage());
 	}
 
 	@Override
@@ -120,93 +118,84 @@ public class FileLogger implements Log{
 
 	@Override
 	public void error(String msg) {
-		if(this.className!=null) 
-			print(ERROR,msg,className);
+		if (this.className != null)
+			print(ERROR, msg, className);
 		else
-			print(ERROR,msg);		
+			print(ERROR, msg);
 	}
 
 	@Override
 	public void error(String msg, Throwable t) {
-		if(this.className!=null) 
-			print(ERROR,msg+LINE_SEPARATOR+t.getMessage(),className);
+		if (this.className != null)
+			print(ERROR, msg + LINE_SEPARATOR + t.getMessage(), className);
 		else
-			print(ERROR,msg+LINE_SEPARATOR+t.getMessage());	
+			print(ERROR, msg + LINE_SEPARATOR + t.getMessage());
 	}
-	
-	private void print(String level,String msg){
-		StringBuffer b=new StringBuffer();
-		
+
+	private void print(String level, String msg) {
+		StringBuffer b = new StringBuffer();
+
 		if (donotPrintCurrentDate) {
-			//nothing
+			// nothing
 		} else {
 			b.append(DateUtil.currentDate());
 			b.append(SPACE);
 		}
-		
-		if(donotPrintLevel){
-			//nothing
-		}else{
-			b.append(LEFT)
-			 .append(level)
-			 .append(RIGHT)
-			 .append(SPACE);
+
+		if (donotPrintLevel) {
+			// nothing
+		} else {
+			b.append(LEFT).append(level).append(RIGHT).append(SPACE);
 		}
-		
+
 		b.append(msg);
-		
+
 		appendFile(b.toString());
-		
+
 	}
-	
-	private void print(String level,String msg,String className){
-		StringBuffer b=new StringBuffer();
-		
+
+	private void print(String level, String msg, String className) {
+		StringBuffer b = new StringBuffer();
+
 		if (donotPrintCurrentDate) {
-			//nothing
+			// nothing
 		} else {
 			b.append(DateUtil.currentDate());
 			b.append(SPACE);
 		}
-		
-		if(donotPrintLevel){
-			//nothing
-		}else{
-			b.append(LEFT)
-			 .append(level)
-			 .append(RIGHT)
-			 .append(SPACE);
+
+		if (donotPrintLevel) {
+			// nothing
+		} else {
+			b.append(LEFT).append(level).append(RIGHT).append(SPACE);
 		}
-		
-		b
-		 .append(LEFT)
-		 .append(className)
-		 .append(RIGHT)
-		 .append(SPACE)
-		
-		 .append(msg);
-		
+
+		b.append(LEFT).append(className).append(RIGHT).append(SPACE)
+
+				.append(msg);
+
 		appendFile(b.toString());
 	}
-	
+
 	private void appendFile(String content) {
 
-		if (Path.getFullPath() == null || "".equals(Path.getFullPath())) { //v1.8.15
-			
+		if (Path.getFullPath() == null || "".equals(Path.getFullPath())) { // v1.8.15
+
 //			SimpleDateFormat df=new SimpleDateFormat("yyyy-MM-dd HH.mm.ss.SS");
-			SimpleDateFormat df=new SimpleDateFormat("yyyy-MM-dd");
-			String datetime=df.format(System.currentTimeMillis());
-			
-			String fileSeparator=File.separator;
-			String path=System.getProperty("user.dir") + fileSeparator + "src" + fileSeparator + "main" + fileSeparator
-					+ "resources" + fileSeparator + "log" + fileSeparator + "noname-{datatime}.txt".replace("{datatime}", datetime);
+			SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+			String datetime = df.format(System.currentTimeMillis());
+
+			String fileSeparator = File.separator;
+			String path = System.getProperty("user.dir") + fileSeparator + "src" + fileSeparator + "main" + fileSeparator
+					+ "resources" + fileSeparator + "log" + fileSeparator
+					+ "noname-{datatime}.txt".replace("{datatime}", datetime);
 			System.err.println("[Bee] [WARN] Set the path for FileLogger automatically:  " + path);
-			
-			//set the path and file name of log file
+
+			// set the path and file name of log file
 			Path.setFullPath(path);
 		}
 
 		FileUtil.genAppendFile(Path.getFullPath(), content);
 	}
-	
+
 }
