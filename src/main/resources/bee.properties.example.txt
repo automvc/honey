@@ -1,6 +1,5 @@
 # you can create a new bee.properties file override the default value.
 
-
 #since V1.11
 #1.base main and Override with active, 2.rebase to active(other file)
 #1 : main file + other file; 2 : just active file(other file);    if do not set , will use mail file.
@@ -44,9 +43,9 @@
 #bee.db.harmonyDbVersion=1
 #bee.db.harmonyDbReadonly=false
 
-# since v1.8
-#log4j>slf4j>log4j2>androidLog>harmonyLog>systemLogger>fileLogger>noLogging>jdkLog>commonsLog
-bee.osql.loggerType=systemLogger
+# since v1.8; since 2.5.2 log4j2>slf4j
+#log4j>log4j2>slf4j>androidLog>harmonyLog>systemLogger>fileLogger>noLogging>jdkLog>commonsLog
+#bee.osql.loggerType=log4j
 #set log type for systemLoggerType(for develop):debug<info<warn<error
 bee.osql.systemLoggerLevel=info
 #since 1.9.8 value: info,warn,error,  设置SQL LOG日志输出的级别
@@ -81,21 +80,25 @@ bee.osql.openDefineColumn=true
 #1.11默认关闭; 1.17 默认打开
 bee.osql.openFieldTypeHandler=true
 
-#since 2.2 实体类是否支持解析超类
-#bee.osql.openEntityCanExtend=false
+#since 2.2 实体类是否支持解析超类  from 2.5.2 default true 
+#bee.osql.openEntityCanExtend=true
 
 #since 1.8.99
 #value is:lower,upper
 #bee.osql.sqlKeyWordCase=lower
 
 #control Logger.logSQL(msg) use in Bee.
-#bee.osql.showSQL=false
+#bee.osql.showSQL=true
+#since 2.5.2
+bee.osql.showSqlExecuteTime=true
+#ms
+bee.osql.minSqlExecuteTime=5
 # since v2.0
-bee.osql.showShardingSQL=false
+bee.osql.showShardingSQL=true
 
 # since v1.8
-#bee.osql.showSql.showType=false
-#bee.osql.showSql.showExecutableSql=false
+#bee.osql.showSql.showType=true
+#bee.osql.showSql.showExecutableSql=true
 #since 2.1.7 格式化sql
 bee.osql.showSql.sqlFormat=false
 # since v1.7.0  it is effect when bee.log.loggerType is :systemLogger or fileLogger.
@@ -111,7 +114,7 @@ bee.osql.showSql.sqlFormat=false
 # 3: original,  4 : DbUpperAndJavaLower(since 1.17), ORDER_NO<-->order_no(DB<-->Java)
 #if want to use other naming rule, you can define a new class implements NameTranslate
 #default value is :1
-bee.osql.naming.translateType=1
+bee.osql.naming.translateType=2
 #since 1.17 同时使用多用不同命名转换
 bee.osql.naming.useMoreTranslateType=false
 
@@ -119,6 +122,11 @@ bee.osql.naming.useMoreTranslateType=false
 #default: to LowerCase before. 默认是先转小写,因为如不转,DB字段用全大写时会出错
 #但像mysql,默认不是全大写的,建议设为false,这样转换会更精准.
 bee.osql.naming.toLowerCaseBefore=true
+
+#since 2.5.2
+#bee.osql.naming.allowKeyWordInColumn=true
+#define for append if bee do not contain them.
+#bee.osql.naming.sqlKeyWordInColumn=comment,user
 
 
 #bee.osql.moreTable.columnListWithStar=false
