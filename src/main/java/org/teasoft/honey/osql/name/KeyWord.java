@@ -14,7 +14,6 @@ import java.util.Map;
 import org.teasoft.bee.osql.DatabaseConst;
 import org.teasoft.honey.logging.Logger;
 import org.teasoft.honey.osql.core.HoneyConfig;
-import org.teasoft.honey.osql.core.HoneyContext;
 import org.teasoft.honey.util.StringUtils;
 
 /**
@@ -149,6 +148,13 @@ public class KeyWord {
 //	define for append if bee do not contain them.
 	private static List<String> appendKeyWord = new ArrayList<>();
 	static {
+//		boolean allowKeyWordInColumn = HoneyConfig.getHoneyConfig().naming_allowKeyWordInColumn;
+//		if (allowKeyWordInColumn) {
+		init(); //即便不转换,提示也要用到. 所以都要init.
+//		}
+	}
+
+	private static void init() {
 		String sqlKeyWordInColumn = HoneyConfig.getHoneyConfig().naming_SqlKeyWordInColumn;
 		if (StringUtils.isNotBlank(sqlKeyWordInColumn)) {
 			String t[] = sqlKeyWordInColumn.split(",");
@@ -175,7 +181,7 @@ public class KeyWord {
 			bloomFilter.add(kw);
 		}
 
-		addKW2BloomFilter(db2kw.get(HoneyContext.getDbDialect()));
+		addKW2BloomFilter(db2kw.get(HoneyConfig.getHoneyConfig().getDbName()));
 	}
 
 	private static void addKW2BloomFilter(String[] keywords) {
@@ -208,7 +214,7 @@ public class KeyWord {
 			boolean bf = bloomFilter.contains(name);
 			if (!bf) return bf;
 		} catch (Exception e) {
-			
+
 		}
 
 		if (isSqlKeyWord(name)) return true;
@@ -217,7 +223,7 @@ public class KeyWord {
 			if (kw.equals(name.toLowerCase())) return true;
 		}
 
-		String[] dialogKeyWord = db2kw.get(HoneyContext.getDbDialect());
+		String[] dialogKeyWord = db2kw.get(HoneyConfig.getHoneyConfig().getDbName());
 		if (dialogKeyWord != null && dialogKeyWord.length > 0) {
 			for (int i = 0; i < dialogKeyWord.length; i++) {
 				String dkw = dialogKeyWord[i];
@@ -235,7 +241,7 @@ public class KeyWord {
 	static String transformNameIfKeyWork(String name) {
 
 		boolean allowKeyWordInColumn = HoneyConfig.getHoneyConfig().naming_allowKeyWordInColumn;
-		if (!allowKeyWordInColumn) {
+		if (!allowKeyWordInColumn) { //if not allow, just print warn msg.
 			if (isSqlKeyWord(name)) warnKeyWord(name);
 			return name;
 		}
@@ -244,7 +250,7 @@ public class KeyWord {
 
 		warnKeyWord(name);
 
-		String dbName = HoneyContext.getDbDialect();
+		String dbName = HoneyConfig.getHoneyConfig().getDbName();
 		if (DatabaseConst.MYSQL.equals(dbName) || DatabaseConst.MariaDB.equals(dbName)) {
 			return "`" + name + "`";
 		} else if (DatabaseConst.MsAccess.equals(dbName)) {
