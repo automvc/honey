@@ -148,9 +148,9 @@ public class AbstractCommOperate implements CommOperate {
 
 	private void timerEnd() {
 		if (!showSqlExecuteTime()) return;
-		// TODO sharding时,还要加一个随机码; sql也要输出,才能关联标识? 直接输出sharding index标识?
-		long t = (long) OneTimeParameter.getAttribute(StringConst.TIMER_START);
-		if (t > 0) {
+		// sharding时,还要加一个随机码?  没有在这分线程,是在SqlLib
+		Long t = (Long) OneTimeParameter.getAttribute(StringConst.TIMER_START);
+		if (t!=null && t > 0) {
 			long spentTime = System.currentTimeMillis() - t;
 			int min = HoneyConfig.getHoneyConfig().minSqlExecuteTime;
 			if (spentTime >= min) Logger.logSQL("------ spent time(ms): " + spentTime);

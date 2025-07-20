@@ -59,6 +59,13 @@ public final class CacheKey {
 			strBuf.append("DataSourceName:");
 			strBuf.append(ds);
 			strBuf.append(SEPARATOR);
+		}else { //排除RW   V2.5.2
+//		else if(HoneyConfig.getHoneyConfig().differentDbEachTime) {
+//			strBuf.append("differentDbEachTime:");
+		//默认就添加,防止cache错误.  每次只用一个DB,但动态切换也不会错.
+			strBuf.append("Db-Username/pw-EachTime:");
+			strBuf.append((HoneyConfig.getHoneyConfig().getUrl() + HoneyConfig.getHoneyConfig().getUsername()).hashCode());
+			strBuf.append(SEPARATOR);
 		}
 
 		// 确定DataSourceName:null (@separator#) Sharding_tabNameList:null时,是否可以表示查所有??

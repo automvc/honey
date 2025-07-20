@@ -694,6 +694,7 @@ public class ConditionHelper {
 
 				isNeedAnd = true;
 			} else if (OpType.OP2 == opType) {
+				isNeedAnd = adjustAnd(sqlBuffer, isNeedAnd); //fix bug  V2.5.2.7
 				if (value == null) {
 					sqlBuffer.append(columnName);
 					if ("=".equals(operator)) {
@@ -712,11 +713,13 @@ public class ConditionHelper {
 				}
 				isNeedAnd = true;
 			} else if (OpType.OP_WITH_FIELD == opType) { // eg:field1=field2 //this could not use for having in mysql
+				isNeedAnd = adjustAnd(sqlBuffer, isNeedAnd);
 				sqlBuffer.append(columnName);
 				sqlBuffer.append(operator);
 				sqlBuffer.append(value);
 				isNeedAnd = true;
 			} else if (OpType.OP2_TO_DATE == opType) {
+				isNeedAnd = adjustAnd(sqlBuffer, isNeedAnd);
 				sqlBuffer.append(columnName);
 				sqlBuffer.append(operator);
 
