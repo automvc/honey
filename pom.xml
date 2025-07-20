@@ -20,6 +20,12 @@
 			<artifactId>bee</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		
+		<dependency>
+			<groupId>org.teasoft</groupId>
+			<artifactId>honey-logger</artifactId>
+			<version>2.5.2</version>
+		</dependency>
 
 	</dependencies>
 
