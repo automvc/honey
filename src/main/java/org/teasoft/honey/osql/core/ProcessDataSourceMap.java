@@ -53,7 +53,8 @@ class ProcessDataSourceMap {
 		Logger.info("[Bee] Parse DataSourceMap: dataSource name to database name , result: " + dsName2DbName);
 //		HoneyConfig.getHoneyConfig().dbName=dbName;
 		HoneyConfig.getHoneyConfig().setDbName(dbName); // 默认设置第1个数据源
-		HoneyContext.resetAferSetDbName();
+//		HoneyContext.resetAferSetDbName(); // 2.5.2
+		BeeFactory.getHoneyFactory().setDbFeature(null); 
 		HoneyContext.setDsName2DbName(dsName2DbName);
 		HoneyUtil.refreshSetParaAndResultTypeHandlerRegistry();
 	}

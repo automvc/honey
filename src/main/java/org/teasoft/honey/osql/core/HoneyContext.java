@@ -24,7 +24,6 @@ import org.teasoft.bee.osql.exception.BeeIllegalParameterException;
 import org.teasoft.bee.osql.exception.ConfigWrongException;
 import org.teasoft.bee.osql.exception.ShardingErrorException;
 import org.teasoft.bee.sharding.GroupFunStruct;
-//import org.teasoft.bee.sharding.ShardingBean;
 import org.teasoft.bee.sharding.ShardingPageStruct;
 import org.teasoft.bee.sharding.ShardingSortStruct;
 import org.teasoft.bee.sharding.algorithm.CalculateRegistry;
@@ -33,9 +32,7 @@ import org.teasoft.honey.distribution.ds.RouteStruct;
 import org.teasoft.honey.distribution.ds.Router;
 import org.teasoft.honey.logging.Logger;
 import org.teasoft.honey.osql.dialect.LimitOffsetPaging;
-//import org.teasoft.honey.logging.LoggerFactory;
 import org.teasoft.honey.osql.dialect.sqlserver.SqlServerPagingStruct;
-import org.teasoft.honey.osql.name.KeyWord;
 import org.teasoft.honey.osql.util.AnnoUtil;
 import org.teasoft.honey.osql.util.NameCheckUtil;
 import org.teasoft.honey.sharding.ShardingUtil;
@@ -119,7 +116,6 @@ public final class HoneyContext {
 	private static ConcurrentMap<String, Boolean> customFlagMap;
 
 	static {
-		
 		HoneyConfig.getHoneyConfig(); // V2.1.8 与config相互引用时,这句不一定保险 V2.5.2 HoneyConfig不再引用Context
 
 		beanMap = new ConcurrentHashMap<>();
@@ -1141,8 +1137,8 @@ public final class HoneyContext {
 		HoneyContext.dsName2DbName = dsName2DbName;
 	}
 
-	private static boolean configRefresh = true; //TODO
-	private static boolean dsMapConfigRefresh = true; //TODO
+	private static boolean configRefresh = true;
+	private static boolean dsMapConfigRefresh = false;
 //	private volatile static boolean dsMapConfigRefresh = false;
 
 	public static boolean isConfigRefresh() {
@@ -1335,12 +1331,6 @@ public final class HoneyContext {
 		}
 	}
 	
-	public static void resetAferSetDbName(){
-		BeeFactory.getHoneyFactory().setDbFeature(null); 
-		KeyWord.appendKW2BloomFilterForDialect(HoneyConfig.getHoneyConfig().getDbName());// 2.5.2
-	}
-	
-	
 	/**
 	 * In production, this attribute should be set in the configuration file using "bee.dosql.multiDS.sharding".
 	 * <br>And the running process should not be changed, otherwise relevant configuration and contextual information will be lost.
@@ -1354,7 +1344,6 @@ public final class HoneyContext {
 		initAfterChangeMultiDsSharding();
 	}
 	
-	
 	//after reset config, need call init
 	public static void init() {
 		HoneyContext.setConfigRefresh(true);
@@ -1367,7 +1356,7 @@ public final class HoneyContext {
 		
 		if (config.isAndroid || config.isHarmony) {// V1.17
 			config.setDbName(DatabaseConst.SQLite);
-			resetAferSetDbName();
+//			resetAferSetDbName();
 			DbFeatureRegistry.register(DatabaseConst.SQLite, new LimitOffsetPaging()); 
 		}
 

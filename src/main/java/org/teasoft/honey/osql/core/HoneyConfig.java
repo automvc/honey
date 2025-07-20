@@ -13,6 +13,7 @@ import org.teasoft.bee.osql.exception.ConfigWrongException;
 import org.teasoft.honey.logging.Logger;
 import org.teasoft.honey.logging.LoggerFactory;
 import org.teasoft.honey.osql.constant.DbConfigConst;
+import org.teasoft.honey.osql.name.KeyWord;
 import org.teasoft.honey.util.HoneyVersion;
 import org.teasoft.honey.util.StringUtils;
 
@@ -129,7 +130,7 @@ public final class HoneyConfig implements LoggerTypeConfig, LogSqlConfig {
 	public boolean showSqlExecuteTime = true;
 
 	@SysValue("${bee.osql.minSqlExecuteTime}") // 2.5.2
-	public int minSqlExecuteTime = 5;   //ms  //TODO change name
+	public int minSqlExecuteTime = 5;   //ms
 	
 	@Override
 	public boolean isShowSQL() {
@@ -145,10 +146,10 @@ public final class HoneyConfig implements LoggerTypeConfig, LogSqlConfig {
 	// ----------------------------- showSql start
 
 	@SysValue("${bee.osql.showSql.showType}")
-	boolean showSql_showType;// v1.8
+	boolean showSql_showType = true;// v1.8 //from 2.5.2 default true 
 
 	@SysValue("${bee.osql.showSql.showExecutableSql}")
-	public boolean showSql_showExecutableSql;// v1.8
+	public boolean showSql_showExecutableSql = true;// v1.8 //from 2.5.2 default true 
 
 	@SysValue("${bee.osql.showSql.sqlFormat}")
 	public boolean showSql_sqlFormat;// v2.1.7
@@ -238,6 +239,9 @@ public final class HoneyConfig implements LoggerTypeConfig, LogSqlConfig {
 
 	@SysValue("${" + DbConfigConst.DB_PWORD + "}")
 	String password;
+	
+//	@SysValue("${bee.db.differentDbEachTime}")
+//	public boolean differentDbEachTime; //V2.5.2
 
 	@SysValue("${bee.db.schemaName}")
 	String schemaName;
@@ -449,27 +453,6 @@ public final class HoneyConfig implements LoggerTypeConfig, LogSqlConfig {
 	
 	
 	
-	/**
-	 * set dbName like in DatabaseConst.
-	 * need call HoneyContext.resetAferSetDbName()
-	 * @param dbName dbName like in DatabaseConst.
-	 */
-	public void setDbName(String dbName) {
-		this.dbName = dbName;
-		//TODO use resetAferSetDbName  in Context
-	}
-	
-	/**
-	 * sharding, multi-ds 直接从config拿dbName则不会.
-	 * @return
-	 */
-	public String getDbName() {
-		checkAndRefreshDbNameForSingleDs(); // 单个DS
-		// 多DS时,在BeeFactory解析parseDbNameByDsMap时设置
-
-		return dbName;
-	}
-	
 	public int getDatabaseMajorVersion() {
 		return databaseMajorVersion;
 	}
@@ -483,16 +466,46 @@ public final class HoneyConfig implements LoggerTypeConfig, LogSqlConfig {
 	}
 
 	public void setUrl(String url) {
-		HoneyConfig.setChangeDataSource(true);
+		HoneyConfig._changeDataSource = true;
 		this.url = url;
 	}
 
 	public void setUsername(String username) {
+//		HoneyConfig.setChangeDataSource(true); //TODO 2.5.2
 		this.username = username;
 	}
 
 	public void setPassword(String password) {
 		this.password = password;
+	}
+	
+	/**
+	 * set dbName like in DatabaseConst.
+	 * @param dbName dbName like in DatabaseConst.
+	 */
+	public void setDbName(String dbName) {
+//		_changeDataSource = false; // 主动设置了,就不用再动态检测
+		this.dbName = dbName;
+		try {
+			appendKW2BloomFilter(this.dbName);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		catch (Throwable e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+	/**
+	 * sharding, multi-ds 直接从config拿dbName则不会.
+	 * @return
+	 */
+	public String getDbName() {
+		checkAndRefreshDbNameForSingleDs(); // 单个DS
+		// 多DS时,在BeeFactory解析parseDbNameByDsMap时设置
+
+		return dbName;
 	}
 	
 	
@@ -577,7 +590,14 @@ public final class HoneyConfig implements LoggerTypeConfig, LogSqlConfig {
 	public void setSharding(Map<String, Map<String, String>> sharding) {
 		this.sharding = sharding;
 	}
-
+	
+	private void appendKW2BloomFilter(String dbName) {
+//		boolean allowKeyWordInColumn = HoneyConfig.getHoneyConfig().naming_allowKeyWordInColumn;
+//		if (allowKeyWordInColumn) {
+		KeyWord.appendKW2BloomFilterForDialect(dbName); //即便不转换,提示也要用到. 所以都要set.
+//		}
+	}
+	
 	void init() {
 
 		SysValueProcessor.process(honeyConfig);
@@ -596,9 +616,9 @@ public final class HoneyConfig implements LoggerTypeConfig, LogSqlConfig {
 		}
 
 		if (isNew) {
+			isNew = false;
 			LoggerFactory.init(honeyConfig);
 			Logger.init(honeyConfig);
-			isNew = false;
 		}
 	}
 
@@ -666,7 +686,7 @@ public final class HoneyConfig implements LoggerTypeConfig, LogSqlConfig {
 	private static boolean _alreadyPrintDbName = false;
 	private static boolean _changeDataSource = false;
 	
-	static void setChangeDataSource(boolean flag) {
+	static void setChangeDataSource(boolean flag) { //for HoneyContext
 		HoneyConfig._changeDataSource = true;
 	}
 
@@ -679,8 +699,7 @@ public final class HoneyConfig implements LoggerTypeConfig, LogSqlConfig {
 				newDbName = getDbNameByUrl(); // V2.1.7 先使用url判断
 				if (newDbName != null) {
 					if (_changeDataSource) {
-						HoneyConfig.getHoneyConfig().setDbName(newDbName);  //TODO need call HoneyContext.resetAferSetDbName();
-					} else {
+						_changeDataSource=false;
 						HoneyConfig.getHoneyConfig().dbName = newDbName;
 					}
 					String logMsg;
