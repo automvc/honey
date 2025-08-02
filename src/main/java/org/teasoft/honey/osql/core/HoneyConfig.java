@@ -463,7 +463,7 @@ public final class HoneyConfig implements LoggerTypeConfig, LogSqlConfig {
 	}
 
 	public void setUrl(String url) {
-		HoneyConfig._changeDataSource = true;
+		setChangeDataSource(true);
 		this.url = url;
 	}
 
@@ -480,7 +480,7 @@ public final class HoneyConfig implements LoggerTypeConfig, LogSqlConfig {
 	 * @param dbName dbName like in DatabaseConst.
 	 */
 	public void setDbName(String dbName) {
-		_changeDataSource = false; // 主动设置了,就不用再动态检测
+		setChangeDataSource(false);// 主动设置了,就不用再动态检测
 		this.dbName = dbName;
 		appendKW2BloomFilter(this.dbName);
 	}

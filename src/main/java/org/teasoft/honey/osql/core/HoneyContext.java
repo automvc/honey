@@ -31,6 +31,7 @@ import org.teasoft.honey.database.DatabaseClientConnection;
 import org.teasoft.honey.distribution.ds.RouteStruct;
 import org.teasoft.honey.distribution.ds.Router;
 import org.teasoft.honey.logging.Logger;
+import org.teasoft.honey.logging.LoggerFactory;
 import org.teasoft.honey.osql.dialect.LimitOffsetPaging;
 import org.teasoft.honey.osql.dialect.sqlserver.SqlServerPagingStruct;
 import org.teasoft.honey.osql.util.AnnoUtil;
@@ -1199,6 +1200,10 @@ public final class HoneyContext {
 		Class<?> clazz = obj.getClass();
 		boolean hasShardingMap = false;
 		boolean hasMultiDS_sharding = false;
+		//2.5.2
+		boolean hasLoggerType = false;
+		boolean hasShowSQL = false;
+		boolean hasSqlLoggerLevel = false;
 
 		for (Map.Entry<String, Object> entry : map.entrySet()) {
 			try {
@@ -1206,9 +1211,17 @@ public final class HoneyContext {
 				if (field != null) {
 					HoneyUtil.setAccessibleTrue(field);
 					HoneyUtil.setFieldValue(field, obj, entry.getValue());
-					if ("multiDS_sharding".equals(entry.getKey()))
+					if ("multiDS_sharding".equals(entry.getKey())) {
 						hasMultiDS_sharding = true;
-					else if ("sharding".equals(entry.getKey())) hasShardingMap = true;
+					} else if ("sharding".equals(entry.getKey())) {
+						hasShardingMap = true;
+					} else if ("loggerType".equals(entry.getKey())) {
+						hasLoggerType = true;
+					} else if ("showSQL".equals(entry.getKey())) {
+						hasShowSQL = true;
+					} else if ("sqlLoggerLevel".equals(entry.getKey())) {
+						hasSqlLoggerLevel = true;
+					}
 				}
 			} catch (Exception e) {
 				throw ExceptionHelper.convert(e);
@@ -1217,6 +1230,11 @@ public final class HoneyContext {
 
 		setConfigRefresh(true);
 		setDsMapConfigRefresh(true); // 是否应该有数据源配置时,才设置更新? 解析时会先判断相关属性的
+		
+		//2.5.2
+		HoneyConfig honeyConfig = HoneyConfig.getHoneyConfig();
+		if (hasLoggerType) LoggerFactory.init(honeyConfig);
+		if (hasShowSQL || hasSqlLoggerLevel) Logger.init(honeyConfig);
 
 		// 2.4.0
 		if (hasMultiDS_sharding) initAfterChangeMultiDsSharding();

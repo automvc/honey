@@ -68,7 +68,7 @@ public class HoneyFactory {
 	private MapSql mapSql;
 	private MapSuid mapSuid;
 
-	private DbFeature dbFeature;
+//	private DbFeature dbFeature;
 	private NameTranslate nameTranslate;
 	private static Cache cache;
 
@@ -376,10 +376,10 @@ public class HoneyFactory {
 		}
 //		else dbName == null则表示不同时使用多种数据库
 
-		if (dbFeature != null)
-			return dbFeature;
-		else
-			return _getDbDialectFeature();
+//		if (dbFeature != null)
+//			return dbFeature;  //closed 2.5.2
+//		else
+		return _getDbDialectFeature();
 	}
 
 	// closed V2.5.2 ; can use DbFeatureRegistry.register(databaseName, dbFeature)

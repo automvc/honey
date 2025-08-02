@@ -65,7 +65,7 @@ public class BeeFactory extends BeeAbstractFactory {
 	private DataSource _getDsFromDsMap() {
 		String dsName = Router.getDsName();
 
-		Logger.info("[Bee] ========= the current DataSource name is :" + dsName + shardingIndex()); // V1.17
+		Logger.logSQL("[Bee] ========= the current DataSource name is :" + dsName + shardingIndex()); // V1.17
 //		Logger.logSQL("使用logSQL, 会引发异常", ""); //因为在Config首先获取dbName时,要使用这个方法,而logSQL这个方法又要使用Config里的信息.
 		DataSource ds = getDataSourceMap().get(dsName);
 		if (ds == null) Logger.warn("Can not find the DataSource from DataSource Map with dsName: " + dsName);
