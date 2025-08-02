@@ -114,7 +114,7 @@ bee.osql.showSql.sqlFormat=false
 # 3: original,  4 : DbUpperAndJavaLower(since 1.17), ORDER_NO<-->order_no(DB<-->Java)
 #if want to use other naming rule, you can define a new class implements NameTranslate
 #default value is :1
-bee.osql.naming.translateType=2
+bee.osql.naming.translateType=1
 #since 1.17 同时使用多用不同命名转换
 bee.osql.naming.useMoreTranslateType=false
 
