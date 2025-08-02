@@ -49,20 +49,34 @@
 		</resources>
 
 		<plugins>
-			<plugin>
+		
+		
+<!-- 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
 				<version>3.0.0</version>
 				
-<!-- 				若有在jar包里,android不允许定义新的 -->
+				若有在jar包里,android不允许定义新的
 				<configuration>
 					<excludes>
 						<exclude>/bee.properties</exclude>
 						<exclude>/*.properties</exclude>
 					</excludes>
 				</configuration>
-				
-				
+			</plugin> -->
+			
+			
+			<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-jar-plugin</artifactId>
+					<version>3.0.0</version>
+					<!-- If it is in the jar package, Android does not allow defining new ones -->
+					<configuration>
+						<excludes>
+							<exclude>bee.properties</exclude>
+							<exclude>*.properties</exclude>
+						</excludes>
+					</configuration>
 			</plugin>
 
 			<!--配置生成源码包 -->
