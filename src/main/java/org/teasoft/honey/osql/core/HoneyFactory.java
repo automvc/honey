@@ -90,7 +90,6 @@ public class HoneyFactory {
 	private static final byte[] lock = new byte[0];
 
 	static {
-		System.out.println("---------------HoneyFactory--------------------");
 		cache = initCache();
 	}
 
@@ -375,16 +374,18 @@ public class HoneyFactory {
 			Logger.logSQL(logMsg);
 			return _getDbDialectFeature(dbName);
 		}
-//		dbName == null则表示不同时使用多种数据库
+//		else dbName == null则表示不同时使用多种数据库
+		
 		if (dbFeature != null)
 			return dbFeature;
 		else
 			return _getDbDialectFeature();
 	}
 
-	public void setDbFeature(DbFeature dbFeature) {
-		this.dbFeature = dbFeature;
-	}
+	//closed V2.5.2 ; can use DbFeatureRegistry.register(databaseName, dbFeature)
+//	public void setDbFeature(DbFeature dbFeature) {
+//		this.dbFeature = dbFeature;
+//	}
 
 	NameTranslate getInitNameTranslate() {
 		if (nameTranslate == null) {

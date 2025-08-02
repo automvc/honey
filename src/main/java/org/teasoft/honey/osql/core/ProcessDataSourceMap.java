@@ -54,7 +54,7 @@ class ProcessDataSourceMap {
 //		HoneyConfig.getHoneyConfig().dbName=dbName;
 		HoneyConfig.getHoneyConfig().setDbName(dbName); // 默认设置第1个数据源
 //		HoneyContext.resetAferSetDbName(); // 2.5.2
-		BeeFactory.getHoneyFactory().setDbFeature(null); 
+//		BeeFactory.getHoneyFactory().setDbFeature(null); 
 		HoneyContext.setDsName2DbName(dsName2DbName);
 		HoneyUtil.refreshSetParaAndResultTypeHandlerRegistry();
 	}

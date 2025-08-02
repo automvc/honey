@@ -25,8 +25,6 @@ public class ConfigRefreshUtil {
 	
 	static void prcessShardingRuleInProperties() {
 		
-//		System.err.println("----------prcessShardingRuleInProperties----------loggerType: "+HoneyConfig.getHoneyConfig().getLoggerType());
-		
 		Map<String, Map<String, String>> shardingMap = HoneyConfig.getHoneyConfig().getSharding();
 
 		if (shardingMap == null || shardingMap.isEmpty()) return;

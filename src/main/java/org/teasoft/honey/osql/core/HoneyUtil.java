@@ -75,7 +75,6 @@ public final class HoneyUtil {
 	private static Map<String, Integer> javaTypeMap = new HashMap<>();
 
 	static {
-		System.out.println("---------------HoneyUtil--------------------");
 		initJavaTypeMap();
 		initSetParaAndResultTypeHandlerRegistry();
 	}

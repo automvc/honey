@@ -484,17 +484,9 @@ public final class HoneyConfig implements LoggerTypeConfig, LogSqlConfig {
 	 * @param dbName dbName like in DatabaseConst.
 	 */
 	public void setDbName(String dbName) {
-//		_changeDataSource = false; // 主动设置了,就不用再动态检测
+		_changeDataSource = false; // 主动设置了,就不用再动态检测
 		this.dbName = dbName;
-		try {
-			appendKW2BloomFilter(this.dbName);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		catch (Throwable e) {
-			e.printStackTrace();
-		}
-		
+		appendKW2BloomFilter(this.dbName);
 	}
 	
 	/**

@@ -836,60 +836,60 @@ public class ConditionHelper {
 		list.add(preparedValue);
 	}
 
-	public static void main(String[] args) {
-		WhereConditionWrap wrap =null;
-		
-		Condition condition=BeeFactory.getHoneyFactory().getCondition();
-		condition.op("abc", Op.eq, 1);
-		condition.op("inField", Op.in, 2);
-		wrap = processWhereCondition(condition);
-		System.out.println(wrap);
-//		  where abc=? and in_field in (?)
-		
-		condition=BeeFactory.getHoneyFactory().getCondition();
-		condition.op("abc", Op.eq, 1);
-//		condition.op("inField", Op.in, new String[] { "1", "2" });
-		condition.op("inField", Op.in, "1,2");//多个可以用逗号隔开. 
-		wrap = processWhereCondition(condition);
-		System.out.println(wrap);
-//		where abc=? and in_field in (?,?)
-		
-		condition=BeeFactory.getHoneyFactory().getCondition();
-		condition.op("abc", Op.eq, 1);
-		condition.op("likeField", Op.likeLeft, "bee"); //自动在左边加%
-		wrap = processWhereCondition(condition);
-		System.out.println(wrap);
-//		sql:  where abc=? and like_field like ?
-//				pvList:  1  %bee  
-		
-		condition=BeeFactory.getHoneyFactory().getCondition();
-		condition.op("abc", Op.eq, 1);
-		condition.op("likeField", Op.likeLeft, "%"); //自动在左边加%
-		wrap = processWhereCondition(condition);
-		System.out.println(wrap);
-		
-		condition=BeeFactory.getHoneyFactory().getCondition();
-		condition.op("abc", Op.eq, 1);
-		condition.op("likeField", Op.like, "%"); 
-		wrap = processWhereCondition(condition);
-		System.out.println(wrap);
-		
-		condition=BeeFactory.getHoneyFactory().getCondition();
-		condition.op("abc", Op.eq, 1);
-		condition.between("betweenField", 10, 20);
-		wrap = processWhereCondition(condition);
-		System.out.println(wrap);
-//		sql:  where abc=? and between_field between ? and ?
-//				pvList:  1  10  20  
-		
-//		WhereConditionWrap wrap=processWhereCondition(condition, true, null);
+//	public static void main(String[] args) {
+//		WhereConditionWrap wrap =null;
+//		
+//		Condition condition=BeeFactory.getHoneyFactory().getCondition();
+//		condition.op("abc", Op.eq, 1);
+//		condition.op("inField", Op.in, 2);
 //		wrap = processWhereCondition(condition);
-		
-		
-//		System.out.println(wrap.getSqlBuffer().toString()); 
-//		System.out.println(wrap.getPvList().toString()); 
-		
-	}
+//		System.out.println(wrap);
+////		  where abc=? and in_field in (?)
+//		
+//		condition=BeeFactory.getHoneyFactory().getCondition();
+//		condition.op("abc", Op.eq, 1);
+////		condition.op("inField", Op.in, new String[] { "1", "2" });
+//		condition.op("inField", Op.in, "1,2");//多个可以用逗号隔开. 
+//		wrap = processWhereCondition(condition);
+//		System.out.println(wrap);
+////		where abc=? and in_field in (?,?)
+//		
+//		condition=BeeFactory.getHoneyFactory().getCondition();
+//		condition.op("abc", Op.eq, 1);
+//		condition.op("likeField", Op.likeLeft, "bee"); //自动在左边加%
+//		wrap = processWhereCondition(condition);
+//		System.out.println(wrap);
+////		sql:  where abc=? and like_field like ?
+////				pvList:  1  %bee  
+//		
+//		condition=BeeFactory.getHoneyFactory().getCondition();
+//		condition.op("abc", Op.eq, 1);
+//		condition.op("likeField", Op.likeLeft, "%"); //自动在左边加%
+//		wrap = processWhereCondition(condition);
+//		System.out.println(wrap);
+//		
+//		condition=BeeFactory.getHoneyFactory().getCondition();
+//		condition.op("abc", Op.eq, 1);
+//		condition.op("likeField", Op.like, "%"); 
+//		wrap = processWhereCondition(condition);
+//		System.out.println(wrap);
+//		
+//		condition=BeeFactory.getHoneyFactory().getCondition();
+//		condition.op("abc", Op.eq, 1);
+//		condition.between("betweenField", 10, 20);
+//		wrap = processWhereCondition(condition);
+//		System.out.println(wrap);
+////		sql:  where abc=? and between_field between ? and ?
+////				pvList:  1  10  20  
+//		
+////		WhereConditionWrap wrap=processWhereCondition(condition, true, null);
+////		wrap = processWhereCondition(condition);
+//		
+//		
+////		System.out.println(wrap.getSqlBuffer().toString()); 
+////		System.out.println(wrap.getPvList().toString()); 
+//		
+//	}
 
 }
 
