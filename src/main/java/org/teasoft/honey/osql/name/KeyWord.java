@@ -22,7 +22,7 @@ import org.teasoft.honey.util.StringUtils;
  */
 public class KeyWord {
 
-	public final static String[] sql_key_work = { "select", "from", "where", "group", "by", "having", "order", "by",
+	private final static String[] sql_key_work = { "select", "from", "where", "group", "by", "having", "order", "by",
 			"limit", "offset", "insert", "into", "values", "update", "set", "delete", "truncate", "create", "alter",
 			"drop", "rename", "column", "table", "view", "index", "join", "inner", "join", "left", "join", "right",
 			"join", "full", "join", "cross", "join", "union", "union", "all", "intersect", "except", "minus", "distinct",
