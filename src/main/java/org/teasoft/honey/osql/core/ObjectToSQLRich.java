@@ -860,5 +860,5 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 	private boolean isNeedRealTimeDb() {
 		return HoneyContext.isNeedRealTimeDb();
 	}
-	
+
 }

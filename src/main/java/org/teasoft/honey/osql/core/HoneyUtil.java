@@ -2082,7 +2082,7 @@ public final class HoneyUtil {
 			return pkName;
 		}
 	}
-	
+
 //	// 专门用于Bee框架输出SQL日志.
 //	static void logSQL(String hardStr) {
 ////		LogSqlParse.logSQL(hardStr);

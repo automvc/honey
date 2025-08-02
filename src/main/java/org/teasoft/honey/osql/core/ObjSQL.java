@@ -283,5 +283,5 @@ public class ObjSQL extends AbstractCommOperate implements Suid {
 	public void setObjToSQL(ObjToSQL objToSQL) {
 		this.objToSQL = objToSQL;
 	}
-	
+
 }

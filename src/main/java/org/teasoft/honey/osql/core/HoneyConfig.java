@@ -27,17 +27,17 @@ public final class HoneyConfig implements LoggerTypeConfig, LogSqlConfig {
 //	private static HoneyConfig honeyConfig = null;
 	private static HoneyConfig honeyConfig = new HoneyConfig();
 	private static volatile boolean isNew = true;
-	
+
 	static {
 //		honeyConfig = new HoneyConfig();
 		honeyConfig.init(); // just run one time
-		printVersion(); 
+		printVersion();
 	}
 
 	private HoneyConfig() {
 		isNew = true;
 	}
-	
+
 	private static void printVersion() {
 //		Logger.info("");
 		Logger.info("[Bee] -------- Bee    " + BeeVersion.version + " -------- ");
@@ -53,7 +53,7 @@ public final class HoneyConfig implements LoggerTypeConfig, LogSqlConfig {
 	public static HoneyConfig getHoneyConfig() {
 		return honeyConfig;
 	}
-	
+
 	// ----------------------------- bee.profiles
 	@SysValue("${bee.profiles.type}")
 	int type;
@@ -115,23 +115,23 @@ public final class HoneyConfig implements LoggerTypeConfig, LogSqlConfig {
 	public boolean openFieldTypeHandler = true; // 从1.17默认打开
 
 	@SysValue("${bee.osql.openEntityCanExtend}")
-	public boolean openEntityCanExtend = true; // since 2.2; from 2.5.2 default true 
+	public boolean openEntityCanExtend = true; // since 2.2; from 2.5.2 default true
 
 	@SysValue("${bee.osql.closeDefaultParaResultRegistry}")
 	public boolean closeDefaultParaResultRegistry; // V1.17.21,V2.1.6
 
 	@SysValue("${bee.osql.showSQL}") // 属于 bee.osql
-	public boolean showSQL = true; //from 2.5.2 default true 
+	public boolean showSQL = true; // from 2.5.2 default true
 
 	@SysValue("${bee.osql.showShardingSQL}") // 属于 bee.osql
-	public boolean showShardingSQL = true; //from 2.5.2 default true 
-	
+	public boolean showShardingSQL = true; // from 2.5.2 default true
+
 	@SysValue("${bee.osql.showSqlExecuteTime}") // 2.5.2
 	public boolean showSqlExecuteTime = true;
 
 	@SysValue("${bee.osql.minSqlExecuteTime}") // 2.5.2
-	public int minSqlExecuteTime = 5;   //ms
-	
+	public int minSqlExecuteTime = 5; // ms
+
 	@Override
 	public boolean isShowSQL() {
 		return showSQL;
@@ -141,15 +141,14 @@ public final class HoneyConfig implements LoggerTypeConfig, LogSqlConfig {
 	public String getSqlLoggerLevel() {
 		return sqlLoggerLevel;
 	}
-	
 
 	// ----------------------------- showSql start
 
 	@SysValue("${bee.osql.showSql.showType}")
-	boolean showSql_showType = true;// v1.8 //from 2.5.2 default true 
+	boolean showSql_showType = true;// v1.8 //from 2.5.2 default true
 
 	@SysValue("${bee.osql.showSql.showExecutableSql}")
-	public boolean showSql_showExecutableSql = true;// v1.8 //from 2.5.2 default true 
+	public boolean showSql_showExecutableSql = true;// v1.8 //from 2.5.2 default true
 
 	@SysValue("${bee.osql.showSql.sqlFormat}")
 	public boolean showSql_sqlFormat;// v2.1.7
@@ -161,8 +160,8 @@ public final class HoneyConfig implements LoggerTypeConfig, LogSqlConfig {
 	@SysValue("${bee.osql.naming.toLowerCaseBefore}")
 	public boolean naming_toLowerCaseBefore = true; // default : to LowerCase before
 
-	//	1 : order_no<-->orderNo(DB<-->Java), 2: ORDER_NO<-->orderNo(DB<-->Java), 
-	//	# 3: original,  4 : DbUpperAndJavaLower, ORDER_NO<-->order_no(DB<-->Java)
+	// 1 : order_no<-->orderNo(DB<-->Java), 2: ORDER_NO<-->orderNo(DB<-->Java),
+	// # 3: original, 4 : DbUpperAndJavaLower, ORDER_NO<-->order_no(DB<-->Java)
 	@SysValue("${bee.osql.naming.translateType}")
 	public int naming_translateType = 1;
 
@@ -171,11 +170,11 @@ public final class HoneyConfig implements LoggerTypeConfig, LogSqlConfig {
 
 	@SysValue("${bee.osql.naming.entity2tableMappingList}")
 	public String naming_entity2tableMappingList;
-	
+
 	@SysValue("${bee.osql.naming.allowKeyWordInColumn}") // 2.5.2
 	public boolean naming_allowKeyWordInColumn = true;
-	
-	//define for append if bee do not contain them.
+
+	// define for append if bee do not contain them.
 	@SysValue("${bee.osql.naming.sqlKeyWordInColumn}") // 2.5.2
 	public String naming_SqlKeyWordInColumn;
 
@@ -239,7 +238,7 @@ public final class HoneyConfig implements LoggerTypeConfig, LogSqlConfig {
 
 	@SysValue("${" + DbConfigConst.DB_PWORD + "}")
 	String password;
-	
+
 //	@SysValue("${bee.db.differentDbEachTime}")
 //	public boolean differentDbEachTime; //V2.5.2
 
@@ -450,9 +449,7 @@ public final class HoneyConfig implements LoggerTypeConfig, LogSqlConfig {
 	public int sharding_executorSize = 0; // fixed V2.1.10
 
 	// ----------------------------- sharding end
-	
-	
-	
+
 	public int getDatabaseMajorVersion() {
 		return databaseMajorVersion;
 	}
@@ -460,7 +457,7 @@ public final class HoneyConfig implements LoggerTypeConfig, LogSqlConfig {
 	public void setDatabaseMajorVersion(int databaseMajorVersion) {
 		this.databaseMajorVersion = databaseMajorVersion;
 	}
-	
+
 	public void setDriverName(String driverName) {
 		this.driverName = driverName;
 	}
@@ -471,14 +468,13 @@ public final class HoneyConfig implements LoggerTypeConfig, LogSqlConfig {
 	}
 
 	public void setUsername(String username) {
-//		HoneyConfig.setChangeDataSource(true); //TODO 2.5.2
 		this.username = username;
 	}
 
 	public void setPassword(String password) {
 		this.password = password;
 	}
-	
+
 	/**
 	 * set dbName like in DatabaseConst.
 	 * @param dbName dbName like in DatabaseConst.
@@ -488,7 +484,7 @@ public final class HoneyConfig implements LoggerTypeConfig, LogSqlConfig {
 		this.dbName = dbName;
 		appendKW2BloomFilter(this.dbName);
 	}
-	
+
 	/**
 	 * sharding, multi-ds 直接从config拿dbName则不会.
 	 * @return
@@ -499,28 +495,27 @@ public final class HoneyConfig implements LoggerTypeConfig, LogSqlConfig {
 
 		return dbName;
 	}
-	
-	
+
 	// V2.1.7
 	// V2.5.2
 	private String getDbNameByUrl() {
 		String dbName = null;
 //		DataSource ds = BeeFactory.getInstance().getDataSource();
 //		if (ds == null) {
-			String t_url = getUrl();
-			
-			if (t_url != null && !"".equals(t_url.trim())) { // sonar problem
-				t_url = t_url.trim();
-				if (t_url.startsWith("jdbc:mysql:")) dbName = DatabaseConst.MYSQL;
-				else if (t_url.startsWith("jdbc:oracle:")) dbName = DatabaseConst.ORACLE;
-				else if (t_url.startsWith("jdbc:sqlserver:")) dbName = DatabaseConst.SQLSERVER;
-				else if (t_url.startsWith("jdbc:sqlite:")) dbName = DatabaseConst.SQLite;
-				else if (t_url.startsWith("mongodb://")) dbName = DatabaseConst.MongoDB;
-				else if (t_url.startsWith("jdbc:h2:")) dbName = DatabaseConst.H2;
-				else if (t_url.startsWith("jdbc:postgresql:")) dbName = DatabaseConst.PostgreSQL;
-				else if (t_url.startsWith("jdbc:cassandra:")) dbName = DatabaseConst.Cassandra;
-				else if (t_url.startsWith("jdbc:ucanaccess:")) dbName = DatabaseConst.MsAccess;
-			}
+		String t_url = getUrl();
+		
+		if (t_url != null && !"".equals(t_url.trim())) { // sonar problem
+			t_url = t_url.trim();
+			if (t_url.startsWith("jdbc:mysql:")) dbName = DatabaseConst.MYSQL;
+			else if (t_url.startsWith("jdbc:oracle:")) dbName = DatabaseConst.ORACLE;
+			else if (t_url.startsWith("jdbc:sqlserver:")) dbName = DatabaseConst.SQLSERVER;
+			else if (t_url.startsWith("jdbc:sqlite:")) dbName = DatabaseConst.SQLite;
+			else if (t_url.startsWith("mongodb://")) dbName = DatabaseConst.MongoDB;
+			else if (t_url.startsWith("jdbc:h2:")) dbName = DatabaseConst.H2;
+			else if (t_url.startsWith("jdbc:postgresql:")) dbName = DatabaseConst.PostgreSQL;
+			else if (t_url.startsWith("jdbc:cassandra:")) dbName = DatabaseConst.Cassandra;
+			else if (t_url.startsWith("jdbc:ucanaccess:")) dbName = DatabaseConst.MsAccess;
+		}
 //		}
 		return dbName;
 	}
@@ -582,14 +577,14 @@ public final class HoneyConfig implements LoggerTypeConfig, LogSqlConfig {
 	public void setSharding(Map<String, Map<String, String>> sharding) {
 		this.sharding = sharding;
 	}
-	
+
 	private void appendKW2BloomFilter(String dbName) {
 //		boolean allowKeyWordInColumn = HoneyConfig.getHoneyConfig().naming_allowKeyWordInColumn;
 //		if (allowKeyWordInColumn) {
-		KeyWord.appendKW2BloomFilterForDialect(dbName); //即便不转换,提示也要用到. 所以都要set.
+		KeyWord.appendKW2BloomFilterForDialect(dbName); // 即便不转换,提示也要用到. 所以都要set.
 //		}
 	}
-	
+
 	void init() {
 
 		SysValueProcessor.process(honeyConfig);
@@ -628,7 +623,7 @@ public final class HoneyConfig implements LoggerTypeConfig, LogSqlConfig {
 	 * @param active
 	 * @since 2.1.8
 	 */
-	public void overrideByActive(String active) { //TODO
+	public void overrideByActive(String active) {
 		_overrideByActive(active);
 
 //		// V2.1.10  TODO
@@ -674,11 +669,10 @@ public final class HoneyConfig implements LoggerTypeConfig, LogSqlConfig {
 		HoneyConfig.honeyConfig = new HoneyConfig();
 	}
 
-
 	private static boolean _alreadyPrintDbName = false;
 	private static boolean _changeDataSource = false;
-	
-	static void setChangeDataSource(boolean flag) { //for HoneyContext
+
+	static void setChangeDataSource(boolean flag) { // for HoneyContext
 		HoneyConfig._changeDataSource = true;
 	}
 
@@ -691,7 +685,7 @@ public final class HoneyConfig implements LoggerTypeConfig, LogSqlConfig {
 				newDbName = getDbNameByUrl(); // V2.1.7 先使用url判断
 				if (newDbName != null) {
 					if (_changeDataSource) {
-						_changeDataSource=false;
+						_changeDataSource = false;
 						HoneyConfig.getHoneyConfig().dbName = newDbName;
 					}
 					String logMsg;
@@ -702,12 +696,13 @@ public final class HoneyConfig implements LoggerTypeConfig, LogSqlConfig {
 					_alreadyPrintDbName = true;
 				}
 			} catch (Exception e) {
-				printWarn("Can not get the Connection when check the dbName. Can set bee.db.dbName item.  \n"+ e.getMessage());
+				printWarn("Can not get the Connection when check the dbName. Can set bee.db.dbName item.  \n"
+						+ e.getMessage());
 			} finally {
 
 				if (_alreadyPrintDbName && _changeDataSource) { // alreadyPrintDbName只打印过
 					_changeDataSource = false;
-//					HoneyUtil.refreshSetParaAndResultTypeHandlerRegistry(); // 里面有用到dbName  TODO
+//					HoneyUtil.refreshSetParaAndResultTypeHandlerRegistry(); // 里面有用到dbName
 				}
 			}
 		} else {
@@ -725,11 +720,11 @@ public final class HoneyConfig implements LoggerTypeConfig, LogSqlConfig {
 			printInfo("[Bee] ========= the OceanBase mode is: " + HoneyConfig.getHoneyConfig().oceanbaseMode);
 		}
 	}
-	
+
 	private void printInfo(String msg) {
 		Logger.info(msg);
 	}
-	
+
 	private void printWarn(String msg) {
 		Logger.warn(msg);
 	}

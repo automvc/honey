@@ -565,7 +565,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 			}
 		}
 
-		Logger.logSQL(" | <--  Affected rows: "+ num);
+		Logger.logSQL(" | <--  Affected rows: " + num);
 
 		return returnId; // id
 	}
@@ -811,8 +811,8 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 
 		eachBatchCommitIfNeed(conn); // if need
 
-		Logger.logSQL(" | <-- index[" + (start) + "~" + (end - 1) + INDEX3 + " Affected rows: "+
-				a + "" + shardingIndex());
+		Logger.logSQL(
+				" | <-- index[" + (start) + "~" + (end - 1) + INDEX3 + " Affected rows: " + a + "" + shardingIndex());
 
 		return a;
 	}
@@ -994,7 +994,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 
 		eachBatchCommitIfNeed(conn); // if need
 
-		Logger.logSQL(" | <-- [Batch:" + (start / batchSize) + INDEX3 + " Affected rows: "+ a + "" + shardingIndex());
+		Logger.logSQL(" | <-- [Batch:" + (start / batchSize) + INDEX3 + " Affected rows: " + a + "" + shardingIndex());
 
 		return a;
 	}
@@ -1580,7 +1580,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 		}
 
 //		子表是List类型时，要连原始数据行数也打印日志
-		if (subOneIsList1 || subTwoIsList2) Logger.logSQL(" | <--  ( select raw record rows: "+ recordRow + " )");
+		if (subOneIsList1 || subTwoIsList2) Logger.logSQL(" | <--  ( select raw record rows: " + recordRow + " )");
 		logSelectRows(rsList.size());
 
 		return rsList;
@@ -1714,7 +1714,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 	private boolean isShardingMain() {// 有分片(多个)
 		return HoneyContext.getSqlIndexLocal() == null && ShardingUtil.hadSharding(); // 前提要是HoneyContext.hadSharding()
 	}
-	
+
 //	private static void logSQL(String hardStr, String sql) {
 //		HoneyUtil.logSQL(hardStr, sql);
 //	}

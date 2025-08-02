@@ -263,7 +263,7 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 		} finally {
 			clearInCache(sql, "int", SuidType.MODIFY, num); // has clearContext(sql)
 		}
-		Logger.logSQL(" | <--  Affected rows: "+ num);
+		Logger.logSQL(" | <--  Affected rows: " + num);
 
 		return num;
 	}
@@ -284,7 +284,7 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 		} finally {
 			clearInCache(sql, "int", SuidType.INSERT, num);
 		}
-		Logger.logSQL(" | <--  Affected rows: "+ num);
+		Logger.logSQL(" | <--  Affected rows: " + num);
 
 		return returnId;
 	}
@@ -750,7 +750,7 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 		}
 
 //		子表是List类型时，要连原始数据行数也打印日志
-		if (subOneIsList1 || subTwoIsList2) Logger.logSQL(" | <--  ( select raw record rows: "+ recordRow + " )");
+		if (subOneIsList1 || subTwoIsList2) Logger.logSQL(" | <--  ( select raw record rows: " + recordRow + " )");
 		logSelectRows(rsList.size());
 
 		return rsList;

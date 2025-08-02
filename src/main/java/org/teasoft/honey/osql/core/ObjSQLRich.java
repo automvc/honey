@@ -1224,7 +1224,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 		_ddlModify(entityClass, dropIndexSql);
 
 	}
-	
+
 //	void doBeforePasreEntity(Object entity[], SuidType SuidType) { //fixed bug. no set dataSource name
 //		getInterceptorChain().beforePasreEntity(entity, SuidType);
 //	}
