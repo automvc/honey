@@ -2,9 +2,9 @@
 Bee
 =========
 ## 好消息:  
-**Bee 2.1 完善的Sharding分片功能, 完善的MongoDB ORM功能。**  
-当前**最新**版本为:**V2.4.2 LTS版**  
-1.7.x LTS版为:**1.17.21**  
+**ORM Bee除了ORM功能, 还有完善的分库分表(Sharding分片), 完善的MongoDB ORM功能。**  
+当前**最新**版本为:**V2.5.2 LTS版**(只有935k)  
+旧版1.17.x LTS版为:**1.17.21**  
 
 Sharding分片:对业务开发透明,编码透明,只加少量分片配置即可实现分片功能.  
 #### [快速开始:Shardign最佳实践参考实例](guide/Quick-start-Sharding_CN.md) 
@@ -44,10 +44,25 @@ Bee2.2 + Spring boot3.0.13对应版本**2.2.boot3.0.13 需要JDK17**
 5. SuidRich的实现类ObjSQLRich增加selectByTemplate  
 **2.5.2.2**
 6. fixed bug for MongodbShardingDdlEngine  
-7. 记录并打印SQL执行时间  
+7. SQL性能分析,记录并打印SQL执行时间  
 bee.osql.showSqlExecuteTime=true  
 bee.osql.minSqlExecuteTime=0  
-8.使用CQRS命令查询责任分离模式操作数据库  
+8. 使用CQRS命令查询责任分离模式操作数据库  
+**2.5.2.6**
+9. 默认打开常用配置,防止有人不知道功能  
+openEntityCanExtend = true  
+showSQL = true  
+showShardingSQL = true  
+showSqlExecuteTime = true  
+minSqlExecuteTime = 5;   //ms  
+10. 字段名支持允许使用SQL关键字  
+可以使用开关控制是否使用,默认是开启  
+bee.osql.naming.allowKeyWordInColumn=true  
+若Bee还未包括某些关键字,还可以通过以下项追加  
+bee.osql.naming.sqlKeyWordInColumn  
+11. 分离logger; config先独立初始化  
+12. BeeSimpleDataSourceBuilder兼容不同风格配置  
+
 
 ### **V2.4.2(2024.冬至·LTS版)**  
 1. GenFiles增加genFileViaStream,支持读取jar里的配置文件  
@@ -269,7 +284,7 @@ OrdersService.java
        <dependency>
 	      <groupId>org.teasoft</groupId>
 	      <artifactId>bee-all</artifactId>
-	      <version>2.4.2</version>
+	      <version>2.5.2</version>
         </dependency>
 		
 	    <!-- Mysql config.You need change it to the real database config. -->
@@ -284,9 +299,9 @@ OrdersService.java
 Gradle
 
 ```xml
-implementation group: 'org.teasoft', name: 'bee-all', version: '2.4.2'
+implementation group: 'org.teasoft', name: 'bee-all', version: '2.5.2'
 //Gradle(Short)
-implementation 'org.teasoft:bee-all:2.4.2'
+implementation 'org.teasoft:bee-all:2.5.2'
 ```
 
 #### 1.2  也可以直接下载jar文件  	
@@ -478,6 +493,8 @@ https://github.com/automvc/bee
 https://gitee.com/automvc/bee  
 bee-ext:  
 https://github.com/automvc/bee-ext  
+Python版Bee:
+https://github.com/automvc/BeePy  
 
   
 联系与欢迎:
