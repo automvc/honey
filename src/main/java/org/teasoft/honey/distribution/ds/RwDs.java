@@ -22,7 +22,7 @@ import org.teasoft.honey.osql.core.StringConst;
  * @author Kingstar
  * @since  1.8
  */
-public class RwDs implements Route{
+public class RwDs implements Route {
 
 	private String writeDd;
 	private List<String> readDsList;
@@ -31,48 +31,49 @@ public class RwDs implements Route{
 	private static int max_cout = Integer.MAX_VALUE - 1000000;
 	private static Random r = new Random();
 	private byte lock[] = new byte[0];
-	
+
 	private int r_routeWay;
-	
-	{  //非static,每次new都会执行.若writer有更新,这样可以刷新.
+
+	{ // 非static,每次new都会执行.若writer有更新,这样可以刷新.
 		init();
 	}
-	
-	private void init(){
-		String wDB=HoneyConfig.getHoneyConfig().multiDS_writeDB;
-		String rDB=HoneyConfig.getHoneyConfig().multiDS_readDB;
-		//要判断从配置文件拿来的信息不能为空。
-		if( (wDB==null || "".equals(wDB.trim()))  ||  (rDB==null || "".equals(rDB.trim()))){
-			throw new NoConfigException("Error: bee.dosql.multiDS.writeDB and bee.dosql.multiDS.readDB can not be null or empty when bee.dosql.multiDS.type=1! ");
+
+	private void init() {
+		String wDB = HoneyConfig.getHoneyConfig().multiDS_writeDB;
+		String rDB = HoneyConfig.getHoneyConfig().multiDS_readDB;
+		// 要判断从配置文件拿来的信息不能为空。
+		if ((wDB == null || "".equals(wDB.trim())) || (rDB == null || "".equals(rDB.trim()))) {
+			throw new NoConfigException(
+					"Error: bee.dosql.multiDS.writeDB and bee.dosql.multiDS.readDB can not be null or empty when bee.dosql.multiDS.type=1! ");
 		}
-		
-		wDB=wDB.trim();//v1.11
-		setWriteDs(wDB);  
+
+		wDB = wDB.trim();// v1.11
+		setWriteDs(wDB);
 		setReadDsList(parseRDb(rDB));
-		getReadDsList().remove(wDB); //写库不能放在只读库列表   若需要在主库中读取数据,可特指
-		r_routeWay=HoneyConfig.getHoneyConfig().multiDS_rDbRouteWay; 
+		getReadDsList().remove(wDB); // 写库不能放在只读库列表 若需要在主库中读取数据,可特指
+		r_routeWay = HoneyConfig.getHoneyConfig().multiDS_rDbRouteWay;
 	}
-	
-	private List<String> parseRDb(String rDB_str){
-		String s[]=rDB_str.split(",");
-		List<String> rList=new ArrayList<>();
+
+	private List<String> parseRDb(String rDB_str) {
+		String s[] = rDB_str.split(",");
+		List<String> rList = new ArrayList<>();
 		for (int i = 0; i < s.length; i++) {
-			rList.add(s[i].trim()); //v1.11
+			rList.add(s[i].trim()); // v1.11
 		}
 		return rList;
 	}
-	
+
 	@Override
 	public String getDsName() {
 		RouteStruct routeStruct = HoneyContext.getCurrentRoute();
-		
-		//V1.11 同一连接,默认走写库.  (前面有指定会用指定的)
+
+		// V1.11 同一连接,默认走写库. (前面有指定会用指定的)
 		if (StringConst.tRue.equals(HoneyContext.getSameConnctionDoing())
-		 || StringConst.tRue.equals(HoneyContext.getJdbcTranWriterDs())) {
+				|| StringConst.tRue.equals(HoneyContext.getJdbcTranWriterDs())) {
 			return getWriteDs();
 		}
-		
-		if (routeStruct!=null && SuidType.SELECT == routeStruct.getSuidType()) {
+
+		if (routeStruct != null && SuidType.SELECT == routeStruct.getSuidType()) {
 			return getReadDs(r_routeWay);
 		} else {
 			return getWriteDs();
@@ -83,10 +84,10 @@ public class RwDs implements Route{
 		return writeDd;
 	}
 
-	public void setWriteDs(String writeDs) {  //todo if main change, need update
+	public void setWriteDs(String writeDs) { // todo if main change, need update
 		this.writeDd = writeDs;
 	}
-	
+
 //	public String getReadDs() {
 //		
 //		return getReadDs(0); //rand
@@ -99,7 +100,7 @@ public class RwDs implements Route{
 			index = poll();
 		else
 			index = rand();
-		
+
 		return getReadDsList().get(index);
 	}
 

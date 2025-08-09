@@ -19,15 +19,14 @@ import org.teasoft.honey.util.StringUtils;
  * @since  1.4
  */
 public class SysValueProcessor {
-	
+
 	private SysValueProcessor() {}
-	
+
 	public static <T> void process(T obj) {
-		process(obj,BeeProp.getBeeProp());
+		process(obj, BeeProp.getBeeProp());
 	}
-	
-	
-	public static <T> void process(T obj,Properties prop) {
+
+	public static <T> void process(T obj, Properties prop) {
 		Field[] f = obj.getClass().getDeclaredFields();
 		String value;
 		String key = "";
@@ -38,21 +37,21 @@ public class SysValueProcessor {
 
 				value = sysValue.value();
 				if (value == null) {
-					//do nothing
+					// do nothing
 				} else if ("".equals(value.trim())) {
-					//do nothing
+					// do nothing
 				} else {
 					value = value.trim();
-					if (value.startsWith("${") && value.endsWith("}")) { //  ${bee.properties.key}
+					if (value.startsWith("${") && value.endsWith("}")) { // ${bee.properties.key}
 						key = value.substring(2, value.length() - 1);
 						proValue = prop.getProp(key);
 						if (proValue == null) {
 							continue;
 //						}else if(StringUtils.isBlank(proValue) && !"java.lang.String".equals(f[i].getType().getName())) {
-						//配置值是空,但字段值不是String,则路过
-						}else if(StringUtils.isBlank(proValue) && !String.class.equals(f[i].getType())) {
+							// 配置值是空,但字段值不是String,则路过
+						} else if (StringUtils.isBlank(proValue) && !String.class.equals(f[i].getType())) {
 							continue;
-						}else {
+						} else {
 							value = proValue;
 						}
 					}

@@ -19,21 +19,21 @@ import org.teasoft.bee.osql.exception.BeeInstantiationException;
  * @since  1.4
  */
 public class ExceptionHelper {
-	
+
 	private ExceptionHelper() {}
 
 	public static BeeSQLException convert(SQLException e) {
-		return new BeeSQLException(e.getMessage(),e.getSQLState(), e.getErrorCode(), e);
+		return new BeeSQLException(e.getMessage(), e.getSQLState(), e.getErrorCode(), e);
 	}
-	
+
 	public static BeeIllegalAccessException convert(IllegalAccessException e) {
 		return new BeeIllegalAccessException(e.getMessage(), e);
 	}
-	
+
 	public static BeeInstantiationException convert(InstantiationException e) {
 		return new BeeInstantiationException(e.getMessage(), e);
 	}
-	
+
 	public static BeeException convert(Exception e) {
 		return new BeeException(e.getMessage(), e);
 	}

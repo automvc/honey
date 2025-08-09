@@ -26,71 +26,70 @@ import org.teasoft.honey.util.ObjectUtils;
 public final class HoneyContext {
 
 	private static ConcurrentMap<String, String> beanMap;
-	
-	//since 1.11
-	private static ConcurrentMap<String, String> beanCustomPKey; //Custom Primary Key
+
+	// since 1.11
+	private static ConcurrentMap<String, String> beanCustomPKey; // Custom Primary Key
 	private static ConcurrentMap<String, Map<String, String>> customMap;
-	
+
 //	private static ConcurrentMap<String, String> sysCommStr;
-	
-	
-	//	since v1.7.0
-	//	private static ConcurrentMap<String, MoreTableStruct[]> moreTableStructMap;
+
+	// since v1.7.0
+	// private static ConcurrentMap<String, MoreTableStruct[]> moreTableStructMap;
 
 	private static ThreadLocal<Map<String, List<PreparedValue>>> sqlPreValueLocal;
-	//	private static ThreadLocal<Map<String, String>> sqlValueLocal;
+	// private static ThreadLocal<Map<String, String>> sqlValueLocal;
 
 	private static ThreadLocal<Map<String, CacheSuidStruct>> cacheLocal;
 	private static ThreadLocal<Map<String, SqlServerPagingStruct>> sqlServerPaging;
-	
+
 	private static ThreadLocal<Map<String, Map<String, String>>> customMapLocal;
-	
-	private static ThreadLocal<Map<String,String>> sysCommStrLocal;
+
+	private static ThreadLocal<Map<String, String>> sysCommStrLocal;
 
 	private static ThreadLocal<RouteStruct> currentRoute;
 
-	private static ThreadLocal<Connection> currentConnection; //当前事务的Conn
-	
-	private static ThreadLocal<Object> currentAppDB; //V1.17
-	
+	private static ThreadLocal<Connection> currentConnection; // 当前事务的Conn
+
+	private static ThreadLocal<Object> currentAppDB; // V1.17
+
 	private static ThreadLocal<NameTranslate> currentNameTranslate;
 
-	private static ThreadLocal<String> sameConnctionDoing; //当前多个ORM操作使用同一个connection.
-	private static ThreadLocal<String> jdbcTranWriterDs; 
-	
-	private static ThreadLocal<String> appointDS; 
-	private static ThreadLocal<String> tempDS;  //for Suid.setDataSourceName(String dsName) and so on
-	
-	private static ThreadLocal<String> appointTab; 
-	private static ThreadLocal<String> tabSuffix; 
-	
-	private static ThreadLocal<String> tempLang; 
-	
-	private static String lang; 
+	private static ThreadLocal<String> sameConnctionDoing; // 当前多个ORM操作使用同一个connection.
+	private static ThreadLocal<String> jdbcTranWriterDs;
 
-	//	private static ThreadLocal<Transaction> transactionLocal;  
+	private static ThreadLocal<String> appointDS;
+	private static ThreadLocal<String> tempDS; // for Suid.setDataSourceName(String dsName) and so on
+
+	private static ThreadLocal<String> appointTab;
+	private static ThreadLocal<String> tabSuffix;
+
+	private static ThreadLocal<String> tempLang;
+
+	private static String lang;
+
+	// private static ThreadLocal<Transaction> transactionLocal;
 
 	private static ConcurrentMap<String, String> entity2table;
 //	private static volatile ConcurrentMap<String, String> table2entity = null; //for creat Javabean (just one to one can work well)
 //	private static final byte lock[] = new byte[0];
-	private static ConcurrentMap<String, String> table2entity = null; //for creat Javabean (just one to one can work well)
-	
+	private static ConcurrentMap<String, String> table2entity = null; // for creat Javabean (just one to one can work well)
+
 	private static Map<String, String> entityList_includes_Map = new ConcurrentHashMap<>();
 	private static Map<String, String> entityList_excludes_Map = new ConcurrentHashMap<>();
 
 	private static List<String> entityListWithStar_in = new CopyOnWriteArrayList<>();
 	private static List<String> entityListWithStar_ex = new CopyOnWriteArrayList<>();
-	
-	//V1.11
+
+	// V1.11
 	private static Map<String, String> entityList_levelTwo_Map = new ConcurrentHashMap<>();
 	private static List<String> entityListWithStar_levelTwo = new CopyOnWriteArrayList<>();
 
 	private static Map<String, String> dsName2DbName;
-	
+
 	private static ConcurrentMap<String, Boolean> modifiedFlagMapForCache2;
-	
+
 	private static ConcurrentMap<String, Boolean> entityInterceptorFlag;
-	
+
 	private static ConcurrentMap<String, Boolean> customFlagMap;
 
 	/*	private static void _checkSize(ThreadLocal local,String name){
@@ -114,10 +113,10 @@ public final class HoneyContext {
 		beanCustomPKey = new ConcurrentHashMap<>();
 //		sysCommStr = new ConcurrentHashMap<>();
 		customMap = new ConcurrentHashMap<>();
-		//		moreTableStructMap= new ConcurrentHashMap<>();
+		// moreTableStructMap= new ConcurrentHashMap<>();
 
 		sqlPreValueLocal = new ThreadLocal<>();
-		//		sqlValueLocal = new ThreadLocal<>();
+		// sqlValueLocal = new ThreadLocal<>();
 		cacheLocal = new ThreadLocal<>();
 		sqlServerPaging = new ThreadLocal<>();
 		customMapLocal = new ThreadLocal<>();
@@ -127,28 +126,28 @@ public final class HoneyContext {
 		currentAppDB = new ThreadLocal<>();
 		currentNameTranslate = new ThreadLocal<>();
 //		transactionLocal = new ThreadLocal<>();
-		
+
 		sameConnctionDoing = new ThreadLocal<>();
 		jdbcTranWriterDs = new ThreadLocal<>();
 		appointDS = new ThreadLocal<>();
 		tempDS = new ThreadLocal<>();
 		appointTab = new ThreadLocal<>();
 		tabSuffix = new ThreadLocal<>();
-		
+
 		tempLang = new ThreadLocal<>();
 
 		currentRoute = new ThreadLocal<>();
 
 		entity2table = new ConcurrentHashMap<>();
-		//		table2entity=new ConcurrentHashMap<>();
+		// table2entity=new ConcurrentHashMap<>();
 		initEntity2Table();
 
 		parseEntityListToMap();
-		
+
 		modifiedFlagMapForCache2 = new ConcurrentHashMap<>();
 		entityInterceptorFlag = new ConcurrentHashMap<>();
 		customFlagMap = new ConcurrentHashMap<>();
-	
+
 		initLoad();
 	}
 
@@ -174,8 +173,8 @@ public final class HoneyContext {
 //		}
 //		return table2entity;
 //	}
-	
-	synchronized static ConcurrentMap<String, String> getTable2entityMap() { //just create the Javabean files would use
+
+	synchronized static ConcurrentMap<String, String> getTable2entityMap() { // just create the Javabean files would use
 		if (table2entity == null) {
 			table2entity = new ConcurrentHashMap<>();
 			initTable2Entity();
@@ -189,17 +188,18 @@ public final class HoneyContext {
 			String entity2table_array[] = entity2tableMappingList.split(",");
 			String item[];
 			for (int i = 0; i < entity2table_array.length; i++) {
-				item = entity2table_array[i].trim().split(":"); //User2:temp_user,com.abc.user.User:temp_user
+				item = entity2table_array[i].trim().split(":"); // User2:temp_user,com.abc.user.User:temp_user
 				if (item.length != 2) {
 					Logger.warn("[" + entity2table_array[i].trim()
 							+ "] wrong formatter,separate option is not colon(:). (in bee.properties file, key: bee.osql.name.mapping.entity2table)");
 				} else {
 					entity2table.put(item[0].trim(), item[1].trim());
 
-					//					if(table2entity.containsKey(item[1].trim())){ //check
-					//						Logger.warn(table2entity.get(item[1].trim()) +" and "+ item[0].trim() +" mapping same table: "+item[1].trim());
-					//					}
-					//					table2entity.put(item[1].trim(), item[0].trim());
+					// if(table2entity.containsKey(item[1].trim())){ //check
+					// Logger.warn(table2entity.get(item[1].trim()) +" and "+ item[0].trim() +" mapping same table:
+					// "+item[1].trim());
+					// }
+					// table2entity.put(item[1].trim(), item[0].trim());
 				}
 			}
 		}
@@ -211,14 +211,14 @@ public final class HoneyContext {
 			String entity2table_array[] = entity2tableMappingList.split(",");
 			String item[];
 			for (int i = 0; i < entity2table_array.length; i++) {
-				item = entity2table_array[i].trim().split(":"); //User2:temp_user,com.abc.user.User:temp_user
+				item = entity2table_array[i].trim().split(":"); // User2:temp_user,com.abc.user.User:temp_user
 				if (item.length != 2) {
 					Logger.warn("[" + entity2table_array[i].trim()
 							+ "] wrong formatter,separate option is not colon(:). (in bee.properties file, key: bee.osql.name.mapping.entity2table)");
 				} else {
-					//					entity2table.put(item[0].trim(), item[1].trim());
+					// entity2table.put(item[0].trim(), item[1].trim());
 
-					if (table2entity.containsKey(item[1].trim())) { //check   只是生成javabean时会用到,SqlLib不会用到.因会传入T entity   所以不会引起混淆
+					if (table2entity.containsKey(item[1].trim())) { // check 只是生成javabean时会用到,SqlLib不会用到.因会传入T entity 所以不会引起混淆
 						Logger.warn(table2entity.get(item[1].trim()) + " and " + item[0].trim() + " mapping same table: "
 								+ item[1].trim());
 					}
@@ -227,19 +227,19 @@ public final class HoneyContext {
 			}
 		}
 	}
-	
+
 	static void addBeanField(String key, String value) {
 		if (key == null) return;
-		if(HoneyConfig.getHoneyConfig().naming_useMoreTranslateType) {
-			key+=NameTranslateHandle.getNameTranslate().getClass().getName();
+		if (HoneyConfig.getHoneyConfig().naming_useMoreTranslateType) {
+			key += NameTranslateHandle.getNameTranslate().getClass().getName();
 		}
 		beanMap.put(key, value);
 	}
 
 	public static String getBeanField(String key) {
 		if (key == null) key = "";
-		if(HoneyConfig.getHoneyConfig().naming_useMoreTranslateType) {
-			key+=NameTranslateHandle.getNameTranslate().getClass().getName();
+		if (HoneyConfig.getHoneyConfig().naming_useMoreTranslateType) {
+			key += NameTranslateHandle.getNameTranslate().getClass().getName();
 		}
 		return beanMap.get(key);
 	}
@@ -250,20 +250,20 @@ public final class HoneyContext {
 
 	static void addBeanCustomPKey(String key, String value) {
 		if (key == null) return;
-		if(HoneyConfig.getHoneyConfig().naming_useMoreTranslateType) {
-			key+=NameTranslateHandle.getNameTranslate().getClass().getName();
+		if (HoneyConfig.getHoneyConfig().naming_useMoreTranslateType) {
+			key += NameTranslateHandle.getNameTranslate().getClass().getName();
 		}
 		beanCustomPKey.put(key, value);
 	}
 
 	public static String getBeanCustomPKey(String key) {
 		if (key == null) return null;
-		if(HoneyConfig.getHoneyConfig().naming_useMoreTranslateType) {
-			key+=NameTranslateHandle.getNameTranslate().getClass().getName();
+		if (HoneyConfig.getHoneyConfig().naming_useMoreTranslateType) {
+			key += NameTranslateHandle.getNameTranslate().getClass().getName();
 		}
 		return beanCustomPKey.get(key);
 	}
-	
+
 //	static void addSysCommStr(String key, String value) {
 //		sysCommStr.put(key, value);
 //	}
@@ -285,20 +285,20 @@ public final class HoneyContext {
 		if (key == null) return null;
 		return customMap.get(key);
 	}
-	
-	public static String getCustomMapValue(String key1,String key2) {
-		if (key1 == null || key2==null) return null;
-		Map<String, String> map= customMap.get(key1);
-		if(map!=null) return map.get(key2);
-		
+
+	public static String getCustomMapValue(String key1, String key2) {
+		if (key1 == null || key2 == null) return null;
+		Map<String, String> map = customMap.get(key1);
+		if (map != null) return map.get(key2);
+
 		return null;
 	}
-	
+
 	public static void removeCustomMap(String key) {
 //		if (key == null) return ;
-		if(customMap.containsKey(key)) customMap.remove(key);
+		if (customMap.containsKey(key)) customMap.remove(key);
 	}
-	
+
 	public static void setCustomMapLocal(String key, Map<String, String> mapValue) {
 		if (mapValue == null) return;
 		if (key == null || "".equals(key.trim())) return;
@@ -308,18 +308,18 @@ public final class HoneyContext {
 		customMapLocal.set(map);
 	}
 
-	public static Map<String,String> getCustomMapLocal(String key) {
+	public static Map<String, String> getCustomMapLocal(String key) {
 		Map<String, Map<String, String>> map = customMapLocal.get();
-		if (null == map || key==null) return null;
+		if (null == map || key == null) return null;
 		return map.get(key);
 	}
-	
+
 	public static void removeCustomMapLocal(String key) {
 		Map<String, Map<String, String>> map = customMapLocal.get();
 		if (null == map || key == null) return;
 		if (map.containsKey(key)) map.remove(key);
 	}
-	
+
 	static void setSysCommStrLocal(String key, String sysCommStr) {
 		if (sysCommStr == null) return;
 		if (key == null || "".equals(key.trim())) return;
@@ -341,27 +341,27 @@ public final class HoneyContext {
 //		if (map != null && map.containsKey(key)) map.remove(key);
 	}
 
-	//	static MoreTableStruct[] addMoreTableStructs(String key, MoreTableStruct[] value) {
-	//		return moreTableStructMap.put(key, value);
-	//	}
+	// static MoreTableStruct[] addMoreTableStructs(String key, MoreTableStruct[] value) {
+	// return moreTableStructMap.put(key, value);
+	// }
 	//
-	//	public static MoreTableStruct[] getMoreTableStructs(String key) {
-	//		return moreTableStructMap.get(key);
-	//	}
-	
+	// public static MoreTableStruct[] getMoreTableStructs(String key) {
+	// return moreTableStructMap.get(key);
+	// }
+
 	private static boolean isShowExecutableSql() {
 		return HoneyConfig.getHoneyConfig().showSql_showExecutableSql;
 	}
-	
+
 	static void setPreparedValue(String sqlStr, List<PreparedValue> list) {
-		if (list == null ) return;
+		if (list == null) return;
 		if (sqlStr == null || "".equals(sqlStr.trim())) return;
 		if (list.size() == 0) {
 			if (!isShowExecutableSql()) return;
 		}
-		
+
 		Map<String, List<PreparedValue>> map = sqlPreValueLocal.get();
-		//		if (null == map) map = new HashMap<>();
+		// if (null == map) map = new HashMap<>();
 		if (null == map) map = new ConcurrentHashMap<>();
 		map.put(sqlStr, list);
 		sqlPreValueLocal.set(map);
@@ -369,7 +369,7 @@ public final class HoneyContext {
 
 	static List<PreparedValue> justGetPreparedValue(String sqlStr) {
 		Map<String, List<PreparedValue>> map = sqlPreValueLocal.get();
-		if (null == map || sqlStr==null) return null;
+		if (null == map || sqlStr == null) return null;
 
 		return map.get(sqlStr);
 	}
@@ -380,14 +380,14 @@ public final class HoneyContext {
 
 	static void clearPreparedValue(String sqlStr) {
 		Map<String, List<PreparedValue>> map = sqlPreValueLocal.get();
-		if (null == map || sqlStr==null) return;
+		if (null == map || sqlStr == null) return;
 //		if (map.get(sqlStr) != null) map.remove(sqlStr);
 		if (map.containsKey(sqlStr)) map.remove(sqlStr);
 	}
 
 	static List<PreparedValue> getAndClearPreparedValue(String sqlStr) {
 		Map<String, List<PreparedValue>> map = sqlPreValueLocal.get();
-		if (null == map || sqlStr==null) return null;
+		if (null == map || sqlStr == null) return null;
 		List<PreparedValue> list = map.get(sqlStr);
 //		if (list != null) map.remove(sqlStr);
 		if (map.containsKey(sqlStr)) map.remove(sqlStr);
@@ -423,16 +423,16 @@ public final class HoneyContext {
 
 	public static CacheSuidStruct getCacheInfo(String sqlStr) {
 		Map<String, CacheSuidStruct> map = cacheLocal.get();
-		if (null == map || sqlStr==null) return null;
+		if (null == map || sqlStr == null) return null;
 		return map.get(sqlStr);
 	}
 
 	static void deleteCacheInfo(String sqlStr) {
 		Map<String, CacheSuidStruct> map = cacheLocal.get();
-		//		map.remove(sqlStr); //bug
+		// map.remove(sqlStr); //bug
 		if (map != null) map.remove(sqlStr);
 	}
-	
+
 	public static void setSqlServerPagingStruct(String sqlStr, SqlServerPagingStruct sqlServerPagingStruct) {
 		if (sqlServerPagingStruct == null) return;
 		if (sqlStr == null || "".equals(sqlStr.trim())) return;
@@ -444,13 +444,12 @@ public final class HoneyContext {
 
 	public static SqlServerPagingStruct getAndRemoveSqlServerPagingStruct(String sqlStr) {
 		Map<String, SqlServerPagingStruct> map = sqlServerPaging.get();
-		if (null == map || sqlStr==null) return null;
-		SqlServerPagingStruct struct= map.get(sqlStr);
+		if (null == map || sqlStr == null) return null;
+		SqlServerPagingStruct struct = map.get(sqlStr);
 //		if (struct != null) map.remove(sqlStr);
 		if (map.containsKey(sqlStr)) map.remove(sqlStr);
 		return struct;
 	}
-	
 
 	public static String getDbDialect() {
 		return HoneyConfig.getHoneyConfig().getDbName();
@@ -467,29 +466,32 @@ public final class HoneyContext {
 	public static void removeCurrentConnection() {
 		currentConnection.remove();
 	}
-	
-	//V1.17
+
+	// V1.17
 	public static Object getCurrentAppDB() {
 		return currentAppDB.get();
 	}
+
 	public static void setCurrentAppDB(Object appDB) {
-		if(isAppDBObject(appDB.getClass().getName())) {
+		if (isAppDBObject(appDB.getClass().getName())) {
 			currentAppDB.set(appDB);
 		}
 	}
+
 	public static void setCurrentAppDBIfNeed(Object appDB) {
-		if(isAppDBObject(appDB.getClass().getName())) {
+		if (isAppDBObject(appDB.getClass().getName())) {
 			if (OneTimeParameter.isTrue("_SYS_Bee_SAME_CONN_BEGIN")) {
 				currentAppDB.set(appDB);
 			}
 		}
 	}
+
 	public static void removeCurrentAppDB() {
 		currentAppDB.remove();
 	}
+
 	private static boolean isAppDBObject(String className) {
-		return "android.database.sqlite.SQLiteDatabase".equals(className)
-				|| "ohos.data.rdb.RdbStore".equals(className);
+		return "android.database.sqlite.SQLiteDatabase".equals(className) || "ohos.data.rdb.RdbStore".equals(className);
 	}
 
 	public static NameTranslate getCurrentNameTranslate() {
@@ -515,9 +517,9 @@ public final class HoneyContext {
 	private static void removeSameConnctionDoing() {
 		sameConnctionDoing.remove();
 	}
-	
+
 	public static String getJdbcTranWriterDs() {
-		String s= jdbcTranWriterDs.get();
+		String s = jdbcTranWriterDs.get();
 		jdbcTranWriterDs.remove();
 		return s;
 	}
@@ -525,12 +527,12 @@ public final class HoneyContext {
 	public static void setJdbcTranWriterDs() {
 		jdbcTranWriterDs.set(StringConst.tRue);
 	}
-	
+
 	public static String getAppointDS() {
 		return appointDS.get();
 	}
 
-	//拦截器里获取的,  而拦截器则是从@MultiTenancy等获取到.
+	// 拦截器里获取的, 而拦截器则是从@MultiTenancy等获取到.
 	public static void setAppointDS(String dsName) {
 		if (isMultiDs()) appointDS.set(dsName);
 	}
@@ -538,7 +540,7 @@ public final class HoneyContext {
 	public static void removeAppointDS() {
 		if (isMultiDs()) appointDS.remove();
 	}
-	
+
 	public static String getTempDS() {
 		return tempDS.get();
 	}
@@ -550,12 +552,11 @@ public final class HoneyContext {
 	static void removeTempDS() {
 		if (isMultiDs()) tempDS.remove();
 	}
-	
+
 	private static boolean isMultiDs() {
 		return HoneyConfig.getHoneyConfig().multiDS_enable;
 	}
-	
-	
+
 	public static String getAppointTab() {
 		return appointTab.get();
 	}
@@ -579,7 +580,7 @@ public final class HoneyContext {
 	public static void removeTabSuffix() {
 		tabSuffix.remove();
 	}
-	
+
 	public static String getTempLang() {
 		return tempLang.get();
 	}
@@ -605,57 +606,58 @@ public final class HoneyContext {
 	}
 
 	static void endSameConnection() {
-		//V1..17 for Android
-		if(HoneyConfig.getHoneyConfig().isAndroid || HoneyConfig.getHoneyConfig().isHarmony) {  //Harmony只是删除上下文保存的,但是否关闭不在这负责
-			if (OneTimeParameter.isTrue("_SYS_Bee_SAME_CONN_BEGIN")) { //all get from cache.  设置标志后,都是从缓存获取. 所以没有消费这个标识
+		// V1..17 for Android
+		if (HoneyConfig.getHoneyConfig().isAndroid || HoneyConfig.getHoneyConfig().isHarmony) { // Harmony只是删除上下文保存的,但是否关闭不在这负责
+			if (OneTimeParameter.isTrue("_SYS_Bee_SAME_CONN_BEGIN")) { // all get from cache. 设置标志后,都是从缓存获取. 所以没有消费这个标识
 				Logger.warn("Do not get the new Connection in the SameConnection.Maybe all the results get from cache! ");
 			}
-			HoneyContext.removeCurrentAppDB(); //同一连接结束时要删除上下文
-			
-			return ;
+			HoneyContext.removeCurrentAppDB(); // 同一连接结束时要删除上下文
+
+			return;
 		}
-		
-		if (OneTimeParameter.isTrue("_SYS_Bee_SAME_CONN_BEGIN")) { //all get from cache.
+
+		if (OneTimeParameter.isTrue("_SYS_Bee_SAME_CONN_BEGIN")) { // all get from cache.
 			Logger.warn("Do not get the new Connection in the SameConnection.Maybe all the results get from cache! ");
 		} else if (!StringConst.tRue.equals(getSameConnctionDoing())) {
-			if (OneTimeParameter.isTrue("_SYS_Bee_SAME_CONN_EXCEPTION")) {//exception,   //异常时,会删除上下文连接 
+			if (OneTimeParameter.isTrue("_SYS_Bee_SAME_CONN_EXCEPTION")) {// exception, //异常时,会删除上下文连接
 //				next select will get every conn like normal case.
 //				若报异常后到调用endSameConnection()之时, 1)没有新获取连接,则直接到这个方法;  不用特别处理
 //				2)有新的连接,用完后,正常关闭,到这里,也是这个提示.
-				Logger.warn("Do not use same Connection, because have exception in between the begin and end SameConnection !");
-			} else { //miss beginSameConnection          
+				Logger.warn(
+						"Do not use same Connection, because have exception in between the begin and end SameConnection !");
+			} else { // miss beginSameConnection
 				Logger.warn("Calling the endSameConnection(), but miss the beginSameConnection()");
 			}
-		}else if (StringConst.tRue.equals(getSameConnctionDoing())) { // 正常流程
+		} else if (StringConst.tRue.equals(getSameConnctionDoing())) { // 正常流程
 			OneTimeParameter.setTrueForKey("_SYS_Bee_SAME_CONN_END");
 			checkClose(null, getCurrentConnection());
 		}
 		removeCurrentConnection();
 	}
 
-	//	public static Transaction getCurrentTransaction() {
-	//		return transactionLocal.get();
-	//	}
+	// public static Transaction getCurrentTransaction() {
+	// return transactionLocal.get();
+	// }
 	//
-	//	public static void setCurrentTransaction(Transaction transaction) {
-	//		transactionLocal.set(transaction);
-	//	}
+	// public static void setCurrentTransaction(Transaction transaction) {
+	// transactionLocal.set(transaction);
+	// }
 
-	//	static void setRouteInfo(String sqlStr, RouteStruct routeStruct) {
-	//		if (routeStruct == null) return;
-	//		if(sqlStr==null || "".equals(sqlStr.trim())) return;
-	//		Map<String, RouteStruct> map = routeLocal.get();
-	//		if (null == map) map = new HashMap<>();  //
-	//		map.put(sqlStr, routeStruct); 
-	//		routeLocal.set(map);
-	//	}
+	// static void setRouteInfo(String sqlStr, RouteStruct routeStruct) {
+	// if (routeStruct == null) return;
+	// if(sqlStr==null || "".equals(sqlStr.trim())) return;
+	// Map<String, RouteStruct> map = routeLocal.get();
+	// if (null == map) map = new HashMap<>(); //
+	// map.put(sqlStr, routeStruct);
+	// routeLocal.set(map);
+	// }
 	//
-	//	public static RouteStruct getRouteInfo(String sqlStr) {
-	//		Map<String, RouteStruct> map = routeLocal.get();
-	//		if (null == map) return null;
-	//		RouteStruct struct=map.get(sqlStr);
-	//		return  struct;
-	//	}
+	// public static RouteStruct getRouteInfo(String sqlStr) {
+	// Map<String, RouteStruct> map = routeLocal.get();
+	// if (null == map) return null;
+	// RouteStruct struct=map.get(sqlStr);
+	// return struct;
+	// }
 
 	public static RouteStruct getCurrentRoute() {
 		return currentRoute.get();
@@ -683,41 +685,41 @@ public final class HoneyContext {
 
 	@SuppressWarnings("rawtypes")
 	static void regEntityClass(Class clazz) {
-		OneTimeParameter.setAttribute(StringConst.Route_EC, clazz); //EC:Entity Class
+		OneTimeParameter.setAttribute(StringConst.Route_EC, clazz); // EC:Entity Class
 	}
-	
+
 	static void regSuidType(SuidType suidType) {
-		//为了在Android中分辨出insert,update,delete
-		OneTimeParameter.setAttribute(StringConst.SuidType, suidType); 
+		// 为了在Android中分辨出insert,update,delete
+		OneTimeParameter.setAttribute(StringConst.SuidType, suidType);
 	}
-	
+
 	public static SuidType getSuidType() {
-		return (SuidType)OneTimeParameter.getAttribute(StringConst.SuidType);
+		return (SuidType) OneTimeParameter.getAttribute(StringConst.SuidType);
 	}
-	
+
 	static Connection getConn() throws SQLException {
 		Connection conn = null;
 
-		conn = getCurrentConnection(); //获取已开启事务或同一Connection的连接
-		
-		if (conn == null) {
-			boolean isSameConn=OneTimeParameter.isTrue("_SYS_Bee_SAME_CONN_BEGIN");
-			if (isSameConn) {
-				setSameConnctionDoing(); //提前设置,因RW时,同一连接要改为默认走写库
-			}
-			
-			conn = SessionFactory.getConnection(); 
+		conn = getCurrentConnection(); // 获取已开启事务或同一Connection的连接
 
-			//如果设置了同一Connection
+		if (conn == null) {
+			boolean isSameConn = OneTimeParameter.isTrue("_SYS_Bee_SAME_CONN_BEGIN");
 			if (isSameConn) {
-				setCurrentConnection(conn); //存入上下文
+				setSameConnctionDoing(); // 提前设置,因RW时,同一连接要改为默认走写库
+			}
+
+			conn = SessionFactory.getConnection();
+
+			// 如果设置了同一Connection
+			if (isSameConn) {
+				setCurrentConnection(conn); // 存入上下文
 			}
 		}
 
 		return conn;
 	}
-	
-	//For exception case. when have exception, must close the conn.
+
+	// For exception case. when have exception, must close the conn.
 	static void closeConn(Connection conn) {
 		try {
 //			if (conn != null) conn.close();  //bug   can not be closed before transation rollback
@@ -725,9 +727,9 @@ public final class HoneyContext {
 		} catch (SQLException e) {
 			throw ExceptionHelper.convert(e);
 		} finally {
-			removeCurrentConnection(); //事务结束时要删除;在事务中间报异常也要删除;同一conn也要删除
+			removeCurrentConnection(); // 事务结束时要删除;在事务中间报异常也要删除;同一conn也要删除
 			if (StringConst.tRue.equals(getSameConnctionDoing())) {
-				removeSameConnctionDoing(); //同一conn
+				removeSameConnctionDoing(); // 同一conn
 				OneTimeParameter.setTrueForKey("_SYS_Bee_SAME_CONN_EXCEPTION");
 			}
 //			boolean enableMultiDs = HoneyConfig.getHoneyConfig().multiDS_enable;
@@ -735,7 +737,7 @@ public final class HoneyContext {
 //			boolean differentDbType=HoneyConfig.getHoneyConfig().multiDS_differentDbType;
 ////			if (enableMultiDs && multiDsType == 2) {//仅分库,有多个数据源时
 //			if (enableMultiDs && (multiDsType ==2 || (multiDsType ==1 && differentDbType) )) {//仅分库,有多个数据源时
-			
+
 //			if (isNeedDs()) {
 //			if(enableMultiDs) { //放到拦截器中
 //				removeCurrentRoute();
@@ -752,7 +754,7 @@ public final class HoneyContext {
 			try {
 				rs.close();
 			} catch (SQLException e) {
-				//ignore
+				// ignore
 			}
 		}
 
@@ -763,41 +765,41 @@ public final class HoneyContext {
 				throw ExceptionHelper.convert(e);
 			}
 		}
-		if(conn!=null) {
-		try {
-			//			如果设置了同一Connection
-			//			并且调用了endSameConnection才关闭   
-			if (StringConst.tRue.equals(getSameConnctionDoing())) {
-				if (OneTimeParameter.isTrue("_SYS_Bee_SAME_CONN_END")) { // 调用suid.endSameConnection();前的SQL操作 不会触发这里的.
-					removeSameConnctionDoing();
-					if (conn != null) conn.close();
+		if (conn != null) {
+			try {
+				// 如果设置了同一Connection
+				// 并且调用了endSameConnection才关闭
+				if (StringConst.tRue.equals(getSameConnctionDoing())) {
+					if (OneTimeParameter.isTrue("_SYS_Bee_SAME_CONN_END")) { // 调用suid.endSameConnection();前的SQL操作 不会触发这里的.
+						removeSameConnctionDoing();
+						if (conn != null) conn.close();
+					}
+					// else { do not close}
+				} else {
+					if (conn != null && conn.getAutoCommit()) {// 自动提交时才关闭.如果开启事务,则由事务负责
+						conn.close();
+					}
 				}
-				//else { do not close}
-			} else {
-				if (conn != null && conn.getAutoCommit()) {//自动提交时才关闭.如果开启事务,则由事务负责
-					conn.close();
-				}
-			}
-		} catch (SQLException e) {
-			Logger.debug(e.getMessage());
-			throw ExceptionHelper.convert(e);
-		} finally {
+			} catch (SQLException e) {
+				Logger.debug(e.getMessage());
+				throw ExceptionHelper.convert(e);
+			} finally {
 //			boolean enableMultiDs = HoneyConfig.getHoneyConfig().multiDS_enable;
 //			int multiDsType = HoneyConfig.getHoneyConfig().multiDS_type;
 //			boolean differentDbType=HoneyConfig.getHoneyConfig().multiDS_differentDbType;
 ////			if (enableMultiDs && multiDsType == 2) {//仅分库,有多个数据源时
 //			if (enableMultiDs && (multiDsType ==2 || (multiDsType ==1 && differentDbType) )) {
-			
+
 //			if (isNeedDs()) {
 //			if(enableMultiDs) {  //放到拦截器中
 //				removeCurrentRoute();    //RW不用清???? 
 //			}
-		}
+			}
 		}
 	}
 
-	//for SqlLib
-	static boolean updateInfoInCache(String sql, String returnType, SuidType suidType,Class entityClass) {
+	// for SqlLib
+	static boolean updateInfoInCache(String sql, String returnType, SuidType suidType, Class entityClass) {
 		CacheSuidStruct struct = getCacheInfo(sql);
 		if (struct != null) {
 			struct.setReturnType(returnType);
@@ -806,11 +808,11 @@ public final class HoneyContext {
 			setCacheInfo(sql, struct);
 			return true;
 		}
-		//要是没有更新缓存,证明之前还没有登记过缓存,就不能去查缓存.
+		// 要是没有更新缓存,证明之前还没有登记过缓存,就不能去查缓存.
 		return false;
 	}
 
-	//for SqlLib
+	// for SqlLib
 	@SuppressWarnings("rawtypes")
 	static void initRoute(SuidType suidType, Class clazz, String sql) {
 
@@ -830,7 +832,7 @@ public final class HoneyContext {
 		setCurrentRoute(routeStruct);
 	}
 
-	//因同时使用不同类型DB,需要实时确认DB,而需要路由
+	// 因同时使用不同类型DB,需要实时确认DB,而需要路由
 	@SuppressWarnings("rawtypes")
 	static void initRouteWhenParseSql(SuidType suidType, Class clazz, String tableNames) {
 
@@ -847,19 +849,19 @@ public final class HoneyContext {
 	}
 
 	private static void parseEntityListToMap() {
-		String entityList_includes = HoneyConfig.getHoneyConfig().genid_includesEntityList; //in
+		String entityList_includes = HoneyConfig.getHoneyConfig().genid_includesEntityList; // in
 		_parseListToMap(entityList_includes, entityList_includes_Map, entityListWithStar_in);
 
-		String entityList_excludes = HoneyConfig.getHoneyConfig().genid_excludesEntityList; //ex
+		String entityList_excludes = HoneyConfig.getHoneyConfig().genid_excludesEntityList; // ex
 		_parseListToMap(entityList_excludes, entityList_excludes_Map, entityListWithStar_ex);
-		
-		String levelTwoEntityList=HoneyConfig.getHoneyConfig().cache_levelTwoEntityList;  //cache level 2
-		_parseListToMap(levelTwoEntityList,entityList_levelTwo_Map,entityListWithStar_levelTwo);
+
+		String levelTwoEntityList = HoneyConfig.getHoneyConfig().cache_levelTwoEntityList; // cache level 2
+		_parseListToMap(levelTwoEntityList, entityList_levelTwo_Map, entityListWithStar_levelTwo);
 
 	}
 
 	private static void _parseListToMap(String str, Map<String, String> map, List<String> starList) {
-		//com.xxx.aa.User,com.xxx.bb.*,com.xxx.cc.**
+		// com.xxx.aa.User,com.xxx.bb.*,com.xxx.cc.**
 		if (str == null || "".equals(str.trim())) return;
 
 		String strArray[] = str.trim().split(",");
@@ -881,26 +883,26 @@ public final class HoneyContext {
 
 	@SuppressWarnings("rawtypes")
 	private static boolean _isConfig(Class clazz, Map<String, String> map, List<String> starList) {
-		
-		if(clazz==null) return false;
+
+		if (clazz == null) return false;
 
 		String fullName = clazz.getName();
 		String ds = null;
-		ds = map.get(fullName); //1
+		ds = map.get(fullName); // 1
 		if (ds != null) return true;
 
 		if (clazz.getPackage() != null) {
 			String packageName = clazz.getPackage().getName();
-			ds = map.get(packageName + ".*"); //2
+			ds = map.get(packageName + ".*"); // 2
 			if (ds != null) return true;
 
-			//ds=entityClassPathToDs.get(packageName+".**");   //com.xxx.** 省略多级情况下,不适用
+			// ds=entityClassPathToDs.get(packageName+".**"); //com.xxx.** 省略多级情况下,不适用
 
 			for (int i = 0; i < starList.size(); i++) {
 				String s = starList.get(i);
 				if (s.endsWith(".**")) {
 					String prePath = s.substring(0, s.length() - 2);
-					if (fullName.startsWith(prePath)) return true; //3
+					if (fullName.startsWith(prePath)) return true; // 3
 				}
 			}
 		}
@@ -913,12 +915,12 @@ public final class HoneyContext {
 		boolean genAll = HoneyConfig.getHoneyConfig().genid_forAllTableLongId;
 		if (genAll) {
 			if (isConfigForEntityEX(clazz))
-				needGenId = false; //有排除,则  不生成的
+				needGenId = false; // 有排除,则 不生成的
 			else
 				needGenId = true;
 		} else {
 			if (isConfigForEntityEX(clazz))
-				needGenId = false; //有排除,则  不生成的
+				needGenId = false; // 有排除,则 不生成的
 			else {
 				if (isConfigForEntityIN(clazz))
 					needGenId = true;
@@ -929,7 +931,7 @@ public final class HoneyContext {
 
 		return needGenId;
 	}
-	
+
 	@SuppressWarnings("rawtypes")
 	public static boolean isConfigLevelTwoCache(Class clazz) {
 		return _isConfig(clazz, entityList_levelTwo_Map, entityListWithStar_levelTwo);
@@ -937,7 +939,7 @@ public final class HoneyContext {
 
 //closeed	//仅分库,有多个数据源时,且支持同时使用多种类型数据库时,
 //closeed	//才可能需要实时确认是什么数据库,没有分页的不需要
-	
+
 //  是多数据源,有同时使用多种不同类型DB
 	static boolean isNeedRealTimeDb() {
 //		boolean enableMultiDs = HoneyConfig.getHoneyConfig().multiDS_enable;
@@ -956,26 +958,26 @@ public final class HoneyContext {
 //			return true;
 //		else
 //			return false;
-		
+
 //      是多数据源,有同时使用多种不同类型DB
 		boolean enableMultiDs = HoneyConfig.getHoneyConfig().multiDS_enable;
 		boolean isDifferentDbType = HoneyConfig.getHoneyConfig().multiDS_differentDbType;
 		if (enableMultiDs && isDifferentDbType) {
 			return true;
-		}else {
-			if(useStructForLevel2()) return true;//1.17 fixed
+		} else {
+			if (useStructForLevel2()) return true;// 1.17 fixed
 			return false;
 		}
 	}
-	
-   static boolean useStructForLevel2() {
-		boolean useLevelTwo=HoneyConfig.getHoneyConfig().cache_useLevelTwo;
+
+	static boolean useStructForLevel2() {
+		boolean useLevelTwo = HoneyConfig.getHoneyConfig().cache_useLevelTwo;
 		boolean levelOneTolevelTwo = HoneyConfig.getHoneyConfig().cache_levelOneTolevelTwo;
-		return useLevelTwo && !levelOneTolevelTwo;  //use LevelTwo,but do not put all levelOneTolevelTwo; need use the struct
+		return useLevelTwo && !levelOneTolevelTwo; // use LevelTwo,but do not put all levelOneTolevelTwo; need use the struct
 
 	}
 
-	//同时使用多种类型数据库时,才会触发.   没有分页时,走原来的流程,到SqlLib,才获取数据源处理Suid操作.
+	// 同时使用多种类型数据库时,才会触发. 没有分页时,走原来的流程,到SqlLib,才获取数据源处理Suid操作.
 	static String getRealTimeDbName() {
 		String dbName = null;
 		if (isNeedRealTimeDb()) {
@@ -983,7 +985,7 @@ public final class HoneyContext {
 		}
 		return dbName;
 	}
-	
+
 	public static boolean isNeedDs() {
 		if (isMultiDs()) {
 			int multiDsType = HoneyConfig.getHoneyConfig().multiDS_type;
@@ -1036,37 +1038,36 @@ public final class HoneyContext {
 				throw ExceptionHelper.convert(e);
 			}
 		}
-		
+
 		setConfigRefresh(true);
 	}
 
 	public static boolean getModifiedFlagForCache2(String tableName) {
-		Boolean f=modifiedFlagMapForCache2.get(tableName);
-		return f==null?false:f;
+		Boolean f = modifiedFlagMapForCache2.get(tableName);
+		return f == null ? false : f;
 	}
 
-	public static void addModifiedFlagForCache2(String tableName,boolean isModified) {
+	public static void addModifiedFlagForCache2(String tableName, boolean isModified) {
 		if (tableName == null) return;
 		modifiedFlagMapForCache2.put(tableName, isModified);
 	}
-	
+
 	public static Boolean getEntityInterceptorFlag(String fullClassName) {
 		return entityInterceptorFlag.get(fullClassName);
 	}
-	
-	public static void addEntityInterceptorFlag(String fullClassName,boolean isHas) {
+
+	public static void addEntityInterceptorFlag(String fullClassName, boolean isHas) {
 		if (fullClassName == null) return;
 		entityInterceptorFlag.put(fullClassName, isHas);
 	}
 
-	
 	public static Boolean getCustomFlagMap(String key) {
 		return customFlagMap.get(key);
 	}
-	
-	public static void addCustomFlagMap(String key,boolean flag) {
+
+	public static void addCustomFlagMap(String key, boolean flag) {
 		if (key == null) return;
 		customFlagMap.put(key, flag);
 	}
-	
+
 }

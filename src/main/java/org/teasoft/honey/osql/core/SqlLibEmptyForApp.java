@@ -16,9 +16,9 @@ import org.teasoft.bee.app.BeeSqlForApp;
  * @author Kingstar
  * @since  1.17
  */
-class SqlLibEmptyForApp implements BeeSqlForApp{
-	
-	private static final String MSG="You are using SqlLibEmptyForApp. It is empty!";
+class SqlLibEmptyForApp implements BeeSqlForApp {
+
+	private static final String MSG = "You are using SqlLibEmptyForApp. It is empty!";
 
 	@Override
 	public <T> List<T> select(String sql, T entity, String[] selectionArgs) {
@@ -49,7 +49,7 @@ class SqlLibEmptyForApp implements BeeSqlForApp{
 		Logger.warn(MSG);
 		return null;
 	}
-	
+
 	@Override
 	public List<Map<String, String>> selectMapListWithColumnName(String sql, String[] selectionArgs) {
 		Logger.warn(MSG);

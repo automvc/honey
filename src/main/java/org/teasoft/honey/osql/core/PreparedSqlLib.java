@@ -50,7 +50,7 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 
 	@Override
 	public <T> List<T> select(String sql, T returnType, Object[] preValues) {
-		doBeforePasreEntity(returnType, SuidType.SELECT);//returnType的值,虽然不用作占位参数的值,但可以用作拦截器的业务逻辑判断
+		doBeforePasreEntity(returnType, SuidType.SELECT);// returnType的值,虽然不用作占位参数的值,但可以用作拦截器的业务逻辑判断
 		initPreparedValues(sql, preValues, returnType);
 		sql = doAfterCompleteSql(sql);
 
@@ -78,7 +78,7 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 
 		String tableName = "";
 		if (isNeedRealTimeDb()) {
-			tableName = _toTableName(entity); //这里,取过了参数, 到解析sql的,就不能再取
+			tableName = _toTableName(entity); // 这里,取过了参数, 到解析sql的,就不能再取
 			OneTimeParameter.setAttribute(StringConst.TABLE_NAME, tableName);
 			HoneyContext.initRouteWhenParseSql(SuidType.SELECT, entity.getClass(), tableName);
 			OneTimeParameter.setTrueForKey(StringConst.ALREADY_SET_ROUTE);
@@ -118,7 +118,7 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 
 		String tableName = "";
 		if (isNeedRealTimeDb()) {
-			tableName = _toTableName(entity); //这里,取过了参数, 到解析sql的,就不能再取
+			tableName = _toTableName(entity); // 这里,取过了参数, 到解析sql的,就不能再取
 			OneTimeParameter.setAttribute(StringConst.TABLE_NAME, tableName);
 			HoneyContext.initRouteWhenParseSql(SuidType.SELECT, entity.getClass(), tableName);
 			OneTimeParameter.setTrueForKey(StringConst.ALREADY_SET_ROUTE);
@@ -159,7 +159,7 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 
 		String tableName = "";
 		if (isNeedRealTimeDb()) {
-			tableName = _toTableName(entity); //这里,取过了参数, 到解析sql的,就不能再取
+			tableName = _toTableName(entity); // 这里,取过了参数, 到解析sql的,就不能再取
 			OneTimeParameter.setAttribute(StringConst.TABLE_NAME, tableName);
 			HoneyContext.initRouteWhenParseSql(SuidType.SELECT, entity.getClass(), tableName);
 			OneTimeParameter.setTrueForKey(StringConst.ALREADY_SET_ROUTE);
@@ -190,8 +190,7 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 	}
 
 	@Override
-	public <T> List<T> selectSomeField(String sqlStr, T entity, Map<String, Object> map, int start,
-			int size) {
+	public <T> List<T> selectSomeField(String sqlStr, T entity, Map<String, Object> map, int start, int size) {
 		if (size <= 0) throw new BeeIllegalParameterException(SIZE_GREAT_0);
 		if (start < 0) throw new BeeIllegalParameterException(START_GREAT_EQ_0);
 
@@ -201,7 +200,7 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 
 		String tableName = "";
 		if (isNeedRealTimeDb()) {
-			tableName = _toTableName(entity); //这里,取过了参数, 到解析sql的,就不能再取
+			tableName = _toTableName(entity); // 这里,取过了参数, 到解析sql的,就不能再取
 			OneTimeParameter.setAttribute(StringConst.TABLE_NAME, tableName);
 			HoneyContext.initRouteWhenParseSql(SuidType.SELECT, entity.getClass(), tableName);
 			OneTimeParameter.setTrueForKey(StringConst.ALREADY_SET_ROUTE);
@@ -448,24 +447,24 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 			tableName = _toTableName(entity);
 		}
 
-		//pre page 1, 3
+		// pre page 1, 3
 		HoneyUtil.setPageNum(list);
 		HoneyContext.setContext(sql, list, tableName);
-		//		}
+		// }
 	}
 
 	private void initPreparedValues(String sql, Object[] preValues) {
 		List list = _initPreparedValues(sql, preValues);
 		// pre page 不放缓存 5,7
-		boolean isSetted=HoneyUtil.setPageNum(list);
-		
+		boolean isSetted = HoneyUtil.setPageNum(list);
+
 		if ((preValues == null || preValues.length == 0) && !isSetted)
 			return; // 参数为空,且没有设置分页参数,则不设置 setPreparedValue
 		else
 			HoneyContext.setPreparedValue(sql, list); // 没有entity,不放缓存.
 	}
 
-	//	private StringBuffer initPreparedValues(String sql, Object[] preValues) {
+	// private StringBuffer initPreparedValues(String sql, Object[] preValues) {
 	private List _initPreparedValues(String sql, Object[] preValues) {
 
 		if (sql == null || "".equals(sql.trim())) {
@@ -475,7 +474,7 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 		PreparedValue preparedValue = null;
 		List<PreparedValue> list = new ArrayList<>();
 
-		for (int i = 0; preValues != null && i < preValues.length; i++) { //fixbug
+		for (int i = 0; preValues != null && i < preValues.length; i++) { // fixbug
 			preparedValue = new PreparedValue();
 			preparedValue.setType(preValues[i].getClass().getName());
 			preparedValue.setValue(preValues[i]);
@@ -486,19 +485,19 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 
 	private <T> Map<String, Object> mergeMap(Map<String, Object> prameterMap, T entity) {
 		Map<String, Object> columnMap = HoneyUtil.getColumnMapByEntity(entity);
-		if(prameterMap!=null) columnMap.putAll(prameterMap); //merge, prameterMap will override columnMap,if have same key.
+		if (prameterMap != null) columnMap.putAll(prameterMap); // merge, prameterMap will override columnMap,if have same key.
 		return columnMap;
 	}
 
-	private <T> String initPrepareValuesViaMap(String sqlStr, Map<String, Object> parameterMap,
-			T entity) {
+	private <T> String initPrepareValuesViaMap(String sqlStr, Map<String, Object> parameterMap, T entity) {
 
 		if (sqlStr == null || "".equals(sqlStr.trim())) {
 			throw new SqlNullException(STRING_IS_NULL);
 		}
 		parameterMap = mergeMap(parameterMap, entity);
 
-		SqlValueWrap wrap = processSql2(sqlStr,parameterMap); //will return null when sql no placeholder like: select * from tableName
+		SqlValueWrap wrap = processSql2(sqlStr, parameterMap); // will return null when sql no placeholder like: select * from
+																// tableName
 		String reSql;
 		List list = null;
 
@@ -520,12 +519,12 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 //			String sql = wrap.getSql();
 //			String mapKeys = wrap.getValueBuffer().toString(); //wrap.getValueBuffer() is :map's key , get from like: #{name}
 //			list = _initPreparedValues(mapKeys, parameterMap);
-			list=wrap.getList();
+			list = wrap.getList();
 			reSql = wrap.getSql();
 		}
 
 		HoneyUtil.setPageNum(list);
-		//MAP PAGE 2,4
+		// MAP PAGE 2,4
 		HoneyContext.setContext(reSql, list, tableName);
 
 		return reSql;
@@ -533,28 +532,28 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 
 	private String initPrepareValuesViaMap(String sqlStr, Map<String, Object> map) {
 
-		if (StringUtils.isBlank(sqlStr))  {
+		if (StringUtils.isBlank(sqlStr)) {
 			throw new SqlNullException(STRING_IS_NULL);
 		}
 
-		//V2.4.0
-		SqlValueWrap wrap = processSql2(sqlStr,map);
+		// V2.4.0
+		SqlValueWrap wrap = processSql2(sqlStr, map);
 //		if (wrap == null) return sqlStr;  //bug  没有起止标签,返回null,但可能是要加分页参数
-		
+
 		String sql;
 		List list = null;
-		
-		if (wrap == null) {//map为空也有可能是要设置分页,不能提前返回
+
+		if (wrap == null) {// map为空也有可能是要设置分页,不能提前返回
 			sql = sqlStr;
 			list = new ArrayList();
 		} else {
- 			list = wrap.getList();
+			list = wrap.getList();
 			sql = wrap.getSql();
 		}
-		
-		//6,8  map,page 不放缓存
-		boolean isSetted=HoneyUtil.setPageNum(list); //设置分页参数
-		
+
+		// 6,8 map,page 不放缓存
+		boolean isSetted = HoneyUtil.setPageNum(list); // 设置分页参数
+
 		if (ObjectUtils.isEmpty(map) && !isSetted) {
 			// 参数为空,且没有设置分页参数,则不设置 setPreparedValue
 		} else {
@@ -563,8 +562,8 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 
 		return sql;
 	}
-	
-	//sync from V2.1
+
+	// sync from V2.1
 	@SuppressWarnings("rawtypes")
 	private List _initPreparedValues(String keys[], Map<String, Object> map) {
 		Object value;
@@ -575,25 +574,25 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 			preparedValue = new PreparedValue();
 			value = map.get(keys[i]);
 			preparedValue.setValue(value);
-			
+
 //			preparedValue.setType(map.get(keys[i]).getClass().getName()); //null bug
-			//fixed bug V2.0
+			// fixed bug V2.0
 			if (value != null)
 				preparedValue.setType(value.getClass().getName());
-			else  
+			else
 				preparedValue.setType(Object.class.getName());
-			
+
 			list.add(preparedValue);
 		}
 		return list;
 	}
-	
+
 	private SqlValueWrap processSql(String sql) {
 		return TokenUtil.process(sql, "#{", "}", "?");
 	}
-	
-	private SqlValueWrap processSql2(String sql,Map map) {
-		return TokenUtil.process2(sql, "#{", "}", "?",map);
+
+	private SqlValueWrap processSql2(String sql, Map map) {
+		return TokenUtil.process2(sql, "#{", "}", "?", map);
 	}
 
 	private String _toTableName(Object entity) {
@@ -611,9 +610,9 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 
 	@Override
 	public List<Map<String, Object>> selectMapList(String sql) {
-		return selectMapList(sql,null);
+		return selectMapList(sql, null);
 	}
-	
+
 	@Override
 	public List<Map<String, Object>> selectMapList(String sqlStr, Map<String, Object> parameterMap) {
 		doBeforePasreEntity();
@@ -623,14 +622,13 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 
 		List<Map<String, Object>> list = getBeeSql().selectMapList(sql);
 		doBeforeReturn();
-		
+
 		return list;
 	}
 
 	@Override
-	public List<Map<String, Object>> selectMapList(String sqlStr, Map<String, Object> parameterMap,
-			int start, int size) {
-		
+	public List<Map<String, Object>> selectMapList(String sqlStr, Map<String, Object> parameterMap, int start, int size) {
+
 		if (size <= 0) throw new BeeIllegalParameterException(SIZE_GREAT_0);
 		if (start < 0) throw new BeeIllegalParameterException(START_GREAT_EQ_0);
 
@@ -664,9 +662,8 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 		doBeforeReturn(list);
 		return list;
 	}
-	
-	private <T> String _moreTableSelect(String sqlStr, T entity, Map<String, Object> map,
-			int start, int size) {
+
+	private <T> String _moreTableSelect(String sqlStr, T entity, Map<String, Object> map, int start, int size) {
 		if (size <= 0) throw new BeeIllegalParameterException(SIZE_GREAT_0);
 		if (start < 0) throw new BeeIllegalParameterException(START_GREAT_EQ_0);
 
@@ -676,7 +673,7 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 
 		String tableName = "";
 		if (isNeedRealTimeDb()) {
-			tableName = _toTableName(entity); //这里,取过了参数, 到解析sql的,就不能再取
+			tableName = _toTableName(entity); // 这里,取过了参数, 到解析sql的,就不能再取
 			OneTimeParameter.setAttribute(StringConst.TABLE_NAME, tableName);
 			HoneyContext.initRouteWhenParseSql(SuidType.SELECT, entity.getClass(), tableName);
 			OneTimeParameter.setTrueForKey(StringConst.ALREADY_SET_ROUTE);
@@ -685,13 +682,12 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 		String pageSql = getDbFeature().toPageSql(sqlStr, start, size);
 		String sql = initPrepareValuesViaMap(pageSql, map, entity);
 		sql = doAfterCompleteSql(sql);
-		
+
 		return sql;
 	}
 
 	@Override
-	public <T> List<T> moreTableSelect(String sqlStr, T entity, Map<String, Object> map, int start,
-			int size) {
+	public <T> List<T> moreTableSelect(String sqlStr, T entity, Map<String, Object> map, int start, int size) {
 		String sql = _moreTableSelect(sqlStr, entity, map, start, size);
 		Logger.logSQL(SELECT_MoreTable_SQL, sql);
 		List<T> list = getBeeSql().moreTableSelect(sql, entity);
@@ -699,12 +695,12 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 		doBeforeReturn(list);
 		return list;
 	}
-	
-	private static boolean  showSQL=HoneyConfig.getHoneyConfig().showSQL;
+
+	private static boolean showSQL = HoneyConfig.getHoneyConfig().showSQL;
 	private static final String INDEX1 = "_SYS[index";
 	private static final String INDEX2 = "]_End ";
 	private static final String INDEX3 = "]";
-	
+
 	@Override
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public int insertBatch(String sqlStr, List<Map<String, Object>> parameterMapList, int batchSize) {
@@ -717,7 +713,7 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 			Logger.warn("parameterMapList is empty!");
 			return 0;
 		}
-		
+
 		sqlStr = HoneyUtil.deleteLastSemicolon(sqlStr);
 
 		doBeforePasreEntity2();
@@ -729,42 +725,45 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 		String insertSql[] = new String[size];
 		insertSql[0] = wrap.getSql();
 
-		String mapKeys = wrap.getValueBuffer().toString(); //wrap.getValueBuffer() is :map's key , get from like: #{name}
-		String keys[] = mapKeys.split(","); //map's key
+		String mapKeys = wrap.getValueBuffer().toString(); // wrap.getValueBuffer() is :map's key , get from like: #{name}
+		String keys[] = mapKeys.split(","); // map's key
 
-		insertSql[0] = doAfterCompleteSql(insertSql[0]); //提前转换sql,可以少更新上下文
+		insertSql[0] = doAfterCompleteSql(insertSql[0]); // 提前转换sql,可以少更新上下文
 
 		String sql_i = null;
 		List<PreparedValue> preparedValueList = new ArrayList<>();
-		
+
 		for (int i = 0; i < size; i++) {
 			List oneRecoreList = _initPreparedValues(keys, parameterMapList.get(i));
 			sql_i = INDEX1 + i + INDEX2 + insertSql[0];
 			if (HoneyUtil.isMysql()) {
 				if (i == 0) {
-					OneTimeParameter.setAttribute("_SYS_Bee_PlaceholderValue", getPlaceholderValue(keys.length)); //fixed bug V2.0
+					OneTimeParameter.setAttribute("_SYS_Bee_PlaceholderValue", getPlaceholderValue(keys.length)); // fixed bug
+																													// V2.0
 					HoneyContext.setPreparedValue(sql_i, oneRecoreList);
 				}
-				preparedValueList.addAll(oneRecoreList); //用于mysql批量插入时设置值
-				if((i+1)%batchSize==0){ //i+1    i+1不可能为0
-					HoneyContext.setPreparedValue(insertSql[0] +"  [Batch:"+ (i/batchSize) + INDEX3, preparedValueList); //i
+				preparedValueList.addAll(oneRecoreList); // 用于mysql批量插入时设置值
+				if ((i + 1) % batchSize == 0) { // i+1 i+1不可能为0
+					HoneyContext.setPreparedValue(insertSql[0] + "  [Batch:" + (i / batchSize) + INDEX3,
+							preparedValueList); // i
 					preparedValueList = new ArrayList<>();
-				}else if(i==(size-1)){
-					HoneyContext.setPreparedValue(insertSql[0] +"  [Batch:"+ (i/batchSize) + INDEX3, preparedValueList); //i
+				} else if (i == (size - 1)) {
+					HoneyContext.setPreparedValue(insertSql[0] + "  [Batch:" + (i / batchSize) + INDEX3,
+							preparedValueList); // i
 				}
 			}
 			if (HoneyUtil.isMysql() && !showSQL) {
-				//none
+				// none
 			} else {
 				HoneyContext.setPreparedValue(sql_i, oneRecoreList);
 			}
 		}
-		int a = getBeeSql().batch(insertSql,batchSize);
+		int a = getBeeSql().batch(insertSql, batchSize);
 		doBeforeReturn();
 
 		return a;
 	}
-	
+
 	private String getPlaceholderValue(int size) {
 		return HoneyUtil.getPlaceholderValue(size);
 	}
@@ -774,14 +773,14 @@ public class PreparedSqlLib extends AbstractCommOperate implements PreparedSql {
 		int batchSize = HoneyConfig.getHoneyConfig().insertBatchSize;
 		return insertBatch(sqlStr, parameterMapList, batchSize);
 	}
-	
+
 	private void doBeforePasreEntity() {
-		Object entity=null;
+		Object entity = null;
 		super.doBeforePasreEntity(entity, SuidType.SELECT);
 	}
-	
+
 	private void doBeforePasreEntity2() {
-		Object entity=null;
+		Object entity = null;
 		super.doBeforePasreEntity(entity, SuidType.MODIFY);
 	}
 

@@ -194,8 +194,7 @@ public class TokenUtil {
 							len3 = newReplaceStr.length();
 						}
 
-					} else if (key.endsWith(CustomAutoSqlToken.toIsNULL1)
-							|| key.endsWith(CustomAutoSqlToken.toIsNULL2)) {
+					} else if (key.endsWith(CustomAutoSqlToken.toIsNULL1) || key.endsWith(CustomAutoSqlToken.toIsNULL2)) {
 //						int len=CustomAutoSqlToken.toIsNULL1.length();
 //						Object v = map.get(key.substring(0, key.length() - len));
 						String keyIsNull = key.replace(CustomAutoSqlToken.toIsNULL1, "")
@@ -217,7 +216,7 @@ public class TokenUtil {
 					}
 					if (isInToken || isToIsNULL)
 						sbf.replace(start + goBack, end + len2, newReplaceStr);
-					else if (replaceStr != null) sbf.replace(start, end + len2, replaceStr); //v1.9 //replaceStr为null,则不替换
+					else if (replaceStr != null) sbf.replace(start, end + len2, replaceStr); // v1.9 //replaceStr为null,则不替换
 				}
 			}
 			if (replaceStr != null || isInToken || isToIsNULL) {
@@ -258,21 +257,27 @@ public class TokenUtil {
 				key = key.substring(1, len - 1);
 				v = (String) map.get(key);
 				logNullTip(v);
-				if (v == null) value = v; // V2.1.6
-				else value = "%" + escapeLikeForCustomSql(v) + "%";
+				if (v == null)
+					value = v; // V2.1.6
+				else
+					value = "%" + escapeLikeForCustomSql(v) + "%";
 			} else { // %para
 				key = key.substring(1, len);
 				v = (String) map.get(key);
 				logNullTip(v);
-				if (v == null) value = v; // V2.1.6
-				else value = "%" + escapeLikeForCustomSql(v);
+				if (v == null)
+					value = v; // V2.1.6
+				else
+					value = "%" + escapeLikeForCustomSql(v);
 			}
 		} else if (key.endsWith("%")) { // para%
 			key = key.substring(0, len - 1);
 			v = (String) map.get(key);
 			logNullTip(v);
-			if (v == null) value = v; // V2.1.6
-			else value = escapeLikeForCustomSql(v) + "%";
+			if (v == null)
+				value = v; // V2.1.6
+			else
+				value = escapeLikeForCustomSql(v) + "%";
 		} else {
 			value = map.get(key);
 			checkLike((String) value);

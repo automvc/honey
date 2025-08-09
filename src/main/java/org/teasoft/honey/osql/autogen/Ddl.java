@@ -187,12 +187,10 @@ public class Ddl {
 		Field fields[] = entity.getClass().getDeclaredFields();
 		for (int i = 0; i < fields.length; i++) {
 			if (isSkipField(fields[i])) {
-				if (i == fields.length - 1)
-					sqlBuffer.delete(sqlBuffer.length() - 5, sqlBuffer.length() - 2);
+				if (i == fields.length - 1) sqlBuffer.delete(sqlBuffer.length() - 5, sqlBuffer.length() - 2);
 				continue;
 			}
-			sqlBuffer.append(_toColumnName(fields[i].getName(), entity.getClass()))
-					.append("  ");
+			sqlBuffer.append(_toColumnName(fields[i].getName(), entity.getClass())).append("  ");
 
 			String type = getType(fields[i]);
 
@@ -310,12 +308,10 @@ public class Ddl {
 		Field fields[] = entity.getClass().getDeclaredFields();
 		for (int i = 0; i < fields.length; i++) {
 			if (isSkipField(fields[i])) {
-				if (i == fields.length - 1)
-					sqlBuffer.delete(sqlBuffer.length() - 5, sqlBuffer.length() - 2);
+				if (i == fields.length - 1) sqlBuffer.delete(sqlBuffer.length() - 5, sqlBuffer.length() - 2);
 				continue;
 			}
-			sqlBuffer.append(_toColumnName(fields[i].getName(), entity.getClass()))
-					.append("  ");
+			sqlBuffer.append(_toColumnName(fields[i].getName(), entity.getClass())).append("  ");
 
 			if (isPrimaryKey(fields[i])) {
 				String pkSt = "bigint(20) PRIMARY KEY NOT NULL AUTO_INCREMENT";
@@ -406,12 +402,9 @@ public class Ddl {
 	}
 
 	private static void initStringPkStatement() {
-		pkStringStatement.put(DatabaseConst.H2.toLowerCase(),
-				"varchar(255) PRIMARY KEY NOT NULL");
-		pkStringStatement.put(DatabaseConst.SQLite.toLowerCase(),
-				" VARCHAR2(255) PRIMARY KEY NOT NULL");
-		pkStringStatement.put(DatabaseConst.PostgreSQL.toLowerCase(),
-				"varchar(255) PRIMARY KEY NOT NULL");
+		pkStringStatement.put(DatabaseConst.H2.toLowerCase(), "varchar(255) PRIMARY KEY NOT NULL");
+		pkStringStatement.put(DatabaseConst.SQLite.toLowerCase(), " VARCHAR2(255) PRIMARY KEY NOT NULL");
+		pkStringStatement.put(DatabaseConst.PostgreSQL.toLowerCase(), "varchar(255) PRIMARY KEY NOT NULL");
 		pkStringStatement.put("", "");
 		pkStringStatement.put(null, "");
 	}
@@ -425,20 +418,17 @@ public class Ddl {
 	}
 
 	// Comm: H2,SQLite,PostgreSQL
-	private static <T> String toCreateTableSQLComm(T entity, String tableName,
-			String databaseName) {
+	private static <T> String toCreateTableSQLComm(T entity, String tableName, String databaseName) {
 		if (tableName == null) tableName = _toTableName(entity);
 		StringBuilder sqlBuffer = new StringBuilder();
 		sqlBuffer.append(CREATE_TABLE + tableName + " (").append(LINE_SEPARATOR);
 		Field fields[] = entity.getClass().getDeclaredFields();
 		for (int i = 0; i < fields.length; i++) {
 			if (isSkipField(fields[i])) {
-				if (i == fields.length - 1)
-					sqlBuffer.delete(sqlBuffer.length() - 5, sqlBuffer.length() - 2);
+				if (i == fields.length - 1) sqlBuffer.delete(sqlBuffer.length() - 5, sqlBuffer.length() - 2);
 				continue;
 			}
-			sqlBuffer.append(_toColumnName(fields[i].getName(), entity.getClass()))
-					.append("  ");
+			sqlBuffer.append(_toColumnName(fields[i].getName(), entity.getClass())).append("  ");
 
 			if (isPrimaryKey(fields[i])) {
 				if (!String.class.equals(fields[i].getType()))
@@ -525,12 +515,10 @@ public class Ddl {
 		boolean hasCurrentTime = false;
 		for (int i = 0; i < fields.length; i++) {
 			if (isSkipField(fields[i])) {
-				if (i == fields.length - 1)
-					sqlBuffer.delete(sqlBuffer.length() - 5, sqlBuffer.length() - 2);
+				if (i == fields.length - 1) sqlBuffer.delete(sqlBuffer.length() - 5, sqlBuffer.length() - 2);
 				continue;
 			}
-			sqlBuffer.append(_toColumnName(fields[i].getName(), entity.getClass()))
-					.append("  ");
+			sqlBuffer.append(_toColumnName(fields[i].getName(), entity.getClass())).append("  ");
 
 			if (isPrimaryKey(fields[i])) {
 				String pkSt = "bigint PRIMARY KEY NOT NULL";
@@ -690,15 +678,14 @@ public class Ddl {
 		_index(entity, fields, indexName, PREFIX, IndexTypeTip, IndexType);
 	}
 
-	public static <T> void _index(T entity, String fields, String indexName, String PREFIX,
-			String IndexTypeTip, String IndexType) {
+	public static <T> void _index(T entity, String fields, String indexName, String PREFIX, String IndexTypeTip,
+			String IndexType) {
 //		String PREFIX = "idx_";
 //		String IndexTypeTip = "normal";
 //		String IndexType = ""; //normal will empty
 
 		if (StringUtils.isBlank(fields)) {
-			throw new BeeErrorNameException(
-					"Create " + IndexTypeTip + " index, the fields can not be empty!");
+			throw new BeeErrorNameException("Create " + IndexTypeTip + " index, the fields can not be empty!");
 		}
 		checkField(fields);
 		String tableName = _toTableName(entity);
@@ -711,8 +698,7 @@ public class Ddl {
 			checkField(indexName);
 		}
 
-		String indexSql = "CREATE " + IndexType + "INDEX " + indexName + " ON " + tableName
-				+ "(" + columns + ")";
+		String indexSql = "CREATE " + IndexType + "INDEX " + indexName + " ON " + tableName + "(" + columns + ")";
 		ddlModify(indexSql);
 	}
 
@@ -735,8 +721,7 @@ public class Ddl {
 		String typeTip = "normal";
 
 		if (StringUtils.isBlank(fields)) {
-			throw new BeeErrorNameException(
-					"Create " + typeTip + " index, the fields can not be empty!");
+			throw new BeeErrorNameException("Create " + typeTip + " index, the fields can not be empty!");
 		}
 		checkField(fields);
 		String tableName = _toTableName(entity);
@@ -749,8 +734,7 @@ public class Ddl {
 			checkField(keyName);
 		}
 
-		String indexSql = "ALTER TABLE " + tableName + " ADD CONSTRAINT " + keyName
-				+ " PRIMARY KEY (" + columns + ")";
+		String indexSql = "ALTER TABLE " + tableName + " ADD CONSTRAINT " + keyName + " PRIMARY KEY (" + columns + ")";
 		ddlModify(indexSql);
 	}
 }

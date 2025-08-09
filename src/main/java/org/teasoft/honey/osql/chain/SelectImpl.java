@@ -24,14 +24,13 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 
 	private static final String STAR = "*";
 	private static final String DISTINCT = K.distinct;
-	
-	//for where condition
+
+	// for where condition
 	private static final String L_PARENTHESES = "(";
 	private static final String R_PARENTHESES = ")";
 	private static final String COMMA = ",";
 	private static final String SPACE = " ";
-	private static final String AND = " "+K.and+" ";
-	
+	private static final String AND = " " + K.and + " ";
 
 	private boolean isStartField = true;
 	private boolean isStartWhere = true;
@@ -41,17 +40,17 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 	private boolean isStartGroupBy = true;
 	private boolean isStartHaving = true;
 	private boolean isStartOrderBy = true;
-	
-	public SelectImpl(){
+
+	public SelectImpl() {
 // some one maybe just need where part
 //		sql.append("select ");
 	}
-	
+
 	@Override
 	public Select select() {
 		if (isStartField) {
 			sql.append(K.select).append(SPACE);
-			sql.append(STAR); //*
+			sql.append(STAR); // *
 			isStartField = false;
 		}
 		return this;
@@ -153,8 +152,6 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 		return this;
 	}
 
-
-
 	@Override
 	public Select groupBy(String field) {
 //		checkField(field);
@@ -219,7 +216,7 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 		}
 		return this;
 	}
-	
+
 	private Select useSubSelect(String keyword, String subSelect) { // exists, not exists
 
 		sql.append(keyword);
@@ -229,11 +226,11 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 		sql.append(R_PARENTHESES);
 		return this;
 	}
-	
-	private Select useSubSelect(String field,String keyword, String subSelect) { // in, not in
+
+	private Select useSubSelect(String field, String keyword, String subSelect) { // in, not in
 //		checkField(field);
 		checkFieldOrExpression(field);
-		
+
 		sql.append(field);
 		sql.append(SPACE);
 		sql.append(keyword);
@@ -275,18 +272,18 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 
 	@Override
 	public Select start(int start) {
-		this.start=start;
+		this.start = start;
 		return this;
 	}
 
 	@Override
 	public Select size(int size) {
-		this.size=size;
+		this.size = size;
 		return this;
 	}
-	
+
 //select , update also need use	
- //Condition<<============= 
+	// Condition<<=============
 	@Override
 	public Select lParentheses() {
 		if (isAddAnd) sql.append(AND);
@@ -301,7 +298,7 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 		isAddAnd = true;
 		return this;
 	}
-	
+
 	@Override
 	public Select where() {
 		sql.append(SPACE).append(K.where).append(SPACE);
@@ -317,7 +314,7 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 			sql.append(SPACE).append(K.where).append(SPACE);
 			sql.append(expression);
 			isStartWhere = false;
-			isAddAnd = true; //fix on 2020-01-13
+			isAddAnd = true; // fix on 2020-01-13
 		} else {
 			if (isAddAnd) sql.append(AND);
 			sql.append(expression);
@@ -357,13 +354,13 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 		isAddAnd = true;
 		return this;
 	}
-	
+
 	@Override
 	public Select op(String field, String value) {
 		checkField(field);
 		return op(field, Op.eq, value);
 	}
-	
+
 	@Override
 	public Select op(String field, Number value) {
 		checkField(field);
@@ -387,7 +384,7 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 		isAddAnd = false;
 		return this;
 	}
-	
+
 	@Override
 	public Select in(String field, Number... valueList) {
 		checkField(field);
@@ -430,7 +427,7 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 		sql.append(field + " " + op + " ('" + valueList + "')"); // in ('client01','bee')
 		return this;
 	}
-	
+
 	@Override
 	public Select between(String field, Number low, Number high) {
 		checkField(field);
@@ -478,23 +475,23 @@ public class SelectImpl extends AbstractSelectToSql implements Select {
 		sql.append(SPACE).append(K.isNotNull).append(SPACE);
 		return this;
 	}
-	
-	private void checkFieldOrExpression(String field){
+
+	private void checkFieldOrExpression(String field) {
 //		NameCheckUtil.checkName(field);
-		if(NameCheckUtil.isIllegal(field)) {
+		if (NameCheckUtil.isIllegal(field)) {
 			throw new BeeErrorNameException("The field: '" + field + "' is illegal!");
 		}
 	}
-	
-	private void checkField(String field){
+
+	private void checkField(String field) {
 		NameCheckUtil.checkName(field);
 	}
-	
-	private void checkExpression(String expression){
-		if(Check.isNotValidExpression(expression)) {
-			throw new BeeIllegalSQLException("The expression: '"+expression+ "' is invalid!");
+
+	private void checkExpression(String expression) {
+		if (Check.isNotValidExpression(expression)) {
+			throw new BeeIllegalSQLException("The expression: '" + expression + "' is invalid!");
 		}
 	}
-	
-	 //=============>>
+
+	// =============>>
 }

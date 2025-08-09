@@ -25,7 +25,7 @@ import org.teasoft.bee.osql.exception.NotSupportedException;
  * @since  1.17.21 add AbstractCommOperate
  */
 public class ObjSQL extends AbstractCommOperate implements Suid {
-	
+
 	private BeeSql beeSql;
 	private ObjToSQL objToSQL;
 
@@ -46,120 +46,118 @@ public class ObjSQL extends AbstractCommOperate implements Suid {
 	public void setObjToSQL(ObjToSQL objToSQL) {
 		this.objToSQL = objToSQL;
 	}
-	
+
 	@Override
 	public <T> List<T> select(T entity) {
 
 		if (entity == null) return null;
-		
-		doBeforePasreEntity(entity,SuidType.SELECT);
+
+		doBeforePasreEntity(entity, SuidType.SELECT);
 
 		List<T> list = null;
 		String sql = getObjToSQL().toSelectSQL(entity);
-		
-		sql=doAfterCompleteSql(sql);
-		
+
+		sql = doAfterCompleteSql(sql);
+
 		Logger.logSQL("select SQL: ", sql);
 		list = getBeeSql().select(sql, entity); // 返回值用到泛型
 		doBeforeReturn(list);
-		
+
 		return list;
 	}
-	
+
 	@Override
 	public <T> int update(T entity) {
-		// 当id为null时抛出异常  在转sql时抛出
+		// 当id为null时抛出异常 在转sql时抛出
 
 		if (entity == null) return -1;
-		
-		doBeforePasreEntity(entity,SuidType.UPDATE);
-		
+
+		doBeforePasreEntity(entity, SuidType.UPDATE);
+
 		String sql = "";
 		int updateNum = -1;
 		sql = getObjToSQL().toUpdateSQL(entity);
 		_regEntityClass(entity);
-		sql=doAfterCompleteSql(sql);
-		
+		sql = doAfterCompleteSql(sql);
+
 		Logger.logSQL("update SQL: ", sql);
 		updateNum = getBeeSql().modify(sql);
-		
+
 		doBeforeReturn();
-		
+
 		return updateNum;
 	}
 
 	@Override
-	public <T> int insert(T entity){
+	public <T> int insert(T entity) {
 
 		if (entity == null) return -1;
-		doBeforePasreEntity(entity,SuidType.INSERT);
+		doBeforePasreEntity(entity, SuidType.INSERT);
 		_ObjectToSQLHelper.setInitIdByAuto(entity); // 更改了原来的对象
 		String sql = getObjToSQL().toInsertSQL(entity);
 		_regEntityClass(entity);
-		sql=doAfterCompleteSql(sql);
+		sql = doAfterCompleteSql(sql);
 		int insertNum = -1;
 		Logger.logSQL("insert SQL: ", sql);
-		HoneyUtil.revertId(entity); //v1.9
+		HoneyUtil.revertId(entity); // v1.9
 		insertNum = getBeeSql().modify(sql);
-		
+
 		doBeforeReturn();
-		
+
 		return insertNum;
 	}
-	
+
 	private <T> void checkGenPk(T entity) {
 
 //		Object pk = HoneyUtil.getIdValue(entity); // 原始id
 //		boolean hasGenPkAnno = HoneyUtil.hasGenPkAnno(entity); // V1.17可以使用注解.
 
-		boolean isOk = (
-				(HoneyUtil.isMysql() || HoneyUtil.isOracle() || HoneyUtil.isSQLite())  //即可java端没生成,数据库也可以生成
-				|| HoneyContext.isNeedGenId(entity.getClass())
-				|| HoneyUtil.getIdValue(entity) != null || HoneyUtil.hasGenPkAnno(entity)
-				);
+		boolean isOk = ((HoneyUtil.isMysql() || HoneyUtil.isOracle() || HoneyUtil.isSQLite()) // 即可java端没生成,数据库也可以生成
+				|| HoneyContext.isNeedGenId(entity.getClass()) || HoneyUtil.getIdValue(entity) != null
+				|| HoneyUtil.hasGenPkAnno(entity));
 		if (!isOk) {
 			throw new NotSupportedException(
 					"The current database don't support insert NULL to 'id' column or return the id after insert."
 							+ "\nYou can use the distribute id via set config information,eg: bee.distribution.genid.forAllTableLongId=true");
 		}
 	}
-	
+
 	private <T> String insertAndReturn(T entity) {
-		doBeforePasreEntity(entity,SuidType.INSERT);
-		_ObjectToSQLHelper.setInitIdByAuto(entity); // 更改了原来的对象  //这里会生成id,如果需要
-		String sql = getObjToSQL().toInsertSQL(entity); 
-		sql=doAfterCompleteSql(sql);
+		doBeforePasreEntity(entity, SuidType.INSERT);
+		_ObjectToSQLHelper.setInitIdByAuto(entity); // 更改了原来的对象 //这里会生成id,如果需要
+		String sql = getObjToSQL().toInsertSQL(entity);
+		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("insert SQL: ", sql);
-		
+
 		return sql;
 	}
-	
+
 	@Override
 	public <T> long insertAndReturnId(T entity) {
 		if (entity == null) return -1L;
 		checkGenPk(entity);
-		
-		String sql=insertAndReturn(entity);
+
+		String sql = insertAndReturn(entity);
 
 		return _insertAndReturnId(entity, sql);
 	}
-	
-	 <T> long _insertAndReturnId(T entity,String sql) {
-		
+
+	<T> long _insertAndReturnId(T entity, String sql) {
+
 		_regEntityClass(entity);
 
-		Object obj = HoneyUtil.getIdValue(entity); //没有自动生成部分的?? 在上层调用方法.  到这里,上面setInitIdByAuto(entity),已有生成id的逻辑.
-		HoneyUtil.revertId(entity); //获取后就还原.
-		
+		Object obj = HoneyUtil.getIdValue(entity); // 没有自动生成部分的?? 在上层调用方法. 到这里,上面setInitIdByAuto(entity),已有生成id的逻辑.
+		HoneyUtil.revertId(entity); // 获取后就还原.
+
 		long returnId = -1;
 		if (obj != null) {
 //			returnId = (long) obj;
 			returnId = Long.parseLong(obj.toString());
-			if (returnId > 1) {//entity实体id设置有大于1的值,使用实体的
+			if (returnId > 1) {// entity实体id设置有大于1的值,使用实体的
 				int insertNum = getBeeSql().modify(sql);
-				if (insertNum == 1) {//插入成功
+				if (insertNum == 1) {// 插入成功
 					return returnId;
-				} else {//插入失败,返回modify(sql)的值
+				} else {// 插入失败,返回modify(sql)的值
 					return insertNum;
 				}
 			} else {
@@ -170,24 +168,23 @@ public class ObjSQL extends AbstractCommOperate implements Suid {
 			}
 		}
 
-		String pkName=HoneyUtil.getPkFieldName(entity);
-		if("".equals(pkName) || pkName.contains(",")) pkName="id";
+		String pkName = HoneyUtil.getPkFieldName(entity);
+		if ("".equals(pkName) || pkName.contains(",")) pkName = "id";
 		OneTimeParameter.setAttribute(StringConst.PK_Name_For_ReturnId, pkName);
-		//id will gen by db
+		// id will gen by db
 		returnId = getBeeSql().insertAndReturnId(sql);
 		doBeforeReturn();
 		return returnId;
 	}
-	
 
 	@Override
 	public int delete(Object entity) {
 
 		if (entity == null) return -1;
-		doBeforePasreEntity(entity,SuidType.DELETE);
+		doBeforePasreEntity(entity, SuidType.DELETE);
 		String sql = getObjToSQL().toDeleteSQL(entity);
 		_regEntityClass(entity);
-		sql=doAfterCompleteSql(sql);
+		sql = doAfterCompleteSql(sql);
 		int deleteNum = -1;
 		Logger.logSQL("delete SQL: ", sql);
 		deleteNum = getBeeSql().modify(sql);
@@ -198,12 +195,12 @@ public class ObjSQL extends AbstractCommOperate implements Suid {
 	@Override
 	public <T> List<T> select(T entity, Condition condition) {
 		if (entity == null) return null;
-		doBeforePasreEntity(entity,SuidType.SELECT);
+		doBeforePasreEntity(entity, SuidType.SELECT);
 		List<T> list = null;
-		String sql = getObjToSQL().toSelectSQL(entity,condition);
-		sql=doAfterCompleteSql(sql);
+		String sql = getObjToSQL().toSelectSQL(entity, condition);
+		sql = doAfterCompleteSql(sql);
 		Logger.logSQL("select SQL: ", sql);
-		list = getBeeSql().select(sql, entity); 
+		list = getBeeSql().select(sql, entity);
 		doBeforeReturn(list);
 		return list;
 	}
@@ -211,10 +208,10 @@ public class ObjSQL extends AbstractCommOperate implements Suid {
 	@Override
 	public <T> int delete(T entity, Condition condition) {
 		if (entity == null) return -1;
-		doBeforePasreEntity(entity,SuidType.DELETE);
-		String sql = getObjToSQL().toDeleteSQL(entity,condition);
+		doBeforePasreEntity(entity, SuidType.DELETE);
+		String sql = getObjToSQL().toDeleteSQL(entity, condition);
 		_regEntityClass(entity);
-		sql=doAfterCompleteSql(sql);
+		sql = doAfterCompleteSql(sql);
 		int deleteNum = -1;
 		if (!"".equals(sql)) {
 			Logger.logSQL("delete SQL: ", sql);
@@ -229,16 +226,17 @@ public class ObjSQL extends AbstractCommOperate implements Suid {
 		OneTimeParameter.setAttribute(para, value);
 		return this;
 	}
-	
-	private <T> void _regEntityClass(T entity){
+
+	private <T> void _regEntityClass(T entity) {
 		HoneyContext.regEntityClass(entity.getClass());
 	}
 
 	@Override
 	public void beginSameConnection() {
-		OneTimeParameter.setTrueForKey("_SYS_Bee_SAME_CONN_BEGIN"); 
-		if(OneTimeParameter.isTrue("_SYS_Bee_SAME_CONN_EXCEPTION")) {//获取后,该key不会再存在
-			Logger.warn("Last SameConnection do not have endSameConnection() or do not run endSameConnection() after having exception.");
+		OneTimeParameter.setTrueForKey("_SYS_Bee_SAME_CONN_BEGIN");
+		if (OneTimeParameter.isTrue("_SYS_Bee_SAME_CONN_EXCEPTION")) {// 获取后,该key不会再存在
+			Logger.warn(
+					"Last SameConnection do not have endSameConnection() or do not run endSameConnection() after having exception.");
 		}
 	}
 

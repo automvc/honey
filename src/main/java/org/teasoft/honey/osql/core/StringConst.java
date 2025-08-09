@@ -12,11 +12,11 @@ package org.teasoft.honey.osql.core;
  * @since  1.9
  */
 public final class StringConst {
-	
+
 	private StringConst() {}
 
 	public static final String tRue = "tRue";
-	public static final String PREFIX="_SYS_Bee_";
+	public static final String PREFIX = "_SYS_Bee_";
 	public static final String TABLE_NAME = "_SYS_Bee_TableName";
 	public static final String DoNotCheckAnnotation = "_SYS_Bee_DoNotCheckAnnotation";
 	public static final String ALREADY_SET_ROUTE = "_SYS_Bee_ALREADY_SET_ROUTE";
@@ -25,27 +25,27 @@ public final class StringConst {
 
 	public static final String OLD_ID_EXIST = "_SYS_Bee_OLD_ID_FOR_AUTO_ID_EXIST";
 	public static final String OLD_ID = "_SYS_Bee_OLD_ID_FOR_AUTO_ID";
-	
-	public static final String Primary_Key_Name = "_SYS_Bee_PK_NAME";//PK:Primary_Key
-	public static final String PK_Name_For_ReturnId = "_SYS_Bee_PK_Name_For_InsertAndReturnId"; //PK:Primary_Key
+
+	public static final String Primary_Key_Name = "_SYS_Bee_PK_NAME";// PK:Primary_Key
+	public static final String PK_Name_For_ReturnId = "_SYS_Bee_PK_Name_For_InsertAndReturnId"; // PK:Primary_Key
 
 	public static final String SUBENTITY_FIRSTANNOTATION_FIELD = "_SYS_Bee_subEntityFirstAnnotationField";
-	
-	public static final String Reset_Ds_OneTime="_SYS_Bee_Reset_Ds_OneTime";
-	
-	public static final String InterceptorChainForMoreTable="_SYS_Bee_InterceptorChainForMoreTable";
-	
-	public static final String JdbcTranWriterDS="_SYS_Bee_JdbcTran_WriterDS";
-	
-	public static final String MapSuid_Insert_Has_ID="_SYS_Bee_MapSuid_Insert_Has_ID";
-	public static final String Column2Field="_SYS_Bee_Column2Field:";
-	
-	public static final String Route_EC="_SYS_Bee_ROUTE_EC"; ////EC:Entity Class
-	public static final String Column_EC="_SYS_Bee_COLUMN_EC";
-	
-	public static final String SchemaName="_SYS_Bee_SchemaName";
-	public static final String SuidType="_SYS_Bee_SuidType"; //V1.17
-	
+
+	public static final String Reset_Ds_OneTime = "_SYS_Bee_Reset_Ds_OneTime";
+
+	public static final String InterceptorChainForMoreTable = "_SYS_Bee_InterceptorChainForMoreTable";
+
+	public static final String JdbcTranWriterDS = "_SYS_Bee_JdbcTran_WriterDS";
+
+	public static final String MapSuid_Insert_Has_ID = "_SYS_Bee_MapSuid_Insert_Has_ID";
+	public static final String Column2Field = "_SYS_Bee_Column2Field:";
+
+	public static final String Route_EC = "_SYS_Bee_ROUTE_EC"; //// EC:Entity Class
+	public static final String Column_EC = "_SYS_Bee_COLUMN_EC";
+
+	public static final String SchemaName = "_SYS_Bee_SchemaName";
+	public static final String SuidType = "_SYS_Bee_SuidType"; // V1.17
+
 //	OSQL
 	public static final String START_GREAT_EQ_0 = "Parameter 'start' need >=0 .";
 	public static final String SIZE_GREAT_0 = "Parameter 'size' need >0 .";

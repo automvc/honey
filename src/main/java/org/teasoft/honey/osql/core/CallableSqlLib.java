@@ -36,7 +36,7 @@ public class CallableSqlLib implements CallableSql {
 			conn = getConn();
 //          callSql = "{call batchOrder(?,?,?)}"; 
 //			callSql = "{call " + callSql + "}"; // callSql like : batchOrder(?,?,?)
-			callSql=getCallSql(callSql);
+			callSql = getCallSql(callSql);
 			cstmt = conn.prepareCall(callSql);
 
 			StringBuffer values = initPreparedValues(cstmt, preValues);
@@ -51,14 +51,14 @@ public class CallableSqlLib implements CallableSql {
 			while (rs.next()) {
 				targetObj = (T) returnType.getClass().newInstance();
 				for (int i = 0; i < columnCount; i++) {
-					if(HoneyUtil.isSkipField(field[i])) continue;
+					if (HoneyUtil.isSkipField(field[i])) continue;
 					field[i].setAccessible(true);
 					try {
 						field[i].set(targetObj, rs.getObject(_toColumnName(field[i].getName())));
 					} catch (IllegalArgumentException e) {
-						field[i].set(targetObj,_getObject(rs,field[i]));
+						field[i].set(targetObj, _getObject(rs, field[i]));
 					}
-					
+
 				}
 				rsList.add(targetObj);
 			}
@@ -70,7 +70,7 @@ public class CallableSqlLib implements CallableSql {
 			throw ExceptionHelper.convert(e);
 		} finally {
 			try {
-				if(rs!=null) rs.close();
+				if (rs != null) rs.close();
 			} catch (Exception e2) {
 				// ignore
 			}
@@ -84,23 +84,23 @@ public class CallableSqlLib implements CallableSql {
 	}
 
 	@Override
-	public int modify(String callSql, Object[] preValues) { //没有 输出参数情形
+	public int modify(String callSql, Object[] preValues) { // 没有 输出参数情形
 		int result = 0;
 		Connection conn = null;
-		CallableStatement cstmt =null;
+		CallableStatement cstmt = null;
 		try {
 			conn = getConn();
-			callSql=getCallSql(callSql);
+			callSql = getCallSql(callSql);
 			cstmt = conn.prepareCall(callSql);
 
 			StringBuffer values = initPreparedValues(cstmt, preValues);
 			Logger.logSQL(CALLABLE_SQL, callSql + VALUES + values);
 			result = cstmt.executeUpdate();
-			
+
 		} catch (SQLException e) {
 			throw ExceptionHelper.convert(e);
-		}finally{
-		  checkClose(cstmt, conn);
+		} finally {
+			checkClose(cstmt, conn);
 		}
 
 		return result;
@@ -108,15 +108,15 @@ public class CallableSqlLib implements CallableSql {
 	}
 
 	@Override
-	public CallableStatement getCallableStatement(String callSql) { //可自定义输入参数
+	public CallableStatement getCallableStatement(String callSql) { // 可自定义输入参数
 		Connection conn = null;
 		CallableStatement cstmt = null;
 		try {
 			conn = getConn();
-			callSql=getCallSql(callSql);
+			callSql = getCallSql(callSql);
 			cstmt = conn.prepareCall(callSql);
-			Logger.logSQL("Callable SQL,getCallableStatement: ",callSql);
-			String key=getIdString(cstmt);
+			Logger.logSQL("Callable SQL,getCallableStatement: ", callSql);
+			String key = getIdString(cstmt);
 			setConnLocal(key, conn);
 
 		} catch (SQLException e) {
@@ -128,14 +128,14 @@ public class CallableSqlLib implements CallableSql {
 	}
 
 	@Override
-	public int modify(CallableStatement cstmt) { //无输出参数情形
+	public int modify(CallableStatement cstmt) { // 无输出参数情形
 		int result = 0;
 		try {
-			String key=getIdString(cstmt);
+			String key = getIdString(cstmt);
 			Connection conn = getConnLocal(key);
 			result = cstmt.executeUpdate();
 			checkClose(cstmt, conn);
-			
+
 		} catch (SQLException e) {
 			throw ExceptionHelper.convert(e);
 		}
@@ -144,23 +144,23 @@ public class CallableSqlLib implements CallableSql {
 
 	@Override
 	public List<String[]> select(String callSql, Object[] preValues) {
-		
-		List<String[]> list=null;
-		
+
+		List<String[]> list = null;
+
 		Connection conn = null;
 		ResultSet rs = null;
 		CallableStatement cstmt = null;
 
 		try {
 			conn = getConn();
-			callSql=getCallSql(callSql);
+			callSql = getCallSql(callSql);
 			cstmt = conn.prepareCall(callSql);
 
 			StringBuffer values = initPreparedValues(cstmt, preValues);
 			Logger.logSQL(CALLABLE_SQL, callSql + VALUES + values);
 			rs = cstmt.executeQuery();
 
-			list=TransformResultSet.toStringsList(rs);
+			list = TransformResultSet.toStringsList(rs);
 
 		} catch (SQLException e) {
 			throw ExceptionHelper.convert(e);
@@ -173,23 +173,23 @@ public class CallableSqlLib implements CallableSql {
 
 	@Override
 	public String selectJson(String callSql, Object[] preValues) {
-		
+
 		StringBuffer json = new StringBuffer("");
-		
+
 		Connection conn = null;
 		ResultSet rs = null;
 		CallableStatement cstmt = null;
 
 		try {
 			conn = getConn();
-			callSql=getCallSql(callSql);
+			callSql = getCallSql(callSql);
 			cstmt = conn.prepareCall(callSql);
 
 			StringBuffer values = initPreparedValues(cstmt, preValues);
 			Logger.logSQL(CALLABLE_SQL, callSql + VALUES + values);
 			rs = cstmt.executeQuery();
 
-			json = TransformResultSet.toJson(rs,null);
+			json = TransformResultSet.toJson(rs, null);
 
 		} catch (SQLException e) {
 			throw ExceptionHelper.convert(e);
@@ -199,7 +199,7 @@ public class CallableSqlLib implements CallableSql {
 
 		return json.toString();
 	}
-	
+
 	private String getCallSql(String callSql) {
 		return "{call " + callSql + "}";
 	}
@@ -220,22 +220,22 @@ public class CallableSqlLib implements CallableSql {
 		connLocal.remove();
 		return s;
 	}
-	
+
 	private String getIdString(CallableStatement cstmt) {
 //		return cstmt.toString(); //mysql is different in  modify(CallableStatement cstmt),getCallableStatement(String callSql)
-		return cstmt.hashCode()+"";
+		return cstmt.hashCode() + "";
 	}
 
 	private StringBuffer initPreparedValues(CallableStatement cstmt, Object[] preValues) throws SQLException {
-       
-		if(preValues==null) return new StringBuffer("preValues is null!");
-        
+
+		if (preValues == null) return new StringBuffer("preValues is null!");
+
 		StringBuffer valueBuffer = new StringBuffer();
-		int len=preValues.length;
+		int len = preValues.length;
 		for (int i = 0; i < len; i++) {
-			int k=-1; //V1.17
-			if(preValues[i]!=null) k = HoneyUtil.getJavaTypeIndex(preValues[i].getClass().getName());
-			HoneyUtil.setPreparedValues(cstmt, k, i, preValues[i]); //i from 0
+			int k = -1; // V1.17
+			if (preValues[i] != null) k = HoneyUtil.getJavaTypeIndex(preValues[i].getClass().getName());
+			HoneyUtil.setPreparedValues(cstmt, k, i, preValues[i]); // i from 0
 			valueBuffer.append(",");
 			valueBuffer.append(preValues[i]);
 		}
@@ -253,12 +253,12 @@ public class CallableSqlLib implements CallableSql {
 	protected void checkClose(Statement stmt, Connection conn) {
 		HoneyContext.checkClose(stmt, conn);
 	}
-	
-	private static String _toColumnName(String fieldName){
+
+	private static String _toColumnName(String fieldName) {
 		return NameTranslateHandle.toColumnName(fieldName);
 	}
-	
-	private Object _getObject(ResultSet rs, Field field) throws SQLException{
+
+	private Object _getObject(ResultSet rs, Field field) throws SQLException {
 		return HoneyUtil.getResultObject(rs, field.getType().getName(), _toColumnName(field.getName()));
 	}
 }

@@ -28,7 +28,7 @@ public class BeeInitPreLoadService {
 		if (notStart) {
 			notStart = false;
 
-			Logger.info("[Bee] ========= BeeInitPreLoadService initLoad..."); 
+			Logger.info("[Bee] ========= BeeInitPreLoadService initLoad...");
 			ServiceLoader<PreLoad> loads = ServiceLoader.load(PreLoad.class);
 			Iterator<PreLoad> loadIterator = loads.iterator();
 			while (loadIterator.hasNext()) {

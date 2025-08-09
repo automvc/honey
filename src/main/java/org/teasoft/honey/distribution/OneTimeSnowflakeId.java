@@ -35,13 +35,13 @@ public class OneTimeSnowflakeId implements GenId {
 
 	private Worker worker;
 	private long timestamp;
-	
-	private long time; //second 31 bits   just start need the time.
+
+	private long time; // second 31 bits just start need the time.
 	private long segment = 0L;
 	private long workerId = getWorker().getWorkerId();
-	private long sequence = 0L; 
+	private long sequence = 0L;
 
-	//以下三部分加起来要等于32位.
+	// 以下三部分加起来要等于32位.
 	private static final long segmentBits = 9L;
 	private static final long workerIdBits = 10L;
 	private static final long sequenceBits = 13L;
@@ -51,15 +51,15 @@ public class OneTimeSnowflakeId implements GenId {
 	private static final long workerIdShift = sequenceBits;
 
 	private static final long maxSegment = (1L << segmentBits) - 1L;
-	private static final long maxSequence = 1L<<sequenceBits;
+	private static final long maxSequence = 1L << sequenceBits;
 
 //	private long startSecond = 1483200000; // 单位：s    2017-01-01 (yyyy-MM-dd)
 	private long startSecond = Start.getStartSecond();
-	
-	private long _counter=0;
+
+	private long _counter = 0;
 
 	public OneTimeSnowflakeId() {
-		timestamp=_curSecond();
+		timestamp = _curSecond();
 		time = timestamp - startSecond;
 	}
 
@@ -74,38 +74,39 @@ public class OneTimeSnowflakeId implements GenId {
 
 	@Override
 	public synchronized long get() {
-		long id=getNextId();
+		long id = getNextId();
 		testSpeedLimit();
 		return id;
 	}
 
 	@Override
 	public synchronized long[] getRangeId(int sizeOfIds) {
-		
-		if(sizeOfIds>maxSequence) {
-			Logger.warn("parameter sizeOfIds("+sizeOfIds+") greate maxSequence("+maxSequence+") will cause range Id do not continue!");
+
+		if (sizeOfIds > maxSequence) {
+			Logger.warn("parameter sizeOfIds(" + sizeOfIds + ") greate maxSequence(" + maxSequence
+					+ ") will cause range Id do not continue!");
 			return null;
 		}
-		
+
 		long r[] = new long[2];
 		r[0] = getNextId();
 
-		sequence = sequence + sizeOfIds - 1 - 1; //r[0]相当于已获取了第一个元素
-		_counter=_counter + sizeOfIds - 1 - 1;
+		sequence = sequence + sizeOfIds - 1 - 1; // r[0]相当于已获取了第一个元素
+		_counter = _counter + sizeOfIds - 1 - 1;
 //		if ((sequence >> sequenceBits) > 0) { // 超过序列位表示的最大值
-		if ((sequence + 1 >> sequenceBits) > 0) { // 超过序列位表示的最大值 ; 提前将结束的那个数也计算入内   fixed V2.1
+		if ((sequence + 1 >> sequenceBits) > 0) { // 超过序列位表示的最大值 ; 提前将结束的那个数也计算入内 fixed V2.1
 			if (segment >= maxSegment) { // 已用完
 				time++;
 				segment = 0L;
 			} else {
 				segment++;
 			}
-			sequence=0;
-			
-			//取范围上限(max)时,超过序列位表示的最大值,不连续,要重新获取
-			return getRangeId(sizeOfIds); 
+			sequence = 0;
+
+			// 取范围上限(max)时,超过序列位表示的最大值,不连续,要重新获取
+			return getRangeId(sizeOfIds);
 		}
-		r[1] = getNextId(); //r[0]到r[1]是加1递增的吗? 不是. 因workid在太低位,会跳跃. v1.9,在往上两行重新设置segment和sequence,让其在segment内连续
+		r[1] = getNextId(); // r[0]到r[1]是加1递增的吗? 不是. 因workid在太低位,会跳跃. v1.9,在往上两行重新设置segment和sequence,让其在segment内连续
 		testSpeedLimit();
 		return r;
 	}
@@ -115,12 +116,12 @@ public class OneTimeSnowflakeId implements GenId {
 	 * @return id number.
 	 */
 	private synchronized long getNextId() {
-		sequence++; 
-		_counter++; 
+		sequence++;
+		_counter++;
 		if ((sequence >> sequenceBits) > 0) { // 超过序列位表示的最大值
 			if (segment >= maxSegment) { // 已用完,自动用下一秒的
 				time++;
-				segment = 0L; //fixed bug. #3 warne-wyp
+				segment = 0L; // fixed bug. #3 warne-wyp
 			} else {
 				segment++;
 			}
@@ -132,11 +133,11 @@ public class OneTimeSnowflakeId implements GenId {
 	private long _curSecond() {
 		return (System.currentTimeMillis()) / 1000L;
 	}
-	
+
 	private synchronized void testSpeedLimit() {
-		long spentTime=_curSecond() - timestamp + 1;
+		long spentTime = _curSecond() - timestamp + 1;
 		if (spentTime > 0) {
-			if ((spentTime << (segmentBits + sequenceBits)) > _counter) return; //check some one workerid.
+			if ((spentTime << (segmentBits + sequenceBits)) > _counter) return; // check some one workerid.
 		}
 		try {
 			wait(10);

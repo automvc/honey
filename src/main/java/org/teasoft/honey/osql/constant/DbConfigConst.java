@@ -1,7 +1,7 @@
 package org.teasoft.honey.osql.constant;
 
 public final class DbConfigConst {
-	
+
 	private DbConfigConst() {}
 
 	public static final String DB_DRIVERNAME = "bee.db.driverName";

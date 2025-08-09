@@ -123,8 +123,8 @@ public class MapSuidImpl extends AbstractCommOperate implements MapSuid {
 		long newId;
 		if (obj != null) {
 			newId = Long.parseLong(obj.toString());
-			if (newId > 1) { //设置有大于1的值,使用设置的
-				OneTimeParameter.getAttribute(StringConst.PK_Name_For_ReturnId); //不使用insertAndReturnId,提前消费一次性变量
+			if (newId > 1) { // 设置有大于1的值,使用设置的
+				OneTimeParameter.getAttribute(StringConst.PK_Name_For_ReturnId); // 不使用insertAndReturnId,提前消费一次性变量
 				int insertNum = getBeeSql().modify(sql);
 				if (insertNum == 1) {
 					return newId;
@@ -139,7 +139,7 @@ public class MapSuidImpl extends AbstractCommOperate implements MapSuid {
 			}
 		}
 //		假如处理后id为空,则用db生成.
-		//id will gen by db
+		// id will gen by db
 		newId = getBeeSql().insertAndReturnId(sql);
 		doBeforeReturn();
 
@@ -170,7 +170,7 @@ public class MapSuidImpl extends AbstractCommOperate implements MapSuid {
 	}
 
 	private void doBeforePasreEntity(SuidType suidType) {
-		Object entity=null;
+		Object entity = null;
 		super.doBeforePasreEntity(entity, suidType);
 	}
 

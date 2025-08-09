@@ -15,18 +15,18 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since  1.8
  */
 class OneTimeParameter {
-	
-	private static ThreadLocal<Map<String, Object>> local= new ThreadLocal<>();
-	
+
+	private static ThreadLocal<Map<String, Object>> local = new ThreadLocal<>();
+
 	private OneTimeParameter() {}
 
 	static Object getAttribute(String key) {
-		
+
 		Map<String, Object> map = local.get();
 		if (null == map) return null;
 
 		Object obj = map.get(key);
-		map.remove(key);  //取后即删
+		map.remove(key); // 取后即删
 		return obj;
 	}
 
@@ -34,17 +34,17 @@ class OneTimeParameter {
 		if (obj == null) return;
 		Map<String, Object> map = local.get();
 		if (null == map) map = new ConcurrentHashMap<>();
-		map.put(key, obj); 
+		map.put(key, obj);
 		local.set(map);
 	}
-	
+
 	public static void setTrueForKey(String key) {
 		setAttribute(key, StringConst.tRue);
 	}
-	
+
 	public static boolean isTrue(String key) {
 		Object value = getAttribute(key);
 		return StringConst.tRue.equals(value) ? true : false;
 	}
-	
+
 }

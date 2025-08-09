@@ -29,23 +29,24 @@ public class CacheDeleteThread extends Thread {
 	}
 
 	public static synchronized boolean getFlag() {
-		boolean f=finished;
-		if(f) finished = false;
+		boolean f = finished;
+		if (f) finished = false;
 		return f;
 	}
+
 	public void begin() {
-			if (getFlag()) {
-				
+		if (getFlag()) {
+
 //				new CacheDeleteThread("CacheDeleteThread start thread" + (num++)).start(); //不能再用new
 //				this.setName("CacheDeleteThread" + (num++));
-				
-				this.start();
-			}
+
+			this.start();
+		}
 	}
 
 	@Override
 	public void run() {
-		CacheUtil.delCacheInBetween(delEndIndex); 
+		CacheUtil.delCacheInBetween(delEndIndex);
 		finished = true;
 	}
 }

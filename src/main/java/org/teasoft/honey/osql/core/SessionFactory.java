@@ -20,8 +20,8 @@ import org.teasoft.honey.util.StringUtils;
 public final class SessionFactory {
 
 	private static BeeFactory beeFactory = null;
-	private static boolean isFirst=true;
-	private static boolean isFirstWithOriginal=true;
+	private static boolean isFirst = true;
+	private static boolean isFirstWithOriginal = true;
 
 	public static BeeFactory getBeeFactory() {
 		if (beeFactory == null) {
@@ -30,18 +30,18 @@ public final class SessionFactory {
 		}
 		return beeFactory;
 	}
-	
+
 	public void setBeeFactory(BeeFactory beeFactory) {
 //		SessionFactory.beeFactory = beeFactory;
 		_setBeeFactory(beeFactory);
 	}
-	
+
 	private static void _setBeeFactory(BeeFactory beeFactory) {
 		SessionFactory.beeFactory = beeFactory;
 	}
 
 	public SessionFactory() {
-		//empty
+		// empty
 	}
 
 	public static Connection getConnection() {
@@ -49,9 +49,9 @@ public final class SessionFactory {
 		try {
 			DataSource ds = getBeeFactory().getDataSource();
 
-			if (ds == null) { //V1.11
+			if (ds == null) { // V1.11
 				boolean isJndiType = HoneyConfig.getHoneyConfig().jndiType;
-				if (isJndiType) {//Jndi type
+				if (isJndiType) {// Jndi type
 					ds = new JndiDataSource().getDataSource();
 					if (ds != null) {
 						getBeeFactory().setDataSource(ds);
@@ -64,7 +64,7 @@ public final class SessionFactory {
 			} else {// do not set the dataSource
 				conn = getOriginalConn();
 				if (isFirstWithOriginal || HoneyConfig.getHoneyConfig().multiDS_enable) {
-					isFirstWithOriginal=false;
+					isFirstWithOriginal = false;
 					Logger.debug("Use OriginalConn!");
 				}
 			}
@@ -89,7 +89,8 @@ public final class SessionFactory {
 			boolean isHarmony = HoneyConfig.getHoneyConfig().isHarmony;
 			if (isAndroid || isHarmony) {
 				String c = "";
-				if (isAndroid)      c = "org.teasoft.beex.android.SQLiteTransaction";
+				if (isAndroid)
+					c = "org.teasoft.beex.android.SQLiteTransaction";
 				else if (isHarmony) c = "org.teasoft.beex.harmony.SQLiteTransaction";
 				try {
 					return (Transaction) Class.forName(c).newInstance();
@@ -97,14 +98,14 @@ public final class SessionFactory {
 					Logger.error(e.getMessage(), e);
 				}
 			}
-			
-			tran = new JdbcTransaction();  //  put into context
+
+			tran = new JdbcTransaction(); // put into context
 //			tran=HoneyContext.getCurrentTransaction();
 //			if(tran==null){
 //				tran = new JdbcTransaction();
 //				HoneyContext.setCurrentTransaction(tran);
 //			}
-			
+
 		} else {
 			tran = getBeeFactory().getTransaction();
 		}
@@ -112,15 +113,15 @@ public final class SessionFactory {
 		return tran;
 	}
 
-	private static Connection getOriginalConn() throws ClassNotFoundException, SQLException,Exception {
+	private static Connection getOriginalConn() throws ClassNotFoundException, SQLException, Exception {
 
 		String driverName = HoneyConfig.getHoneyConfig().getDriverName();
 		String url = HoneyConfig.getHoneyConfig().getUrl();
 		String username = HoneyConfig.getHoneyConfig().getUsername();
 		String p = HoneyConfig.getHoneyConfig().getPassword();
-		
-		//sync from V2.1.8, V2.1.10
-		if (StringUtils.isBlank(url)) { //check from application.properties
+
+		// sync from V2.1.8, V2.1.10
+		if (StringUtils.isBlank(url)) { // check from application.properties
 			BootApplicationProp prop = new BootApplicationProp();
 			url = prop.getPropText(DbConfigConst.DB_URL);
 
@@ -142,31 +143,32 @@ public final class SessionFactory {
 		final String DO_NOT_CONFIG = " do not config; ";
 		if (driverName == null) nullInfo += DbConfigConst.DB_DRIVERNAME + DO_NOT_CONFIG;
 		if (url == null) nullInfo += DbConfigConst.DB_URL + DO_NOT_CONFIG;
-		
+
 		if (url == null) {
 //			Logger.error("The url can not be null when get the Connection directly from DriverManager!  "+nullInfo);
 //			Logger.warn("The system will be exit!......");
 //			System.exit(0);
-			throw new Exception("The url can not be null when get the Connection directly from DriverManager!  ("+nullInfo+")");
+			throw new Exception(
+					"The url can not be null when get the Connection directly from DriverManager!  (" + nullInfo + ")");
 		}
-		
+
 		if (username == null) nullInfo += DbConfigConst.DB_USERNAM + DO_NOT_CONFIG;
 		if (p == null) nullInfo += DbConfigConst.DB_PWORD + DO_NOT_CONFIG;
 
 		if (!"".equals(nullInfo)) {
 //			throw new NoConfigException("NoConfigException,Do not set the database info: " + nullInfo);
-			if(isFirst){
-			  Logger.warn("Do not set the database info: " + nullInfo); 
-			  isFirst=false;
+			if (isFirst) {
+				Logger.warn("Do not set the database info: " + nullInfo);
+				isFirst = false;
 			}
 		}
 		Connection conn = null;
-		if (StringUtils.isNotBlank(driverName)) Class.forName(driverName);  //some db,no need set the driverName //v1.8.15
+		if (StringUtils.isNotBlank(driverName)) Class.forName(driverName); // some db,no need set the driverName //v1.8.15
 
 		if (StringUtils.isNotBlank(username) && p != null)
 			conn = DriverManager.getConnection(url, username, p);
 		else
-			conn = DriverManager.getConnection(url);  //v1.8.15
+			conn = DriverManager.getConnection(url); // v1.8.15
 
 		return conn;
 	}

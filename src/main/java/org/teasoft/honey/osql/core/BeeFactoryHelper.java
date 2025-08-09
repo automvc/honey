@@ -20,31 +20,31 @@ import org.teasoft.bee.osql.SuidRich;
  * @since  1.9
  */
 public class BeeFactoryHelper {
-	
+
 	public static Suid getSuid() {
 		return BeeFactory.getHoneyFactory().getSuid();
 	}
-	
+
 	public static SuidRich getSuidRich() {
 		return BeeFactory.getHoneyFactory().getSuidRich();
 	}
-	
+
 	public static Condition getCondition() {
-        return BeeFactory.getHoneyFactory().getCondition();
+		return BeeFactory.getHoneyFactory().getCondition();
 	}
-	
+
 	public static MoreTable getMoreTable() {
 		return BeeFactory.getHoneyFactory().getMoreTable();
 	}
-	
+
 	public static PreparedSql getPreparedSql() {
 		return BeeFactory.getHoneyFactory().getPreparedSql();
 	}
-	
+
 	public static MapSuid getMapSuid() {
 		return BeeFactory.getHoneyFactory().getMapSuid();
 	}
-	
+
 	public static MapSql getMapSql() {
 		return BeeFactory.getHoneyFactory().getMapSql();
 	}

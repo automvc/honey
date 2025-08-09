@@ -23,11 +23,11 @@ import org.teasoft.honey.osql.util.AnnoUtil;
  * @since  1.1
  */
 public class TransformResultSet {
-	
+
 	private TransformResultSet() {}
 
 	@SuppressWarnings("rawtypes")
-	public static StringBuffer toJson(ResultSet rs,Class entityClass) throws SQLException {
+	public static StringBuffer toJson(ResultSet rs, Class entityClass) throws SQLException {
 		StringBuffer json = new StringBuffer("");
 		ResultSetMetaData rmeta = rs.getMetaData();
 		int columnCount = rmeta.getColumnCount();
@@ -39,52 +39,52 @@ public class TransformResultSet {
 		boolean timestampWithMillisecond = HoneyConfig.getHoneyConfig().selectJson_timestampWithMillisecond;
 		boolean longToString = HoneyConfig.getHoneyConfig().selectJson_longToString;
 //        int rowCount=0;
-        boolean isJsonString=false;
-        Field currField=null;
-        String fieldName="";
-        String fieldTypeName="";
-        
+		boolean isJsonString = false;
+		Field currField = null;
+		String fieldName = "";
+		String fieldTypeName = "";
+
 		while (rs.next()) {
 //			rowCount++;
 			json.append(",{");
-			for (int i = 1; i <= columnCount; i++) { //1..n
+			for (int i = 1; i <= columnCount; i++) { // 1..n
 				if (rs.getString(i) == null && ignoreNull) {
 					continue;
 				}
-				
-				isJsonString=false;
+
+				isJsonString = false;
 //				fieldName=_toFieldName(rmeta.getColumnName(i),entityClass);
-				fieldName=_toFieldName(rmeta.getColumnLabel(i),entityClass);//V2.1.8
-				fieldTypeName=HoneyUtil.getFieldType(rmeta.getColumnTypeName(i));
-				
+				fieldName = _toFieldName(rmeta.getColumnLabel(i), entityClass);// V2.1.8
+				fieldTypeName = HoneyUtil.getFieldType(rmeta.getColumnTypeName(i));
+
 				json.append("\"");
 				json.append(fieldName);
 				json.append("\":");
 
 				if (rs.getString(i) != null) {
-					
-					temp=rs.getString(i);
-					
-					//Json类型,不用再转换引号
-					if ("JSON".equals(fieldTypeName) ) {
-						isJsonString=true;
-					}else if(entityClass!=null){
+
+					temp = rs.getString(i);
+
+					// Json类型,不用再转换引号
+					if ("JSON".equals(fieldTypeName)) {
+						isJsonString = true;
+					} else if (entityClass != null) {
 						try {
 							currField = entityClass.getDeclaredField(fieldName);
-							isJsonString=isJoson(currField);
+							isJsonString = isJoson(currField);
 						} catch (NoSuchFieldException e) {
-							//ignore
+							// ignore
 						}
 					}
-					
-					if(isJsonString) {
+
+					if (isJsonString) {
 						json.append(temp);
-					}else if ("String".equals(fieldTypeName)) { // equals改为不区分大小写  其它几个也是.  不需要,Map中值是这种命名风格的
+					} else if ("String".equals(fieldTypeName)) { // equals改为不区分大小写 其它几个也是. 不需要,Map中值是这种命名风格的
 						json.append("\"");
-						
-						temp=temp.replace("\\", "\\\\"); //1
-						temp=temp.replace("\"", "\\\""); //2
-						
+
+						temp = temp.replace("\\", "\\\\"); // 1
+						temp = temp.replace("\"", "\\\""); // 2
+
 						json.append(temp);
 						json.append("\"");
 					} else if ("Date".equals(fieldTypeName)) {
@@ -93,7 +93,7 @@ public class TransformResultSet {
 						} else {
 							try {
 //								temp = rs.getString(i);
-								Long.valueOf(temp); //test value
+								Long.valueOf(temp); // test value
 								json.append(temp);
 							} catch (NumberFormatException e) {
 								json.append("\"");
@@ -107,7 +107,7 @@ public class TransformResultSet {
 						} else {
 							try {
 //								temp = rs.getString(i);
-								Long.valueOf(temp); //test value
+								Long.valueOf(temp); // test value
 								json.append(temp);
 							} catch (NumberFormatException e) {
 								json.append("\"");
@@ -121,7 +121,7 @@ public class TransformResultSet {
 						} else {
 							try {
 //								temp = rs.getString(i);
-								Long.valueOf(temp); //test value
+								Long.valueOf(temp); // test value
 								json.append(temp);
 							} catch (NumberFormatException e) {
 								json.append("\"");
@@ -141,30 +141,30 @@ public class TransformResultSet {
 					json.append(rs.getString(i));
 				}
 
-				if (i != columnCount) json.append(",");  //fixed bug.  if last field is null and ignore.
-			} //one record end
-			if(json.toString().endsWith(",")) json.deleteCharAt(json.length()-1); //fix bug
+				if (i != columnCount) json.append(","); // fixed bug. if last field is null and ignore.
+			} // one record end
+			if (json.toString().endsWith(",")) json.deleteCharAt(json.length() - 1); // fix bug
 			json.append("}");
-		}//array end
+		} // array end
 		if (json.length() > 0) {
 			json.deleteCharAt(0);
 		}
 		json.insert(0, "[");
 		json.append("]");
-		
+
 //		JsonResultWrap wrap =new JsonResultWrap();
 //		wrap.setResultJson(json.toString());
 //		wrap.setRowCount(rowCount);
-		
+
 		return json;
 	}
-	
+
 	@SuppressWarnings("rawtypes")
-	private static String _toFieldName(String columnName,Class entityClass) {
-		return NameTranslateHandle.toFieldName(columnName,entityClass);
+	private static String _toFieldName(String columnName, Class entityClass) {
+		return NameTranslateHandle.toFieldName(columnName, entityClass);
 	}
-	
-	//检测是否有Json注解
+
+	// 检测是否有Json注解
 	private static boolean isJoson(Field field) {
 		return AnnoUtil.isJson(field);
 	}
@@ -188,20 +188,19 @@ public class TransformResultSet {
 		}
 		return list;
 	}
-	
-	
-	public static List<Map<String,Object>> toMapList(ResultSet rs) throws SQLException {
-		List<Map<String,Object>> list = new ArrayList<>();
+
+	public static List<Map<String, Object>> toMapList(ResultSet rs) throws SQLException {
+		List<Map<String, Object>> list = new ArrayList<>();
 		ResultSetMetaData rmeta = rs.getMetaData();
 		int columnCount = rmeta.getColumnCount();
-		Map<String,Object> rowMap=null;
+		Map<String, Object> rowMap = null;
 		while (rs.next()) {
 //			rowMap=new HashMap<>();
-			rowMap=new LinkedHashMap<>(); //2021-06-13
+			rowMap = new LinkedHashMap<>(); // 2021-06-13
 			for (int i = 1; i <= columnCount; i++) {
 //				rowMap.put(_toFieldName(rmeta.getColumnName(i),null), rs.getObject(i)); //ignore Column annotation
-				//V2.1.8
-				rowMap.put(_toFieldName(rmeta.getColumnLabel(i),null), rs.getObject(i)); //ignore Column annotation
+				// V2.1.8
+				rowMap.put(_toFieldName(rmeta.getColumnLabel(i), null), rs.getObject(i)); // ignore Column annotation
 			}
 			list.add(rowMap);
 		}

@@ -13,7 +13,7 @@ import org.teasoft.bee.osql.Cache;
  * @author Kingstar
  * @since  1.4
  */
-public class DefaultCache implements Cache{
+public class DefaultCache implements Cache {
 
 	@Override
 	public Object get(String sql) {
@@ -24,10 +24,10 @@ public class DefaultCache implements Cache{
 	public void add(String sql, Object result) {
 		CacheUtil.add(sql, result);
 	}
-	
+
 	@Override
 	public void clear(String sql) {
-	    CacheUtil.clear(sql);
+		CacheUtil.clear(sql);
 	}
-	
+
 }

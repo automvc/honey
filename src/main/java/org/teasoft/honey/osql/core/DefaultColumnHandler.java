@@ -21,24 +21,23 @@ import org.teasoft.honey.util.ObjectUtils;
  * @since  1.11
  */
 public class DefaultColumnHandler implements ColumnHandler {
-	
-	private final String field2Column=StringConst.PREFIX+"Field2Column";
+
+	private final String field2Column = StringConst.PREFIX + "Field2Column";
 
 	@Override
 	public String toColumnName(String fieldName, Class entityClass) {
 		if (entityClass != null) {
-			String entityFullName=entityClass.getName();
+			String entityFullName = entityClass.getName();
 			Boolean flag = HoneyContext.getCustomFlagMap(field2Column + entityFullName);
-			if (flag == null) {//还没检测的
-				initDefineColumn(entityClass); 
+			if (flag == null) {// 还没检测的
+				initDefineColumn(entityClass);
 				flag = HoneyContext.getCustomFlagMap(field2Column + entityFullName);
 			}
 
 			if (ObjectUtils.isTrue(flag)) {
-				String defineColumn = HoneyContext.getCustomMapValue(field2Column + entityFullName,
-						fieldName);
+				String defineColumn = HoneyContext.getCustomMapValue(field2Column + entityFullName, fieldName);
 				if (defineColumn != null) return defineColumn;
-			} //返回标志是false,或没找到,则表示没有另外定义列名,使用原来的转换规则
+			} // 返回标志是false,或没找到,则表示没有另外定义列名,使用原来的转换规则
 		}
 
 		return null;
@@ -47,13 +46,12 @@ public class DefaultColumnHandler implements ColumnHandler {
 	@Override
 	public String toFieldName(String columnName, Class entityClass) {
 		if (entityClass != null) {
-			String entityFullName=entityClass.getName();
+			String entityFullName = entityClass.getName();
 			Boolean flag = HoneyContext.getCustomFlagMap(field2Column + entityFullName);
 			if (ObjectUtils.isTrue(flag)) {
-				String fieldName = HoneyContext
-						.getCustomMapValue(StringConst.Column2Field + entityFullName, columnName);
+				String fieldName = HoneyContext.getCustomMapValue(StringConst.Column2Field + entityFullName, columnName);
 				if (fieldName != null) return fieldName;
-			} //确认查询之前是否都已经检测过一遍   返回标志是false,或没找到,则表示没有另外定义列名,使用原来的转换规则
+			} // 确认查询之前是否都已经检测过一遍 返回标志是false,或没找到,则表示没有另外定义列名,使用原来的转换规则
 		}
 		return null;
 	}
@@ -61,11 +59,11 @@ public class DefaultColumnHandler implements ColumnHandler {
 	private void initDefineColumn(Class entityClass) {
 		try {
 //			Object entity = Class.forName(entityFullName).newInstance();
-			//看下直接传entity是否方便????
+			// 看下直接传entity是否方便????
 //			Field fields[] = entity.getClass().getDeclaredFields();
-			
+
 			Field fields[] = entityClass.getDeclaredFields();
-			String entityFullName=entityClass.getName();
+			String entityFullName = entityClass.getName();
 			String defineColumn = "";
 			String fiName = "";
 			int len = fields.length;
@@ -78,30 +76,29 @@ public class DefaultColumnHandler implements ColumnHandler {
 				if (AnnoUtil.isColumn(fields[i])) {
 //					Column column = fields[i].getAnnotation(Column.class);
 //					defineColumn = column.value();
-					defineColumn=AnnoUtil.getValue(fields[i]);
+					defineColumn = AnnoUtil.getValue(fields[i]);
 					if (NameCheckUtil.isIllegal(defineColumn)) {
-						throw new BeeIllegalParameterException(
-								"Annotation Column set wrong value:" + defineColumn);
+						throw new BeeIllegalParameterException("Annotation Column set wrong value:" + defineColumn);
 					}
 
 					fiName = fields[i].getName();
 					kv.put(fiName, defineColumn);
-					column2Field.put(defineColumn, fiName); //单表查询拼结果会用到
+					column2Field.put(defineColumn, fiName); // 单表查询拼结果会用到
 //					if (findName.equals(fiName)) findDefineColumn = defineColumn;
 					has = true;
 				}
-			} //end for
+			} // end for
 
 			if (has) {
 				HoneyContext.addCustomMap(field2Column + entityFullName, kv);
-				HoneyContext.addCustomMap(StringConst.Column2Field + entityFullName, column2Field); //SqlLib, select会用到. 
+				HoneyContext.addCustomMap(StringConst.Column2Field + entityFullName, column2Field); // SqlLib, select会用到.
 				HoneyContext.addCustomFlagMap(field2Column + entityFullName, Boolean.TRUE);
 			} else {
 				HoneyContext.addCustomFlagMap(field2Column + entityFullName, Boolean.FALSE);
 			}
 		} catch (Exception e) {
 			Logger.debug(e.getMessage(), e);
-			//ignore
+			// ignore
 		}
 	}
 

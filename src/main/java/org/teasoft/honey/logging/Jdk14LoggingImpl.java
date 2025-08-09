@@ -83,13 +83,13 @@ public class Jdk14LoggingImpl implements Log {
 
 	@Override
 	public void trace(String msg) {
-		//		log.log(Level.FINER, msg);
+		// log.log(Level.FINER, msg);
 		log.logp(Level.FINER, loggerName, Thread.currentThread().getStackTrace()[1].getMethodName(), msg);
 	}
 
 	@Override
 	public boolean isErrorEnabled() {
-		return log.isLoggable(Level.SEVERE); //todo
+		return log.isLoggable(Level.SEVERE); // todo
 	}
 
 }

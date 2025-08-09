@@ -13,7 +13,7 @@ import org.teasoft.bee.osql.Cache;
  * @author Kingstar
  * @since  1.4
  */
-public class NoCache implements Cache{
+public class NoCache implements Cache {
 	@Override
 	public Object get(String key) {
 		return null;
@@ -21,12 +21,12 @@ public class NoCache implements Cache{
 
 	@Override
 	public void add(String key, Object rs) {
-		//do nothing
+		// do nothing
 	}
-	
+
 	@Override
 	public void clear(String tableCacheKey) {
-		//do nothing
+		// do nothing
 	}
 
 }

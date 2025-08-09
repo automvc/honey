@@ -19,45 +19,44 @@ import org.teasoft.honey.osql.util.DateUtil;
  * @author Kingstar
  * @since  1.4
  */
-public class SystemLogger implements Log{
-	
-	private static final String TRACE="TRACE";
-	private static final String DEBUG="DEBUG";
-	private static final String INFO="INFO";
-	private static final String WARN="WARN";
-	private static final String ERROR="ERROR";
-	private static final String SPACE=" ";
-	private static final String LEFT="[";
-	private static final String RIGHT="]";
-	
-	private static boolean donotPrintCurrentDate=HoneyConfig.getHoneyConfig().showSql_donotPrintCurrentDate;
-	private static boolean donotPrintLevel=HoneyConfig.getHoneyConfig().logDonotPrintLevel;
-	
-	private String className=null;
-	private static Map<String,Integer> levelMap;
-	
-	private static String systemLoggerLevel=HoneyConfig.getHoneyConfig().systemLoggerLevel;
+public class SystemLogger implements Log {
+
+	private static final String TRACE = "TRACE";
+	private static final String DEBUG = "DEBUG";
+	private static final String INFO = "INFO";
+	private static final String WARN = "WARN";
+	private static final String ERROR = "ERROR";
+	private static final String SPACE = " ";
+	private static final String LEFT = "[";
+	private static final String RIGHT = "]";
+
+	private static boolean donotPrintCurrentDate = HoneyConfig.getHoneyConfig().showSql_donotPrintCurrentDate;
+	private static boolean donotPrintLevel = HoneyConfig.getHoneyConfig().logDonotPrintLevel;
+
+	private String className = null;
+	private static Map<String, Integer> levelMap;
+
+	private static String systemLoggerLevel = HoneyConfig.getHoneyConfig().systemLoggerLevel;
 	private static int level;
-	private static final int DEBUG_NUM=1;
-	private static final int INFO_NUM=2;
-	private static final int WARN_NUM=3;
+	private static final int DEBUG_NUM = 1;
+	private static final int INFO_NUM = 2;
+	private static final int WARN_NUM = 3;
 //	private static final int ERROR_NUM=4;
-	
+
 	static {
 		levelMap = new HashMap<>();
 		levelMap.put(DEBUG, 1);
 		levelMap.put(INFO, 2);
 		levelMap.put(WARN, 3);
 		levelMap.put(ERROR, 4);
-		
-		level=levelMap.get(systemLoggerLevel.toUpperCase());
+
+		level = levelMap.get(systemLoggerLevel.toUpperCase());
 	}
-	
-	public SystemLogger(){
-	}
-	
-	public SystemLogger(String className){
-		this.className=className;
+
+	public SystemLogger() {}
+
+	public SystemLogger(String className) {
+		this.className = className;
 	}
 
 	@Override
@@ -67,10 +66,10 @@ public class SystemLogger implements Log{
 
 	@Override
 	public void trace(String msg) {
-		if(this.className!=null) 
-			print(TRACE,msg,className);
+		if (this.className != null)
+			print(TRACE, msg, className);
 		else
-			print(TRACE,msg);
+			print(TRACE, msg);
 	}
 
 	@Override
@@ -81,12 +80,12 @@ public class SystemLogger implements Log{
 	@Override
 	public void debug(String msg) {
 		if (level > DEBUG_NUM) return;
-		if(this.className!=null) 
-			print(DEBUG,msg,className);
+		if (this.className != null)
+			print(DEBUG, msg, className);
 		else
-			print(DEBUG,msg);
+			print(DEBUG, msg);
 	}
-	
+
 	@Override
 	public void debug(String msg, Throwable t) {
 		if (level > DEBUG_NUM) return;
@@ -102,11 +101,11 @@ public class SystemLogger implements Log{
 	@Override
 	public void info(String msg) {
 		if (level > INFO_NUM) return;
-		if(this.className!=null) 
-			print(INFO,msg,className);
+		if (this.className != null)
+			print(INFO, msg, className);
 		else
-			print(INFO,msg);
-		
+			print(INFO, msg);
+
 	}
 
 	@Override
@@ -117,12 +116,12 @@ public class SystemLogger implements Log{
 	@Override
 	public void warn(String msg) {
 		if (level > WARN_NUM) return;
-		if(this.className!=null) 
-			print(WARN,msg,className);
+		if (this.className != null)
+			print(WARN, msg, className);
 		else
-			print(WARN,msg);
+			print(WARN, msg);
 	}
-	
+
 	@Override
 	public void warn(String msg, Throwable t) {
 		if (level > WARN_NUM) return;
@@ -137,97 +136,87 @@ public class SystemLogger implements Log{
 
 	@Override
 	public void error(String msg) {
-		if(this.className!=null) 
-			print(ERROR,msg,className);
+		if (this.className != null)
+			print(ERROR, msg, className);
 		else
-			print(ERROR,msg);		
+			print(ERROR, msg);
 	}
 
 	@Override
 	public void error(String msg, Throwable t) {
 		error(msg);
-		//开发时可打开调试
+		// 开发时可打开调试
 		_printStackTrace(t);
 	}
-	
+
 	private void _printStackTrace(Throwable t) {
-		if (t != null) {  //没问题的,这方法仅用于本地开发时使用.
+		if (t != null) { // 没问题的,这方法仅用于本地开发时使用.
 			// NOSONAR
 			t.printStackTrace(); // NOSONAR
-			//No problem.Just use in dev(local). SystemLogger print the error message to console.
+			// No problem.Just use in dev(local). SystemLogger print the error message to console.
 		}
 	}
-	
-	private void print(String level,String msg){
-		StringBuffer b=new StringBuffer();
-		
+
+	private void print(String level, String msg) {
+		StringBuffer b = new StringBuffer();
+
 		if (donotPrintCurrentDate) {
-			//nothing
+			// nothing
 		} else {
 			b.append(DateUtil.currentDate());
 			b.append(SPACE);
 		}
-		
-		if(donotPrintLevel){
-			//nothing
-		}else{
+
+		if (donotPrintLevel) {
+			// nothing
+		} else {
 //			b.append(level)
 //			 .append(SPACE);
-			
-			b.append(LEFT)
-			 .append(level)
-			 .append(RIGHT)
-			 .append(SPACE);
+
+			b.append(LEFT).append(level).append(RIGHT).append(SPACE);
 		}
-		
+
 		b.append(msg);
-		
-		if(ERROR.equals(level) || WARN.equals(level) || DEBUG.equals(level)) //为了便于识别,DEBUG在SystemLogger使用err,让其显示为红色.
+
+		if (ERROR.equals(level) || WARN.equals(level) || DEBUG.equals(level)) // 为了便于识别,DEBUG在SystemLogger使用err,让其显示为红色.
 			printerr(b.toString());
 		else
 			printout(b.toString());
-		
+
 	}
-	
-    private void printerr(String msg) {
-    	System.err.println(msg);
-    }
-    
-    private void printout(String msg) {
-    	System.out.println(msg);
-    }
-	
-	private void print(String level,String msg,String className){
-		StringBuffer b=new StringBuffer();
-		
+
+	private void printerr(String msg) {
+		System.err.println(msg);
+	}
+
+	private void printout(String msg) {
+		System.out.println(msg);
+	}
+
+	private void print(String level, String msg, String className) {
+		StringBuffer b = new StringBuffer();
+
 		if (donotPrintCurrentDate) {
-			//nothing
+			// nothing
 		} else {
 			b.append(DateUtil.currentDate());
 			b.append(SPACE);
 		}
-		
-		if(donotPrintLevel){
-			//nothing
-		}else{
+
+		if (donotPrintLevel) {
+			// nothing
+		} else {
 //			b.append(level)
 //			 .append(SPACE);
-			
-			b.append(LEFT)
-			 .append(level)
-			 .append(RIGHT)
-			 .append(SPACE);
+
+			b.append(LEFT).append(level).append(RIGHT).append(SPACE);
 		}
-		
-		b
-		 .append(LEFT)
-		 .append(className)
-		 .append(RIGHT)
-		 .append(SPACE)
-		
-		 .append(msg);
-		
-		if(ERROR.equals(level) || WARN.equals(level) || DEBUG.equals(level))
+
+		b.append(LEFT).append(className).append(RIGHT).append(SPACE)
+
+				.append(msg);
+
+		if (ERROR.equals(level) || WARN.equals(level) || DEBUG.equals(level))
 			printerr(b.toString());
 		else
 			printout(b.toString());

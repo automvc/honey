@@ -8,10 +8,10 @@ import java.lang.reflect.Field;
  * @since  1.0
  */
 class PreparedValue {
-	
+
 	private String type;
 	private Object value;
-	private Field field;//V1.11
+	private Field field;// V1.11
 
 	public String getType() {
 		return type;
@@ -46,5 +46,5 @@ class PreparedValue {
 	public void setField(Field field) {
 		this.field = field;
 	}
-	
+
 }

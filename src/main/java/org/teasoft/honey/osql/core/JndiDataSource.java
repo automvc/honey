@@ -18,13 +18,13 @@ import javax.sql.DataSource;
 public class JndiDataSource {
 
 	private DataSource dataSource;
-	
+
 	private String jndiName;
 
 	public JndiDataSource() {
 		initJndiDs();
 	}
-	
+
 	public String getJndiName() {
 		if (jndiName == null) {
 			jndiName = "java:comp/env/" + HoneyConfig.getHoneyConfig().jndiName;
@@ -35,7 +35,7 @@ public class JndiDataSource {
 	public void setJndiName(String jndiName) {
 		this.jndiName = jndiName;
 	}
-	
+
 	private void initJndiDs() {
 		try {
 //			String jndiName = "jdbc/Bee";

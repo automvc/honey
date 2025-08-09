@@ -13,29 +13,31 @@ import org.teasoft.honey.osql.core.BeeFactory;
  * @author Kingstar
  * @since  1.3
  */
-public class AbstractSelectToSql extends AbstractToSql{
+public class AbstractSelectToSql extends AbstractToSql {
 	protected int start;
 	protected int size;
-	
+
 	public String toSQL() {
-		return toSQL(true);  //oracle用jdbc不允许有分号
+		return toSQL(true); // oracle用jdbc不允许有分号
 	}
 
 	public String toSQL(boolean noSemicolon) {
-		if (noSemicolon){
+		if (noSemicolon) {
 			return addPage(sql.toString());
-		}else{
-			return addPage(sql.toString())+";";
+		} else {
+			return addPage(sql.toString()) + ";";
 		}
 	}
+
 	private DbFeature getDbFeature() {
 		return BeeFactory.getHoneyFactory().getDbFeature();
 	}
-	private String addPage(String sqlStr){
+
+	private String addPage(String sqlStr) {
 		if (this.start != 0 && size != 0) {
-			sqlStr= getDbFeature().toPageSql(sqlStr, start,size);
-		}else if (size != 0){
-			sqlStr= getDbFeature().toPageSql(sqlStr.toString(), size);
+			sqlStr = getDbFeature().toPageSql(sqlStr, start, size);
+		} else if (size != 0) {
+			sqlStr = getDbFeature().toPageSql(sqlStr.toString(), size);
 		}
 		return sqlStr;
 	}

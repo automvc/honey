@@ -15,38 +15,38 @@ public class GenConfig {
 	private String baseDir = "";
 	private String packagePath = "";
 //	private String dbName = ""; // 
-	private String dbName; // 数据库类型 MySQL, Oracle等     fixed bug. V2.1
+	private String dbName; // 数据库类型 MySQL, Oracle等 fixed bug. V2.1
 	private String queryTableSql = ""; // 查询所有表名的SQL语句，MySQL,Oracle和SQL Server不用设置
 	private boolean genToString;
-	private boolean genSerializable=true; //V1.17默认值改为true
-	
+	private boolean genSerializable = true; // V1.17默认值改为true
+
 	private String queryColumnCommnetSql;
 	private String queryTableCommnetSql;
 	private boolean genComment;
-	private int commentPlace; //1:after field name at the same line; 2:last line
+	private int commentPlace; // 1:after field name at the same line; 2:last line
 	private String entityNamePre;
-	
-	//V1.11
+
+	// V1.11
 	private boolean override;
-	
-	//V1.11
+
+	// V1.11
 	private boolean genFieldFile;
-	private String fieldFileRelativeFolder="field";
-	private String fieldFilePrefix="";
-	private String fieldFileSuffix="_F";
-	private boolean genFieldAll=true; //V1.17
-	private boolean genSelfName=true; //V2.0  first letter is lowerCase
-	
-	private boolean genGetSet=true;  //2.1 默认生成
-	
-	//2.1 support lombok
+	private String fieldFileRelativeFolder = "field";
+	private String fieldFilePrefix = "";
+	private String fieldFileSuffix = "_F";
+	private boolean genFieldAll = true; // V1.17
+	private boolean genSelfName = true; // V2.0 first letter is lowerCase
+
+	private boolean genGetSet = true; // 2.1 默认生成
+
+	// 2.1 support lombok
 	private boolean lombokSetter;
 	private boolean lombokGetter;
 	private boolean lombokData;
-	
-	//2.1.8
+
+	// 2.1.8
 	private boolean genSwagger;
-	
+
 	public String getEncode() {
 		return encode;
 	}
@@ -56,8 +56,8 @@ public class GenConfig {
 	}
 
 	public String getBaseDir() {
-		if("".equals(baseDir)) {
-			baseDir=System.getProperty("user.dir")+"#src#main#java#".replace("#", File.separator); //syn 2.4.0
+		if ("".equals(baseDir)) {
+			baseDir = System.getProperty("user.dir") + "#src#main#java#".replace("#", File.separator); // syn 2.4.0
 		}
 		return baseDir;
 	}
@@ -75,7 +75,7 @@ public class GenConfig {
 	}
 
 	public String getDbName() {
-		if(dbName==null) return HoneyConfig.getHoneyConfig().getDbName();//V1.17
+		if (dbName == null) return HoneyConfig.getHoneyConfig().getDbName();// V1.17
 		return dbName;
 	}
 
@@ -84,7 +84,7 @@ public class GenConfig {
 	}
 
 	public String getPackagePath() {
-		if("".equals(packagePath))  return "entity";
+		if ("".equals(packagePath)) return "entity";
 		return packagePath;
 	}
 
@@ -108,7 +108,6 @@ public class GenConfig {
 		this.genSerializable = genSerializable;
 	}
 
-	
 	public boolean isGenComment() {
 		return genComment;
 	}
@@ -167,7 +166,7 @@ public class GenConfig {
 	public void setQueryTableCommnetSql(String queryTableCommnetSql) {
 		this.queryTableCommnetSql = queryTableCommnetSql;
 	}
-	
+
 	public boolean isOverride() {
 		return override;
 	}

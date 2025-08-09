@@ -12,20 +12,20 @@ package org.teasoft.honey.osql.core;
  * @since  1.9
  */
 public class Check {
-	
-	private Check(){}
+
+	private Check() {}
 
 	public static boolean isNotValidExpression(String expression) {
-		if (expression == null || expression.contains("--") || expression.contains("#")
-				|| expression.contains("|") || expression.contains(";") || expression.contains("/*")) {
+		if (expression == null || expression.contains("--") || expression.contains("#") || expression.contains("|")
+				|| expression.contains(";") || expression.contains("/*")) {
 			return true;
 		}
 		return false;
 	}
-	
+
 	public static boolean isNotValidExpressionForJustFetch(String expression) {
-		if (expression == null || expression.contains("--") || expression.contains("#")
-		 || expression.contains(";") || expression.contains("/*")) {  //no this:  || expression.contains("|")
+		if (expression == null || expression.contains("--") || expression.contains("#") || expression.contains(";")
+				|| expression.contains("/*")) { // no this: || expression.contains("|")
 			return true;
 		}
 		return false;
