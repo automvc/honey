@@ -429,8 +429,6 @@ public final class HoneyConfig {
 	public void setDbName(String dbName) {
 		this.dbName = dbName;
 		Logger.info("[Bee] ========= reset the dbName in HoneyConfig is :" + dbName);
-//		BeeFactory.getHoneyFactory().setDbFeature(BeeFactory.getHoneyFactory()._getDbDialectFeature());  //循环调用
-		BeeFactory.getHoneyFactory().setDbFeature(null);
 	}
 
 	public int getDatabaseMajorVersion() {

@@ -261,15 +261,16 @@ public class HoneyFactory {
 			return _getDbDialectFeature(dbName);
 		}
 //		dbName == null则表示不同时使用多种数据库
-		if (dbFeature != null)
-			return dbFeature;
-		else
-			return _getDbDialectFeature();
+//		if (dbFeature != null)
+//			return dbFeature;
+//		else
+		return _getDbDialectFeature();
 	}
-
-	public void setDbFeature(DbFeature dbFeature) {
-		this.dbFeature = dbFeature;
-	}
+	
+	// replace with DbFeatureRegistry.register
+//	public void setDbFeature(DbFeature dbFeature) {
+//		this.dbFeature = dbFeature;
+//	}
 
 	NameTranslate getInitNameTranslate() {
 		if (nameTranslate == null) {
