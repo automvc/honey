@@ -57,6 +57,13 @@ public final class CacheKey {
 			strBuf.append("DataSourceName:");
 			strBuf.append(ds);
 			strBuf.append(SEPARATOR);
+		} else { // 排除RW sync from V2.5.2
+//			else if(HoneyConfig.getHoneyConfig().differentDbEachTime) {
+//				strBuf.append("differentDbEachTime:");
+			// 默认就添加,防止cache错误. 每次只用一个DB,但动态切换也不会错.
+			strBuf.append("Db-Username/pw-EachTime:");
+			strBuf.append((HoneyConfig.getHoneyConfig().getUrl() + HoneyConfig.getHoneyConfig().getUsername()).hashCode());
+			strBuf.append(SEPARATOR);
 		}
 
 		if (HoneyConfig.getHoneyConfig().naming_useMoreTranslateType) {
@@ -101,7 +108,7 @@ public final class CacheKey {
 		if (struct != null) {
 //		if (struct != null && SuidType.MODIFY.getType().equals(struct.getSuidType()) ) {  //查询时,放缓存也要用到
 			String tableNames = struct.getTableNames();
-			String tabs[] = tableNames.trim().split("##");
+			String tabs[] = tableNames.trim().split(StringConst.TABLE_SEPARATOR);
 			for (int i = 0; i < tabs.length; i++) {
 				list.add(tabs[i]); // 还要加上数据源信息等其它 在CacheUtil已为仅分库情型加DS
 									// 不加数据源,相同表名数据有更改,同表名的缓存就清除,这样缓存数据更可靠

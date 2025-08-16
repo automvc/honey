@@ -15,6 +15,7 @@ import org.teasoft.bee.distribution.ds.Route;
 import org.teasoft.bee.osql.exception.NoConfigException;
 import org.teasoft.honey.osql.core.HoneyConfig;
 import org.teasoft.honey.osql.core.HoneyContext;
+import org.teasoft.honey.osql.core.StringConst;
 
 /**
  * @author Kingstar
@@ -126,11 +127,11 @@ public class OnlyMulitiDB implements Route {
 //		String tables = routeStruct.getTableNames();  
 		String ds = null;
 		if (tables != null) {
-			if (!tables.contains("##")) {
+			if (!tables.contains(StringConst.TABLE_SEPARATOR)) {
 				ds = tableToDs.get(tables.trim().toLowerCase());
 				if (ds != null) return ds;
 			} else { // only multi-Ds,tables don't allow in different db.仅分库时，多表查询的多个表要在同一个数据源.
-				String ts[] = tables.split("##");
+				String ts[] = tables.split(StringConst.TABLE_SEPARATOR);
 				ds = tableToDs.get(ts[0].toLowerCase());
 				if (ds != null) return ds;
 			}

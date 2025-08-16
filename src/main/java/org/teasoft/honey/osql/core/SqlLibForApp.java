@@ -744,7 +744,7 @@ public class SqlLibForApp extends SqlLib {
 							fields1[i].set(subObj1, v1);
 						}
 					} catch (IllegalArgumentException e) {
-						Logger.error(e.getMessage(), e);
+						Logger.warn(e.getMessage(), e);
 
 //						if(isConfuseDuplicateFieldDB()){
 //							v1=_getObjectForMoreTable_ConfuseField(rs,fields1[i],isDul,dulField,subEntityFieldClass[0]);

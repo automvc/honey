@@ -253,7 +253,7 @@ public class _MoreObjectToSQLHelper {
 						sqlBuffer.append(COMMA);
 						sqlBuffer.append(moreTableStruct[s].tableName);
 //					tableNamesForCache+="##"+moreTableStruct[s].tableName; //V1.9
-						tableNamesForCache.append("##").append(moreTableStruct[s].tableName);// v1.9.8
+						tableNamesForCache.append(StringConst.TABLE_SEPARATOR).append(moreTableStruct[s].tableName);// v1.9.8
 						if (moreTableStruct[s].hasSubAlias) {// 从表定义有别名
 							sqlBuffer.append(ONE_SPACE);
 							sqlBuffer.append(moreTableStruct[s].subAlias);
@@ -494,7 +494,7 @@ public class _MoreObjectToSQLHelper {
 		else
 			sqlBuffer.append(moreTableStruct.joinType.getType());
 		sqlBuffer.append(moreTableStruct.tableName);
-		tableNamesForCache.append("##").append(moreTableStruct.tableName);// v1.9.8
+		tableNamesForCache.append(StringConst.TABLE_SEPARATOR).append(moreTableStruct.tableName);// v1.9.8
 		if (moreTableStruct.hasSubAlias) {// 从表定义有别名
 			sqlBuffer.append(ONE_SPACE);
 			sqlBuffer.append(moreTableStruct.subAlias);
