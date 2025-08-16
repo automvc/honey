@@ -13,6 +13,6 @@ import org.teasoft.honey.osql.core.BeeFactoryHelper;
  * @author Kingstar
  * @since  1.9.8
  */
-public class BF extends BeeFactoryHelper{
+public class BF extends BeeFactoryHelper {
 
 }

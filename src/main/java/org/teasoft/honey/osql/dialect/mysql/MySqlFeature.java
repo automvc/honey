@@ -11,8 +11,8 @@ import org.teasoft.honey.osql.core.K;
 public class MySqlFeature implements DbFeature {
 
 	public String toPageSql(String sql, int start, int size) {
-		sql=HoneyUtil.deleteLastSemicolon(sql);
-		
+		sql = HoneyUtil.deleteLastSemicolon(sql);
+
 		String forUpdateClause = null;
 		boolean isForUpdate = false;
 		final int forUpdateIndex = sql.toLowerCase().lastIndexOf("for update");
@@ -21,29 +21,29 @@ public class MySqlFeature implements DbFeature {
 			sql = sql.substring(0, forUpdateIndex - 1);
 			isForUpdate = true;
 		}
-		String limitStament="";
-		if(HoneyUtil.isRegPagePlaceholder()){
-			int array[]=new int[2];
+		String limitStament = "";
+		if (HoneyUtil.isRegPagePlaceholder()) {
+			int array[] = new int[2];
 //			 limitStament = " limit " + start + "," + size;
 //			 limitStament = " limit ? , ?";
-			 limitStament = " "+K.limit+" ?,?";
-			 array[0]=start;
-			 array[1]=size;
-			 HoneyUtil.regPageNumArray(array);
-		}else{
+			limitStament = " " + K.limit + " ?,?";
+			array[0] = start;
+			array[1] = size;
+			HoneyUtil.regPageNumArray(array);
+		} else {
 //			 limitStament = " limit " + start + "," + size;
-			 limitStament = " "+K.limit+" " + start + "," + size;
+			limitStament = " " + K.limit + " " + start + "," + size;
 		}
-		
+
 		sql += limitStament;
-		
+
 		if (isForUpdate) {
-			sql+=" "+forUpdateClause;
+			sql += " " + forUpdateClause;
 		}
-		
+
 		return sql;
 	}
-	
+
 	public String toPageSql(String sql, int size) {
 		return toPageSql(sql, 0, size);
 	}

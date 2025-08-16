@@ -13,7 +13,7 @@ package org.teasoft.honey.osql.name;
  * @author Kingstar
  * @since  1.5
  */
-public class UpperCaseUnderScoreAndCamelName extends UnderScoreAndCamelName{
+public class UpperCaseUnderScoreAndCamelName extends UnderScoreAndCamelName {
 
 	@Override
 	public String toTableName(String entityName) {
@@ -24,19 +24,19 @@ public class UpperCaseUnderScoreAndCamelName extends UnderScoreAndCamelName{
 	public String toColumnName(String fieldName) {
 		return super.toColumnName(fieldName).toUpperCase();
 	}
-	
+
 	@Override
 	public String toEntityName(String tableName) {
-		//need lowercase first if the name has upper case
+		// need lowercase first if the name has upper case
 		tableName = tableName.toLowerCase();
 		return NameUtil.firstLetterToUpperCase(NameUtil.toCamelNaming(tableName));
 	}
 
 	@Override
 	public String toFieldName(String columnName) {
-		//need lowercase first if the name has upper case
-		columnName = columnName.toLowerCase(); //if not , BEE_NAME->BEENAME  -> ??
+		// need lowercase first if the name has upper case
+		columnName = columnName.toLowerCase(); // if not , BEE_NAME->BEENAME -> ??
 		return NameUtil.toCamelNaming(columnName);
 	}
-	
+
 }

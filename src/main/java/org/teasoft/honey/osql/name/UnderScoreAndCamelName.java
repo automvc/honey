@@ -16,8 +16,8 @@ import org.teasoft.honey.osql.core.HoneyConfig;
  * @author Kingstar
  * @since  1.5
  */
-public class UnderScoreAndCamelName implements NameTranslate{
-	
+public class UnderScoreAndCamelName implements NameTranslate {
+
 	@Override
 	public String toTableName(String entityName) {
 		return NameUtil.toUnderscoreNaming(NameUtil.firstLetterToLowerCase(entityName));
@@ -25,14 +25,14 @@ public class UnderScoreAndCamelName implements NameTranslate{
 
 	@Override
 	public String toColumnName(String fieldName) {
-          return NameUtil.toUnderscoreNaming(fieldName);
+		return NameUtil.toUnderscoreNaming(fieldName);
 	}
 
 	@Override
 	public String toEntityName(String tableName) {
 		if (HoneyConfig.getHoneyConfig().naming_toLowerCaseBefore) {
-			//need lowercase first if the name has upper case
-			tableName = tableName.toLowerCase(); 
+			// need lowercase first if the name has upper case
+			tableName = tableName.toLowerCase();
 		}
 		return NameUtil.firstLetterToUpperCase(NameUtil.toCamelNaming(tableName));
 	}
@@ -40,8 +40,8 @@ public class UnderScoreAndCamelName implements NameTranslate{
 	@Override
 	public String toFieldName(String columnName) {
 		if (HoneyConfig.getHoneyConfig().naming_toLowerCaseBefore) {
-			//need lowercase first if the name has upper case
-			columnName = columnName.toLowerCase();  //if not , BEE_NAME->BEENAME  -> ??
+			// need lowercase first if the name has upper case
+			columnName = columnName.toLowerCase(); // if not , BEE_NAME->BEENAME -> ??
 		}
 		return NameUtil.toCamelNaming(columnName);
 	}

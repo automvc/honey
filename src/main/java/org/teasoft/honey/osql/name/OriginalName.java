@@ -17,7 +17,7 @@ import org.teasoft.bee.osql.NameTranslate;
  * @author Kingstar
  * @since  1.5
  */
-public class OriginalName implements NameTranslate{
+public class OriginalName implements NameTranslate {
 
 	@Override
 	public String toTableName(String entityName) {

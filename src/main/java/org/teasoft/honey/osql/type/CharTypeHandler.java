@@ -18,7 +18,7 @@ public class CharTypeHandler<T> implements TypeHandler<Character> {
 
 	@Override
 	public Character process(Class<Character> fieldType, Object obj) {
-		if (obj == null || obj.toString().length()==0) return ' ';
+		if (obj == null || obj.toString().length() == 0) return ' ';
 		return obj.toString().charAt(0);
 	}
 

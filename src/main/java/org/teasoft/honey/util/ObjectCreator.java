@@ -11,7 +11,7 @@ package org.teasoft.honey.util;
  * @since  1.9
  */
 public class ObjectCreator {
-	
+
 	private ObjectCreator() {}
 
 	public static Long createLong(String s) {
@@ -47,7 +47,7 @@ public class ObjectCreator {
 		if (StringUtils.isBlank(s)) return null;
 		return Double.parseDouble(s);
 	}
-	
+
 	public static Float createFloat(String s) {
 		if (StringUtils.isBlank(s)) return null;
 		return Float.parseFloat(s);

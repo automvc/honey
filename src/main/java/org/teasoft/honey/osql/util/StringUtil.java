@@ -15,15 +15,15 @@ import org.teasoft.honey.osql.core.TokenUtil;
  * @since  1.7.2
  */
 public class StringUtil {
-	
+
 	private StringUtil() {}
 
-	public static String replaceWithMap(String text, Map<String,String> map) {
+	public static String replaceWithMap(String text, Map<String, String> map) {
 		return TokenUtil.processWithMap(text, "#{", "}", map);
 	}
-	
-	//v1.9
-	public static String replaceWithMap(String text, Map<String,String> map,String startToken,String endToken) {
+
+	// v1.9
+	public static String replaceWithMap(String text, Map<String, String> map, String startToken, String endToken) {
 		return TokenUtil.processWithMap(text, startToken, endToken, map);
 	}
 

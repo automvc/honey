@@ -16,33 +16,33 @@ import org.teasoft.honey.file.FileHandle;
  * @since  1.5
  */
 public class FileUtil {
-	private static FileCreator fileCreator=null;
-	static{
-		 fileCreator=new FileHandle();
-		 fileCreator.setCharsetName("UTF-8");
+	private static FileCreator fileCreator = null;
+	static {
+		fileCreator = new FileHandle();
+		fileCreator.setCharsetName("UTF-8");
 	}
-	
+
 	private FileUtil() {}
 
 	public static void genFile(String fullPathAndName, String content) {
 		fileCreator.genFile(fullPathAndName, content);
 	}
-	
+
 	public static void genFile(String fullPath, String fileName, String content) {
 		// 生成文件
 		fileCreator.genFile(fullPath, fileName, content);
 	}
-	
-	public static void genFile(String basePath,String packagePath, String fileName, String content) {
+
+	public static void genFile(String basePath, String packagePath, String fileName, String content) {
 		fileCreator.genFile(basePath, packagePath, fileName, content);
 	}
-	
+
 	public static void genAppendFile(String fullPathAndName, String content) {
 		fileCreator.genAppendFile(fullPathAndName, content);
 	}
-	
+
 	public static BufferedReader readFile(String fullPathAndName) {
 		return fileCreator.readFile(fullPathAndName);
 	}
-	
+
 }

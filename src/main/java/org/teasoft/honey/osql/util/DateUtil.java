@@ -19,44 +19,43 @@ import org.teasoft.honey.osql.core.Logger;
  * @since  1.4
  */
 public class DateUtil {
-	
+
 	private DateUtil() {}
-	
+
 	private static SimpleDateFormat getSimpleDateFormat() {
-		SimpleDateFormat defaultFormat =null;  
+		SimpleDateFormat defaultFormat = null;
 		String dateFormatStr = HoneyConfig.getHoneyConfig().dateFormat;
 		if (dateFormatStr != null && !"".equals(dateFormatStr.trim())) {
 			try {
 				defaultFormat = new SimpleDateFormat(dateFormatStr);
 			} catch (Exception e) {
-				Logger.warn("In DateUtil: it is error date format String :"+dateFormatStr);
+				Logger.warn("In DateUtil: it is error date format String :" + dateFormatStr);
 				defaultFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 			}
-		}else {
+		} else {
 			defaultFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		}
-		
-		
+
 		return defaultFormat;
 	}
-	
-	public static String currentDate(){
+
+	public static String currentDate() {
 		return getSimpleDateFormat().format(new Date());
 	}
-	
-	public static String currentDate(String formatStr){
-		SimpleDateFormat format =null;  
-		if(formatStr==null || "".trim().equals(formatStr)) 
-			format=getSimpleDateFormat();
-		else 
-		   format = new SimpleDateFormat(formatStr);
+
+	public static String currentDate(String formatStr) {
+		SimpleDateFormat format = null;
+		if (formatStr == null || "".trim().equals(formatStr))
+			format = getSimpleDateFormat();
+		else
+			format = new SimpleDateFormat(formatStr);
 		return format.format(new Date());
 	}
-	
-	public static java.sql.Date currentSqlDate(){
+
+	public static java.sql.Date currentSqlDate() {
 		return new java.sql.Date(System.currentTimeMillis());
 	}
-	
+
 	public static Timestamp toTimestamp(String dateString) {
 		try {
 			Date date = getSimpleDateFormat().parse(dateString);
@@ -67,7 +66,7 @@ public class DateUtil {
 
 		return null;
 	}
-	
+
 	/**
 	 * 往前或往后指定天数
 	 * @param days
@@ -79,16 +78,16 @@ public class DateUtil {
 //		cal.add(Calendar.DAY_OF_MONTH, days);
 //		return cal.getTime();
 //	}
-	
+
 	/**
 	 * 获取当前Timestamp
 	 * @return 当前Timestamp
 	 * @since 1.11
 	 */
-	public static Timestamp currentTimestamp(){
+	public static Timestamp currentTimestamp() {
 		return new Timestamp(System.currentTimeMillis());
 	}
-	
+
 	/**
 	 * 往前或往后指定天数
 	 * @param days
@@ -96,37 +95,35 @@ public class DateUtil {
 	 * @since 1.11
 	 */
 	public static Timestamp jumpDaysExact(int days) {
-		Calendar cal = Calendar.getInstance();//使用默认时区和语言环境获得一个日历。    
+		Calendar cal = Calendar.getInstance();// 使用默认时区和语言环境获得一个日历。
 		cal.add(Calendar.DAY_OF_MONTH, days);
-		return new Timestamp(cal.getTimeInMillis()); 
+		return new Timestamp(cal.getTimeInMillis());
 	}
-	
+
 	/**
 	 * 往前或往后指定天数,指定天最后秒设置为23:59:59
 	 * @param days
 	 * @return Timestamp对象.instance of Timestamp.
 	 */
 	public static Timestamp jumpDays(int days) {
-		Calendar cal = Calendar.getInstance();//使用默认时区和语言环境获得一个日历。    
+		Calendar cal = Calendar.getInstance();// 使用默认时区和语言环境获得一个日历。
 		cal.add(Calendar.DAY_OF_MONTH, days);
 		cal.set(Calendar.HOUR, 23);
 		cal.set(Calendar.MINUTE, 59);
 		cal.set(Calendar.SECOND, 59);
-		return new Timestamp(cal.getTimeInMillis()); 
+		return new Timestamp(cal.getTimeInMillis());
 	}
-	
-	
+
 	public static Timestamp jumpDays(Timestamp base, int days) {
-		Calendar cal = Calendar.getInstance();//使用默认时区和语言环境获得一个日历。   
-		
-		cal.setTime(base); //set to base
-		
+		Calendar cal = Calendar.getInstance();// 使用默认时区和语言环境获得一个日历。
+
+		cal.setTime(base); // set to base
+
 		cal.add(Calendar.DAY_OF_MONTH, days);
-		
-		return new Timestamp(cal.getTimeInMillis()); 
+
+		return new Timestamp(cal.getTimeInMillis());
 	}
-	
-	
+
 	public static boolean isNowEffect(Timestamp expirationDate) {
 		Calendar now = Calendar.getInstance();
 		return now.getTime().before(expirationDate);

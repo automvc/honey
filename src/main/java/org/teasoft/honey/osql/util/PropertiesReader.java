@@ -16,11 +16,11 @@ import org.teasoft.honey.osql.core.Logger;
  */
 public class PropertiesReader {
 	private Properties prop;
-	
+
 	public PropertiesReader() {}
 
 	public PropertiesReader(String fileName) {
-		InputStream in =null;
+		InputStream in = null;
 		try {
 			if (!fileName.trim().startsWith("/")) fileName = "/" + fileName.trim();
 //			if (fileName!=null && !fileName.trim().startsWith(File.separator)) fileName = File.separator + fileName.trim();
@@ -28,37 +28,38 @@ public class PropertiesReader {
 			in = PropertiesReader.class.getResourceAsStream(fileName);
 			prop.load(in);
 		} catch (IOException | NullPointerException e) {
-			Logger.warn("  In PropertiesReader not found the file :"+fileName+" .  exception message:" + e.getMessage());
-		    //不需要抛出异常,适合有则执行,没有则忽略的情况.
+			Logger.warn(
+					"  In PropertiesReader not found the file :" + fileName + " .  exception message:" + e.getMessage());
+			// 不需要抛出异常,适合有则执行,没有则忽略的情况.
 		} finally {
 			closeStream(in);
 		}
 	}
-	
+
 	/**
 	 * 使用指定路径的文件进行配置.
 	 * @param filePathAndName
 	 * @param custom
 	 * @since 1.9.8
 	 */
-	public PropertiesReader(String filePathAndName,boolean custom) {  //custom just a flag
+	public PropertiesReader(String filePathAndName, boolean custom) { // custom just a flag
 		InputStream in = null;
 		try {
 			prop = new Properties();
 			in = new FileInputStream(new File(filePathAndName));
 			prop.load(in);
 		} catch (IOException | NullPointerException e) {
-			Logger.warn("  In PropertiesReader not found the file :"+filePathAndName+"  .  " + e.getMessage());
-			throw new ConfigWrongException("filePathAndName: "+filePathAndName+" config wrong!  "+ e.getMessage());
+			Logger.warn("  In PropertiesReader not found the file :" + filePathAndName + "  .  " + e.getMessage());
+			throw new ConfigWrongException("filePathAndName: " + filePathAndName + " config wrong!  " + e.getMessage());
 		} finally {
 			closeStream(in);
 		}
 	}
-	
+
 	/**
 	 * @since 1.17
 	 */
-	public PropertiesReader(InputStream inputStream) { 
+	public PropertiesReader(InputStream inputStream) {
 		InputStream in = null;
 		try {
 			prop = new Properties();
@@ -70,7 +71,7 @@ public class PropertiesReader {
 			closeStream(in);
 		}
 	}
-	
+
 	// V1.17
 	private void closeStream(InputStream in) {
 		try {

@@ -22,7 +22,7 @@ import org.teasoft.honey.osql.core.Logger;
 public class StreamUtil {
 
 	private static final String UTF_8 = "UTF-8";
-	
+
 	private StreamUtil() {}
 
 	/**
@@ -43,11 +43,11 @@ public class StreamUtil {
 	public static String stream2String(InputStream in, String charsetName) {
 		return stream2String(in, null, UTF_8);
 	}
-	
+
 	public static String stream2String(InputStream in, Map<String, String> map) {
 		return stream2String(in, map, UTF_8);
 	}
-	
+
 	/**
 	 * InputStream转字符串,并可替换字符值. InputStream to String,and replace some String.
 	 * @param in  InputStream对象.instance of InputStream.
@@ -59,9 +59,7 @@ public class StreamUtil {
 
 		if (in == null) return null;
 		StringBuffer sb = new StringBuffer();
-		try (
-			BufferedReader bfReader = new BufferedReader(new InputStreamReader(in, charsetName));
-		  ){
+		try (BufferedReader bfReader = new BufferedReader(new InputStreamReader(in, charsetName));) {
 			String line = bfReader.readLine();
 			while (line != null) {
 				if (map != null) line = replace(line, map);
@@ -73,18 +71,18 @@ public class StreamUtil {
 			}
 		} catch (Exception e) {
 			throw ExceptionHelper.convert(e);
-		}finally {
+		} finally {
 			try {
-				if(in!=null) in.close();  //V1.17
+				if (in != null) in.close(); // V1.17
 			} catch (Exception e2) {
 				Logger.debug(e2.getMessage(), e2);
 			}
-			
+
 		}
 
 		return sb.toString();
 	}
-	
+
 	private static String replace(String line, Map<String, String> map) {
 		for (Map.Entry<String, String> entry : map.entrySet()) {
 			line = line.replace(entry.getKey(), entry.getValue());

@@ -27,7 +27,7 @@ public class SqlKeyCheck {
 
 	static {
 		initKeyMap(keyStr);
-		
+
 		if (HoneyUtil.isOracle()) {
 			String oracleKey = "user,level,role";
 			initKeyMap(oracleKey);
@@ -36,7 +36,7 @@ public class SqlKeyCheck {
 		String fs = EntityUtil.getFieldNames(new LowerKey());
 		initKeyMap2(fs);
 	}
-	
+
 	private SqlKeyCheck() {}
 
 	private static void initKeyMap(String keyStr) {
@@ -46,12 +46,11 @@ public class SqlKeyCheck {
 		}
 	}
 
-	//不包含大写字母才是独立关键字
+	// 不包含大写字母才是独立关键字
 	private static void initKeyMap2(String keyStr) {
 		String keys[] = keyStr.split(",");
 		for (int i = 0; i < keys.length; i++) {
-			if (!StringUtils.isContainUpperCase(keys[i])) 
-				keyMap.put(keys[i].toLowerCase(), VALUE);
+			if (!StringUtils.isContainUpperCase(keys[i])) keyMap.put(keys[i].toLowerCase(), VALUE);
 		}
 	}
 

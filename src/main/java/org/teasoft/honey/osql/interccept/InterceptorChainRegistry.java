@@ -19,7 +19,7 @@ import org.teasoft.honey.osql.core.HoneyUtil;
 public class InterceptorChainRegistry implements Registry {
 
 	private static InterceptorChain interceptorChain = new DefaultInterceptorChain();
-	
+
 	public static InterceptorChain getInterceptorChain() {
 		return HoneyUtil.copy(interceptorChain);
 	}
@@ -27,9 +27,9 @@ public class InterceptorChainRegistry implements Registry {
 	public static void register(InterceptorChain interceptorChain) {
 		InterceptorChainRegistry.interceptorChain = interceptorChain;
 	}
-	
+
 	public static void addInterceptor(Interceptor interceptor) {
 		InterceptorChainRegistry.interceptorChain.addInterceptor(interceptor);
 	}
-	
+
 }

@@ -16,7 +16,7 @@ import org.teasoft.honey.osql.core.Logger;
  * @since  1.8.99
  */
 public class MD5 {
-	
+
 	private MD5() {}
 
 	public static String getMd5(String text) {
@@ -25,7 +25,7 @@ public class MD5 {
 		try {
 			secretBytes = MessageDigest.getInstance("md5").digest(text.getBytes("utf8"));
 		} catch (Exception e) {
-			Logger.warn("Have Exception when generate MD5. "+e.getMessage());
+			Logger.warn("Have Exception when generate MD5. " + e.getMessage());
 			return null;
 		}
 		re = new BigInteger(1, secretBytes).toString(16);

@@ -21,39 +21,38 @@ import org.teasoft.honey.osql.util.DateUtil;
  * @author Kingstar
  * @since  1.17
  */
-public class IntSerialId{
-	
-	private AtomicInteger sequenceNumber= null;
+public class IntSerialId {
+
+	private AtomicInteger sequenceNumber = null;
 	private static final long sequence = 1L; // 19
-	
+
 	private long startTime; // second 31
-	
+
 	private static final long shift = 9;
 
-
 	private long startSecond = getStartSecond();
-	
+
 	private int initNum;
-	
+
 	/**
 	 * !注意:每次新建都会重置开始号码.
 	 */
 	public IntSerialId() {
 		startTime = _curSecond();
-		long ll=(startTime - startSecond)/60; //单位：分钟
-		initNum = (int)(( ll<< shift) | sequence);
+		long ll = (startTime - startSecond) / 60; // 单位：分钟
+		initNum = (int) ((ll << shift) | sequence);
 		sequenceNumber = new AtomicInteger(initNum);
 	}
-	
+
 	private long _curSecond() {
 		return (System.currentTimeMillis()) / 1000L;
 	}
 
 	public synchronized int get() {
-		 int id=sequenceNumber.getAndIncrement();
-		 
-		 testSpeedLimit(id);
-		 return id;
+		int id = sequenceNumber.getAndIncrement();
+
+		testSpeedLimit(id);
+		return id;
 	}
 
 	/**
@@ -62,26 +61,26 @@ public class IntSerialId{
 	 * @return
 	 */
 	public synchronized int[] getRangeId(int sizeOfIds) {
-		int r[]=new int[2];
-		int a=sequenceNumber.getAndIncrement();
-		r[0]=a;
-		r[1]=r[0]+sizeOfIds-1;
-		setSequenceNumber(a+sizeOfIds);
-		
-		//使用乐观锁的话,会浪费ID号
-		
+		int r[] = new int[2];
+		int a = sequenceNumber.getAndIncrement();
+		r[0] = a;
+		r[1] = r[0] + sizeOfIds - 1;
+		setSequenceNumber(a + sizeOfIds);
+
+		// 使用乐观锁的话,会浪费ID号
+
 		testSpeedLimit(r[1]);
-		
+
 		return r;
 	}
-	
-	private void setSequenceNumber(int newNum){
+
+	private void setSequenceNumber(int newNum) {
 		sequenceNumber.set(newNum);
 	}
-	
+
 	private synchronized void testSpeedLimit(long currentLong) {
 
-		long spentTime = (_curSecond() - startTime)/60 + 1 +2; //可透支两分钟
+		long spentTime = (_curSecond() - startTime) / 60 + 1 + 2; // 可透支两分钟
 
 		if (spentTime > 0) {
 			if ((spentTime << shift) > (currentLong - initNum)) return;
@@ -90,11 +89,12 @@ public class IntSerialId{
 			wait(10);
 			testSpeedLimit(currentLong);
 		} catch (Exception e) {
-		  Logger.warn(e.getMessage());
+			Logger.warn(e.getMessage());
 		}
 	}
-	
-	private static long defaultStart = 1640966400; // 单位：s    2022-01-01 (yyyy-MM-dd)
+
+	private static long defaultStart = 1640966400; // 单位：s 2022-01-01 (yyyy-MM-dd)
+
 	private long getStartSecond() {
 		int startYear = HoneyConfig.getHoneyConfig().genid_startYear;
 		if (startYear < 1970) return defaultStart;

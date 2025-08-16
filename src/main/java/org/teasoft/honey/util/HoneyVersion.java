@@ -11,10 +11,10 @@ package org.teasoft.honey.util;
  * @since  1.11
  */
 public final class HoneyVersion {
-	
+
 	private HoneyVersion() {}
 
-	public static final String version = "1.17.21";
-	public static final String buildId = version + ".6";
+	public static final String version = "1.17.25";
+	public static final String buildId = version + ".8";
 
 }

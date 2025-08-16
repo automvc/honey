@@ -24,9 +24,9 @@ public final class TypeHandlerRegistry implements Registry {
 	private static final String PRIORITY = "1";
 	private static final Map<Class<?>, TypeHandler<?>> handlersMap = new HashMap<>();
 	private static final Map<Class<?>, String> priorityMap = new HashMap<>();
-	
-	private static final Map<String,Map<Class<?>, TypeHandler<?>>> handlersMapForSpecialDB = new HashMap<>();
-	private static final Map<String,Map<Class<?>, String>> priorityMapForSpecialDB = new HashMap<>(); //只是某种DB优先使用
+
+	private static final Map<String, Map<Class<?>, TypeHandler<?>>> handlersMapForSpecialDB = new HashMap<>();
+	private static final Map<String, Map<Class<?>, String>> priorityMapForSpecialDB = new HashMap<>(); // 只是某种DB优先使用
 
 	/**
 	 * register TypeHandler,it will effect if can not process by default.
@@ -36,21 +36,21 @@ public final class TypeHandlerRegistry implements Registry {
 	public static <T> void register(Class<T> fieldType, TypeHandler<? extends T> handler) {
 		handlersMap.put(fieldType, handler);
 	}
-	
-	
-	public static <T> void register(Class<T> fieldType, TypeHandler<? extends T> handler,String database) {
-		Map<Class<?>, TypeHandler<?>> map=handlersMapForSpecialDB.get(database);
-		if(map==null) map=new HashMap<>(); 
+
+	public static <T> void register(Class<T> fieldType, TypeHandler<? extends T> handler, String database) {
+		Map<Class<?>, TypeHandler<?>> map = handlersMapForSpecialDB.get(database);
+		if (map == null) map = new HashMap<>();
 		map.put(fieldType, handler);
 		handlersMapForSpecialDB.put(database, map);
 	}
-	
-	//某种DB优先使用转换
-	public static <T> void register(Class<T> fieldType, TypeHandler<? extends T> handler,String database,boolean isPriority) {
+
+	// 某种DB优先使用转换
+	public static <T> void register(Class<T> fieldType, TypeHandler<? extends T> handler, String database,
+			boolean isPriority) {
 		register(fieldType, handler, database);
 		if (isPriority) {
-			Map<Class<?>, String> map=priorityMapForSpecialDB.get(database);
-			if(map==null) map=new HashMap<>(); 
+			Map<Class<?>, String> map = priorityMapForSpecialDB.get(database);
+			if (map == null) map = new HashMap<>();
 			map.put(fieldType, PRIORITY);
 			priorityMapForSpecialDB.put(database, map);
 		}
@@ -73,12 +73,12 @@ public final class TypeHandlerRegistry implements Registry {
 	 * @return boolean value of priority
 	 */
 	public static <T> boolean isPriorityType(Class<T> fieldType) {
-		Map<Class<?>, String> map=priorityMapForSpecialDB.get(HoneyConfig.getHoneyConfig().getDbName());
-		if(map!=null) {
-			String p=map.get(fieldType);
-			if(PRIORITY.equals(p)) return true;
+		Map<Class<?>, String> map = priorityMapForSpecialDB.get(HoneyConfig.getHoneyConfig().getDbName());
+		if (map != null) {
+			String p = map.get(fieldType);
+			if (PRIORITY.equals(p)) return true;
 		}
-		
+
 		return priorityMap.get(fieldType) == null ? false : true;
 	}
 
@@ -91,15 +91,14 @@ public final class TypeHandlerRegistry implements Registry {
 	@SuppressWarnings("unchecked")
 	public static <T> TypeHandler<T> getHandler(Class<T> fieldType) {
 //		return (TypeHandler<T>) handlersMap.get(fieldType);
-		
+
 		TypeHandler<?> handler = null;
-		Map<Class<?>, TypeHandler<?>> map = handlersMapForSpecialDB
-				.get(HoneyConfig.getHoneyConfig().getDbName());
+		Map<Class<?>, TypeHandler<?>> map = handlersMapForSpecialDB.get(HoneyConfig.getHoneyConfig().getDbName());
 		if (map != null) handler = map.get(fieldType);
 		if (handler == null) {
 			handler = handlersMap.get(fieldType);
 		}
-		
+
 		return (TypeHandler<T>) handler;
 	}
 
@@ -111,12 +110,12 @@ public final class TypeHandlerRegistry implements Registry {
 	 */
 	public static <T> T handlerProcess(Class<T> fieldType, Object result) {
 //		return getHandler(fieldType).process(fieldType, result);
-		TypeHandler<T> handler=getHandler(fieldType);
-		if(handler!=null) {
-			T obj=handler.process(fieldType, result);
-			if(obj!=null) return obj; //fixed V1.17
+		TypeHandler<T> handler = getHandler(fieldType);
+		if (handler != null) {
+			T obj = handler.process(fieldType, result);
+			if (obj != null) return obj; // fixed V1.17
 		}
-		
-		return (T)result;
+
+		return (T) result;
 	}
 }

@@ -23,7 +23,7 @@ import org.teasoft.honey.osql.core.NameTranslateHandle;
  * @since  1.11
  */
 public final class EntityUtil {
-	
+
 	private EntityUtil() {}
 
 	/**
@@ -70,19 +70,19 @@ public final class EntityUtil {
 		}
 		return s.toString();
 	}
-	
+
 	public static boolean isList(Field field) {
 		return List.class.isAssignableFrom(field.getType());
 	}
-	
+
 	public static boolean isSet(Field field) {
 		return Set.class.isAssignableFrom(field.getType());
 	}
-	
+
 	public static boolean isMap(Field field) {
 		return Map.class.isAssignableFrom(field.getType());
 	}
-	
+
 	public static Class<?> getGenericType(Field field) {
 		Type gType = field.getGenericType();
 		if (gType instanceof ParameterizedType) {
@@ -93,80 +93,54 @@ public final class EntityUtil {
 			return null;
 		}
 	}
+
 	public static Class<?>[] getGenericTypeArray(Field field) {
 		Type gType = field.getGenericType();
 		return getGenericTypeArray(gType);
-		
+
 	}
+
 	public static Class<?>[] getGenericTypeArray(Type gType) {
-		
+
 		if (gType instanceof ParameterizedType) {
 			ParameterizedType paraType = (ParameterizedType) gType;
-			Type[] types=paraType.getActualTypeArguments();
-			Class<?> elementTypes[]=new Class<?>[types.length];
-            for (int i = 0; i < types.length; i++) {
-            	if (types[i] instanceof ParameterizedType) {
-            		Logger.warn("Do not support the Map element is Map,"+types[i].toString());
-            	}else {
-            		elementTypes[i]=(Class<?>)types[i];
-            	}
+			Type[] types = paraType.getActualTypeArguments();
+			Class<?> elementTypes[] = new Class<?>[types.length];
+			for (int i = 0; i < types.length; i++) {
+				if (types[i] instanceof ParameterizedType) {
+					Logger.warn("Do not support the Map element is Map," + types[i].toString());
+				} else {
+					elementTypes[i] = (Class<?>) types[i];
+				}
 			}
 			return elementTypes;
 		} else {
 			return null;
 		}
 	}
-	
+
 	public static boolean isCustomBean(Field field) {
-		
-		if(field==null) return false;
-		
+
+		if (field == null) return false;
+
 		String typeName = field.getType().getName();
-		
-		return !(field.getType().isPrimitive() || typeName.startsWith("java.")
-				|| typeName.startsWith("javax.")
-				|| typeName.startsWith("org.teasoft.bee.")
-				|| typeName.startsWith("org.teasoft.hoeny.")
-				|| typeName.startsWith("org.teasoft.beex.")
-				|| typeName.startsWith("org.teasoft.spring.")
-				|| typeName.startsWith("org.w3c.") || typeName.startsWith("org.xml.")
-				|| typeName.startsWith("android.") || typeName.startsWith("org.omg.")
-				|| typeName.startsWith("ohos.")
-				|| typeName.startsWith("sun.")
-		       );
+
+		return !(field.getType().isPrimitive() || typeName.startsWith("java.") || typeName.startsWith("javax.")
+				|| typeName.startsWith("org.teasoft.bee.") || typeName.startsWith("org.teasoft.hoeny.")
+				|| typeName.startsWith("org.teasoft.beex.") || typeName.startsWith("org.teasoft.spring.")
+				|| typeName.startsWith("org.w3c.") || typeName.startsWith("org.xml.") || typeName.startsWith("android.")
+				|| typeName.startsWith("org.omg.") || typeName.startsWith("ohos.") || typeName.startsWith("sun."));
 	}
-	
+
 	public static boolean isCustomBean(String typeName) {
 //		String typeName = field.getType().getName();
 //		field.getType().isPrimitive() //需要另外判断原生类型
-		
-		return !(typeName.startsWith("java.")
-				|| typeName.startsWith("javax.")
-				|| typeName.startsWith("org.teasoft.bee.")
-				|| typeName.startsWith("org.teasoft.hoeny.")
-				|| typeName.startsWith("org.teasoft.beex.")
-				|| typeName.startsWith("org.teasoft.spring.")
-				|| typeName.startsWith("org.w3c.") || typeName.startsWith("org.xml.")
-				|| typeName.startsWith("android.") || typeName.startsWith("org.omg.")
-				|| typeName.startsWith("ohos.")
-				|| typeName.startsWith("sun.")
-		);
+
+		return !(typeName.startsWith("java.") || typeName.startsWith("javax.") || typeName.startsWith("org.teasoft.bee.")
+				|| typeName.startsWith("org.teasoft.hoeny.") || typeName.startsWith("org.teasoft.beex.")
+				|| typeName.startsWith("org.teasoft.spring.") || typeName.startsWith("org.w3c.")
+				|| typeName.startsWith("org.xml.") || typeName.startsWith("android.") || typeName.startsWith("org.omg.")
+				|| typeName.startsWith("ohos.") || typeName.startsWith("sun."));
 	}
-	
-//	/**
-//	 * String数组转为由逗号分隔的字符串.
-//	 * String array transfer to one string separate by comma.
-//	 * @param array String array
-//	 * @return one string separate by comma
-//	 */
-//	public static String arrayToString(String array[]) {
-//		if(array==null) return null;
-//		String str="";
-//		for (int i = 0; i < array.length; i++) {
-//			if(i!=0)str+=",";
-//			str+=array[i];
-//		}
-//		return str;
-//	}
 	
 }

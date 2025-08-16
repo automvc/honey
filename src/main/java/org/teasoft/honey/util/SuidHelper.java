@@ -22,7 +22,7 @@ import org.teasoft.honey.osql.core.Logger;
  * @since  1.9
  */
 public final class SuidHelper {
-	
+
 	private SuidHelper() {}
 
 	/**
@@ -106,23 +106,23 @@ public final class SuidHelper {
 		rsList = new ArrayList<>();
 		if (startRow < 0) startRow = 0;
 
-		if (endRow > list.size()-1) endRow = list.size() - 1;
+		if (endRow > list.size() - 1) endRow = list.size() - 1;
 		try {
 			for (int i = startRow; i <= endRow; i++) {
 				col = list.get(i);
-				if(col==null || (col.length==1 && fieldName.length!=1)) continue; //忽略空行
+				if (col == null || (col.length == 1 && fieldName.length != 1)) continue; // 忽略空行
 				targetObj = (T) entity.getClass().newInstance();
 				for (int j = 0; j < fieldName.length; j++) {
-					if(StringUtils.isBlank(fieldName[j])) continue;
+					if (StringUtils.isBlank(fieldName[j])) continue;
 					try {
-						field = entity.getClass().getDeclaredField(fieldName[j]);//可能会找不到Javabean的字段
+						field = entity.getClass().getDeclaredField(fieldName[j]);// 可能会找不到Javabean的字段
 					} catch (NoSuchFieldException e) {
 						if (i == startRow) Logger.warn("Can not find the field name : " + fieldName[j]);
 						continue;
 					}
 					field.setAccessible(true);
 					try {
-						field.set(targetObj, ObjectCreatorFactory.create(col[j], field.getType())); //对相应Field设置
+						field.set(targetObj, ObjectCreatorFactory.create(col[j], field.getType())); // 对相应Field设置
 					} catch (IllegalArgumentException e) {
 						Logger.warn(e.getMessage());
 					}
@@ -140,7 +140,7 @@ public final class SuidHelper {
 
 		return rsList;
 	}
-	
+
 	/**
 	 * 将to在from有的属性,都复制到to中.
 	 * @param from
@@ -158,11 +158,11 @@ public final class SuidHelper {
 		for (int i = 0; i < len; i++) {
 //			println(fields[i].getModifiers());
 //			println(fields[i].toGenericString());
-			int modifiers=fields[i].getModifiers();
-			if(modifiers==8 || modifiers==16 || modifiers==24 || modifiers==26) {
-				continue; //static,final,private static final
+			int modifiers = fields[i].getModifiers();
+			if (modifiers == 8 || modifiers == 16 || modifiers == 24 || modifiers == 26) {
+				continue; // static,final,private static final
 			}
-			
+
 			fields[i].setAccessible(true);
 			try {
 				field = from.getClass().getDeclaredField(fields[i].getName());
@@ -180,7 +180,7 @@ public final class SuidHelper {
 
 		return to;
 	}
-	
+
 	/**
 	 * 将entity实体转为Map,字段为serialVersionUID,JoinTable,Ignore,值为null,将被忽略.
 	 * entity To Map, if the value of field is null will be ignored.

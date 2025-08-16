@@ -39,7 +39,7 @@ public class AnnoUtil {
 
 	static {
 		initAnnoAdapterInstance();
-		NameRegistry.registerColumnHandler(new DefaultColumnHandler()); //字段自定义命名转换
+		NameRegistry.registerColumnHandler(new DefaultColumnHandler()); // 字段自定义命名转换
 	}
 
 	private AnnoUtil() {}
@@ -86,12 +86,10 @@ public class AnnoUtil {
 	}
 
 	public static boolean isGenPkAnno(Field field) {
-		return field.isAnnotationPresent(GenId.class)
-				|| field.isAnnotationPresent(GenUUID.class);
+		return field.isAnnotationPresent(GenId.class) || field.isAnnotationPresent(GenUUID.class);
 	}
-	
-	
-	//----------support SPI-------start--<<<<<<<-
+
+	// ----------support SPI-------start--<<<<<<<-
 	public static boolean isColumn(Field field) {
 //		return field.isAnnotationPresent(Column.class);
 		return annoAdapter.isColumn(field);
@@ -104,11 +102,10 @@ public class AnnoUtil {
 	public static boolean isPrimaryKey(Field field) {
 		return annoAdapter.isPrimaryKey(field);
 	}
-	
+
 	public static boolean isIgnore(Field field) {
 		return annoAdapter.isIgnore(field);
 	}
-	
 
 	public static String getValue(Field field) {
 		return annoAdapter.getValue(field);
@@ -153,8 +150,7 @@ public class AnnoUtil {
 		}
 
 		try {
-			annoAdapter = (AnnoAdapter) Class.forName("org.teasoft.beex.spi.AnnoAdapterDefault")
-					.newInstance();
+			annoAdapter = (AnnoAdapter) Class.forName("org.teasoft.beex.spi.AnnoAdapterDefault").newInstance();
 		} catch (Exception e) {
 			Logger.debug(e.getMessage(), e);
 			// maybe donot add the bee-ext.

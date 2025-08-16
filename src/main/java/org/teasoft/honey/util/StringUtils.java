@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
  * @since  1.9
  */
 public final class StringUtils {
-	
+
 	private StringUtils() {}
 
 	public static boolean isBlank(final String str) {
@@ -29,21 +29,20 @@ public final class StringUtils {
 		return str == null || str.length() == 0;
 	}
 
-    public static boolean isNotEmpty(final String str) {
-        return !isEmpty(str);
-    }
-    
-    
+	public static boolean isNotEmpty(final String str) {
+		return !isEmpty(str);
+	}
+
 	public static boolean isEmpty(final String strings[]) {
 		return strings == null || strings.length == 0;
 	}
-	
+
 	public static boolean isNotEmpty(final String strings[]) {
 		return !isEmpty(strings);
 	}
-	
+
 	public static boolean isContainUpperCase(String str) {
-		if(isBlank(str)) return false;
+		if (isBlank(str)) return false;
 		StringBuffer buf = new StringBuffer(str);
 		for (int i = 0; i < buf.length(); i++) {
 			if (Character.isUpperCase(buf.charAt(i))) {
@@ -52,9 +51,9 @@ public final class StringUtils {
 		}
 		return false;
 	}
-	
+
 	public static boolean isContainLetter(String str) {
-		if(isBlank(str)) return false;
+		if (isBlank(str)) return false;
 		StringBuffer buf = new StringBuffer(str);
 		for (int i = 0; i < buf.length(); i++) {
 			if (Character.isLetter(buf.charAt(i))) {
@@ -63,14 +62,14 @@ public final class StringUtils {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * 字符串数组(或变长参数)转为用逗号分隔的字符串.string array to Strings separated by commas.
 	 * @param stringArray string array.
 	 * @return
 	 */
-	public static String toCommasString (String... stringArray) {
-		
+	public static String toCommasString(String... stringArray) {
+
 		if (stringArray == null) return null;
 		if (stringArray.length == 0) return null;
 		if (stringArray.length == 1) return stringArray[0];
@@ -82,19 +81,21 @@ public final class StringUtils {
 
 		return idsStr.toString();
 	}
-	
+
 	/**
 	 * 数字数组(或变长参数)转为用逗号分隔的字符串.number array to Strings separated by commas.
 	 * @param numArray number array.
 	 * @return
 	 */
-	public static String toCommasString (Number... numArray) {
-		
+	public static String toCommasString(Number... numArray) {
+
 		if (numArray == null) return null;
 		if (numArray.length == 0) return null;
 		if (numArray.length == 1) {
-			if (numArray[0] == null) return null;
-			else return numArray[0]+"";
+			if (numArray[0] == null)
+				return null;
+			else
+				return numArray[0] + "";
 		}
 		StringBuilder idsStr = new StringBuilder();
 		for (int i = 0; i < numArray.length; i++) {
@@ -104,12 +105,11 @@ public final class StringUtils {
 
 		return idsStr.toString();
 	}
-	
-	
+
 	public static boolean isInteger(String str) {
 		Pattern pattern = Pattern.compile("^[-\\+]?[\\d]+$");
 //		Pattern pattern = Pattern.compile("[-\\+]?[\\d]+");
-		
+
 //		"\d+"和"^\d+"
 ////		Pattern pattern = Pattern.compile("\\d+");
 //		Pattern pattern = Pattern.compile("^\\d+");
@@ -127,68 +127,69 @@ public final class StringUtils {
 		// 如果正则匹配通过 m.matches() 方法返回 true ，反之 false
 		return pattern.matcher(str).matches();
 	}
-	
+
 	public static boolean justLikeChar(String name) {
-		if(name==null) return false;
+		if (name == null) return false;
 		String p = "^[%_]+$";
 		Pattern pattern = Pattern.compile(p);
 		return pattern.matcher(name).find();
 	}
-	
-	//已转义的,unicode则不再转
+
+	// 已转义的,unicode则不再转
 	public static String escapeLike(String value) {
-		if(value==null) return value;
-		
+		if (value == null) return value;
+
 //		return value.replace("%", "\\%").replace("_", "\\_");
-		
-		
+
 		StringBuffer buf = new StringBuffer(value);
 		char temp;
 		for (int i = 0; i < buf.length(); i++) {
-			temp=buf.charAt(i);
-			if (temp=='\\') {
+			temp = buf.charAt(i);
+			if (temp == '\\') {
 				i++;
-			}else if (temp=='%' || temp=='_') {
+			} else if (temp == '%' || temp == '_') {
 				buf.insert(i++, '\\');
 			}
 		}
 		return buf.toString();
 	}
-	
+
 	public static String escapeMatch(String value) {
-		if(value==null) return value;
-		
+		if (value == null) return value;
+
 		StringBuffer buf = new StringBuffer(value);
 		char temp;
 		for (int i = 0; i < buf.length(); i++) {
-			temp=buf.charAt(i);
+			temp = buf.charAt(i);
 //			if (temp=='\\') {
 //				i++;
 //			}else if (temp=='*' || temp=='?' || temp=='$' || temp=='+' || temp=='^' || temp=='.') {
 //			}else {
-				switch (temp) {
-					case '\\':
+			switch (temp) {
+				case '\\':
 //						if(i+1< buf.length()  && buf.charAt(i+1)=='u') 
 //							break;
-		            case '*':
-		            case '+':
-		            case '?':
-		            case '{':
-		            case '$':
-		            case '.':
-		            case '^':
-		            case '(':
-		            case '[':
-		            case '|':
-		            case ')':
-				       buf.insert(i++, '\\'); break;
-				    default : break;
+				case '*':
+				case '+':
+				case '?':
+				case '{':
+				case '$':
+				case '.':
+				case '^':
+				case '(':
+				case '[':
+				case '|':
+				case ')':
+					buf.insert(i++, '\\');
+					break;
+				default:
+					break;
 			}
 //		}
 		}
 		return buf.toString();
 	}
-	
+
 	public static String getUnicode(String str) {
 		String strTemp = "";
 		if (str != null) {
@@ -202,13 +203,13 @@ public final class StringUtils {
 		}
 		return strTemp;
 	}
-	  
+
 	public static String subRight(String str, int len) {
 		if (str == null || "".equals(str) || str.length() <= len) return str;
 
 		return str.substring(str.length() - len);
 	}
-	
+
 	public static String[] listToArray(List<String> list) {
 		if (list == null) return null;
 		String[] arry = new String[list.size()];
@@ -217,14 +218,14 @@ public final class StringUtils {
 		}
 		return arry;
 	}
-	
+
 	public static void trim(String str[]) {
-		
-		if (str == null || str.length == 0) return ;
+
+		if (str == null || str.length == 0) return;
 
 		for (int i = 0; i < str.length; i++) {
-			if(str[i]!=null) str[i] = str[i].trim(); //from V2.1.10
+			if (str[i] != null) str[i] = str[i].trim(); // from V2.1.10
 		}
 	}
-	
+
 }

@@ -30,7 +30,7 @@ public class JdbcTransaction implements Transaction {
 	public void begin() {
 		Logger.info("[Bee] JdbcTransaction begin. ");
 		try {
-			//传递一次性参数给RW, 若不是RW则不会销毁.
+			// 传递一次性参数给RW, 若不是RW则不会销毁.
 			HoneyContext.setJdbcTranWriterDs();
 			this.conn = initOneConn();
 
@@ -41,7 +41,7 @@ public class JdbcTransaction implements Transaction {
 			setOldAutoCommit(conn.getAutoCommit());
 			conn.setAutoCommit(false);
 
-			HoneyContext.setCurrentConnection(this.conn); //存入上下文
+			HoneyContext.setCurrentConnection(this.conn); // 存入上下文
 
 			isBegin = true;
 		} catch (SQLException e) {
@@ -120,7 +120,7 @@ public class JdbcTransaction implements Transaction {
 
 	@Override
 	public void setTimeout(int second) {
-		//todo
+		// todo
 		Logger.warn("Donot support setTimeout(int second) in JdbcTransaction");
 	}
 
@@ -135,8 +135,8 @@ public class JdbcTransaction implements Transaction {
 			} catch (SQLException e) {
 				throw ExceptionHelper.convert(e);
 			} finally {
-				HoneyContext.removeCurrentConnection(); //事务结束时要删除
-				
+				HoneyContext.removeCurrentConnection(); // 事务结束时要删除
+
 //				boolean enableMultiDs = HoneyConfig.getHoneyConfig().multiDS_enable;
 //				int multiDsType = HoneyConfig.getHoneyConfig().multiDS_type;
 //				boolean differentDbType=HoneyConfig.getHoneyConfig().multiDS_differentDbType;
