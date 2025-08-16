@@ -205,14 +205,9 @@ public class GenBean {
 								.replace("#VALUE#", descValue).replace("##required##", requiredStr) + LINE_SEPARATOR;
 					propertiesStr += "\t" + "private " + javaType + " " + propertyName + ";" + unknownTypeTip
 							+ LINE_SEPARATOR;
-				} else if (config.isGenComment() && (config.getCommentPlace() == 0 || config.getCommentPlace() == 1)) { // 不设置,默认是0;
-																														// //0,
-																														// 1:after
-																														// field
-																														// name at
-																														// the
-																														// same
-																														// line;
+
+					// 不设置,默认是0; //0, 1:after field name at the same line;
+				} else if (config.isGenComment() && (config.getCommentPlace() == 0 || config.getCommentPlace() == 1)) {
 					if (config.isGenSwagger())
 						propertiesStr += "\t" + "@ApiModelProperty(value = \"#VALUE#\"##required##)"
 								.replace("#VALUE#", descValue).replace("##required##", requiredStr) + LINE_SEPARATOR;
