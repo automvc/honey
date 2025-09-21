@@ -14,6 +14,7 @@ import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.api.Condition;
 import org.teasoft.bee.osql.interccept.InterceptorChain;
 import org.teasoft.honey.logging.Logger;
+import org.teasoft.honey.sharding.ShardingUtil;
 
 /**
  * @author AiTeaSoft
@@ -62,6 +63,9 @@ public class AbstractCommOperate implements CommOperate {
 	}
 
 	protected void regCondition(Condition condition) {
+		if (!ShardingUtil.isSharding()) return; // fixed bug. v2.5.10
+		
+		// just for shading
 		if (condition != null) condition = condition.clone();
 		HoneyContext.setConditionLocal(condition);
 	}

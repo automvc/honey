@@ -15,14 +15,17 @@ import org.teasoft.bee.osql.exception.NotSupportedException;
  */
 public class NoPagingSupported implements DbFeature {
 
+	// 2.5.10
+	private static final String MSG = "Select result did not support this DB type paging! You can register DbFeature in DbFeatureRegistry.";
+
 	@Override
 	public String toPageSql(String sql, int start, int size) {
-		throw new NotSupportedException("Select result did not support paging! You can set the DbFeature implements class with HoneyFactory.");
+		throw new NotSupportedException(MSG);
 	}
 
 	@Override
 	public String toPageSql(String sql, int size) {
-		throw new NotSupportedException("Select result did not support paging! You can set the DbFeature implements class with HoneyFactory.");
+		throw new NotSupportedException(MSG);
 	}
 
 }

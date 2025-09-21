@@ -240,11 +240,11 @@ public class MapSqlProcessor {
 		}
 
 		// 2.4.0 使用Condition设置update set
-		UpdateSetConditionWrap updateSetWrap = ConditionHelper.processUpdateSetCondition(sqlBuffer, list,
-				suidMapImpl.getUpdateSetCondition(), firstSet);
+		UpdateSetConditionWrap updateSetWrap = ConditionHelper.processUpdateSetCondition(suidMapImpl.getUpdateSetCondition(), firstSet);
+		
 		if (updateSetWrap != null) {
-//			sqlBuffer.append(updateSetWrap.getSqlBuffer());
-//			list.addAll((List) updateSetWrap.getPvList()); //already pass list to processUpdateSetCondition
+			sqlBuffer.append(updateSetWrap.getSqlBuffer());
+			list.addAll((List) updateSetWrap.getPvList());
 			firstSet = updateSetWrap.isFirst();
 		}
 

@@ -49,16 +49,23 @@ public class ConditionHelper {
 
 	// ForUpdate
 	static boolean processConditionForUpdateSet(StringBuffer sqlBuffer, List<PreparedValue> list, Condition condition) {
-		return processUpdateSetCondition(sqlBuffer, list, condition, true).isFirst(); // just return isFirst
+		UpdateSetConditionWrap wrap= processUpdateSetCondition(condition, true);
+		
+		sqlBuffer.append(wrap.getSqlBuffer());
+		list.addAll((List)wrap.getPvList());
+		
+		return wrap.isFirst();
 	}
 
-	// 2.4.0
-	static UpdateSetConditionWrap processUpdateSetCondition(Condition condition) {
-		return processUpdateSetCondition(new StringBuffer(), new ArrayList<PreparedValue>(), condition, true);
-	}
+//	// 2.4.0
+//	static UpdateSetConditionWrap processUpdateSetCondition(Condition condition) {
+//		return processUpdateSetCondition(condition, true);
+//	}
 
-	static UpdateSetConditionWrap processUpdateSetCondition(StringBuffer sqlBuffer, List<PreparedValue> list,
-			Condition condition, boolean firstSet) {
+	static UpdateSetConditionWrap processUpdateSetCondition(Condition condition, boolean firstSet) {
+		
+		StringBuffer sqlBuffer = new StringBuffer();
+		List<PreparedValue> list = new ArrayList<>();
 
 		Class entityClass = (Class) OneTimeParameter.getAttribute(StringConst.Column_EC);
 		if (condition == null) return null;
@@ -78,15 +85,15 @@ public class ConditionHelper {
 		Object value;
 
 		for (Expression expression : updateSetList) {
-			opType = expression.getOpType();
-			value = expression.getValue();
-
+			
 			if (firstSet) {
 				firstSet = false;
 			} else {
 				sqlBuffer.append(",");
 			}
-
+			
+			opType = expression.getOpType();
+			value = expression.getValue();
 			columnName = _toColumnName(expression.getFieldName(), null, entityClass);
 			sqlBuffer.append(columnName);
 			sqlBuffer.append("=");

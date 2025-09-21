@@ -139,6 +139,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 //		sql=sql.replace("#fieldNames#", fieldList);
 //		sql=sql.replace("#fieldNames#", newSelectFields);  //打印值会有问题
 
+		//打印重了
 		Logger.logSQL(LogSqlParse.parseSql("select SQL(entity, selectFields): ", sql));
 
 		return sql;
@@ -174,7 +175,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		int lenA = orderFields.length;
 
 		if (lenA != orderTypes.length)
-			throw new ObjSQLException("ObjSQLException :The length of orderField is not equal orderTypes'.");
+			throw new ObjSQLException("ObjSQLException: The length of orderField is not equal orderTypes'.");
 
 		String orderBy = "";
 		for (int i = 0; i < lenA; i++) {
@@ -514,11 +515,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		SqlValueWrap wrap = new SqlValueWrap();
 
 		String tableName = _toTableNameByClass(c);
-
-		sqlBuffer.append(K.delete).append(" ").append(K.from).append(" ").append(tableName) // 下一版本将支持分片
-				.append(" ").append(K.where).append(" ");
-		;
-
+		sqlBuffer.append(K.delete).append(" ").append(K.from).append(" ").append(tableName).append(" ").append(K.where).append(" ");
 		wrap.setValueBuffer(sqlBuffer); // sqlBuffer
 		wrap.setTableNames(tableName);
 
@@ -730,8 +727,7 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		}
 
 		sqlBuffer.append(K.select).append(" ").append(columnNames).append(" ").append(K.from).append(" ");
-		sqlBuffer.append(tableName) // 下一版本将支持分片
-				.append(" ").append(K.where).append(" ");
+		sqlBuffer.append(tableName).append(" ").append(K.where).append(" ");
 
 		wrap.setValueBuffer(sqlBuffer);
 		wrap.setTableNames(tableName);
