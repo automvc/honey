@@ -101,7 +101,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 		List<T> list = null;
 		try {
 			doBeforePasreEntity(entity, SuidType.SELECT);
-//			String sql = getObjToSQLRich().toSelectSQL(entity, -1, size);
+//			String sql = getObjToSQLRich().toSelectSQL(entity, -1, size); // example
 			String sql = toSqlMethod.doOneMethod();
 			sql = doAfterCompleteSql(sql);
 
@@ -165,7 +165,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 	}
 
 	@Override
-	public <T> List<T> select(final T entity, final int start, int size, final String... selectFields) {
+	public <T> List<T> select(final T entity, final int start, final int size, final String... selectFields) {
 		if (entity == null) return null;
 		if (size == 0) {
 			Logger.warn(TIP_SIZE_0);
@@ -176,7 +176,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 
 		return selectByTemplate(entity, new OneMethod<String>() {
 			public String doOneMethod() {
-				return getObjToSQLRich().toSelectSQL(entity, selectFields);
+				return getObjToSQLRich().toSelectSQL(entity, start, size, selectFields); // fixed bug v2.5.10
 			}
 		});
 
@@ -613,7 +613,8 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 			String sql = getObjToSQLRich().toSelectSQL(entity, selectField);
 			_regEntityClass1(entity);
 			sql = doAfterCompleteSql(sql);
-			Logger.logSQL(LogSqlParse.parseSql("selectJson SQL(entity, selectField): ", sql));
+			//打印重了
+//			Logger.logSQL(LogSqlParse.parseSql("selectJson SQL(entity, selectField): ", sql));
 			json = getBeeSql().selectJson(sql);
 		} finally {
 			doBeforeReturn();
@@ -636,7 +637,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 			String sql = getObjToSQLRich().toSelectSQL(entity, start, size, selectFields);
 			_regEntityClass1(entity);
 			sql = doAfterCompleteSql(sql);
-			Logger.logSQL(LogSqlParse.parseSql("selectJson SQL(entity, start, size, selectField): ", sql));
+//			Logger.logSQL(LogSqlParse.parseSql("selectJson SQL(entity, start, size, selectField): ", sql));
 			json = getBeeSql().selectJson(sql);
 		} finally {
 			doBeforeReturn();
@@ -793,7 +794,10 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 	}
 
 	private void regByIdForSharding(Class<?> entityClass, Object idOrIds) {
-//		OneTimeParameter.setAttribute(StringConst.ByIdWithClassForSharding, idOrIds);
+		
+		if (!ShardingUtil.isSharding()) return;// fixed bug. v2.5.10
+		
+		// just for shading
 		Condition condition = BF.getCondition();
 		if (entityClass.equals(String.class) && idOrIds.toString().contains(","))
 			condition.op(HoneyUtil.getPkName(entityClass), Op.in, idOrIds);
