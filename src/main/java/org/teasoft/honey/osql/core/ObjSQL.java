@@ -19,7 +19,10 @@ import org.teasoft.honey.logging.Logger;
 /**
  * 通过对象来操作数据库，并返回结果.
  * 数据库操作接口Suid实现类,包括查,改,增,删 Suid (select,update,insert,delete),
- * 默认不处理null和空字符串
+ * 默认不处理null和空字符串.
+ * Operate the database through objects and return results.
+ * Suid implementation class for database operation interface, including Suid(select, update, insert, delete),
+ * Default does not handle null and empty strings.
  * @author Kingstar
  * Create on 2013-6-30 下午10:19:27
  * @since  1.0
