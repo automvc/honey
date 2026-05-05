@@ -123,12 +123,6 @@ bee.osql.naming.useMoreTranslateType=false
 #但像mysql,默认不是全大写的,建议设为false,这样转换会更精准.
 bee.osql.naming.toLowerCaseBefore=true
 
-#since 2.5.2
-#bee.osql.naming.allowKeyWordInColumn=true
-#define for append if bee do not contain them.
-#bee.osql.naming.sqlKeyWordInColumn=comment,user
-
-
 #bee.osql.moreTable.columnListWithStar=false
 # since v1.7.0
 #inner join type. use "join .. on" when true, or use "where ...=".Just there is one sub table, it is enable.
