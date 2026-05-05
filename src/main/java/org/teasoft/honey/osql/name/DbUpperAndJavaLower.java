@@ -25,8 +25,7 @@ public class DbUpperAndJavaLower implements NameTranslate {
 
 	@Override
 	public String toColumnName(String fieldName) {
-//		return fieldName.toUpperCase();
-		return KeyWord.transformNameIfKeyWork(fieldName.toUpperCase());
+		return fieldName.toUpperCase();
 	}
 
 	@Override

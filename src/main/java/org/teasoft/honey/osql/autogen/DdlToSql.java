@@ -336,9 +336,6 @@ public class DdlToSql {
 	@SuppressWarnings("rawtypes")
 	private static String _toColumnName(String fieldName, Class entityClass) {
 		String name = NameTranslateHandle.toColumnName(fieldName, entityClass);
-//		if (SqlKeyCheck.isKeyWord(name)) {
-//			Logger.warn("The '" + name + "' is Sql Keyword. Do not recommend!");
-//		}
 		return name;
 	}
 

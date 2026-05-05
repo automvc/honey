@@ -22,8 +22,7 @@ public class UpperCaseUnderScoreAndCamelName extends UnderScoreAndCamelName {
 
 	@Override
 	public String toColumnName(String fieldName) {
-//		return super.toColumnName(fieldName).toUpperCase();
-		return KeyWord.transformNameIfKeyWork(super.toColumnName(fieldName).toUpperCase());
+		return super.toColumnName(fieldName).toUpperCase();
 	}
 
 	@Override
