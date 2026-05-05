@@ -139,7 +139,6 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 //		sql=sql.replace("#fieldNames#", fieldList);
 //		sql=sql.replace("#fieldNames#", newSelectFields);  //打印值会有问题
 
-		//打印重了
 		Logger.logSQL(LogSqlParse.parseSql("select SQL(entity, selectFields): ", sql));
 
 		return sql;
