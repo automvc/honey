@@ -170,9 +170,9 @@ public final class HoneyConfig implements LoggerTypeConfig, LogSqlConfig {
 	@SysValue("${bee.osql.naming.entity2tableMappingList}")
 	public String naming_entity2tableMappingList;
 
-	@SysValue("${bee.osql.naming.allowKeyWordInColumn}") // 2.5.2
-	public boolean naming_allowKeyWordInColumn = true;
-
+//	@SysValue("${bee.osql.naming.allowKeyWordInColumn}") // 2.5.2
+//	public boolean naming_allowKeyWordInColumn = true;
+//
 	// define for append if bee do not contain them.
 //	@SysValue("${bee.osql.naming.sqlKeyWordInColumn}") // 2.5.2
 //	public String naming_SqlKeyWordInColumn;
