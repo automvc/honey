@@ -109,11 +109,11 @@ public class OrderByPagingRewriteSql {
 
 		// rewrite paging sql
 		// a)依据原本没分页的语句，用扩大的分页码重新生成分页语句；
-		ShardingPageStruct shardingPage = HoneyContext.getCurrentShardingPage();
-		if (shardingPage != null) {
-			sql = rewritePaingSql(sql);
-//			shardingPage.setPagingType(3); // FullSelectPage  close in 2.4.2
-		}
+//		ShardingPageStruct shardingPage = HoneyContext.getCurrentShardingPage();
+//		if (shardingPage != null) {
+//			sql = rewritePaingSql(sql);
+////			shardingPage.setPagingType(3); // FullSelectPage  close in 2.4.2
+//		}
 
 		List<String[]> list = new ArrayList<>();
 		SimpleRewriteSql._createSqlsForFull(list, sql, listValue, baseTableName);

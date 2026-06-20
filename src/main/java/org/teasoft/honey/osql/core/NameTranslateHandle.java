@@ -178,9 +178,9 @@ public class NameTranslateHandle {
 			}
 		} catch (ClassNotFoundException e) {
 			if (entityName != null && !entityName.contains("."))
-				Logger.info("In NameTranslateHandle,ClassNotFoundException : " + e.getMessage());
+				Logger.info("In NameTranslateHandle, ClassNotFoundException : " + e.getMessage());
 			else
-				Logger.warn("In NameTranslateHandle,ClassNotFoundException : " + e.getMessage());
+				Logger.warn("In NameTranslateHandle, ClassNotFoundException : " + e.getMessage());
 		}
 
 		// entityName maybe include package name
@@ -211,6 +211,10 @@ public class NameTranslateHandle {
 
 	public static String toColumnName(String fieldName) {
 		return getNameTranslate().toColumnName(fieldName);
+	}
+	
+	static String toTableNameSimple(String name) {
+		return getNameTranslate().toTableName(name);
 	}
 
 	public static String toColumnName(String fieldName, Class entityClass) {

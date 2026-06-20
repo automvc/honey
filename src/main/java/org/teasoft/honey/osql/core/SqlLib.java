@@ -8,6 +8,7 @@ package org.teasoft.honey.osql.core;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -16,19 +17,18 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import org.teasoft.bee.osql.BeeSql;
 import org.teasoft.bee.osql.FunctionType;
 import org.teasoft.bee.osql.ObjSQLException;
 import org.teasoft.bee.osql.ResultAssemblerRegistry;
 import org.teasoft.bee.osql.SuidType;
-import org.teasoft.bee.osql.annotation.JoinTable;
-import org.teasoft.bee.osql.annotation.customizable.Json;
-import org.teasoft.bee.osql.type.TypeHandler;
 import org.teasoft.honey.logging.Logger;
-import org.teasoft.honey.osql.type.TypeHandlerRegistry;
 import org.teasoft.honey.sharding.ShardingUtil;
 import org.teasoft.honey.sharding.engine.ShardingAvgEngine;
 import org.teasoft.honey.sharding.engine.ShardingGroupbyListStringArrayEngine;
@@ -39,15 +39,16 @@ import org.teasoft.honey.sharding.engine.ShardingSelectFunEngine;
 import org.teasoft.honey.sharding.engine.ShardingSelectJsonEngine;
 import org.teasoft.honey.sharding.engine.ShardingSelectListStringArrayEngine;
 import org.teasoft.honey.sharding.engine.ShardingSelectRsEngine;
+import org.teasoft.honey.util.ObjectUtils;
 import org.teasoft.honey.util.StringUtils;
 
 /**
- * 直接操作数据库，并返回结果.在该类中的sql字符串要是DB能识别的SQL语句
- * Directly operate the database and return the result. 
- * <br>The SQL string in this class should be an SQL statement recognized by DB.
- * @author Kingstar
- * Create on 2013-6-30 下午10:32:53
- * @since  1.0
+ * 直接操作数据库，并返回结果.在该类中的sql字符串要是DB能识别的SQL语句 Directly operate the database and
+ * return the result. <br>
+ * The SQL string in this class should be an SQL statement recognized by DB.
+ * 
+ * @author Kingstar Create on 2013-6-30 下午10:32:53
+ * @since 1.0
  */
 public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 
@@ -87,7 +88,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 						int List_T = 2;
 						rsList = (List<T>) new ShardingGroupbyListStringArrayEngine().asynProcess(sql, this, entityClass, List_T);
 					} else if (jdbcStreamSelect && !ShardingUtil.hadGroupSharding()) {
-						rsList = new ShardingSelectRsEngine().asynProcess(sql, entityClass, this); // 无结果集时,可能会报错 fixed V2.1
+						rsList = new ShardingSelectRsEngine().asynProcess(sql, entityClass, this); // 无结果集时,可能会报错 fixed	 V2.1
 					} else {
 						rsList = new ShardingSelectEngine().asynProcess(sql, entityClass, this);
 					}
@@ -453,10 +454,10 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 		Class entityClass = (Class) OneTimeParameter.getAttribute(StringConst.Route_EC);
 //		if (sql == null || "".equals(sql)) return -2;
 		if (sql == null || "".equals(sql)) return -1; // 2.4.0
-		boolean clearFlag;
+//		boolean clearFlag;
 		if (isSimpleMode()) {
-			clearFlag = true;
-			return _modify(sql, entityClass, clearFlag); // 1.x版本及不用分片走的分支
+//			clearFlag = true;
+			return _modify(sql, entityClass, true); // 1.x版本及不用分片走的分支
 		} else {
 			if (HoneyContext.getSqlIndexLocal() == null) {// 拦截到的要分片的主线程
 				try {
@@ -468,8 +469,8 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 					clearContext(sql); // 2.2 分片的主线程都要清主线程的上下文
 				}
 			} else { // 子线程执行
-				clearFlag = false;
-				return _modify(sql, entityClass, clearFlag);
+//				clearFlag = false;
+				return _modify(sql, entityClass, false);
 			}
 		}
 	}
@@ -491,10 +492,8 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 			num = pst.executeUpdate();
 		} catch (SQLException e) {
 			hasException = true; // finally要用到
-			if (catchModifyDuplicateException(e))
-				return num;
-			else
-				throw ExceptionHelper.convert(e);
+			if (catchModifyDuplicateException(e)) return num;
+			else throw ExceptionHelper.convert(e);
 		} finally {
 			if (clearFlag) clearInCache(sql, "int", SuidType.MODIFY, num); // has clearContext(sql)
 			if (hasException) {
@@ -571,7 +570,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 	}
 
 	/**
-	 * @since  1.1
+	 * @since 1.1
 	 */
 	@Override
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -883,7 +882,8 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 					int start = i * batchSize;
 					int end = (i + 1) * batchSize;
 					try {
-						temp = _batchForMysql(sql[0], start, end, conn, pst, batchSize, batchExeSql[1]); // not executeBatch
+						// not executeBatch
+						temp = _batchForMysql(sql[0], start, end, conn, pst, batchSize, batchExeSql[1]);
 						total += temp;
 					} catch (SQLException e) {
 						hasException = true; // finally要用到
@@ -1051,10 +1051,10 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 		if (sql == null || "".equals(sql.trim())) return Collections.emptyList();
 
 		if (isSimpleMode()) {
-			return _moreTableSelect(sql, entity); // 1.x版本及不用分片走的分支
+			return _moreTableSelect3(sql, entity); // 1.x版本及不用分片走的分支 2026
 		} else {
 			if (HoneyContext.getSqlIndexLocal() == null) {
-				List<T> list = _moreTableSelect(sql, entity); // 检测缓存的
+				List<T> list = _moreTableSelect3(sql, entity); // 检测缓存的
 				if (list != null) {
 					logDsTab();
 					return list;
@@ -1072,30 +1072,27 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 				}
 
 			} else { // 子线程执行
-				return _moreTableSelect(sql, entity);
+				return _moreTableSelect3(sql, entity);
 			}
 		}
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private <T> List<T> _moreTableSelect(String sql, final T entity) {
+	private <T> List<T> _moreTableSelect3(String sql, final T entity) {
 
 		if (sql == null || "".equals(sql.trim())) return Collections.emptyList();
 
-		MoreTableStruct moreTableStruct[] = HoneyUtil.getMoreTableStructAndCheckBefore(entity);
+		Map<String, MoreTableStruct3> moreTableStructMap = ParseSqlHelper.parseJoins(entity);
 
-//		不经过MoreTable,直接传入sql,需要重新生成结构  V1.11
-		if (moreTableStruct == null) {
-			OneTimeParameter.setTrueForKey(StringConst.MoreStruct_to_SqlLib);
-			moreTableStruct = HoneyUtil.getMoreTableStructAndCheckBefore(entity);
+		String allEntityType = ""; // 标识同一个sql，但是组装出的实体不一样。
+
+		if (moreTableStructMap != null && !moreTableStructMap.isEmpty()) {
+			MoreTableStruct3 firstStruct = moreTableStructMap.values().iterator().next();
+			allEntityType = firstStruct.overall.allEntityType.toString();
 		}
 
-		boolean subOneIsList1 = moreTableStruct[0].subOneIsList;
-		boolean subTwoIsList2 = moreTableStruct[0].subTwoIsList;
-		String listFieldType = "" + subOneIsList1 + subTwoIsList2 + moreTableStruct[0].oneHasOne;
-		boolean isReg = updateInfoInCache(sql, "List<T>" + listFieldType, SuidType.SELECT, entity.getClass());
+		boolean isReg = updateInfoInCache(sql, "List<T>" + allEntityType, SuidType.SELECT, entity.getClass());
 		if (isReg) {
-//			listFieldTypeForMoreTable=listFieldType; //for sharding. 主线程才会注册
 			initRoute(SuidType.SELECT, entity.getClass(), sql); // 多表查询的多个表要在同一个数据源.
 			Object cacheObj = getCache().get(sql); // 这里的sql还没带有值
 			if (cacheObj != null) {
@@ -1116,455 +1113,229 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 		Connection conn = null;
 		PreparedStatement pst = null;
 		ResultSet rs = null;
-		T targetObj = null;
-		List<T> rsList = null;
+		List<String> ptree;
+		List<T> rsList = new ArrayList<>();
+		Field field;
 		boolean hasException = false;
-		int recordRow = 0;
 		try {
 			conn = getConn();
-			String exe_sql = HoneyUtil.deleteLastSemicolon(sql);
-			pst = conn.prepareStatement(exe_sql);
-
+			pst = conn.prepareStatement(HoneyUtil.deleteLastSemicolon(sql));
 			setPreparedValues(pst, sql);
-
 			rs = pst.executeQuery();
-			rsList = new ArrayList<>();
 
-			Field field[] = HoneyUtil.getFields(entity.getClass());
-			int columnCount = field.length;
+			// process result; 将查询结果转化成中间对象
+			List<MoreTableResultWrapper<T>> listResultWrapper = TransformResultSet.rsForMoretable3(rs, entity);
 
-//			MoreTableStruct moreTableStruct[]=HoneyUtil.getMoreTableStructAndCheckBefore(entity);
-			boolean oneHasOne = moreTableStruct[0].oneHasOne;
+			if (listResultWrapper.size() > 0)
+				Logger.logSQL(" | <--  ( select raw record rows: " + listResultWrapper.get(0).rawRows + " )");
 
-			Field subField[] = new Field[2];
-			String subUseTable[] = new String[2];
-			String variableName[] = new String[2];
-			Class subEntityFieldClass[] = new Class[2];
-			for (int i = 1; i <= 2; i++) {
-				if (moreTableStruct[i] != null) {
-					subField[i - 1] = moreTableStruct[i].subEntityField;
-					variableName[i - 1] = subField[i - 1].getName();
-					if (subOneIsList1 && i == 1) {
-						subEntityFieldClass[0] = moreTableStruct[1].subClass; // v1.9.8 List Field
-					} else if (subTwoIsList2 && i == 2) {
-						subEntityFieldClass[1] = moreTableStruct[2].subClass; // v1.9.8 List Field
-					} else {
-						subEntityFieldClass[i - 1] = subField[i - 1].getType();
-					}
-//					if(moreTableStruct[i].hasSubAlias){
-//						subUseTable[i-1]=moreTableStruct[i].subAlias;
-//					}else{
-//						subUseTable[i-1]=moreTableStruct[i].tableName;
-//					}
-					subUseTable[i - 1] = moreTableStruct[i].useSubTableName;
+			Map<String, Field> mainNameAndField = HoneyUtil.getNameAndField(entityClass);
+			Map<String, Field> subNameAndField;
+			Map<String, Map<String, Field>> subNameAndFieldCache = new HashMap<>();
+
+			// key0 or key1 : [subObject] # 对象list缓存
+			Map<String, List> listCache = new HashMap<>(); //list_cache current_subObject_list_cache_dict
+			// key1 or layer_key : subObject #单个对象缓存
+			Map<String, Object> singleCache = new HashMap<>(); // current_single_subObject_cache_dict
+			Set<String> one_to_one_for_two_layer_set = new HashSet();
+
+			boolean noJoinAnno = ObjectUtils.isEmpty(moreTableStructMap);
+			Integer no_obj_layer = null;
+			Set<Integer> no_obj_layer_set = new HashSet<>();
+
+			for (MoreTableResultWrapper<T> moreTableResultWrapper : listResultWrapper) {
+				T main_obj = moreTableResultWrapper.mainObj;
+				String main_key = moreTableResultWrapper.mainObjValueStr;
+				Map<String, StringBuffer> sub_field_value_str_cache_dict = moreTableResultWrapper.subObjValueStrMap;
+				Map<String, Object> reutrn_subObject_cache_dict = moreTableResultWrapper.subObjMap;
+
+				if (noJoinAnno || ObjectUtils.isEmpty(reutrn_subObject_cache_dict)) {
+					rsList.add(main_obj);
+					continue;
 				}
-			}
 
-			Field fields1[] = HoneyUtil.getFields(subEntityFieldClass[0]);
-			Field fields2[] = null;
+				int moreTableStructNum = moreTableStructMap == null ? 0 : moreTableStructMap.size();
+				for (Entry<String, MoreTableStruct3> entry : moreTableStructMap.entrySet()) {
+					MoreTableStruct3 mtStruct = entry.getValue();
+					boolean processed = false;
+					if (mtStruct.layer == 2) {
+						
+						// gen key0, layer_key
+						ptree = mtStruct.parentTree;
+						String key0 = main_key;
+						StringBuffer sub_field_value_str = sub_field_value_str_cache_dict.get(ptree.get(0));
+						if (sub_field_value_str == null) {
+							no_obj_layer = mtStruct.layer; // 第一次出现
+							if (mtStruct.hasNextLayer && no_obj_layer_set.add(no_obj_layer)) {
+								// 有子层，要是没有查到对象，就打印
+								Logger.info("Not found the value in object {mtStruct.subAlias}, will ignore it and its sub layers!"
+												.replace("{mtStruct.subAlias}", mtStruct.subAlias));
+							}
+							continue;
+						}
+						String current_key1 = "";
+						if (sub_field_value_str.length()>0)
+							current_key1 = sub_field_value_str.toString();
+						String layer_key = key0 + ".." + ptree.get(0) + "##" + current_key1;
 
-			if (subField[1] != null) {
-				fields2 = HoneyUtil.getFields(subEntityFieldClass[1]);
-			}
+						if (mtStruct.currentIsList) {
+							processed = true;
+							List sub_list_obj = listCache.get(key0);
+							//1:n:1 第二级是list的属性将第一层添加了； 非list的第二层属性也不用再添加第一层的对象。
 
-			Map<String, String> dulSubFieldMap = moreTableStruct[0].subDulFieldMap;
+							if (sub_list_obj == null) {
+								sub_list_obj = new ArrayList();
+								sub_list_obj.add(reutrn_subObject_cache_dict.get(mtStruct.subAlias));
+								listCache.put(key0, sub_list_obj);
 
-			boolean sub1_first = true;
-			boolean sub2_first = true;
+								field = mainNameAndField.get(mtStruct.fieldName);
+								HoneyUtil.setAccessibleTrue(field);
+//								只有主表层，main_obj==null,在有子表时，会自动创建。
+								if (main_obj == null) main_obj = (T) TransformResultSet.createObject(entity.getClass()); // fixed
+								HoneyUtil.setFieldValue(field, main_obj, sub_list_obj);
 
-			Object v1 = null;
-			Object v2 = null;
+								if (!one_to_one_for_two_layer_set.contains(key0)) {
+									rsList.add(main_obj);
+									one_to_one_for_two_layer_set.add(key0); 
+									// 1:n:1 第二级是list的属性将第一层添加了； 非list的第二层属性也不用再添加第一层的对象。
+								}
+								singleCache.put(layer_key,
+										reutrn_subObject_cache_dict.get(mtStruct.subAlias));
+							} else { // # 二级列表有了
+//                            # 但第二级的对象还未加有，则要加到一级对象list下
+								if (!singleCache.containsKey(layer_key)) {
+									listCache.get(key0).add(reutrn_subObject_cache_dict.get(mtStruct.subAlias));
+									singleCache.put(layer_key, reutrn_subObject_cache_dict.get(mtStruct.subAlias));
+								}
+							} // # else: 二级的对象已经加有了，就不用再加。已经存在，则不用放。
+						} else { // # not list
+							field = mainNameAndField.get(mtStruct.fieldName);
+							HoneyUtil.setAccessibleTrue(field);
+							if (main_obj == null) main_obj = (T) TransformResultSet.createObject(entity.getClass());// fixed
+							HoneyUtil.setFieldValue(field, main_obj, reutrn_subObject_cache_dict.get(mtStruct.subAlias));
+							// TODO fixed 1-1-n-1-1
+							singleCache.put(layer_key, reutrn_subObject_cache_dict.get(mtStruct.subAlias));
 
-			Map<String, List> subOneMap = null;
-			Map<String, List> subTwoMap = null;
+							processed = true;
+							//第二层为1时，每行只需要添加一次;不然多层时会乱； 但使用这种了，要是一对多，想用这种方式查，则会忽略了主表相同的从表除第一条以外的数据。
+							if (!one_to_one_for_two_layer_set.contains(key0)) {
+								rsList.add(main_obj);
+								if (moreTableStructNum > 1)// 只有一个子表时，还是允许一对多使用这种；即每行都添加(不放入set,则上一个if都会是true)。但多过一个子表时，则不允许。
+									one_to_one_for_two_layer_set.add(key0);
+							}
+//                        # one has one时，第三层会找不到第二层的缓存；  因非list,第二层没放缓存。  是通过将三级子对象设置到二级子对象的属性完成对象关联的
+						}// layer ==2 end
+					} else if (mtStruct.layer >= 3) {
+						if (no_obj_layer != null && mtStruct.layer > no_obj_layer) {
+							continue; // 若该层没有数据返回，则直接不处理它的子类了，不能断层。
+						} else {
+							no_obj_layer = null; // reset 这样，同层的其它对象就可以被处理
+						}
+						if (!reutrn_subObject_cache_dict.containsKey(mtStruct.subAlias)) {
+							if (mtStruct.hasNextLayer && no_obj_layer_set.add(no_obj_layer)) {
+								// 有子层，要是没有查到对象，就打印
+								Logger.info("Not found the value in object {mtStruct.subAlias}, will ignore it and its sub layers!"
+												.replace("{mtStruct.subAlias}", mtStruct.subAlias));
+							}
+							if (no_obj_layer == null) {
+								no_obj_layer = mtStruct.layer; // 第一次出现
+								continue;
+							}
+						}
+						processed = true;
+						
+						// gen key1,layer_key
+						ptree = mtStruct.parentTree;
+						String key0 = main_key;
+						StringBuffer sub_field_value_str = sub_field_value_str_cache_dict.get(ptree.get(0));
+						String current_key1 = sub_field_value_str.toString();
+						String key1 = key0 + ".." + ptree.get(0) + "##" + current_key1;
 
-			if (subOneIsList1) subOneMap = new HashMap<>();
-			if (subTwoIsList2) subTwoMap = new HashMap<>();
-
-			StringBuffer checkKey = null;
-			StringBuffer checkKey2ForOneHasOne = null;
-
-//			String tableName=_toTableName(entity);
-			String tableName = moreTableStruct[0].tableName;
-
-			while (rs.next()) {
-				recordRow++;
-				boolean isDul = false;
-				String dulField = "";
-
-				// 从表2设置(如果有) 先设置,因oneHasOne时,设置从表1已经要用从表2了.
-				sub2_first = true;
-				Object subObj2 = null;
-				if (subField[1] != null) {
-//					 subObj2 = subEntityFieldClass[1].newInstance();
-					String columnName = "";
-					for (int i = 0; i < fields2.length; i++) {
-
-						if (HoneyUtil.isSkipField(fields2[i])) continue;
-
-						boolean isRegHandlerPriority2 = false;
-						if (openFieldTypeHandler) {
-							isRegHandlerPriority2 = TypeHandlerRegistry.isPriorityType(fields2[i].getType());
+						// # ptree不存root,长度会比层数少1; key1只计算到ptree倒数第二层.
+						int loop_n = mtStruct.layer - 2 - 1;
+						if (loop_n >= 1) {
+							for (int i = 1; i < loop_n + 1; i++) {
+								sub_field_value_str = sub_field_value_str_cache_dict.get(ptree.get(i));
+								String current_key_i = sub_field_value_str.toString();
+								key1 = key1 + ".." + ptree.get(i) + "##" + current_key_i;
+							}
 						}
 
-						v2 = null;
-						HoneyUtil.setAccessibleTrue(fields2[i]);
-						isDul = false;
-						dulField = "";
-						try {
-							columnName = _toColumnName(fields2[i].getName(), subEntityFieldClass[1]);
-							// get v2
-							if (isConfuseDuplicateFieldDB()) {
-								dulField = dulSubFieldMap.get(subUseTable[1] + "." + columnName);
-								if (dulField != null) {
-									isDul = true; // set true first
-									v2 = rs.getObject(dulField);
-								} else {
-									v2 = rs.getObject(columnName);
-								}
-							} else {
-								v2 = rs.getObject(subUseTable[1] + "." + columnName);
-							}
+						StringBuffer sub_field_value_str2 = sub_field_value_str_cache_dict.get(ptree.get(mtStruct.layer - 2));
 
-							boolean processAsJson = false;
-							if (isJoson(fields2[i])) {
-								TypeHandler jsonHandler = TypeHandlerRegistry.getHandler(Json.class);
-								if (jsonHandler != null) {
-//									v2 = jsonHandler.process(fields2[i].getType(), v2);
-									v2 = jsonHandlerProcess(fields2[i], v2, jsonHandler);
-									processAsJson = true;
-								}
-							}
+						if (sub_field_value_str2 == null) sub_field_value_str2 = new StringBuffer();// maybe no need
 
-							if (!processAsJson && isRegHandlerPriority2) { // process v2 by handler
-								v2 = TypeHandlerRegistry.handlerProcess(fields2[i].getType(), v2);
-							}
+						String current_key2 = sub_field_value_str2.toString();
+						String layer_key = key1 + ".." + ptree.get(mtStruct.layer - 2) + "##" + current_key2;
 
-							if (v2 != null) {
-								if (sub2_first) {
-									subObj2 = createObject(subEntityFieldClass[1]);
-									sub2_first = false;
-								}
-								HoneyUtil.setFieldValue(fields2[i], subObj2, v2);
-							}
-
-						} catch (IllegalArgumentException e) {
-							// get v2
-							if (isConfuseDuplicateFieldDB()) {
-								v2 = _getObjectForMoreTable_ConfuseField(rs, fields2[i], isDul, dulField,
-										subEntityFieldClass[1]); // todo
-							} else {
-								v2 = _getObjectForMoreTable_NoConfuse(rs, subUseTable[1], fields2[i],
-										subEntityFieldClass[1]);
-							}
-
-							boolean alreadyProcess = false;
-							try {
-								if (openFieldTypeHandler) {// process v2 by handler
-									Class type = fields2[i].getType();
-									TypeHandler handler = TypeHandlerRegistry.getHandler(type);
-									if (handler != null) {
-										Object newV2 = handler.process(type, v2);// process v2 by handler
-										if (newV2 != null) {
-											if (sub2_first) {
-												subObj2 = createObject(subEntityFieldClass[1]);
-												sub2_first = false;
-											}
-											HoneyUtil.setFieldValue(fields2[i], subObj2, newV2);
-											alreadyProcess = true;
-										}
+						Object current_single_subObject = singleCache.get(key1); //用key1取?? TODO
+						if (current_single_subObject != null) {
+							if (mtStruct.currentIsList) { // 3-has-list
+								List sub_list_obj = listCache.get(key1);
+								if (sub_list_obj == null) {
+									sub_list_obj = new ArrayList<>();
+									sub_list_obj.add(reutrn_subObject_cache_dict.get(mtStruct.subAlias));
+									subNameAndField = getSubNameAndField(subNameAndFieldCache, mtStruct.mainAlias,
+											mtStruct.typeTree.get(mtStruct.layer - 2));
+									field = subNameAndField.get(mtStruct.fieldName);
+									if (field == null) {
+										continue;
 									}
+									HoneyUtil.setAccessibleTrue(field);
+									HoneyUtil.setFieldValue(field, current_single_subObject, sub_list_obj);
+
+									listCache.put(key1, sub_list_obj);
+									singleCache.put(layer_key,reutrn_subObject_cache_dict.get(mtStruct.subAlias));
+								} else { // # 第三级列表是有了，
+									// # 但，第三级的对象还未加有，则要加到二级对象list下
+									if (!singleCache.containsKey(layer_key))
+										listCache.get(key1).add(reutrn_subObject_cache_dict.get(mtStruct.subAlias));
 								}
-							} catch (Exception e2) {
-								alreadyProcess = false;
-							}
-
-							if (!alreadyProcess && v2 != null) {
-								if (sub2_first) {
-									subObj2 = createObject(subEntityFieldClass[1]);
-									sub2_first = false;
+							} else { // is not list //3- has - not_list
+								subNameAndField = getSubNameAndField(subNameAndFieldCache, mtStruct.mainAlias,
+										mtStruct.typeTree.get(mtStruct.layer - 2));
+								field = subNameAndField.get(mtStruct.fieldName);
+								if (field == null) {
+									continue;
 								}
-								HoneyUtil.setFieldValue(fields2[i], subObj2, v2);
-							}
-						} catch (SQLException e) {// for after use condition selectField method
-//							fields2[i].set(subObj2,null);
-						}
-					}
-				}
+								HoneyUtil.setAccessibleTrue(field);
+								HoneyUtil.setFieldValue(field, reutrn_subObject_cache_dict.get(mtStruct.mainAlias),
+										reutrn_subObject_cache_dict.get(mtStruct.subAlias));
 
-				sub1_first = true;
-				Field subField2InOneHasOne = null;
-				if (oneHasOne) checkKey2ForOneHasOne = new StringBuffer();
-				// 从表1设置
-				Object subObj1 = subEntityFieldClass[0].newInstance();
-//				Object subObj1 =null; //不行.   当它的从表在第1位时,就报null
-
-				for (int i = 0; i < fields1.length; i++) {
-
-					if (oneHasOne) {
-						if (HoneyUtil.isSkipFieldForMoreTable(fields1[i])) continue; // 从表1也有1个从表
-					} else {
-						if (HoneyUtil.isSkipField(fields1[i])) continue;
-					}
-
-					boolean isRegHandlerPriority1 = false;
-					if (openFieldTypeHandler) {
-						isRegHandlerPriority1 = TypeHandlerRegistry.isPriorityType(fields1[i].getType());
-					}
-					v1 = null;
-					HoneyUtil.setAccessibleTrue(fields1[i]);
-					isDul = false;
-					dulField = "";
-					try {
-
-						if (oneHasOne && fields1[i] != null && fields1[i].isAnnotationPresent(JoinTable.class)) {
-							if (subField[1] != null && fields1[i].getName().equals(variableName[1]) && subObj2 != null) {
-								HoneyUtil.setAccessibleTrue(fields1[i]);
-								if (subTwoIsList2) {
-									subField2InOneHasOne = fields1[i];
-								} else {
-									HoneyUtil.setFieldValue(fields1[i], subObj1, subObj2); // 设置子表2的对象 要考虑List.
-								}
-
-								if (sub1_first) {
-									sub1_first = false;
-								}
-							}
-							continue; // go back
-						}
-
-						String columnName = _toColumnName(fields1[i].getName(), subEntityFieldClass[0]);
-						// get v1
-						if (isConfuseDuplicateFieldDB()) {
-							dulField = dulSubFieldMap.get(subUseTable[0] + "." + columnName);
-							if (dulField != null) {
-								isDul = true; // fixed bug. need set true before fields1[i].set( )
-								v1 = rs.getObject(dulField);
-							} else {
-								v1 = rs.getObject(columnName);
+								// TODO fixed 1-n-1-n-1
+								singleCache.put(layer_key, reutrn_subObject_cache_dict.get(
+										mtStruct.subAlias));
 							}
 						} else {
-							v1 = rs.getObject(subUseTable[0] + "." + columnName);
-						}
-
-						boolean processAsJson = false;
-						if (isJoson(fields1[i])) {
-							TypeHandler jsonHandler = TypeHandlerRegistry.getHandler(Json.class);
-							if (jsonHandler != null) {
-//								v1 = jsonHandler.process(fields1[i].getType(), v1);
-								v1 = jsonHandlerProcess(fields1[i], v1, jsonHandler);
-								processAsJson = true;
+                         System.err.println("-----------key1没有放缓存------------"); //TODO
+							if (mtStruct.currentIsList) { // 3 - null -list
+								// 还没放缓存； 也是list; 如: 1-1-n-1-1 第三层时，就要走这里。
+								System.err.println("还没放缓存； 也是list; 如:  1-1-n-1-1 第三层时，就要走这里。 layer: " + mtStruct.layer); //TODO
+							} else { // 3 - null -not_list
+								subNameAndField = getSubNameAndField(subNameAndFieldCache, mtStruct.mainAlias,
+										mtStruct.typeTree.get(mtStruct.layer - 2));
+								field = subNameAndField.get(mtStruct.fieldName);
+								HoneyUtil.setAccessibleTrue(field);
+								 // eg: 设置layer3时，layer不能为null
+								if (reutrn_subObject_cache_dict.get(mtStruct.mainAlias) == null) continue;
+																											
+								HoneyUtil.setFieldValue(field, reutrn_subObject_cache_dict.get(mtStruct.mainAlias),
+										reutrn_subObject_cache_dict.get(mtStruct.subAlias));
 							}
 						}
-
-						if (!processAsJson && isRegHandlerPriority1) { // process v1 by handler
-							v1 = TypeHandlerRegistry.handlerProcess(fields1[i].getType(), v1);
-						}
-
-						if (v1 != null) {
-							if (sub1_first) {
-								sub1_first = false;
-							}
-							HoneyUtil.setFieldValue(fields1[i], subObj1, v1);
-						}
-					} catch (IllegalArgumentException e) {
-						if (isConfuseDuplicateFieldDB()) {
-							v1 = _getObjectForMoreTable_ConfuseField(rs, fields1[i], isDul, dulField,
-									subEntityFieldClass[0]);
-						} else {
-							v1 = _getObjectForMoreTable_NoConfuse(rs, subUseTable[0], fields1[i], subEntityFieldClass[0]);
-						}
-
-						boolean alreadyProcess = false;
-						try {
-							if (openFieldTypeHandler) {// process v1 by handler
-								Class type = fields1[i].getType();
-								TypeHandler handler = TypeHandlerRegistry.getHandler(type);
-								if (handler != null) {
-									Object newV1 = handler.process(type, v1);// process v1 by handler
-									if (newV1 != null) {
-										if (sub1_first) {
-											sub1_first = false;
-										}
-										HoneyUtil.setFieldValue(fields1[i], subObj1, newV1);
-										alreadyProcess = true;
-									}
-								}
-							}
-						} catch (Exception e2) {
-							alreadyProcess = false;
-						}
-
-						if (!alreadyProcess && v1 != null) {
-							if (sub1_first) {
-								sub1_first = false;
-							}
-							HoneyUtil.setFieldValue(fields1[i], subObj1, v1);
-						}
-					} catch (SQLException e) {// for after use condition selectField method
-//						fields1[i].set(subObj1,null);
-//						e.printStackTrace();
 					}
 
-					if (oneHasOne) checkKey2ForOneHasOne.append(v1);
-				} // end for fields1
-
-//				if(sub1_first) subObj1=null;  //没有创建过,设置为null
-				if (sub1_first && (!oneHasOne || (oneHasOne && sub2_first))) subObj1 = null; // 没有创建过,设置为null(是oneHasOne时,子表1里的子表2也是null才行)
-
-//				Integer id=null;    //配置一个主键是id的项,即可用,效率也高些    行. 有可能只查几个字段
-				checkKey = new StringBuffer();
-				Field subOneListField = null;
-				Field subTwoListField = null;
-
-				// 主表设置 oneHasOne can not set here
-				targetObj = (T) entity.getClass().newInstance();
-				for (int i = 0; i < columnCount; i++) {
-//					if("serialVersionUID".equals(field[i].getName()) || field[i].isSynthetic()) continue;
-					if (HoneyUtil.isSkipFieldForMoreTable(field[i])) continue; // 有Ignore注释,将不再处理JoinTable
-					if (field[i] != null && field[i].isAnnotationPresent(JoinTable.class)) {
-						HoneyUtil.setAccessibleTrue(field[i]);
-						if (field[i].getName().equals(variableName[0])) {
-							if (subOneIsList1)
-								subOneListField = field[i]; // 子表1字段是List
-							else
-								HoneyUtil.setFieldValue(field[i], targetObj, subObj1); // 设置子表1的对象
-						} else if (!oneHasOne && subField[1] != null && field[i].getName().equals(variableName[1])) {
-							// oneHasOne在遍历子表1时设置
-							if (subTwoIsList2)
-								subTwoListField = field[i];
-							else
-								HoneyUtil.setFieldValue(field[i], targetObj, subObj2); // 设置子表2的对象
-						}
-						continue; // go back
+					if (!processed) {
+						rsList.add(main_obj);
 					}
-
-					boolean isRegHandlerPriority = false;
-					if (openFieldTypeHandler) {
-						isRegHandlerPriority = TypeHandlerRegistry.isPriorityType(field[i].getType());
-					}
-
-					HoneyUtil.setAccessibleTrue(field[i]);
-					Object v = null;
-
-					try {
-						// get v
-						if (isConfuseDuplicateFieldDB()) {
-							v = rs.getObject(_toColumnName(field[i].getName(), entity.getClass()));
-						} else {
-							try {
-								v = rs.getObject(tableName + "." + _toColumnName(field[i].getName(), entity.getClass()));
-							} catch (SQLException e) {
-								v = rs.getObject(_toColumnName(field[i].getName(), entity.getClass()));// condition.selectFun(FunctionType.COUNT,
-																										// "*", "count1");
-																										// //像这种不带表名
-							}
-						}
-
-						boolean processAsJson = false;
-						if (isJoson(field[i])) {
-							TypeHandler jsonHandler = TypeHandlerRegistry.getHandler(Json.class);
-							if (jsonHandler != null) {
-//								v = jsonHandler.process(field[i].getType(), v);
-								v = jsonHandlerProcess(field[i], v, jsonHandler);
-								processAsJson = true;
-							}
-						}
-
-						if (!processAsJson && isRegHandlerPriority) { // process v by handler
-							v = TypeHandlerRegistry.handlerProcess(field[i].getType(), v);
-						}
-
-						HoneyUtil.setFieldValue(field[i], targetObj, v);
-						checkKey.append(v);
-					} catch (IllegalArgumentException e) {
-						v = _getObjectForMoreTable(rs, tableName, field[i], entity.getClass());
-
-						boolean alreadyProcess = false;
-						try {
-							if (openFieldTypeHandler) {// process v by handler
-								Class type = field[i].getType();
-								TypeHandler handler = TypeHandlerRegistry.getHandler(type);
-								if (handler != null) {
-									Object newV = handler.process(type, v);// process v by handler
-									HoneyUtil.setFieldValue(field[i], targetObj, newV);
-									alreadyProcess = true;
-								}
-							}
-						} catch (Exception e2) {
-							alreadyProcess = false;
-						}
-
-						if (!alreadyProcess) HoneyUtil.setFieldValue(field[i], targetObj, v);
-
-					} catch (SQLException e) { // for after use condition selectField method
-						HoneyUtil.setFieldValue(field[i], targetObj, null);
-					}
-
-				} // end for
-
-				if (oneHasOne) checkKey2ForOneHasOne.insert(0, checkKey); // 主表+从表1
-				if (subTwoIsList2 && oneHasOne && subObj1 != null && subField2InOneHasOne != null) { // for oneHasOne List
-																										// oneHasOne 或者
-																										// 两个都在主表,只会存在其中一种
-					List subTwoList = subTwoMap.get(checkKey2ForOneHasOne.toString()); // 需要等从表1遍历完,等到完整checkKey2ForOneHasOne
-					if (subTwoList == null) { // 表示,还没有添加该行记录
-						subTwoList = new ArrayList();
-						subTwoList.add(subObj2);
-//						subField2InOneHasOne.set(subObj1, subTwoList);  //subObj1
-						HoneyUtil.setFieldValue(subField2InOneHasOne, subObj1, subTwoList); // subObj1
-						subTwoMap.put(checkKey2ForOneHasOne.toString(), subTwoList);
-
-//						rsList.add(targetObj);
-					} else {
-						subTwoList.add(subObj2);
-					}
-				}
-
-				// 全是null的数据不会到这里,所以不用判断
-				if (subOneIsList1 && subObj1 != null) { // 子表1是List类型字段
-					List subOneList = subOneMap.get(checkKey.toString()); // 需要等主表遍历完,等到完整checkKey
-					if (subOneList == null) { // 表示主表,还没有添加该行记录
-						subOneList = new ArrayList();
-						subOneList.add(subObj1);
-//						subOneListField.set(targetObj, subOneList);
-						HoneyUtil.setFieldValue(subOneListField, targetObj, subOneList);
-						subOneMap.put(checkKey.toString(), subOneList);
-
-						rsList.add(targetObj);
-					} else {
-						if (!oneHasOne) subOneList.add(subObj1);
-						else if (subObj2 == null) subOneList.add(subObj1);
-					}
-				} else if (subTwoIsList2 && !oneHasOne && subObj2 != null) {
-					List subTwoList = subTwoMap.get(checkKey.toString()); // 需要等主表遍历完,等到完整checkKey
-					if (subTwoList == null) { // 表示主表,还没有添加该行记录
-						subTwoList = new ArrayList();
-						subTwoList.add(subObj2);
-//						subTwoListField.set(targetObj, subTwoList);
-						HoneyUtil.setFieldValue(subTwoListField, targetObj, subTwoList);
-						subTwoMap.put(checkKey.toString(), subTwoList);
-
-						rsList.add(targetObj);
-					} else {
-						subTwoList.add(subObj2);
-					}
-				} else {
-					rsList.add(targetObj);
-				}
-
-			} // end while (rs.next())
-
+				} // for loop map of MoreTableStruct3 for each row result
+			} // for loop ResultWrapper
 			addInCache(sql, rsList, rsList.size());
-
 		} catch (SQLException e) {
-//			e.printStackTrace();
 			hasException = true;
 			throw ExceptionHelper.convert(e);
-		} catch (IllegalAccessException e) {
-			hasException = true;
-			throw ExceptionHelper.convert(e);
-		} catch (InstantiationException e) {
+		} catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException
+				| InstantiationException e) {
 			hasException = true;
 			throw ExceptionHelper.convert(e);
 		} finally {
@@ -1576,14 +1347,22 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 			} else {
 				checkClose(pst, conn);
 			}
-			targetObj = null;
+//			targetObj = null;
 		}
 
-//		子表是List类型时，要连原始数据行数也打印日志
-		if (subOneIsList1 || subTwoIsList2) Logger.logSQL(" | <--  ( select raw record rows: " + recordRow + " )");
 		logSelectRows(rsList.size());
 
 		return rsList;
+	}
+
+	private Map<String, Field> getSubNameAndField(Map<String, Map<String, Field>> nameAndFieldCache, String tableName,
+			Class entityClass) {
+		Map<String, Field> nameAndField = nameAndFieldCache.get(tableName);
+		if (nameAndField == null) {
+			nameAndField = HoneyUtil.getNameAndField(entityClass);
+			nameAndFieldCache.put(tableName, nameAndField);
+		}
+		return nameAndField;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -1670,53 +1449,8 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 		}
 	}
 
-	@SuppressWarnings("rawtypes")
-	private Object _getObjectForMoreTable(ResultSet rs, String tableName, Field field, Class entityClass)
-			throws SQLException {
-		if (isConfuseDuplicateFieldDB()) {// 主表时会用到
-			return HoneyUtil.getResultObject(rs, field.getType().getName(), _toColumnName(field.getName(), entityClass));
-		} else {
-			try {
-				return HoneyUtil.getResultObject(rs, field.getType().getName(),
-						tableName + "." + _toColumnName(field.getName(), entityClass));
-			} catch (SQLException e) {
-				return HoneyUtil.getResultObject(rs, field.getType().getName(),
-						_toColumnName(field.getName(), entityClass)); // no table name, 不带表名
-			}
-		}
-	}
-
-	// not oracle,SQLite
-	@SuppressWarnings("rawtypes")
-	private Object _getObjectForMoreTable_NoConfuse(ResultSet rs, String tableName, Field field, Class entityClass)
-			throws SQLException {
-		try {
-			return HoneyUtil.getResultObject(rs, field.getType().getName(),
-					tableName + "." + _toColumnName(field.getName(), entityClass));
-		} catch (SQLException e) {
-			return HoneyUtil.getResultObject(rs, field.getType().getName(), _toColumnName(field.getName(), entityClass)); // no
-																															// table
-																															// name,
-																															// 不带表名
-		}
-	}
-
-	// oracle,SQLite
-	@SuppressWarnings("rawtypes")
-	private Object _getObjectForMoreTable_ConfuseField(ResultSet rs, Field field, boolean isDul, String otherName,
-			Class entityClass) throws SQLException {
-
-		if (isDul) return HoneyUtil.getResultObject(rs, field.getType().getName(), otherName);
-
-		return HoneyUtil.getResultObject(rs, field.getType().getName(), _toColumnName(field.getName(), entityClass));
-	}
-
 	private boolean isShardingMain() {// 有分片(多个)
 		return HoneyContext.getSqlIndexLocal() == null && ShardingUtil.hadSharding(); // 前提要是HoneyContext.hadSharding()
 	}
-
-//	private static void logSQL(String hardStr, String sql) {
-//		HoneyUtil.logSQL(hardStr, sql);
-//	}
 
 }

@@ -258,7 +258,7 @@ public class ConditionHelper {
 	}
 
 	// V1.17 for Sql Server,分页需要
-	private static void adjustSqlServerPagingIfNeed(StringBuffer sqlBuffer, Map<String, String> orderByMap, Integer start,
+	static void adjustSqlServerPagingIfNeed(StringBuffer sqlBuffer, Map<String, String> orderByMap, Integer start,
 			Class entityClass, String useSubTableNames[]) {
 
 		if (!HoneyUtil.isSqlServer()) return;
@@ -343,9 +343,14 @@ public class ConditionHelper {
 
 		return HoneyUtil.checkAndProcessSelectFieldViaString(columnNames, subDulFieldMap, selectField);
 	}
-
+	
 	public static String processFunction(String columnNames, Condition condition) {
-//		if(condition==null) return null;
+		return processFunction(columnNames, condition, null);
+	}
+
+	public static String processFunction(String columnNames, Condition condition, String mainTable) {
+
+		if (condition == null) return null;
 
 		boolean get_FunStructForSharding = OneTimeParameter.isTrue(StringConst.Get_GroupFunStruct); // V2.0
 
@@ -377,7 +382,8 @@ public class ConditionHelper {
 //			}
 
 		}
-
+		
+		boolean isConfuseDuplicateFieldDB = isConfuseDuplicateFieldDB();
 		boolean hasAvg = false;
 //		int adjust=0;
 		for (int i = 0; i < funExpList.size(); i++) {
@@ -403,8 +409,17 @@ public class ConditionHelper {
 
 			alias = funExpList.get(i).getAlias();
 			if (StringUtils.isNotBlank(alias)) {
-				funStr += " " + K.as + " " + alias;
 				funUseName = alias;
+				String newAlias = alias;
+				// isConfuseDuplicateFieldDB用原来的,取名时应该取不有重名的
+				if (!isConfuseDuplicateFieldDB && StringUtils.isNotBlank(mainTable) && !alias.contains(".")) {
+					newAlias = "'"+mainTable + "." + alias+"'"; //mysql ok
+				}
+				if (isSQLite()) {
+					funStr += " " + K.as + " " + newAlias;
+				} else {
+					funStr += " " + newAlias;
+				}
 			} else {
 				funUseName = columnName;
 			}
@@ -415,6 +430,7 @@ public class ConditionHelper {
 				if (!hasAvg && FunctionType.AVG.getName().equalsIgnoreCase(functionTypeName)) {
 					hasAvg = true;
 //					adjust++;
+					//TODO 一样也要改
 //					funStructs[i+adjust] = new FunStruct(funUseName+"_sum_", FunctionType.SUM.getName());
 					funStructs.add(new FunStruct(funUseName + "_sum_", FunctionType.SUM.getName()));
 //					adjust++;
@@ -436,67 +452,24 @@ public class ConditionHelper {
 
 		return funStr;
 	}
-
-	public static void processOnExpression(Condition condition, MoreTableStruct moreTableStruct[],
-			List<PreparedValue> list) {
-		Class entityClass = (Class) OneTimeParameter.getAttribute(StringConst.Column_EC);
-		if (condition == null || moreTableStruct == null) return;
-
-		List<PreparedValue> list2 = new ArrayList<>();
-
-		ConditionImpl conditionImpl = (ConditionImpl) condition;
-		List<Expression> onExpList = conditionImpl.getOnExpList();
-		StringBuffer onExpBuffer = new StringBuffer();
-		Expression exp = null;
-		int sub1 = 0, sub2 = 0;
-		for (int i = 0; i < onExpList.size(); i++) {
-
-			exp = onExpList.get(i);
-			if (moreTableStruct[0].joinTableNum == 1 && i != 0) {
-				onExpBuffer.append(K.space).append(K.and).append(K.space);
-			}
-			onExpBuffer.append(_toColumnName(exp.getFieldName(), entityClass));
-			onExpBuffer.append(K.space);
-			onExpBuffer.append(exp.getOp().getOperator());
-			onExpBuffer.append("?");
-
-			if (moreTableStruct[0].joinTableNum == 2) {
-				String fieldName = exp.getFieldName();
-				if (fieldName.startsWith(moreTableStruct[2].tableName + ".")
-						|| (moreTableStruct[2].hasSubAlias && fieldName.startsWith(moreTableStruct[2].subAlias + "."))) { // 第2个从表
-					if (sub2 != 0) moreTableStruct[2].onExpression += K.space + K.and + K.space;
-					moreTableStruct[2].onExpression += onExpBuffer.toString();
-					sub2++;
-					addValeToList(list2, exp);
-				} else {
-					if (sub1 != 0) moreTableStruct[2].onExpression += K.space + K.and + K.space;
-					moreTableStruct[1].onExpression += onExpBuffer.toString();
-					sub1++;
-					addValeToList(list, exp);
-				}
-				if (i != onExpList.size() - 1) onExpBuffer = new StringBuffer();
-			} else {
-				addValeToList(list, exp);
-			}
-
-			if (i == onExpList.size() - 1) {
-				if (moreTableStruct[0].joinTableNum == 1)
-					moreTableStruct[1].onExpression = onExpBuffer.toString();
-				else if (sub2 != 0) list.addAll(list2);
-			}
-		}
-
+	
+	private static boolean isSQLite() {
+		return HoneyUtil.isSQLite();
+	}
+	
+	private static boolean isConfuseDuplicateFieldDB() {
+		return HoneyUtil.isConfuseDuplicateFieldDB();
 	}
 
-	private static void addValeToList(List<PreparedValue> list, Expression exp) {
-		PreparedValue preparedValue = new PreparedValue();
-		preparedValue.setType(exp.getValue().getClass().getName());
-		preparedValue.setValue(exp.getValue());
-		list.add(preparedValue);
-	}
+//	private static void addValeToList(List<PreparedValue> list, Expression exp) {
+//		PreparedValue preparedValue = new PreparedValue();
+//		preparedValue.setType(exp.getValue().getClass().getName());
+//		preparedValue.setValue(exp.getValue());
+//		list.add(preparedValue);
+//	}
 
 	private static String _toColumnName(String fieldName, Class entityClass) {
-		return NameTranslateHandle.toColumnName(fieldName, entityClass);
+		return HoneyUtil.toColumnName(fieldName, entityClass);
 	}
 
 	private static String _toColumnName(String fieldName, String useSubTableNames[], Class entityClass) {
@@ -516,7 +489,7 @@ public class ConditionHelper {
 
 	private static String _toColumnName0(String fieldName, String useSubTableNames[], Class entityClass) {
 
-		if (useSubTableNames == null) return NameTranslateHandle.toColumnName(fieldName, entityClass); // one table type
+		if (useSubTableNames == null) return _toColumnName(fieldName, entityClass); // one table type
 
 		String t_fieldName = "";
 		String t_tableName = "";
@@ -537,14 +510,14 @@ public class ConditionHelper {
 				find_tableName = NameTranslateHandle.toTableName(t_tableName);
 			}
 
-			return find_tableName + "." + NameTranslateHandle.toColumnName(t_fieldName, entityClass);
+			return find_tableName + "." + _toColumnName(t_fieldName, entityClass);
 		} else {
 			fieldName = useSubTableNames[2] + "." + fieldName;
 		}
-		return NameTranslateHandle.toColumnName(fieldName, entityClass);
+		return _toColumnName(fieldName, entityClass);
 	}
 
-	private static boolean adjustAnd(StringBuffer sqlBuffer, boolean isNeedAnd) {
+   static boolean adjustAnd(StringBuffer sqlBuffer, boolean isNeedAnd) {
 		if (isNeedAnd) {
 			sqlBuffer.append(" " + K.and + " ");
 			isNeedAnd = false;
@@ -833,7 +806,7 @@ public class ConditionHelper {
 		return new WhereConditionWrap(sqlBuffer, list, isFirstWhere);
 	}
 
-	private static void addValeToPvList(List<PreparedValue> list, Object value) {
+	static void addValeToPvList(List<PreparedValue> list, Object value) {
 		PreparedValue preparedValue = new PreparedValue();
 		preparedValue.setValue(value);
 		if (value == null)

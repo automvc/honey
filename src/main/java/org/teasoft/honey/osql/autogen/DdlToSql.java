@@ -335,8 +335,7 @@ public class DdlToSql {
 
 	@SuppressWarnings("rawtypes")
 	private static String _toColumnName(String fieldName, Class entityClass) {
-		String name = NameTranslateHandle.toColumnName(fieldName, entityClass);
-		return name;
+		return HoneyUtil.toColumnName(fieldName, entityClass);
 	}
 
 	private static boolean isSkipField(Field field) {

@@ -120,7 +120,7 @@ public class DictI18nDefaultHandler extends AbstractDictI18nDefaultHandler {
 	}
 
 	private static String _toColumnName(String fieldName, Class entityClass) {
-		return NameTranslateHandle.toColumnName(fieldName, entityClass);
+		return HoneyUtil.toColumnName(fieldName, entityClass);
 	}
 
 	private static String _toTableName(Object entity) {

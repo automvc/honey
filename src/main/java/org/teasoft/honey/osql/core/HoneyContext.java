@@ -50,6 +50,8 @@ public final class HoneyContext {
 
 	private static ConcurrentMap<String, String> beanMap;
 
+	private static ConcurrentMap<String, Object> commonCache;
+
 	// since 1.11
 	private static ConcurrentMap<String, String> beanCustomPKey; // Custom Primary Key
 	private static ConcurrentMap<String, Map<String, String>> customMap;
@@ -120,6 +122,7 @@ public final class HoneyContext {
 		HoneyConfig.getHoneyConfig(); // V2.1.8 与config相互引用时,这句不一定保险 V2.5.2 HoneyConfig不再引用Context
 
 		beanMap = new ConcurrentHashMap<>();
+		commonCache = new ConcurrentHashMap<>();
 		beanCustomPKey = new ConcurrentHashMap<>();
 		customMap = new ConcurrentHashMap<>();
 
@@ -298,6 +301,15 @@ public final class HoneyContext {
 
 	static void clearFieldNameCache() {
 		beanMap.clear();
+	}
+
+	static void addCommonCache(String key, Object value) {
+		if (key == null) return;
+		commonCache.put(key, value);
+	}
+
+	static Object getCommonCache(String key) {
+		return commonCache.get(key);
 	}
 
 	static void addBeanCustomPKey(String key, String value) {

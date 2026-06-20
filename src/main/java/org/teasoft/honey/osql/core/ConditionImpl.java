@@ -58,6 +58,8 @@ public class ConditionImpl implements Condition {
 	private boolean isStartGroupBy = true;
 	private boolean isStartHaving = true;
 	private boolean isStartOrderBy = true;
+	private boolean isDoNotRewritePagingSql = false; //TODO
+	
 
 	private static final String COMMA = ",";
 
@@ -479,7 +481,7 @@ public class ConditionImpl implements Condition {
 	public String[] getSelectField() {
 //		return this.selectField;
 
-		final String[] selectField0 = this.selectField;
+		final String[] selectField0 = this.selectField; //TODO ai?
 		return selectField0;
 	}
 
@@ -598,9 +600,20 @@ public class ConditionImpl implements Condition {
 	public Map<String, String> getOrderBy() {
 		return orderByMap;
 	}
+	
+	@Override
+	public Condition doNotRewritePagingSql(boolean doNotRewrite) {
+		this.isDoNotRewritePagingSql = doNotRewrite;
+		return this;
+	}
+	
+	//3.0
+	public boolean isDoNotRewritePagingSql() {
+		return this.isDoNotRewritePagingSql;
+	}
 
 	private String _toColumnName(String fieldName) {
-		return NameTranslateHandle.toColumnName(fieldName);
+		return HoneyUtil.toColumnName(fieldName);
 	}
 
 	@Override
