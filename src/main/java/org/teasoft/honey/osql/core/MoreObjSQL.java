@@ -47,7 +47,6 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 	private static final int FAIL_RETURN_NUM = -1;
 
 	private static final String SELECT_SQL = "select SQL: ";
-//	private static final String SELECT_JSON_SQL = "selectJson SQL: ";
 
 	@Override
 	public <T> List<T> select(T entity) {
@@ -59,6 +58,8 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 			sql = doAfterCompleteSql(sql);
 			Logger.logSQL(LogSqlParse.parseSql(SELECT_SQL, sql));
 			list = getBeeSql().moreTableSelect(sql, entity);
+		} catch (Exception e) {
+			throw new BeeException(e);
 		} finally {
 			doBeforeReturn(list);
 		}
@@ -77,9 +78,9 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 			sql = doAfterCompleteSql(sql);
 			Logger.logSQL(LogSqlParse.parseSql(SELECT_SQL, sql));
 			list = getBeeSql().moreTableSelect(sql, entity);
-		} catch(Exception e) {
-			e.printStackTrace(); //TODO
-		}finally {
+		} catch (Exception e) {
+			throw new BeeException(e);
+		} finally {
 			doBeforeReturn(list);
 		}
 		return list;
@@ -99,6 +100,8 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 			sql = doAfterCompleteSql(sql);
 			Logger.logSQL(LogSqlParse.parseSql(SELECT_SQL, sql));
 			list = getBeeSql().moreTableSelect(sql, entity);
+		} catch (Exception e) {
+			throw new BeeException(e);
 		} finally {
 			doBeforeReturn(list);
 		}
@@ -128,8 +131,10 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 			_regFunType(getFunctionType(funExpList.get(0).getFunctionType())); // test?
 			String sql = getMoreObjToSQL().toSelectSQL(entity, condition);
 			sql = doAfterCompleteSql(sql);
-			Logger.logSQL(LogSqlParse.parseSql(SELECT_SQL, sql)); //fixed, need logSQL before call BeeSql
+			Logger.logSQL(LogSqlParse.parseSql(SELECT_SQL, sql)); // fixed, need logSQL before call BeeSql
 			fun = getBeeSql().selectFun(sql); // 因是select max(id) from ...的形式,只会返回一个字段还可以多表的也共用
+		} catch (Exception e) {
+			throw new BeeException(e);
 		} finally {
 			doBeforeReturn();
 		}
@@ -169,7 +174,7 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 		String total = selectWithFun(entity, con.selectFun(FunctionType.COUNT, "*"));
 		return StringUtils.isBlank(total) ? 0 : Integer.parseInt(total.trim());
 	}
-	
+
 	private <T> String processAndReturnSql(T entity, Condition condition) {
 		if (condition != null) condition = condition.clone();
 		regCondition(condition);
@@ -193,38 +198,17 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 //			OneTimeParameter.setTrueForKey(StringConst.Check_Group_ForSharding);
 //			String sql = getMoreObjToSQL().toSelectSQL(entity, condition);
 //			sql = doAfterCompleteSql(sql);
-			
-			String sql=processAndReturnSql(entity, condition);
+
+			String sql = processAndReturnSql(entity, condition);
 			Logger.logSQL(LogSqlParse.parseSql("select SQL(return List<String[]>): ", sql));
 			list = getBeeSql().select(sql); // 要测试分片时,是否合适? 有T entity参数,是可以的.
+		} catch (Exception e) {
+			throw new BeeException(e);
 		} finally {
 			doBeforeReturn();
 		}
 		return list;
 	}
-
-//	@Override
-//	public <T> String selectJson(T entity, Condition condition) {
-//		if (entity == null) return null;
-//		String json = null;
-//		try {
-////			if (condition != null) condition = condition.clone();
-////			regCondition(condition);
-//////			doBeforePasreEntity(entity, SuidType.SELECT);
-////			_doBeforePasreEntity(entity); // fixed 2.4.0
-////			_regEntityClass1(entity);
-////			OneTimeParameter.setTrueForKey(StringConst.Check_Group_ForSharding);
-////			String sql = getMoreObjToSQL().toSelectSQL(entity, condition);
-////			sql = doAfterCompleteSql(sql);
-//			
-//			String sql=processAndReturnSql(entity, condition);
-//			Logger.logSQL(LogSqlParse.parseSql(SELECT_JSON_SQL, sql));
-//			json = getBeeSql().selectJson(sql);
-//		} finally {
-//			doBeforeReturn();
-//		}
-//		return json;
-//	}
 
 	@Override
 	public MoreObjSQL setDynamicParameter(String para, String value) {
@@ -347,16 +331,14 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 				}
 
 				if (!moreTableStruct.currentIsList) {// single object
-//					lastLayerObject = subObject;
-
 					// set foreign key in sub entity with main table key
 					boolean isSuperFieldNullValue = fillSubFieldWithSuperField(mainFields, subFields, layer,
 							lastLayerObject, subObject, mainField1Cache);
 					if (isSuperFieldNullValue) continue;
 
 					int subAffect = modifyOneEntity3(subObject, suidType, subFields);
-					Logger.logSQL(type + " sub entity:" + subObject.getClass().getName() + ", Affected rows: "
-							+ subAffect);
+					Logger.logSQL(
+							type + " sub entity:" + subObject.getClass().getName() + ", Affected rows: " + subAffect);
 				} else { // sub is list, need use subListObject (subObject just have list[0])
 					List<?> subListObject = moreTableStruct.subListObject;
 					boolean isSuperFieldNullValue = false;
@@ -391,8 +373,8 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 								continue;
 							} else {
 								subAffect = getSuidRich().delete(subListObject.get(k));
-								Logger.logSQL(type + " sub entity:" + subObject.getClass().getName()
-										+ ", Affected rows: " + subAffect);
+								Logger.logSQL(type + " sub entity:" + subObject.getClass().getName() + ", Affected rows: "
+										+ subAffect);
 							}
 						}
 					} else if (SuidType.UPDATE == suidType) {
@@ -407,17 +389,17 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 
 								subAffect = modifyOneEntity3(subListObject.get(k), suidType, subFields);
 
-								Logger.logSQL(type + " sub entity:" + subObject.getClass().getName()
-										+ ", Affected rows: " + subAffect);
+								Logger.logSQL(type + " sub entity:" + subObject.getClass().getName() + ", Affected rows: "
+										+ subAffect);
 							}
 						}
 					}
 				}
-				
+
 			} catch (NoSuchFieldException | IllegalAccessException e) {
 				Logger.warn("Have exception when " + type + " sub entity!");
 			}
-			lastLayerObject=subObject;
+			lastLayerObject = subObject;
 		}
 		return mainAffectNum;
 	}
@@ -438,8 +420,10 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 				affectNum = getSuidRich().update(entity); // 有主键，使用主键作为过滤条件。
 			} else {// for sub entity
 				Object idValeu = HoneyUtil.getIdValue(entity); // 不支持联合主键 TODO
-				if (idValeu != null) affectNum = getSuidRich().update(entity); // 有主键，使用主键作为过滤条件。
-				else affectNum = getSuidRich().updateBy(entity, subFields);
+				if (idValeu != null)
+					affectNum = getSuidRich().update(entity); // 有主键，使用主键作为过滤条件。
+				else
+					affectNum = getSuidRich().updateBy(entity, subFields);
 			}
 		}
 		return affectNum;
@@ -452,9 +436,8 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 //	}
 
 	// return the flag is SuperField Null Value or not
-	private boolean fillSubFieldWithSuperField(String[] mainFields, String[] subFields, int layer,
-			Object lastLayerObject, Object subObject, Field mainField1Cache) throws NoSuchFieldException,
-			IllegalAccessException {
+	private boolean fillSubFieldWithSuperField(String[] mainFields, String[] subFields, int layer, Object lastLayerObject,
+			Object subObject, Field mainField1Cache) throws NoSuchFieldException, IllegalAccessException {
 		// need set
 		return checkAndFillSubFieldWithSuperField(mainFields, subFields, layer, lastLayerObject, subObject,
 				mainField1Cache, true);
@@ -498,314 +481,4 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 		}
 		return false;
 	}
-
-//	// 多表的modify是调用suidRich完成的.拦截器,则使用suidRich的.
-//	private <T> int modify(T entity, SuidType suidType) {
-//		// 是否需要事务？？ 由上一层负责
-//		MoreTableModifyStruct struct = null;
-//		boolean hasParseEntity = false;
-//		boolean hasProcess = false;
-//		long updateNum = 0;
-//		if (suidType == SuidType.UPDATE) {
-//			Object idValeu = HoneyUtil.getIdValue(entity);
-//
-//			if (idValeu == null) {
-//				struct = MoreTableModifyUtils._getMoreTableModifyStruct(entity); // UPDATE时,先执行,要用结构信息判断
-//				hasParseEntity = true;
-//				boolean nullKeyValue = false;
-//				if (struct.ref.length == 1) {
-//					nullKeyValue = checkTempKeyNullValue(entity, struct.ref[0]);
-//					updateNum = getSuidRich().updateBy(entity, struct.ref[0]); // update by
-//					hasProcess = true;
-//				} else if (struct.ref.length == 2) {
-//					String tempKey[] = mergeArrays(struct.ref[0], struct.ref[1]); // TODO??
-//					nullKeyValue = checkTempKeyNullValue(entity, tempKey);
-//					updateNum = getSuidRich().updateBy(entity, tempKey); // update by
-//					hasProcess = true;
-//				}
-//				if (nullKeyValue) return (int) updateNum; // 无法关联子表操作,提前返回
-//			}
-//		}
-//
-//		// 2.4.0 adjust INSERT
-//		// when the sub entity value is null, process Main table with Insert,not insertAndReturnId
-//		if (!hasParseEntity && suidType == SuidType.INSERT) {
-//			struct = MoreTableModifyUtils._getMoreTableModifyStruct(entity);
-//			if (struct == null) {
-//				Logger.warn("Please confirm whether use @FK annotation in "+entity.getClass().getName());
-//			} else {
-//				hasParseEntity = true;
-//				boolean processJustMainInsert = false;
-//				int len0 = struct.subField.length;
-//				if (len0 == 0 || (len0 > 0 && struct.subField[0] == null)) {
-//					processJustMainInsert = true;
-//				} else {
-//					try {
-//						if (struct.subIsList[0]) {
-//							HoneyUtil.setAccessibleTrue(struct.subField[0]);
-//							List listSubI = (List) struct.subField[0].get(entity);
-//							if (ObjectUtils.isEmpty(listSubI)) {
-//								processJustMainInsert = true;
-//							}
-//						} else {
-//							HoneyUtil.setAccessibleTrue(struct.subField[0]);
-//							Object subEntity = struct.subField[0].get(entity);
-//							if (subEntity == null) processJustMainInsert = true;
-//						}
-//					} catch (IllegalAccessException e) {
-//						throw ExceptionHelper.convert(e);
-//					}
-//
-//					if (processJustMainInsert) {
-//						int affectNum = getSuidRich().insert(entity);
-//						hasProcess = true;
-//						return affectNum;
-//					}
-//				}
-//			}
-//		}
-//
-//		long returnId = 0;
-//		if (!hasProcess) returnId = modifyOneEntity(entity, suidType);
-//
-//		// 等于0时, 子表是否还要处理??
-//		// 不需要,既然是关联操作,父表都没有操作到,则无关联可言
-//		// update时,returnId==0,还需要试着更新子表 V2.4.0
-//		if (returnId < 0 || (suidType != SuidType.UPDATE && returnId == 0)) return (int) returnId;
-//
-//		if (!hasParseEntity) struct = MoreTableModifyUtils._getMoreTableModifyStruct(entity);
-//
-//		if (struct != null) {
-//			int len = struct.subField.length;
-//			try {
-//				for (int k = 0; k < len; k++) { // 只能处理两重子表
-//					if (k == 0 && struct.oneHasOne) {
-//						OneHasOne t = moreSubModify(struct, k, returnId, entity, suidType);
-//						if (t != null) {
-//							k++; // oneHasOne 要加1
-//							moreSubModify(struct, 1, t.returnId1, t.subEntity, suidType);
-//						} else {
-//							if (SuidType.DELETE == suidType || SuidType.UPDATE == suidType) k++; // 若是这两种类型,当第一个子表没有设置外键值时,子表的子表将不再处理
-//						}
-//					} else { // not OneHasOne (不是子表又有子表) 的情形
-//						moreSubModify(struct, k, returnId, entity, suidType);
-//					}
-//				}
-//			} catch (IllegalAccessException e) {
-//				throw ExceptionHelper.convert(e);
-//			} catch (NoSuchFieldException e) {
-//				throw ExceptionHelper.convert(e);
-//			}
-//		}
-//
-//		if (SuidType.INSERT == suidType) return 1; // 主表只插入一行
-//		else return (int) returnId; // 主表受影响的行数
-//	}
-//
-//	private OneHasOne moreSubModify(MoreTableModifyStruct struct, int i, long returnId, Object currentEntity,
-//			SuidType suidType) throws IllegalAccessException, NoSuchFieldException {
-//		if (struct.subIsList[i]) {
-//			HoneyUtil.setAccessibleTrue(struct.subField[i]);
-//			List listSubI = (List) struct.subField[i].get(currentEntity);
-//			if (ObjectUtils.isEmpty(listSubI)) return null; // 2.4.0
-//
-//			boolean setFlag = false;
-//			// 设置外键的值
-//			for (Object item : listSubI) {
-//				if (item == null) continue;
-//				for (int propIndex = 0; propIndex < struct.foreignKey[i].length; propIndex++) {
-//					Field fkField = HoneyUtil.getField(item.getClass(), struct.foreignKey[i][propIndex]);
-//					// 设置外键的值
-//					if (SuidType.INSERT == suidType)
-//						setFlag = setPkField(struct, i, returnId, currentEntity, item, fkField, propIndex);
-//					else setFlag = setPkField2(struct, i, returnId, currentEntity, item, fkField, propIndex);
-//				}
-//				if (setFlag) {
-//					if (SuidType.DELETE == suidType) {
-//						getSuidRich().delete(listSubI.get(i));
-//					} else if (SuidType.UPDATE == suidType) {
-//						Object idValeu = HoneyUtil.getIdValue(listSubI.get(i));
-//						if (idValeu != null) getSuidRich().update(listSubI.get(i)); // by id or primary key
-//						else getSuidRich().updateBy(listSubI.get(i), struct.foreignKey[i]); // update by V2.4.0
-//					}
-//				}
-//			}
-//			if (SuidType.INSERT == suidType) getSuidRich().insert(listSubI); // insert的,一次调用插入list即可
-//
-//		} else { // 单个实体
-//			if (struct.subField[i] == null) return null;
-//			HoneyUtil.setAccessibleTrue(struct.subField[i]);
-//			Object subEntity = struct.subField[i].get(currentEntity);
-//			if (subEntity == null) return null;
-//			for (int propIndex = 0; propIndex < struct.foreignKey[i].length; propIndex++) {
-//				Field f = HoneyUtil.getField(subEntity.getClass(), struct.foreignKey[i][propIndex]);
-//				boolean setFlag;
-//				// eg: 同步 id,name
-//				if (SuidType.INSERT == suidType)
-//					setFlag = setPkField(struct, i, returnId, currentEntity, subEntity, f, propIndex);
-//				else setFlag = setPkField2(struct, i, returnId, currentEntity, subEntity, f, propIndex);
-//
-//				// update,delete,如果子实体没有用上FK声明的字段则不执行,防止更新到多余记录
-//				if (!setFlag && SuidType.INSERT != suidType) return null;
-//			}
-//
-//			// 如果是id,或使用了主键注解，才使用返回值。
-//			// 如何不是，要从主表中获取相应字段的值； 或该字段为blank，则报错
-////			struct.ref[i]; //这个不是主键值的话,  要使用实体的
-//
-//			boolean needReturn = false;
-//			long returnId1;
-//			if (SuidType.UPDATE == suidType) {
-//
-//				Object idValeu = HoneyUtil.getIdValue(subEntity); // by id or primary key
-//				if (idValeu != null) returnId1 = getSuidRich().update(subEntity);//TODO 子实体的主键未必有值；外键有值而矣
-//				else returnId1 = getSuidRich().updateBy(subEntity, struct.foreignKey[i]); // update by V2.4.0  TODO 多个外键呢？？
-//				if (returnId1 >= 0) needReturn = true;
-//			} else {
-//				// 从表要设置了关联信息才执行 上面已设置(设置外键的值)
-//				returnId1 = modifyOneEntity(subEntity, suidType); // OneHasOne 这里要将返回值存起
-//				if (returnId1 > 0) needReturn = true;
-//			}
-//
-//			if (i == 0 && needReturn && struct.oneHasOne) {
-//				OneHasOne t = new OneHasOne();
-//				t.returnId1 = returnId1;
-//				t.subEntity = subEntity;
-//				return t;
-//			}
-//		}
-//		return null;
-//	}
-//
-//	private <T> boolean checkTempKeyNullValue(T entity, String tempKey[]) {
-//		Field field = null;
-//		boolean nullKeyValue = true;
-//		try {
-//			for (int i = 0; i < tempKey.length; i++) {
-//				field = HoneyUtil.getField(entity.getClass(), tempKey[i]);
-//
-//				Object obj = null;
-//				try {
-//					if (field != null) {
-//						HoneyUtil.setAccessibleTrue(field);
-//						obj = field.get(entity);
-//						if (obj == null) {
-//							Logger.warn("The " + field.getName() + " value is null!");
-//							nullKeyValue = nullKeyValue && true;//TODO?
-//						} else {
-//							nullKeyValue = false;
-//						}
-//					}
-//				} catch (IllegalAccessException e) {
-//					throw ExceptionHelper.convert(e);
-//				}
-//			}
-//		} catch (Exception e) {
-//			Logger.warn(e.getMessage(), e);
-//		}
-//		return nullKeyValue;
-//	}
-//
-//	private boolean setPkField(MoreTableModifyStruct struct, int i, long returnId, Object currentEntity, Object subEntity,
-//			Field fkField, int propIndex) throws IllegalAccessException, NoSuchFieldException {
-//		boolean useReturnId = false;
-//		if ("id".equalsIgnoreCase(struct.ref[i][propIndex])) {
-//			useReturnId = true;
-//		} else {
-//			Field refField = HoneyUtil.getField(currentEntity.getClass(), struct.ref[i][propIndex]); // 获取 被引用的字段
-//			if (AnnoUtil.isPrimaryKey(refField)) {
-//				useReturnId = true;
-//			} else {
-//				HoneyUtil.setAccessibleTrue(fkField);
-//				HoneyUtil.setAccessibleTrue(refField);
-//				setFieldValue(fkField, subEntity, refField.get(currentEntity));
-//			}
-//		}
-//
-//		if (useReturnId) {
-//			HoneyUtil.setAccessibleTrue(fkField);
-//			setFieldValue(fkField, subEntity, returnId);
-//		}
-//
-//		return true;
-//	}
-//
-//	// Update,Delete no return id
-//	// setPkFieldForUpdateOrDelete
-//	// 如果子实体没有用上FK声明的字段则不执行,防止更新到多余记录
-//	private boolean setPkField2(MoreTableModifyStruct struct, int i, long returnId, Object currentEntity,
-//			Object subEntity, Field fkField, int propIndex) throws IllegalAccessException, NoSuchFieldException {
-//
-//		Field refField = HoneyUtil.getField(currentEntity.getClass(), struct.ref[i][propIndex]); // 获取 被引用的字段
-//
-//		HoneyUtil.setAccessibleTrue(fkField);
-//		HoneyUtil.setAccessibleTrue(refField);
-//		Object v = refField.get(currentEntity);
-//		if (v == null) {
-//			Object v2 = fkField.get(subEntity);// 子表的外键字段
-//			if (v2 == null) return false; // 父表没有设置, 子表也没有设置才返回null
-//			// 若设置了id,name; 其实name没有值,也是可以的.如何处理??? todo
-//		} else {
-//			setFieldValue(fkField, subEntity, v);
-//		}
-//
-//		return true;
-//	}
-//
-//	private <T> long modifyOneEntity(T entity, SuidType suidType) {// 子表是update时,不走这个分支
-//		long returnId = 0;
-//		if (SuidType.INSERT == suidType) {
-//			returnId = getSuidRich().insertAndReturnId(entity);
-//		} else if (SuidType.UPDATE == suidType) {
-//			returnId = getSuidRich().update(entity);
-//		} else if (SuidType.DELETE == suidType) {
-//			returnId = getSuidRich().delete(entity);
-//		}
-//
-//		return returnId;
-//	}
-//
-//	private String[] mergeArrays(String[] array1, String[] array2) {
-//		if (array2 == null || array2.length == 0) return array1;
-//
-//		Set<String> set = new LinkedHashSet<>();
-//		for (String s : array1) {
-//			set.add(s);
-//		}
-//
-//		for (String s : array2) {
-//			set.add(s);
-//		}
-//
-//		String r[] = new String[set.size()];
-//		int i = 0;
-//		for (String str : set) {
-//			r[i++] = str;
-//		}
-//
-//		return r;
-//	}
-//
-//	public static void setFieldValue(Field field, Object targetObj, Object value) throws IllegalAccessException {
-//
-//		if (value != null) {
-//			if (field.getType() == Integer.class && value.getClass() == Long.class) {
-//				if ((Long) value > Integer.MAX_VALUE) {
-//					Logger.warn("The value " + value
-//							+ "great than MAX Integer number, it maybe wrong when transfer to Ingeger number.");
-//				}
-//				value = ((Long) value).intValue();
-//			} else if (field.getType() == String.class && value.getClass() != String.class) {
-//				value = value.toString();
-//			}
-//		}
-//
-//		HoneyUtil.setFieldValue(field, targetObj, value);
-//	}
-//
-//	private class OneHasOne {
-//		long returnId1;
-//		Object subEntity;
-//	}
-
 }

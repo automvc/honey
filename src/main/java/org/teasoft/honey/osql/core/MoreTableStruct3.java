@@ -2,12 +2,13 @@ package org.teasoft.honey.osql.core;
 
 import java.lang.reflect.Field;
 import java.util.List;
-import java.util.Map;
 
+import org.teasoft.bee.osql.BeeException;
 import org.teasoft.bee.osql.annotation.JoinTable3;
 import org.teasoft.bee.osql.annotation.JoinType;
 import org.teasoft.bee.osql.exception.ConfigWrongException;
 import org.teasoft.bee.osql.exception.JoinTableParameterException;
+import org.teasoft.honey.osql.util.NameCheckUtil;
 import org.teasoft.honey.util.EntityUtil;
 
 class MoreTableStruct3 {
@@ -22,21 +23,19 @@ class MoreTableStruct3 {
 	String fieldName; // 用作关联的属性名
 	Object subObject; // 子对象
 	boolean hasNextLayer;
-	
+
 	List<?> subListObject; // List类型的子对象；不用于select
 
 	int layer; // 关联树的层
 	List<String> parentTree; // 父节点树(不包括根)
 	List<Class<?>> typeTree; // 树对应的类型(包括根);主要用于判断循环依赖
-	
+
 	MoreTableStructOverall overall = null; // just the first element have it.
 
-	MoreTableStruct3() {
-	}
+	MoreTableStruct3() {}
 
 	MoreTableStruct3(Field joinField, Object entity, int layer, List<String> parentTree) {
 		JoinTable3 joinTable3 = joinField.getAnnotation(JoinTable3.class);
-		//TODO check string field
 
 		this.subClass = joinTable3.subClass();
 		this.joinType = joinTable3.joinType();
@@ -44,8 +43,10 @@ class MoreTableStruct3 {
 		this.subFields = joinTable3.subField();
 		this.subAlias = joinTable3.subAlias();
 		this.mainAlias = joinTable3.mainAlias();
-		
 		this.fieldName = joinField.getName();
+
+		checkField(subAlias);
+		checkField(mainAlias);
 
 		if (List.class == joinField.getType()) {
 			this.currentIsList = true;
@@ -54,13 +55,15 @@ class MoreTableStruct3 {
 		if (mainFields.length != subFields.length) {
 			throw new ConfigWrongException("the length of mainField and subField are not equal.");
 		}
+		checkFields(mainFields);
+		checkFields(subFields);
 
 		try {
 			if (entity != null) {
 				HoneyUtil.setAccessibleTrue(joinField);
 				this.subObject = HoneyUtil.getValue(joinField, entity);
-				
-				// subObject 是list时，只解析第一个元素 (select的场景这样用)   //对于Insert时，不满足
+
+				// subObject 是list时，只解析第一个元素 (select的场景这样用) //对于Insert时，不满足
 				if (this.currentIsList && this.subObject != null) {
 					List<?> list = (List<?>) this.subObject;
 					if (list.isEmpty()) {
@@ -73,7 +76,8 @@ class MoreTableStruct3 {
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace(); // TODO
+//			e.printStackTrace(); // todo
+			throw new BeeException(e);
 		}
 
 		if (this.subClass == Object.class) {
@@ -90,8 +94,10 @@ class MoreTableStruct3 {
 
 		this.layer = layer;
 		if (this.subAlias == null || "".equals(this.subAlias.trim())) {
-			if (!this.currentIsList) this.subAlias = NameTranslateHandle.toTableNameSimple(this.fieldName);
-			else this.subAlias = HoneyUtil.toTableName(this.subClass);
+			if (!this.currentIsList)
+				this.subAlias = NameTranslateHandle.toTableNameSimple(this.fieldName);
+			else
+				this.subAlias = HoneyUtil.toTableName(this.subClass);
 		}
 		this.parentTree = parentTree;
 		parentTree.add(this.subAlias);
@@ -100,8 +106,9 @@ class MoreTableStruct3 {
 	MoreTableStruct3(Field joinField, Object entity, int layer, List<String> parentTree, boolean hasNextLayer,
 			String mainAlias) {
 		this(joinField, entity, layer, parentTree);
-		
-		//TODO check mainAlias
+
+		checkField(mainAlias);
+
 		if (hasNextLayer) {
 			this.hasNextLayer = hasNextLayer;
 			if (this.mainAlias == null || "".equals(this.mainAlias.trim())) {
@@ -110,4 +117,15 @@ class MoreTableStruct3 {
 			}
 		}
 	}
+
+	private void checkField(String fields) {
+		NameCheckUtil.checkName(fields);
+	}
+
+	private void checkFields(String str[]) {
+		for (String t : str) {
+			NameCheckUtil.checkName(t);
+		}
+	}
+
 }

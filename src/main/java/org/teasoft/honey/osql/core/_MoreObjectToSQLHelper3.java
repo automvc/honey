@@ -29,11 +29,10 @@ class _MoreObjectToSQLHelper3 {
 	private static final String EQUAL_QUEST = " = ?";
 	private static final String DOT = ".";
 	private static final String AND = " " + K.and + " ";
-	
+
 	private static final int DEFAULT_INCLUDE_TYPE = IncludeType.EXCLUDE_BOTH.getValue();
 
-	private _MoreObjectToSQLHelper3() {
-	}
+	private _MoreObjectToSQLHelper3() {}
 
 	static <T> String _toSelectSQL(T entity) {
 		return _toSelectSQL(entity, DEFAULT_INCLUDE_TYPE, null);
@@ -49,11 +48,12 @@ class _MoreObjectToSQLHelper3 {
 
 	static <T> String _toSelectSQL(T entity, Condition condition) {
 		int includeType;
-		if (condition == null || condition.getIncludeType() == null) includeType = DEFAULT_INCLUDE_TYPE;
-		else includeType = condition.getIncludeType().getValue();
+		if (condition == null || condition.getIncludeType() == null)
+			includeType = DEFAULT_INCLUDE_TYPE;
+		else
+			includeType = condition.getIncludeType().getValue();
 
-		if (condition != null)
-			condition.setSuidType(SuidType.SELECT);
+		if (condition != null) condition.setSuidType(SuidType.SELECT);
 
 		return _toSelectSQL(entity, includeType, condition);
 	}
@@ -61,7 +61,7 @@ class _MoreObjectToSQLHelper3 {
 	// TODO includeType 还没有使用。
 	private static <T> String _toSelectSQL(T entity, int includeType, Condition condition) {
 		checkPackage(entity);
-		
+
 		if (includeType == IncludeType.INCLUDE_NULL.getValue() || includeType == IncludeType.INCLUDE_BOTH.getValue()) {
 			throw new ConfigWrongException(
 					"Do not use the entity field which value is null in Moretable! Can use condition.op(field, Op.eq, null)");
@@ -107,7 +107,7 @@ class _MoreObjectToSQLHelper3 {
 
 		boolean checkGroup = false;
 		List<String> groupNameslist = null;
-		int groupSize =0;
+		int groupSize = 0;
 		if (condition != null) {
 			groupNameslist = condition.getGroupByFields();
 			groupSize = groupNameslist == null ? -1 : groupNameslist.size();
@@ -136,9 +136,9 @@ class _MoreObjectToSQLHelper3 {
 				// 4.没有一对多
 				needRewritePagingSql = false;
 			}
-			
-			//TODO 只查询主表的数据
-			
+
+			// 只查询主表的数据
+
 			// 以下为排除不需要改写分页的算法(伪代码表示)
 			// 可以自动判断，决定是否进行精确分页改写；
 			// 需要改写分页sql，进行以下判断，看是否是真的需要改写
@@ -147,21 +147,21 @@ class _MoreObjectToSQLHelper3 {
 			// 2) 有一对多
 
 			// 以下有一条满足则不需要改写:
-			// 1) 只查询主表的数据；    ??? 如何检测??
+			// 1) 只查询主表的数据； ??? 如何检测??
 			// 2) 有聚合查询；或有分组
-			// 3）可以确定最多只能查到一条主表记录  (所有多的子表，都设置有主键值)
-			//   
-			
+			// 3）可以确定最多只能查到一条主表记录 (所有多的子表，都设置有主键值)
+			//
+
 //			if (needRewritePagingSql) {// 主表设置了主键值,只查一条记录,不用改写
 //				Object idValeu = HoneyUtil.getIdValue(entity);
 //				if (idValeu != null) needRewritePagingSql = false;
 //			}
 			// 主表有主键值，但可能从表对应了多表也不行。
-			
+
 			// 若符合条件，则设置改写标识为false
 			// needRewritePagingSql = false;
 		}
-		
+
 		StringBuffer fullColumns = new StringBuffer();
 		StringBuffer joinPart = new StringBuffer();
 		StringBuffer tablePart = new StringBuffer();
@@ -169,7 +169,7 @@ class _MoreObjectToSQLHelper3 {
 		StringBuffer filter = new StringBuffer();
 		StringBuffer sqlBuffer = new StringBuffer();
 		StringBuffer tableNamesForCache = new StringBuffer();
-		
+
 		List<PreparedValue> preList0 = new ArrayList<>();
 		String tempTablePlaceholder = "#{temp-table-bee_paging}#";
 		String mainColumn;
@@ -179,7 +179,7 @@ class _MoreObjectToSQLHelper3 {
 		tableNamesForCache.append(mainTableName); // 用于缓存记录，要用真正的表名，不能用别名
 
 		concat(fullColumns, COMMA, mainTableName + ".", mainEntityWrapper.columnList);
-		columnSet.addAll(mainEntityWrapper.columnList); //TODO TEST columnSet
+		columnSet.addAll(mainEntityWrapper.columnList); // TODO TEST columnSet
 
 		Map<String, Object> columnAndValue = mainEntityWrapper.columnAndValue;
 		for (Entry<String, Object> item : columnAndValue.entrySet()) {
@@ -197,14 +197,15 @@ class _MoreObjectToSQLHelper3 {
 			Class<?> subClass = moreTableStruct.subClass;
 			Object subObject = moreTableStruct.subObject;
 			String mainAlias = moreTableStruct.mainAlias;
-			
-			if (structIndex == 0 && StringUtils.isNotBlank(mainAlias))
-				mainTableAlias = mainAlias;
+
+			if (structIndex == 0 && StringUtils.isNotBlank(mainAlias)) mainTableAlias = mainAlias;
 			structIndex++;
 
 			EntityWrapper subEntityWrapper;
-			if (subObject == null) subEntityWrapper = ParseSqlHelper.parseEntity(subClass, includeType);
-			else subEntityWrapper = ParseSqlHelper.parseEntity(subObject, includeType);
+			if (subObject == null)
+				subEntityWrapper = ParseSqlHelper.parseEntity(subClass, includeType);
+			else
+				subEntityWrapper = ParseSqlHelper.parseEntity(subObject, includeType);
 
 			concatSubColumnName(fullColumns, COMMA, subAlias, subEntityWrapper.columnList, columnSet, subDulColumnMap);
 
@@ -226,11 +227,10 @@ class _MoreObjectToSQLHelper3 {
 				subColumn = toColumnName(subFields[i], subClass);
 
 				joinExp.append(mainAlias).append(DOT).append(mainColumn) // TODO main class??
-						.append(EQUAL)
-						.append(subAlias).append(DOT).append(subColumn);
+						.append(EQUAL).append(subAlias).append(DOT).append(subColumn);
 			}
 
-			if (tablePart.length()==0) {
+			if (tablePart.length() == 0) {
 				tablePart.append(ShardingUtil.appendTableIndexIfNeed(mainTableName)).append(ONE_SPACE);
 //				tablePart.append(mainAlias).append(ONE_SPACE);
 				tablePart.append(mainTableAlias).append(ONE_SPACE);
@@ -241,21 +241,23 @@ class _MoreObjectToSQLHelper3 {
 			}
 
 			if (joinType == JoinType.WHERE) {
-				if (filter.length()>0) filter.append(ONE_SPACE).append(K.and).append(ONE_SPACE);
+				if (filter.length() > 0) filter.append(ONE_SPACE).append(K.and).append(ONE_SPACE);
 				filter.append(joinExp);
 
 				tablePart.append(COMMA).append(ONE_SPACE).append(ShardingUtil.appendTableIndexIfNeed(subTableName))
 						.append(ONE_SPACE);
 //				if (!subAlias.equalsIgnoreCase(subTableName)) {
-					tablePart.append(subAlias).append(ONE_SPACE);
+				tablePart.append(subAlias).append(ONE_SPACE);
 //				}
 			} else {
-				if (HoneyUtil.isSqlKeyWordUpper()) joinPart.append(joinType.getType().toUpperCase());
-				else joinPart.append(joinType.getType());
+				if (HoneyUtil.isSqlKeyWordUpper())
+					joinPart.append(joinType.getType().toUpperCase());
+				else
+					joinPart.append(joinType.getType());
 
 				joinPart.append(ShardingUtil.appendTableIndexIfNeed(subTableName)).append(ONE_SPACE); // TODO
 //				if (!subAlias.equalsIgnoreCase(subTableName)) {
-					joinPart.append(subAlias).append(ONE_SPACE);
+				joinPart.append(subAlias).append(ONE_SPACE);
 //				}
 				joinPart.append(K.on).append(ONE_SPACE);
 				joinPart.append(joinExp);
@@ -328,22 +330,20 @@ class _MoreObjectToSQLHelper3 {
 			}
 		} // checkGroup
 
-		sqlBuffer.append(K.select).append(ONE_SPACE)
-				.append(columnNames).append(ONE_SPACE)
-				.append(K.from).append(ONE_SPACE)
-				.append(tablePart);
+		sqlBuffer.append(K.select).append(ONE_SPACE).append(columnNames).append(ONE_SPACE).append(K.from)
+				.append(ONE_SPACE).append(tablePart);
 
 		StringBuffer pagingRewriteSql = new StringBuffer();
 		StringBuffer sqlBufferComm = new StringBuffer();
 
 		// JOIN ON
-		if (joinPart.length()>0) {
-				sqlBufferComm.append(joinPart);
+		if (joinPart.length() > 0) {
+			sqlBufferComm.append(joinPart);
 		}
 
 		boolean firstWhere = true;
 		// where filter
-		if (filter.length()>0) {
+		if (filter.length() > 0) {
 			sqlBufferComm.append(ONE_SPACE).append(K.where).append(ONE_SPACE);
 			sqlBufferComm.append(filter);
 			firstWhere = false;
@@ -362,11 +362,10 @@ class _MoreObjectToSQLHelper3 {
 
 		if (needRewritePagingSql) {
 			pagingRewriteSql.append("select distinct ");
-			pagingRewriteSql.append(mainTableName).append(".id")
-					.append(" from ")
+			pagingRewriteSql.append(mainTableName).append(".id").append(" from ")
 					.append(ShardingUtil.appendTableIndexIfNeed(mainTableName)).append(ONE_SPACE)
 //					.append(mainTableName).append(ONE_SPACE);
-			        .append(mainTableAlias).append(ONE_SPACE);
+					.append(mainTableAlias).append(ONE_SPACE);
 
 			pagingRewriteSql.append(sqlBufferComm);
 
@@ -397,7 +396,7 @@ class _MoreObjectToSQLHelper3 {
 
 	private static void concat(StringBuffer strBuffer, String separator, String prefix, List<String> list) {
 		for (String str : list) {
-			if (strBuffer.length()>0) strBuffer.append(separator);
+			if (strBuffer.length() > 0) strBuffer.append(separator);
 
 			strBuffer.append(prefix);
 			strBuffer.append(str);

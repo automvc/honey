@@ -103,12 +103,12 @@ public abstract class AbstractBase {
 
 	protected void logSelectRows(int size) {
 		if (ShardingUtil.isSharding() && !showShardingSQL) return;
-		Logger.logSQL(" | <--  select rows: "+ size + "" + shardingIndex());
+		Logger.logSQL(" | <--  select rows: " + size + "" + shardingIndex());
 	}
 
 	protected void logAffectRow(int num) {
 		if (ShardingUtil.isSharding() && !showShardingSQL) return;
-		Logger.logSQL(" | <--  Affected rows: "+ num + "" + shardingIndex());
+		Logger.logSQL(" | <--  Affected rows: " + num + "" + shardingIndex());
 	}
 
 	protected void logDsTab() {
@@ -176,8 +176,7 @@ public abstract class AbstractBase {
 		String fullClassName = e.getClass().getName();
 
 		boolean f = "MySQLIntegrityConstraintViolationException".equals(className) // mysql
-				|| (e instanceof SQLIntegrityConstraintViolationException)
-				|| (e instanceof BatchUpdateException) // PostgreSQL,...
+				|| (e instanceof SQLIntegrityConstraintViolationException) || (e instanceof BatchUpdateException) // PostgreSQL,...
 				|| "org.h2.jdbc.JdbcBatchUpdateException".equals(fullClassName) // h2
 		;
 		if (f) return true;
