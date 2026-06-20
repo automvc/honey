@@ -45,7 +45,7 @@ public abstract class AbstractBase {
 
 	@SuppressWarnings("rawtypes")
 	protected static String _toColumnName(String fieldName, Class entityClass) {
-		return NameTranslateHandle.toColumnName(fieldName, entityClass);
+		return HoneyUtil.toColumnName(fieldName, entityClass);
 	}
 
 	protected void addInCache(String sql, Object rs, int resultSetSize) {

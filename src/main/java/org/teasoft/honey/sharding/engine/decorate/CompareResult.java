@@ -11,7 +11,7 @@ import java.sql.SQLException;
 
 import org.teasoft.bee.sharding.ShardingSortStruct;
 import org.teasoft.honey.logging.Logger;
-import org.teasoft.honey.osql.core.NameTranslateHandle;
+import org.teasoft.honey.osql.core.HoneyUtil;
 import org.teasoft.honey.util.ObjectUtils;
 
 /**
@@ -54,7 +54,7 @@ public class CompareResult implements Comparable<CompareResult> {
 	}
 
 	private String _toColumnName(String fieldName) {
-		return NameTranslateHandle.toColumnName(fieldName);
+		return HoneyUtil.toColumnName(fieldName);
 	}
 
 //	这里要定义比较器.   可以将比较结构传入.

@@ -845,11 +845,11 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 
 	@SuppressWarnings("rawtypes")
 	private static String _toColumnName(String fieldName, Class entityClass) {
-		return NameTranslateHandle.toColumnName(fieldName, entityClass);
+		return HoneyUtil.toColumnName(fieldName, entityClass);
 	}
 
 	private static String _id(String pkName, Class entityClass) {
-		return NameTranslateHandle.toColumnName(pkName, entityClass);
+		return _toColumnName(pkName, entityClass);
 	}
 
 	private boolean isNeedRealTimeDb() {

@@ -251,7 +251,7 @@ public class MongoConditionHelper {
 
 	@SuppressWarnings("rawtypes")
 	private static String _toColumnName(String fieldName, Class entityClass) {
-		return NameTranslateHandle.toColumnName(fieldName, entityClass);
+		return HoneyUtil.toColumnName(fieldName, entityClass);
 	}
 
 }

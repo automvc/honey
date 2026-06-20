@@ -571,7 +571,7 @@ public class MapSqlProcessor {
 
 	private static String _toColumnName(String fieldName) {
 		checkName(fieldName);
-		return NameTranslateHandle.toColumnName(fieldName);
+		return HoneyUtil.toColumnName(fieldName);
 	}
 
 	private static void checkTable(String tableName) {

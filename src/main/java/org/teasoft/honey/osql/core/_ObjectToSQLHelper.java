@@ -881,7 +881,7 @@ final class _ObjectToSQLHelper {
 
 	@SuppressWarnings("rawtypes")
 	private static String _toColumnName(String fieldName, Class entityClass) {
-		return NameTranslateHandle.toColumnName(fieldName, entityClass);
+		return HoneyUtil.toColumnName(fieldName, entityClass);
 	}
 
 	static <T> void setInitIdByAuto(T entity) {
@@ -912,7 +912,7 @@ final class _ObjectToSQLHelper {
 			if (noId) {
 				pkName = HoneyUtil.getPkFieldName(entity);
 				if ("".equals(pkName) || pkName == null || pkName.contains(",")) {
-					Logger.warn("setInitIdByAuto just support single primary key.");
+					Logger.warn("setInitIdByAuto just support single primary key, checking entity: " + entity.getClass().getName());
 					return; // just support single primary key. 自动设置主键值,只支持单主键.
 				}
 				field = HoneyUtil.getField(entity.getClass(), pkName);
