@@ -91,7 +91,8 @@ public class AnnoUtil {
 
 	// 2.1.8
 	public static boolean isFK(Field field) {
-		return field.isAnnotationPresent(FK.class);
+//		return field.isAnnotationPresent(FK.class);
+		return false;  //TODO
 	}
 
 	// 2.1.8
