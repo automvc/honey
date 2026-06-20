@@ -94,6 +94,11 @@ public class AnnoUtil {
 //		return field.isAnnotationPresent(FK.class);
 		return false;  //TODO
 	}
+	
+	// 3.0.0
+	public static boolean isJoinTable(Field field) {
+		return field.isAnnotationPresent(JoinTable3.class);
+	}
 
 	// 2.1.8
 	public static boolean isGridFs(Field field) {

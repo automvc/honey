@@ -29,7 +29,6 @@ import org.teasoft.bee.osql.ObjSQLException;
 import org.teasoft.bee.osql.Serializer;
 import org.teasoft.bee.osql.annotation.GenId;
 import org.teasoft.bee.osql.annotation.GenUUID;
-import org.teasoft.bee.osql.annotation.JoinTable3;
 import org.teasoft.bee.osql.annotation.JustFetch;
 import org.teasoft.bee.osql.annotation.customizable.Json;
 import org.teasoft.bee.osql.exception.BeeErrorFieldException;
@@ -821,8 +820,7 @@ public final class HoneyUtil {
 		if (field != null) {
 			if ("serialVersionUID".equals(field.getName())) return true;
 			if (AnnoUtil.isIgnore(field)) return true; // 1.17
-//			if (field.isAnnotationPresent(JoinTable.class)) return true;
-			if (field.isAnnotationPresent(JoinTable3.class)) return true;
+			if (AnnoUtil.isJoinTable(field)) return true; // 3.0.0
 			if (field.isSynthetic()) return true;
 			if (AnnoUtil.isFK(field)) return true; // 2.1.8
 			if (AnnoUtil.isGridFs(field)) return true; // 2.1.8
@@ -835,7 +833,6 @@ public final class HoneyUtil {
 		if (field != null) {
 			if ("serialVersionUID".equals(field.getName())) return true;
 			if (AnnoUtil.isIgnore(field)) return true; // 1.17
-//			if (field.isAnnotationPresent(JoinTable.class)) return true;
 			if (field.isSynthetic()) return true;
 		}
 

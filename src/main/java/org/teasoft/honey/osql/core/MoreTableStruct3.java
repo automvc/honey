@@ -4,6 +4,8 @@ import java.lang.reflect.Field;
 import java.util.List;
 
 import org.teasoft.bee.osql.BeeException;
+import org.teasoft.bee.osql.SuidType;
+import org.teasoft.bee.osql.annotation.FK;
 import org.teasoft.bee.osql.annotation.JoinTable3;
 import org.teasoft.bee.osql.annotation.JoinType;
 import org.teasoft.bee.osql.exception.ConfigWrongException;
@@ -34,7 +36,7 @@ class MoreTableStruct3 {
 
 	MoreTableStruct3() {}
 
-	MoreTableStruct3(Field joinField, Object entity, int layer, List<String> parentTree) {
+	MoreTableStruct3(Field joinField, Object entity, int layer, List<String> parentTree, SuidType suidType) {
 		JoinTable3 joinTable3 = joinField.getAnnotation(JoinTable3.class);
 
 		this.subClass = joinTable3.subClass();
@@ -50,6 +52,19 @@ class MoreTableStruct3 {
 
 		if (List.class == joinField.getType()) {
 			this.currentIsList = true;
+		}
+
+		if (suidType == SuidType.MODIFY) {
+			FK fk = joinField.getAnnotation(FK.class);
+			String[] fkMainField = fk.mainField();
+			String[] fkSubField = fk.subField();
+
+			if (fkMainField != null && fkMainField.length > 0) {
+				this.mainFields = fkMainField;
+			}
+			if (fkSubField != null && fkSubField.length > 0) {
+				this.subFields = fkSubField;
+			}
 		}
 
 		if (mainFields.length != subFields.length) {
@@ -103,9 +118,9 @@ class MoreTableStruct3 {
 		parentTree.add(this.subAlias);
 	}
 
-	MoreTableStruct3(Field joinField, Object entity, int layer, List<String> parentTree, boolean hasNextLayer,
-			String mainAlias) {
-		this(joinField, entity, layer, parentTree);
+	MoreTableStruct3(Field joinField, Object entity, int layer, List<String> parentTree, SuidType suidType,
+			boolean hasNextLayer, String mainAlias) {
+		this(joinField, entity, layer, parentTree, suidType);
 
 		checkField(mainAlias);
 

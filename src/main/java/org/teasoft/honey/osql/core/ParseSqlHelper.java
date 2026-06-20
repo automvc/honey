@@ -7,25 +7,25 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.teasoft.bee.osql.annotation.JoinTable3;
+import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.exception.ConfigWrongException;
 import org.teasoft.honey.logging.Logger;
 import org.teasoft.honey.osql.name.NameUtil;
+import org.teasoft.honey.osql.util.AnnoUtil;
 import org.teasoft.honey.util.StringUtils;
 
 class EntityWrapper {
-	List<String> columnList; //列名list
-	List<String> classFieldnameList;//类字段list
-	Map<String, Object> columnAndValue;//列名和值的map
-	List<PreparedValue> preList;//占位对应的值/类型
+	List<String> columnList; // 列名list
+	List<String> classFieldnameList;// 类字段list
+	Map<String, Object> columnAndValue;// 列名和值的map
+	List<PreparedValue> preList;// 占位对应的值/类型
 }
 
 public final class ParseSqlHelper {
 
 	private static final String SEPARATOR = "#";
 
-	private ParseSqlHelper() {
-	}
+	private ParseSqlHelper() {}
 
 	static <T> EntityWrapper parseEntity(T entity, int includeType) {
 		if (entity == null) return null;
@@ -95,23 +95,27 @@ public final class ParseSqlHelper {
 	}
 
 	static <T> Map<String, MoreTableStruct3> parseJoins(T entity) {
+		return parseJoins(entity, SuidType.SELECT);
+	}
+
+	static <T> Map<String, MoreTableStruct3> parseJoins(T entity, SuidType suidType) {
 		if (entity == null) return null;
 
 		String packageAndClassName = entity.getClass().getName();
-		String key = "ForMoreTable3:" + packageAndClassName;
+		String key = "ForMoreTable3:" + suidType.name() + packageAndClassName;
 
-		// TODO 每一次的对象不一样。   本次线程有效？？
+		// TODO 每一次的对象不一样。 本次线程有效？？
 		Map<String, MoreTableStruct3> map = (Map<String, MoreTableStruct3>) HoneyContext.getCommonCache(key);
 
-		map=null;  //TODO
+		map = null; // TODO
 		if (map == null) {
-			map = parseJoins0(entity);
+			map = parseJoins0(entity, suidType);
 			HoneyContext.addCommonCache(key, map);
 		}
 		return map;
 	}
 
-	static <T> Map<String, MoreTableStruct3> parseJoins0(T entity) {
+	static <T> Map<String, MoreTableStruct3> parseJoins0(T entity, SuidType suidType) {
 
 		Map<String, MoreTableStruct3> result = new LinkedHashMap<>();
 		if (entity == null) return result;
@@ -124,12 +128,12 @@ public final class ParseSqlHelper {
 		boolean hasJoinField = false;
 		for (int i = 0; i < len; i++) {
 			if (HoneyUtil.isSkipFieldForMoreTable(field[i])) continue; // 有Ignore注释,将不再处理JoinTable //TODO
-			if (field[i] != null && field[i].isAnnotationPresent(JoinTable3.class)) {
+			if (field[i] != null && AnnoUtil.isJoinTable(field[i])) {
 				hasJoinField = true;
 				int layer = 2;
 				List<String> parentTree = new ArrayList<>();
 
-				MoreTableStruct3 moreTableStruct = new MoreTableStruct3(field[i], entity, layer, parentTree);
+				MoreTableStruct3 moreTableStruct = new MoreTableStruct3(field[i], entity, layer, parentTree, suidType);
 				if (result.isEmpty()) {
 					moreTableStruct_first = moreTableStruct;
 					moreTableStruct_first.overall = overall;
@@ -137,8 +141,8 @@ public final class ParseSqlHelper {
 					subClassIsList.add(entity.getClass().getName());
 					moreTableStruct_first.overall.allEntityType = subClassIsList;
 				}
-				moreTableStruct_first.overall.allEntityType.add(moreTableStruct.currentIsList + SEPARATOR
-						+ moreTableStruct.subClass.getName()); // TODO MD5
+				moreTableStruct_first.overall.allEntityType
+						.add(moreTableStruct.currentIsList + SEPARATOR + moreTableStruct.subClass.getName()); // TODO MD5
 
 				result.put(moreTableStruct.subAlias, moreTableStruct);
 
@@ -153,18 +157,18 @@ public final class ParseSqlHelper {
 
 				moreTableStruct.typeTree = typeTree;
 				// TODO change to debug
-				Logger.info("The layer is: 1, class is: " + entity.getClass() + ", alias is: "
-						+ moreTableStruct.mainAlias);
+				Logger.info(
+						"The layer is: 1, class is: " + entity.getClass() + ", alias is: " + moreTableStruct.mainAlias);
 
 				String subType = ", class is: ";
 				if (moreTableStruct.currentIsList) {
 					subType = ", class is List, element type is: ";
 				}
-				Logger.info("The layer is: " + layer + subType + moreTableStruct.subClass.getName()
-						+ ", alias is: " + moreTableStruct.subAlias);
+				Logger.info("The layer is: " + layer + subType + moreTableStruct.subClass.getName() + ", alias is: "
+						+ moreTableStruct.subAlias);
 
 				int orignalSize = result.size();
-				_parseOneHasOne(moreTableStruct, result, layer, overall);
+				_parseOneHasOne(moreTableStruct, result, layer, overall, suidType);
 				int newSize = result.size();
 				if (newSize > orignalSize) moreTableStruct.hasNextLayer = true;
 			}
@@ -176,13 +180,13 @@ public final class ParseSqlHelper {
 	}
 
 	static <T> void _parseOneHasOne(MoreTableStruct3 currentMoreTableStruct, Map<String, MoreTableStruct3> result,
-			int layer, MoreTableStructOverall overall) {
+			int layer, MoreTableStructOverall overall, SuidType suidType) {
 
 		Field field[] = HoneyUtil.getFields(currentMoreTableStruct.subClass);
 		int len = field.length;
 		for (int i = 0; i < len; i++) {
 			if (HoneyUtil.isSkipFieldForMoreTable(field[i])) continue; // 有Ignore注释,将不再处理JoinTable //TODO
-			if (field[i] != null && field[i].isAnnotationPresent(JoinTable3.class)) {
+			if (field[i] != null && AnnoUtil.isJoinTable(field[i])) {
 				layer = layer + 1;
 				if (layer >= 10) {
 					// TODO
@@ -198,14 +202,14 @@ public final class ParseSqlHelper {
 				List<String> parentTree2 = new ArrayList<>(currentMoreTableStruct.parentTree);
 
 				MoreTableStruct3 moreTableStruct2 = new MoreTableStruct3(field[i], currentMoreTableStruct.subObject,
-						layer, parentTree2, true, currentMoreTableStruct.subAlias); // subAlias作用下一层的主表
+						layer, parentTree2, suidType, true, currentMoreTableStruct.subAlias); // subAlias作用下一层的主表
 
 				List<Class<?>> currentTypeTree = new ArrayList<Class<?>>(currentMoreTableStruct.typeTree);
 				currentTypeTree.add(moreTableStruct2.subClass);
 				moreTableStruct2.typeTree = currentTypeTree;
 
-				overall.allEntityType.add(moreTableStruct2.currentIsList + SEPARATOR
-						+ moreTableStruct2.subClass.getName());// TODO MD5
+				overall.allEntityType
+						.add(moreTableStruct2.currentIsList + SEPARATOR + moreTableStruct2.subClass.getName());// TODO MD5
 
 				result.put(moreTableStruct2.subAlias, moreTableStruct2);
 
@@ -214,10 +218,10 @@ public final class ParseSqlHelper {
 					subType = ", class is List, element type is: ";
 					overall.setHasAnySubListEntity(moreTableStruct2.currentIsList);
 				}
-				Logger.info("The layer is: " + layer + subType + moreTableStruct2.subClass.getName()
-						+ ", alias is: " + moreTableStruct2.subAlias);
+				Logger.info("The layer is: " + layer + subType + moreTableStruct2.subClass.getName() + ", alias is: "
+						+ moreTableStruct2.subAlias);
 
-				_parseOneHasOne(moreTableStruct2, result, layer, overall);
+				_parseOneHasOne(moreTableStruct2, result, layer, overall, suidType);
 			}
 		}
 	}

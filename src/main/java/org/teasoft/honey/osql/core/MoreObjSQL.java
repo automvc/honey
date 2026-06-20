@@ -294,7 +294,7 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 			type = "update";
 		}
 
-		Map<String, MoreTableStruct3> moreTableStructMap = ParseSqlHelper.parseJoins(entity);
+		Map<String, MoreTableStruct3> moreTableStructMap = ParseSqlHelper.parseJoins(entity, SuidType.MODIFY);
 		if (moreTableStructMap == null || moreTableStructMap.isEmpty())
 			throw new BeeException("Entity for MoreTable operate must have JoinTable setting!");
 
