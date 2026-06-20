@@ -123,55 +123,36 @@ class _MoreObjectToSQLHelper3 {
 
 		boolean needRewritePagingSql = true;
 		if (needRewritePagingSql) {
-			if (condition == null) { // 没有condition,不可能有分页
+			if (condition == null) {
+				// 1.没有condition,不可能有分页
 				needRewritePagingSql = false;
-				// 0.用户主动设置本次查询不需要分页改写
+
 			} else if (condition != null && condition.isDoNotRewritePagingSql()) {
+				// 2.用户主动设置本次查询不需要分页改写
 				needRewritePagingSql = false;
-			} else if (groupSize >= 1) { // 1. 有分组
-				// 有分组; 不需要分页改写; 前面已计算有结果，先利用，避免不必要的计算。
+			} else if (groupSize >= 1) {
+				// 3.有分组 ;不需要分页改写; 前面已计算有结果，先利用，避免不必要的计算。
 				needRewritePagingSql = false; // 有使用聚合查询就不用改写 （与分片无关）
 			} else if (HoneyContext.getSysCommStrInheritableLocal(StringConst.FunType) != null) {
-				// 2.有聚合查询; 不需要分页改写;
+				// 4.有聚合查询; 不需要分页改写;
 				needRewritePagingSql = false;
 			} else if (!ConditionHelper3.isNeedRewriteSqlByPage(condition)) {
-				// 3.无分页 (有分页才要改写)
+				// 5.无分页 (有分页才要改写)
 				needRewritePagingSql = false;
 			} else if (!overall.isHasAnySubListEntity()) {
-				// 4.没有一对多
+				// 6.没有一对多
 				needRewritePagingSql = false;
 			}
-
-			// 只查询主表的数据
-
-			// 以下为排除不需要改写分页的算法(伪代码表示)
-			// 可以自动判断，决定是否进行精确分页改写；
-			// 需要改写分页sql，进行以下判断，看是否是真的需要改写
-			// 以下是必要非充分条件
-			// 1) 有分页
-			// 2) 有一对多
-
-			// 以下有一条满足则不需要改写:
-			// 1) 只查询主表的数据； ??? 如何检测??
-			// 2) 有聚合查询；或有分组
-			// 3）可以确定最多只能查到一条主表记录 (所有多的子表，都设置有主键值)
-			//
-
-//			if (needRewritePagingSql) {// 主表设置了主键值,只查一条记录,不用改写
-//				Object idValeu = HoneyUtil.getIdValue(entity);
-//				if (idValeu != null) needRewritePagingSql = false;
-//			}
-			// 主表有主键值，但可能从表对应了多表也不行。
-
-			// 若符合条件，则设置改写标识为false
-			// needRewritePagingSql = false;
 		}
 
 		String pkNames = HoneyUtil.getPkFieldName(entity);
+		// 7. 没有设置主键
 		if (StringUtils.isBlank(pkNames)) {
 			needRewritePagingSql = false;
 			Logger.warn("Do rewrite paing sql, as have not primary key in " + entity.getClass().getName());
 		}
+//		else if(){ //8. 多那头的子表的主键都设置有值,即结果只会有一条记录. TODO
+//	    }
 
 		StringBuffer fullColumns = new StringBuffer();
 		StringBuffer joinPart = new StringBuffer();
