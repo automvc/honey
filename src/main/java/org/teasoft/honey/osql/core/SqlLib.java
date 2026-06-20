@@ -88,7 +88,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 						int List_T = 2;
 						rsList = (List<T>) new ShardingGroupbyListStringArrayEngine().asynProcess(sql, this, entityClass, List_T);
 					} else if (jdbcStreamSelect && !ShardingUtil.hadGroupSharding()) {
-						rsList = new ShardingSelectRsEngine().asynProcess(sql, entityClass, this); // 无结果集时,可能会报错 fixed	 V2.1
+						rsList = new ShardingSelectRsEngine().asynProcess(sql, entityClass, this); // 无结果集时,可能会报错 fixed V2.1
 					} else {
 						rsList = new ShardingSelectEngine().asynProcess(sql, entityClass, this);
 					}
@@ -144,13 +144,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 				rsList.add(targetObj);
 			}
 			addInCache(sql, rsList, rsList.size());
-		} catch (SQLException e) {
-			hasException = true;
-			throw ExceptionHelper.convert(e);
-		} catch (IllegalAccessException e) {
-			hasException = true;
-			throw ExceptionHelper.convert(e);
-		} catch (InstantiationException e) {
+		} catch (SQLException | IllegalAccessException | InstantiationException e) {
 			hasException = true;
 			throw ExceptionHelper.convert(e);
 		} finally {
@@ -492,8 +486,10 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 			num = pst.executeUpdate();
 		} catch (SQLException e) {
 			hasException = true; // finally要用到
-			if (catchModifyDuplicateException(e)) return num;
-			else throw ExceptionHelper.convert(e);
+			if (catchModifyDuplicateException(e))
+				return num;
+			else
+				throw ExceptionHelper.convert(e);
 		} finally {
 			if (clearFlag) clearInCache(sql, "int", SuidType.MODIFY, num); // has clearContext(sql)
 			if (hasException) {
@@ -1134,7 +1130,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 			Map<String, Map<String, Field>> subNameAndFieldCache = new HashMap<>();
 
 			// key0 or key1 : [subObject] # 对象list缓存
-			Map<String, List> listCache = new HashMap<>(); //list_cache current_subObject_list_cache_dict
+			Map<String, List> listCache = new HashMap<>(); // list_cache current_subObject_list_cache_dict
 			// key1 or layer_key : subObject #单个对象缓存
 			Map<String, Object> singleCache = new HashMap<>(); // current_single_subObject_cache_dict
 			Set<String> one_to_one_for_two_layer_set = new HashSet();
@@ -1159,7 +1155,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 					MoreTableStruct3 mtStruct = entry.getValue();
 					boolean processed = false;
 					if (mtStruct.layer == 2) {
-						
+
 						// gen key0, layer_key
 						ptree = mtStruct.parentTree;
 						String key0 = main_key;
@@ -1174,14 +1170,13 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 							continue;
 						}
 						String current_key1 = "";
-						if (sub_field_value_str.length()>0)
-							current_key1 = sub_field_value_str.toString();
+						if (sub_field_value_str.length() > 0) current_key1 = sub_field_value_str.toString();
 						String layer_key = key0 + ".." + ptree.get(0) + "##" + current_key1;
 
 						if (mtStruct.currentIsList) {
 							processed = true;
 							List sub_list_obj = listCache.get(key0);
-							//1:n:1 第二级是list的属性将第一层添加了； 非list的第二层属性也不用再添加第一层的对象。
+							// 1:n:1 第二级是list的属性将第一层添加了； 非list的第二层属性也不用再添加第一层的对象。
 
 							if (sub_list_obj == null) {
 								sub_list_obj = new ArrayList();
@@ -1196,11 +1191,10 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 
 								if (!one_to_one_for_two_layer_set.contains(key0)) {
 									rsList.add(main_obj);
-									one_to_one_for_two_layer_set.add(key0); 
+									one_to_one_for_two_layer_set.add(key0);
 									// 1:n:1 第二级是list的属性将第一层添加了； 非list的第二层属性也不用再添加第一层的对象。
 								}
-								singleCache.put(layer_key,
-										reutrn_subObject_cache_dict.get(mtStruct.subAlias));
+								singleCache.put(layer_key, reutrn_subObject_cache_dict.get(mtStruct.subAlias));
 							} else { // # 二级列表有了
 //                            # 但第二级的对象还未加有，则要加到一级对象list下
 								if (!singleCache.containsKey(layer_key)) {
@@ -1217,14 +1211,14 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 							singleCache.put(layer_key, reutrn_subObject_cache_dict.get(mtStruct.subAlias));
 
 							processed = true;
-							//第二层为1时，每行只需要添加一次;不然多层时会乱； 但使用这种了，要是一对多，想用这种方式查，则会忽略了主表相同的从表除第一条以外的数据。
+							// 第二层为1时，每行只需要添加一次;不然多层时会乱； 但使用这种了，要是一对多，想用这种方式查，则会忽略了主表相同的从表除第一条以外的数据。
 							if (!one_to_one_for_two_layer_set.contains(key0)) {
 								rsList.add(main_obj);
 								if (moreTableStructNum > 1)// 只有一个子表时，还是允许一对多使用这种；即每行都添加(不放入set,则上一个if都会是true)。但多过一个子表时，则不允许。
 									one_to_one_for_two_layer_set.add(key0);
 							}
 //                        # one has one时，第三层会找不到第二层的缓存；  因非list,第二层没放缓存。  是通过将三级子对象设置到二级子对象的属性完成对象关联的
-						}// layer ==2 end
+						} // layer ==2 end
 					} else if (mtStruct.layer >= 3) {
 						if (no_obj_layer != null && mtStruct.layer > no_obj_layer) {
 							continue; // 若该层没有数据返回，则直接不处理它的子类了，不能断层。
@@ -1243,7 +1237,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 							}
 						}
 						processed = true;
-						
+
 						// gen key1,layer_key
 						ptree = mtStruct.parentTree;
 						String key0 = main_key;
@@ -1261,14 +1255,15 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 							}
 						}
 
-						StringBuffer sub_field_value_str2 = sub_field_value_str_cache_dict.get(ptree.get(mtStruct.layer - 2));
+						StringBuffer sub_field_value_str2 = sub_field_value_str_cache_dict
+								.get(ptree.get(mtStruct.layer - 2));
 
 						if (sub_field_value_str2 == null) sub_field_value_str2 = new StringBuffer();// maybe no need
 
 						String current_key2 = sub_field_value_str2.toString();
 						String layer_key = key1 + ".." + ptree.get(mtStruct.layer - 2) + "##" + current_key2;
 
-						Object current_single_subObject = singleCache.get(key1); //用key1取?? TODO
+						Object current_single_subObject = singleCache.get(key1); // 用key1取?? TODO
 						if (current_single_subObject != null) {
 							if (mtStruct.currentIsList) { // 3-has-list
 								List sub_list_obj = listCache.get(key1);
@@ -1285,7 +1280,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 									HoneyUtil.setFieldValue(field, current_single_subObject, sub_list_obj);
 
 									listCache.put(key1, sub_list_obj);
-									singleCache.put(layer_key,reutrn_subObject_cache_dict.get(mtStruct.subAlias));
+									singleCache.put(layer_key, reutrn_subObject_cache_dict.get(mtStruct.subAlias));
 								} else { // # 第三级列表是有了，
 									// # 但，第三级的对象还未加有，则要加到二级对象list下
 									if (!singleCache.containsKey(layer_key))
@@ -1303,22 +1298,21 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 										reutrn_subObject_cache_dict.get(mtStruct.subAlias));
 
 								// TODO fixed 1-n-1-n-1
-								singleCache.put(layer_key, reutrn_subObject_cache_dict.get(
-										mtStruct.subAlias));
+								singleCache.put(layer_key, reutrn_subObject_cache_dict.get(mtStruct.subAlias));
 							}
 						} else {
-                         System.err.println("-----------key1没有放缓存------------"); //TODO
+//							System.err.println("-----------key1没有放缓存------------"); // TODO
 							if (mtStruct.currentIsList) { // 3 - null -list
 								// 还没放缓存； 也是list; 如: 1-1-n-1-1 第三层时，就要走这里。
-								System.err.println("还没放缓存； 也是list; 如:  1-1-n-1-1 第三层时，就要走这里。 layer: " + mtStruct.layer); //TODO
+//								System.err.println("还没放缓存； 也是list; 如:  1-1-n-1-1 第三层时，就要走这里。 layer: " + mtStruct.layer); // TODO
 							} else { // 3 - null -not_list
 								subNameAndField = getSubNameAndField(subNameAndFieldCache, mtStruct.mainAlias,
 										mtStruct.typeTree.get(mtStruct.layer - 2));
 								field = subNameAndField.get(mtStruct.fieldName);
 								HoneyUtil.setAccessibleTrue(field);
-								 // eg: 设置layer3时，layer不能为null
+								// eg: 设置layer3时，layer不能为null
 								if (reutrn_subObject_cache_dict.get(mtStruct.mainAlias) == null) continue;
-																											
+
 								HoneyUtil.setFieldValue(field, reutrn_subObject_cache_dict.get(mtStruct.mainAlias),
 										reutrn_subObject_cache_dict.get(mtStruct.subAlias));
 							}
@@ -1334,8 +1328,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 		} catch (SQLException e) {
 			hasException = true;
 			throw ExceptionHelper.convert(e);
-		} catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException
-				| InstantiationException e) {
+		} catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException | InstantiationException e) {
 			hasException = true;
 			throw ExceptionHelper.convert(e);
 		} finally {
@@ -1394,14 +1387,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 
 			addInCache(sql, rsList, rsList.size());
 
-		} catch (SQLException e) {
-//			e.printStackTrace();
-			hasException = true;
-			throw ExceptionHelper.convert(e);
-		} catch (IllegalAccessException e) {
-			hasException = true;
-			throw ExceptionHelper.convert(e);
-		} catch (InstantiationException e) {
+		} catch (SQLException | IllegalAccessException | InstantiationException e) {
 			hasException = true;
 			throw ExceptionHelper.convert(e);
 		} finally {
