@@ -16,6 +16,7 @@ import org.teasoft.bee.osql.api.Condition;
 import org.teasoft.bee.osql.exception.ConfigWrongException;
 import org.teasoft.bee.osql.interccept.InterceptorChain;
 import org.teasoft.bee.sharding.GroupFunStruct;
+import org.teasoft.honey.logging.Logger;
 import org.teasoft.honey.osql.name.NameUtil;
 import org.teasoft.honey.sharding.ShardingReg;
 import org.teasoft.honey.sharding.ShardingUtil;
@@ -29,6 +30,10 @@ class _MoreObjectToSQLHelper3 {
 	private static final String EQUAL_QUEST = " = ?";
 	private static final String DOT = ".";
 	private static final String AND = " " + K.and + " ";
+	private static final String JOIN_STR = "join (";
+	private static final String JOIN_STR_UPPER = "join (";
+	private static final String TEMP_PAGING_TABLE_NAME = "bee_paging";
+	private static final String TEMP_PAGING_TABLE_NAME_UPPER = "BEE_PAGING";
 
 	private static final int DEFAULT_INCLUDE_TYPE = IncludeType.EXCLUDE_BOTH.getValue();
 
@@ -160,6 +165,12 @@ class _MoreObjectToSQLHelper3 {
 
 			// 若符合条件，则设置改写标识为false
 			// needRewritePagingSql = false;
+		}
+
+		String pkNames = HoneyUtil.getPkFieldName(entity);
+		if (StringUtils.isBlank(pkNames)) {
+			needRewritePagingSql = false;
+			Logger.warn("Do rewrite paing sql, as have not primary key in " + entity.getClass().getName());
 		}
 
 		StringBuffer fullColumns = new StringBuffer();
@@ -362,20 +373,41 @@ class _MoreObjectToSQLHelper3 {
 
 		if (needRewritePagingSql) {
 			pagingRewriteSql.append("select distinct ");
-			pagingRewriteSql.append(mainTableName).append(".id").append(" from ")
-					.append(ShardingUtil.appendTableIndexIfNeed(mainTableName)).append(ONE_SPACE)
+//			pagingRewriteSql.append(mainTableName).append(".id").append(" from ")
+
+			String pks[] = pkNames.split(",");
+			for (int i = 0; i < pks.length; i++) {
+				if (i != 0) pagingRewriteSql.append(COMMA).append(ONE_SPACE);
+				pagingRewriteSql.append(mainTableName).append(DOT).append(pks[i]);
+			}
+
+			pagingRewriteSql.append(ShardingUtil.appendTableIndexIfNeed(mainTableName)).append(ONE_SPACE)
 //					.append(mainTableName).append(ONE_SPACE);
 					.append(mainTableAlias).append(ONE_SPACE);
 
 			pagingRewriteSql.append(sqlBufferComm);
 
 			preList.addAll(preList0); // temp_paging need those params
-			// TODO 这里应该不需要 for_update
-			ConditionHelper3.processPagingAndForUpdate(pagingRewriteSql, preList, condition, firstWhere, null);
+			ConditionHelper3.processPaging(pagingRewriteSql, preList, condition, firstWhere, null);
+//			String joinStr="join (";
+			if (!HoneyUtil.isSqlKeyWordUpper())
+				pagingRewriteSql.insert(0, JOIN_STR);
+			else
+				pagingRewriteSql.insert(0, JOIN_STR_UPPER);
 
-			pagingRewriteSql.insert(0, "join (");
-			// TODO 需要改为具体的主键；还要考虑多主键的情况
-			pagingRewriteSql.append(") bee_paging on ").append(mainTableName).append(".id = bee_paging.id");
+			// 具体的主键；还要考虑多主键的情况
+			String tempPagingTableName = TEMP_PAGING_TABLE_NAME;
+			if (HoneyUtil.isSqlKeyWordUpper()) tempPagingTableName = TEMP_PAGING_TABLE_NAME_UPPER;
+
+//			pagingRewriteSql.append(") bee_paging on ");
+			pagingRewriteSql.append(") ").append(tempPagingTableName).append(ONE_SPACE).append(K.on).append(ONE_SPACE);
+
+//			pagingRewriteSql.append(mainTableName).append(".id = bee_paging.id");
+			for (int i = 0; i < pks.length; i++) {
+				if (i != 0) pagingRewriteSql.append(AND);
+				pagingRewriteSql.append(mainTableName).append(DOT).append(pks[i]).append(EQUAL)
+						.append(tempPagingTableName).append(DOT).append(pks[i]);
+			}
 
 			int tempIndex = sqlBuffer.indexOf(tempTablePlaceholder);
 			sqlBuffer.replace(tempIndex, tempIndex + tempTablePlaceholder.length(), pagingRewriteSql.toString());
@@ -384,7 +416,8 @@ class _MoreObjectToSQLHelper3 {
 
 		if (!needRewritePagingSql) {
 			// paging, ForUpdate, check
-			ConditionHelper3.processPagingAndForUpdate(sqlBuffer, preList, condition, firstWhere, null); // useSubTableNames
+			ConditionHelper3.processPaging(sqlBuffer, preList, condition, firstWhere, null); // useSubTableNames
+			ConditionHelper3.processForUpdate(sqlBufferComm, condition, null);
 		}
 
 		String sql = sqlBuffer.toString();
@@ -429,7 +462,6 @@ class _MoreObjectToSQLHelper3 {
 					strBuffer.append(" " + prefix + "_" + subColumnName + "_$");
 				}
 			}
-
 		}
 	}
 

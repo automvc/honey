@@ -26,16 +26,15 @@ public class ConditionHelper3 {
 
 	private static final String ONE_SPACE = " ";
 
-	private ConditionHelper3() {
-	}
+	private ConditionHelper3() {}
 
 	private static DbFeature getDbFeature() {
 		return BeeFactory.getHoneyFactory().getDbFeature();
 	}
 
-	//可以和1的合回? TODO
-	static QueryConditionWrap processQueryCondition(Condition condition, boolean firstWhere,
-			String mainTableAlias, Class<?> mainClass, Map<String, MoreTableStruct3> moreTableStructMap) {
+	// 可以和1的合回? TODO
+	static QueryConditionWrap processQueryCondition(Condition condition, boolean firstWhere, String mainTableAlias,
+			Class<?> mainClass, Map<String, MoreTableStruct3> moreTableStructMap) {
 
 //		Class entityClass = (Class) OneTimeParameter.getAttribute(StringConst.Column_EC); // 要消费了 V3多表，不用这个了。
 		if (condition == null) return null;
@@ -74,7 +73,7 @@ public class ConditionHelper3 {
 //			columnName = _toColumnName(expression.getFieldName(), useSubTableNames, entityClass);
 
 			fieldName = expression.getFieldName().trim();
-			
+
 			// MoreTableHelper.fieldName2ColumnName
 			columnName = MoreTableHelper.fieldName2ColumnName(fieldName, mainTableAlias, mainClass, moreTableStructMap);
 
@@ -232,8 +231,7 @@ public class ConditionHelper3 {
 			} else if (OpType.GROUP_BY == opType) {
 				if (SuidType.SELECT != conditionImpl.getSuidType()) {
 					throw new BeeErrorGrammarException(
-							"BeeErrorGrammarException: " + conditionImpl.getSuidType()
-									+ " do not support 'group by' !");
+							"BeeErrorGrammarException: " + conditionImpl.getSuidType() + " do not support 'group by' !");
 				}
 
 				sqlBuffer.append(value);// group by或者,
@@ -289,7 +287,7 @@ public class ConditionHelper3 {
 		return new QueryConditionWrap(sqlBuffer, list, isFirstWhere, condition.getGroupByFields(),
 				condition.getOrderBy());
 	}
-	
+
 	static String processSelectField(String columnNames, Condition condition, Map<String, String> subDulFieldMap,
 			String mainTableAlias, Class<?> mainClass, Map<String, MoreTableStruct3> moreTableStructMap) {
 
@@ -303,7 +301,7 @@ public class ConditionHelper3 {
 		String selectField[] = conditionImpl.getSelectField();
 
 		if (selectField == null) return null;
-		
+
 		String selectFields[];
 
 		if (selectField.length == 1) { // 变长参数,只有一个时,才允许用逗号隔开
@@ -312,18 +310,18 @@ public class ConditionHelper3 {
 			selectFields = selectField;
 		}
 		StringUtils.trim(selectFields);
-		
+
 		// fieldName -> columnName
 		for (int i = 0; i < selectFields.length; i++) {
-			selectFields[i] = MoreTableHelper.fieldName2ColumnName(selectFields[i], mainTableAlias, mainClass, moreTableStructMap);
+			selectFields[i] = MoreTableHelper.fieldName2ColumnName(selectFields[i], mainTableAlias, mainClass,
+					moreTableStructMap);
 		}
 
 		return HoneyUtil.checkAndProcessSelectFieldViaString(columnNames, subDulFieldMap, selectFields);
 	}
-	
+
 	public static String processFunction(String columnNames, Condition condition, String mainTableAlias,
-			Class<?> mainClass, Map<String, MoreTableStruct3> moreTableStructMap
-			) {
+			Class<?> mainClass, Map<String, MoreTableStruct3> moreTableStructMap) {
 
 		if (condition == null) return null;
 
@@ -335,7 +333,7 @@ public class ConditionHelper3 {
 		String funStr = "";
 		boolean isFirst = true;
 		String nameAlias;
-		boolean isSQLite=HoneyUtil.isSQLite();
+		boolean isSQLite = HoneyUtil.isSQLite();
 
 		int size = funExpList.size();
 //		FunStruct funStructs[]=null;
@@ -358,7 +356,7 @@ public class ConditionHelper3 {
 //			}
 
 		}
-		
+
 		boolean isConfuseDuplicateFieldDB = HoneyUtil.isConfuseDuplicateFieldDB();
 		boolean hasAvg = false;
 //		int adjust=0;
@@ -367,10 +365,11 @@ public class ConditionHelper3 {
 			if ("*".equals(funExpList.get(i).getField())) {
 				columnName = "*";
 			} else { // todo //不校验字段
-				
-				//3.0
+
+				// 3.0
 				String fieldName = funExpList.get(i).getField();
-				columnName = MoreTableHelper.fieldName2ColumnName(fieldName, mainTableAlias, mainClass, moreTableStructMap);
+				columnName = MoreTableHelper.fieldName2ColumnName(fieldName, mainTableAlias, mainClass,
+						moreTableStructMap);
 
 //				//聚合函数,支持复合写法,eg:"DISTINCT(school_id)", 不用检测
 				columnName = HoneyUtil.checkAndProcessSelectFieldViaString(columnNames, null, false, columnName);
@@ -393,7 +392,7 @@ public class ConditionHelper3 {
 				String newAlias = nameAlias;
 				// isConfuseDuplicateFieldDB用原来的,取名时应该取不有重名的
 				if (!isConfuseDuplicateFieldDB && StringUtils.isNotBlank(mainTableAlias) && !nameAlias.contains(".")) {
-					newAlias = "'"+mainTableAlias + "." + nameAlias+"'"; //mysql ok
+					newAlias = "'" + mainTableAlias + "." + nameAlias + "'"; // mysql ok
 				}
 				if (isSQLite) {
 					funStr += " " + K.as + " " + newAlias;
@@ -410,7 +409,7 @@ public class ConditionHelper3 {
 				if (!hasAvg && FunctionType.AVG.getName().equalsIgnoreCase(functionTypeName)) {
 					hasAvg = true;
 //					adjust++;
-					//TODO 一样也要改
+					// TODO 一样也要改
 //					funStructs[i+adjust] = new FunStruct(funUseName+"_sum_", FunctionType.SUM.getName());
 					funStructs.add(new FunStruct(funUseName + "_sum_", FunctionType.SUM.getName()));
 //					adjust++;
@@ -432,7 +431,7 @@ public class ConditionHelper3 {
 
 		return funStr;
 	}
-	
+
 //	private static String _toColumnName(String fieldName, Class entityClass) {
 //		return HoneyUtil.toColumnName(fieldName, entityClass);
 //	}
@@ -457,29 +456,14 @@ public class ConditionHelper3 {
 		return ConditionHelper.processLike(op, v);
 	}
 
-	private static void adjustSqlServerPagingIfNeed(StringBuffer sqlBuffer, Map<String, String> orderByMap,
-			Integer start,
+	private static void adjustSqlServerPagingIfNeed(StringBuffer sqlBuffer, Map<String, String> orderByMap, Integer start,
 			Class entityClass, String useSubTableNames[]) {
 		ConditionHelper.adjustSqlServerPagingIfNeed(sqlBuffer, orderByMap, start, entityClass, useSubTableNames);
 	}
-	
-//	static void processPagingAndForUpdate0(StringBuffer sqlBuffer, List<PreparedValue> list, Condition condition,
-//			boolean firstWhere, String useSubTableNames[]) {
-//		//...省略其它代码
-//		String sql = "";
-//		//分页主要代码
-//		if(ShardingUtil.hadSharding()) {
-////			在首次生成sql前就先调整好分页；在分片引擎就不用再调用页码
-//			sql = getDbFeature().toPageSql(sqlBuffer.toString(), firstRecordIndex(), start + size);
-//		}else {
-//			sql = getDbFeature().toPageSql(sqlBuffer.toString(), start, size);
-//		}
-//		//...省略其它代码
-//	}
 
 	// TODO useSubTableNames 要更新。 主要是加表名。
-	static void processPagingAndForUpdate(StringBuffer sqlBuffer, List<PreparedValue> list, Condition condition,
-			boolean firstWhere, String useSubTableNames[]) {
+	static void processPaging(StringBuffer sqlBuffer, List<PreparedValue> list, Condition condition, boolean firstWhere,
+			String useSubTableNames[]) {
 
 		Class entityClass = (Class) OneTimeParameter.getAttribute(StringConst.Column_EC);
 
@@ -499,23 +483,23 @@ public class ConditionHelper3 {
 					// V1.17 sql server paging
 					Map<String, String> orderByMap = conditionImpl.getOrderBy();
 					adjustSqlServerPagingIfNeed(sqlBuffer, orderByMap, start, entityClass, useSubTableNames);
-					
-					//TODO ShardingUtil.hadSharding()
-					if(ShardingUtil.hadSharding()) {
+
+					// TODO ShardingUtil.hadSharding()
+					if (ShardingUtil.hadSharding()) {
 //						先调整好分页，后面就不用再调 //TODO
-						//以下regShadingPage就不用再注册。
-						//TODO copy condition??
+						// 以下regShadingPage就不用再注册。
+						// TODO copy condition??
 //						conditionImpl.start(firstRecordIndex())
 //						.size(start + size - 1);
 //						firstRecordIndex(), start + size - 1
 						sql = getDbFeature().toPageSql(sqlBuffer.toString(), firstRecordIndex(), start + size);
-					}else {
+					} else {
 						sql = getDbFeature().toPageSql(sqlBuffer.toString(), start, size);
 					}
 
 //					sql = getDbFeature().toPageSql(sqlBuffer.toString(), start, size);
 //					ShardingReg.regShadingPage(sqlBuffer.toString(), sql, start, size);// 2.0
-					
+
 //			        sqlBuffer=new StringBuffer(sql); //new 之后不是原来的sqlBuffer,不能带回去.
 					sqlBuffer.delete(0, sqlBuffer.length());
 					sqlBuffer.append(sql);
@@ -541,17 +525,6 @@ public class ConditionHelper3 {
 		}
 		// >>>>>>>>>>>>>>>>>>>paging end
 
-		// >>>>>>>>>>>>>>>>>>>forUpdate
-		// 仅用于SQL的单个表select
-		if (useSubTableNames == null && SuidType.SELECT == conditionImpl.getSuidType()) {
-
-			Boolean isForUpdate = conditionImpl.getForUpdate();
-			if (isForUpdate != null && isForUpdate.booleanValue()) {
-				sqlBuffer.append(" " + K.forUpdate + " ");
-			}
-		}
-		// >>>>>>>>>>>>>>>>>>>forUpdate
-
 		// check
 		if (SuidType.SELECT == conditionImpl.getSuidType()) {
 			List<Expression> updateSetList = conditionImpl.getUpdateExpList();
@@ -562,29 +535,41 @@ public class ConditionHelper3 {
 			}
 		}
 	}
-	
+
+	static void processForUpdate(StringBuffer sqlBuffer, Condition condition, String useSubTableNames[]) {
+		if (condition == null) return;
+		ConditionImpl conditionImpl = (ConditionImpl) condition;
+
+		if (useSubTableNames == null && SuidType.SELECT == conditionImpl.getSuidType()) {
+
+			Boolean isForUpdate = conditionImpl.getForUpdate();
+			if (isForUpdate != null && isForUpdate.booleanValue()) {
+				sqlBuffer.append(" " + K.forUpdate + " ");
+			}
+		}
+	}
+
 	private static int firstRecordIndex() {
 		return ShardingUtil.firstRecordIndex();
 	}
-	
+
 	static boolean isNeedRewriteSqlByPage(Condition condition) {
 		if (condition == null) return false;
 
 		ConditionImpl conditionImpl = (ConditionImpl) condition;
 		Integer start = conditionImpl.getStart();
 		Integer size = conditionImpl.getSize();
-		
+
 //		return (start != null && start > 1 && size != null && size > 1); //size==1也有可能要改写??  是的
 //      只传size也要改写
-		
+
 		return (start != null && start > 1) || (size != null && size > 0);
 	}
-	
 
 }
 
 class QueryConditionWrap extends ConditionWrap {
-	//若是没用到这两个，可以不定义这个类。  TODO
+	// 若是没用到这两个，可以不定义这个类。 TODO
 	List<String> groupNameslist;
 	Map<String, String> orderByMap;
 //	Integer start = null;
