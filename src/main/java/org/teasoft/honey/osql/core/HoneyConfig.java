@@ -13,6 +13,7 @@ import org.teasoft.bee.osql.exception.ConfigWrongException;
 import org.teasoft.honey.logging.Logger;
 import org.teasoft.honey.logging.LoggerFactory;
 import org.teasoft.honey.osql.constant.DbConfigConst;
+import org.teasoft.honey.osql.name.KeyWord;
 import org.teasoft.honey.util.HoneyVersion;
 import org.teasoft.honey.util.StringUtils;
 
@@ -170,16 +171,17 @@ public final class HoneyConfig implements LoggerTypeConfig, LogSqlConfig {
 	@SysValue("${bee.osql.naming.entity2tableMappingList}")
 	public String naming_entity2tableMappingList;
 
-//	@SysValue("${bee.osql.naming.allowKeyWordInColumn}") // 2.5.2
-//	public boolean naming_allowKeyWordInColumn = true;
-//
+	@SysValue("${bee.osql.naming.allowKeyWordInColumn}") // 2.5.2
+	public boolean naming_allowKeyWordInColumn = true;
+
 	// define for append if bee do not contain them.
-//	@SysValue("${bee.osql.naming.sqlKeyWordInColumn}") // 2.5.2
-//	public String naming_SqlKeyWordInColumn;
+	@SysValue("${bee.osql.naming.sqlKeyWordInColumn}") // 2.5.2
+	public String naming_SqlKeyWordInColumn;
 
 	@SysValue("${bee.osql.moreTable.columnListWithStar}")
 	boolean moreTable_columnListWithStar;
 
+	@Deprecated
 	@SysValue("${bee.osql.moreTable.twoTablesWithJoinOnStyle}")
 	boolean moreTable_twoTablesWithJoinOnStyle;
 
@@ -481,7 +483,7 @@ public final class HoneyConfig implements LoggerTypeConfig, LogSqlConfig {
 	public void setDbName(String dbName) {
 		setChangeDataSource(false);// 主动设置了,就不用再动态检测
 		this.dbName = dbName;
-//		appendKW2BloomFilter(this.dbName);
+		appendKW2BloomFilter(this.dbName);
 	}
 
 	/**
@@ -577,12 +579,12 @@ public final class HoneyConfig implements LoggerTypeConfig, LogSqlConfig {
 		this.sharding = sharding;
 	}
 
-//	private void appendKW2BloomFilter(String dbName) {
-////		boolean allowKeyWordInColumn = HoneyConfig.getHoneyConfig().naming_allowKeyWordInColumn;
-////		if (allowKeyWordInColumn) {
-//		KeyWord.appendKW2BloomFilterForDialect(dbName); // 即便不转换,提示也要用到. 所以都要set.
-////		}
-//	}
+	private void appendKW2BloomFilter(String dbName) {
+//		boolean allowKeyWordInColumn = HoneyConfig.getHoneyConfig().naming_allowKeyWordInColumn;
+//		if (allowKeyWordInColumn) {
+		KeyWord.appendKW2BloomFilterForDialect(dbName); // 即便不转换,提示也要用到. 所以都要set.
+//		}
+	}
 
 	void init() {
 
