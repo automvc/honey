@@ -1073,7 +1073,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 		}
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings({ "unchecked" })
 	private <T> List<T> _moreTableSelect3(String sql, final T entity) {
 
 		if (sql == null || "".equals(sql.trim())) return Collections.emptyList();
@@ -1109,9 +1109,8 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 		Connection conn = null;
 		PreparedStatement pst = null;
 		ResultSet rs = null;
-		List<String> ptree;
-		List<T> rsList = new ArrayList<>();
-		Field field;
+
+		List<T> rsList;
 		boolean hasException = false;
 		try {
 			conn = getConn();
@@ -1120,215 +1119,18 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 			rs = pst.executeQuery();
 
 			// process result; 将查询结果转化成中间对象
-			List<MoreTableResultWrapper<T>> listResultWrapper = TransformResultSet.rsForMoretable3(rs, entity);
+//			List<MoreTableResultWrapper<T>> listResultWrapper = TransformResultSet.rsForMoretable3(rs, entity);
+//			rsList=TransformResultSet.genRsForMoretable3(listResultWrapper, entityClass, moreTableStructMap);
 
-			if (listResultWrapper.size() > 0)
-				Logger.logSQL(" | <--  ( select raw record rows: " + listResultWrapper.get(0).rawRows + " )");
+			rsList = TransformResultSet.genRsViaMidRsForMoretable(TransformResultSet.toMidRsForMoretable(rs, entity),
+					entityClass, moreTableStructMap);
 
-			Map<String, Field> mainNameAndField = HoneyUtil.getNameAndField(entityClass);
-			Map<String, Field> subNameAndField;
-			Map<String, Map<String, Field>> subNameAndFieldCache = new HashMap<>();
-
-			// key0 or key1 : [subObject] # 对象list缓存
-			Map<String, List> listCache = new HashMap<>(); // list_cache current_subObject_list_cache_dict
-			// key1 or layer_key : subObject #单个对象缓存
-			Map<String, Object> singleCache = new HashMap<>(); // current_single_subObject_cache_dict
-			Set<String> one_to_one_for_two_layer_set = new HashSet();
-
-			boolean noJoinAnno = ObjectUtils.isEmpty(moreTableStructMap);
-			Integer no_obj_layer = null;
-			Set<Integer> no_obj_layer_set = new HashSet<>();
-
-			for (MoreTableResultWrapper<T> moreTableResultWrapper : listResultWrapper) {
-				T main_obj = moreTableResultWrapper.mainObj;
-				String main_key = moreTableResultWrapper.mainObjValueStr;
-				Map<String, StringBuffer> sub_field_value_str_cache_dict = moreTableResultWrapper.subObjValueStrMap;
-				Map<String, Object> reutrn_subObject_cache_dict = moreTableResultWrapper.subObjMap;
-
-				if (noJoinAnno || ObjectUtils.isEmpty(reutrn_subObject_cache_dict)) {
-					rsList.add(main_obj);
-					continue;
-				}
-
-				int moreTableStructNum = moreTableStructMap == null ? 0 : moreTableStructMap.size();
-				for (Entry<String, MoreTableStruct3> entry : moreTableStructMap.entrySet()) {
-					MoreTableStruct3 mtStruct = entry.getValue();
-					boolean processed = false;
-					if (mtStruct.layer == 2) {
-
-						// gen key0, layer_key
-						ptree = mtStruct.parentTree;
-						String key0 = main_key;
-						StringBuffer sub_field_value_str = sub_field_value_str_cache_dict.get(ptree.get(0));
-						if (sub_field_value_str == null) {
-							no_obj_layer = mtStruct.layer; // 第一次出现
-							if (mtStruct.hasNextLayer && no_obj_layer_set.add(no_obj_layer)) {
-								// 有子层，要是没有查到对象，就打印
-								Logger.info("Not found the value in object {mtStruct.subAlias}, will ignore it and its sub layers!"
-												.replace("{mtStruct.subAlias}", mtStruct.subAlias));
-							}
-							continue;
-						}
-						String current_key1 = "";
-						if (sub_field_value_str.length() > 0) current_key1 = sub_field_value_str.toString();
-						String layer_key = key0 + ".." + ptree.get(0) + "##" + current_key1;
-
-						if (mtStruct.currentIsList) {
-							processed = true;
-							List sub_list_obj = listCache.get(key0);
-							// 1:n:1 第二级是list的属性将第一层添加了； 非list的第二层属性也不用再添加第一层的对象。
-
-							if (sub_list_obj == null) {
-								sub_list_obj = new ArrayList();
-								sub_list_obj.add(reutrn_subObject_cache_dict.get(mtStruct.subAlias));
-								listCache.put(key0, sub_list_obj);
-
-								field = mainNameAndField.get(mtStruct.fieldName);
-								HoneyUtil.setAccessibleTrue(field);
-//								只有主表层，main_obj==null,在有子表时，会自动创建。
-								if (main_obj == null) main_obj = (T) TransformResultSet.createObject(entity.getClass()); // fixed
-								HoneyUtil.setFieldValue(field, main_obj, sub_list_obj);
-
-								if (!one_to_one_for_two_layer_set.contains(key0)) {
-									rsList.add(main_obj);
-									one_to_one_for_two_layer_set.add(key0);
-									// 1:n:1 第二级是list的属性将第一层添加了； 非list的第二层属性也不用再添加第一层的对象。
-								}
-								singleCache.put(layer_key, reutrn_subObject_cache_dict.get(mtStruct.subAlias));
-							} else { // # 二级列表有了
-//                            # 但第二级的对象还未加有，则要加到一级对象list下
-								if (!singleCache.containsKey(layer_key)) {
-									listCache.get(key0).add(reutrn_subObject_cache_dict.get(mtStruct.subAlias));
-									singleCache.put(layer_key, reutrn_subObject_cache_dict.get(mtStruct.subAlias));
-								}
-							} // # else: 二级的对象已经加有了，就不用再加。已经存在，则不用放。
-						} else { // # not list
-							field = mainNameAndField.get(mtStruct.fieldName);
-							HoneyUtil.setAccessibleTrue(field);
-							if (main_obj == null) main_obj = (T) TransformResultSet.createObject(entity.getClass());// fixed
-							HoneyUtil.setFieldValue(field, main_obj, reutrn_subObject_cache_dict.get(mtStruct.subAlias));
-							// TODO fixed 1-1-n-1-1
-							singleCache.put(layer_key, reutrn_subObject_cache_dict.get(mtStruct.subAlias));
-
-							processed = true;
-							// 第二层为1时，每行只需要添加一次;不然多层时会乱； 但使用这种了，要是一对多，想用这种方式查，则会忽略了主表相同的从表除第一条以外的数据。
-							if (!one_to_one_for_two_layer_set.contains(key0)) {
-								rsList.add(main_obj);
-								if (moreTableStructNum > 1)// 只有一个子表时，还是允许一对多使用这种；即每行都添加(不放入set,则上一个if都会是true)。但多过一个子表时，则不允许。
-									one_to_one_for_two_layer_set.add(key0);
-							}
-//                        # one has one时，第三层会找不到第二层的缓存；  因非list,第二层没放缓存。  是通过将三级子对象设置到二级子对象的属性完成对象关联的
-						} // layer ==2 end
-					} else if (mtStruct.layer >= 3) {
-						if (no_obj_layer != null && mtStruct.layer > no_obj_layer) {
-							continue; // 若该层没有数据返回，则直接不处理它的子类了，不能断层。
-						} else {
-							no_obj_layer = null; // reset 这样，同层的其它对象就可以被处理
-						}
-						if (!reutrn_subObject_cache_dict.containsKey(mtStruct.subAlias)) {
-							if (mtStruct.hasNextLayer && no_obj_layer_set.add(no_obj_layer)) {
-								// 有子层，要是没有查到对象，就打印
-								Logger.info("Not found the value in object {mtStruct.subAlias}, will ignore it and its sub layers!"
-												.replace("{mtStruct.subAlias}", mtStruct.subAlias));
-							}
-							if (no_obj_layer == null) {
-								no_obj_layer = mtStruct.layer; // 第一次出现
-								continue;
-							}
-						}
-						processed = true;
-
-						// gen key1,layer_key
-						ptree = mtStruct.parentTree;
-						String key0 = main_key;
-						StringBuffer sub_field_value_str = sub_field_value_str_cache_dict.get(ptree.get(0));
-						String current_key1 = sub_field_value_str.toString();
-						String key1 = key0 + ".." + ptree.get(0) + "##" + current_key1;
-
-						// # ptree不存root,长度会比层数少1; key1只计算到ptree倒数第二层.
-						int loop_n = mtStruct.layer - 2 - 1;
-						if (loop_n >= 1) {
-							for (int i = 1; i < loop_n + 1; i++) {
-								sub_field_value_str = sub_field_value_str_cache_dict.get(ptree.get(i));
-								String current_key_i = sub_field_value_str.toString();
-								key1 = key1 + ".." + ptree.get(i) + "##" + current_key_i;
-							}
-						}
-
-						StringBuffer sub_field_value_str2 = sub_field_value_str_cache_dict
-								.get(ptree.get(mtStruct.layer - 2));
-
-						if (sub_field_value_str2 == null) sub_field_value_str2 = new StringBuffer();// maybe no need
-
-						String current_key2 = sub_field_value_str2.toString();
-						String layer_key = key1 + ".." + ptree.get(mtStruct.layer - 2) + "##" + current_key2;
-
-						Object current_single_subObject = singleCache.get(key1); // 用key1取?? TODO
-						if (current_single_subObject != null) {
-							if (mtStruct.currentIsList) { // 3-has-list
-								List sub_list_obj = listCache.get(key1);
-								if (sub_list_obj == null) {
-									sub_list_obj = new ArrayList<>();
-									sub_list_obj.add(reutrn_subObject_cache_dict.get(mtStruct.subAlias));
-									subNameAndField = getSubNameAndField(subNameAndFieldCache, mtStruct.mainAlias,
-											mtStruct.typeTree.get(mtStruct.layer - 2));
-									field = subNameAndField.get(mtStruct.fieldName);
-									if (field == null) {
-										continue;
-									}
-									HoneyUtil.setAccessibleTrue(field);
-									HoneyUtil.setFieldValue(field, current_single_subObject, sub_list_obj);
-
-									listCache.put(key1, sub_list_obj);
-									singleCache.put(layer_key, reutrn_subObject_cache_dict.get(mtStruct.subAlias));
-								} else { // # 第三级列表是有了，
-									// # 但，第三级的对象还未加有，则要加到二级对象list下
-									if (!singleCache.containsKey(layer_key))
-										listCache.get(key1).add(reutrn_subObject_cache_dict.get(mtStruct.subAlias));
-								}
-							} else { // is not list //3- has - not_list
-								subNameAndField = getSubNameAndField(subNameAndFieldCache, mtStruct.mainAlias,
-										mtStruct.typeTree.get(mtStruct.layer - 2));
-								field = subNameAndField.get(mtStruct.fieldName);
-								if (field == null) {
-									continue;
-								}
-								HoneyUtil.setAccessibleTrue(field);
-								HoneyUtil.setFieldValue(field, reutrn_subObject_cache_dict.get(mtStruct.mainAlias),
-										reutrn_subObject_cache_dict.get(mtStruct.subAlias));
-
-								// TODO fixed 1-n-1-n-1
-								singleCache.put(layer_key, reutrn_subObject_cache_dict.get(mtStruct.subAlias));
-							}
-						} else {
-//							System.err.println("-----------key1没有放缓存------------"); // TODO
-							if (mtStruct.currentIsList) { // 3 - null -list
-								// 还没放缓存； 也是list; 如: 1-1-n-1-1 第三层时，就要走这里。
-//								System.err.println("还没放缓存； 也是list; 如:  1-1-n-1-1 第三层时，就要走这里。 layer: " + mtStruct.layer); // TODO
-							} else { // 3 - null -not_list
-								subNameAndField = getSubNameAndField(subNameAndFieldCache, mtStruct.mainAlias,
-										mtStruct.typeTree.get(mtStruct.layer - 2));
-								field = subNameAndField.get(mtStruct.fieldName);
-								HoneyUtil.setAccessibleTrue(field);
-								// eg: 设置layer3时，layer不能为null
-								if (reutrn_subObject_cache_dict.get(mtStruct.mainAlias) == null) continue;
-
-								HoneyUtil.setFieldValue(field, reutrn_subObject_cache_dict.get(mtStruct.mainAlias),
-										reutrn_subObject_cache_dict.get(mtStruct.subAlias));
-							}
-						}
-					}
-
-					if (!processed) {
-						rsList.add(main_obj);
-					}
-				} // for loop map of MoreTableStruct3 for each row result
-			} // for loop ResultWrapper
 			addInCache(sql, rsList, rsList.size());
 		} catch (SQLException e) {
 			hasException = true;
 			throw ExceptionHelper.convert(e);
-		} catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException | InstantiationException e) {
+		} catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException
+				| InstantiationException e) {
 			hasException = true;
 			throw ExceptionHelper.convert(e);
 		} finally {
@@ -1340,22 +1142,11 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 			} else {
 				checkClose(pst, conn);
 			}
-//			targetObj = null;
 		}
 
 		logSelectRows(rsList.size());
 
 		return rsList;
-	}
-
-	private Map<String, Field> getSubNameAndField(Map<String, Map<String, Field>> nameAndFieldCache, String tableName,
-			Class entityClass) {
-		Map<String, Field> nameAndField = nameAndFieldCache.get(tableName);
-		if (nameAndField == null) {
-			nameAndField = HoneyUtil.getNameAndField(entityClass);
-			nameAndFieldCache.put(tableName, nameAndField);
-		}
-		return nameAndField;
 	}
 
 	@SuppressWarnings("unchecked")
