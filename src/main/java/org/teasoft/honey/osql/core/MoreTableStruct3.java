@@ -6,7 +6,7 @@ import java.util.List;
 import org.teasoft.bee.osql.BeeException;
 import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.annotation.FK;
-import org.teasoft.bee.osql.annotation.JoinTable3;
+import org.teasoft.bee.osql.annotation.JoinTable;
 import org.teasoft.bee.osql.annotation.JoinType;
 import org.teasoft.bee.osql.exception.ConfigWrongException;
 import org.teasoft.bee.osql.exception.JoinTableParameterException;
@@ -37,14 +37,14 @@ class MoreTableStruct3 {
 	MoreTableStruct3() {}
 
 	MoreTableStruct3(Field joinField, Object entity, int layer, List<String> parentTree, SuidType suidType) {
-		JoinTable3 joinTable3 = joinField.getAnnotation(JoinTable3.class);
+		JoinTable joinTable = joinField.getAnnotation(JoinTable.class);
 
-		this.subClass = joinTable3.subClass();
-		this.joinType = joinTable3.joinType();
-		this.mainFields = joinTable3.mainField();
-		this.subFields = joinTable3.subField();
-		this.subAlias = joinTable3.subAlias();
-		this.mainAlias = joinTable3.mainAlias();
+		this.subClass = joinTable.subClass();
+		this.joinType = joinTable.joinType();
+		this.mainFields = joinTable.mainField();
+		this.subFields = joinTable.subField();
+		this.subAlias = joinTable.subAlias();
+		this.mainAlias = joinTable.mainAlias();
 		this.fieldName = joinField.getName();
 
 		checkField(subAlias);

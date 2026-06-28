@@ -97,7 +97,7 @@ public class AnnoUtil {
 	
 	// 3.0.0
 	public static boolean isJoinTable(Field field) {
-		return field.isAnnotationPresent(JoinTable3.class);
+		return field.isAnnotationPresent(JoinTable.class);
 	}
 
 	// 2.1.8
