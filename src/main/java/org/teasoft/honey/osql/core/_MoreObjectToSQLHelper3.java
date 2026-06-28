@@ -133,7 +133,7 @@ class _MoreObjectToSQLHelper3 {
 			} else if (groupSize >= 1) {
 				// 3.有分组 ;不需要分页改写; 前面已计算有结果，先利用，避免不必要的计算。
 				needRewritePagingSql = false; // 有使用聚合查询就不用改写 （与分片无关）
-			} else if (HoneyContext.getSysCommStrInheritableLocal(StringConst.FunType) != null) {
+			} else if (ConditionHelper3.hasFun(condition)) {
 				// 4.有聚合查询; 不需要分页改写;
 				needRewritePagingSql = false;
 			} else if (!ConditionHelper3.isNeedRewriteSqlByPage(condition)) {

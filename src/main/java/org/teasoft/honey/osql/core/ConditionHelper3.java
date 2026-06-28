@@ -20,6 +20,7 @@ import org.teasoft.honey.osql.core.ConditionImpl.FunExpress;
 import org.teasoft.honey.osql.util.NameCheckUtil;
 import org.teasoft.honey.sharding.ShardingReg;
 import org.teasoft.honey.sharding.ShardingUtil;
+import org.teasoft.honey.util.ObjectUtils;
 import org.teasoft.honey.util.StringUtils;
 
 public class ConditionHelper3 {
@@ -564,6 +565,14 @@ public class ConditionHelper3 {
 //      只传size也要改写
 
 		return (start != null && start > 1) || (size != null && size > 0);
+	}
+
+	static boolean hasFun(Condition condition) {
+		if (condition == null) return false;
+		ConditionImpl conditionImpl = (ConditionImpl) condition;
+		List<FunExpress> funExpList = null;
+		if (conditionImpl != null) funExpList = conditionImpl.getFunExpList();
+		return ObjectUtils.isNotEmpty(funExpList);
 	}
 
 }

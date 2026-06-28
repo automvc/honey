@@ -118,7 +118,7 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 			ConditionImpl conditionImpl = (ConditionImpl) condition;
 			List<FunExpress> funExpList = null;
 			if (conditionImpl != null) funExpList = conditionImpl.getFunExpList();
-			if (ObjectUtils.isEmpty(funExpList) || funExpList == null) {
+			if (ObjectUtils.isEmpty(funExpList)) {
 				throw new BeeIllegalSQLException("In selectWithFun, the aggregation function can not be empty!");
 			}
 			if (funExpList.size() > 1) {
@@ -128,7 +128,7 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 			regCondition(condition);
 			_doBeforePasreEntity(entity);// 因要解析子表,子表下放再执行
 			_regEntityClass1ForSqlLib(entity);
-			_regFunType(getFunctionType(funExpList.get(0).getFunctionType())); // test?
+			_regFunType(getFunctionType(funExpList.get(0).getFunctionType()));
 			String sql = getMoreObjToSQL().toSelectSQL(entity, condition);
 			sql = doAfterCompleteSql(sql);
 			Logger.logSQL(LogSqlParse.parseSql(SELECT_SQL, sql)); // fixed, need logSQL before call BeeSql

@@ -832,6 +832,7 @@ public final class HoneyContext {
 	}
 
 	static void regFunType(FunctionType functionType) {
+		if (!ShardingUtil.isSharding()) return; // fixed bug 3.0.0
 		HoneyContext.setSysCommStrInheritableLocal(StringConst.FunType, functionType.getName());
 	}
 
