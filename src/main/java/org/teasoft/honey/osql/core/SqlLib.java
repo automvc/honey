@@ -438,6 +438,55 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 		return list;
 	}
 
+//	//for test app
+//	public List<Map<String, String>> selectMapList2(String sql) {
+//		if (sql == null || "".equals(sql.trim())) return Collections.emptyList();
+//
+//		boolean isReg = updateInfoInCache(sql, "List<Map<String,Object>>", SuidType.SELECT, null);
+//		if (isReg) { // V1.9还未使用
+//			initRoute(SuidType.SELECT, null, sql);
+//			Object cacheObj = getCache().get(sql); // 这里的sql还没带有值
+//			if (cacheObj != null) {
+//				clearContext(sql);
+//				List<Map<String, String>> list = (List<Map<String, String>>) cacheObj;
+//				logSelectRows(list.size());
+//				return list;
+//			}
+//		}
+//
+//		List<Map<String, String>> list = new ArrayList<>();
+//		Connection conn = null;
+//		PreparedStatement pst = null;
+//		ResultSet rs = null;
+//		boolean hasException = false;
+//		try {
+//			conn = getConn();
+//			String exe_sql = HoneyUtil.deleteLastSemicolon(sql);
+//			pst = conn.prepareStatement(exe_sql);
+//			setPreparedValues(pst, sql);
+//			rs = pst.executeQuery();
+//
+//			list = TransformResultSet.toMapList2(rs);
+//			logSelectRows(list.size());
+//			addInCache(sql, list, list.size());
+//		} catch (SQLException e) {
+//			hasException = true;
+//			throw ExceptionHelper.convert(e);
+//		} finally {
+//			closeRs(rs);
+//			clearContext(sql);
+//			if (hasException) {
+//				checkClose(pst, null);
+//				closeConn(conn);
+//			} else {
+//				checkClose(pst, conn);
+//			}
+//		}
+//
+//		return list;
+//	}
+
+
 	// 对应jdbc的executeUpdate方法
 	/*
 	 * modify include insert,delete and update.

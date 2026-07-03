@@ -191,14 +191,6 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 		if (entity == null) return null;
 		List<String[]> list = null;
 		try {
-//			if (condition != null) condition = condition.clone();
-//			regCondition(condition);
-//			_doBeforePasreEntity(entity); // 因要解析子表,子表下放再执行
-//			_regEntityClass1(entity);
-//			OneTimeParameter.setTrueForKey(StringConst.Check_Group_ForSharding);
-//			String sql = getMoreObjToSQL().toSelectSQL(entity, condition);
-//			sql = doAfterCompleteSql(sql);
-
 			String sql = processAndReturnSql(entity, condition);
 			Logger.logSQL(LogSqlParse.parseSql("select SQL(return List<String[]>): ", sql));
 			list = getBeeSql().select(sql); // 要测试分片时,是否合适? 有T entity参数,是可以的.

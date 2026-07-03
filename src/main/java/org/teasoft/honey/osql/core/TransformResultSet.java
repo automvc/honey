@@ -18,8 +18,8 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.teasoft.bee.osql.annotation.customizable.Json;
 import org.teasoft.bee.osql.type.TypeHandler;
@@ -28,6 +28,7 @@ import org.teasoft.honey.logging.Logger;
 import org.teasoft.honey.osql.type.TypeHandlerRegistry;
 import org.teasoft.honey.osql.util.AnnoUtil;
 import org.teasoft.honey.sharding.ShardingUtil;
+import org.teasoft.honey.util.ObjectCreatorFactory;
 import org.teasoft.honey.util.ObjectUtils;
 import org.teasoft.honey.util.StringUtils;
 
@@ -264,6 +265,29 @@ public class TransformResultSet {
 		return list;
 	}
 
+//	//for test app
+//	public static List<Map<String, String>> toMapList2(ResultSet rs) throws SQLException {
+//		List<Map<String, String>> list = new ArrayList<>();
+//		ResultSetMetaData rmeta = rs.getMetaData();
+//		int columnCount = rmeta.getColumnCount();
+//		Map<String, String> rowMap = null;
+//		while (rs.next()) {
+////			rowMap=new HashMap<>();
+//			rowMap = new LinkedHashMap<>(); // 2021-06-13
+//			for (int i = 1; i <= columnCount; i++) {
+////				rowMap.put(_toFieldName(rmeta.getColumnName(i),null), rs.getObject(i)); //ignore Column annotation
+//				// V2.1.8
+//				if (rs.getObject(i) != null) {
+//				  rowMap.put(_toFieldName(rmeta.getColumnLabel(i), null), rs.getObject(i).toString()); // ignore Column annotation
+//				}else {
+//					 rowMap.put(_toFieldName(rmeta.getColumnLabel(i), null),null);
+//				}
+//			}
+//			list.add(rowMap);
+//		}
+//		return list;
+//	}
+
 	// 检测是否有Json注解
 	private static boolean isJoson(Field field) {
 		return AnnoUtil.isJson(field);
@@ -422,7 +446,14 @@ public class TransformResultSet {
 		return list;
 	}
 	
-	// for Android app //3.0.0
+	/**
+	 * for Android app
+	 * @param <T>
+	 * @param rsMapList
+	 * @param entity
+	 * @return
+	 * @since 3.0.0
+	 */
 	public static <T> List<MoreTableResultWrapper<T>> toMidRsForMoretable(List<Map<String, String>> rsMapList, T entity) {
 
 		List<MoreTableResultWrapper<T>> list = new ArrayList<>();
@@ -526,7 +557,7 @@ public class TransformResultSet {
 						nameAndFieldCache.put(tableName, nameAndField);
 					}
 				} // 以上是从多表结构中获取实体的字段信息
-				  // 以下开始对字段信息进行设置。是根据字段名得到列名，然后用列名为key，从rs中获取值。
+				  // 以下开始对字段信息进行设置。是根据字段名得到列名，然后用列名为key，从rs/rsMap中获取值。
 				for (Entry<String, Field> entry : nameAndField.entrySet()) {
 
 					subObjValueStr = null;
@@ -568,7 +599,7 @@ public class TransformResultSet {
 						if (oneRowType == ONE_ROW_TYPE_RS)
 							value = rs.getObject(aliasColumnName);
 						else if (oneRowType == ONE_ROW_TYPE_MAP)
-							value = rsMap.get(aliasColumnName);
+							value = rsMap.get(_toFieldName(aliasColumnName,null));
 					} catch (SQLException e) {
 						if (oneRowType == ONE_ROW_TYPE_RS) {
 							try {
@@ -584,16 +615,19 @@ public class TransformResultSet {
 
 					// 2. process value
 					boolean processAsJson = false;
+					boolean procssAppValue = false; // for app, e.g. Android
 					if (isJoson(field)) {
 						TypeHandler jsonHandler = TypeHandlerRegistry.getHandler(Json.class);
 						if (jsonHandler != null) {
 							value = jsonHandlerProcess(field, value, jsonHandler);
 							processAsJson = true;
+							procssAppValue = true;
 						}
 					}
 
 					if (!processAsJson && isRegHandlerPriority) { // process value by handler
 						value = TypeHandlerRegistry.handlerProcess(field.getType(), value);
+						procssAppValue = true;
 					}
 
 					// 3. set value
@@ -602,7 +636,14 @@ public class TransformResultSet {
 					if (isMainField) {
 						if (mainObj == null) mainObj = (T) createObject(entity.getClass());
 						try {
-							HoneyUtil.setFieldValue(field, mainObj, value);
+							if (oneRowType == ONE_ROW_TYPE_RS) {
+								 HoneyUtil.setFieldValue(field, mainObj, value);
+								} else {
+									if (procssAppValue)
+										HoneyUtil.setFieldValue(field, mainObj, value);
+									else
+										HoneyUtil.setFieldValue(field, mainObj, ObjectCreatorFactory.create((String) value, field.getType()));
+								}
 						} catch (IllegalArgumentException e) {
 							if (oneRowType == ONE_ROW_TYPE_RS) {
 								// 若因类型不对，设置报异常。则不可能再设置。 mysql会,但sqlite不会。
@@ -621,7 +662,7 @@ public class TransformResultSet {
 						mainObjValueStr.append("#").append(String.valueOf(value));
 					} else {
 						subObj = subObjectCache.get(tableName);
-						if (value == null && i > 0) continue; // TODO fixed 空值不设置; 如何判断查到的整个对象的属性都是null才不设置？
+						if (value == null && i > 0) continue; // todo fixed 空值不设置; 如何判断查到的整个对象的属性都是null才不设置？
 
 						if (subObj == null) {
 							subObj = createObject(subEntityMoreTableStruct.subClass);
@@ -629,7 +670,14 @@ public class TransformResultSet {
 							subObjValueStrCache.put(tableName, new StringBuffer());
 						}
 						try {
-							HoneyUtil.setFieldValue(field, subObj, value);
+							if (oneRowType == ONE_ROW_TYPE_RS) {
+								HoneyUtil.setFieldValue(field, subObj, value);
+							} else {
+								if (procssAppValue)
+									HoneyUtil.setFieldValue(field, subObj, value);
+								else
+									HoneyUtil.setFieldValue(field, subObj, ObjectCreatorFactory.create((String) value, field.getType()));
+							}
 						} catch (IllegalArgumentException e) {
 							if (oneRowType == ONE_ROW_TYPE_RS) {
 								try {

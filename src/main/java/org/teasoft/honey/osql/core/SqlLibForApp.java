@@ -391,17 +391,15 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 
 		List<T> rsList;
 		try {
-
-			List<Map<String, String>> rsMapList = getBeeSqlForApp().selectMapListWithColumnName(HoneyUtil
-					.deleteLastSemicolon(sql),
-					toStringArray(sql));
-
+			List<Map<String, String>> rsMapList = getBeeSqlForApp().selectMapListWithColumnName(
+					HoneyUtil.deleteLastSemicolon(sql), toStringArray(sql));
+			
+//			SqlLib sqlLib=new SqlLib();
+//			List<Map<String, String>> rsMapList=sqlLib.selectMapList2(HoneyUtil.deleteLastSemicolon(sql));
+			
 			// process result; 将查询结果转化成中间对象
-			List<MoreTableResultWrapper<T>> listResultWrapper = TransformResultSet.toMidRsForMoretable(rsMapList,
-					entity);
-
+			List<MoreTableResultWrapper<T>> listResultWrapper = TransformResultSet.toMidRsForMoretable(rsMapList, entity);
 			rsList = TransformResultSet.genRsViaMidRsForMoretable(listResultWrapper, entityClass, moreTableStructMap);
-
 			addInCache(sql, rsList, rsList.size());
 
 		} catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException
