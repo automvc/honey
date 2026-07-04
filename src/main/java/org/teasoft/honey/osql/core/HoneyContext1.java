@@ -108,7 +108,7 @@ public class HoneyContext1 {
 	 * 从 ThreadLocal 读取并自动转型
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T> T get(LocalType category, String key, Class<T> clazz) {
+	private static <T> T get(LocalType category, String key, Class<T> clazz) {
 		if (clazz == null) return null;
 
 		Object value = get(category, key);
@@ -128,7 +128,7 @@ public class HoneyContext1 {
 			catMap.remove(key);
 		}
 	}
-	
+
 	public static void remove(String key) {
 		remove(LocalType.NORMAL, key);
 	}
@@ -162,7 +162,7 @@ public class HoneyContext1 {
 
 		return catMap != null ? catMap.keySet() : new HashSet<String>();
 	}
-	
+
 //	public static void setTrue(String key) {
 //		set(key, StringConst.tRue);
 //	}
@@ -200,7 +200,6 @@ public class HoneyContext1 {
 
 	// ==================== ThreadLocal ====================END
 
-	
 	// ========== InheritableThreadLocal — 子线程自动继承 ==========
 	// extend == Inheritable
 
@@ -232,7 +231,7 @@ public class HoneyContext1 {
 	}
 
 //	public static void setInheritable(LocalType category, Class key, Object value) {
-	public static <T> void setInheritable(LocalType category, Class<T> key, T value) {	
+	public static <T> void setInheritable(LocalType category, Class<T> key, T value) {
 		if (key == null) return;
 		setInheritable(category, key.getName(), value);
 	}
@@ -282,14 +281,14 @@ public class HoneyContext1 {
 	 * 从 InheritableThreadLocal 读取并自动转型
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T> T getInheritable(LocalType category, String key, Class<T> clazz) {
+	private static <T> T getInheritable(LocalType category, String key, Class<T> clazz) {
 		if (clazz == null) return null;
 
 		Object value = get(category, key);
 		if (value == null) return null;
 		return clazz.isInstance(value) ? (T) value : null;
 	}
-	
+
 //	public static Object getInheritableForSharding(String key) {
 //		return getInheritable(LocalType.SHARDING, key);
 //	}
@@ -335,7 +334,7 @@ public class HoneyContext1 {
 	public static boolean isTrueExt(String key) {
 		return StringConst.tRue.equals(getInheritable(key));
 	}
-	
+
 	public static void setTrueExtForSharding(String key) {
 		setInheritable(LocalType.SHARDING, key, StringConst.tRue);
 	}
@@ -343,19 +342,11 @@ public class HoneyContext1 {
 	public static boolean isTrueExtForSharding(String key) {
 		return StringConst.tRue.equals(getInheritable(LocalType.SHARDING, key));
 	}
-	
-	
-	
-	
-	
-	//////////// for Sharding  just Local
+
+	//////////// for Sharding just Local
 	public static List<String> getListLocal(String key) {
-		return (List<String>)get(LocalType.SHARDING, key);
+		return (List<String>) get(LocalType.SHARDING, key);
 	}
-	
-	
-	
-	
 
 	public static void main(String[] args) {
 //		setTrueInheritable("aaa");
