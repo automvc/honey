@@ -207,7 +207,8 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 
 				try {
 					String fun = "";
-					String funType = HoneyContext.getSysCommStrInheritableLocal(StringConst.FunType);
+//					String funType = HoneyContext.getSysCommStrInheritableLocal(StringConst.FunType);
+					String funType = HoneyContext1.getExtForShardingStr(StringConst.FunType);
 					if (FunctionType.AVG.getName().equalsIgnoreCase(funType)) { // avg need change sql
 						String newSql = ShardingAvgEngine.rewriteAvgSql(sql);
 						HoneyContext.setPreparedValue(newSql, HoneyContext.justGetPreparedValue(sql));

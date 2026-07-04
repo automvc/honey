@@ -116,7 +116,8 @@ public class ShardingReg {
 //			if(dsNameListLocal!=null && dsNameListLocal.size()==1) struct.setPagingType("SameDS");
 //			else struct.setPagingType("MoreDS");
 
-			HoneyContext.setCurrentShardingPage(struct);
+//			HoneyContext.setCurrentShardingPage(struct);
+			HoneyContext1.set(LocalType.SHARDING, ShardingPageStruct.class, struct);
 		}
 	}
 
@@ -125,13 +126,15 @@ public class ShardingReg {
 		if (!ShardingUtil.hadSharding()) return;
 
 		ShardingSortStruct struct = new ShardingSortStruct(orderSql, orderFields, orderTypes);
-		HoneyContext.setCurrentShardingSort(struct);
+//		HoneyContext.setCurrentShardingSort(struct);
+		HoneyContext1.setInheritable(LocalType.SHARDING, ShardingSortStruct.class, struct);
 	}
 
 	// 带condition
 	public static void regShardingSort(ShardingSortStruct struct) {
 		if (!ShardingUtil.hadSharding()) return;
-		HoneyContext.setCurrentShardingSort(struct);
+//		HoneyContext.setCurrentShardingSort(struct);
+		HoneyContext1.setInheritable(LocalType.SHARDING, ShardingSortStruct.class, struct);
 	}
 
 //	private Map<String,String> orderByMap=new LinkedHashMap<>();
@@ -181,38 +184,38 @@ public class ShardingReg {
 //		HoneyContext.removeConditionLocal();
 		
 		HoneyContext1.removeCategory(LocalType.SHARDING);
+		HoneyContext1.removeInheritableCategory(LocalType.SHARDING);
 		
-		HoneyContext.removeSysCommStrInheritableLocal(StringConst.HadSharding);
-		HoneyContext.removeSysCommStrInheritableLocal(StringConst.ShardingFullSelect);
-		HoneyContext.removeSysCommStrInheritableLocal(StringConst.ShardingSomeDsFullSelect);
-		HoneyContext.removeSysCommStrInheritableLocal(StringConst.HintDs);
-		HoneyContext.removeSysCommStrInheritableLocal(StringConst.HintTab);
-		HoneyContext.removeSysCommStrInheritableLocal(StringConst.FunType);
-		HoneyContext.removeSysCommStrInheritableLocal(StringConst.MoreTableQuery);
-		HoneyContext.removeSysCommStrInheritableLocal(StringConst.MoreTableSelectShardingFlag);
+//		HoneyContext.removeSysCommStrInheritableLocal(StringConst.HadSharding);
+//		HoneyContext.removeSysCommStrInheritableLocal(StringConst.ShardingFullSelect);
+//		HoneyContext.removeSysCommStrInheritableLocal(StringConst.ShardingSomeDsFullSelect);
 		
-		HoneyContext.removeCustomMapLocal(StringConst.ShardingTab2DsMap);
-
+//		HoneyContext.removeSysCommStrInheritableLocal(StringConst.HintDs);
+//		HoneyContext.removeSysCommStrInheritableLocal(StringConst.HintTab);
+//		HoneyContext.removeSysCommStrInheritableLocal(StringConst.FunType);
+//		HoneyContext.removeSysCommStrInheritableLocal(StringConst.MoreTableQuery);
+//		HoneyContext.removeSysCommStrInheritableLocal(StringConst.MoreTableSelectShardingFlag);
+		
 //		HoneyContext.removeListLocal(StringConst.TabNameListLocal);
 //		HoneyContext.removeListLocal(StringConst.TabSuffixListLocal);
 //		HoneyContext.removeListLocal(StringConst.DsNameListLocal);
 //		HoneyContext.removeListLocal(StringConst.TabNameListForBatchLocal);
 //		HoneyContext.removeListLocal(StringConst.DsNameListForBatchLocal);
-
 		
+//		HoneyContext.removeCustomMapLocal(StringConst.ShardingTab2DsMap);
 
-		HoneyContext.removeCurrentShardingPage();
-		HoneyContext.removeCurrentShardingSort();
-		HoneyContext.removeCurrentGroupFunStruct();
 
-		HoneyContext.removeCurrentGroupFunStruct();
+//		HoneyContext.removeCurrentShardingPage();
+//		HoneyContext.removeCurrentShardingSort();
+//		HoneyContext.removeCurrentGroupFunStruct();
+
 	}
 
 	public static void setTrue(String key) { //TODO
 		if (!ShardingUtil.isSharding()) return; // 2.4.0
 //		HoneyContext.setSysCommStrInheritableLocal(key, StringConst.tRue);
 		
-		HoneyContext1.setTrueInheritableForSharding(key);
+		HoneyContext1.setTrueExtForSharding(key);
 	}
 
 }

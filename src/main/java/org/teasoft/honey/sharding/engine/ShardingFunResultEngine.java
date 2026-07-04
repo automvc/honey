@@ -10,6 +10,7 @@ import java.util.List;
 
 import org.teasoft.bee.osql.FunctionType;
 import org.teasoft.honey.osql.core.HoneyContext;
+import org.teasoft.honey.osql.core.HoneyContext1;
 import org.teasoft.honey.osql.core.StringConst;
 import org.teasoft.honey.util.StringUtils;
 import org.teasoft.honey.util.currency.CurrencyArithmetic;
@@ -21,7 +22,8 @@ import org.teasoft.honey.util.currency.CurrencyArithmetic;
 public class ShardingFunResultEngine {
 
 	public static String funResultEngine(List<String> rsList) {
-		String funType = HoneyContext.getSysCommStrInheritableLocal(StringConst.FunType);
+//		String funType = HoneyContext.getSysCommStrInheritableLocal(StringConst.FunType);
+		String funType = HoneyContext1.getExtForShardingStr(StringConst.FunType);
 		Double temp = 0D;
 		int position = -1;
 		if (FunctionType.MAX.getName().equalsIgnoreCase(funType)) {

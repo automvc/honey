@@ -7,8 +7,9 @@
 package org.teasoft.honey.sharding.engine.decorate;
 
 import org.teasoft.bee.sharding.ShardingSortStruct;
-import org.teasoft.honey.osql.core.HoneyContext;
+import org.teasoft.honey.osql.core.HoneyContext1;
 import org.teasoft.honey.osql.core.K;
+import org.teasoft.honey.osql.core.LocalType;
 
 /**
  * @author AiTeaSoft
@@ -17,7 +18,8 @@ import org.teasoft.honey.osql.core.K;
 public class OrderBySqlDecorator {
 
 	public static String addOrderBy(String sql) {
-		ShardingSortStruct shardingSort = HoneyContext.getCurrentShardingSort();
+//		ShardingSortStruct shardingSort = HoneyContext.getCurrentShardingSort();
+		ShardingSortStruct shardingSort = HoneyContext1.getInheritable(LocalType.SHARDING, ShardingSortStruct.class);
 		if (shardingSort != null) {
 			sql += K.space + K.orderBy + K.space + shardingSort.getOrderSql();
 		}

@@ -16,7 +16,7 @@ import java.util.concurrent.ExecutorService;
 import org.teasoft.bee.mongodb.MongoSqlStruct;
 import org.teasoft.bee.mongodb.MongodbBeeSql;
 import org.teasoft.bee.osql.FunctionType;
-import org.teasoft.honey.osql.core.HoneyContext;
+import org.teasoft.honey.osql.core.HoneyContext1;
 import org.teasoft.honey.osql.core.ShardingLogReg;
 import org.teasoft.honey.osql.core.StringConst;
 import org.teasoft.honey.sharding.ShardingUtil;
@@ -93,7 +93,8 @@ public class MongodbShardingSelectFunEngine {
 			String typeTag = "";
 			typeTag = "select fun";
 
-			String funType = HoneyContext.getSysCommStrInheritableLocal(StringConst.FunType);
+//			String funType = HoneyContext.getSysCommStrInheritableLocal(StringConst.FunType);
+			String funType = HoneyContext1.getExtForShardingStr(StringConst.FunType);
 			if (FunctionType.COUNT.getName().equalsIgnoreCase(funType)) {
 				rsStr = mongodbBeeSql.count(struct, entityClass);
 			} else {

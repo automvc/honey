@@ -205,7 +205,8 @@ public class TransformResultSet {
 	// 2.0
 	static void regSort(ResultSetMetaData rmeta) {
 		if (!ShardingUtil.hadSharding()) return;
-		ShardingSortStruct struct = HoneyContext.getCurrentShardingSort();
+//		ShardingSortStruct struct = HoneyContext.getCurrentShardingSort();
+		ShardingSortStruct struct=HoneyContext1.getInheritable(LocalType.SHARDING, ShardingSortStruct.class);
 		if (struct == null) return;
 		String orderFields[] = struct.getOrderFields();
 		if (orderFields == null) return;
@@ -240,7 +241,8 @@ public class TransformResultSet {
 			if (k != 0) {
 				struct.setIndex(index);
 				struct.setType(type);
-				HoneyContext.setCurrentShardingSort(struct);
+//				HoneyContext.setCurrentShardingSort(struct);
+				HoneyContext1.setInheritable(LocalType.SHARDING, ShardingSortStruct.class, struct);
 			}
 		} catch (SQLException e) {
 			Logger.debug(e.getMessage(), e);

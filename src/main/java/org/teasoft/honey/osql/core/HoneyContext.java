@@ -68,12 +68,12 @@ public final class HoneyContext {
 
 	private static ThreadLocal<Map<String, String>> sysCommStrLocal;
 	private static ThreadLocal<Map<String, String>> sysCommStrInheritableLocal;
-	private static ThreadLocal<Map<String, List<String>>> listLocal;
+//	private static ThreadLocal<Map<String, List<String>>> listLocal;
 
 	private static ThreadLocal<RouteStruct> currentRoute;
-	private static ThreadLocal<ShardingPageStruct> currentShardingPage;
-	private static ThreadLocal<ShardingSortStruct> currentShardingSort;
-	private static ThreadLocal<GroupFunStruct> currentGroupFunStruct;
+//	private static ThreadLocal<ShardingPageStruct> currentShardingPage;
+//	private static ThreadLocal<ShardingSortStruct> currentShardingSort;
+//	private static ThreadLocal<GroupFunStruct> currentGroupFunStruct;
 
 	private static ThreadLocal<Connection> currentConnection; // 当前事务的Conn
 
@@ -131,7 +131,7 @@ public final class HoneyContext {
 		if (customMapLocal != null) customMapLocal.remove();
 		if (sysCommStrLocal != null) sysCommStrLocal.remove();
 		if (sysCommStrInheritableLocal != null) sysCommStrInheritableLocal.remove();
-		if (listLocal != null) listLocal.remove();
+//		if (listLocal != null) listLocal.remove();
 		if (sqlPreValueLocal != null) sqlPreValueLocal.remove();
 		if (sqlIndexLocal != null) sqlIndexLocal.remove();
 		if (conditionLocal != null) conditionLocal.remove();
@@ -145,7 +145,7 @@ public final class HoneyContext {
 
 		sqlServerPaging = new ThreadLocal<>();
 		customMapLocal = new ThreadLocal<>();
-		listLocal = new ThreadLocal<>(); // 子线程没有用到.
+//		listLocal = new ThreadLocal<>(); // 子线程没有用到.
 
 		currentConnection = new ThreadLocal<>();
 
@@ -167,9 +167,9 @@ public final class HoneyContext {
 
 		tempLang = new ThreadLocal<>();
 
-		currentShardingPage = new ThreadLocal<>();
-		currentShardingSort = new InheritableThreadLocal<>();
-		currentGroupFunStruct = new InheritableThreadLocal<>();
+//		currentShardingPage = new ThreadLocal<>();
+//		currentShardingSort = new InheritableThreadLocal<>();
+//		currentGroupFunStruct = new InheritableThreadLocal<>();
 
 		entity2table = new ConcurrentHashMap<>();
 		initEntity2Table();
@@ -779,41 +779,41 @@ public final class HoneyContext {
 		currentRoute.remove();
 	}
 
-	public static ShardingPageStruct getCurrentShardingPage() { // select * from table; 没有分页时,要注意
-		return currentShardingPage.get();
-	}
+//	public static ShardingPageStruct getCurrentShardingPage() { // select * from table; 没有分页时,要注意
+//		return currentShardingPage.get();
+//	}
 
-	public static void setCurrentShardingPage(ShardingPageStruct shardingPage) {
-		currentShardingPage.set(shardingPage);
-	}
+//	public static void setCurrentShardingPage(ShardingPageStruct shardingPage) {
+//		currentShardingPage.set(shardingPage);
+//	}
 
-	public static void removeCurrentShardingPage() {
-		currentShardingPage.remove();
-	}
+//	public static void removeCurrentShardingPage() {
+//		currentShardingPage.remove();
+//	}
 
-	public static ShardingSortStruct getCurrentShardingSort() {
-		return currentShardingSort.get();
-	}
+//	public static ShardingSortStruct getCurrentShardingSort() {
+//		return currentShardingSort.get();
+//	}
 
-	public static void setCurrentShardingSort(ShardingSortStruct shardingSort) {
-		currentShardingSort.set(shardingSort);
-	}
+//	public static void setCurrentShardingSort(ShardingSortStruct shardingSort) {
+//		currentShardingSort.set(shardingSort);
+//	}
 
-	public static void removeCurrentShardingSort() {
-		currentShardingSort.remove();
-	}
+//	public static void removeCurrentShardingSort() {
+//		currentShardingSort.remove();
+//	}
 
-	public static GroupFunStruct getCurrentGroupFunStruct() {
-		return currentGroupFunStruct.get();
-	}
+//	public static GroupFunStruct getCurrentGroupFunStruct() {
+//		return currentGroupFunStruct.get();
+//	}
 
-	public static void setCurrentGroupFunStruct(GroupFunStruct groupFunStruct) {
-		currentGroupFunStruct.set(groupFunStruct);
-	}
+//	public static void setCurrentGroupFunStruct(GroupFunStruct groupFunStruct) {
+//		currentGroupFunStruct.set(groupFunStruct);
+//	}
 
-	public static void removeCurrentGroupFunStruct() {
-		currentGroupFunStruct.remove();
-	}
+//	public static void removeCurrentGroupFunStruct() {
+//		currentGroupFunStruct.remove();
+//	}
 
 	static void setContext(String sql, List<PreparedValue> list, String tableName) {
 		setPreparedValue(sql, list);
@@ -835,7 +835,7 @@ public final class HoneyContext {
 	static void regFunType(FunctionType functionType) {
 		if (!ShardingUtil.isSharding()) return; // fixed bug 3.0.0
 //		HoneyContext.setSysCommStrInheritableLocal(StringConst.FunType, functionType.getName());
-		HoneyContext1.setInheritableForSharding(StringConst.FunType, functionType.getName());
+		HoneyContext1.setExtForSharding(StringConst.FunType, functionType.getName());
 	}
 
 	static void regSuidType(SuidType suidType) {

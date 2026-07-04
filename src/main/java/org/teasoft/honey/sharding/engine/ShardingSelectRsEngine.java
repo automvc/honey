@@ -22,6 +22,8 @@ import org.teasoft.bee.sharding.ShardingSortStruct;
 import org.teasoft.honey.distribution.GenIdFactory;
 import org.teasoft.honey.logging.Logger;
 import org.teasoft.honey.osql.core.HoneyContext;
+import org.teasoft.honey.osql.core.HoneyContext1;
+import org.teasoft.honey.osql.core.LocalType;
 import org.teasoft.honey.osql.core.OrderByPagingRewriteSql;
 import org.teasoft.honey.osql.core.ShardingLogReg;
 import org.teasoft.honey.osql.core.ShardingSortReg;
@@ -85,7 +87,8 @@ public class ShardingSelectRsEngine {
 
 				if (i == 0) {
 					ShardingSortReg.regSort(rs.getMetaData());
-					struct = HoneyContext.getCurrentShardingSort();
+//					struct = HoneyContext.getCurrentShardingSort();
+					struct = HoneyContext1.getInheritable(LocalType.SHARDING, ShardingSortStruct.class);
 				}
 				queue.offer(new CompareResult(rs, struct));
 			} catch (InterruptedException e) {

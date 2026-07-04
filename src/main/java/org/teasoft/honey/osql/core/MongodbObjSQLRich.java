@@ -384,7 +384,7 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 			if (condition.getSelectField() == null) {
 				condition.selectField(HoneyUtil.getColumnNames(entity));
 				// V2.1.8
-				HoneyContext1.setTrueInheritable(StringConst.MongoDB_SelectAllFields);
+				HoneyContext1.isTrueExt(StringConst.MongoDB_SelectAllFields);
 			}
 
 			list = getMongodbBeeSql().selectString(entity, condition);

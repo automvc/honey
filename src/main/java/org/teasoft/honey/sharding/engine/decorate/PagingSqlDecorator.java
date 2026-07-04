@@ -9,7 +9,8 @@ package org.teasoft.honey.sharding.engine.decorate;
 import org.teasoft.bee.osql.dialect.DbFeature;
 import org.teasoft.bee.sharding.ShardingPageStruct;
 import org.teasoft.honey.osql.core.BeeFactory;
-import org.teasoft.honey.osql.core.HoneyContext;
+import org.teasoft.honey.osql.core.HoneyContext1;
+import org.teasoft.honey.osql.core.LocalType;
 
 /**
  * @author AiTeaSoft
@@ -18,7 +19,8 @@ import org.teasoft.honey.osql.core.HoneyContext;
 public class PagingSqlDecorator {
 
 	public static String addPaging(String sql) {
-		ShardingPageStruct shardingPage = HoneyContext.getCurrentShardingPage();
+//		ShardingPageStruct shardingPage = HoneyContext.getCurrentShardingPage();
+		ShardingPageStruct shardingPage = HoneyContext1.get(LocalType.SHARDING, ShardingPageStruct.class);
 		if (shardingPage == null) return sql; // 2.4.2
 
 		int start = shardingPage.getStart();

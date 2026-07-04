@@ -73,7 +73,7 @@ public class ShardingInterceptor extends EmptyInterceptor {
 //		boolean moreTableSelectShardingFlag = HoneyContext
 //				.isTrueInSysCommStrInheritableLocal(StringConst.MoreTableSelectShardingFlag);
 		
-		boolean moreTableSelectShardingFlag = HoneyContext1.isTrueInheritable(StringConst.MoreTableSelectShardingFlag);
+		boolean moreTableSelectShardingFlag = HoneyContext1.isTrueExtForSharding(StringConst.MoreTableSelectShardingFlag);
 
 		String tableName = _toTableName(entity);
 
@@ -147,7 +147,7 @@ public class ShardingInterceptor extends EmptyInterceptor {
 		ShardingBean shardingBean = null;
 
 //		Condition condition = HoneyContext.getConditionLocal();
-		Condition condition = (Condition) HoneyContext1.get(LocalType.SHARDING, Condition.class);
+		Condition condition = HoneyContext1.get(LocalType.SHARDING, Condition.class);
 
 		// for 查找是否使用了注解
 		for (int i = 0; i < len; i++) {

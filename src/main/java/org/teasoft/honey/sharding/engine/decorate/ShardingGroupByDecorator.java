@@ -17,8 +17,9 @@ import org.teasoft.bee.osql.FunctionType;
 import org.teasoft.bee.sharding.FunStruct;
 import org.teasoft.bee.sharding.GroupFunStruct;
 import org.teasoft.honey.logging.Logger;
-import org.teasoft.honey.osql.core.HoneyContext;
+import org.teasoft.honey.osql.core.HoneyContext1;
 import org.teasoft.honey.osql.core.HoneyUtil;
+import org.teasoft.honey.osql.core.LocalType;
 import org.teasoft.honey.osql.core.NameTranslateHandle;
 import org.teasoft.honey.util.ObjectCreatorFactory;
 import org.teasoft.honey.util.StringUtils;
@@ -32,7 +33,8 @@ public class ShardingGroupByDecorator {
 
 	public static <T> void groupAndAggregateEntity(List<T> list) {
 		// 有分组的,则需要
-		GroupFunStruct groupFunStruct = HoneyContext.getCurrentGroupFunStruct();
+//		GroupFunStruct groupFunStruct = HoneyContext.getCurrentGroupFunStruct();
+		GroupFunStruct groupFunStruct = HoneyContext1.getInheritable(LocalType.SHARDING, GroupFunStruct.class);
 		groupAndAggregateEntity(list, groupFunStruct);
 	}
 
@@ -201,7 +203,8 @@ public class ShardingGroupByDecorator {
 	}
 
 	public static void groupAndAggregateStringArray(List<String[]> list) {
-		GroupFunStruct groupFunStruct = HoneyContext.getCurrentGroupFunStruct();
+//		GroupFunStruct groupFunStruct = HoneyContext.getCurrentGroupFunStruct();
+		GroupFunStruct groupFunStruct = HoneyContext1.getInheritable(LocalType.SHARDING, GroupFunStruct.class);
 		groupAndAggregateStringArray(list, groupFunStruct);
 	}
 

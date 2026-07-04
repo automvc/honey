@@ -19,9 +19,10 @@ import org.teasoft.bee.osql.BeeSql;
 import org.teasoft.bee.sharding.GroupFunStruct;
 import org.teasoft.bee.spi.JsonTransform;
 import org.teasoft.honey.logging.Logger;
-import org.teasoft.honey.osql.core.HoneyContext;
+import org.teasoft.honey.osql.core.HoneyContext1;
 import org.teasoft.honey.osql.core.HoneyUtil;
 import org.teasoft.honey.osql.core.JsonResultWrap;
+import org.teasoft.honey.osql.core.LocalType;
 import org.teasoft.honey.osql.core.NameTranslateHandle;
 import org.teasoft.honey.osql.core.OrderByPagingRewriteSql;
 import org.teasoft.honey.osql.core.ShardingLogReg;
@@ -103,7 +104,8 @@ public class ShardingGroupbyListStringArrayEngine {
 
 			try {
 
-				GroupFunStruct groupFunStruct = HoneyContext.getCurrentGroupFunStruct();
+//				GroupFunStruct groupFunStruct = HoneyContext.getCurrentGroupFunStruct();
+				GroupFunStruct groupFunStruct = HoneyContext1.getInheritable(LocalType.SHARDING, GroupFunStruct.class);
 				for (int i = 0; i < rsList.size(); i++) {
 					targetObj = entityClass.newInstance();
 					String[] current = rsList.get(i);

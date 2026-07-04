@@ -11,10 +11,12 @@ import java.util.Map;
 
 import org.teasoft.bee.osql.DatabaseConst;
 import org.teasoft.bee.osql.OrderType;
+import org.teasoft.bee.sharding.GroupFunStruct;
 import org.teasoft.bee.sharding.ShardingSortStruct;
 import org.teasoft.honey.osql.core.HoneyConfig;
 import org.teasoft.honey.osql.core.HoneyContext;
 import org.teasoft.honey.osql.core.HoneyContext1;
+import org.teasoft.honey.osql.core.LocalType;
 import org.teasoft.honey.osql.core.StringConst;
 import org.teasoft.honey.sharding.config.ShardingRegistry;
 import org.teasoft.honey.util.StringUtils;
@@ -70,11 +72,13 @@ public class ShardingUtil {
 	}
 
 	public static boolean hadGroupSharding() {
-		return HoneyContext.getCurrentGroupFunStruct() != null;
+//		return HoneyContext.getCurrentGroupFunStruct() != null;
+		return HoneyContext1.getInheritable(LocalType.SHARDING, GroupFunStruct.class) != null;
 	}
 
 	public static boolean hadAvgSharding() {// 要分片,且有AVG分组
-		return hadGroupSharding() && HoneyContext.getCurrentGroupFunStruct().isHasAvg();
+//		return hadGroupSharding() && HoneyContext.getCurrentGroupFunStruct().isHasAvg();
+		return hadGroupSharding() && HoneyContext1.getInheritable(LocalType.SHARDING, GroupFunStruct.class).isHasAvg();
 	}
 
 	public static boolean hadShardingFullSelect() {// 要分片,且要全域查询
@@ -92,12 +96,12 @@ public class ShardingUtil {
 	public static void setTrue(String key) {
 //		HoneyContext.setTrueInSysCommStrInheritableLocal(key);
 		
-		HoneyContext1.setTrueInheritableForSharding(key);
+		HoneyContext1.setTrueExtForSharding(key);
 	}
 
 	public static boolean isTrue(String key) {
 //		return HoneyContext.isTrueInSysCommStrInheritableLocal(key);
-		return HoneyContext1.isTrueInheritableForSharding(key); //TODO
+		return HoneyContext1.isTrueExtForSharding(key); //TODO
 	}
 
 	public static void regSelectRsThreadFlag(String threadFlag) {

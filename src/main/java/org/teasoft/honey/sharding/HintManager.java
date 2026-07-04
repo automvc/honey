@@ -7,6 +7,7 @@
 package org.teasoft.honey.sharding;
 
 import org.teasoft.honey.osql.core.HoneyContext;
+import org.teasoft.honey.osql.core.HoneyContext1;
 import org.teasoft.honey.osql.core.StringConst;
 
 /**
@@ -18,7 +19,8 @@ public class HintManager {
 
 	public static void setDataSourceName(String dsName) {
 		HoneyContext.setAppointDS(dsName);
-		HoneyContext.setSysCommStrInheritableLocal(StringConst.HintDs, StringConst.tRue);
+//		HoneyContext.setSysCommStrInheritableLocal(StringConst.HintDs, StringConst.tRue);
+		HoneyContext1.setTrueExtForSharding(StringConst.HintDs);
 	}
 
 	/**
@@ -27,7 +29,8 @@ public class HintManager {
 	 */
 	public static void setTableName(String tableName) {
 		HoneyContext.setAppointTab(tableName);
-		HoneyContext.setSysCommStrInheritableLocal(StringConst.HintTab, StringConst.tRue);
+//		HoneyContext.setSysCommStrInheritableLocal(StringConst.HintTab, StringConst.tRue);
+		HoneyContext1.setTrueExtForSharding(StringConst.HintTab);
 	}
 
 }

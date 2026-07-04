@@ -318,7 +318,8 @@ class _MoreObjectToSQLHelper3 {
 				gfStruct.setNeedGroupWhenNoFun(needGroupWhenNoFun); // 有一个排序字段, 但不是分组字段的, 多个分片的记录汇聚合到一起后,可能不合顺序.
 				gfStruct.setColumnNames(columnNames);
 
-				HoneyContext.setCurrentGroupFunStruct(gfStruct);
+//				HoneyContext.setCurrentGroupFunStruct(gfStruct);
+				HoneyContext1.setInheritable(LocalType.SHARDING, GroupFunStruct.class, gfStruct);
 			}
 		} // checkGroup
 

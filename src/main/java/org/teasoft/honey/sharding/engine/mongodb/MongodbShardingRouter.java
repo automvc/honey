@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.teasoft.honey.osql.core.HoneyContext;
 import org.teasoft.honey.osql.core.HoneyContext1;
+import org.teasoft.honey.osql.core.LocalType;
 import org.teasoft.honey.osql.core.NameTranslateHandle;
 import org.teasoft.honey.osql.core.StringConst;
 import org.teasoft.honey.sharding.ShardingUtil;
@@ -30,7 +30,8 @@ public class MongodbShardingRouter {
 
 		List<String> tabNameList = HoneyContext1.getListLocal(StringConst.TabNameListLocal);
 		List<String> tabSuffixList = HoneyContext1.getListLocal(StringConst.TabSuffixListLocal);
-		Map<String, String> tab2DsMap = HoneyContext.getCustomMapLocal(StringConst.ShardingTab2DsMap);
+//		Map<String, String> tab2DsMap = HoneyContext.getCustomMapLocal(StringConst.ShardingTab2DsMap);
+		Map<String, String> tab2DsMap = (Map<String, String>) HoneyContext1.get(LocalType.SHARDING, StringConst.ShardingTab2DsMap);
 
 		String dsArray[] = new String[tabSuffixList.size()];
 		for (int i = 0; i < tabSuffixList.size(); i++) {
