@@ -15,6 +15,7 @@ import java.util.concurrent.RecursiveTask;
 
 import org.teasoft.bee.osql.api.SuidRich;
 import org.teasoft.honey.osql.core.HoneyContext;
+import org.teasoft.honey.osql.core.HoneyContext1;
 import org.teasoft.honey.osql.core.ShardingLogReg;
 import org.teasoft.honey.osql.core.StringConst;
 import org.teasoft.honey.sharding.config.ShardingRegistry;
@@ -40,7 +41,7 @@ public class ShardingForkJoinBatchInsertEngine<T> {
 		List<String> taskTab = new ArrayList<>();
 
 		Map<String, List<Integer>> tabMap = groupElement(tabNameListForBatch);
-		List<String> dsNameListForBatch = HoneyContext.getListLocal(StringConst.DsNameListForBatchLocal);
+		List<String> dsNameListForBatch = HoneyContext1.getListLocal(StringConst.DsNameListForBatchLocal);
 
 		for (Map.Entry<String, List<Integer>> entry : tabMap.entrySet()) {
 			String tabName = entry.getKey();

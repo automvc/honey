@@ -113,8 +113,8 @@ public abstract class AbstractBase {
 
 	protected void logDsTab() {
 		if (!showShardingSQL) return;
-		List<String> dsNameListLocal = HoneyContext.getListLocal(StringConst.DsNameListLocal);
-		List<String> tabNameList = HoneyContext.getListLocal(StringConst.TabNameListLocal);
+		List<String> dsNameListLocal = HoneyContext1.getListLocal(StringConst.DsNameListLocal);
+		List<String> tabNameList = HoneyContext1.getListLocal(StringConst.TabNameListLocal);
 		Logger.logSQL("========= Involved DataSource: " + dsNameListLocal + "  ,Involved Table: " + tabNameList);
 	}
 

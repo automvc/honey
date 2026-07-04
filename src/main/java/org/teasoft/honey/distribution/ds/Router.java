@@ -9,6 +9,7 @@ package org.teasoft.honey.distribution.ds;
 import org.teasoft.bee.distribution.ds.Route;
 import org.teasoft.honey.osql.core.HoneyConfig;
 import org.teasoft.honey.osql.core.HoneyContext;
+import org.teasoft.honey.osql.core.HoneyContext1;
 import org.teasoft.honey.osql.core.StringConst;
 import org.teasoft.honey.sharding.ShardingUtil;
 
@@ -53,7 +54,7 @@ public final class Router {
 //				&&  !HoneyContext.hadShardingFullSelect()
 		) { // 需要分片,且涉及要拆分sql 的主线程
 
-			return HoneyContext.getListLocal(StringConst.DsNameListLocal) + "";
+			return HoneyContext1.getListLocal(StringConst.DsNameListLocal) + "";
 		}
 
 //		Logger.info(" getDsName 当前线程id:  " + Thread.currentThread().getId());

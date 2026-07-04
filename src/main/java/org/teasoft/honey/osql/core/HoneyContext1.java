@@ -1,11 +1,12 @@
 package org.teasoft.honey.osql.core;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.teasoft.honey.sharding.ShardingUtil;
+//import org.teasoft.honey.sharding.ShardingUtil;
 import org.teasoft.honey.util.StringUtils;
 
 /**
@@ -64,7 +65,7 @@ public class HoneyContext1 {
 	}
 
 	public static void setForSharding(String key, Object value) {
-		if (!ShardingUtil.isSharding()) return; // TODO
+//		if (!ShardingUtil.isSharding()) return; // TODO
 		set(LocalType.SHARDING, key, value);
 	}
 
@@ -76,7 +77,7 @@ public class HoneyContext1 {
 			return;
 		}
 
-		if (LocalType.SHARDING == category && !ShardingUtil.isSharding()) return;
+//		if (LocalType.SHARDING == category && !ShardingUtil.isSharding()) return;
 
 		Map<LocalType, Map<String, Object>> store = LOCAL.get();
 		Map<String, Object> catMap = store.get(category);
@@ -230,7 +231,7 @@ public class HoneyContext1 {
 	}
 
 	public static void setInheritableForSharding(String key, Object value) {
-		if (!ShardingUtil.isSharding()) return; // TODO
+//		if (!ShardingUtil.isSharding()) return; // TODO
 		setInheritable(LocalType.SHARDING, key, value);
 	}
 
@@ -242,7 +243,7 @@ public class HoneyContext1 {
 			return;
 		}
 
-		if (LocalType.SHARDING == category && !ShardingUtil.isSharding()) return;
+//		if (LocalType.SHARDING == category && !ShardingUtil.isSharding()) return;
 
 		Map<LocalType, Map<String, Object>> store = INHERITABLE_LOCAL.get();
 		Map<String, Object> catMap = store.get(category);
@@ -318,6 +319,27 @@ public class HoneyContext1 {
 	public static boolean isTrueInheritable(String key) {
 		return StringConst.tRue.equals(getInheritable(key));
 	}
+	
+	public static void setTrueInheritableForSharding(String key) {
+		setInheritable(LocalType.SHARDING, key, StringConst.tRue);
+	}
+
+	public static boolean isTrueInheritableForSharding(String key) {
+		return StringConst.tRue.equals(getInheritable(LocalType.SHARDING, key));
+	}
+	
+	
+	
+	
+	
+	//////////// for Sharding  just Local
+	public static List<String> getListLocal(String key) {
+		return (List<String>)get(LocalType.SHARDING, key);
+	}
+	
+	
+	
+	
 
 	public static void main(String[] args) {
 //		setTrueInheritable("aaa");

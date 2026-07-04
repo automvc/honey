@@ -36,8 +36,6 @@ public final class StringConst {
 	public static final String Reset_Ds_OneTime = "_SYS_Bee_Reset_Ds_OneTime";
 
 	public static final String InterceptorChainForMoreTable = "_SYS_Bee_InterceptorChainForMoreTable";
-	public static final String MoreTableSelectShardingFlag = "_SYS_Bee_MoreTableSelectShardingFlag";
-//	public static final String ByIdWithClassForSharding="_SYS_Bee_ByIdWithClassForSharding"; //2.4.2
 
 	public static final String JdbcTranWriterDS = "_SYS_Bee_JdbcTran_WriterDS";
 
@@ -56,13 +54,19 @@ public final class StringConst {
 	public static final String TIMER_START = "_SYS_Bee_TIMER_START";
 
 	// Sharding<<<<<<<<<<<<<<<<<<<<<<<<<<
-	public static final String HadSharding = PREFIX + "HadSharding";
-//	public static final String ShardingTableIndexStr="[$#(index)#$]";
 	public static final String ShardingTableIndexStr = "'[$#(index)#$]'";// 2.4.0.8
-
+	
+	
+	///////////////
+	public static final String HadSharding = PREFIX + "HadSharding";
+	
+	// local
 	public static final String DsNameListLocal = PREFIX + "DsNameListLocal";
 	public static final String TabNameListLocal = PREFIX + "TabNameListLocal";
 	public static final String TabSuffixListLocal = PREFIX + "TabSuffixListLocal";
+	public static final String DsNameListForBatchLocal = PREFIX + "DsNameListForBatchLocal";
+	public static final String TabNameListForBatchLocal = PREFIX + "TabNameListForBatchLocal";
+
 
 	public static final String ShardingFullSelect = PREFIX + "ShardingFullSelect";
 	public static final String ShardingSomeDsFullSelect = PREFIX + "ShardingSomeDsFullSelect";
@@ -72,10 +76,15 @@ public final class StringConst {
 	public static final String HintTab = PREFIX + "HintTab";
 	public static final String FunType = PREFIX + "FunType";
 
-	public static final String DsNameListForBatchLocal = PREFIX + "DsNameListForBatchLocal";
-	public static final String TabNameListForBatchLocal = PREFIX + "TabNameListForBatchLocal";
+
 
 	public static final String MoreTableQuery = PREFIX + "MoreTableQuery";
+	public static final String MoreTableSelectShardingFlag = PREFIX + "MoreTableSelectShardingFlag";
+	
+	
+///////////////
+	
+	
 	public static final String InterceptorSubEntity = PREFIX + "InterceptorSubEntity";
 	public static final String ShardingBatchInsertDoing = PREFIX + "ShardingBatchInsertDoing";
 
@@ -84,6 +93,7 @@ public final class StringConst {
 	public static final String Return_GroupFunStruct = PREFIX + "Return_GroupFunStruct";
 
 	public static final String ShardingSelectRs_ThreadFlag = PREFIX + "ShardingSelectRs_ThreadID";
+
 	// Sharding>>>>>>>>>>>>>>>>>>>>>>>
 
 	// MongoDB

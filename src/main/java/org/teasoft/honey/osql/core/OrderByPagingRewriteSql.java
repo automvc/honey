@@ -29,8 +29,8 @@ public class OrderByPagingRewriteSql {
 	public static List<String[]> createSqlsAndInit(String sql) {
 
 		List<String[]> list = new ArrayList<>();
-		List<String> tabNameList = HoneyContext.getListLocal(StringConst.TabNameListLocal);
-		List<String> tabSuffixList = HoneyContext.getListLocal(StringConst.TabSuffixListLocal);
+		List<String> tabNameList = HoneyContext1.getListLocal(StringConst.TabNameListLocal);
+		List<String> tabSuffixList = HoneyContext1.getListLocal(StringConst.TabSuffixListLocal);
 		Map<String, String> tab2DsMap = HoneyContext.getCustomMapLocal(StringConst.ShardingTab2DsMap);
 
 		List<PreparedValue> listValue = HoneyContext.justGetPreparedValue(sql);
@@ -41,7 +41,7 @@ public class OrderByPagingRewriteSql {
 			SimpleRewriteSql._createSql(list, tabSuffixList, sql, listValue, tabNameList, tab2DsMap);
 		} else { // shardingPage!=null 要处理分页
 
-			List<String> dsNameList = HoneyContext.getListLocal(StringConst.DsNameListLocal);
+			List<String> dsNameList = HoneyContext1.getListLocal(StringConst.DsNameListLocal);
 
 			// ReWriteSQL
 			// a)rewrite paging sql

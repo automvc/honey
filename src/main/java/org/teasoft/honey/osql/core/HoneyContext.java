@@ -430,25 +430,26 @@ public final class HoneyContext {
 //		return StringConst.tRue.equals(HoneyContext.getSysCommStrInheritableLocal(key));
 //	}
 
-	public static void setListLocal(String key, List<String> listString) {
-		if (listString == null) return;
-		if (key == null || "".equals(key.trim())) return;
-		Map<String, List<String>> map = listLocal.get();
-		if (map == null) map = new ConcurrentHashMap<>();
-		map.put(key, listString);
-		listLocal.set(map);
-	}
+	
+//	public static void setListLocal(String key, List<String> listString) {
+//		if (listString == null) return;
+//		if (key == null || "".equals(key.trim())) return;
+//		Map<String, List<String>> map = listLocal.get();
+//		if (map == null) map = new ConcurrentHashMap<>();
+//		map.put(key, listString);
+//		listLocal.set(map);
+//	}
 
-	public static List<String> getListLocal(String key) {
-		Map<String, List<String>> map = listLocal.get();
-		if (map == null || key == null) return null;
-		return map.get(key);
-	}
+//	public static List<String> getListLocal(String key) {
+//		Map<String, List<String>> map = listLocal.get();
+//		if (map == null || key == null) return null;
+//		return map.get(key);
+//	}
 
-	public static void removeListLocal(String key) {
-		Map<String, List<String>> map = listLocal.get();
-		if (map != null) map.remove(key);
-	}
+//	public static void removeListLocal(String key) {
+//		Map<String, List<String>> map = listLocal.get();
+//		if (map != null) map.remove(key);
+//	}
 
 	static void setPreparedValue(String sqlStr, List<PreparedValue> list) {
 		if (list == null) return;
@@ -834,7 +835,7 @@ public final class HoneyContext {
 	static void regFunType(FunctionType functionType) {
 		if (!ShardingUtil.isSharding()) return; // fixed bug 3.0.0
 //		HoneyContext.setSysCommStrInheritableLocal(StringConst.FunType, functionType.getName());
-		HoneyContext1.setInheritable(LocalType.SHARDING, StringConst.FunType, functionType.getName());
+		HoneyContext1.setInheritableForSharding(StringConst.FunType, functionType.getName());
 	}
 
 	static void regSuidType(SuidType suidType) {
@@ -877,7 +878,7 @@ public final class HoneyContext {
 
 	public static void checkShadingHasMoreDs(String exceptionMsg) {
 		if (ShardingUtil.hadSharding()) {// 有分片时,涉及多个DS
-			List<String> dsNameListLocal = HoneyContext.getListLocal(StringConst.DsNameListLocal);
+			List<String> dsNameListLocal = HoneyContext1.getListLocal(StringConst.DsNameListLocal);
 			if (dsNameListLocal != null && dsNameListLocal.size() > 1) {
 //				throw new ShardingErrorException("Donot support SameConnection in more DataSources!");
 				throw new ShardingErrorException(exceptionMsg);

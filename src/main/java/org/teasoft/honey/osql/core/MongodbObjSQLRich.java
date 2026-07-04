@@ -151,8 +151,8 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 			HoneyUtil.setInitArrayIdByAuto(entity);
 			doBeforePasreEntity(entity, SuidType.INSERT);
 
-			List<String> tabNameListForBatch = HoneyContext.getListLocal(StringConst.TabNameListForBatchLocal);
-			List<String> dsNameListForBatch = HoneyContext.getListLocal(StringConst.DsNameListForBatchLocal);
+			List<String> tabNameListForBatch = HoneyContext1.getListLocal(StringConst.TabNameListForBatchLocal);
+			List<String> dsNameListForBatch = HoneyContext1.getListLocal(StringConst.DsNameListForBatchLocal);
 
 			if (!ShardingUtil.isSharding()
 					|| (ObjectUtils.isEmpty(tabNameListForBatch) && ObjectUtils.isEmpty(dsNameListForBatch))) {
@@ -171,7 +171,8 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 				} catch (Exception e) {
 					Logger.warn(e.getMessage(), e);
 				} finally {
-					HoneyContext.removeSysCommStrInheritableLocal(StringConst.ShardingBatchInsertDoing);
+//					HoneyContext.removeSysCommStrInheritableLocal(StringConst.ShardingBatchInsertDoing);
+					HoneyContext1.removeInheritable(LocalType.SHARDING, StringConst.ShardingBatchInsertDoing);
 				}
 			}
 

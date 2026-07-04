@@ -92,12 +92,12 @@ public class ShardingUtil {
 	public static void setTrue(String key) {
 //		HoneyContext.setTrueInSysCommStrInheritableLocal(key);
 		
-		HoneyContext1.setTrueInheritable(key);
+		HoneyContext1.setTrueInheritableForSharding(key);
 	}
 
 	public static boolean isTrue(String key) {
 //		return HoneyContext.isTrueInSysCommStrInheritableLocal(key);
-		return HoneyContext1.isTrueInheritable(key);
+		return HoneyContext1.isTrueInheritableForSharding(key); //TODO
 	}
 
 	public static void regSelectRsThreadFlag(String threadFlag) {

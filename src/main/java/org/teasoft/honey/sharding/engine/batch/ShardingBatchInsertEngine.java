@@ -19,6 +19,7 @@ import org.teasoft.bee.osql.Serializer;
 import org.teasoft.bee.osql.api.SuidRich;
 import org.teasoft.honey.logging.Logger;
 import org.teasoft.honey.osql.core.HoneyContext;
+import org.teasoft.honey.osql.core.HoneyContext1;
 import org.teasoft.honey.osql.core.JdkSerializer;
 import org.teasoft.honey.osql.core.NameTranslateHandle;
 import org.teasoft.honey.osql.core.ShardingLogReg;
@@ -49,7 +50,7 @@ public class ShardingBatchInsertEngine<T> {
 		List<String> taskDs = new ArrayList<>();
 		List<String> taskTab = new ArrayList<>();
 
-		List<String> dsNameListForBatch = HoneyContext.getListLocal(StringConst.DsNameListForBatchLocal);
+		List<String> dsNameListForBatch = HoneyContext1.getListLocal(StringConst.DsNameListForBatchLocal);
 
 		boolean isBroadcastTabBatchInsert = false;
 		String tableName = _toTableName(entity[0]);
@@ -94,7 +95,7 @@ public class ShardingBatchInsertEngine<T> {
 
 			time = dsNameListForBatch.size();
 
-			taskTab = HoneyContext.getListLocal(StringConst.TabNameListForBatchLocal); // 广播表,一库一表
+			taskTab = HoneyContext1.getListLocal(StringConst.TabNameListForBatchLocal); // 广播表,一库一表
 			for (int i = 0; i < time; i++) {
 				tasks.add(new ShardingBeeSQLBatchInsertExecutorEngine(entity, batchSize, excludeFields,
 						dsNameListForBatch, taskTab, suidRich, i));

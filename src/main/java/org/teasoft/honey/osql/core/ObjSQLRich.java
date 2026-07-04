@@ -253,8 +253,8 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 			HoneyUtil.setInitArrayIdByAuto(entity); // V2.1
 			doBeforePasreEntity(entity, SuidType.INSERT);
 
-			List<String> tabNameListForBatch = HoneyContext.getListLocal(StringConst.TabNameListForBatchLocal);
-			List<String> dsNameListForBatch = HoneyContext.getListLocal(StringConst.DsNameListForBatchLocal);
+			List<String> tabNameListForBatch = HoneyContext1.getListLocal(StringConst.TabNameListForBatchLocal);
+			List<String> dsNameListForBatch = HoneyContext1.getListLocal(StringConst.DsNameListForBatchLocal);
 
 			if (!ShardingUtil.isSharding()
 					|| (ObjectUtils.isEmpty(tabNameListForBatch) && ObjectUtils.isEmpty(dsNameListForBatch))) {
@@ -275,7 +275,8 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 				} catch (Exception e) {
 					Logger.warn(e.getMessage(), e);
 				} finally {
-					HoneyContext.removeSysCommStrInheritableLocal(StringConst.ShardingBatchInsertDoing);
+//					HoneyContext.removeSysCommStrInheritableLocal(StringConst.ShardingBatchInsertDoing);
+					HoneyContext1.removeInheritable(LocalType.SHARDING, StringConst.ShardingBatchInsertDoing);
 				}
 			}
 

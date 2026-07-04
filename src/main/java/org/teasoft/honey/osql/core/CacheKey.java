@@ -74,7 +74,7 @@ public final class CacheKey {
 		if (ShardingUtil.hadSharding() && HoneyContext.getSqlIndexLocal() == null) { // 用于分片的总查询; 每个子线程都有一个具体表名,不需要.
 			strBuf.append("Sharding_tabNameList:");
 //			strBuf.append(HoneyContext.getTabNameListLocal());
-			strBuf.append(HoneyContext.getListLocal(StringConst.TabNameListLocal) + "");
+			strBuf.append(HoneyContext1.getListLocal(StringConst.TabNameListLocal) + "");
 			strBuf.append(SEPARATOR);
 		}
 

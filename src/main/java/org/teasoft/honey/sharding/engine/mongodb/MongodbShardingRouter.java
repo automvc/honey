@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.teasoft.honey.osql.core.HoneyContext;
+import org.teasoft.honey.osql.core.HoneyContext1;
 import org.teasoft.honey.osql.core.NameTranslateHandle;
 import org.teasoft.honey.osql.core.StringConst;
 import org.teasoft.honey.sharding.ShardingUtil;
@@ -27,8 +28,8 @@ public class MongodbShardingRouter {
 	// 找表排列对应的ds排列
 	static List<String[]> _findDsTab() {
 
-		List<String> tabNameList = HoneyContext.getListLocal(StringConst.TabNameListLocal);
-		List<String> tabSuffixList = HoneyContext.getListLocal(StringConst.TabSuffixListLocal);
+		List<String> tabNameList = HoneyContext1.getListLocal(StringConst.TabNameListLocal);
+		List<String> tabSuffixList = HoneyContext1.getListLocal(StringConst.TabSuffixListLocal);
 		Map<String, String> tab2DsMap = HoneyContext.getCustomMapLocal(StringConst.ShardingTab2DsMap);
 
 		String dsArray[] = new String[tabSuffixList.size()];
@@ -65,7 +66,7 @@ public class MongodbShardingRouter {
 		Map<String, Set<String>> map = ShardingRegistry.getFullNodes(baseTableName);
 
 		boolean justSomeDs = ShardingUtil.hadShardingSomeDsFullSelect();
-		List<String> dsNameList = HoneyContext.getListLocal(StringConst.DsNameListLocal);
+		List<String> dsNameList = HoneyContext1.getListLocal(StringConst.DsNameListLocal);
 
 		for (Map.Entry<String, Set<String>> entry : map.entrySet()) {
 			String dsName = entry.getKey();

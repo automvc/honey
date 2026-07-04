@@ -35,11 +35,17 @@ public class ShardingReg {
 	// 下游还会判断,是否涉及多个库.
 	public static void regShardingManyTables(List<String> dsNameList, List<String> tabNameList,
 			List<String> tabSuffixList, Map<String, String> tab2DsMap) {
-		HoneyContext.setListLocal(StringConst.TabNameListLocal, tabNameList);
-		HoneyContext.setListLocal(StringConst.TabSuffixListLocal, tabSuffixList);
+//		HoneyContext.setListLocal(StringConst.TabNameListLocal, tabNameList);
+//		HoneyContext.setListLocal(StringConst.TabSuffixListLocal, tabSuffixList);
+		HoneyContext1.setForSharding(StringConst.TabNameListLocal, tabNameList);
+		HoneyContext1.setForSharding(StringConst.TabSuffixListLocal, tabSuffixList);
+		
 		// 一般用于判断,是否是某个数据源
-		HoneyContext.setListLocal(StringConst.DsNameListLocal, dsNameList); // 极少用于指定ds; 一般用反查或tab2DsMap
-		HoneyContext.setCustomMapLocal(StringConst.ShardingTab2DsMap, tab2DsMap);
+//		HoneyContext.setListLocal(StringConst.DsNameListLocal, dsNameList); // 极少用于指定ds; 一般用反查或tab2DsMap
+		HoneyContext1.setForSharding(StringConst.DsNameListLocal, dsNameList);// 极少用于指定ds; 一般用反查或tab2DsMap
+		
+//		HoneyContext.setCustomMapLocal(StringConst.ShardingTab2DsMap, tab2DsMap);
+		HoneyContext1.setForSharding(StringConst.ShardingTab2DsMap, tab2DsMap);
 	}
 
 	public static void regFullInModifyAllNodes(SuidType suidType) {
@@ -68,7 +74,8 @@ public class ShardingReg {
 	}
 
 	public static void regShardingJustDs(List<String> dsNameList) { // 一般用于判断,是否是某个数据源
-		HoneyContext.setListLocal(StringConst.DsNameListLocal, dsNameList); // 极少用于指定ds; 一般用反查或tab2DsMap
+//		HoneyContext.setListLocal(StringConst.DsNameListLocal, dsNameList); // 极少用于指定ds; 一般用反查或tab2DsMap
+		HoneyContext1.setForSharding(StringConst.DsNameListLocal, dsNameList);// 极少用于指定ds; 一般用反查或tab2DsMap
 	}
 
 	private static final String DoNotSetTabShadngValue = "Do not set the sharding value for table!";
@@ -80,8 +87,11 @@ public class ShardingReg {
 	}
 
 	public static void regBatchInsert(List<String> tabNameListForBatch, List<String> dsNameListForBatch) {
-		HoneyContext.setListLocal(StringConst.TabNameListForBatchLocal, tabNameListForBatch);
-		HoneyContext.setListLocal(StringConst.DsNameListForBatchLocal, dsNameListForBatch);
+//		HoneyContext.setListLocal(StringConst.TabNameListForBatchLocal, tabNameListForBatch);
+//		HoneyContext.setListLocal(StringConst.DsNameListForBatchLocal, dsNameListForBatch);
+		
+		HoneyContext1.setForSharding(StringConst.TabNameListForBatchLocal, tabNameListForBatch);
+		HoneyContext1.setForSharding(StringConst.DsNameListForBatchLocal, dsNameListForBatch);
 	}
 
 	// >>>>>>>>>>>>>>>>>>>>>>>>>>>>解析时用. end
@@ -180,15 +190,16 @@ public class ShardingReg {
 		HoneyContext.removeSysCommStrInheritableLocal(StringConst.FunType);
 		HoneyContext.removeSysCommStrInheritableLocal(StringConst.MoreTableQuery);
 		HoneyContext.removeSysCommStrInheritableLocal(StringConst.MoreTableSelectShardingFlag);
-
-		HoneyContext.removeListLocal(StringConst.TabNameListLocal);
-		HoneyContext.removeListLocal(StringConst.TabSuffixListLocal);
-		HoneyContext.removeListLocal(StringConst.DsNameListLocal);
-
-		HoneyContext.removeListLocal(StringConst.TabNameListForBatchLocal);
-		HoneyContext.removeListLocal(StringConst.DsNameListForBatchLocal);
-
+		
 		HoneyContext.removeCustomMapLocal(StringConst.ShardingTab2DsMap);
+
+//		HoneyContext.removeListLocal(StringConst.TabNameListLocal);
+//		HoneyContext.removeListLocal(StringConst.TabSuffixListLocal);
+//		HoneyContext.removeListLocal(StringConst.DsNameListLocal);
+//		HoneyContext.removeListLocal(StringConst.TabNameListForBatchLocal);
+//		HoneyContext.removeListLocal(StringConst.DsNameListForBatchLocal);
+
+		
 
 		HoneyContext.removeCurrentShardingPage();
 		HoneyContext.removeCurrentShardingSort();
@@ -197,9 +208,11 @@ public class ShardingReg {
 		HoneyContext.removeCurrentGroupFunStruct();
 	}
 
-	public static void setTrue(String key) {
+	public static void setTrue(String key) { //TODO
 		if (!ShardingUtil.isSharding()) return; // 2.4.0
-		HoneyContext.setSysCommStrInheritableLocal(key, StringConst.tRue);
+//		HoneyContext.setSysCommStrInheritableLocal(key, StringConst.tRue);
+		
+		HoneyContext1.setTrueInheritableForSharding(key);
 	}
 
 }

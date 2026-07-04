@@ -25,8 +25,8 @@ public class SimpleRewriteSql {
 	public static List<String[]> createSqlsAndInit(String sql) {
 
 		List<String[]> list = new ArrayList<>();
-		List<String> tabNameList = HoneyContext.getListLocal(StringConst.TabNameListLocal);
-		List<String> tabSuffixList = HoneyContext.getListLocal(StringConst.TabSuffixListLocal);
+		List<String> tabNameList = HoneyContext1.getListLocal(StringConst.TabNameListLocal);
+		List<String> tabSuffixList = HoneyContext1.getListLocal(StringConst.TabSuffixListLocal);
 		Map<String, String> tab2DsMap = HoneyContext.getCustomMapLocal(StringConst.ShardingTab2DsMap);
 		List<PreparedValue> listValue = HoneyContext.justGetPreparedValue(sql);
 		_createSql(list, tabSuffixList, sql, listValue, tabNameList, tab2DsMap);
@@ -75,7 +75,7 @@ public class SimpleRewriteSql {
 		String tempSql;
 
 		boolean justSomeDs = ShardingUtil.hadShardingSomeDsFullSelect();
-		List<String> dsNameList = HoneyContext.getListLocal(StringConst.DsNameListLocal);
+		List<String> dsNameList = HoneyContext1.getListLocal(StringConst.DsNameListLocal);
 
 		// fixed bug 2.1
 		if (map == null || map.size() <= 0)
