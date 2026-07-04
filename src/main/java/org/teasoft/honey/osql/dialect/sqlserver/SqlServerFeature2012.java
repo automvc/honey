@@ -8,6 +8,7 @@ package org.teasoft.honey.osql.dialect.sqlserver;
 
 import org.teasoft.bee.osql.dialect.DbFeature;
 import org.teasoft.honey.osql.core.HoneyContext;
+import org.teasoft.honey.osql.core.HoneyContext1;
 import org.teasoft.honey.osql.core.HoneyUtil;
 import org.teasoft.honey.util.StringUtils;
 
@@ -47,7 +48,11 @@ public class SqlServerFeature2012 extends AbstractSqlServerFeature implements Db
 
 		String processSql = PAGING;
 
-		SqlServerPagingStruct struct = HoneyContext.getAndRemoveSqlServerPagingStruct(sql);
+//		SqlServerPagingStruct struct = HoneyContext.getAndRemoveSqlServerPagingStruct(sql);
+		String key = SqlServerPagingStruct.class.getName() + sql;
+		SqlServerPagingStruct struct = (SqlServerPagingStruct) HoneyContext1.get(key);
+		HoneyContext1.remove(key);
+		
 		if (struct != null) {
 			String pkName = struct.getOrderColumn();
 			String orderType = struct.getOrderType().getName();

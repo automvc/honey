@@ -128,6 +128,10 @@ public class HoneyContext1 {
 			catMap.remove(key);
 		}
 	}
+	
+	public static void remove(String key) {
+		remove(LocalType.NORMAL, key);
+	}
 
 	/**
 	 * 移除 ThreadLocal 中整个分类

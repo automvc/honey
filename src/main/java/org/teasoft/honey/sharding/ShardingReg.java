@@ -181,11 +181,11 @@ public class ShardingReg {
 	public static void clearContext() { //TODO
 		if (!ShardingUtil.isSharding()) return;
 
-//		HoneyContext.removeConditionLocal();
 		
 		HoneyContext1.removeCategory(LocalType.SHARDING);
 		HoneyContext1.removeInheritableCategory(LocalType.SHARDING);
 		
+//		HoneyContext.removeConditionLocal();
 //		HoneyContext.removeSysCommStrInheritableLocal(StringConst.HadSharding);
 //		HoneyContext.removeSysCommStrInheritableLocal(StringConst.ShardingFullSelect);
 //		HoneyContext.removeSysCommStrInheritableLocal(StringConst.ShardingSomeDsFullSelect);
@@ -196,6 +196,7 @@ public class ShardingReg {
 //		HoneyContext.removeSysCommStrInheritableLocal(StringConst.MoreTableQuery);
 //		HoneyContext.removeSysCommStrInheritableLocal(StringConst.MoreTableSelectShardingFlag);
 		
+		
 //		HoneyContext.removeListLocal(StringConst.TabNameListLocal);
 //		HoneyContext.removeListLocal(StringConst.TabSuffixListLocal);
 //		HoneyContext.removeListLocal(StringConst.DsNameListLocal);
@@ -205,9 +206,9 @@ public class ShardingReg {
 //		HoneyContext.removeCustomMapLocal(StringConst.ShardingTab2DsMap);
 
 
-//		HoneyContext.removeCurrentShardingPage();
-//		HoneyContext.removeCurrentShardingSort();
-//		HoneyContext.removeCurrentGroupFunStruct();
+//		HoneyContext.removeCurrentShardingPage(); //local
+//		HoneyContext.removeCurrentShardingSort(); //ext
+//		HoneyContext.removeCurrentGroupFunStruct();//ext
 
 	}
 

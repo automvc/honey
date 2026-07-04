@@ -115,7 +115,8 @@ public class MapSqlProcessor {
 		if (StringUtils.isNotBlank(pkName)) {
 			struct.setOrderColumn(pkName);
 		}
-		HoneyContext.setSqlServerPagingStruct(sql, struct);
+//		HoneyContext.setSqlServerPagingStruct(sql, struct);
+		HoneyContext1.set(SqlServerPagingStruct.class.getName() + sql, struct);
 
 		if (start != null && size != null) {
 			sql = getDbFeature().toPageSql(sql, start, size);

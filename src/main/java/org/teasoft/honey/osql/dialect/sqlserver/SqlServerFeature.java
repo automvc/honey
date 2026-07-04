@@ -1,7 +1,7 @@
 package org.teasoft.honey.osql.dialect.sqlserver;
 
 import org.teasoft.bee.osql.dialect.DbFeature;
-import org.teasoft.honey.osql.core.HoneyContext;
+import org.teasoft.honey.osql.core.HoneyContext1;
 import org.teasoft.honey.osql.core.HoneyUtil;
 import org.teasoft.honey.util.StringUtils;
 
@@ -49,7 +49,11 @@ public class SqlServerFeature extends AbstractSqlServerFeature implements DbFeat
 		else
 			processSql = part1_2;
 
-		SqlServerPagingStruct struct = HoneyContext.getAndRemoveSqlServerPagingStruct(sql);
+//		SqlServerPagingStruct struct = HoneyContext.getAndRemoveSqlServerPagingStruct(sql);
+		String key=SqlServerPagingStruct.class.getName()+ sql;
+		SqlServerPagingStruct struct = (SqlServerPagingStruct) HoneyContext1.get(key);
+		HoneyContext1.remove(key);
+		
 		if (struct != null) {
 			boolean justChangePk = struct.isJustChangeOrderColumn();
 			String pkName = struct.getOrderColumn();

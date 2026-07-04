@@ -321,7 +321,8 @@ public class ConditionHelper {
 
 		struct.setOrderColumn(pkName);
 		// 保存struct
-		HoneyContext.setSqlServerPagingStruct(sqlBuffer.toString(), struct); // 作为key的sql不是最终sql;因此处理后,一般就要先分页
+//		HoneyContext.setSqlServerPagingStruct(sqlBuffer.toString(), struct); // 作为key的sql不是最终sql;因此处理后,一般就要先分页
+		HoneyContext1.set(SqlServerPagingStruct.class.getName()+ sqlBuffer.toString(), struct); // 作为key的sql不是最终sql;因此处理后,一般就要先分页
 	}
 
 	static String processSelectField(String columnNames, Condition condition) {

@@ -126,7 +126,8 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		SqlServerPagingStruct struct = new SqlServerPagingStruct();
 		struct.setJustChangeOrderColumn(true);
 		struct.setOrderColumn(pkName);
-		HoneyContext.setSqlServerPagingStruct(sql, struct);
+//		HoneyContext.setSqlServerPagingStruct(sql, struct);
+		HoneyContext1.set(SqlServerPagingStruct.class.getName() + sql, struct);
 	}
 
 	@Override

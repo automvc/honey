@@ -18,14 +18,10 @@ import org.teasoft.bee.osql.DatabaseConst;
 import org.teasoft.bee.osql.FunctionType;
 import org.teasoft.bee.osql.NameTranslate;
 import org.teasoft.bee.osql.SuidType;
-import org.teasoft.bee.osql.api.Condition;
 import org.teasoft.bee.osql.dialect.DbFeatureRegistry;
 import org.teasoft.bee.osql.exception.BeeIllegalParameterException;
 import org.teasoft.bee.osql.exception.ConfigWrongException;
 import org.teasoft.bee.osql.exception.ShardingErrorException;
-import org.teasoft.bee.sharding.GroupFunStruct;
-import org.teasoft.bee.sharding.ShardingPageStruct;
-import org.teasoft.bee.sharding.ShardingSortStruct;
 import org.teasoft.bee.sharding.algorithm.CalculateRegistry;
 import org.teasoft.honey.database.DatabaseClientConnection;
 import org.teasoft.honey.distribution.ds.RouteStruct;
@@ -49,31 +45,25 @@ import org.teasoft.honey.util.StringUtils;
 public final class HoneyContext {
 
 	private static ConcurrentMap<String, String> beanMap;
-
 	private static ConcurrentMap<String, Object> commonCache;
 
 	// since 1.11
 	private static ConcurrentMap<String, String> beanCustomPKey; // Custom Primary Key
 	private static ConcurrentMap<String, Map<String, String>> customMap;
+	
 
 	private static ThreadLocal<Map<String, List<PreparedValue>>> sqlPreValueLocal;
-	private static ThreadLocal<Integer> sqlIndexLocal; // 标识子操作线程的下标, 也说明是子线程
-	private static ThreadLocal<Condition> conditionLocal;
-//	private static ThreadLocal<List<String>> tabNameListLocal; 
-
 	private static ThreadLocal<Map<String, CacheSuidStruct>> cacheLocal;
-	private static ThreadLocal<Map<String, SqlServerPagingStruct>> sqlServerPaging;
-
-	private static ThreadLocal<Map<String, Map<String, String>>> customMapLocal;
-
-	private static ThreadLocal<Map<String, String>> sysCommStrLocal;
-	private static ThreadLocal<Map<String, String>> sysCommStrInheritableLocal;
-//	private static ThreadLocal<Map<String, List<String>>> listLocal;
-
 	private static ThreadLocal<RouteStruct> currentRoute;
-//	private static ThreadLocal<ShardingPageStruct> currentShardingPage;
-//	private static ThreadLocal<ShardingSortStruct> currentShardingSort;
-//	private static ThreadLocal<GroupFunStruct> currentGroupFunStruct;
+	private static ThreadLocal<String> appointDS; // 1.拦截器等设置的值; 因处理不同的javabean对象,可能有不同的值;比Suid对象的tempDS,动态性更强.所以appointDS优于tempDS
+	private static ThreadLocal<Map<String, String>> sysCommStrLocal;
+	
+	
+	
+	private static ThreadLocal<Integer> sqlIndexLocal; // 标识子操作线程的下标, 也说明是子线程
+	
+	private static ThreadLocal<Map<String, String>> sysCommStrInheritableLocal;  //?? TODO
+	
 
 	private static ThreadLocal<Connection> currentConnection; // 当前事务的Conn
 
@@ -87,7 +77,6 @@ public final class HoneyContext {
 	private static ThreadLocal<String> sameConnectionDoing; // 当前多个ORM操作使用同一个connection.
 	private static ThreadLocal<String> jdbcTranWriterDs;
 
-	private static ThreadLocal<String> appointDS; // 1.拦截器等设置的值; 因处理不同的javabean对象,可能有不同的值;比Suid对象的tempDS,动态性更强.所以appointDS优于tempDS
 	private static ThreadLocal<String> tempDS; // 2.对象级别设置的值; for Suid.setDataSourceName(String dsName) and so on
 
 	private static ThreadLocal<String> appointTab;
@@ -127,24 +116,24 @@ public final class HoneyContext {
 		customMap = new ConcurrentHashMap<>();
 
 		if (cacheLocal != null) cacheLocal.remove();
-		if (sqlServerPaging != null) sqlServerPaging.remove();
-		if (customMapLocal != null) customMapLocal.remove();
+//		if (sqlServerPaging != null) sqlServerPaging.remove();
+//		if (customMapLocal != null) customMapLocal.remove();
 		if (sysCommStrLocal != null) sysCommStrLocal.remove();
 		if (sysCommStrInheritableLocal != null) sysCommStrInheritableLocal.remove();
 //		if (listLocal != null) listLocal.remove();
 		if (sqlPreValueLocal != null) sqlPreValueLocal.remove();
 		if (sqlIndexLocal != null) sqlIndexLocal.remove();
-		if (conditionLocal != null) conditionLocal.remove();
+//		if (conditionLocal != null) conditionLocal.remove();
 
 		initTL();
 
 		sqlIndexLocal = new InheritableThreadLocal<>();
-		conditionLocal = new InheritableThreadLocal<>();
+//		conditionLocal = new InheritableThreadLocal<>();
 //		tabNameListLocal = new ThreadLocal<>(); //每个子线程都有一个具体表名,不需要.
 		sysCommStrInheritableLocal = new InheritableThreadLocal<>();
 
-		sqlServerPaging = new ThreadLocal<>();
-		customMapLocal = new ThreadLocal<>();
+//		sqlServerPaging = new ThreadLocal<>();
+//		customMapLocal = new ThreadLocal<>();
 //		listLocal = new ThreadLocal<>(); // 子线程没有用到.
 
 		currentConnection = new ThreadLocal<>();
@@ -353,26 +342,26 @@ public final class HoneyContext {
 		if (customMap.containsKey(key)) customMap.remove(key);
 	}
 
-	public static void setCustomMapLocal(String key, Map<String, String> mapValue) {
-		if (mapValue == null) return;
-		if (key == null || "".equals(key.trim())) return;
-		Map<String, Map<String, String>> map = customMapLocal.get();
-		if (map == null) map = new ConcurrentHashMap<>();
-		map.put(key, mapValue);
-		customMapLocal.set(map);
-	}
+//	public static void setCustomMapLocal(String key, Map<String, String> mapValue) {
+//		if (mapValue == null) return;
+//		if (key == null || "".equals(key.trim())) return;
+//		Map<String, Map<String, String>> map = customMapLocal.get();
+//		if (map == null) map = new ConcurrentHashMap<>();
+//		map.put(key, mapValue);
+//		customMapLocal.set(map);
+//	}
 
-	public static Map<String, String> getCustomMapLocal(String key) {
-		Map<String, Map<String, String>> map = customMapLocal.get();
-		if (map == null || key == null) return null;
-		return map.get(key);
-	}
+//	public static Map<String, String> getCustomMapLocal(String key) {
+//		Map<String, Map<String, String>> map = customMapLocal.get();
+//		if (map == null || key == null) return null;
+//		return map.get(key);
+//	}
 
-	public static void removeCustomMapLocal(String key) {
-		Map<String, Map<String, String>> map = customMapLocal.get();
-		if (map == null || key == null) return;
-		if (map.containsKey(key)) map.remove(key);
-	}
+//	public static void removeCustomMapLocal(String key) {
+//		Map<String, Map<String, String>> map = customMapLocal.get();
+//		if (map == null || key == null) return;
+//		if (map.containsKey(key)) map.remove(key);
+//	}
 
 	public static void setSysCommStrLocal(String key, String sysCommStr) {
 		if (sysCommStr == null) return;
@@ -409,10 +398,12 @@ public final class HoneyContext {
 		return map.get(key);
 	}
 
-	public static void removeSysCommStrInheritableLocal(String key) {
-		Map<String, String> map = sysCommStrInheritableLocal.get();
-		if (map != null) map.remove(key);
-	}
+//	ShardingSelectRs_ThreadFlag 如何关闭？？ TODO
+	
+//	public static void removeSysCommStrInheritableLocal(String key) {
+//		Map<String, String> map = sysCommStrInheritableLocal.get();
+//		if (map != null) map.remove(key);
+//	}
 
 //	public static void setTrueInSysCommStrLocal(String key) {
 //		setSysCommStrLocal(key, StringConst.tRue);
@@ -509,23 +500,23 @@ public final class HoneyContext {
 		if (map != null) map.remove(sqlStr);
 	}
 
-	public static void setSqlServerPagingStruct(String sqlStr, SqlServerPagingStruct sqlServerPagingStruct) {
-		if (sqlServerPagingStruct == null) return;
-		if (sqlStr == null || "".equals(sqlStr.trim())) return;
-		Map<String, SqlServerPagingStruct> map = sqlServerPaging.get();
-		if (map == null) map = new ConcurrentHashMap<>();
-		map.put(sqlStr, sqlServerPagingStruct);
-		sqlServerPaging.set(map);
-	}
+//	public static void setSqlServerPagingStruct(String sqlStr, SqlServerPagingStruct sqlServerPagingStruct) {
+//		if (sqlServerPagingStruct == null) return;
+//		if (sqlStr == null || "".equals(sqlStr.trim())) return;
+//		Map<String, SqlServerPagingStruct> map = sqlServerPaging.get();
+//		if (map == null) map = new ConcurrentHashMap<>();
+//		map.put(sqlStr, sqlServerPagingStruct);
+//		sqlServerPaging.set(map);
+//	}
 
-	public static SqlServerPagingStruct getAndRemoveSqlServerPagingStruct(String sqlStr) {
-		Map<String, SqlServerPagingStruct> map = sqlServerPaging.get();
-		if (map == null || sqlStr == null) return null;
-		SqlServerPagingStruct struct = map.get(sqlStr);
-//		if (struct != null) map.remove(sqlStr);
-		if (map.containsKey(sqlStr)) map.remove(sqlStr);
-		return struct;
-	}
+//	public static SqlServerPagingStruct getAndRemoveSqlServerPagingStruct(String sqlStr) {
+//		Map<String, SqlServerPagingStruct> map = sqlServerPaging.get();
+//		if (map == null || sqlStr == null) return null;
+//		SqlServerPagingStruct struct = map.get(sqlStr);
+////		if (struct != null) map.remove(sqlStr);
+//		if (map.containsKey(sqlStr)) map.remove(sqlStr);
+//		return struct;
+//	}
 
 	public static String getDbDialect() {
 		return HoneyConfig.getHoneyConfig().getDbName();
