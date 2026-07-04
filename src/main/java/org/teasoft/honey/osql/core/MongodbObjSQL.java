@@ -124,7 +124,7 @@ public class MongodbObjSQL extends AbstractCommOperate implements Suid {
 		List<T> list = null;
 		try {
 			if (condition != null) condition = condition.clone();
-			regCondition(condition);
+			regConditionForSharding(condition);
 			doBeforePasreEntity(entity, SuidType.SELECT);
 			if (condition != null) condition.setSuidType(SuidType.SELECT);
 
@@ -156,7 +156,7 @@ public class MongodbObjSQL extends AbstractCommOperate implements Suid {
 		if (entity == null) return -1;
 		try {
 			if (condition != null) condition = condition.clone();
-			regCondition(condition);
+			regConditionForSharding(condition);
 			doBeforePasreEntity(entity, SuidType.DELETE);
 			int deleteNum = 0;
 

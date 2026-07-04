@@ -15,6 +15,8 @@ import org.teasoft.bee.osql.exception.ShardingErrorException;
 import org.teasoft.bee.sharding.ShardingPageStruct;
 import org.teasoft.bee.sharding.ShardingSortStruct;
 import org.teasoft.honey.osql.core.HoneyContext;
+import org.teasoft.honey.osql.core.HoneyContext1;
+import org.teasoft.honey.osql.core.LocalType;
 import org.teasoft.honey.osql.core.StringConst;
 import org.teasoft.honey.util.ObjectUtils;
 
@@ -163,10 +165,13 @@ public class ShardingReg {
 	}
 
 	// 2.0
-	public static void clearContext() {
+	public static void clearContext() { //TODO
 		if (!ShardingUtil.isSharding()) return;
 
-		HoneyContext.removeConditionLocal();
+//		HoneyContext.removeConditionLocal();
+		
+		HoneyContext1.removeCategory(LocalType.SHARDING);
+		
 		HoneyContext.removeSysCommStrInheritableLocal(StringConst.HadSharding);
 		HoneyContext.removeSysCommStrInheritableLocal(StringConst.ShardingFullSelect);
 		HoneyContext.removeSysCommStrInheritableLocal(StringConst.ShardingSomeDsFullSelect);

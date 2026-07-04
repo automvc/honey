@@ -248,7 +248,7 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 		if (FunctionType.COUNT == functionType) return count(entity, condition) + "";
 		try {
 			if (condition != null) condition = condition.clone();
-			regCondition(condition);
+			regConditionForSharding(condition);
 			doBeforePasreEntity(entity, SuidType.SELECT);
 
 			_regEntityClass1(entity);
@@ -281,7 +281,7 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 		if (entity == null) return 0;
 		try {
 			if (condition != null) condition = condition.clone();
-			regCondition(condition);
+			regConditionForSharding(condition);
 			_regFunType(FunctionType.COUNT);
 			doBeforePasreEntity(entity, SuidType.SELECT);
 			if (condition != null) condition.setSuidType(SuidType.SELECT);
@@ -374,7 +374,7 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 		if (entity == null) return null;
 		try {
 			if (condition != null) condition = condition.clone();
-			regCondition(condition);
+			regConditionForSharding(condition);
 			doBeforePasreEntity(entity, SuidType.SELECT);
 			List<String[]> list = null;
 
@@ -595,14 +595,14 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 		if (entityClass.equals(String.class) && idOrIds.toString().contains(","))
 			condition.op(HoneyUtil.getPkName(entityClass), Op.in, idOrIds);
 		else condition.op(HoneyUtil.getPkName(entityClass), Op.eq, idOrIds);
-		regCondition(condition);
+		regConditionForSharding(condition);
 	}
 
 	@Override
 	public <T> String selectJson(T entity, Condition condition) {
 		if (entity == null) return null;
 		try {
-			regCondition(condition);
+			regConditionForSharding(condition);
 			doBeforePasreEntity(entity, SuidType.SELECT);
 			_regEntityClass1(entity);
 

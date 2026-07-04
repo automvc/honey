@@ -102,15 +102,16 @@ public final class ParseSqlHelper {
 		if (entity == null) return null;
 
 		String packageAndClassName = entity.getClass().getName();
-		String key = "ForMoreTable3:" + suidType.name() + packageAndClassName;
+		String key = "ForMoreTableStruct3:" + suidType.name() + packageAndClassName;
 
 		// TODO 每一次的对象不一样。 本次线程有效？？
-		Map<String, MoreTableStruct3> map = (Map<String, MoreTableStruct3>) HoneyContext.getCommonCache(key);
+//		Map<String, MoreTableStruct3> map = (Map<String, MoreTableStruct3>) HoneyContext.getCommonCache(key);
+		Map<String, MoreTableStruct3> map = (Map) HoneyContext1.get(LocalType.REQUEST, key);
 
-		map = null; // TODO
 		if (map == null) {
 			map = parseJoins0(entity, suidType);
-			HoneyContext.addCommonCache(key, map);
+//			HoneyContext.addCommonCache(key, map);
+			HoneyContext1.set(LocalType.REQUEST, key, map);
 		}
 		return map;
 	}
@@ -122,6 +123,7 @@ public final class ParseSqlHelper {
 
 		MoreTableStruct3 moreTableStruct_first = null;
 		MoreTableStructOverall overall = new MoreTableStructOverall();
+		// 是在解析entity成sql时才设置overall的subDulColumnMap
 
 		Field field[] = HoneyUtil.getFields(entity.getClass());
 		int len = field.length;

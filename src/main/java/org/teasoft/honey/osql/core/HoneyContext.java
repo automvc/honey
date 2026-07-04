@@ -696,20 +696,20 @@ public final class HoneyContext {
 		sqlIndexLocal.remove();
 	}
 
-	public static Condition getConditionLocal() {
-		return conditionLocal.get();
-	}
-
-	public static void setConditionLocal(Condition condition) {
-		if (condition != null)
-			conditionLocal.set(condition.clone());
-		else
-			conditionLocal.set(condition);
-	}
-
-	public static void removeConditionLocal() {
-		conditionLocal.remove();
-	}
+//	public static Condition getConditionLocal() {
+//		return conditionLocal.get();
+//	}
+//
+//	public static void setConditionLocal(Condition condition) {
+//		if (condition != null)
+//			conditionLocal.set(condition.clone());
+//		else
+//			conditionLocal.set(condition);
+//	}
+//
+//	public static void removeConditionLocal() {
+//		conditionLocal.remove();
+//	}
 
 	public static String getTempLang() {
 		return tempLang.get();

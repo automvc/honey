@@ -210,7 +210,7 @@ public class ObjSQL extends AbstractCommOperate implements Suid {
 		List<T> list = null;
 		try {
 			if (condition != null) condition = condition.clone();
-			regCondition(condition);
+			regConditionForSharding(condition);
 			doBeforePasreEntity(entity, SuidType.SELECT);
 			// 传递要判断是否有group
 			OneTimeParameter.setTrueForKey(StringConst.Check_Group_ForSharding);
@@ -229,7 +229,7 @@ public class ObjSQL extends AbstractCommOperate implements Suid {
 		if (entity == null) return -1;
 		try {
 			if (condition != null) condition = condition.clone();
-			regCondition(condition);
+			regConditionForSharding(condition);
 			doBeforePasreEntity(entity, SuidType.DELETE);
 			String sql = getObjToSQL().toDeleteSQL(entity, condition);
 			_regEntityClass(entity);

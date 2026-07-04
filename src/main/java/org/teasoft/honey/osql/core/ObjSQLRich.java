@@ -367,7 +367,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 		String s = null;
 		try {
 			if (condition != null) condition = condition.clone();
-			regCondition(condition);
+			regConditionForSharding(condition);
 			doBeforePasreEntity(entity, SuidType.SELECT);
 			String sql = getObjToSQLRich().toSelectFunSQL(entity, functionType, fieldForFun, condition);
 			_regEntityClass1(entity);
@@ -552,7 +552,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 		List<String[]> list = null;
 		try {
 			if (condition != null) condition = condition.clone();
-			regCondition(condition);
+			regConditionForSharding(condition);
 			doBeforePasreEntity(entity, SuidType.SELECT);
 			OneTimeParameter.setTrueForKey(StringConst.Check_Group_ForSharding);
 			String sql = getObjToSQLRich().toSelectSQL(entity, condition);
@@ -803,7 +803,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 			condition.op(HoneyUtil.getPkName(entityClass), Op.in, idOrIds);
 		else
 			condition.op(HoneyUtil.getPkName(entityClass), Op.eq, idOrIds);
-		regCondition(condition);
+		regConditionForSharding(condition);
 	}
 
 	@Override
@@ -831,7 +831,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 		String json = null;
 		try {
 			if (condition != null) condition = condition.clone();
-			regCondition(condition);
+			regConditionForSharding(condition);
 			doBeforePasreEntity(entity, SuidType.SELECT);
 			_regEntityClass1(entity);
 			OneTimeParameter.setTrueForKey(StringConst.Check_Group_ForSharding);
@@ -887,7 +887,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 		int r = 0;
 		try {
 			if (condition != null) condition = condition.clone();
-			regCondition(condition);
+			regConditionForSharding(condition);
 			doBeforePasreEntity(entity, SuidType.UPDATE);
 			String sql = getObjToSQLRich().toUpdateBySQL(entity, condition, whereFields);// updateBy
 			_regEntityClass1(entity);
@@ -926,7 +926,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 		int r = 0;
 		try {
 			if (condition != null) condition = condition.clone();
-			regCondition(condition);
+			regConditionForSharding(condition);
 			doBeforePasreEntity(entity, SuidType.UPDATE);
 			String sql = getObjToSQLRich().toUpdateSQL(entity, condition, updateFields);
 			_regEntityClass1(entity);
@@ -946,7 +946,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 		int r = 0;
 		try {
 			if (condition != null) condition = condition.clone();
-			regCondition(condition);
+			regConditionForSharding(condition);
 			doBeforePasreEntity(entity, SuidType.UPDATE);
 			String sql = getObjToSQLRich().toUpdateSQL(entity, condition, "");
 			_regEntityClass1(entity);

@@ -28,7 +28,9 @@ import org.teasoft.honey.osql.core.ConditionImpl;
 import org.teasoft.honey.osql.core.Expression;
 import org.teasoft.honey.osql.core.HoneyConfig;
 import org.teasoft.honey.osql.core.HoneyContext;
+import org.teasoft.honey.osql.core.HoneyContext1;
 import org.teasoft.honey.osql.core.HoneyUtil;
+import org.teasoft.honey.osql.core.LocalType;
 import org.teasoft.honey.osql.core.NameTranslateHandle;
 import org.teasoft.honey.osql.core.OpType;
 import org.teasoft.honey.osql.core.StringConst;
@@ -142,7 +144,8 @@ public class ShardingInterceptor extends EmptyInterceptor {
 //		boolean hasShardingAnno = false;
 		ShardingBean shardingBean = null;
 
-		Condition condition = HoneyContext.getConditionLocal();
+//		Condition condition = HoneyContext.getConditionLocal();
+		Condition condition = (Condition) HoneyContext1.get(LocalType.SHARDING, Condition.class);
 
 		// for 查找是否使用了注解
 		for (int i = 0; i < len; i++) {

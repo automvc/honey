@@ -92,7 +92,7 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 		List<T> list = null;
 		try {
 			if (condition != null) condition = condition.clone();
-			regCondition(condition);
+			regConditionForSharding(condition);
 			_doBeforePasreEntity(entity); // 因要解析子表,子表下放再执行
 			// 传递要判断是否有group
 			OneTimeParameter.setTrueForKey(StringConst.Check_Group_ForSharding);
@@ -125,7 +125,7 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 				throw new BeeIllegalSQLException("In selectWithFun, just support one aggregation function!");
 			}
 
-			regCondition(condition);
+			regConditionForSharding(condition);
 			_doBeforePasreEntity(entity);// 因要解析子表,子表下放再执行
 			_regEntityClass1ForSqlLib(entity);
 			_regFunType(getFunctionType(funExpList.get(0).getFunctionType()));
@@ -177,7 +177,7 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 
 	private <T> String processAndReturnSql(T entity, Condition condition) {
 		if (condition != null) condition = condition.clone();
-		regCondition(condition);
+		regConditionForSharding(condition);
 		_doBeforePasreEntity(entity); // 因要解析子表,子表下放再执行
 		_regEntityClass1ForSqlLib(entity);
 		OneTimeParameter.setTrueForKey(StringConst.Check_Group_ForSharding);

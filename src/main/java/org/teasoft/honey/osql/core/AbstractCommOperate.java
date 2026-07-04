@@ -62,12 +62,14 @@ public class AbstractCommOperate implements CommOperate {
 //		return Router.getDsName(); //不行. suid的dsName在执行时才通过拦截器设置.若提前通过线程设置,会因顺序原因,被覆盖.
 	}
 
-	protected void regCondition(Condition condition) {
+	protected void regConditionForSharding(Condition condition) {
 		if (!ShardingUtil.isSharding()) return; // fixed bug. v2.5.10
 		
 		// just for shading
-		if (condition != null) condition = condition.clone();
-		HoneyContext.setConditionLocal(condition);
+//		if (condition != null) condition = condition.clone();
+//		HoneyContext.setConditionLocal(condition);
+		
+		HoneyContext1.set(LocalType.SHARDING,Condition.class, condition);
 	}
 
 	protected void doBeforePasreEntity(Object entity, SuidType SuidType) {
@@ -113,6 +115,10 @@ public class AbstractCommOperate implements CommOperate {
 		if (this.dsName != null) HoneyContext.removeTempDS();
 		if (this.nameTranslate != null) HoneyContext.removeCurrentNameTranslate();
 		this.nameTranslate = null; // 2.1 仅允许一次有效. 因整个应用周期内,只有一个bean时,会影响到其它情况的使用(如spring整合)
+	
+		HoneyContext1.removeCategory(LocalType.REQUEST);
+//		System.out.println("------------------getKeys:  "+HoneyContext1.getKeys(LocalType.REQUEST));
+	
 	}
 
 	protected void regSuidType(SuidType suidType) {
