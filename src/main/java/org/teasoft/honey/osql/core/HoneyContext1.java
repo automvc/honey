@@ -157,6 +157,14 @@ public class HoneyContext1 {
 
 		return catMap != null ? catMap.keySet() : new HashSet<String>();
 	}
+	
+//	public static void setTrue(String key) {
+//		set(key, StringConst.tRue);
+//	}
+//
+//	public static boolean isTrue(String key) {
+//		return StringConst.tRue.equals(get(key));
+//	}
 
 //	/**
 //	 * 获取 ThreadLocal 中某个分类的所有数据（浅拷贝）
@@ -209,21 +217,21 @@ public class HoneyContext1 {
 	};
 
 	public static void setInheritable(String key, Object value) {
-		set(LocalType.NORMAL, key, value);
+		setInheritable(LocalType.NORMAL, key, value);
 	}
 
 	public static Object getInheritable(String key) {
-		return get(LocalType.NORMAL, key);
+		return getInheritable(LocalType.NORMAL, key);
 	}
 
 	public static void setInheritable(LocalType category, Class key, Object value) {
 		if (key == null) return;
-		set(category, key.getName(), value);
+		setInheritable(category, key.getName(), value);
 	}
 
 	public static void setInheritableForSharding(String key, Object value) {
 		if (!ShardingUtil.isSharding()) return; // TODO
-		set(LocalType.SHARDING, key, value);
+		setInheritable(LocalType.SHARDING, key, value);
 	}
 
 	/**
@@ -247,7 +255,7 @@ public class HoneyContext1 {
 
 	public static Object getInheritable(LocalType category, Class key) {
 		if (key == null) return null;
-		return get(category, key.getName());
+		return getInheritable(category, key.getName());
 	}
 
 	/**
@@ -301,6 +309,24 @@ public class HoneyContext1 {
 	 */
 	public static Set<String> getInheritableKeys(LocalType category) {
 		return _getKeys(category, true);
+	}
+
+	public static void setTrueInheritable(String key) {
+		setInheritable(key, StringConst.tRue);
+	}
+
+	public static boolean isTrueInheritable(String key) {
+		return StringConst.tRue.equals(getInheritable(key));
+	}
+
+	public static void main(String[] args) {
+//		setTrueInheritable("aaa");
+//		
+//		
+//		System.out.println(isTrueInheritable("aaa"));
+//		System.out.println(isTrueInheritable("aaa2"));
+//		
+//		System.out.println(getInheritableKeys(LocalType.NORMAL));
 	}
 
 }

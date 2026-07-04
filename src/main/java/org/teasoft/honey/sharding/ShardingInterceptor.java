@@ -70,8 +70,10 @@ public class ShardingInterceptor extends EmptyInterceptor {
 //		if (isSkip(entity,suidType)) return entity; //close in 2.4.2
 		if (entity == null) return entity; // 2.4.2
 
-		boolean moreTableSelectShardingFlag = HoneyContext
-				.isTrueInSysCommStrInheritableLocal(StringConst.MoreTableSelectShardingFlag);
+//		boolean moreTableSelectShardingFlag = HoneyContext
+//				.isTrueInSysCommStrInheritableLocal(StringConst.MoreTableSelectShardingFlag);
+		
+		boolean moreTableSelectShardingFlag = HoneyContext1.isTrueInheritable(StringConst.MoreTableSelectShardingFlag);
 
 		String tableName = _toTableName(entity);
 

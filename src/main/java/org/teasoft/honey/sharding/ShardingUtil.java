@@ -14,6 +14,7 @@ import org.teasoft.bee.osql.OrderType;
 import org.teasoft.bee.sharding.ShardingSortStruct;
 import org.teasoft.honey.osql.core.HoneyConfig;
 import org.teasoft.honey.osql.core.HoneyContext;
+import org.teasoft.honey.osql.core.HoneyContext1;
 import org.teasoft.honey.osql.core.StringConst;
 import org.teasoft.honey.sharding.config.ShardingRegistry;
 import org.teasoft.honey.util.StringUtils;
@@ -89,11 +90,14 @@ public class ShardingUtil {
 	}
 
 	public static void setTrue(String key) {
-		HoneyContext.setTrueInSysCommStrInheritableLocal(key);
+//		HoneyContext.setTrueInSysCommStrInheritableLocal(key);
+		
+		HoneyContext1.setTrueInheritable(key);
 	}
 
 	public static boolean isTrue(String key) {
-		return HoneyContext.isTrueInSysCommStrInheritableLocal(key);
+//		return HoneyContext.isTrueInSysCommStrInheritableLocal(key);
+		return HoneyContext1.isTrueInheritable(key);
 	}
 
 	public static void regSelectRsThreadFlag(String threadFlag) {

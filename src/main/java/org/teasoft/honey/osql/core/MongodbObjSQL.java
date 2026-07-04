@@ -137,7 +137,7 @@ public class MongodbObjSQL extends AbstractCommOperate implements Suid {
 					if (condition.getSelectField() == null) {
 						condition.selectField(HoneyUtil.getColumnNames(entity));
 						// V2.1.8
-						HoneyContext.setTrueInSysCommStrLocal(StringConst.MongoDB_SelectAllFields);
+						HoneyContext1.setTrueInheritable(StringConst.MongoDB_SelectAllFields);
 					}
 				}
 			}
