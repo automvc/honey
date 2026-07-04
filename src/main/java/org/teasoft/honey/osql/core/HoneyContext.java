@@ -29,7 +29,6 @@ import org.teasoft.honey.distribution.ds.Router;
 import org.teasoft.honey.logging.Logger;
 import org.teasoft.honey.logging.LoggerFactory;
 import org.teasoft.honey.osql.dialect.LimitOffsetPaging;
-import org.teasoft.honey.osql.dialect.sqlserver.SqlServerPagingStruct;
 import org.teasoft.honey.osql.util.AnnoUtil;
 import org.teasoft.honey.osql.util.NameCheckUtil;
 import org.teasoft.honey.sharding.ShardingUtil;
@@ -66,8 +65,6 @@ public final class HoneyContext {
 	
 
 	private static ThreadLocal<Connection> currentConnection; // 当前事务的Conn
-
-//	private static ThreadLocal<List<Connection>> conneForSelectRs;
 	private static ConcurrentMap<String, Connection> conneForSelectRs;
 
 	private static ThreadLocal<Object> currentAppDB; // V1.17
@@ -116,11 +113,9 @@ public final class HoneyContext {
 		customMap = new ConcurrentHashMap<>();
 
 		if (cacheLocal != null) cacheLocal.remove();
-//		if (sqlServerPaging != null) sqlServerPaging.remove();
 //		if (customMapLocal != null) customMapLocal.remove();
 		if (sysCommStrLocal != null) sysCommStrLocal.remove();
 		if (sysCommStrInheritableLocal != null) sysCommStrInheritableLocal.remove();
-//		if (listLocal != null) listLocal.remove();
 		if (sqlPreValueLocal != null) sqlPreValueLocal.remove();
 		if (sqlIndexLocal != null) sqlIndexLocal.remove();
 //		if (conditionLocal != null) conditionLocal.remove();
@@ -342,27 +337,6 @@ public final class HoneyContext {
 		if (customMap.containsKey(key)) customMap.remove(key);
 	}
 
-//	public static void setCustomMapLocal(String key, Map<String, String> mapValue) {
-//		if (mapValue == null) return;
-//		if (key == null || "".equals(key.trim())) return;
-//		Map<String, Map<String, String>> map = customMapLocal.get();
-//		if (map == null) map = new ConcurrentHashMap<>();
-//		map.put(key, mapValue);
-//		customMapLocal.set(map);
-//	}
-
-//	public static Map<String, String> getCustomMapLocal(String key) {
-//		Map<String, Map<String, String>> map = customMapLocal.get();
-//		if (map == null || key == null) return null;
-//		return map.get(key);
-//	}
-
-//	public static void removeCustomMapLocal(String key) {
-//		Map<String, Map<String, String>> map = customMapLocal.get();
-//		if (map == null || key == null) return;
-//		if (map.containsKey(key)) map.remove(key);
-//	}
-
 	public static void setSysCommStrLocal(String key, String sysCommStr) {
 		if (sysCommStr == null) return;
 		if (key == null || "".equals(key.trim())) return;
@@ -399,46 +373,8 @@ public final class HoneyContext {
 	}
 
 //	ShardingSelectRs_ThreadFlag 如何关闭？？ TODO
-	
 //	public static void removeSysCommStrInheritableLocal(String key) {
 //		Map<String, String> map = sysCommStrInheritableLocal.get();
-//		if (map != null) map.remove(key);
-//	}
-
-//	public static void setTrueInSysCommStrLocal(String key) {
-//		setSysCommStrLocal(key, StringConst.tRue);
-//	}
-//
-//	public static boolean isTrueInSysCommStrLocal(String key) {
-//		return StringConst.tRue.equals(HoneyContext.getSysCommStrLocal(key));
-//	}
-
-//	public static void setTrueInSysCommStrInheritableLocal(String key) {
-//		setSysCommStrInheritableLocal(key, StringConst.tRue);
-//	}
-//
-//	public static boolean isTrueInSysCommStrInheritableLocal(String key) {
-//		return StringConst.tRue.equals(HoneyContext.getSysCommStrInheritableLocal(key));
-//	}
-
-	
-//	public static void setListLocal(String key, List<String> listString) {
-//		if (listString == null) return;
-//		if (key == null || "".equals(key.trim())) return;
-//		Map<String, List<String>> map = listLocal.get();
-//		if (map == null) map = new ConcurrentHashMap<>();
-//		map.put(key, listString);
-//		listLocal.set(map);
-//	}
-
-//	public static List<String> getListLocal(String key) {
-//		Map<String, List<String>> map = listLocal.get();
-//		if (map == null || key == null) return null;
-//		return map.get(key);
-//	}
-
-//	public static void removeListLocal(String key) {
-//		Map<String, List<String>> map = listLocal.get();
 //		if (map != null) map.remove(key);
 //	}
 
@@ -499,24 +435,6 @@ public final class HoneyContext {
 		// map.remove(sqlStr); //bug
 		if (map != null) map.remove(sqlStr);
 	}
-
-//	public static void setSqlServerPagingStruct(String sqlStr, SqlServerPagingStruct sqlServerPagingStruct) {
-//		if (sqlServerPagingStruct == null) return;
-//		if (sqlStr == null || "".equals(sqlStr.trim())) return;
-//		Map<String, SqlServerPagingStruct> map = sqlServerPaging.get();
-//		if (map == null) map = new ConcurrentHashMap<>();
-//		map.put(sqlStr, sqlServerPagingStruct);
-//		sqlServerPaging.set(map);
-//	}
-
-//	public static SqlServerPagingStruct getAndRemoveSqlServerPagingStruct(String sqlStr) {
-//		Map<String, SqlServerPagingStruct> map = sqlServerPaging.get();
-//		if (map == null || sqlStr == null) return null;
-//		SqlServerPagingStruct struct = map.get(sqlStr);
-////		if (struct != null) map.remove(sqlStr);
-//		if (map.containsKey(sqlStr)) map.remove(sqlStr);
-//		return struct;
-//	}
 
 	public static String getDbDialect() {
 		return HoneyConfig.getHoneyConfig().getDbName();
@@ -687,21 +605,6 @@ public final class HoneyContext {
 	public static void removeSqlIndexLocal() {
 		sqlIndexLocal.remove();
 	}
-
-//	public static Condition getConditionLocal() {
-//		return conditionLocal.get();
-//	}
-//
-//	public static void setConditionLocal(Condition condition) {
-//		if (condition != null)
-//			conditionLocal.set(condition.clone());
-//		else
-//			conditionLocal.set(condition);
-//	}
-//
-//	public static void removeConditionLocal() {
-//		conditionLocal.remove();
-//	}
 
 	public static String getTempLang() {
 		return tempLang.get();

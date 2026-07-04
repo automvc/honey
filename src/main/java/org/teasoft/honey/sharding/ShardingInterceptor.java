@@ -488,11 +488,6 @@ public class ShardingInterceptor extends EmptyInterceptor {
 					Logger.warn("Table name :" + tabNameList.get(i) + " , can not find its dataSoure name!");
 			}
 
-//			HoneyContext.setListLocal(StringConst.TabNameListLocal, tabNameList);
-//			HoneyContext.setListLocal(StringConst.TabSuffixListLocal, tabSuffixList);  
-//			HoneyContext.setListLocal(StringConst.DsNameListLocal, dsNameList);
-//			HoneyContext.setCustomMapLocal(StringConst.ShardingTab2DsMap, tab2DsMap);
-
 			ShardingReg.regShardingManyTables(dsNameList, tabNameList, tabSuffixList, tab2DsMap);
 
 //			处理后:
