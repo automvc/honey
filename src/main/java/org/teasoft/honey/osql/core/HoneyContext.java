@@ -414,21 +414,21 @@ public final class HoneyContext {
 		if (map != null) map.remove(key);
 	}
 
-	public static void setTrueInSysCommStrLocal(String key) {
-		setSysCommStrLocal(key, StringConst.tRue);
-	}
+//	public static void setTrueInSysCommStrLocal(String key) {
+//		setSysCommStrLocal(key, StringConst.tRue);
+//	}
+//
+//	public static boolean isTrueInSysCommStrLocal(String key) {
+//		return StringConst.tRue.equals(HoneyContext.getSysCommStrLocal(key));
+//	}
 
-	public static boolean isTrueInSysCommStrLocal(String key) {
-		return StringConst.tRue.equals(HoneyContext.getSysCommStrLocal(key));
-	}
-
-	public static void setTrueInSysCommStrInheritableLocal(String key) {
-		setSysCommStrInheritableLocal(key, StringConst.tRue);
-	}
-
-	public static boolean isTrueInSysCommStrInheritableLocal(String key) {
-		return StringConst.tRue.equals(HoneyContext.getSysCommStrInheritableLocal(key));
-	}
+//	public static void setTrueInSysCommStrInheritableLocal(String key) {
+//		setSysCommStrInheritableLocal(key, StringConst.tRue);
+//	}
+//
+//	public static boolean isTrueInSysCommStrInheritableLocal(String key) {
+//		return StringConst.tRue.equals(HoneyContext.getSysCommStrInheritableLocal(key));
+//	}
 
 	public static void setListLocal(String key, List<String> listString) {
 		if (listString == null) return;
@@ -833,7 +833,8 @@ public final class HoneyContext {
 
 	static void regFunType(FunctionType functionType) {
 		if (!ShardingUtil.isSharding()) return; // fixed bug 3.0.0
-		HoneyContext.setSysCommStrInheritableLocal(StringConst.FunType, functionType.getName());
+//		HoneyContext.setSysCommStrInheritableLocal(StringConst.FunType, functionType.getName());
+		HoneyContext1.setInheritable(LocalType.SHARDING, StringConst.FunType, functionType.getName());
 	}
 
 	static void regSuidType(SuidType suidType) {
