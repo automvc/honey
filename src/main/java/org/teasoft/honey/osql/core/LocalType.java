@@ -1,7 +1,7 @@
 package org.teasoft.honey.osql.core;
 
 public enum LocalType {
-	SESSION, TRANSACTION, USER,
+//	SESSION, TRANSACTION, USER,
 	NORMAL,
 	REQUEST,
 	SHARDING

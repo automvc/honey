@@ -162,6 +162,11 @@ public class HoneyContext1 {
 
 		return catMap != null ? catMap.keySet() : new HashSet<String>();
 	}
+	
+	//////////// for Sharding just Local
+	public static List<String> getListLocal(String key) {
+		return (List<String>) get(LocalType.SHARDING, key);
+	}
 
 //	public static void setTrue(String key) {
 //		set(key, StringConst.tRue);
@@ -341,11 +346,6 @@ public class HoneyContext1 {
 
 	public static boolean isTrueExtForSharding(String key) {
 		return StringConst.tRue.equals(getInheritable(LocalType.SHARDING, key));
-	}
-
-	//////////// for Sharding just Local
-	public static List<String> getListLocal(String key) {
-		return (List<String>) get(LocalType.SHARDING, key);
 	}
 
 	public static void main(String[] args) {
