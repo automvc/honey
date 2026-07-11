@@ -17,6 +17,10 @@ public final class StringConst {
 
 	public static final String tRue = "tRue";
 	public static final String PREFIX = "_SYS_Bee_";
+	
+	// Forever
+	public static final String FOREVER_COLUMNLIST = PREFIX + "Forever:columnList:";
+
 	public static final String TABLE_NAME = "_SYS_Bee_TableName";
 	public static final String TABLE_NAME_RELATIVE = "_SYS_Bee_TableName_Relative"; // 2.4.0
 	public static final String TABLE_SEPARATOR = "##";

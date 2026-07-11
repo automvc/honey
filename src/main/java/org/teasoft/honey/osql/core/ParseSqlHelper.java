@@ -16,7 +16,7 @@ import org.teasoft.honey.util.StringUtils;
 
 class EntityWrapper {
 	List<String> columnList; // 列名list
-	List<String> classFieldnameList;// 类字段list
+//	List<String> classFieldnameList;// 类字段list
 	Map<String, Object> columnAndValue;// 列名和值的map
 	List<PreparedValue> preList;// 占位对应的值/类型
 }
@@ -25,25 +25,43 @@ public final class ParseSqlHelper {
 
 	private static final String SEPARATOR = "#";
 
-	private ParseSqlHelper() {}
+	private ParseSqlHelper() {
+	}
 
-	static <T> EntityWrapper parseEntity(T entity, int includeType) {
-		if (entity == null) return null;
+	static <T> EntityWrapper parseEntity(T entityOrClass, int includeType) {
+		if (entityOrClass == null) return null;
+
+		EntityWrapper wrapper = new EntityWrapper();
+//		boolean hasCacheFieldName = false;
+//		List<String> classFieldnameList = null;
+
+//		classFieldnameList = (List<String>) HoneyContext1.get("classFieldnameList:" + entity.getClass().getName());
+//		if (classFieldnameList != null) {
+//			wrapper.classFieldnameList = classFieldnameList;
+//			hasCacheFieldName = true;
+//		}
 
 		Class<?> clazz;
 		boolean paramIsClass = false;
 
-		if (entity instanceof Class) {
-			clazz = (Class<?>) entity;
+		if (entityOrClass instanceof Class) {
+			clazz = (Class<?>) entityOrClass;
 			paramIsClass = true;
 		} else {
-			clazz = entity.getClass();
+			clazz = entityOrClass.getClass();
+		}
+
+		List<String> columnList = null;
+		boolean hasCacheColumnList = false;
+		columnList = (List<String>) HoneyContext1.get(StringConst.FOREVER_COLUMNLIST + clazz.getName());
+		if (columnList != null) {
+			wrapper.columnList = columnList;
+			hasCacheColumnList = true;
 		}
 
 		Object value = null;
 		List<PreparedValue> preList = null;
-		List<String> classFieldnameList = null;
-		List<String> columnList = null;
+//		List<String> classFieldnameList = null;
 
 		Field fields[] = HoneyUtil.getFields(clazz);
 		int len = fields.length;
@@ -59,19 +77,19 @@ public final class ParseSqlHelper {
 			if (isFirst) {
 				isFirst = false;
 				preList = new ArrayList<>();
-				classFieldnameList = new ArrayList<>();
-				columnList = new ArrayList<>();
+//				if(!hasCacheFieldName)classFieldnameList = new ArrayList<>();
+				if (!hasCacheColumnList) columnList = new ArrayList<>();
 			}
 
 			column = _toColumnName(fields[i].getName(), clazz);
-			columnList.add(column);
-			classFieldnameList.add(fields[i].getName());
+			if (!hasCacheColumnList) columnList.add(column);
+//			if(!hasCacheFieldName) classFieldnameList.add(fields[i].getName());
 
 			if (paramIsClass) continue;
 
 			try {
 				HoneyUtil.setAccessibleTrue(fields[i]);
-				value = fields[i].get(entity);
+				value = fields[i].get(entityOrClass);
 			} catch (IllegalAccessException e) {
 				throw ExceptionHelper.convert(e);
 			}
@@ -85,13 +103,49 @@ public final class ParseSqlHelper {
 			preList.add(new PreparedValue(fields[i], value));
 		}
 
-		EntityWrapper wrapper = new EntityWrapper();
+//		if (!hasCacheFieldName) {
+//			wrapper.classFieldnameList = classFieldnameList;
+//			HoneyContext1.set("classFieldnameList:" + entity.getClass().getName(), classFieldnameList);
+//		}
+
+		if (!hasCacheColumnList) {
+			wrapper.columnList = columnList;
+			HoneyContext1.set(StringConst.FOREVER_COLUMNLIST + entityOrClass.getClass().getName(), columnList);
+		}
 		wrapper.columnAndValue = columnAndValue;
 		wrapper.preList = preList;
-		wrapper.columnList = columnList;
-		wrapper.classFieldnameList = classFieldnameList;
 
 		return wrapper;
+	}
+
+	public static List<String> getColumnList(Class<?> clazz) {
+		List<String> columnList = (List<String>) HoneyContext1.get(StringConst.FOREVER_COLUMNLIST + clazz.getName());
+		if (columnList != null) return columnList;
+		Field fields[] = HoneyUtil.getFields(clazz);
+
+		String column = null;
+		int len = fields.length;
+		for (int i = 0; i < len; i++) {
+			if (HoneyUtil.isSkipField(fields[i])) continue;
+			if (HoneyUtil.isSkipFieldJustFetch(fields[i])) continue;
+
+			if (columnList == null) columnList = new ArrayList<>();
+			column = _toColumnName(fields[i].getName(), clazz);
+			columnList.add(column);
+		}
+
+		HoneyContext1.set(StringConst.FOREVER_COLUMNLIST + clazz.getName(), columnList);
+		return columnList;
+	}
+
+	public static void checkFieldNameViaColumnName(String fieldName, Class clazz) {
+		List<String> list = ParseSqlHelper.getColumnList(clazz);
+		if (list == null) return;
+		for (String f : list) {
+			if (fieldName.equals(f)) return;
+		}
+		throw new ConfigWrongException("The fieldName: '" + fieldName + "' do not in the class: " + clazz
+				.getName());
 	}
 
 	static <T> Map<String, MoreTableStruct3> parseJoins(T entity) {
@@ -130,7 +184,8 @@ public final class ParseSqlHelper {
 		boolean hasJoinField = false;
 		for (int i = 0; i < len; i++) {
 			if (HoneyUtil.isSkipFieldForMoreTable(field[i])) continue; // 有Ignore注释,将不再处理JoinTable //TODO
-			if (field[i] != null && AnnoUtil.isJoinTable(field[i])) {
+			if (field[i] != null && (AnnoUtil.isJoinTable(field[i]) ||
+					(SuidType.MODIFY == suidType && AnnoUtil.isFK(field[i])))) {
 				hasJoinField = true;
 				int layer = 2;
 				List<String> parentTree = new ArrayList<>();
@@ -144,7 +199,8 @@ public final class ParseSqlHelper {
 					moreTableStruct_first.overall.allEntityType = subClassIsList;
 				}
 				moreTableStruct_first.overall.allEntityType
-						.add(moreTableStruct.currentIsList + SEPARATOR + moreTableStruct.subClass.getName()); // TODO MD5
+						.add(moreTableStruct.currentIsList + SEPARATOR + moreTableStruct.subClass.getName()); // TODO
+																												// MD5
 
 				result.put(moreTableStruct.subAlias, moreTableStruct);
 
@@ -188,7 +244,10 @@ public final class ParseSqlHelper {
 		int len = field.length;
 		for (int i = 0; i < len; i++) {
 			if (HoneyUtil.isSkipFieldForMoreTable(field[i])) continue; // 有Ignore注释,将不再处理JoinTable //TODO
-			if (field[i] != null && AnnoUtil.isJoinTable(field[i])) {
+//			if (field[i] != null && AnnoUtil.isJoinTable(field[i])) {
+			if (field[i] != null && (AnnoUtil.isJoinTable(field[i]) ||
+					(SuidType.MODIFY == suidType && AnnoUtil.isFK(field[i])))) {
+
 				layer = layer + 1;
 				if (layer >= 10) {
 					// TODO
@@ -211,7 +270,8 @@ public final class ParseSqlHelper {
 				moreTableStruct2.typeTree = currentTypeTree;
 
 				overall.allEntityType
-						.add(moreTableStruct2.currentIsList + SEPARATOR + moreTableStruct2.subClass.getName());// TODO MD5
+						.add(moreTableStruct2.currentIsList + SEPARATOR + moreTableStruct2.subClass.getName());// TODO
+																												// MD5
 
 				result.put(moreTableStruct2.subAlias, moreTableStruct2);
 
