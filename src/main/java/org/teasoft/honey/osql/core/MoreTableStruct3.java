@@ -39,19 +39,35 @@ class MoreTableStruct3 {
 	MoreTableStruct3(Field joinField, Object entity, int layer, List<String> parentTree, SuidType suidType) {
 		JoinTable joinTable = joinField.getAnnotation(JoinTable.class);
 
-		this.subClass = joinTable.subClass();
-		this.joinType = joinTable.joinType();
-		this.mainFields = joinTable.mainField();
-		this.subFields = joinTable.subField();
-		this.subAlias = joinTable.subAlias();
-		this.mainAlias = joinTable.mainAlias();
-		this.fieldName = joinField.getName();
-
-		checkField(subAlias);
-		checkField(mainAlias);
-
 		if (List.class == joinField.getType()) {
 			this.currentIsList = true;
+		}
+		
+		if (joinTable != null) {
+			this.fieldName = joinField.getName();
+			
+			this.mainFields = joinTable.mainField();
+			this.subFields = joinTable.subField();
+			this.subClass = joinTable.subClass();
+			this.joinType = joinTable.joinType();
+			
+			
+			this.subAlias = joinTable.subAlias();
+			this.mainAlias = joinTable.mainAlias();
+			checkField(subAlias);
+			checkField(mainAlias);
+			
+		} else { //just have FK
+			this.fieldName = joinField.getName();
+			
+			FK fk = joinField.getAnnotation(FK.class);
+			this.mainFields = fk.mainField();
+			this.subFields = fk.subField();
+			
+			this.subClass = fk.subClass();
+			
+//			this.joinType = fk.joinType();
+//			this.fieldName = fk.getName();
 		}
 
 		if (suidType == SuidType.MODIFY) {
