@@ -63,7 +63,6 @@ class _MoreObjectToSQLHelper3 {
 		return _toSelectSQL(entity, includeType, condition);
 	}
 
-	// TODO includeType 还没有使用。
 	private static <T> String _toSelectSQL(T entity, int includeType, Condition condition) {
 		checkPackage(entity);
 
@@ -146,9 +145,13 @@ class _MoreObjectToSQLHelper3 {
 		}
 
 		String pkNames = HoneyUtil.getPkFieldName(entity);
-		// 7. 没有设置主键
-		if (StringUtils.isBlank(pkNames)) {
-			needRewritePagingSql = false;
+		Object idValue=HoneyUtil.getIdValue(entity);
+		
+		// 7. 没有设置主键值
+//		if (StringUtils.isBlank(pkNames)) {
+		if (idValue == null) {
+//			needRewritePagingSql = false;
+			needRewritePagingSql = true;
 			Logger.warn("Do rewrite paing sql, as have not primary key in " + entity.getClass().getName());
 		}
 //		else if(){ //8. 多那头的子表的主键都设置有值,即结果只会有一条记录. TODO
@@ -216,7 +219,9 @@ class _MoreObjectToSQLHelper3 {
 					joinExp.append(ONE_SPACE).append(K.and).append(ONE_SPACE);
 				}
 				mainColumn = toColumnName(mainFields[i], typeTree.get(moreTableStruct.layer - 2));
+				ParseSqlHelper.checkFieldNameViaColumnName(mainColumn, typeTree.get(moreTableStruct.layer - 2));
 				subColumn = toColumnName(subFields[i], subClass);
+				ParseSqlHelper.checkFieldNameViaColumnName(subColumn, subClass);
 
 				joinExp.append(mainAlias).append(DOT).append(mainColumn) // TODO main class??
 						.append(EQUAL).append(subAlias).append(DOT).append(subColumn);
