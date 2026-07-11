@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-//import org.teasoft.honey.sharding.ShardingUtil;
 import org.teasoft.honey.util.StringUtils;
 
 /**
@@ -19,14 +18,14 @@ import org.teasoft.honey.util.StringUtils;
  *   
  * 使用示例：  
  *   // 存储  
- *   HoneyContext1.set("request", "userId", "u123");  
- *   HoneyContext1.setInheritable("session", "token", "jwt-xxx");  
+ *   HoneyContext1.set(LocalType.REQUEST, "userId", "u123");  
+ *   HoneyContext1.setInheritable(REQUEST.SHARDING, "key", "value-xxx");  
  *  
  *   // 读取  
- *   String uid = HoneyContext1.get("request", "userId", String.class);  
+ *   String uid = HoneyContext1.get(LocalType.REQUEST, "userId", String.class);  
  *  
  *   // 清理  
- *  // HoneyContext1.clearAll();
+ *  // HoneyContext1.removexxx();
  * </pre>
  */
 public class HoneyContext1 {

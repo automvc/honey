@@ -62,7 +62,8 @@ public class ShardingSelectRsEngine {
 
 		// fixed bug
 		String threadFlag = getSelectRsThreadFlag();
-		ShardingUtil.regSelectRsThreadFlag(threadFlag);
+//		ShardingUtil.regSelectRsThreadFlag(threadFlag);
+		HoneyContext1.setInheritable(LocalType.REQUEST, StringConst.ShardingSelectRs_ThreadFlag, threadFlag);
 
 		for (int i = 0; sqls != null && i < sqls.length; i++) {
 			tasks.add(new ShardingBeeSQLExecutorEngine<T>(sqls[i], i + 1, beeSql, dsArray[i])); // 获取RS
@@ -132,6 +133,8 @@ public class ShardingSelectRsEngine {
 	private String getSelectRsThreadFlag() {
 		long gid = GenIdFactory.get(StringConst.ShardingSelectRs_ThreadFlag, GenIdFactory.GenType_OneTimeSnowflakeId);
 		String threadFlag = gid + "" + sr.nextDouble();
+		System.err.println("aaaa");
+		System.err.println(threadFlag);
 		return threadFlag;
 	}
 

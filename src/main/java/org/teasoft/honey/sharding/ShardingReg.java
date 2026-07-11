@@ -14,7 +14,6 @@ import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.exception.ShardingErrorException;
 import org.teasoft.bee.sharding.ShardingPageStruct;
 import org.teasoft.bee.sharding.ShardingSortStruct;
-import org.teasoft.honey.osql.core.HoneyContext;
 import org.teasoft.honey.osql.core.HoneyContext1;
 import org.teasoft.honey.osql.core.LocalType;
 import org.teasoft.honey.osql.core.StringConst;

@@ -49,7 +49,6 @@ public final class HoneyContext {
 	// since 1.11
 	private static ConcurrentMap<String, String> beanCustomPKey; // Custom Primary Key
 	private static ConcurrentMap<String, Map<String, String>> customMap;
-	
 
 	private static ThreadLocal<Map<String, List<PreparedValue>>> sqlPreValueLocal;
 	private static ThreadLocal<Map<String, CacheSuidStruct>> cacheLocal;
@@ -57,13 +56,8 @@ public final class HoneyContext {
 	private static ThreadLocal<String> appointDS; // 1.拦截器等设置的值; 因处理不同的javabean对象,可能有不同的值;比Suid对象的tempDS,动态性更强.所以appointDS优于tempDS
 	private static ThreadLocal<Map<String, String>> sysCommStrLocal;
 	
-	
-	
 	private static ThreadLocal<Integer> sqlIndexLocal; // 标识子操作线程的下标, 也说明是子线程
 	
-	private static ThreadLocal<Map<String, String>> sysCommStrInheritableLocal;  //?? TODO
-	
-
 	private static ThreadLocal<Connection> currentConnection; // 当前事务的Conn
 	private static ConcurrentMap<String, Connection> conneForSelectRs;
 
@@ -113,31 +107,17 @@ public final class HoneyContext {
 		customMap = new ConcurrentHashMap<>();
 
 		if (cacheLocal != null) cacheLocal.remove();
-//		if (customMapLocal != null) customMapLocal.remove();
 		if (sysCommStrLocal != null) sysCommStrLocal.remove();
-		if (sysCommStrInheritableLocal != null) sysCommStrInheritableLocal.remove();
 		if (sqlPreValueLocal != null) sqlPreValueLocal.remove();
 		if (sqlIndexLocal != null) sqlIndexLocal.remove();
-//		if (conditionLocal != null) conditionLocal.remove();
 
 		initTL();
 
 		sqlIndexLocal = new InheritableThreadLocal<>();
-//		conditionLocal = new InheritableThreadLocal<>();
 //		tabNameListLocal = new ThreadLocal<>(); //每个子线程都有一个具体表名,不需要.
-		sysCommStrInheritableLocal = new InheritableThreadLocal<>();
 
-//		sqlServerPaging = new ThreadLocal<>();
-//		customMapLocal = new ThreadLocal<>();
 //		listLocal = new ThreadLocal<>(); // 子线程没有用到.
-
 		currentConnection = new ThreadLocal<>();
-
-//		conneForSelectRs = new InheritableThreadLocal<>();
-//		synchronized (HoneyContext.class) {
-//			conneForSelectRs = new InheritableThreadLocal<>();
-//			conneForSelectRs.set(new CopyOnWriteArrayList<Connection>()); // 一开始就要设值,在主线程才能处理子线程加入的元素
-//		}
 		conneForSelectRs = new ConcurrentHashMap<>();
 
 		currentAppDB = new ThreadLocal<>();
@@ -151,13 +131,8 @@ public final class HoneyContext {
 
 		tempLang = new ThreadLocal<>();
 
-//		currentShardingPage = new ThreadLocal<>();
-//		currentShardingSort = new InheritableThreadLocal<>();
-//		currentGroupFunStruct = new InheritableThreadLocal<>();
-
 		entity2table = new ConcurrentHashMap<>();
 		initEntity2Table();
-
 		parseEntityListToMap();
 
 		modifiedFlagMapForCache2 = new ConcurrentHashMap<>();
@@ -356,27 +331,14 @@ public final class HoneyContext {
 		Map<String, String> map = sysCommStrLocal.get();
 		if (map != null) map.remove(key);
 	}
-
-	public static void setSysCommStrInheritableLocal(String key, String value) {
-		if (value == null) return;
-		if (key == null || "".equals(key.trim())) return;
-		Map<String, String> map = sysCommStrInheritableLocal.get();
-		if (map == null) map = new ConcurrentHashMap<>();
-		map.put(key, value);
-		sysCommStrInheritableLocal.set(map);
+	
+	public static boolean isTrueInSysCommStrLocal(String key) {
+		return StringConst.tRue.equals(HoneyContext.getSysCommStrLocal(key));
 	}
-
-	public static String getSysCommStrInheritableLocal(String key) {
-		Map<String, String> map = sysCommStrInheritableLocal.get();
-		if (map == null || key == null) return null;
-		return map.get(key);
+	
+	public static void setTrueInSysCommStrLocal(String key) {
+		setSysCommStrLocal(key, StringConst.tRue);
 	}
-
-//	ShardingSelectRs_ThreadFlag 如何关闭？？ TODO
-//	public static void removeSysCommStrInheritableLocal(String key) {
-//		Map<String, String> map = sysCommStrInheritableLocal.get();
-//		if (map != null) map.remove(key);
-//	}
 
 	static void setPreparedValue(String sqlStr, List<PreparedValue> list) {
 		if (list == null) return;
@@ -452,8 +414,10 @@ public final class HoneyContext {
 		currentConnection.remove();
 	}
 
+	// 记得conn起来，等处理完rs才关闭。
 	public synchronized static void regConnForSelectRs(Connection conn) {
-		String threadFlag = HoneyContext.getSysCommStrInheritableLocal(StringConst.ShardingSelectRs_ThreadFlag);
+//		String threadFlag = HoneyContext.getSysCommStrInheritableLocal(StringConst.ShardingSelectRs_ThreadFlag); //这个可能没有清除。TODO
+		String threadFlag = (String)HoneyContext1.getInheritable(LocalType.REQUEST, StringConst.ShardingSelectRs_ThreadFlag);
 		Integer subThreadIndex = HoneyContext.getSqlIndexLocal();
 		String key = threadFlag + subThreadIndex;
 		conneForSelectRs.put(key, conn);
@@ -672,42 +636,6 @@ public final class HoneyContext {
 	public static void removeCurrentRoute() {
 		currentRoute.remove();
 	}
-
-//	public static ShardingPageStruct getCurrentShardingPage() { // select * from table; 没有分页时,要注意
-//		return currentShardingPage.get();
-//	}
-
-//	public static void setCurrentShardingPage(ShardingPageStruct shardingPage) {
-//		currentShardingPage.set(shardingPage);
-//	}
-
-//	public static void removeCurrentShardingPage() {
-//		currentShardingPage.remove();
-//	}
-
-//	public static ShardingSortStruct getCurrentShardingSort() {
-//		return currentShardingSort.get();
-//	}
-
-//	public static void setCurrentShardingSort(ShardingSortStruct shardingSort) {
-//		currentShardingSort.set(shardingSort);
-//	}
-
-//	public static void removeCurrentShardingSort() {
-//		currentShardingSort.remove();
-//	}
-
-//	public static GroupFunStruct getCurrentGroupFunStruct() {
-//		return currentGroupFunStruct.get();
-//	}
-
-//	public static void setCurrentGroupFunStruct(GroupFunStruct groupFunStruct) {
-//		currentGroupFunStruct.set(groupFunStruct);
-//	}
-
-//	public static void removeCurrentGroupFunStruct() {
-//		currentGroupFunStruct.remove();
-//	}
 
 	static void setContext(String sql, List<PreparedValue> list, String tableName) {
 		setPreparedValue(sql, list);

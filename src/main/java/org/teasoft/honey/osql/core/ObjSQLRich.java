@@ -276,7 +276,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 					Logger.warn(e.getMessage(), e);
 				} finally {
 //					HoneyContext.removeSysCommStrInheritableLocal(StringConst.ShardingBatchInsertDoing);
-					HoneyContext1.removeInheritable(LocalType.SHARDING, StringConst.ShardingBatchInsertDoing);
+					HoneyContext1.removeInheritable(LocalType.SHARDING, StringConst.ShardingBatchInsertDoing); //clearContext也会执行。
 				}
 			}
 

@@ -117,6 +117,7 @@ public class AbstractCommOperate implements CommOperate {
 		this.nameTranslate = null; // 2.1 仅允许一次有效. 因整个应用周期内,只有一个bean时,会影响到其它情况的使用(如spring整合)
 	
 		HoneyContext1.removeCategory(LocalType.REQUEST);
+		HoneyContext1.removeInheritableCategory(LocalType.REQUEST);
 //		System.out.println("------------------getKeys:  "+HoneyContext1.getKeys(LocalType.REQUEST));
 	
 	}

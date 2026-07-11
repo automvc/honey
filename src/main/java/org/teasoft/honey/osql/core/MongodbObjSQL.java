@@ -137,7 +137,7 @@ public class MongodbObjSQL extends AbstractCommOperate implements Suid {
 					if (condition.getSelectField() == null) {
 						condition.selectField(HoneyUtil.getColumnNames(entity));
 						// V2.1.8
-						HoneyContext1.isTrueExt(StringConst.MongoDB_SelectAllFields);
+						HoneyContext.setTrueInSysCommStrLocal(StringConst.MongoDB_SelectAllFields);
 					}
 				}
 			}
@@ -145,7 +145,6 @@ public class MongodbObjSQL extends AbstractCommOperate implements Suid {
 			list = getMongodbBeeSql().select(entity, condition);
 		} finally {
 			HoneyContext.removeSysCommStrLocal(StringConst.MongoDB_SelectAllFields);
-
 			doBeforeReturn(list);
 		}
 		return list;
