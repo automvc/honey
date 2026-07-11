@@ -260,6 +260,9 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 	@Override
 	public <T> int update(T entity) {
 		// 是否需要事务？不需要，事务由上一层负责.
+
+		// 解析前，拦截器？？ todo
+
 		return modify3(entity, SuidType.UPDATE);
 	}
 
@@ -313,6 +316,20 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 			String[] mainFields = moreTableStruct.mainFields;
 			String[] subFields = moreTableStruct.subFields;
 			Field mainField1Cache = null; // 有时，虽然只有使用一个主键，但不同的子实体对应的是主实体不同的字段。
+
+			// checkFieldName
+			String mainColumn;
+			String subColumn;
+			Class<?> subClass = moreTableStruct.subClass;
+			List<Class<?>> typeTree = moreTableStruct.typeTree;
+			for (int i = 0; i < mainFields.length; i++) {
+				mainColumn = toColumnName(mainFields[i], typeTree.get(moreTableStruct.layer - 2));
+				ParseSqlHelper.checkFieldNameViaColumnName(mainColumn, typeTree.get(moreTableStruct.layer - 2));
+
+				subColumn = toColumnName(subFields[i], subClass);
+				ParseSqlHelper.checkFieldNameViaColumnName(subColumn, subClass);
+			}
+
 			try {
 				int layer = moreTableStruct.layer;
 				if (layer == 2) {
@@ -326,7 +343,7 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 					// set foreign key in sub entity with main table key
 					boolean isSuperFieldNullValue = fillSubFieldWithSuperField(mainFields, subFields, layer,
 							lastLayerObject, subObject, mainField1Cache);
-					if (isSuperFieldNullValue) continue;
+					if (isSuperFieldNullValue) continue; //TODO 要是写错字段名；在这回提前返回
 
 					int subAffect = modifyOneEntity3(subObject, suidType, subFields);
 					Logger.logSQL(
@@ -472,5 +489,10 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 			}
 		}
 		return false;
+	}
+	
+	@SuppressWarnings("rawtypes")
+	private static String toColumnName(String fieldName, Class entityClass) {
+		return HoneyUtil.toColumnName(fieldName, entityClass);
 	}
 }

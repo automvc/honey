@@ -29,6 +29,7 @@ public class NameUtil {
 	 * eg: beeName->bee_name,beeTName->bee_t_name
 	 */
 	public static String toUnderscoreNaming(String name) {
+		if (name == null || "".equals(name)) return name;
 		StringBuffer buf = new StringBuffer(name);
 		for (int i = 1; i < buf.length(); i++) {
 			if (Character.isUpperCase(buf.charAt(i))) {
@@ -47,6 +48,7 @@ public class NameUtil {
 	 * eg:  bee_name->beeName,bee_t_name->beeTName
 	 */
 	public static String toCamelNaming(String name) {
+		if (name == null || "".equals(name)) return name;
 //		StringBuffer buf = new StringBuffer(name.toLowerCase()); //HELLO_WORLD->HelloWorld 字段名有可能是全大写的
 		// 在具体接口实现类可先转成小写(如果有必要)
 		StringBuffer buf = new StringBuffer(name.trim());

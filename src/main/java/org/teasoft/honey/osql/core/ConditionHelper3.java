@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
+import org.teasoft.bee.osql.BeeException;
 import org.teasoft.bee.osql.FunctionType;
 import org.teasoft.bee.osql.Op;
 import org.teasoft.bee.osql.SuidType;
@@ -314,8 +315,12 @@ public class ConditionHelper3 {
 
 		// fieldName -> columnName
 		for (int i = 0; i < selectFields.length; i++) {
+			String old = selectFields[i];
 			selectFields[i] = MoreTableHelper.fieldName2ColumnName(selectFields[i], mainTableAlias, mainClass,
 					moreTableStructMap);
+			if (selectFields[i] == null) {
+				throw new BeeException(old + " would transfer be null");
+			}
 		}
 
 		return HoneyUtil.checkAndProcessSelectFieldViaString(columnNames, subDulFieldMap, selectFields);

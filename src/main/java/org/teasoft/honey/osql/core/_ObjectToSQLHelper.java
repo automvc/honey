@@ -296,7 +296,7 @@ final class _ObjectToSQLHelper {
 				// 是联合主键时不检测值是否为null
 				if (field.get(entity) == null) {
 					throw new ObjSQLException(
-							"ObjSQLException: in the update(T entity) or update(T entity,IncludeType includeType), "
+							"ObjSQLException: in the update(T entity) or update(T entity, IncludeType includeType), "
 									+ "the id field" + alias + " of entity must not be null !");
 				}
 			}
