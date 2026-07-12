@@ -35,7 +35,8 @@ class MoreTableStruct3 {
 
 	MoreTableStructOverall overall = null; // just the first element have it.
 
-	MoreTableStruct3() {}
+	MoreTableStruct3() {
+	}
 
 	MoreTableStruct3(Field joinField, Object entity, int layer, List<String> parentTree, SuidType suidType) {
 		JoinTable joinTable = joinField.getAnnotation(JoinTable.class);
@@ -43,44 +44,38 @@ class MoreTableStruct3 {
 		if (List.class == joinField.getType()) {
 			this.currentIsList = true;
 		}
-		
+		this.fieldName = joinField.getName();
 		if (joinTable != null) {
-			this.fieldName = joinField.getName();
-			
 			this.mainFields = joinTable.mainField();
 			this.subFields = joinTable.subField();
 			this.subClass = joinTable.subClass();
 			this.joinType = joinTable.joinType();
-			
-			
+
 			this.subAlias = joinTable.subAlias();
 			this.mainAlias = joinTable.mainAlias();
 			checkField(subAlias);
 			checkField(mainAlias);
-			
-		} else { //just have FK
-			this.fieldName = joinField.getName();
-			
+		} else { // just have FK
 			FK fk = joinField.getAnnotation(FK.class);
-			this.mainFields = fk.mainField();
-			this.subFields = fk.subField();
-			
-			this.subClass = fk.subClass();
-			
-//			this.joinType = fk.joinType();
-//			this.fieldName = fk.getName();
+			if (fk != null) {
+				this.mainFields = fk.mainField();
+				this.subFields = fk.subField();
+				this.subClass = fk.subClass();
+			}
 		}
 
 		if (suidType == SuidType.MODIFY) {
 			FK fk = joinField.getAnnotation(FK.class);
-			String[] fkMainField = fk.mainField();
-			String[] fkSubField = fk.subField();
+			if (fk != null) {
+				String[] fkMainField = fk.mainField();
+				String[] fkSubField = fk.subField();
 
-			if (fkMainField != null && fkMainField.length > 0) {
-				this.mainFields = fkMainField;
-			}
-			if (fkSubField != null && fkSubField.length > 0) {
-				this.subFields = fkSubField;
+				if (fkMainField != null && fkMainField.length > 0) {
+					this.mainFields = fkMainField;
+				}
+				if (fkSubField != null && fkSubField.length > 0) {
+					this.subFields = fkSubField;
+				}
 			}
 		}
 
@@ -119,7 +114,6 @@ class MoreTableStruct3 {
 				}
 			}
 		} catch (Exception e) {
-//			e.printStackTrace(); // todo
 			throw new BeeException(e);
 		}
 
@@ -161,12 +155,14 @@ class MoreTableStruct3 {
 		}
 	}
 
-	private void checkField(String fields) {
-		NameCheckUtil.checkName(fields);
+	private void checkField(String field) {
+		if ("".equals(field)) return;
+		NameCheckUtil.checkName(field);
 	}
 
 	private void checkFields(String str[]) {
 		for (String t : str) {
+			if ("".equals(t)) return;
 			NameCheckUtil.checkName(t);
 		}
 	}
