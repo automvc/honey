@@ -143,25 +143,26 @@ class _MoreObjectToSQLHelper3 {
 				needRewritePagingSql = false;
 			}
 		}
-
-		String pkNames = HoneyUtil.getPkFieldName(entity);
-		if (pkNames == null || "".equals(pkNames.trim())) {
-			try {
-				HoneyUtil.getField(entity.getClass(), "id");
-				pkNames = "id";
-			} catch (Exception e) {
-				Logger.warn("Do not rewrite paing sql, as have not primary key in " + entity.getClass().getName());
+		String pkNames = null;
+		if (needRewritePagingSql) {
+			pkNames = HoneyUtil.getPkFieldName(entity);
+			if (needRewritePagingSql && (pkNames == null || "".equals(pkNames.trim()))) {
+				try {
+					HoneyUtil.getField(entity.getClass(), "id");
+					pkNames = "id";
+				} catch (Exception e) {
+					Logger.warn("Do not rewrite paing sql, as have not primary key in " + entity.getClass().getName());
+				}
+				needRewritePagingSql = false;
 			}
 		}
-		if (pkNames == null || "".equals(pkNames.trim())) {
-
-			needRewritePagingSql = false;
-		}
 		
-		Object idValue=HoneyUtil.getIdValue(entity);
-		// 7. 设置了主键值
-		if (idValue != null) {
-			needRewritePagingSql = false;
+		if (needRewritePagingSql) {
+			Object idValue = HoneyUtil.getIdValue(entity);
+			// 7. 设置了主键值
+			if (idValue != null) {
+				needRewritePagingSql = false;
+			}
 		}
 //		else if(){ //8. 多那头的子表的主键都设置有值,即结果只会有一条记录. TODO
 //	    }
