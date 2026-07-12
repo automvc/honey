@@ -597,22 +597,18 @@ public class TransformResultSet {
 					value = null;
 					subObj = null;
 					dulField = "";
-					try {
-						if (oneRowType == ONE_ROW_TYPE_RS)
+					if (oneRowType == ONE_ROW_TYPE_RS) {
+						try {
 							value = rs.getObject(aliasColumnName);
-						else if (oneRowType == ONE_ROW_TYPE_MAP)
-							value = rsMap.get(_toFieldName(aliasColumnName,null));
-					} catch (SQLException e) {
-						if (oneRowType == ONE_ROW_TYPE_RS) {
+						} catch (SQLException e) {
 							try {
 								value = HoneyUtil.getResultObject(rs, field.getType().getName(), aliasColumnName);
 							} catch (SQLException e2) {
 								continue;
 							}
-						} else {
-							Logger.warn(e.getMessage(), e);
-							throw ExceptionHelper.convert(e);
 						}
+					} else if (oneRowType == ONE_ROW_TYPE_MAP) {
+						value = rsMap.get(_toFieldName(aliasColumnName, null));
 					}
 
 					// 2. process value
@@ -771,12 +767,12 @@ public class TransformResultSet {
 				continue;
 			}
 
-			int moreTableStructNum = moreTableStructMap == null ? 0 : moreTableStructMap.size();
+			if(moreTableStructMap == null) continue;
+			int moreTableStructNum = moreTableStructMap.size();
 			for (Entry<String, MoreTableStruct3> entry : moreTableStructMap.entrySet()) {
 				MoreTableStruct3 mtStruct = entry.getValue();
 				boolean processed = false;
 				if (mtStruct.layer == 2) {
-
 					// gen key0, layer_key
 					ptree = mtStruct.parentTree;
 					String key0 = main_key;
