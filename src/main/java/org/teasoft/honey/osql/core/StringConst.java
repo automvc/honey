@@ -20,6 +20,9 @@ public final class StringConst {
 	
 	// Forever
 	public static final String FOREVER_COLUMNLIST = PREFIX + "Forever:columnList:";
+	
+	//Request
+	public static final String ForMoreTableStruct3 = PREFIX + "ForMoreTableStruct3:";
 
 	public static final String TABLE_NAME = "_SYS_Bee_TableName";
 	public static final String TABLE_NAME_RELATIVE = "_SYS_Bee_TableName_Relative"; // 2.4.0

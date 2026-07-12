@@ -156,7 +156,7 @@ public final class ParseSqlHelper {
 		if (entity == null) return null;
 
 		String packageAndClassName = entity.getClass().getName();
-		String key = "ForMoreTableStruct3:" + suidType.name() + packageAndClassName;
+		String key = StringConst.ForMoreTableStruct3 + suidType.name() + packageAndClassName;
 
 		// TODO 每一次的对象不一样。 本次线程有效？？
 //		Map<String, MoreTableStruct3> map = (Map<String, MoreTableStruct3>) HoneyContext.getCommonCache(key);
@@ -250,7 +250,7 @@ public final class ParseSqlHelper {
 
 				layer = layer + 1;
 				if (layer >= 10) {
-					// TODO
+					// todo
 					Logger.info("MoreTable do not support the join layer more than {layer}! It will be ignored!"
 							.replace("{layer}", layer + ""));
 					return;
