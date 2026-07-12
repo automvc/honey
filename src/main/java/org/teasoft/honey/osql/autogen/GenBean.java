@@ -328,7 +328,7 @@ public class GenBean {
 				tostr.insert(0, LINE_SEPARATOR);
 //				tostring.insert(0,"\t");
 
-				tostr.append("\t\tstr.append(\"]\");");
+				tostr.append("\t\tstr.append(\"}\");");// V3.0.0 [ -> {
 				tostr.append(LINE_SEPARATOR);
 				tostr.append("\t\treturn str.toString();");
 				tostr.append(LINE_SEPARATOR);
@@ -336,7 +336,7 @@ public class GenBean {
 				tostr.append(LINE_SEPARATOR);
 
 //				tostring.insert(0,"\t"+LINE_SEPARATOR ); 
-				tostr.insert(0, "\t\tstr.append(\"" + entityName + "[\");");
+				tostr.insert(0, "\t\tstr.append(\"" + entityName + " {\");"); // V3.0.0 [ -> {
 				tostr.insert(0, LINE_SEPARATOR);
 				tostr.insert(0, "\t\tStringBuilder str = new StringBuilder();");
 				tostr.insert(0, LINE_SEPARATOR);
