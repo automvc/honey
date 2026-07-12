@@ -229,9 +229,9 @@ class _MoreObjectToSQLHelper3 {
 					joinExp.append(ONE_SPACE).append(K.and).append(ONE_SPACE);
 				}
 				mainColumn = toColumnName(mainFields[i], typeTree.get(moreTableStruct.layer - 2));
-				ParseSqlHelper.checkFieldNameViaColumnName(mainColumn, typeTree.get(moreTableStruct.layer - 2));
+				ParseSqlHelper.checkFieldName(mainColumn, typeTree.get(moreTableStruct.layer - 2), mainFields[i]);
 				subColumn = toColumnName(subFields[i], subClass);
-				ParseSqlHelper.checkFieldNameViaColumnName(subColumn, subClass);
+				ParseSqlHelper.checkFieldName(subColumn, subClass, subFields[i]);
 
 				joinExp.append(mainAlias).append(DOT).append(mainColumn) // TODO main class??
 						.append(EQUAL).append(subAlias).append(DOT).append(subColumn);

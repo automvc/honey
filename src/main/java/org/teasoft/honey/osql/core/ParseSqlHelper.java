@@ -138,13 +138,13 @@ public final class ParseSqlHelper {
 		return columnList;
 	}
 
-	public static void checkFieldNameViaColumnName(String fieldName, Class clazz) {
+	public static void checkFieldName(String columnName, Class clazz, String fieldNameForLog) {
 		List<String> list = ParseSqlHelper.getColumnList(clazz);
 		if (list == null) return;
 		for (String f : list) {
-			if (fieldName.equals(f)) return;
+			if (columnName.equals(f)) return;
 		}
-		throw new ConfigWrongException("The fieldName: '" + fieldName + "' do not in the class: " + clazz
+		throw new ConfigWrongException("The fieldName: '" + fieldNameForLog + "' do not in the class: " + clazz
 				.getName());
 	}
 

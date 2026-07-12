@@ -324,10 +324,10 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 			List<Class<?>> typeTree = moreTableStruct.typeTree;
 			for (int i = 0; i < mainFields.length; i++) {
 				mainColumn = toColumnName(mainFields[i], typeTree.get(moreTableStruct.layer - 2));
-				ParseSqlHelper.checkFieldNameViaColumnName(mainColumn, typeTree.get(moreTableStruct.layer - 2));
+				ParseSqlHelper.checkFieldName(mainColumn, typeTree.get(moreTableStruct.layer - 2), mainFields[i]);
 
 				subColumn = toColumnName(subFields[i], subClass);
-				ParseSqlHelper.checkFieldNameViaColumnName(subColumn, subClass);
+				ParseSqlHelper.checkFieldName(subColumn, subClass, subFields[i]);
 			}
 
 			try {
