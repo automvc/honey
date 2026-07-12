@@ -72,7 +72,7 @@ public class HoneyContext1 {
 	 * 存储数据到 ThreadLocal（子线程不继承）
 	 */
 	public static void set(LocalType category, String key, Object value) {
-		if (isBlank(category) || isBlank(key)) {
+		if (isBlank(category) || isBlank(key) || value == null) {
 			return;
 		}
 
@@ -249,7 +249,7 @@ public class HoneyContext1 {
 	 * 存储数据到 InheritableThreadLocal（子线程不继承）
 	 */
 	public static void setInheritable(LocalType category, String key, Object value) {
-		if (isBlank(category) || isBlank(key)) {
+		if (isBlank(category) || isBlank(key) || value == null) {
 			return;
 		}
 
