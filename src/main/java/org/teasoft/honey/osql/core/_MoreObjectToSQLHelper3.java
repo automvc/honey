@@ -145,14 +145,23 @@ class _MoreObjectToSQLHelper3 {
 		}
 
 		String pkNames = HoneyUtil.getPkFieldName(entity);
-		Object idValue=HoneyUtil.getIdValue(entity);
+		if (pkNames == null || "".equals(pkNames.trim())) {
+			try {
+				HoneyUtil.getField(entity.getClass(), "id");
+				pkNames = "id";
+			} catch (Exception e) {
+				Logger.warn("Do not rewrite paing sql, as have not primary key in " + entity.getClass().getName());
+			}
+		}
+		if (pkNames == null || "".equals(pkNames.trim())) {
+
+			needRewritePagingSql = false;
+		}
 		
-		// 7. 没有设置主键值
-//		if (StringUtils.isBlank(pkNames)) {
-		if (idValue == null) {
-//			needRewritePagingSql = false;
-			needRewritePagingSql = true;
-			Logger.warn("Do rewrite paing sql, as have not primary key in " + entity.getClass().getName());
+		Object idValue=HoneyUtil.getIdValue(entity);
+		// 7. 设置了主键值
+		if (idValue != null) {
+			needRewritePagingSql = false;
 		}
 //		else if(){ //8. 多那头的子表的主键都设置有值,即结果只会有一条记录. TODO
 //	    }
@@ -359,18 +368,19 @@ class _MoreObjectToSQLHelper3 {
 		sqlBuffer.append(sqlBufferComm);
 
 		if (needRewritePagingSql) {
+			String pks[] = pkNames.split(",");
+
 			pagingRewriteSql.append("select distinct ");
 //			pagingRewriteSql.append(mainTableName).append(".id").append(" from ")
 
-			String pks[] = pkNames.split(",");
 			for (int i = 0; i < pks.length; i++) {
 				if (i != 0) pagingRewriteSql.append(COMMA).append(ONE_SPACE);
 				pagingRewriteSql.append(mainTableName).append(DOT).append(pks[i]);
 			}
 
-			pagingRewriteSql.append(ShardingUtil.appendTableIndexIfNeed(mainTableName)).append(ONE_SPACE)
-//					.append(mainTableName).append(ONE_SPACE);
-					.append(mainTableAlias).append(ONE_SPACE);
+			pagingRewriteSql.append(ONE_SPACE).append(K.from).append(ONE_SPACE);
+
+			pagingRewriteSql.append(ShardingUtil.appendTableIndexIfNeed(mainTableName));
 
 			pagingRewriteSql.append(sqlBufferComm);
 

@@ -1832,13 +1832,14 @@ public final class HoneyUtil {
 		}
 	}
 
+	//do not check default id
 	public static <T> String getPkFieldName(T entity) {
 		if (entity == null) return null;
 		return getPkFieldNameByClass(entity.getClass());
 	}
 
 	/**
-	 * 查找有PrimaryKey的字段
+	 * 查找有PrimaryKey的字段; 没有检测默认的id
 	 * @param c
 	 * @return
 	 */
