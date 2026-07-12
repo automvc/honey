@@ -12,6 +12,7 @@ import org.teasoft.bee.osql.exception.ConfigWrongException;
 import org.teasoft.bee.osql.exception.JoinTableParameterException;
 import org.teasoft.honey.osql.util.NameCheckUtil;
 import org.teasoft.honey.util.EntityUtil;
+import org.teasoft.honey.util.StringUtils;
 
 class MoreTableStruct3 {
 	JoinType joinType; // 关联类型
@@ -81,6 +82,17 @@ class MoreTableStruct3 {
 			if (fkSubField != null && fkSubField.length > 0) {
 				this.subFields = fkSubField;
 			}
+		}
+
+//		@JoinTable(mainField="userid, orderid", subField="userid, orderid", joinType=JoinType.JOIN)
+//		support: mainField="userid, orderid"
+		if (mainFields.length == 1 && mainFields[0] != null && mainFields[0].contains(",")) {
+			mainFields = mainFields[0].split(",");
+			StringUtils.trim(mainFields);
+		}
+		if (subFields.length == 1 && subFields[0] != null && subFields[0].contains(",")) {
+			subFields = subFields[0].split(",");
+			StringUtils.trim(subFields);
 		}
 
 		if (mainFields.length != subFields.length) {
