@@ -78,7 +78,7 @@ class _MoreObjectToSQLHelper3 {
 		String mainTableName = _toTableName(entity);
 		String mainTableAlias = mainTableName;
 		// 不能到分页时才设置,因多表时,有重名字段,也需要用到dbName判断使用不同的语法,而动态获取dbName要用到路由.
-		if (HoneyContext.isNeedRealTimeDb()) { // TODO
+		if (HoneyContext.isNeedRealTimeDb()) { // todo
 			// main table confirm the Datasource.
 			HoneyContext.initRouteWhenParseSql(SuidType.SELECT, entity.getClass(), mainTableName);
 			OneTimeParameter.setTrueForKey(StringConst.ALREADY_SET_ROUTE);
@@ -164,7 +164,7 @@ class _MoreObjectToSQLHelper3 {
 				needRewritePagingSql = false;
 			}
 		}
-//		else if(){ //8. 多那头的子表的主键都设置有值,即结果只会有一条记录. TODO
+//		else if(){ //8. 多那头的子表的主键都设置有值,即结果只会有一条记录.
 //	    }
 
 		StringBuffer fullColumns = new StringBuffer();
@@ -184,7 +184,7 @@ class _MoreObjectToSQLHelper3 {
 		tableNamesForCache.append(mainTableName); // 用于缓存记录，要用真正的表名，不能用别名
 
 		concat(fullColumns, COMMA, mainTableName + ".", mainEntityWrapper.columnList);
-		columnSet.addAll(mainEntityWrapper.columnList); // TODO TEST columnSet
+		columnSet.addAll(mainEntityWrapper.columnList);
 
 		Map<String, Object> columnAndValue = mainEntityWrapper.columnAndValue;
 		for (Entry<String, Object> item : columnAndValue.entrySet()) {

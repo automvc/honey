@@ -82,7 +82,7 @@ public class BloomFilter {
 			int a = str.hashCode();
 			a = a >= 0 ? a : -a;
 			hashes[0] = a % bitSize;
-//			hashes[0] = Math.abs(str.hashCode()) % bitSize;//TODO Bad attempt to compute absolute value of signed 32-bit hashcode
+//			hashes[0] = Math.abs(str.hashCode()) % bitSize;//todo Bad attempt to compute absolute value of signed 32-bit hashcode
 
 			// 哈希函数1：基于MD5的前4字节
 			MessageDigest md5 = MessageDigest.getInstance(MD5);

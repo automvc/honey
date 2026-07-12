@@ -158,7 +158,7 @@ public final class ParseSqlHelper {
 		String packageAndClassName = entity.getClass().getName();
 		String key = StringConst.ForMoreTableStruct3 + suidType.name() + packageAndClassName;
 
-		// TODO 每一次的对象不一样。 本次线程有效？？
+		// 每一次的对象不一样。 本次线程有效
 //		Map<String, MoreTableStruct3> map = (Map<String, MoreTableStruct3>) HoneyContext.getCommonCache(key);
 		Map<String, MoreTableStruct3> map = (Map) HoneyContext1.getInheritable(LocalType.REQUEST, key);
 
@@ -243,7 +243,7 @@ public final class ParseSqlHelper {
 		Field field[] = HoneyUtil.getFields(currentMoreTableStruct.subClass);
 		int len = field.length;
 		for (int i = 0; i < len; i++) {
-			if (HoneyUtil.isSkipFieldForMoreTable(field[i])) continue; // 有Ignore注释,将不再处理JoinTable //TODO
+			if (HoneyUtil.isSkipFieldForMoreTable(field[i])) continue; // 有Ignore注释,将不再处理JoinTable //todo
 //			if (field[i] != null && AnnoUtil.isJoinTable(field[i])) {
 			if (field[i] != null && (AnnoUtil.isJoinTable(field[i]) ||
 					(SuidType.MODIFY == suidType && AnnoUtil.isFK(field[i])))) {

@@ -570,7 +570,7 @@ public class TransformResultSet {
 					String fieldName = entry.getKey();
 					if (isMainField) columnName = _toColumnName(fieldName, entity.getClass());
 					else columnName = _toColumnName(fieldName, subEntityMoreTableStruct.subClass);
-//					columnName = columnName.replace("`", ""); // have bug, if use ` TODO
+//					columnName = columnName.replace("`", ""); // have bug, if use ` todo
 					boolean isRegHandlerPriority = false;
 					if (openFieldTypeHandler) {
 						isRegHandlerPriority = TypeHandlerRegistry.isPriorityType(field.getType());
@@ -829,7 +829,7 @@ public class TransformResultSet {
 						HoneyUtil.setAccessibleTrue(field);
 						if (main_obj == null) main_obj = (T) TransformResultSet.createObject(entityClass);// fixed
 						HoneyUtil.setFieldValue(field, main_obj, reutrn_subObject_cache_dict.get(mtStruct.subAlias));
-						// TODO fixed 1-1-n-1-1
+						// fixed 1-1-n-1-1
 						singleCache.put(layer_key, reutrn_subObject_cache_dict.get(mtStruct.subAlias));
 
 						processed = true;
@@ -886,7 +886,7 @@ public class TransformResultSet {
 					String current_key2 = sub_field_value_str2.toString();
 					String layer_key = key1 + ".." + ptree.get(mtStruct.layer - 2) + "##" + current_key2;
 
-					Object current_single_subObject = singleCache.get(key1); // 用key1取?? TODO
+					Object current_single_subObject = singleCache.get(key1);
 					if (current_single_subObject != null) {
 						if (mtStruct.currentIsList) { // 3-has-list
 							List sub_list_obj = listCache.get(key1);
@@ -920,14 +920,14 @@ public class TransformResultSet {
 							HoneyUtil.setFieldValue(field, reutrn_subObject_cache_dict.get(mtStruct.mainAlias),
 									reutrn_subObject_cache_dict.get(mtStruct.subAlias));
 
-							// TODO fixed 1-n-1-n-1
+							// fixed 1-n-1-n-1
 							singleCache.put(layer_key, reutrn_subObject_cache_dict.get(mtStruct.subAlias));
 						}
 					} else {
-//						System.err.println("-----------key1没有放缓存------------"); // TODO
+//						println("-----------key1没有放缓存------------");
 						if (mtStruct.currentIsList) { // 3 - null -list
 							// 还没放缓存； 也是list; 如: 1-1-n-1-1 第三层时，就要走这里。
-//							System.err.println("还没放缓存； 也是list; 如:  1-1-n-1-1 第三层时，就要走这里。 layer: " + mtStruct.layer); // TODO
+//							println("还没放缓存； 也是list; 如:  1-1-n-1-1 第三层时，就要走这里。 layer: " + mtStruct.layer);
 						} else { // 3 - null -not_list
 							subNameAndField = getSubNameAndField(subNameAndFieldCache, mtStruct.mainAlias,
 									mtStruct.typeTree.get(mtStruct.layer - 2));

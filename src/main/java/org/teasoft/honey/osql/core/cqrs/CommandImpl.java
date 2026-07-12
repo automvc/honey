@@ -211,7 +211,7 @@ public class CommandImpl implements Command {
 //		if (localSuidRichForDynamicParameter == null) {
 //			localSuidRichForDynamicParameter = getSuidRich();
 //		}
-////		getSuidRich().setDynamicParameter(para, value); // TODO getSuidRich() 在重复设置多个时,是否会有问题?
+////		getSuidRich().setDynamicParameter(para, value); // todo getSuidRich() 在重复设置多个时,是否会有问题?
 //		localSuidRichForDynamicParameter.setDynamicParameter(para, value); //可能和操作对象设置的不是同一个getSuidRich()对象
 //		return this;
 //	}

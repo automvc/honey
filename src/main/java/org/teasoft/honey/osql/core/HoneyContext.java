@@ -416,7 +416,7 @@ public final class HoneyContext {
 
 	// 记得conn起来，等处理完rs才关闭。
 	public synchronized static void regConnForSelectRs(Connection conn) {
-//		String threadFlag = HoneyContext.getSysCommStrInheritableLocal(StringConst.ShardingSelectRs_ThreadFlag); //这个可能没有清除。TODO
+//		String threadFlag = HoneyContext.getSysCommStrInheritableLocal(StringConst.ShardingSelectRs_ThreadFlag);
 		String threadFlag = (String)HoneyContext1.getInheritable(LocalType.REQUEST, StringConst.ShardingSelectRs_ThreadFlag);
 		Integer subThreadIndex = HoneyContext.getSqlIndexLocal();
 		String key = threadFlag + subThreadIndex;

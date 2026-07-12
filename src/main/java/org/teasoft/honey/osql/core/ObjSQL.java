@@ -95,7 +95,7 @@ public class ObjSQL extends AbstractCommOperate implements Suid {
 			int insertNum = -1;
 			Logger.logSQL(LogSqlParse.parseSql("insert SQL: ", sql));
 
-			HoneyUtil.revertId(entity); // v1.9
+//			HoneyUtil.revertId(entity); // v1.9
 			if (OneTimeParameter.isTrue("_SYS_Bee_NullObjectInsert")) {
 				Logger.warn("All fields in object is null, would ignroe it!");
 				insertNum = 0;

@@ -177,7 +177,7 @@ public class ShardingReg {
 	}
 
 	// 2.0
-	public static void clearContext() { //TODO
+	public static void clearContext() {
 		if (!ShardingUtil.isSharding()) return;
 
 		
@@ -211,7 +211,7 @@ public class ShardingReg {
 
 	}
 
-	public static void setTrue(String key) { //TODO
+	public static void setTrue(String key) {
 		if (!ShardingUtil.isSharding()) return; // 2.4.0
 //		HoneyContext.setSysCommStrInheritableLocal(key, StringConst.tRue);
 		

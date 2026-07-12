@@ -343,7 +343,7 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 					// set foreign key in sub entity with main table key
 					boolean isSuperFieldNullValue = fillSubFieldWithSuperField(mainFields, subFields, layer,
 							lastLayerObject, subObject, mainField1Cache);
-					if (isSuperFieldNullValue) continue; //TODO 要是写错字段名；在这回提前返回
+					if (isSuperFieldNullValue) continue; //todo 要是写错字段名；在这回提前返回
 
 					int subAffect = modifyOneEntity3(subObject, suidType, subFields);
 					Logger.logSQL(
@@ -423,7 +423,7 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 		} else if (SuidType.DELETE == suidType) {
 			affectNum = getSuidRich().delete(entity);
 		} else if (SuidType.UPDATE == suidType) {
-//			affectNum = getSuidRich().update(entity);  //TODO 子实体的主键未必有值；外键有值而矣
+//			affectNum = getSuidRich().update(entity);  //todo 子实体的主键未必有值；外键有值而矣
 			// 用以下的办法，先判断主键是否有值即可。
 			if (subFields == null) { // for main entity
 				affectNum = getSuidRich().update(entity); // 有主键，使用主键作为过滤条件。

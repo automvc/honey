@@ -41,8 +41,8 @@ public class OrderByStreamResult<T> {
 
 //		if (this.orderByValuesQueue != null && shardingPage != null) {
 		if (this.orderByValuesQueue != null) {
-//			ShardingPageStruct shardingPage = HoneyContext.getCurrentShardingPage();// TODO shardingPage在select * from tablename时,为空
-			ShardingPageStruct shardingPage = HoneyContext1.get(LocalType.SHARDING, ShardingPageStruct.class);// TODO shardingPage在select * from tablename时,为空
+//			ShardingPageStruct shardingPage = HoneyContext.getCurrentShardingPage();// shardingPage在select * from tablename时,为空
+			ShardingPageStruct shardingPage = HoneyContext1.get(LocalType.SHARDING, ShardingPageStruct.class);// shardingPage在select * from tablename时,为空
 			if (shardingPage != null) {// 有分页的,要跳过查多的记录
 //			int type = shardingPage.getPagingType();
 //			if (type == 2 || type == 3) {

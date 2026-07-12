@@ -431,7 +431,7 @@ public class ConditionHelper {
 				if (!hasAvg && FunctionType.AVG.getName().equalsIgnoreCase(functionTypeName)) {
 					hasAvg = true;
 //					adjust++;
-					//TODO 一样也要改
+					//todo 一样也要改
 //					funStructs[i+adjust] = new FunStruct(funUseName+"_sum_", FunctionType.SUM.getName());
 					funStructs.add(new FunStruct(funUseName + "_sum_", FunctionType.SUM.getName()));
 //					adjust++;

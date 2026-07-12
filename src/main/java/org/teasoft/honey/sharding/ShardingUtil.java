@@ -101,7 +101,7 @@ public class ShardingUtil {
 
 	public static boolean isTrue(String key) {
 //		return HoneyContext.isTrueInSysCommStrInheritableLocal(key);
-		return HoneyContext1.isTrueExtForSharding(key); //TODO
+		return HoneyContext1.isTrueExtForSharding(key);
 	}
 
 //	public static void regSelectRsThreadFlag(String threadFlag) {

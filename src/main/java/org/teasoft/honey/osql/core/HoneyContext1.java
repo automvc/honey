@@ -64,7 +64,7 @@ public class HoneyContext1 {
 	}
 
 	public static void setForSharding(String key, Object value) {
-//		if (!ShardingUtil.isSharding()) return; // TODO
+//		if (!ShardingUtil.isSharding()) return;
 		set(LocalType.SHARDING, key, value);
 	}
 
@@ -241,7 +241,7 @@ public class HoneyContext1 {
 	}
 
 	public static void setExtForSharding(String key, Object value) {
-//		if (!ShardingUtil.isSharding()) return; // TODO
+//		if (!ShardingUtil.isSharding()) return;
 		setInheritable(LocalType.SHARDING, key, value);
 	}
 
