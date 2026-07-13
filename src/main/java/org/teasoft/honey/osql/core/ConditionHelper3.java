@@ -3,22 +3,18 @@ package org.teasoft.honey.osql.core;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 
 import org.teasoft.bee.osql.BeeException;
 import org.teasoft.bee.osql.FunctionType;
-import org.teasoft.bee.osql.Op;
+import org.teasoft.bee.osql.OneMethod1;
 import org.teasoft.bee.osql.SuidType;
-import org.teasoft.bee.osql.TO_DATE;
 import org.teasoft.bee.osql.api.Condition;
 import org.teasoft.bee.osql.dialect.DbFeature;
 import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
-import org.teasoft.bee.osql.exception.BeeIllegalSQLException;
 import org.teasoft.bee.sharding.FunStruct;
 import org.teasoft.bee.sharding.GroupFunStruct;
 import org.teasoft.honey.logging.Logger;
 import org.teasoft.honey.osql.core.ConditionImpl.FunExpress;
-import org.teasoft.honey.osql.util.NameCheckUtil;
 import org.teasoft.honey.sharding.ShardingReg;
 import org.teasoft.honey.sharding.ShardingUtil;
 import org.teasoft.honey.util.ObjectUtils;
@@ -26,268 +22,19 @@ import org.teasoft.honey.util.StringUtils;
 
 public class ConditionHelper3 {
 
-	private static final String ONE_SPACE = " ";
-
 	private ConditionHelper3() {}
 
 	private static DbFeature getDbFeature() {
 		return BeeFactory.getHoneyFactory().getDbFeature();
 	}
-
-	// 可以和1的合回? TODO
-	static QueryConditionWrap processQueryCondition(Condition condition, boolean firstWhere, String mainTableAlias,
+	
+	static WhereConditionWrap processWhereCondition3(Condition condition, boolean firstWhere, String mainTableAlias,
 			Class<?> mainClass, Map<String, MoreTableStruct3> moreTableStructMap) {
-
-//		Class entityClass = (Class) OneTimeParameter.getAttribute(StringConst.Column_EC); // 要消费了 V3多表，不用这个了。
-		if (condition == null) return null;
-
-		StringBuffer sqlBuffer = new StringBuffer();
-		List<PreparedValue> list = new Vector<>();
-
-//		没有初始化路由，是否有影响？
-		// condition里要设置操作类型
-
-		boolean isNeedAnd = true;
-		boolean isFirstWhere = firstWhere; // v1.7.2 return for control whether allow to delete/update whole records in
-											// one table
-		ConditionImpl conditionImpl = (ConditionImpl) condition;
-		Integer start = conditionImpl.getStart();
-		Integer size = conditionImpl.getSize();
-
-		if (start != null && SuidType.SELECT != conditionImpl.getSuidType()) {
-			throw new BeeErrorGrammarException(conditionImpl.getSuidType() + " do not support paging with start !");
-		}
-
-		List<Expression> expList = conditionImpl.getExpList();
-		OpType opType;
-		Op op;
-		Object value;
-		String columnName = "";
-		String fieldName = "";
-		String operator = null;
-//		int dotIndex;
-//		String tablePart;
-//		String namePart;
-		for (Expression expression : expList) {
-			opType = expression.getOpType();
-			op = expression.getOp();
-			value = expression.getValue();
-//			columnName = _toColumnName(expression.getFieldName(), useSubTableNames, entityClass);
-
-			fieldName = expression.getFieldName().trim();
-
-			// MoreTableHelper.fieldName2ColumnName
-			columnName = MoreTableHelper.fieldName2ColumnName(fieldName, mainTableAlias, mainClass, moreTableStructMap);
-
-			// fieldName->columnName start
-//			dotIndex = fieldName.indexOf('.');
-//			if (dotIndex < 0) {
-//				columnName = mainTableAlias + "." + _toColumnName(fieldName, mainClass);
-//			} else {
-//				tablePart = fieldName.substring(0, dotIndex);
-//				namePart = fieldName.substring(dotIndex + 1);
-//				if (tablePart.equals(mainTableAlias)) {
-//					columnName = tablePart + "." + _toColumnName(namePart, mainClass);
-//				} else {
-//					MoreTableStruct3 moreTableStruct = moreTableStructMap.get(tablePart);
-//					if (moreTableStruct == null) {
-//						Logger.warn("Can not found the MoreTableStruct with " + tablePart
-//								+ " , please check the Condition you use!");
-//						continue;
-//					}
-//					columnName = tablePart + "." + _toColumnName(namePart, moreTableStruct.subClass);
-//				}
-//			}
-//			// fieldName->columnName end
-
-			if (OpType.GROUP_BY == opType || OpType.HAVING == opType) {
-				if (SuidType.SELECT != conditionImpl.getSuidType()) {
-					throw new BeeErrorGrammarException(
-							conditionImpl.getSuidType() + " do not support the opType: " + opType + "!");
-				}
+		return ConditionHelper._processWhereCondition(condition, firstWhere, new OneMethod1<String>() {
+			public String doOneMethod(String fieldName) {
+				return MoreTableHelper.fieldName2ColumnName(fieldName, mainTableAlias, mainClass, moreTableStructMap);
 			}
-			// mysql's delete,update can use order by.
-
-			if (firstWhere) {
-				if (OpType.GROUP_BY == opType || OpType.HAVING == opType || OpType.ORDER_BY2 == opType
-						|| OpType.ORDER_BY3 == opType || OpType.ORDER_BY4 == opType) {
-					firstWhere = false;
-				} else {
-					sqlBuffer.append(" ").append(K.where).append(" ");
-					firstWhere = false;
-					isNeedAnd = false;
-					isFirstWhere = false; // for return. where过滤条件
-				}
-			}
-
-			if (OpType.OP2 == opType) {
-				if (expression.getValue() != null && expression.getValue().getClass() == TO_DATE.class) // 2.4.0
-					opType = OpType.OP2_TO_DATE;
-			}
-
-			operator = null;
-			if (op != null) {
-				if (HoneyUtil.isSqlKeyWordUpper())
-					operator = op.getOperator().toUpperCase();
-				else
-					operator = op.getOperator();
-			}
-
-			// begin process
-			if (OpType.IN == opType) {
-				isNeedAnd = adjustAnd(sqlBuffer, isNeedAnd);
-				sqlBuffer.append(columnName);
-				sqlBuffer.append(operator);
-				processIn(sqlBuffer, list, value); // 2.4.0
-
-				isNeedAnd = true;
-			} else if (OpType.LIKE == opType) {
-				isNeedAnd = adjustAnd(sqlBuffer, isNeedAnd);
-				sqlBuffer.append(columnName);
-				sqlBuffer.append(operator);
-				sqlBuffer.append("?");
-
-				String v = (String) value;
-				v = processLike(expression.getOp(), v); // V2.4.0
-				addValeToPvList(list, v);
-
-				isNeedAnd = true;
-			} else if (OpType.OP2 == opType) {
-				isNeedAnd = adjustAnd(sqlBuffer, isNeedAnd); // fix bug V2.5.2.7
-				if (value == null) {
-					sqlBuffer.append(columnName);
-					if ("=".equals(operator)) {
-						sqlBuffer.append(" " + K.isNull);
-					} else {
-						sqlBuffer.append(" " + K.isNotNull);
-						if (!"!=".equals(operator)) {
-							Logger.warn(columnName + operator + "null transfer to : " + columnName + " " + K.isNotNull);
-						}
-					}
-				} else {
-					sqlBuffer.append(columnName);
-					sqlBuffer.append(operator);
-					sqlBuffer.append("?");
-					addValeToPvList(list, value);
-				}
-				isNeedAnd = true;
-			} else if (OpType.OP_WITH_FIELD == opType) { // eg:field1=field2 //this could not use for having in mysql
-				isNeedAnd = adjustAnd(sqlBuffer, isNeedAnd);
-				sqlBuffer.append(columnName);
-				sqlBuffer.append(operator);
-				sqlBuffer.append(value);
-				isNeedAnd = true;
-			} else if (OpType.OP2_TO_DATE == opType) {
-				isNeedAnd = adjustAnd(sqlBuffer, isNeedAnd);
-				sqlBuffer.append(columnName);
-				sqlBuffer.append(operator);
-
-				// eg:condition.op("mydatetime", Op.ge, new TO_DATE("2024-07-02",
-				// "YYYY-MM-DD"));
-				// mydatetime >= TO_DATE('2024-07-02', 'YYYY-MM-DD')
-				TO_DATE to_date = (TO_DATE) value;
-				String formatter = to_date.getFormatter();
-				if (NameCheckUtil.isContainCommentString(formatter)) {
-					throw new BeeIllegalSQLException("formatter :" + formatter + " , have sql comment character");
-				}
-				if (!HoneyUtil.isOracle()) {
-					Logger.warn("Make sure the Database support TO_DATE() function!");
-				}
-
-				sqlBuffer.append(K.to_date + "(?, '" + formatter + "')");
-				addValeToPvList(list, to_date.getDatetimeValue());
-
-				isNeedAnd = true;
-			} else if (OpType.BETWEEN == opType || OpType.NOT_BETWEEN == opType) {
-				isNeedAnd = adjustAnd(sqlBuffer, isNeedAnd);
-				sqlBuffer.append(columnName);
-				if (OpType.BETWEEN == opType)
-					sqlBuffer.append(" " + K.between + " ");
-				else
-					sqlBuffer.append(" " + K.notBetween + " ");
-				sqlBuffer.append("?");
-				sqlBuffer.append(" " + K.and + " ");
-				sqlBuffer.append("?");
-
-				addValeToPvList(list, value);
-				addValeToPvList(list, expression.getValue2());
-
-				isNeedAnd = true;
-
-			} else if (OpType.L_PARENTHESES == opType) { // (
-				isNeedAnd = adjustAnd(sqlBuffer, isNeedAnd);
-				sqlBuffer.append(value);
-			} else if (OpType.R_PARENTHESES == opType) {// )
-				sqlBuffer.append(value);
-				isNeedAnd = true;
-			} else if (OpType.ONE == opType) { // or, and, not (2.1.10)
-				if ("!".equals(value)) { // V2.1.10
-					isNeedAnd = adjustAnd(sqlBuffer, isNeedAnd);
-					sqlBuffer.append(value);
-				} else {
-					sqlBuffer.append(" ");
-					sqlBuffer.append(value);
-					sqlBuffer.append(" ");
-				}
-				isNeedAnd = false;
-			} else if (OpType.GROUP_BY == opType) {
-				if (SuidType.SELECT != conditionImpl.getSuidType()) {
-					throw new BeeErrorGrammarException(
-							"BeeErrorGrammarException: " + conditionImpl.getSuidType() + " do not support 'group by' !");
-				}
-
-				sqlBuffer.append(value);// group by或者,
-				sqlBuffer.append(columnName);
-
-			} else if (OpType.HAVING == opType) {
-				if (SuidType.SELECT != conditionImpl.getSuidType()) {
-					throw new BeeErrorGrammarException(conditionImpl.getSuidType() + " do not support 'having' !");
-				}
-//					if (5 == expression.getOpNum()) { // having(FunctionType.MIN, "field", Op.ge, 60)
-				sqlBuffer.append(value);// having 或者 and
-				sqlBuffer.append(FunAndOrderTypeMap.transfer(expression.getValue3().toString())); // fun
-				sqlBuffer.append("(");
-				if (FunctionType.COUNT.getName().equals(expression.getValue3())
-						&& "*".equals(expression.getFieldName().trim())) {
-					sqlBuffer.append("*");
-				} else {
-					sqlBuffer.append(columnName);
-				}
-
-				sqlBuffer.append(")");
-				sqlBuffer.append(expression.getValue4()); // Op
-				sqlBuffer.append("?");
-
-				addValeToPvList(list, expression.getValue2());
-			} else if (OpType.ORDER_BY2 == opType || OpType.ORDER_BY3 == opType || OpType.ORDER_BY4 == opType) {
-
-				if (SuidType.SELECT != conditionImpl.getSuidType()) {
-					throw new BeeErrorGrammarException(conditionImpl.getSuidType() + " do not support 'order by' !");
-				}
-
-				sqlBuffer.append(value);// order by或者,
-				if (OpType.ORDER_BY4 == opType) { // order by max(total)
-					sqlBuffer.append(FunAndOrderTypeMap.transfer(expression.getValue3().toString()));
-					sqlBuffer.append("(");
-					sqlBuffer.append(columnName);
-					sqlBuffer.append(")");
-				} else {
-					sqlBuffer.append(columnName);
-				}
-
-				if (OpType.ORDER_BY3 == opType || OpType.ORDER_BY4 == opType) { // 指定 desc,asc
-					sqlBuffer.append(ONE_SPACE);
-					sqlBuffer.append(FunAndOrderTypeMap.transfer(expression.getValue2().toString()));
-				}
-			} // end orderBy
-
-		} // end expList for
-
-//		return new QueryConditionWrap(sqlBuffer, list, isFirstWhere, condition.getGroupByFields(),
-//				condition.getOrderBy(), start, size, conditionImpl.getForUpdate());
-
-		return new QueryConditionWrap(sqlBuffer, list, isFirstWhere, condition.getGroupByFields(),
-				condition.getOrderBy());
+		});
 	}
 
 	static String processSelectField(String columnNames, Condition condition, Map<String, String> subDulFieldMap,
@@ -438,30 +185,6 @@ public class ConditionHelper3 {
 		return funStr;
 	}
 
-//	private static String _toColumnName(String fieldName, Class entityClass) {
-//		return HoneyUtil.toColumnName(fieldName, entityClass);
-//	}
-
-	private static boolean adjustAnd(StringBuffer sqlBuffer, boolean isNeedAnd) {
-		return ConditionHelper.adjustAnd(sqlBuffer, isNeedAnd);
-	}
-
-	public static List<PreparedValue> processIn(Object v) {
-		return ConditionHelper.processIn(v);
-	}
-
-	static void addValeToPvList(List<PreparedValue> list, Object value) {
-		ConditionHelper.addValeToPvList(list, value);
-	}
-
-	public static void processIn(StringBuffer sqlBuffer, List<PreparedValue> list, Object v) {
-		ConditionHelper.processIn(sqlBuffer, list, v);
-	}
-
-	public static String processLike(Op op, String v) {
-		return ConditionHelper.processLike(op, v);
-	}
-
 	private static void adjustSqlServerPagingIfNeed(StringBuffer sqlBuffer, Map<String, String> orderByMap, Integer start,
 			Class entityClass, String useSubTableNames[]) {
 		ConditionHelper.adjustSqlServerPagingIfNeed(sqlBuffer, orderByMap, start, entityClass, useSubTableNames);
@@ -580,25 +303,4 @@ public class ConditionHelper3 {
 		return ObjectUtils.isNotEmpty(funExpList);
 	}
 
-}
-
-class QueryConditionWrap extends ConditionWrap {
-	// 若是没用到这两个，可以不定义这个类。 TODO
-	List<String> groupNameslist;
-	Map<String, String> orderByMap;
-//	Integer start = null;
-//	Integer size = null;
-//	boolean forUpdate;
-
-//	public QueryConditionWrap(StringBuffer sqlBuffer, List<?> pvList, boolean isFirst, List<String> groupNameslist,
-//			Map<String, String> orderByMap, Integer start, Integer size, boolean forUpdate) {
-	public QueryConditionWrap(StringBuffer sqlBuffer, List<?> pvList, boolean isFirst, List<String> groupNameslist,
-			Map<String, String> orderByMap) {
-		super(sqlBuffer, pvList, isFirst);
-		this.groupNameslist = groupNameslist;
-		this.orderByMap = orderByMap;
-//		this.start = start;
-//		this.size = size;
-//		this.forUpdate = forUpdate;
-	}
 }

@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.Vector;
 
 import org.teasoft.bee.osql.FunctionType;
+import org.teasoft.bee.osql.OneMethod1;
 import org.teasoft.bee.osql.Op;
 import org.teasoft.bee.osql.OrderType;
 import org.teasoft.bee.osql.SuidType;
@@ -591,8 +592,16 @@ public class ConditionHelper {
 	}
 
 	static WhereConditionWrap processWhereCondition(Condition condition, boolean firstWhere, String useSubTableNames[]) {
-
 		Class entityClass = (Class) OneTimeParameter.getAttribute(StringConst.Column_EC); // 要消费了
+		return _processWhereCondition(condition, firstWhere, new OneMethod1<String>() {
+			public String doOneMethod(String fieldName) {
+				return _toColumnName(fieldName, useSubTableNames, entityClass);
+			}
+		});
+	}
+	
+	static WhereConditionWrap _processWhereCondition(Condition condition, boolean firstWhere, OneMethod1<String> toColumnName) {
+		
 		if (condition == null) return null;
 
 		StringBuffer sqlBuffer = new StringBuffer();
@@ -616,11 +625,17 @@ public class ConditionHelper {
 		Object value;
 		String columnName = "";
 		String operator = null;
+		String fieldName = null;
 		for (Expression expression : expList) {
 			opType = expression.getOpType();
 			op = expression.getOp();
 			value = expression.getValue();
-			columnName = _toColumnName(expression.getFieldName(), useSubTableNames, entityClass);
+			
+			//多表查询是另一种; 所以用doOneMethod传入
+//			columnName = _toColumnName(expression.getFieldName(), useSubTableNames, entityClass);
+			
+			fieldName = expression.getFieldName();
+			if (fieldName != null) columnName = toColumnName.doOneMethod(fieldName.trim());
 
 			if (OpType.GROUP_BY == opType || OpType.HAVING == opType) {
 				if (SuidType.SELECT != conditionImpl.getSuidType()) {

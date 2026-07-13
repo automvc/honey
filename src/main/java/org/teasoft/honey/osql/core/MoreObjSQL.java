@@ -46,7 +46,7 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 	private MoreObjToSQL moreObjToSQL;
 	private static final int FAIL_RETURN_NUM = -1;
 
-	private static final String SELECT_SQL = "select SQL: ";
+	private static final String SELECT_SQL = "select MoreTable SQL: ";
 
 	@Override
 	public <T> List<T> select(T entity) {

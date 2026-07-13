@@ -357,7 +357,7 @@ class _MoreObjectToSQLHelper3 {
 			firstWhere = false;
 		}
 
-		QueryConditionWrap queryConditionWrap = ConditionHelper3.processQueryCondition(condition, firstWhere,
+		WhereConditionWrap queryConditionWrap = ConditionHelper3.processWhereCondition3(condition, firstWhere,
 				mainTableAlias, entity.getClass(), moreTableStructMap);
 		if (queryConditionWrap != null) {
 			sqlBufferComm.append(queryConditionWrap.getSqlBuffer());
