@@ -159,12 +159,9 @@ public final class ParseSqlHelper {
 		String key = StringConst.ForMoreTableStruct3 + suidType.name() + packageAndClassName;
 
 		// 每一次的对象不一样。 本次线程有效
-//		Map<String, MoreTableStruct3> map = (Map<String, MoreTableStruct3>) HoneyContext.getCommonCache(key);
 		Map<String, MoreTableStruct3> map = (Map) HoneyContext1.getInheritable(LocalType.REQUEST, key);
-
 		if (map == null) {
 			map = parseJoins0(entity, suidType);
-//			HoneyContext.addCommonCache(key, map);
 			HoneyContext1.setInheritable(LocalType.REQUEST, key, map);
 		}
 		return map;
