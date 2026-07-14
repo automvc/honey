@@ -58,9 +58,9 @@ public class HoneyContext1 {
 		return get(LocalType.NORMAL, key);
 	}
 
-	public static <T> void set(LocalType category, Class<T> key, T value) {
+	public static <T> void set(LocalType localType, Class<T> key, T value) {
 		if (key == null) return;
-		set(category, key.getName(), value);
+		set(localType, key.getName(), value);
 	}
 
 	public static void setForSharding(String key, Object value) {
@@ -71,25 +71,25 @@ public class HoneyContext1 {
 	/**
 	 * 存储数据到 ThreadLocal（子线程不继承）
 	 */
-	public static void set(LocalType category, String key, Object value) {
-		if (isBlank(category) || isBlank(key) || value == null) {
+	public static void set(LocalType localType, String key, Object value) {
+		if (isBlank(localType) || isBlank(key) || value == null) {
 			return;
 		}
 
 //		if (LocalType.SHARDING == category && !ShardingUtil.isSharding()) return;
 
 		Map<LocalType, Map<String, Object>> store = LOCAL.get();
-		Map<String, Object> catMap = store.get(category);
+		Map<String, Object> catMap = store.get(localType);
 		if (catMap == null) {
 			catMap = new ConcurrentHashMap<String, Object>();
-			store.put(category, catMap);
+			store.put(localType, catMap);
 		}
 		catMap.put(key, value);
 	}
 
-	public static <T> T get(LocalType category, Class<T> key) {
+	public static <T> T get(LocalType localType, Class<T> key) {
 		if (key == null) return null;
-		return get(category, key.getName(), key);
+		return get(localType, key.getName(), key);
 	}
 
 	/**
