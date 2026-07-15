@@ -2,6 +2,7 @@ package org.teasoft.honey.osql.core;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -972,6 +973,7 @@ final class _ObjectToSQLHelper {
 		Object id;
 		if (isInt(field)) {
 			int intId = (int) GenIdFactory.get(tableKey, GenIdFactory.GenType_IntSerialIdReturnLong);
+//			int intId = (int) GenIdFactory.get("Normal", GenIdFactory.GenType_IntSerialIdReturnLong); //TODO
 			id = intId;
 		} else if (hasGenUUIDAnno && isStringField) {
 			id = UUID.getId(useSeparatorInUUID);
@@ -985,8 +987,16 @@ final class _ObjectToSQLHelper {
 		try {
 			HoneyUtil.setFieldValue(field, entity, id);
 			if (hasValue) {
-				Logger.warn(" [ID WOULD BE REPLACED] " + entity.getClass() + " 's id field" + pkAlias + " value is "
+				Logger.warn(" [ID WOULD BE REPLACED] " + entity.getClass().getName() + " 's id field" + pkAlias + " value. "
 						+ obj.toString() + " would be replace by " + id);
+			}
+			// for MoreTable insert
+			if (StringConst.tRue.equals(HoneyContext1.get(LocalType.MORETABLE_INSERT, StringConst.MoreTableInsertDoing))) {
+				Map<String, Object> pkValueMap = new HashMap<>();
+				pkValueMap.put(pkName, id);
+//				HoneyContext1.set(LocalType.REQUEST, "InitIdByAutoForMoreTableInsert", idValue);
+				HoneyContext1.set(LocalType.MORETABLE_INSERT,
+						StringConst.MoreTableInsertInitIdByAuto + entity.getClass().getName(), pkValueMap);
 			}
 		} catch (IllegalAccessException e) {
 			throw ExceptionHelper.convert(e);
