@@ -641,20 +641,8 @@ public final class CacheUtil {
 		return object; // 不严格 有异常则返回原对象
 	}
 
-	@SuppressWarnings("rawtypes")
 	private static boolean isSerial(Object rs) {
-		if (rs instanceof List) {
-			try {
-				List list = (List) rs;
-				if (list != null && list.size() > 0 && list.get(0) != null) {
-					return Serializable.class.isAssignableFrom(list.get(0).getClass());
-				}
-			} catch (Exception e) {
-				Logger.debug(e.getMessage(), e);
-			}
-		}
-
-		return Serializable.class.isAssignableFrom(rs.getClass());
+		return HoneyUtil.isSerial(rs);
 	}
 	
 }

@@ -7,6 +7,7 @@
 package org.teasoft.honey.osql.core;
 
 import java.lang.reflect.Field;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -15,6 +16,7 @@ import org.teasoft.bee.osql.BeeException;
 import org.teasoft.bee.osql.BeeSql;
 import org.teasoft.bee.osql.FunctionType;
 import org.teasoft.bee.osql.MoreObjToSQL;
+import org.teasoft.bee.osql.Serializer;
 import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.api.Condition;
 import org.teasoft.bee.osql.api.MoreTable;
@@ -47,6 +49,9 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 	private static final int FAIL_RETURN_NUM = -1;
 
 	private static final String SELECT_SQL = "select MoreTable SQL: ";
+	private static final String UPDATE = "update";
+	private static final String DELETE = "delete";
+	private static final String INSERT = "insert";
 
 	@Override
 	public <T> List<T> select(T entity) {
@@ -251,10 +256,27 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 		this.suidRich = suidRich;
 	}
 
+	private <T> T copyEntityIfCan(T entity) {
+		if (HoneyUtil.isSerial(entity)) {
+			try {
+				Serializer jdks = new JdkSerializer();
+				entity = (T) jdks.unserialize(jdks.serialize(entity));
+			} catch (Exception e) {
+				Logger.debug("Have exception when copy entity.", e);
+			}
+		} else {
+			Logger.debug("In MoreTable, can not copy entity with JdkSerializer. Maybe, some fields define in annotion subField of entity will be auto set!");
+		}
+		return entity;
+	}
+
 	@Override
 	public <T> int insert(T entity) {
 		// 是否需要事务？不需要，事务由上一层负责.
-//		int a=0;
+
+		if (entity == null) return FAIL_RETURN_NUM;
+		entity = copyEntityIfCan(entity);
+
 		try {
 			HoneyContext1.set(LocalType.MORETABLE_INSERT, StringConst.MoreTableInsertDoing, StringConst.tRue);
 
@@ -269,6 +291,9 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 		// 是否需要事务？不需要，事务由上一层负责.
 
 		// 解析前，拦截器？？ todo
+		
+		if (entity == null) return FAIL_RETURN_NUM;
+		entity = copyEntityIfCan(entity);
 
 		return modify3(entity, SuidType.UPDATE);
 	}
@@ -276,6 +301,10 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 	@Override
 	public <T> int delete(T entity) {
 		// 是否需要事务？不需要，事务由上一层负责.
+		
+		if (entity == null) return FAIL_RETURN_NUM;
+		entity = copyEntityIfCan(entity);
+		
 		return modify3(entity, SuidType.DELETE);
 	}
 
@@ -289,18 +318,18 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 
 		String type = "";
 		if (SuidType.INSERT == suidType) {
-			type = "insert";
+			type = INSERT;
 		} else if (SuidType.DELETE == suidType) {
-			type = "delete";
+			type = DELETE;
 		} else if (SuidType.UPDATE == suidType) {
-			type = "update";
+			type = UPDATE;
 		}
 
 		Map<String, MoreTableStruct3> moreTableStructMap = ParseSqlHelper.parseJoins(entity, SuidType.MODIFY);
 		if (moreTableStructMap == null || moreTableStructMap.isEmpty())
-			throw new BeeException("Entity for MoreTable operate must have JoinTable setting!");
+			throw new BeeException("Entity for MoreTable operate must have JoinTable or FK setting!");
 
-		// TODO 检查 但有可能主键是在SuidRich时还自动添加的。
+		// 检查 但有可能主键是在SuidRich时还自动添加的。
 		// 1. process main entity
 		int mainAffectNum = modifyOneEntity3(entity, suidType, null);
 
@@ -316,6 +345,10 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 		MoreTableStruct3 moreTableStruct;
 		Object lastLayerObject = null;
 		int lastNullLayer = -1;
+		int oldLayer = 2;
+
+		Map<Class<?>, Object> subObjectCache = new HashMap<>();
+
 		for (Entry<String, MoreTableStruct3> entry : moreTableStructMap.entrySet()) {
 			moreTableStruct = entry.getValue();
 
@@ -328,7 +361,10 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 				lastNullLayer = moreTableStruct.layer;
 				continue;
 			}
-			
+
+			Class<?> subClass = moreTableStruct.subClass;
+			subObjectCache.put(subClass, subObject);
+
 			lastNullLayer = -1; // 有值,重新设置为-1
 
 			String[] mainFields = moreTableStruct.mainFields;
@@ -338,7 +374,7 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 			// checkFieldName
 			String mainColumn;
 			String subColumn;
-			Class<?> subClass = moreTableStruct.subClass;
+//			Class<?> subClass = moreTableStruct.subClass;
 			List<Class<?>> typeTree = moreTableStruct.typeTree;
 			for (int i = 0; i < mainFields.length; i++) {
 				mainColumn = toColumnName(mainFields[i], typeTree.get(moreTableStruct.layer - 2));
@@ -355,15 +391,21 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 					if (mainFields.length == 1) { // cache main entity only one key field.
 						mainField1Cache = lastLayerObject.getClass().getDeclaredField(mainFields[0]);
 					}
+				} else {
+					if (!(layer > oldLayer)) {
+						// adjust lastLayerObject
+						lastLayerObject = subObjectCache.get(typeTree.get(moreTableStruct.layer - 2 - 1));
+					}
+					oldLayer = layer;
 				}
 
 				if (!moreTableStruct.currentIsList) {// single object
 					// set foreign key in sub entity with main table key
 					boolean isSuperFieldNullValue = fillSubFieldWithSuperField(mainFields, subFields, layer,
-							lastLayerObject, subObject, mainField1Cache);
+							lastLayerObject, subObject, mainField1Cache, suidType);
 					if (isSuperFieldNullValue) {
 						lastNullLayer = moreTableStruct.layer;
-						continue; //todo 要是写错字段名；在这回提前返回
+						continue; // todo 要是写错字段名；在这回提前返回
 					}
 
 					int subAffect = modifyOneEntity3(subObject, suidType, subFields);
@@ -376,26 +418,26 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 
 					for (int i = 0; i < subListObject.size(); i++) {
 						boolean isSuperFieldNullValueI = fillSubFieldWithSuperField(mainFields, subFields, layer,
-								lastLayerObject, subListObject.get(i), mainField1Cache);
+								lastLayerObject, subListObject.get(i), mainField1Cache, suidType);
 						if (isSuperFieldNullValueI) nullValueArray[i] = 1;
 						isSuperFieldNullValue = isSuperFieldNullValue || isSuperFieldNullValueI;
 					}
 
 					int subAffect = 0;
 					if (SuidType.INSERT == suidType) {
-						//批量插入方式, 影响将自动生成的id保存起来
+						// 批量插入方式, 影响将自动生成的id保存起来
 //						if (!isSuperFieldNullValue) { // 上层主键值没有为空的，就一次将整个list插入
 //							subAffect = getSuidRich().insert(subListObject); // insert list   TODO 批量插入,可能和Sharding冲突; 要考虑将生成的id数组存起来
 //						} else {
-							for (int k = 0; k < subListObject.size(); k++)
-								if (nullValueArray[k] == 1) {
-									// 上层主键值是空,即子表没有设置外键值时就不执行(也不会往下层执行)
-									continue;
-								} else {
-									subAffect = getSuidRich().insert(subListObject.get(k));
-									Logger.logSQL(type + " sub entity:" + subObject.getClass().getName()
-											+ ", Affected rows: " + subAffect);
-								}
+						for (int k = 0; k < subListObject.size(); k++)
+							if (nullValueArray[k] == 1) {
+								// 上层主键值是空,即子表没有设置外键值时就不执行(也不会往下层执行)
+								continue;
+							} else {
+								subAffect = getSuidRich().insert(subListObject.get(k));
+								Logger.logSQL(type + " sub entity:" + subObject.getClass().getName() + ", Affected rows: "
+										+ subAffect);
+							}
 //						}
 					} else if (SuidType.DELETE == suidType) {
 						for (int k = 0; k < subListObject.size(); k++) {
@@ -431,7 +473,7 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 				Logger.warn("Have exception when " + type + " sub entity!");
 			}
 			lastLayerObject = subObject;
-			//list 的下一层,只处理了list.get(0)对应的子表 TODO
+			// list 的下一层,只处理了list.get(0)对应的子表 TODO
 		}
 		return mainAffectNum;
 	}
@@ -461,36 +503,31 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 		return affectNum;
 	}
 
-//	private boolean checkMainFields(String[] mainFields, String[] subFields, int layer,
-//			Object lastLayerObject, Object subObject, Field mainField1Cache) throws NoSuchFieldException, IllegalAccessException {
-//		// need set
-//		return checkAndFillSubFieldWithSuperField(mainFields, subFields, layer, lastLayerObject, subObject, mainField1Cache, false);
-//	}
-
 	// return the flag is SuperField Null Value or not
 	private boolean fillSubFieldWithSuperField(String[] mainFields, String[] subFields, int layer, Object lastLayerObject,
-			Object subObject, Field mainField1Cache) throws NoSuchFieldException, IllegalAccessException {
+			Object subObject, Field mainField1Cache, SuidType suidType)
+			throws NoSuchFieldException, IllegalAccessException {
 		// need set
 		return checkAndFillSubFieldWithSuperField(mainFields, subFields, layer, lastLayerObject, subObject,
-				mainField1Cache, true);
+				mainField1Cache, true, suidType);
 	}
 
 	private boolean checkAndFillSubFieldWithSuperField(String[] mainFields, String[] subFields, int layer,
-			Object lastLayerObject, Object subObject, Field mainField1Cache, boolean isNeedSet)
+			Object lastLayerObject, Object subObject, Field mainField1Cache, boolean isNeedSet, SuidType suidType)
 			throws NoSuchFieldException, IllegalAccessException {
 
 		Field mainField = null; // in last layer
 		Field subField = null;
-		
-//		System.err.println("key 66:"+StringConst.MoreTableInsertInitIdByAuto + lastLayerObject.getClass().getName());
-		Map<String, Object> pkValueMap = (Map)HoneyContext1.get(LocalType.MORETABLE_INSERT, StringConst.MoreTableInsertInitIdByAuto + lastLayerObject.getClass().getName());
-//		System.out.println("----------------------::"+pkValueMap);
-//		Map<String, Object> pkValueMap = new HashMap<>();
-		
+
+		Map<String, Object> pkValueMap = null;
+		if (suidType == SuidType.INSERT) {
+			pkValueMap = (Map) HoneyContext1.get(LocalType.MORETABLE_INSERT,
+					StringConst.MoreTableInsertInitIdByAuto + lastLayerObject.getClass().getName());
+		}
 		for (int i = 0; i < mainFields.length; i++) {
 			Object mainFieldValue;
-			//use auto gen id
-			if (pkValueMap != null && pkValueMap.containsKey(mainFields[i])) { //auto gen
+			// use auto gen id
+			if (pkValueMap != null && pkValueMap.containsKey(mainFields[i])) { // auto gen
 				mainFieldValue = pkValueMap.get(mainFields[i]);
 			} else {
 				if (layer == 2 && mainField1Cache != null) {
@@ -501,7 +538,7 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 				HoneyUtil.setAccessibleTrue(mainField);
 				mainFieldValue = HoneyUtil.getValue(mainField, lastLayerObject);
 			}
-			
+
 			Object subFieldValeu = null;
 			if (subObject != null) {
 				subField = subObject.getClass().getDeclaredField(subFields[i]);
@@ -520,13 +557,13 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 						Logger.info("The value of " + subFields[i] + " value is not equal " + mainFields[i]
 								+ ". Will override " + subFields[i] + " with " + mainFields[i]);
 					}
-					HoneyUtil.setFieldValue(subField, subObject, mainFieldValue); //TODO 设置了值,如何还原??
+					HoneyUtil.setFieldValue(subField, subObject, mainFieldValue); // TODO 设置了值,如何还原??
 				}
 			}
 		}
 		return false;
 	}
-	
+
 	@SuppressWarnings("rawtypes")
 	private static String toColumnName(String fieldName, Class entityClass) {
 		return HoneyUtil.toColumnName(fieldName, entityClass);

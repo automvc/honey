@@ -1622,6 +1622,22 @@ public final class HoneyUtil {
 		}
 	}
 
+	@SuppressWarnings("rawtypes")
+	public static boolean isSerial(Object rs) {
+		if (rs instanceof List) {
+			try {
+				List list = (List) rs;
+				if (list != null && list.size() > 0 && list.get(0) != null) {
+					return Serializable.class.isAssignableFrom(list.get(0).getClass());
+				}
+			} catch (Exception e) {
+				Logger.debug(e.getMessage(), e);
+			}
+		}
+
+		return Serializable.class.isAssignableFrom(rs.getClass());
+	}
+
 //	// 专门用于Bee框架输出SQL日志.
 //	static void logSQL(String hardStr) {
 ////		LogSqlParse.logSQL(hardStr);
