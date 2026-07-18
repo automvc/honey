@@ -6,7 +6,6 @@
 
 package org.teasoft.honey.osql.core;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -280,9 +279,12 @@ public final class CacheUtil {
 				if (isSerial) { // 实体有实现Serializable接口
 					Serializer jdks = new JdkSerializer();
 					Object rsNew = jdks.unserialize(jdks.serialize(rs));
-					if (rs instanceof String) rs = (String) rsNew;
-					else if (rs instanceof List) rs = (List) rsNew;
-					else rs = rsNew;
+					if (rs instanceof String)
+						rs = (String) rsNew;
+					else if (rs instanceof List)
+						rs = (List) rsNew;
+					else
+						rs = rsNew;
 				}
 
 			} catch (Exception e) { // NotSerializableException
@@ -644,5 +646,5 @@ public final class CacheUtil {
 	private static boolean isSerial(Object rs) {
 		return HoneyUtil.isSerial(rs);
 	}
-	
+
 }

@@ -59,12 +59,13 @@ public final class CacheKey {
 			strBuf.append("DataSourceName:");
 			strBuf.append(ds);
 			strBuf.append(SEPARATOR);
-		}else { //排除RW   V2.5.2
+		} else { // 排除RW V2.5.2
 //		else if(HoneyConfig.getHoneyConfig().differentDbEachTime) {
 //			strBuf.append("differentDbEachTime:");
-		//默认就添加,防止cache错误.  每次只用一个DB,但动态切换也不会错.
+			// 默认就添加,防止cache错误. 每次只用一个DB,但动态切换也不会错.
 			strBuf.append("Db-Username/pw-EachTime:");
-			strBuf.append((HoneyConfig.getHoneyConfig().getUrl() + HoneyConfig.getHoneyConfig().getUsername()).hashCode());
+			strBuf.append(
+					(HoneyConfig.getHoneyConfig().getUrl() + HoneyConfig.getHoneyConfig().getUsername()).hashCode());
 			strBuf.append(SEPARATOR);
 		}
 

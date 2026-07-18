@@ -211,7 +211,7 @@ public class CallableSqlLib extends AbstractCommOperate implements CallableSql {
 	}
 
 	private void logSelectRows(int size) {
-		Logger.logSQL(" | <--  select rows: "+ size);
+		Logger.logSQL(" | <--  select rows: " + size);
 	}
 
 	private String getCallSql(String callSql) {
@@ -284,5 +284,5 @@ public class CallableSqlLib extends AbstractCommOperate implements CallableSql {
 	private static boolean isShowSQL() {
 		return HoneyConfig.getHoneyConfig().showSQL;
 	}
-	
+
 }

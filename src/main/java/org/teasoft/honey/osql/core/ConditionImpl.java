@@ -58,8 +58,7 @@ public class ConditionImpl implements Condition {
 	private boolean isStartGroupBy = true;
 	private boolean isStartHaving = true;
 	private boolean isStartOrderBy = true;
-	private boolean isDoNotRewritePagingSql = false; //TODO
-	
+	private boolean isDoNotRewritePagingSql = false;
 
 	private static final String COMMA = ",";
 
@@ -103,7 +102,7 @@ public class ConditionImpl implements Condition {
 		this.whereField.add(field);
 		return this;
 	}
-	
+
 	private OpType getOpRealType(Op op) {
 		OpType opType;
 		if (op == Op.like || op == Op.likeLeft || op == Op.likeRight || op == Op.likeLeftRight || op == Op.notLike) {
@@ -314,9 +313,9 @@ public class ConditionImpl implements Condition {
 
 		if (isStartOrderBy) {
 			isStartOrderBy = false;
-			exp.setValue( " " + K.orderBy + " ");
+			exp.setValue(" " + K.orderBy + " ");
 		} else {
-			exp.setValue( COMMA);
+			exp.setValue(COMMA);
 		}
 		list.add(exp);
 		return this;
@@ -328,16 +327,16 @@ public class ConditionImpl implements Condition {
 		orderByMap.put(functionType.getName() + "(" + field + ")", orderType.getName());// V1.17
 		Expression exp = new Expression();
 		exp.setOpType(OpType.ORDER_BY4);
-		exp.setFieldName( field);
+		exp.setFieldName(field);
 		exp.setValue2(orderType.getName());
 		exp.setValue3(functionType.getName());
 //		exp.opNum = 4;
 
 		if (isStartOrderBy) {
 			isStartOrderBy = false;
-			exp.setValue( " " + K.orderBy + " ");
+			exp.setValue(" " + K.orderBy + " ");
 		} else {
-			exp.setValue( COMMA);
+			exp.setValue(COMMA);
 		}
 		list.add(exp);
 		return this;
@@ -413,7 +412,7 @@ public class ConditionImpl implements Condition {
 		return size;
 	}
 
-    ///===================== update set  =============================
+	/// ===================== update set =============================
 	@Override
 	public Condition setAdd(String field, Number num) { // for field self
 		return forUpdateSet(field, num, OpType.SET_ADD);
@@ -456,8 +455,10 @@ public class ConditionImpl implements Condition {
 
 	@Override
 	public Condition selectField(String... fieldList) {
-		if (fieldList != null && fieldList.length == 1) checkField(fieldList[0]);
-		else checkField(StringUtils.toCommasString(fieldList));
+		if (fieldList != null && fieldList.length == 1)
+			checkField(fieldList[0]);
+		else
+			checkField(StringUtils.toCommasString(fieldList));
 
 		this.selectField = fieldList;
 		return this;
@@ -481,7 +482,7 @@ public class ConditionImpl implements Condition {
 	public String[] getSelectField() {
 //		return this.selectField;
 
-		final String[] selectField0 = this.selectField; //TODO ai?
+		final String[] selectField0 = this.selectField; // TODO ai?
 		return selectField0;
 	}
 
@@ -580,8 +581,10 @@ public class ConditionImpl implements Condition {
 //		return groupByFields;
 
 		final List<String> list;
-		if (groupByFields == null) list = null;
-		else list = new ArrayList<>(groupByFields);
+		if (groupByFields == null)
+			list = null;
+		else
+			list = new ArrayList<>(groupByFields);
 		return list;
 	}
 
@@ -600,14 +603,14 @@ public class ConditionImpl implements Condition {
 	public Map<String, String> getOrderBy() {
 		return orderByMap;
 	}
-	
+
 	@Override
 	public Condition doNotRewritePagingSql(boolean doNotRewrite) {
 		this.isDoNotRewritePagingSql = doNotRewrite;
 		return this;
 	}
-	
-	//3.0
+
+	// 3.0
 	public boolean isDoNotRewritePagingSql() {
 		return this.isDoNotRewritePagingSql;
 	}

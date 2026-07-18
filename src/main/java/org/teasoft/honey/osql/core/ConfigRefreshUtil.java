@@ -18,13 +18,13 @@ import org.teasoft.honey.util.StringUtils;
  * @since  2.5.2
  */
 public class ConfigRefreshUtil {
-	
+
 	private static boolean isSharding() {
 		return HoneyConfig.getHoneyConfig().multiDS_enable && HoneyConfig.getHoneyConfig().getMultiDsSharding();
 	}
-	
+
 	static void prcessShardingRuleInProperties() {
-		
+
 		Map<String, Map<String, String>> shardingMap = HoneyConfig.getHoneyConfig().getSharding();
 
 		if (shardingMap == null || shardingMap.isEmpty()) return;

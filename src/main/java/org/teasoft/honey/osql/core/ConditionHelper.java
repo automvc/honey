@@ -50,11 +50,11 @@ public class ConditionHelper {
 
 	// ForUpdate
 	static boolean processConditionForUpdateSet(StringBuffer sqlBuffer, List<PreparedValue> list, Condition condition) {
-		UpdateSetConditionWrap wrap= processUpdateSetCondition(condition, true);
-		
+		UpdateSetConditionWrap wrap = processUpdateSetCondition(condition, true);
+
 		sqlBuffer.append(wrap.getSqlBuffer());
-		list.addAll((List)wrap.getPvList());
-		
+		list.addAll((List) wrap.getPvList());
+
 		return wrap.isFirst();
 	}
 
@@ -64,7 +64,7 @@ public class ConditionHelper {
 //	}
 
 	static UpdateSetConditionWrap processUpdateSetCondition(Condition condition, boolean firstSet) {
-		
+
 		StringBuffer sqlBuffer = new StringBuffer();
 		List<PreparedValue> list = new ArrayList<>();
 
@@ -86,13 +86,13 @@ public class ConditionHelper {
 		Object value;
 
 		for (Expression expression : updateSetList) {
-			
+
 			if (firstSet) {
 				firstSet = false;
 			} else {
 				sqlBuffer.append(",");
 			}
-			
+
 			opType = expression.getOpType();
 			value = expression.getValue();
 			columnName = _toColumnName(expression.getFieldName(), null, entityClass);
@@ -323,7 +323,7 @@ public class ConditionHelper {
 		struct.setOrderColumn(pkName);
 		// 保存struct
 //		HoneyContext.setSqlServerPagingStruct(sqlBuffer.toString(), struct); // 作为key的sql不是最终sql;因此处理后,一般就要先分页
-		HoneyContext1.set(SqlServerPagingStruct.class.getName()+ sqlBuffer.toString(), struct); // 作为key的sql不是最终sql;因此处理后,一般就要先分页
+		HoneyContext1.set(SqlServerPagingStruct.class.getName() + sqlBuffer.toString(), struct); // 作为key的sql不是最终sql;因此处理后,一般就要先分页
 	}
 
 	static String processSelectField(String columnNames, Condition condition) {
@@ -345,7 +345,7 @@ public class ConditionHelper {
 
 		return HoneyUtil.checkAndProcessSelectFieldViaString(columnNames, subDulFieldMap, selectField);
 	}
-	
+
 	public static String processFunction(String columnNames, Condition condition) {
 		return processFunction(columnNames, condition, null);
 	}
@@ -384,7 +384,7 @@ public class ConditionHelper {
 //			}
 
 		}
-		
+
 		boolean isConfuseDuplicateFieldDB = isConfuseDuplicateFieldDB();
 		boolean hasAvg = false;
 //		int adjust=0;
@@ -415,7 +415,7 @@ public class ConditionHelper {
 				String newAlias = alias;
 				// isConfuseDuplicateFieldDB用原来的,取名时应该取不有重名的
 				if (!isConfuseDuplicateFieldDB && StringUtils.isNotBlank(mainTable) && !alias.contains(".")) {
-					newAlias = "'"+mainTable + "." + alias+"'"; //mysql ok
+					newAlias = "'" + mainTable + "." + alias + "'"; // mysql ok
 				}
 				if (isSQLite()) {
 					funStr += " " + K.as + " " + newAlias;
@@ -432,7 +432,7 @@ public class ConditionHelper {
 				if (!hasAvg && FunctionType.AVG.getName().equalsIgnoreCase(functionTypeName)) {
 					hasAvg = true;
 //					adjust++;
-					//todo 一样也要改
+					// todo 一样也要改
 //					funStructs[i+adjust] = new FunStruct(funUseName+"_sum_", FunctionType.SUM.getName());
 					funStructs.add(new FunStruct(funUseName + "_sum_", FunctionType.SUM.getName()));
 //					adjust++;
@@ -454,11 +454,11 @@ public class ConditionHelper {
 
 		return funStr;
 	}
-	
+
 	private static boolean isSQLite() {
 		return HoneyUtil.isSQLite();
 	}
-	
+
 	private static boolean isConfuseDuplicateFieldDB() {
 		return HoneyUtil.isConfuseDuplicateFieldDB();
 	}
@@ -519,7 +519,7 @@ public class ConditionHelper {
 		return _toColumnName(fieldName, entityClass);
 	}
 
-   static boolean adjustAnd(StringBuffer sqlBuffer, boolean isNeedAnd) {
+	static boolean adjustAnd(StringBuffer sqlBuffer, boolean isNeedAnd) {
 		if (isNeedAnd) {
 			sqlBuffer.append(" " + K.and + " ");
 			isNeedAnd = false;
@@ -599,9 +599,10 @@ public class ConditionHelper {
 			}
 		});
 	}
-	
-	static WhereConditionWrap _processWhereCondition(Condition condition, boolean firstWhere, OneMethod1<String> toColumnName) {
-		
+
+	static WhereConditionWrap _processWhereCondition(Condition condition, boolean firstWhere,
+			OneMethod1<String> toColumnName) {
+
 		if (condition == null) return null;
 
 		StringBuffer sqlBuffer = new StringBuffer();
@@ -630,10 +631,10 @@ public class ConditionHelper {
 			opType = expression.getOpType();
 			op = expression.getOp();
 			value = expression.getValue();
-			
-			//多表查询是另一种; 所以用doOneMethod传入
+
+			// 多表查询是另一种; 所以用doOneMethod传入
 //			columnName = _toColumnName(expression.getFieldName(), useSubTableNames, entityClass);
-			
+
 			fieldName = expression.getFieldName();
 			if (fieldName != null) columnName = toColumnName.doOneMethod(fieldName.trim());
 
@@ -690,7 +691,7 @@ public class ConditionHelper {
 
 				isNeedAnd = true;
 			} else if (OpType.OP2 == opType) {
-				isNeedAnd = adjustAnd(sqlBuffer, isNeedAnd); //fix bug  V2.5.2.7
+				isNeedAnd = adjustAnd(sqlBuffer, isNeedAnd); // fix bug V2.5.2.7
 				if (value == null) {
 					sqlBuffer.append(columnName);
 					if ("=".equals(operator)) {
@@ -927,13 +928,13 @@ class ConditionWrap {
 	public void setFirst(boolean isFirst) {
 		this.isFirst = isFirst;
 	}
-	
+
 	public String toString() {
-		StringBuffer sbu=new StringBuffer();
+		StringBuffer sbu = new StringBuffer();
 		sbu.append("sql: ").append(sqlBuffer.toString()).append("\n");
 		sbu.append("pvList:  ");
 		for (Object pv : pvList) {
-			sbu.append( ((PreparedValue)pv).getValue().toString()).append("  ");
+			sbu.append(((PreparedValue) pv).getValue().toString()).append("  ");
 		}
 		return sbu.toString();
 	}
