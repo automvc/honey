@@ -3,8 +3,8 @@ Bee
 =========
 ## 好消息:  
 **ORM Bee除了ORM功能, 还有完善的分库分表(Sharding分片), 完善的MongoDB ORM功能。**  
-当前**最新**版本为:**V2.5.10 LTS版**(只有935k)  
-旧版1.17.x LTS版为:**1.17.25**  
+当前**最新**版本为:**V3.0.0 LTS版**(只有935k)  
+旧版2.5.x LTS版为:**2.5.10**  
 
 Sharding分片:对业务开发透明,编码透明,只加少量分片配置即可实现分片功能.  
 #### [快速开始:Shardign最佳实践参考实例](guide/Quick-start-Sharding_CN.md) 
@@ -35,6 +35,29 @@ Bee2.2 + Spring boot3.0.13对应版本**2.2.boot3.0.13 需要JDK17**
 [主要功能介绍](../../../bee/blob/master/main-feature.md)  
 
 ## 最新功能简介: 
+
+### **V3.0.0(3.x·LTS版)**  
+1. 多表查询 (一对一关联)  
+2. 多表查询支持 (多对一)  
+3. 多表查询支持 (一对多)  
+4. 多表查询支持 Condition 参数  
+5. 多表查询支持分页  
+6. 多表查询，精确分页  
+7. 支持分库分表  
+8. 多表关联支持update/insert/delete  
+9.update @JoinTable, @FK  
+update @JoinTable:  
+subClass="Student"  
+->
+subClass=Student.class  
+  
+update @FK:  
+@FK(refBy="id", value="classno")  
+->  
+@FK(mainField="id", subField="classno")  
+  
+value -> subField  
+10.  
 
 ### **V2.5.10(2.5.x·LTS版)**  
 1. 增强功能:  
@@ -81,17 +104,6 @@ minSqlExecuteTime = 5;   //ms
 bee.osql.naming.allowKeyWordInColumn=true  
 若Bee还未包括某些关键字,还可以通过以下项追加  
 bee.osql.naming.sqlKeyWordInColumn  
-
-
-### **V2.4.2(2024.冬至·LTS版)**  
-1. GenFiles增加genFileViaStream,支持读取jar里的配置文件  
-2. Genbean:更新方法genFieldFile,toString, 添加方法setUpperFieldNameInFieldFile用于指定变量大小写风格 
-3. 更新DoNotSetTabShadngValue提示信息(分片插入需要设置分片键的值)  
-4. SuidRich selectById,deleteById支持sharding  
-5. Condition支持clone  
-6. fixed bug:  
-sharding select all(no paging)  
-sharding modify cache  
 
 ## [详细完整功能介绍](../../../bee/blob/master/Changed_Log_CN.md)  
 [点击链接可查看  详细完整功能介绍](../../../bee/blob/master/Changed_Log_CN.md)  
@@ -439,6 +451,12 @@ public class SuidExam {
 
 ```
 
+多表关联查询;
+
+多表关联update/insert/delete
+
+Sharding
+
 ## 6.操作视频:    
 <img src="guide/bee-quick-start-2.0.gif"  width="840" height="420">  
 
@@ -497,7 +515,7 @@ public class SuidExam {
 =========	
 ### API-DOC  
 API-V1.17      下载代码含有 bee-1.17中文和英文版API,bee-1.17中文版源码  
-API-V2.5.2(最新版) 下载代码含有 bee-2.5.2英文版API  
+API-V2.5.2 下载代码含有 bee-2.5.2英文版API  
 
 ### 使用文档
 [wiki 文档](../../../bee/wikis)  
