@@ -83,15 +83,26 @@ class MoreTableStruct3 {
 		if (mainFields.length == 1 && mainFields[0] != null && mainFields[0].contains(",")) {
 			mainFields = mainFields[0].split(",");
 			StringUtils.trim(mainFields);
+		} else {
+//			support: @JoinTable(mainField = " ", subField = " ", joinType = JoinType.WHERE, subAlias = "y", mainAlias = "x")
+			if (mainFields.length == 1 && mainFields[0] != null && "".equals(mainFields[0].trim())) {
+				mainFields = new String[0];
+			}
 		}
+		
 		if (subFields.length == 1 && subFields[0] != null && subFields[0].contains(",")) {
 			subFields = subFields[0].split(",");
 			StringUtils.trim(subFields);
+		} else {
+			if (subFields.length == 1 && subFields[0] != null && "".equals(subFields[0].trim())) {
+				subFields = new String[0];
+			}
 		}
 
 		if (mainFields.length != subFields.length) {
 			throw new ConfigWrongException("the length of mainField and subField are not equal.");
 		}
+
 		checkFields(mainFields);
 		checkFields(subFields);
 
@@ -161,7 +172,7 @@ class MoreTableStruct3 {
 
 	private void checkFields(String str[]) {
 		for (String t : str) {
-			if ("".equals(t)) return;
+			if ("".equals(t.trim())) return;
 			NameCheckUtil.checkName(t);
 		}
 	}

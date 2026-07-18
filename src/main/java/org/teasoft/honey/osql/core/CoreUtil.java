@@ -13,8 +13,9 @@ import java.lang.reflect.Field;
  * @since  2.5.2
  */
 public class CoreUtil {
-	
+
 	public static void setFieldValue(Field field, Object targetObj, Object value) throws IllegalAccessException {
+		// 会报其它异常吗？ 会报IllegalAccessException, 由上层处理.
 		field.set(targetObj, value); // NOSONAR
 	}
 

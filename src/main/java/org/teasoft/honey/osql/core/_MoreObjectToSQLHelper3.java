@@ -233,7 +233,7 @@ class _MoreObjectToSQLHelper3 {
 				subColumn = toColumnName(subFields[i], subClass);
 				ParseSqlHelper.checkFieldName(subColumn, subClass, subFields[i]);
 
-				joinExp.append(mainAlias).append(DOT).append(mainColumn) // TODO main class??
+				joinExp.append(mainAlias).append(DOT).append(mainColumn)
 						.append(EQUAL).append(subAlias).append(DOT).append(subColumn);
 			}
 
@@ -262,7 +262,7 @@ class _MoreObjectToSQLHelper3 {
 				else
 					joinPart.append(joinType.getType());
 
-				joinPart.append(ShardingUtil.appendTableIndexIfNeed(subTableName)).append(ONE_SPACE); // TODO
+				joinPart.append(ShardingUtil.appendTableIndexIfNeed(subTableName)).append(ONE_SPACE);
 //				if (!subAlias.equalsIgnoreCase(subTableName)) {
 				joinPart.append(subAlias).append(ONE_SPACE);
 //				}
