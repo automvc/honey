@@ -515,7 +515,8 @@ public class ObjectToSQLRich extends ObjectToSQL implements ObjToSQLRich {
 		SqlValueWrap wrap = new SqlValueWrap();
 
 		String tableName = _toTableNameByClass(c);
-		sqlBuffer.append(K.delete).append(" ").append(K.from).append(" ").append(tableName).append(" ").append(K.where).append(" ");
+		sqlBuffer.append(K.delete).append(" ").append(K.from).append(" ").append(tableName).append(" ").append(K.where)
+				.append(" ");
 		wrap.setValueBuffer(sqlBuffer); // sqlBuffer
 		wrap.setTableNames(tableName);
 

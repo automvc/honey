@@ -24,8 +24,8 @@ public class MoreTableHelper {
 				tablePart = _toColumnName(tablePart, null); // fixed 3.0.0; transfer entity name -> table name
 				MoreTableStruct3 moreTableStruct = moreTableStructMap.get(tablePart);
 				if (moreTableStruct == null) {
-					throw new BeeException("Can not found the MoreTableStruct with " + tablePart
-							+ " via fieldName: " + fieldName + " , please check the Condition you use!");
+					throw new BeeException("Can not found the MoreTableStruct with " + tablePart + " via fieldName: "
+							+ fieldName + " , please check the Condition you use!");
 //					return null;
 				}
 				columnName = tablePart + "." + _toColumnName(namePart, moreTableStruct.subClass);

@@ -16,8 +16,7 @@ public class MoreTableStructOverall {
 	}
 
 	public void setHasAnySubListEntity(boolean isSubListEntity) {
-		if (!this.hasAnySubListEntity)
-			this.hasAnySubListEntity = isSubListEntity;
+		if (!this.hasAnySubListEntity) this.hasAnySubListEntity = isSubListEntity;
 	}
 
 }

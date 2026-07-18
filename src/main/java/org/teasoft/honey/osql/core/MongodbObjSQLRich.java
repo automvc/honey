@@ -593,7 +593,8 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 		Condition condition = BF.getCondition();
 		if (entityClass.equals(String.class) && idOrIds.toString().contains(","))
 			condition.op(HoneyUtil.getPkName(entityClass), Op.in, idOrIds);
-		else condition.op(HoneyUtil.getPkName(entityClass), Op.eq, idOrIds);
+		else
+			condition.op(HoneyUtil.getPkName(entityClass), Op.eq, idOrIds);
 		regConditionForSharding(condition);
 	}
 
@@ -787,8 +788,10 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 		Object id = HoneyUtil.getIdValue(entity);
 		if (id == null) return insert(entity);
 		Object one = selectById(entity.getClass(), id.toString());
-		if (one != null) return update(entity);
-		else return insert(entity);
+		if (one != null)
+			return update(entity);
+		else
+			return insert(entity);
 	}
 
 	@Override

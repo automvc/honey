@@ -35,8 +35,7 @@ class MoreTableStruct3 {
 
 	MoreTableStructOverall overall = null; // just the first element have it.
 
-	MoreTableStruct3() {
-	}
+	MoreTableStruct3() {}
 
 	MoreTableStruct3(Field joinField, Object entity, int layer, List<String> parentTree, SuidType suidType) {
 		JoinTable joinTable = joinField.getAnnotation(JoinTable.class);

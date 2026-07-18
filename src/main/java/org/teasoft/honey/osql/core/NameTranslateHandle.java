@@ -122,8 +122,7 @@ public class NameTranslateHandle {
 
 		String tableName = _toTableName(entityName);
 
-		if (ShardingUtil.isSharding() && ShardingRegistry.isBroadcastTab(tableName)) 
-			return tableName;
+		if (ShardingUtil.isSharding() && ShardingRegistry.isBroadcastTab(tableName)) return tableName;
 
 //		if(ShardingUtil.hadSharding()) { //close 2.4.0.8
 //			return tableName+StringConst.ShardingTableIndexStr;
@@ -131,9 +130,8 @@ public class NameTranslateHandle {
 
 		if (tableName.indexOf('.') == -1) {
 			if (StringUtils.isNotBlank(getSchemaNameLocal()))
-				tableName = getSchemaNameLocal() + "." + tableName; //V1.11
-			else if (StringUtils.isNotBlank(getSchemaName())) 
-				tableName = getSchemaName() + "." + tableName; //V1.11
+				tableName = getSchemaNameLocal() + "." + tableName; // V1.11
+			else if (StringUtils.isNotBlank(getSchemaName())) tableName = getSchemaName() + "." + tableName; // V1.11
 		}
 		return tableName;
 	}
@@ -212,7 +210,7 @@ public class NameTranslateHandle {
 	public static String toColumnName(String fieldName) {
 		return getNameTranslate().toColumnName(fieldName);
 	}
-	
+
 	static String toTableNameSimple(String name) {
 		return getNameTranslate().toTableName(name);
 	}

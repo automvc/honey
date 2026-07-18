@@ -265,7 +265,8 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 				Logger.debug("Have exception when copy entity.", e);
 			}
 		} else {
-			Logger.debug("In MoreTable, can not copy entity with JdkSerializer. Maybe, some fields define in annotion subField of entity will be auto set!");
+			Logger.debug(
+					"In MoreTable, can not copy entity with JdkSerializer. Maybe, some fields define in annotion subField of entity will be auto set!");
 		}
 		return entity;
 	}
@@ -291,7 +292,7 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 		// 是否需要事务？不需要，事务由上一层负责.
 
 		// 解析前，拦截器？？ todo
-		
+
 		if (entity == null) return FAIL_RETURN_NUM;
 		entity = copyEntityIfCan(entity);
 
@@ -301,10 +302,10 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 	@Override
 	public <T> int delete(T entity) {
 		// 是否需要事务？不需要，事务由上一层负责.
-		
+
 		if (entity == null) return FAIL_RETURN_NUM;
 		entity = copyEntityIfCan(entity);
-		
+
 		return modify3(entity, SuidType.DELETE);
 	}
 

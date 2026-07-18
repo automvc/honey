@@ -276,7 +276,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 					Logger.warn(e.getMessage(), e);
 				} finally {
 //					HoneyContext.removeSysCommStrInheritableLocal(StringConst.ShardingBatchInsertDoing);
-					HoneyContext1.removeInheritable(LocalType.SHARDING, StringConst.ShardingBatchInsertDoing); //clearContext也会执行。
+					HoneyContext1.removeInheritable(LocalType.SHARDING, StringConst.ShardingBatchInsertDoing); // clearContext也会执行。
 				}
 			}
 
@@ -614,7 +614,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 			String sql = getObjToSQLRich().toSelectSQL(entity, selectField);
 			_regEntityClass1(entity);
 			sql = doAfterCompleteSql(sql);
-			//打印重了
+			// 打印重了
 //			Logger.logSQL(LogSqlParse.parseSql("selectJson SQL(entity, selectField): ", sql));
 			json = getBeeSql().selectJson(sql);
 		} finally {
@@ -795,9 +795,9 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 	}
 
 	private void regByIdForSharding(Class<?> entityClass, Object idOrIds) {
-		
+
 		if (!ShardingUtil.isSharding()) return;// fixed bug. v2.5.10
-		
+
 		// just for shading
 		Condition condition = BF.getCondition();
 		if (entityClass.equals(String.class) && idOrIds.toString().contains(","))

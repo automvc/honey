@@ -241,8 +241,9 @@ public class MapSqlProcessor {
 		}
 
 		// 2.4.0 使用Condition设置update set
-		UpdateSetConditionWrap updateSetWrap = ConditionHelper.processUpdateSetCondition(suidMapImpl.getUpdateSetCondition(), firstSet);
-		
+		UpdateSetConditionWrap updateSetWrap = ConditionHelper
+				.processUpdateSetCondition(suidMapImpl.getUpdateSetCondition(), firstSet);
+
 		if (updateSetWrap != null) {
 			sqlBuffer.append(updateSetWrap.getSqlBuffer());
 			list.addAll((List) updateSetWrap.getPvList());
@@ -383,9 +384,12 @@ public class MapSqlProcessor {
 				newId = GenIdFactory.get(tableName);
 			}
 
-			if (isPrimaryKey) insertKvMap.put(customPkName, newId);
-			else if (isUpper) insertKvMap.put("ID", newId);
-			else insertKvMap.put("id", newId);
+			if (isPrimaryKey)
+				insertKvMap.put(customPkName, newId);
+			else if (isUpper)
+				insertKvMap.put("ID", newId);
+			else
+				insertKvMap.put("id", newId);
 			if (returnId) OneTimeParameter.setAttribute(StringConst.MapSuid_Insert_Has_ID, newId);
 		}
 
@@ -410,16 +414,22 @@ public class MapSqlProcessor {
 		}
 
 		if (pkId != null) {
-			if (oldId == null) insertKvMap.remove(customPkName);
-			else insertKvMap.put(customPkName, oldId);
+			if (oldId == null)
+				insertKvMap.remove(customPkName);
+			else
+				insertKvMap.put(customPkName, oldId);
 		} else if (id != null) {
-			if (oldId == null) insertKvMap.remove("id");
-			else insertKvMap.put("id", oldId);
+			if (oldId == null)
+				insertKvMap.remove("id");
+			else
+				insertKvMap.put("id", oldId);
 		} else {
 			id = insertKvMap.get("ID");
 			if (id != null) {
-				if (oldId == null) insertKvMap.remove("ID");
-				else insertKvMap.put("ID", oldId);
+				if (oldId == null)
+					insertKvMap.remove("ID");
+				else
+					insertKvMap.put("ID", oldId);
 			}
 		}
 	}
@@ -549,8 +559,10 @@ public class MapSqlProcessor {
 			sqlValue.append("?");
 
 			preparedValue = new PreparedValue();
-			if (value == null) preparedValue.setType(Object.class.getSimpleName());
-			else preparedValue.setType(value.getClass().getSimpleName());
+			if (value == null)
+				preparedValue.setType(Object.class.getSimpleName());
+			else
+				preparedValue.setType(value.getClass().getSimpleName());
 			preparedValue.setValue(value);
 			list.add(preparedValue);
 		}
