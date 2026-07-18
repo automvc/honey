@@ -39,21 +39,30 @@ public class SearchProcessor {
 
 //			or("or"),
 //			and("and")	//default
-			if ("or".equalsIgnoreCase(op2)) condition.or();
-			else if ("(".equals(op2)) condition.lParentheses();
-			else if (")".equals(op2)) condition.rParentheses();
-			else if ("or (".equalsIgnoreCase(op2)) condition.or().lParentheses();
-			else if (") or".equalsIgnoreCase(op2)) condition.rParentheses().or();
-			else if ("and (".equalsIgnoreCase(op2)) condition.and().lParentheses();
+			if ("or".equalsIgnoreCase(op2))
+				condition.or();
+			else if ("(".equals(op2))
+				condition.lParentheses();
+			else if (")".equals(op2))
+				condition.rParentheses();
+			else if ("or (".equalsIgnoreCase(op2))
+				condition.or().lParentheses();
+			else if (") or".equalsIgnoreCase(op2))
+				condition.rParentheses().or();
+			else if ("and (".equalsIgnoreCase(op2))
+				condition.and().lParentheses();
 			else if (") and".equalsIgnoreCase(op2)) condition.rParentheses().and();
 
 			if (operator == null) continue;
 
 			switch (operator) {
 				case like:
-					if ("Left".equalsIgnoreCase(value2)) condition.op(field, Op.likeLeft, value);
-					else if ("Right".equalsIgnoreCase(value2)) condition.op(field, Op.likeRight, value);
-					else if ("LeftRight".equalsIgnoreCase(value2)) condition.op(field, Op.likeLeftRight, value);
+					if ("Left".equalsIgnoreCase(value2))
+						condition.op(field, Op.likeLeft, value);
+					else if ("Right".equalsIgnoreCase(value2))
+						condition.op(field, Op.likeRight, value);
+					else if ("LeftRight".equalsIgnoreCase(value2))
+						condition.op(field, Op.likeLeftRight, value);
 					else {
 						condition.op(field, Op.like, value);
 					}
@@ -136,9 +145,12 @@ public class SearchProcessor {
 //					break;	
 				case orderBy: // 一次只能设置一个字段
 					if (StringUtils.isNotBlank(value)) { // orderType
-						if ("asc".equalsIgnoreCase(value)) condition.orderBy(field, OrderType.ASC);
-						else if ("desc".equalsIgnoreCase(value)) condition.orderBy(field, OrderType.DESC);
-						else throw new BeeErrorGrammarException("OrderType just support ASC or DESC !");
+						if ("asc".equalsIgnoreCase(value))
+							condition.orderBy(field, OrderType.ASC);
+						else if ("desc".equalsIgnoreCase(value))
+							condition.orderBy(field, OrderType.DESC);
+						else
+							throw new BeeErrorGrammarException("OrderType just support ASC or DESC !");
 					} else {
 						condition.orderBy(field);
 					}
@@ -175,8 +187,10 @@ public class SearchProcessor {
 
 	private static String adjustValueForLike(String value, String value2) {
 		if (StringUtils.isNotBlank(value2)) {
-			if ("Left".equalsIgnoreCase(value2)) value = "%" + value;
-			else if ("Right".equalsIgnoreCase(value2)) value = value + "%";
+			if ("Left".equalsIgnoreCase(value2))
+				value = "%" + value;
+			else if ("Right".equalsIgnoreCase(value2))
+				value = value + "%";
 			else if ("LeftRight".equalsIgnoreCase(value2)) value = "%" + value + "%";
 		}
 

@@ -25,8 +25,7 @@ public final class ParseSqlHelper {
 
 	private static final String SEPARATOR = "#";
 
-	private ParseSqlHelper() {
-	}
+	private ParseSqlHelper() {}
 
 	static <T> EntityWrapper parseEntity(T entityOrClass, int includeType) {
 		if (entityOrClass == null) return null;
@@ -144,8 +143,8 @@ public final class ParseSqlHelper {
 		for (String f : list) {
 			if (columnName.equals(f)) return;
 		}
-		throw new ConfigWrongException("The fieldName: '" + fieldNameForLog + "' do not in the class: " + clazz
-				.getName());
+		throw new ConfigWrongException(
+				"The fieldName: '" + fieldNameForLog + "' do not in the class: " + clazz.getName());
 	}
 
 	static <T> Map<String, MoreTableStruct3> parseJoins(T entity) {
@@ -181,8 +180,8 @@ public final class ParseSqlHelper {
 		boolean hasJoinField = false;
 		for (int i = 0; i < len; i++) {
 			if (HoneyUtil.isSkipFieldForMoreTable(field[i])) continue; // 有Ignore注释,将不再处理JoinTable //TODO
-			if (field[i] != null && (AnnoUtil.isJoinTable(field[i]) ||
-					(SuidType.MODIFY == suidType && AnnoUtil.isFK(field[i])))) {
+			if (field[i] != null
+					&& (AnnoUtil.isJoinTable(field[i]) || (SuidType.MODIFY == suidType && AnnoUtil.isFK(field[i])))) {
 				hasJoinField = true;
 				int layer = 2;
 				List<String> parentTree = new ArrayList<>();
@@ -242,8 +241,8 @@ public final class ParseSqlHelper {
 		for (int i = 0; i < len; i++) {
 			if (HoneyUtil.isSkipFieldForMoreTable(field[i])) continue; // 有Ignore注释,将不再处理JoinTable //todo
 //			if (field[i] != null && AnnoUtil.isJoinTable(field[i])) {
-			if (field[i] != null && (AnnoUtil.isJoinTable(field[i]) ||
-					(SuidType.MODIFY == suidType && AnnoUtil.isFK(field[i])))) {
+			if (field[i] != null
+					&& (AnnoUtil.isJoinTable(field[i]) || (SuidType.MODIFY == suidType && AnnoUtil.isFK(field[i])))) {
 
 				layer = layer + 1;
 				if (layer >= 10) {

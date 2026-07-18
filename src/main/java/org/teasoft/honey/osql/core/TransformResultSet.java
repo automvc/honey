@@ -40,8 +40,7 @@ import org.teasoft.honey.util.StringUtils;
  */
 public class TransformResultSet {
 
-	private TransformResultSet() {
-	}
+	private TransformResultSet() {}
 
 	@SuppressWarnings("rawtypes")
 	public static JsonResultWrap toJson(ResultSet rs, Class entityClass) throws SQLException {
@@ -206,7 +205,7 @@ public class TransformResultSet {
 	static void regSort(ResultSetMetaData rmeta) {
 		if (!ShardingUtil.hadSharding()) return;
 //		ShardingSortStruct struct = HoneyContext.getCurrentShardingSort();
-		ShardingSortStruct struct=HoneyContext1.getInheritable(LocalType.SHARDING, ShardingSortStruct.class);
+		ShardingSortStruct struct = HoneyContext1.getInheritable(LocalType.SHARDING, ShardingSortStruct.class);
 		if (struct == null) return;
 		String orderFields[] = struct.getOrderFields();
 		if (orderFields == null) return;
@@ -413,11 +412,11 @@ public class TransformResultSet {
 		}
 		return rsList;
 	}
-	
+
 	private static final int ONE_ROW_TYPE_RS = 1;
 	private static final int ONE_ROW_TYPE_MAP = 2;
-    
-	//3.0.0
+
+	// 3.0.0
 	public static <T> List<MoreTableResultWrapper<T>> toMidRsForMoretable(ResultSet rs, T entity) {
 
 		List<MoreTableResultWrapper<T>> list = new ArrayList<>();
@@ -425,17 +424,18 @@ public class TransformResultSet {
 			MoreTableResultWrapper<T> wrapper = null; // one row
 			Map<String, Map<String, Field>> nameAndFieldCache = new HashMap<>();
 			int rowNum = 0;
-			
+
 			Map<String, MoreTableStruct3> moreTableStructMap = ParseSqlHelper.parseJoins(entity);
 			List<String> mtStructKeys = new ArrayList<>(moreTableStructMap.keySet());
 			mtStructKeys.add(0, HoneyUtil.toTableName(entity.getClass()));// put main table in first.
-			
+
 			while (rs.next()) {
 				if (rs.isBeforeFirst()) rs.next();
-				
+
 				rowNum++;
-				wrapper=parseOneRow(entity, mtStructKeys, moreTableStructMap, nameAndFieldCache, ONE_ROW_TYPE_RS,rs,null);
-				
+				wrapper = parseOneRow(entity, mtStructKeys, moreTableStructMap, nameAndFieldCache, ONE_ROW_TYPE_RS, rs,
+						null);
+
 				// add wrapper(from one row record) to list.
 				list.add(wrapper);
 			} // while rs
@@ -447,7 +447,7 @@ public class TransformResultSet {
 		}
 		return list;
 	}
-	
+
 	/**
 	 * for Android app
 	 * @param <T>
@@ -473,7 +473,8 @@ public class TransformResultSet {
 				rsMap = rsMapList.get(m);
 
 				rowNum++;
-				wrapper = parseOneRow(entity, mtStructKeys, moreTableStructMap, nameAndFieldCache,ONE_ROW_TYPE_MAP,null,rsMap);
+				wrapper = parseOneRow(entity, mtStructKeys, moreTableStructMap, nameAndFieldCache, ONE_ROW_TYPE_MAP, null,
+						rsMap);
 
 				// add wrapper(from one row record) to list.
 				list.add(wrapper);
@@ -489,13 +490,10 @@ public class TransformResultSet {
 		return list;
 
 	}
-	
+
 	private static <T> MoreTableResultWrapper<T> parseOneRow(T entity, List<String> mtStructKeys,
-			Map<String, MoreTableStruct3> moreTableStructMap,
-			Map<String, Map<String, Field>> nameAndFieldCache,
-			int oneRowType,
-			ResultSet rs,
-			Map<String, String> rsMap) {
+			Map<String, MoreTableStruct3> moreTableStructMap, Map<String, Map<String, Field>> nameAndFieldCache,
+			int oneRowType, ResultSet rs, Map<String, String> rsMap) {
 
 		Object value = null;
 		T mainObj = null;
@@ -522,7 +520,7 @@ public class TransformResultSet {
 //		  for (int i = 0; i < columnCount; i++) {
 //		    String aliasColumnName = rmeta.getColumnLabel(i + 1); //即使写的sql有带表名，这个也不会返回带的字段名。
 //		    //除非全部加别名，不然无法区分主从表的同名字段。
-		
+
 		Field field = null;
 		MoreTableResultWrapper<T> wrapper = new MoreTableResultWrapper<>(); // one row
 		try {
@@ -559,7 +557,7 @@ public class TransformResultSet {
 						nameAndFieldCache.put(tableName, nameAndField);
 					}
 				} // 以上是从多表结构中获取实体的字段信息
-				  // 以下开始对字段信息进行设置。是根据字段名得到列名，然后用列名为key，从rs/rsMap中获取值。
+					// 以下开始对字段信息进行设置。是根据字段名得到列名，然后用列名为key，从rs/rsMap中获取值。
 				for (Entry<String, Field> entry : nameAndField.entrySet()) {
 
 					subObjValueStr = null;
@@ -568,8 +566,10 @@ public class TransformResultSet {
 					if (HoneyUtil.isSkipField(field)) continue;
 
 					String fieldName = entry.getKey();
-					if (isMainField) columnName = _toColumnName(fieldName, entity.getClass());
-					else columnName = _toColumnName(fieldName, subEntityMoreTableStruct.subClass);
+					if (isMainField)
+						columnName = _toColumnName(fieldName, entity.getClass());
+					else
+						columnName = _toColumnName(fieldName, subEntityMoreTableStruct.subClass);
 //					columnName = columnName.replace("`", ""); // have bug, if use ` todo
 					boolean isRegHandlerPriority = false;
 					if (openFieldTypeHandler) {
@@ -635,13 +635,14 @@ public class TransformResultSet {
 						if (mainObj == null) mainObj = (T) createObject(entity.getClass());
 						try {
 							if (oneRowType == ONE_ROW_TYPE_RS) {
-								 HoneyUtil.setFieldValue(field, mainObj, value);
-								} else {
-									if (procssAppValue)
-										HoneyUtil.setFieldValue(field, mainObj, value);
-									else
-										HoneyUtil.setFieldValue(field, mainObj, ObjectCreatorFactory.create((String) value, field.getType()));
-								}
+								HoneyUtil.setFieldValue(field, mainObj, value);
+							} else {
+								if (procssAppValue)
+									HoneyUtil.setFieldValue(field, mainObj, value);
+								else
+									HoneyUtil.setFieldValue(field, mainObj,
+											ObjectCreatorFactory.create((String) value, field.getType()));
+							}
 						} catch (IllegalArgumentException e) {
 							if (oneRowType == ONE_ROW_TYPE_RS) {
 								// 若因类型不对，设置报异常。则不可能再设置。 mysql会,但sqlite不会。
@@ -674,7 +675,8 @@ public class TransformResultSet {
 								if (procssAppValue)
 									HoneyUtil.setFieldValue(field, subObj, value);
 								else
-									HoneyUtil.setFieldValue(field, subObj, ObjectCreatorFactory.create((String) value, field.getType()));
+									HoneyUtil.setFieldValue(field, subObj,
+											ObjectCreatorFactory.create((String) value, field.getType()));
 							}
 						} catch (IllegalArgumentException e) {
 							if (oneRowType == ONE_ROW_TYPE_RS) {
@@ -713,8 +715,8 @@ public class TransformResultSet {
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	static Object createObject(Class c) throws IllegalAccessException, InstantiationException,
-			NoSuchMethodException, InvocationTargetException {
+	static Object createObject(Class c)
+			throws IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
 		try {
 			return c.newInstance();
 		} catch (IllegalAccessException e) {
@@ -730,8 +732,7 @@ public class TransformResultSet {
 	}
 
 	// 组装中间对象成最终结果 //3.0.0
-	static <T> List<T> genRsViaMidRsForMoretable(List<MoreTableResultWrapper<T>> listResultWrapper,
-			Class<T> entityClass,
+	static <T> List<T> genRsViaMidRsForMoretable(List<MoreTableResultWrapper<T>> listResultWrapper, Class<T> entityClass,
 			Map<String, MoreTableStruct3> moreTableStructMap)
 			throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, InstantiationException {
 
@@ -767,7 +768,7 @@ public class TransformResultSet {
 				continue;
 			}
 
-			if(moreTableStructMap == null) continue;
+			if (moreTableStructMap == null) continue;
 			int moreTableStructNum = moreTableStructMap.size();
 			for (Entry<String, MoreTableStruct3> entry : moreTableStructMap.entrySet()) {
 				MoreTableStruct3 mtStruct = entry.getValue();
@@ -874,8 +875,7 @@ public class TransformResultSet {
 						}
 					}
 
-					StringBuffer sub_field_value_str2 = sub_field_value_str_cache_dict
-							.get(ptree.get(mtStruct.layer - 2));
+					StringBuffer sub_field_value_str2 = sub_field_value_str_cache_dict.get(ptree.get(mtStruct.layer - 2));
 
 					if (sub_field_value_str2 == null) sub_field_value_str2 = new StringBuffer();// maybe no need
 

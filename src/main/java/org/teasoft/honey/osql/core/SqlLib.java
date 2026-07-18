@@ -487,7 +487,6 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 //		return list;
 //	}
 
-
 	// 对应jdbc的executeUpdate方法
 	/*
 	 * modify include insert,delete and update.
@@ -1179,8 +1178,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 		} catch (SQLException e) {
 			hasException = true;
 			throw ExceptionHelper.convert(e);
-		} catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException
-				| InstantiationException e) {
+		} catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException | InstantiationException e) {
 			hasException = true;
 			throw ExceptionHelper.convert(e);
 		} finally {

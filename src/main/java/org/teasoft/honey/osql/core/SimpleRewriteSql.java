@@ -28,8 +28,9 @@ public class SimpleRewriteSql {
 		List<String> tabNameList = HoneyContext1.getListLocal(StringConst.TabNameListLocal);
 		List<String> tabSuffixList = HoneyContext1.getListLocal(StringConst.TabSuffixListLocal);
 //		Map<String, String> tab2DsMap = HoneyContext.getCustomMapLocal(StringConst.ShardingTab2DsMap);
-		Map<String, String> tab2DsMap = (Map<String, String>)HoneyContext1.get(LocalType.SHARDING, StringConst.ShardingTab2DsMap);
-		
+		Map<String, String> tab2DsMap = (Map<String, String>) HoneyContext1.get(LocalType.SHARDING,
+				StringConst.ShardingTab2DsMap);
+
 		List<PreparedValue> listValue = HoneyContext.justGetPreparedValue(sql);
 		_createSql(list, tabSuffixList, sql, listValue, tabNameList, tab2DsMap);
 

@@ -350,7 +350,7 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 		sql = HoneyUtil.deleteLastSemicolon(sql);// 上面的sql还不能执行去分号,要先拿了缓存.
 		a = getBeeSqlForApp().batchInsert(sql, listBindArgs);
 
-		Logger.logSQL(" | <-- index[" + (start) + "~" + (end - 1) + INDEX3 + " Affected rows: "+ a);
+		Logger.logSQL(" | <-- index[" + (start) + "~" + (end - 1) + INDEX3 + " Affected rows: " + a);
 
 		return a;
 	}
@@ -391,19 +391,18 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 
 		List<T> rsList;
 		try {
-			List<Map<String, String>> rsMapList = getBeeSqlForApp().selectMapListWithColumnName(
-					HoneyUtil.deleteLastSemicolon(sql), toStringArray(sql));
-			
+			List<Map<String, String>> rsMapList = getBeeSqlForApp()
+					.selectMapListWithColumnName(HoneyUtil.deleteLastSemicolon(sql), toStringArray(sql));
+
 //			SqlLib sqlLib=new SqlLib();
 //			List<Map<String, String>> rsMapList=sqlLib.selectMapList2(HoneyUtil.deleteLastSemicolon(sql));
-			
+
 			// process result; 将查询结果转化成中间对象
 			List<MoreTableResultWrapper<T>> listResultWrapper = TransformResultSet.toMidRsForMoretable(rsMapList, entity);
 			rsList = TransformResultSet.genRsViaMidRsForMoretable(listResultWrapper, entityClass, moreTableStructMap);
 			addInCache(sql, rsList, rsList.size());
 
-		} catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException
-				| InstantiationException e) {
+		} catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException | InstantiationException e) {
 			throw ExceptionHelper.convert(e);
 		} finally {
 			clearContext(sql);
@@ -430,8 +429,10 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 			Object ob;
 			for (int i = 0; i < list.size(); i++) {
 				ob = list.get(i).getValue();
-				if (ob != null) str[i] = ob.toString();
-				else str[i] = null;
+				if (ob != null)
+					str[i] = ob.toString();
+				else
+					str[i] = null;
 			}
 			return str;
 		}
@@ -444,8 +445,10 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private Object[] toObjArray(String sql, boolean justGet) {
 		List<PreparedValue> list;
-		if (justGet) list = HoneyContext.justGetPreparedValue(sql);
-		else list = HoneyContext.getAndClearPreparedValue(sql); // 用于批处理.
+		if (justGet)
+			list = HoneyContext.justGetPreparedValue(sql);
+		else
+			list = HoneyContext.getAndClearPreparedValue(sql); // 用于批处理.
 
 		if (list == null) {
 			return EMPTY_ARRAY;

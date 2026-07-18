@@ -17,11 +17,11 @@ public final class StringConst {
 
 	public static final String tRue = "tRue";
 	public static final String PREFIX = "_SYS_Bee_";
-	
+
 	// Forever
 	public static final String FOREVER_COLUMNLIST = PREFIX + "Forever:columnList:";
-	
-	//Request
+
+	// Request
 	public static final String ForMoreTableStruct3 = PREFIX + "ForMoreTableStruct3:";
 
 	public static final String MoreTableInsertDoing = PREFIX + "MoreTableInsertDoing";
@@ -65,11 +65,10 @@ public final class StringConst {
 
 	// Sharding<<<<<<<<<<<<<<<<<<<<<<<<<<
 	public static final String ShardingTableIndexStr = "'[$#(index)#$]'";// 2.4.0.8
-	
-	
+
 	///////////////
 	public static final String HadSharding = PREFIX + "HadSharding";
-	
+
 	// local
 	public static final String DsNameListLocal = PREFIX + "DsNameListLocal";
 	public static final String TabNameListLocal = PREFIX + "TabNameListLocal";
@@ -83,14 +82,13 @@ public final class StringConst {
 
 	public static final String MoreTableQuery = PREFIX + "MoreTableQuery";
 	public static final String MoreTableSelectShardingFlag = PREFIX + "MoreTableSelectShardingFlag";
-	
+
 	public static final String ShardingFullSelect = PREFIX + "ShardingFullSelect";
 	public static final String ShardingSomeDsFullSelect = PREFIX + "ShardingSomeDsFullSelect";
 	public static final String ShardingTab2DsMap = PREFIX + "ShardingTab2DsMap";
-	
+
 ///////////////
-	
-	
+
 	public static final String InterceptorSubEntity = PREFIX + "InterceptorSubEntity";
 	public static final String ShardingBatchInsertDoing = PREFIX + "ShardingBatchInsertDoing";
 

@@ -76,7 +76,7 @@ public class SysValueProcessor {
 
 		processShardingRule(obj, prop);
 //		HoneyContext.prcessShardingRuleInProperties();
-		ConfigRefreshUtil.prcessShardingRuleInProperties();  //   里面的其它类要保证不能引用到HoneyContext
+		ConfigRefreshUtil.prcessShardingRuleInProperties(); // 里面的其它类要保证不能引用到HoneyContext
 	}
 
 	private static <T> void processDbs(T obj, Properties prop) {

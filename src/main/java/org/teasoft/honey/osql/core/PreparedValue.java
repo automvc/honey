@@ -21,8 +21,7 @@ class PreparedValue implements Serializable {
 	// 设置参数时才要区分,查询返回值处理,不需要.
 	private int jsonType = 0; // 2.4.0
 
-	public PreparedValue() {
-	}
+	public PreparedValue() {}
 
 	public PreparedValue(Field field, Object value) {
 		this.type = field.getType().getName();
