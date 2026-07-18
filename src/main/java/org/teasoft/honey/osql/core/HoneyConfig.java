@@ -504,17 +504,25 @@ public final class HoneyConfig implements LoggerTypeConfig, LogSqlConfig {
 //		DataSource ds = BeeFactory.getInstance().getDataSource();
 //		if (ds == null) {
 		String t_url = getUrl();
-		
+
 		if (t_url != null && !"".equals(t_url.trim())) { // sonar problem
 			t_url = t_url.trim();
-			if (t_url.startsWith("jdbc:mysql:")) dbName = DatabaseConst.MYSQL;
-			else if (t_url.startsWith("jdbc:oracle:")) dbName = DatabaseConst.ORACLE;
-			else if (t_url.startsWith("jdbc:sqlserver:")) dbName = DatabaseConst.SQLSERVER;
-			else if (t_url.startsWith("jdbc:sqlite:")) dbName = DatabaseConst.SQLite;
-			else if (t_url.startsWith("mongodb://")) dbName = DatabaseConst.MongoDB;
-			else if (t_url.startsWith("jdbc:h2:")) dbName = DatabaseConst.H2;
-			else if (t_url.startsWith("jdbc:postgresql:")) dbName = DatabaseConst.PostgreSQL;
-			else if (t_url.startsWith("jdbc:cassandra:")) dbName = DatabaseConst.Cassandra;
+			if (t_url.startsWith("jdbc:mysql:"))
+				dbName = DatabaseConst.MYSQL;
+			else if (t_url.startsWith("jdbc:oracle:"))
+				dbName = DatabaseConst.ORACLE;
+			else if (t_url.startsWith("jdbc:sqlserver:"))
+				dbName = DatabaseConst.SQLSERVER;
+			else if (t_url.startsWith("jdbc:sqlite:"))
+				dbName = DatabaseConst.SQLite;
+			else if (t_url.startsWith("mongodb://"))
+				dbName = DatabaseConst.MongoDB;
+			else if (t_url.startsWith("jdbc:h2:"))
+				dbName = DatabaseConst.H2;
+			else if (t_url.startsWith("jdbc:postgresql:"))
+				dbName = DatabaseConst.PostgreSQL;
+			else if (t_url.startsWith("jdbc:cassandra:"))
+				dbName = DatabaseConst.Cassandra;
 			else if (t_url.startsWith("jdbc:ucanaccess:")) dbName = DatabaseConst.MsAccess;
 		}
 //		}

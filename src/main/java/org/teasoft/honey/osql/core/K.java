@@ -79,9 +79,9 @@ public class K {
 	public static final String to_date = k.to_date();
 
 	private static SqlKeyWord getSqlKeyWord() {
-		if (HoneyUtil.isSqlKeyWordUpper()) 
+		if (HoneyUtil.isSqlKeyWordUpper())
 			return new UpperKey();
-		else 
+		else
 			return new LowerKey(); // default
 	}
 

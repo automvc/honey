@@ -84,8 +84,8 @@ public final class HoneyUtil {
 		
 		SetParaTypeConverterRegistry.register(java.util.Date.class, new UtilDotDateTypeToTimestampConvert<java.util.Date>(), DatabaseConst.PostgreSQL);
 		SetParaTypeConverterRegistry.register(java.util.Date.class, new UtilDotDateTypeToTimestampConvert<java.util.Date>(), DatabaseConst.H2);
-		SetParaTypeConverterRegistry.register(java.util.Date.class, new UtilDotDateTypeToTimestampConvert<java.util.Date>(), DatabaseConst.SQLSERVER); // v2.1.8  
-		SetParaTypeConverterRegistry.register(java.util.Date.class, new UtilDotDateTypeToTimestampConvert<java.util.Date>(), DatabaseConst.ORACLE); // v2.1.8  
+		SetParaTypeConverterRegistry.register(java.util.Date.class, new UtilDotDateTypeToTimestampConvert<java.util.Date>(), DatabaseConst.SQLSERVER); // v2.1.8
+		SetParaTypeConverterRegistry.register(java.util.Date.class, new UtilDotDateTypeToTimestampConvert<java.util.Date>(), DatabaseConst.ORACLE); // v2.1.8
 //		SetParaTypeConverterRegistry.register(java.util.Date.class, new UtilDotDateTypeConvert<java.util.Date>()); // 会少了时分秒  v2.1.8   jdk中,该类的功能就是这样的.
 
 		TypeHandlerRegistry.register(char.class, new CharTypeHandler<Character>(), true);
@@ -164,8 +164,6 @@ public final class HoneyUtil {
 			throw new BeeIllegalSQLException("The expression: '" + expression + "' is invalid in JustFetch Annotation!");
 		}
 	}
-
-
 
 	/**
 	 * jdbc type->java type
@@ -291,7 +289,7 @@ public final class HoneyUtil {
 
 		return isContinueByCheckIncludeType(includeType, object);
 	}
-	
+
 	public static boolean isContinueByCheckIncludeType(int includeType, Object object) {
 		// exclude: NULL and "" and " "
 		if (-3 == includeType && StringUtils.isBlank((String) object)) {
@@ -301,9 +299,11 @@ public final class HoneyUtil {
 //		includeType == NullEmpty.EMPTY_STRING && object == null  要包括空字符,但对象不是空字符,而是null,则跳过.
 //		return (((includeType == NullEmpty.EXCLUDE || includeType == NullEmpty.EMPTY_STRING) && object == null)
 //				|| ((includeType == NullEmpty.EXCLUDE || includeType == NullEmpty.NULL) && "".equals(object)));
-		
-		return (((includeType == IncludeType.EXCLUDE_BOTH.getValue() || includeType == IncludeType.INCLUDE_EMPTY.getValue()) && object == null)
-				|| ((includeType == IncludeType.EXCLUDE_BOTH.getValue() || includeType == IncludeType.INCLUDE_NULL.getValue()) && "".equals(object)));
+
+		return (((includeType == IncludeType.EXCLUDE_BOTH.getValue()
+				|| includeType == IncludeType.INCLUDE_EMPTY.getValue()) && object == null)
+				|| ((includeType == IncludeType.EXCLUDE_BOTH.getValue()
+						|| includeType == IncludeType.INCLUDE_NULL.getValue()) && "".equals(object)));
 	}
 
 	public static boolean isSkipField(Field field) {
@@ -525,7 +525,7 @@ public final class HoneyUtil {
 			case 1:
 				return rs.getString(columnName);
 			case 2:
-				return rs.getInt(columnName); //DB是Null，也会是0
+				return rs.getInt(columnName); // DB是Null，也会是0
 			case 3:
 				return rs.getLong(columnName);
 			case 4:
@@ -736,8 +736,7 @@ public final class HoneyUtil {
 				if (fields[i].get(entity) == null || isSkipField(fields[i])) {
 					continue;
 				} else {
-					map.put(toColumnName(fields[i].getName(), entity.getClass()),
-							fields[i].get(entity));
+					map.put(toColumnName(fields[i].getName(), entity.getClass()), fields[i].get(entity));
 				}
 			}
 		} catch (IllegalAccessException e) {
@@ -887,7 +886,7 @@ public final class HoneyUtil {
 //			if(isMoreTable){  //带有点一样转换
 //			}
 
-			//TODO 不准确。
+			// TODO 不准确。
 			if (!(columnsdNames.contains("," + checkColName + ",") || columnsdNames.startsWith(checkColName + ",")
 					|| columnsdNames.endsWith("," + checkColName) || columnsdNames.equals(checkColName)
 					|| columnsdNames.contains("." + checkColName + ",") || columnsdNames.endsWith("." + checkColName)
@@ -944,7 +943,7 @@ public final class HoneyUtil {
 	private static String _toTableName(Object entity) {
 		return NameTranslateHandle.toTableName(NameUtil.getClassFullName(entity));
 	}
-	
+
 	@SuppressWarnings("rawtypes")
 	public static String toColumnName(String fieldName, Class entityClass) {
 		return NameTranslateHandle.toColumnName(fieldName, entityClass);
@@ -953,53 +952,6 @@ public final class HoneyUtil {
 
 //	private static String _toTableNameByEntityName(String entityName) {
 //		return NameTranslateHandle.toTableName(entityName);
-//	}
-
-	private static String SET_WRONG_VALUE_IN = "Annotation JoinTable set wrong value in ";
-
-	//检测JoinTable3
-//	private static String checkJoinTable(JoinTable3 joinTable) {
-//		String mainField[] = joinTable.mainField();
-//		String subField[] = joinTable.subField();
-//
-//		String subAlias = joinTable.subAlias();
-//		String mainAlias = joinTable.mainAlias();
-//
-//		if (NameCheckUtil.isIllegal(mainField)) {
-//			throw new JoinTableParameterException(SET_WRONG_VALUE_IN + "mainField:" + mainField);
-//		}
-//		if (NameCheckUtil.isIllegal(subField)) {
-//			throw new JoinTableParameterException(SET_WRONG_VALUE_IN + "subField:" + subField);
-//		}
-//		if (NameCheckUtil.isIllegal(subAlias)) {
-//			throw new JoinTableParameterException(SET_WRONG_VALUE_IN + "subAlias:" + subAlias);
-//		}
-//		if (NameCheckUtil.isIllegal(mainAlias)) {
-//			throw new JoinTableParameterException(SET_WRONG_VALUE_IN + "subClass:" + subClass);
-//		}
-//
-//		String errorMsg = "";
-//		int errorCount = 0;
-//
-//		if (mainField == null) {
-//			errorMsg = "mainField is null! ";
-//			errorCount++;
-//		} else if ("".equals(mainField.trim())) {
-//			errorMsg += "mainField is empty! ";
-//			errorCount++;
-//		}
-//
-//		if (subField == null) {
-//			errorMsg += "subField is null! ";
-//			errorCount++;
-//		} else if ("".equals(subField.trim())) {
-//			errorMsg += "subField is empty! ";
-//			errorCount++;
-//		}
-//		if (errorCount == 1)
-//			return errorMsg;
-//		else
-//			return "";
 //	}
 
 	public static boolean isMysql() {
@@ -1321,7 +1273,7 @@ public final class HoneyUtil {
 		}
 	}
 
-	//do not check default id
+	// do not check default id
 	public static <T> String getPkFieldName(T entity) {
 		if (entity == null) return null;
 		return getPkFieldNameByClass(entity.getClass());
@@ -1422,7 +1374,8 @@ public final class HoneyUtil {
 	 * @return
 	 */
 	public static boolean isUpperCaseDB() {
-		if (isOracle()) return true;
+		if (isOracle())
+			return true;
 		else if (DatabaseConst.H2.equalsIgnoreCase(HoneyConfig.getHoneyConfig().getDbName())) return true;
 
 		return false;
@@ -1492,7 +1445,7 @@ public final class HoneyUtil {
 	public static Object getValue(Field field, Object obj) throws IllegalAccessException {
 		return field.get(obj);
 	}
-	
+
 	public static <T> Field[] getFields(Class<T> entityClass) {
 		Field fields[] = entityClass.getDeclaredFields();
 
@@ -1514,7 +1467,7 @@ public final class HoneyUtil {
 
 		return fields;
 	}
-	
+
 	/**
 	 * 
 	 * @param <T>
@@ -1539,8 +1492,7 @@ public final class HoneyUtil {
 			} while (fields != null);
 		}
 
-		if (fields == null)
-			return new LinkedHashMap<>();
+		if (fields == null) return new LinkedHashMap<>();
 
 		Map<String, Field> map = new LinkedHashMap<>(fields.length);
 		for (Field field : fields) {

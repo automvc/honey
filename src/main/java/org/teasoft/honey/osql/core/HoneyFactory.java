@@ -391,11 +391,16 @@ public class HoneyFactory {
 		if (nameTranslate == null) {
 			// since 1.7.2
 			int translateType = HoneyConfig.getHoneyConfig().naming_translateType;
-			if (translateType == 1) nameTranslate = new UnderScoreAndCamelName();
-			else if (translateType == 2) nameTranslate = new UpperCaseUnderScoreAndCamelName();
-			else if (translateType == 3) nameTranslate = new OriginalName();
-			else if (translateType == 4) nameTranslate = new DbUpperAndJavaLower(); // V1.17
-			else nameTranslate = new UnderScoreAndCamelName(); // if the value is not 1,2,3,4
+			if (translateType == 1)
+				nameTranslate = new UnderScoreAndCamelName();
+			else if (translateType == 2)
+				nameTranslate = new UpperCaseUnderScoreAndCamelName();
+			else if (translateType == 3)
+				nameTranslate = new OriginalName();
+			else if (translateType == 4)
+				nameTranslate = new DbUpperAndJavaLower(); // V1.17
+			else
+				nameTranslate = new UnderScoreAndCamelName(); // if the value is not 1,2,3,4
 
 			return nameTranslate;
 		} else {
@@ -423,12 +428,18 @@ public class HoneyFactory {
 
 		if (DatabaseConst.MYSQL.equalsIgnoreCase((dbName)) || DatabaseConst.MariaDB.equalsIgnoreCase((dbName)))
 			return new MySqlFeature();
-		else if (DatabaseConst.ORACLE.equalsIgnoreCase((dbName))) return new OracleFeature();
-		else if (DatabaseConst.SQLSERVER.equalsIgnoreCase((dbName))) return new SqlServerFeature();
-		else if (_isLimitOffsetDB()) return new LimitOffsetPaging(); // v1.8.15
-		else if (_isFrontLimitDB()) return new HSqlDbFrontLimitPaging(); // 2.1
-		else if (_isOffsetFetchDB()) return new OffsetFetchPaging(); // 2.1
-		else if (_isLimitMN()) return new MySqlFeature(); // 2.1
+		else if (DatabaseConst.ORACLE.equalsIgnoreCase((dbName)))
+			return new OracleFeature();
+		else if (DatabaseConst.SQLSERVER.equalsIgnoreCase((dbName)))
+			return new SqlServerFeature();
+		else if (_isLimitOffsetDB())
+			return new LimitOffsetPaging(); // v1.8.15
+		else if (_isFrontLimitDB())
+			return new HSqlDbFrontLimitPaging(); // 2.1
+		else if (_isOffsetFetchDB())
+			return new OffsetFetchPaging(); // 2.1
+		else if (_isLimitMN())
+			return new MySqlFeature(); // 2.1
 		else if (DatabaseConst.OceanBase.equalsIgnoreCase((dbName))) { // 2.1.10
 			String oceanbaseMode = HoneyConfig.getHoneyConfig().oceanbaseMode;
 			boolean isDifferentDbType = HoneyConfig.getHoneyConfig().multiDS_differentDbType;

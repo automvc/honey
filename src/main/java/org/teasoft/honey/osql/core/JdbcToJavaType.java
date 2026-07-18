@@ -124,16 +124,16 @@ public class JdbcToJavaType {
 			setJdbcToJavaType(DatabaseConst.Cassandra.toLowerCase(), forCassandra());
 		else if (DatabaseConst.MongoDB.equalsIgnoreCase(dbName))
 			setJdbcToJavaType(DatabaseConst.MongoDB.toLowerCase(), forMongoDB());
-		else 
+		else
 			setJdbcToJavaType(dbName.toLowerCase(), getCommon());
 	}
 
 	private static Map<String, String> getCommon() {
 		Map<String, String> jdbc2JavaType = new HashMap<>();
-		
-		//url: https://docs.oracle.com/javase/1.5.0/docs/guide/jdbc/getstart/mapping.html
-		//		https://docs.oracle.com/javadb/10.8.3.0/ref/rrefjdbc20377.html
-		//		https://docs.oracle.com/javase/8/docs/api/java/sql/package-summary.html
+
+		// url: https://docs.oracle.com/javase/1.5.0/docs/guide/jdbc/getstart/mapping.html
+		// https://docs.oracle.com/javadb/10.8.3.0/ref/rrefjdbc20377.html
+		// https://docs.oracle.com/javase/8/docs/api/java/sql/package-summary.html
 		jdbc2JavaType.put("CHAR", STRING);
 		jdbc2JavaType.put("VARCHAR", STRING);
 		jdbc2JavaType.put("LONGVARCHAR", STRING);

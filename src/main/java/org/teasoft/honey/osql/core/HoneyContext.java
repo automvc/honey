@@ -55,9 +55,9 @@ public final class HoneyContext {
 	private static ThreadLocal<RouteStruct> currentRoute;
 	private static ThreadLocal<String> appointDS; // 1.拦截器等设置的值; 因处理不同的javabean对象,可能有不同的值;比Suid对象的tempDS,动态性更强.所以appointDS优于tempDS
 	private static ThreadLocal<Map<String, String>> sysCommStrLocal;
-	
+
 	private static ThreadLocal<Integer> sqlIndexLocal; // 标识子操作线程的下标, 也说明是子线程
-	
+
 	private static ThreadLocal<Connection> currentConnection; // 当前事务的Conn
 	private static ConcurrentMap<String, Connection> conneForSelectRs;
 
@@ -138,7 +138,7 @@ public final class HoneyContext {
 		modifiedFlagMapForCache2 = new ConcurrentHashMap<>();
 		entityInterceptorFlag = new ConcurrentHashMap<>();
 		customFlagMap = new ConcurrentHashMap<>();
-		
+
 		init();
 
 		initLoad();
@@ -331,11 +331,11 @@ public final class HoneyContext {
 		Map<String, String> map = sysCommStrLocal.get();
 		if (map != null) map.remove(key);
 	}
-	
+
 	public static boolean isTrueInSysCommStrLocal(String key) {
 		return StringConst.tRue.equals(HoneyContext.getSysCommStrLocal(key));
 	}
-	
+
 	public static void setTrueInSysCommStrLocal(String key) {
 		setSysCommStrLocal(key, StringConst.tRue);
 	}
@@ -417,7 +417,8 @@ public final class HoneyContext {
 	// 记得conn起来，等处理完rs才关闭。
 	public synchronized static void regConnForSelectRs(Connection conn) {
 //		String threadFlag = HoneyContext.getSysCommStrInheritableLocal(StringConst.ShardingSelectRs_ThreadFlag);
-		String threadFlag = (String)HoneyContext1.getInheritable(LocalType.REQUEST, StringConst.ShardingSelectRs_ThreadFlag);
+		String threadFlag = (String) HoneyContext1.getInheritable(LocalType.REQUEST,
+				StringConst.ShardingSelectRs_ThreadFlag);
 		Integer subThreadIndex = HoneyContext.getSqlIndexLocal();
 		String key = threadFlag + subThreadIndex;
 		conneForSelectRs.put(key, conn);
@@ -940,7 +941,7 @@ public final class HoneyContext {
 			if (dsName != null && HoneyContext.getDsName2DbName() != null) {
 				String temp_dbName = HoneyContext.getDsName2DbName().get(dsName);
 				if (temp_dbName == null) { // V1.17
-					Logger.warn("Did not find the dataSource name : " + dsName); //数据源池里没有,应该抛异常
+					Logger.warn("Did not find the dataSource name : " + dsName); // 数据源池里没有,应该抛异常
 					throw new ConfigWrongException("Did not find the dataSource name : " + dsName);
 				} else {
 					return temp_dbName;
@@ -1037,7 +1038,7 @@ public final class HoneyContext {
 		Class<?> clazz = obj.getClass();
 		boolean hasShardingMap = false;
 		boolean hasMultiDS_sharding = false;
-		//2.5.2
+		// 2.5.2
 		boolean hasLoggerType = false;
 		boolean hasShowSQL = false;
 		boolean hasSqlLoggerLevel = false;
@@ -1067,8 +1068,8 @@ public final class HoneyContext {
 
 		setConfigRefresh(true);
 		setDsMapConfigRefresh(true); // 是否应该有数据源配置时,才设置更新? 解析时会先判断相关属性的
-		
-		//2.5.2
+
+		// 2.5.2
 		HoneyConfig honeyConfig = HoneyConfig.getHoneyConfig();
 		if (hasLoggerType) LoggerFactory.init(honeyConfig);
 		if (hasShowSQL || hasSqlLoggerLevel) Logger.init(honeyConfig);
@@ -1185,7 +1186,7 @@ public final class HoneyContext {
 			// ignore
 		}
 	}
-	
+
 	/**
 	 * In production, this attribute should be set in the configuration file using "bee.dosql.multiDS.sharding".
 	 * <br>And the running process should not be changed, otherwise relevant configuration and contextual information will be lost.
@@ -1198,21 +1199,21 @@ public final class HoneyContext {
 		HoneyConfig.getHoneyConfig().setMultiDsSharding(multiDsSharding);
 		initAfterChangeMultiDsSharding();
 	}
-	
-	//after reset config, need call init
+
+	// after reset config, need call init
 	public static void init() {
 		HoneyContext.setConfigRefresh(true);
 		HoneyContext.setDsMapConfigRefresh(true); // 直接设置, 因解析时会判断相应属性后才进行相应解析
-		HoneyContext.refreshDataSourceMap(); 
+		HoneyContext.refreshDataSourceMap();
 
 		HoneyContext.initLoad();
-		
-		HoneyConfig config=HoneyConfig.getHoneyConfig();
-		
+
+		HoneyConfig config = HoneyConfig.getHoneyConfig();
+
 		if (config.isAndroid || config.isHarmony) {// V1.17
 			config.setDbName(DatabaseConst.SQLite);
 //			resetAferSetDbName();
-			DbFeatureRegistry.register(DatabaseConst.SQLite, new LimitOffsetPaging()); 
+			DbFeatureRegistry.register(DatabaseConst.SQLite, new LimitOffsetPaging());
 		}
 
 		CalculateRegistry.register(1, new DateCalculate()); // 2.4.0 用户可以覆盖

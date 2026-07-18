@@ -30,8 +30,7 @@ import org.teasoft.honey.util.StringUtils;
  */
 public class HoneyContext1 {
 
-	private HoneyContext1() {
-	}
+	private HoneyContext1() {}
 
 	private static boolean isBlank(String str) {
 		return StringUtils.isBlank(str);
@@ -161,7 +160,7 @@ public class HoneyContext1 {
 
 		return catMap != null ? catMap.keySet() : new HashSet<String>();
 	}
-	
+
 	//////////// for Sharding just Local
 	public static List<String> getListLocal(String key) {
 		return (List<String>) get(LocalType.SHARDING, key);
@@ -214,13 +213,11 @@ public class HoneyContext1 {
 		}
 
 		@Override
-		protected Map<LocalType, Map<String, Object>> childValue(
-				Map<LocalType, Map<String, Object>> parentValue) {
+		protected Map<LocalType, Map<String, Object>> childValue(Map<LocalType, Map<String, Object>> parentValue) {
 			// 深拷贝，避免父子线程互相影响
 			Map<LocalType, Map<String, Object>> child = new ConcurrentHashMap<LocalType, Map<String, Object>>();
 			for (Map.Entry<LocalType, Map<String, Object>> entry : parentValue.entrySet()) {
-				child.put(entry.getKey(),
-						new ConcurrentHashMap<String, Object>(entry.getValue()));
+				child.put(entry.getKey(), new ConcurrentHashMap<String, Object>(entry.getValue()));
 			}
 			return child;
 		}

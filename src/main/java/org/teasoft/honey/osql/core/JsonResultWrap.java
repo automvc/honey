@@ -14,7 +14,7 @@ public class JsonResultWrap {
 
 	private String resultJson;
 	private int rowCount;
-	
+
 	public JsonResultWrap() {}
 
 	// 2.5.2

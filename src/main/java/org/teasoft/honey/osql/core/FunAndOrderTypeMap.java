@@ -71,7 +71,9 @@ public class FunAndOrderTypeMap {
 
 	public static String transfer(String type) {
 		String t = typeMap.get(type);
-		if (t != null) return t;
-		else return type;
+		if (t != null)
+			return t;
+		else
+			return type;
 	}
 }
