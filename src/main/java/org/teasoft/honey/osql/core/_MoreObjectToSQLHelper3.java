@@ -233,8 +233,8 @@ class _MoreObjectToSQLHelper3 {
 				subColumn = toColumnName(subFields[i], subClass);
 				ParseSqlHelper.checkFieldName(subColumn, subClass, subFields[i]);
 
-				joinExp.append(mainAlias).append(DOT).append(mainColumn)
-						.append(EQUAL).append(subAlias).append(DOT).append(subColumn);
+				joinExp.append(mainAlias).append(DOT).append(mainColumn).append(EQUAL).append(subAlias).append(DOT)
+						.append(subColumn);
 			}
 
 			if (tablePart.length() == 0) {
@@ -366,6 +366,9 @@ class _MoreObjectToSQLHelper3 {
 		}
 
 		List<PreparedValue> preList = new ArrayList<>();
+
+		if (sqlBuffer.charAt(sqlBuffer.length() - 1) == ' ' && sqlBufferComm.charAt(0) == ' ')
+			sqlBuffer.deleteCharAt(sqlBuffer.length() - 1);
 		sqlBuffer.append(sqlBufferComm);
 
 		if (needRewritePagingSql) {
