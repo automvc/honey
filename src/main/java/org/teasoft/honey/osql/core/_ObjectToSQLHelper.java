@@ -736,8 +736,10 @@ final class _ObjectToSQLHelper {
 //			if ("serialVersionUID".equals(fields[i].getName()) || fields[i].isSynthetic()) {
 //				continue;
 //			} else if (fields[i] != null && fields[i].isAnnotationPresent(JoinTable.class)) {
-			if (HoneyUtil.isSkipField(fields[i])) continue;
-			else if (HoneyUtil.isSkipFieldJustFetch(fields[i])) continue;
+			if (HoneyUtil.isSkipField(fields[i]))
+				continue;
+			else if (HoneyUtil.isSkipFieldJustFetch(fields[i]))
+				continue;
 			else if (!"".equals(excludeFieldList) && isExcludeField(excludeFieldList, fields[i].getName())) continue;
 
 			preparedValue = new PreparedValue();
@@ -914,7 +916,8 @@ final class _ObjectToSQLHelper {
 			if (noId) {
 				pkName = HoneyUtil.getPkFieldName(entity);
 				if ("".equals(pkName) || pkName == null || pkName.contains(",")) {
-					Logger.warn("setInitIdByAuto just support single primary key, checking entity: " + entity.getClass().getName());
+					Logger.warn("setInitIdByAuto just support single primary key, checking entity: "
+							+ entity.getClass().getName());
 					return; // just support single primary key. 自动设置主键值,只支持单主键.
 				}
 				field = HoneyUtil.getField(entity.getClass(), pkName);
@@ -987,11 +990,12 @@ final class _ObjectToSQLHelper {
 		try {
 			HoneyUtil.setFieldValue(field, entity, id);
 			if (hasValue) {
-				Logger.warn(" [ID WOULD BE REPLACED] " + entity.getClass().getName() + " 's id field" + pkAlias + " value. "
-						+ obj.toString() + " would be replace by " + id);
+				Logger.warn(" [ID WOULD BE REPLACED] " + entity.getClass().getName() + " 's id field" + pkAlias
+						+ " value. " + obj.toString() + " would be replace by " + id);
 			}
 			// for MoreTable insert
-			if (StringConst.tRue.equals(HoneyContext1.get(LocalType.MORETABLE_INSERT, StringConst.MoreTableInsertDoing))) {
+			if (StringConst.tRue
+					.equals(HoneyContext1.get(LocalType.MORETABLE_INSERT, StringConst.MoreTableInsertDoing))) {
 				Map<String, Object> pkValueMap = new HashMap<>();
 				pkValueMap.put(pkName, id);
 //				HoneyContext1.set(LocalType.REQUEST, "InitIdByAutoForMoreTableInsert", idValue);
@@ -1029,7 +1033,7 @@ final class _ObjectToSQLHelper {
 		if ("id".equalsIgnoreCase(field.getName())) return true;
 		return AnnoUtil.isPrimaryKey(field);
 	}
-	
+
 //	private static void logSQL(String hardStr, String sql) {
 //		HoneyUtil.logSQL(hardStr, sql);
 //	}

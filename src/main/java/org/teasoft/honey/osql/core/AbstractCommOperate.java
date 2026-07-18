@@ -64,12 +64,12 @@ public class AbstractCommOperate implements CommOperate {
 
 	protected void regConditionForSharding(Condition condition) {
 		if (!ShardingUtil.isSharding()) return; // fixed bug. v2.5.10
-		
+
 		// just for shading
 //		if (condition != null) condition = condition.clone();
 //		HoneyContext.setConditionLocal(condition);
-		
-		HoneyContext1.set(LocalType.SHARDING,Condition.class, condition);
+
+		HoneyContext1.set(LocalType.SHARDING, Condition.class, condition);
 	}
 
 	protected void doBeforePasreEntity(Object entity, SuidType SuidType) {
@@ -115,11 +115,11 @@ public class AbstractCommOperate implements CommOperate {
 		if (this.dsName != null) HoneyContext.removeTempDS();
 		if (this.nameTranslate != null) HoneyContext.removeCurrentNameTranslate();
 		this.nameTranslate = null; // 2.1 仅允许一次有效. 因整个应用周期内,只有一个bean时,会影响到其它情况的使用(如spring整合)
-	
+
 		HoneyContext1.removeCategory(LocalType.REQUEST);
 		HoneyContext1.removeInheritableCategory(LocalType.REQUEST);
 //		System.out.println("------------------getKeys:  "+HoneyContext1.getKeys(LocalType.REQUEST));
-	
+
 	}
 
 	protected void regSuidType(SuidType suidType) {
@@ -146,7 +146,7 @@ public class AbstractCommOperate implements CommOperate {
 			flag = HoneyContext.getCustomFlagMap(field2Column + entityFullName);
 		}
 	}
-	
+
 	private boolean showSqlExecuteTime() {
 		return HoneyConfig.getHoneyConfig().showSqlExecuteTime;
 	}
@@ -159,9 +159,9 @@ public class AbstractCommOperate implements CommOperate {
 
 	private void timerEnd() {
 		if (!showSqlExecuteTime()) return;
-		// sharding时,还要加一个随机码?  没有在这分线程,是在SqlLib
+		// sharding时,还要加一个随机码? 没有在这分线程,是在SqlLib
 		Long t = (Long) OneTimeParameter.getAttribute(StringConst.TIMER_START);
-		if (t!=null && t > 0) {
+		if (t != null && t > 0) {
 			long spentTime = System.currentTimeMillis() - t;
 			int min = HoneyConfig.getHoneyConfig().minSqlExecuteTime;
 			if (spentTime >= min) Logger.logSQL("------ spent time(ms): " + spentTime);

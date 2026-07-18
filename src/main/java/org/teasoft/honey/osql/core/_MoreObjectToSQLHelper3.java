@@ -156,7 +156,7 @@ class _MoreObjectToSQLHelper3 {
 				needRewritePagingSql = false;
 			}
 		}
-		
+
 		if (needRewritePagingSql) {
 			Object idValue = HoneyUtil.getIdValue(entity);
 			// 7. 设置了主键值
