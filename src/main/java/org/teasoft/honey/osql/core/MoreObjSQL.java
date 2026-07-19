@@ -26,7 +26,9 @@ import org.teasoft.bee.osql.exception.BeeIllegalSQLException;
 import org.teasoft.honey.logging.Logger;
 import org.teasoft.honey.osql.core.ConditionImpl.FunExpress;
 import org.teasoft.honey.osql.shortcut.BF;
+import org.teasoft.honey.sharding.HintManager;
 import org.teasoft.honey.sharding.ShardingReg;
+import org.teasoft.honey.sharding.ShardingUtil;
 import org.teasoft.honey.util.ObjectUtils;
 import org.teasoft.honey.util.StringUtils;
 
@@ -284,6 +286,7 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 			return modify3(entity, SuidType.INSERT);
 		} finally {
 			HoneyContext1.removeCategory(LocalType.MORETABLE_INSERT);
+			HoneyContext1.removeCategory(LocalType.MORETABLE_MODIFY);
 		}
 	}
 
@@ -296,7 +299,11 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 		if (entity == null) return FAIL_RETURN_NUM;
 		entity = copyEntityIfCan(entity);
 
-		return modify3(entity, SuidType.UPDATE);
+		try {
+			return modify3(entity, SuidType.UPDATE);
+		} finally {
+			HoneyContext1.removeCategory(LocalType.MORETABLE_MODIFY);
+		}
 	}
 
 	@Override
@@ -305,8 +312,11 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 
 		if (entity == null) return FAIL_RETURN_NUM;
 		entity = copyEntityIfCan(entity);
-
-		return modify3(entity, SuidType.DELETE);
+		try {
+			return modify3(entity, SuidType.DELETE);
+		} finally {
+			HoneyContext1.removeCategory(LocalType.MORETABLE_MODIFY);
+		}
 	}
 
 	// 多表的modify是调用suidRich完成的.拦截器,则使用suidRich的.
@@ -330,9 +340,12 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 		if (moreTableStructMap == null || moreTableStructMap.isEmpty())
 			throw new BeeException("Entity for MoreTable operate must have JoinTable or FK setting!");
 
-		// 检查 但有可能主键是在SuidRich时还自动添加的。
+		HoneyContext1.set(LocalType.REQUEST, StringConst.MoreTableModifyStoreDsTabSuffix, StringConst.tRue);
+
+		// 检查 但有可能主键是在SuidRich时还自动添加的。 已有处理. 不是用原来的逻辑加了后面恢复. 只是在自动加的时候存起来,在这个类用.
 		// 1. process main entity
 		int mainAffectNum = modifyOneEntity3(entity, suidType, null);
+		// 上句modifyOneEntity3执行后,就会在SqlLib中,删除LocalType.REQUEST的上下文
 
 		// 主表没有插入/删除成功，则不处理子表。
 		// if insert/delete not successful or update main affect num<0, do not process sub entity.
@@ -341,6 +354,10 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 					+ ", will ignore " + type + " sub entity!");
 			return mainAffectNum;
 		}
+
+		// in Sharding model, sub table will use the main table's DS and tabSuffix.
+		String mainAppointDs = (String) HoneyContext1.get(LocalType.MORETABLE_MODIFY, StringConst.MoreTableModifyDs);
+		String mainTabSuffix = (String) HoneyContext1.get(LocalType.MORETABLE_MODIFY, StringConst.MoreTableModifyTabSuffix);
 
 		// 2. start process sub entity
 		MoreTableStruct3 moreTableStruct;
@@ -409,6 +426,12 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 						continue; // todo 要是写错字段名；在这回提前返回
 					}
 
+					// in Sharding model, sub table will use the main table's DS and tabSuffix.
+					if (ShardingUtil.isSharding()) {
+						HintManager.setDataSourceName(mainAppointDs);
+//					    HintManager.setTableName(mainAppointTab); //mainAppointTab是表全名不合适，只需要用主表的下标在子表
+						HoneyContext.setTabSuffix(mainTabSuffix);
+					}
 					int subAffect = modifyOneEntity3(subObject, suidType, subFields);
 					Logger.logSQL(
 							type + " sub entity:" + subObject.getClass().getName() + ", Affected rows: " + subAffect);
@@ -461,6 +484,12 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 //								if (idValeu != null) subAffect=getSuidRich().update(subListObject.get(k)); // 有主键，使用主键作为过滤条件。
 //								else subAffect = getSuidRich().updateBy(subListObject.get(k), subFields);
 
+								// in Sharding model, sub table will use the main table's DS and tabSuffix.
+								if (ShardingUtil.isSharding()) {
+									HintManager.setDataSourceName(mainAppointDs);
+//								    HintManager.setTableName(mainAppointTab); //mainAppointTab是表全名不合适，只需要用主表的下标在子表
+									HoneyContext.setTabSuffix(mainTabSuffix);
+								}
 								subAffect = modifyOneEntity3(subListObject.get(k), suidType, subFields);
 
 								Logger.logSQL(type + " sub entity:" + subObject.getClass().getName() + ", Affected rows: "

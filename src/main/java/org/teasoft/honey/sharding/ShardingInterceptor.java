@@ -687,6 +687,12 @@ public class ShardingInterceptor extends EmptyInterceptor {
 			dsTabStruct.setTabName(tabName); // 2022-09-23
 		}
 
+		// 3.0.0 getTabSuffix 
+		if (ShardingUtil.isSharding() && StringConst.tRue.equals(HoneyContext1.get(LocalType.REQUEST, StringConst.MoreTableModifyStoreDsTabSuffix))) {
+			HoneyContext1.set(LocalType.MORETABLE_MODIFY, StringConst.MoreTableModifyTabSuffix,
+					dsTabStruct.getTabSuffix());
+		}
+
 		if (StringUtils.isBlank(dsTabStruct.getDsName())) { // 一库一表时, 若ds为空,通过表名查到ds后并设置. 用于在获取连接时使用.
 			dsTabStruct.setDsName(ShardingRegistry.getDsByTab(tabName)); // Sharding注解,肯定是ds,tab都能确认的.
 																			// 统一配置的,只有表分表,可以通过表名,反查.

@@ -26,6 +26,11 @@ public final class StringConst {
 
 	public static final String MoreTableInsertDoing = PREFIX + "MoreTableInsertDoing";
 	public static final String MoreTableInsertInitIdByAuto = PREFIX + "MoreTableInsertInitIdByAuto:";
+	
+	public static final String MoreTableModifyStoreDsTabSuffix = PREFIX + "MoreTableModifyStoreDsTabSuffix";
+	public static final String MoreTableModifyDs = PREFIX + "MoreTableModifyDs";
+//	public static final String MoreTableModifyTab = PREFIX + "MoreTableModifyTab";
+	public static final String MoreTableModifyTabSuffix = PREFIX + "MoreTableModifyTabSuffix";
 
 	public static final String TABLE_NAME = "_SYS_Bee_TableName";
 	public static final String TABLE_NAME_RELATIVE = "_SYS_Bee_TableName_Relative"; // 2.4.0

@@ -15,6 +15,7 @@ import org.teasoft.bee.osql.api.Condition;
 import org.teasoft.bee.osql.api.Suid;
 import org.teasoft.bee.osql.exception.NotSupportedException;
 import org.teasoft.honey.logging.Logger;
+import org.teasoft.honey.sharding.ShardingUtil;
 
 /**
  * 通过对象来操作数据库，并返回结果.
@@ -78,6 +79,7 @@ public class ObjSQL extends AbstractCommOperate implements Suid {
 
 			return updateNum;
 		} finally {
+			regDsForMoreTableModifySharding();// 3.0.0
 			doBeforeReturn();
 		}
 	}
@@ -103,8 +105,18 @@ public class ObjSQL extends AbstractCommOperate implements Suid {
 			}
 			return insertNum;
 		} finally {
+			regDsForMoreTableModifySharding();// 3.0.0
 			HoneyUtil.revertId(entity); // 3.0.0
 			doBeforeReturn();
+		}
+	}
+
+	private void regDsForMoreTableModifySharding() {
+		if (!ShardingUtil.isSharding()) return;
+		// 3.0.0 for MoreTable sharding
+		if (StringConst.tRue.equals(HoneyContext1.get(LocalType.REQUEST, StringConst.MoreTableModifyStoreDsTabSuffix))) {
+			HoneyContext1.set(LocalType.MORETABLE_MODIFY, StringConst.MoreTableModifyDs, HoneyContext.getAppointDS());
+			// TabSuffix 在ShardingInterceptor记录
 		}
 	}
 
@@ -177,7 +189,8 @@ public class ObjSQL extends AbstractCommOperate implements Suid {
 
 		String pkName = HoneyUtil.getPkFieldName(entity);
 		if ("".equals(pkName) || pkName.contains(",")) pkName = "id"; // insertAndReturnId 返回id,只支持一个主键,没有或超过一个改为用id.
-//		fixed 2.4.0   use column name
+		// TODO 要是没有包含id字段呢？？？
+		// fixed 2.4.0 use column name
 		OneTimeParameter.setAttribute(StringConst.PK_Column_For_ReturnId,
 				HoneyUtil.toCloumnNameForPks(pkName, entity.getClass()));
 		// id will gen by db
@@ -200,6 +213,7 @@ public class ObjSQL extends AbstractCommOperate implements Suid {
 			deleteNum = getBeeSql().modify(sql);
 			return deleteNum;
 		} finally {
+			regDsForMoreTableModifySharding();// 3.0.0
 			doBeforeReturn();
 		}
 	}
