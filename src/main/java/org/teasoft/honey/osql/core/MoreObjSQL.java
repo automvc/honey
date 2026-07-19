@@ -428,11 +428,8 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 					}
 
 					// in Sharding model, sub table will use the main table's DS and tabSuffix.
-					if (ShardingUtil.isSharding() && !ShardingUtil.isBroadcastTab(_toTableName(subObject))) {
-						HintManager.setDataSourceName(mainAppointDs);
-//					    HintManager.setTableName(mainAppointTab); //mainAppointTab是表全名不合适，只需要用主表的下标在子表
-						HoneyContext.setTabSuffix(mainTabSuffix);
-					}
+					String subTableName = _toTableName(subObject);
+					hintDsTabIfNeed(mainAppointDs, subTableName, mainTabSuffix);
 					int subAffect = modifyOneEntity3(subObject, suidType, subFields);
 					Logger.logSQL(
 							type + " sub entity:" + subObject.getClass().getName() + ", Affected rows: " + subAffect);
@@ -454,29 +451,37 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 //						if (!isSuperFieldNullValue) { // 上层主键值没有为空的，就一次将整个list插入
 //							subAffect = getSuidRich().insert(subListObject); // insert list   TODO 批量插入,可能和Sharding冲突; 要考虑将生成的id数组存起来
 //						} else {
-						for (int k = 0; k < subListObject.size(); k++)
+						String subTableName = null;
+						for (int k = 0; k < subListObject.size(); k++) {
+							if (k == 0) subTableName = _toTableName(subListObject.get(0));
 							if (nullValueArray[k] == 1) {
 								// 上层主键值是空,即子表没有设置外键值时就不执行(也不会往下层执行)
 								continue;
 							} else {
+								hintDsTabIfNeed(mainAppointDs, subTableName, mainTabSuffix);
 								subAffect = getSuidRich().insert(subListObject.get(k));
 								Logger.logSQL(type + " sub entity:" + subObject.getClass().getName() + ", Affected rows: "
 										+ subAffect);
 							}
-//						}
+						}
 					} else if (SuidType.DELETE == suidType) {
+						String subTableName = null;
 						for (int k = 0; k < subListObject.size(); k++) {
+							if (k == 0) subTableName = _toTableName(subListObject.get(k));
 							if (nullValueArray[k] == 1) {
 								// 上层主键值是空,即子表没有设置外键值时就不执行(也不会往下层执行)
 								continue;
 							} else {
+								hintDsTabIfNeed(mainAppointDs, subTableName, mainTabSuffix);
 								subAffect = getSuidRich().delete(subListObject.get(k));
 								Logger.logSQL(type + " sub entity:" + subObject.getClass().getName() + ", Affected rows: "
 										+ subAffect);
 							}
 						}
 					} else if (SuidType.UPDATE == suidType) {
+						String subTableName = null;
 						for (int k = 0; k < subListObject.size(); k++) {
+							if (k == 0) subTableName = _toTableName(subListObject.get(k));
 							if (nullValueArray[k] == 1) {
 								// 上层主键值是空,即子表没有设置外键值时就不执行(也不会往下层执行)
 								continue;
@@ -485,12 +490,7 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 //								if (idValeu != null) subAffect=getSuidRich().update(subListObject.get(k)); // 有主键，使用主键作为过滤条件。
 //								else subAffect = getSuidRich().updateBy(subListObject.get(k), subFields);
 
-								// in Sharding model, sub table will use the main table's DS and tabSuffix.
-								if (ShardingUtil.isSharding() && !ShardingUtil.isBroadcastTab(_toTableName(subListObject.get(k)))) {
-									HintManager.setDataSourceName(mainAppointDs);
-//								    HintManager.setTableName(mainAppointTab); //mainAppointTab是表全名不合适，只需要用主表的下标在子表
-									HoneyContext.setTabSuffix(mainTabSuffix);
-								}
+								hintDsTabIfNeed(mainAppointDs, subTableName, mainTabSuffix);
 								subAffect = modifyOneEntity3(subListObject.get(k), suidType, subFields);
 
 								Logger.logSQL(type + " sub entity:" + subObject.getClass().getName() + ", Affected rows: "
@@ -507,6 +507,17 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 			// list 的下一层,只处理了list.get(0)对应的子表 TODO
 		}
 		return mainAffectNum;
+	}
+
+	private void hintDsTabIfNeed(String mainAppointDs, String subTableName, String mainTabSuffix) {
+		// in Sharding model, sub table will use the main table's DS and tabSuffix.
+//		String subTableName = _toTableName(subObject);
+		if (ShardingUtil.isSharding() && !ShardingUtil.isBroadcastTab(subTableName)) {
+			HintManager.setDataSourceName(mainAppointDs);
+//		    HintManager.setTableName(mainAppointTab); //mainAppointTab是表全名不合适，只需要用主表的下标在子表
+//			HoneyContext.setTabSuffix(mainTabSuffix);
+			HintManager.setTableName(subTableName + mainTabSuffix);
+		}
 	}
 
 	private <T> int modifyOneEntity3(T entity, SuidType suidType, String[] subFields) {// 子表是update时,不走这个分支
