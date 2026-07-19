@@ -58,11 +58,6 @@ public class ConditionHelper {
 		return wrap.isFirst();
 	}
 
-//	// 2.4.0
-//	static UpdateSetConditionWrap processUpdateSetCondition(Condition condition) {
-//		return processUpdateSetCondition(condition, true);
-//	}
-
 	static UpdateSetConditionWrap processUpdateSetCondition(Condition condition, boolean firstSet) {
 
 		StringBuffer sqlBuffer = new StringBuffer();
@@ -463,13 +458,6 @@ public class ConditionHelper {
 		return HoneyUtil.isConfuseDuplicateFieldDB();
 	}
 
-//	private static void addValeToList(List<PreparedValue> list, Expression exp) {
-//		PreparedValue preparedValue = new PreparedValue();
-//		preparedValue.setType(exp.getValue().getClass().getName());
-//		preparedValue.setValue(exp.getValue());
-//		list.add(preparedValue);
-//	}
-
 	private static String _toColumnName(String fieldName, Class entityClass) {
 		return HoneyUtil.toColumnName(fieldName, entityClass);
 	}
@@ -495,13 +483,11 @@ public class ConditionHelper {
 
 		String t_fieldName = "";
 		String t_tableName = "";
-//		String t_tableName_dot;
 		String find_tableName = "";
 		int index = fieldName.indexOf('.');
 		if (index > -1) {
 			t_fieldName = fieldName.substring(index + 1);
 			t_tableName = fieldName.substring(0, index);
-//			t_tableName_dot=fieldName.substring(0,index+1);
 			// check whether is useSubTableName
 			if (useSubTableNames[0] != null && useSubTableNames[0].equals(t_tableName)) { // fixed bug 2.4.0
 				find_tableName = t_tableName;
@@ -561,7 +547,6 @@ public class ConditionHelper {
 		}
 
 		sqlBuffer.append(")");
-
 	}
 
 	public static String processLike(Op op, String v) {
@@ -817,7 +802,6 @@ public class ConditionHelper {
 					sqlBuffer.append(FunAndOrderTypeMap.transfer(expression.getValue2().toString()));
 				}
 			} // end orderBy
-
 		} // end expList for
 
 		return new WhereConditionWrap(sqlBuffer, list, isFirstWhere);
