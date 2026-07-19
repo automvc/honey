@@ -25,6 +25,7 @@ import org.teasoft.bee.osql.exception.BeeIllegalParameterException;
 import org.teasoft.bee.osql.exception.BeeIllegalSQLException;
 import org.teasoft.honey.logging.Logger;
 import org.teasoft.honey.osql.core.ConditionImpl.FunExpress;
+import org.teasoft.honey.osql.name.NameUtil;
 import org.teasoft.honey.osql.shortcut.BF;
 import org.teasoft.honey.sharding.HintManager;
 import org.teasoft.honey.sharding.ShardingReg;
@@ -395,10 +396,10 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 //			Class<?> subClass = moreTableStruct.subClass;
 			List<Class<?>> typeTree = moreTableStruct.typeTree;
 			for (int i = 0; i < mainFields.length; i++) {
-				mainColumn = toColumnName(mainFields[i], typeTree.get(moreTableStruct.layer - 2));
+				mainColumn = _toColumnName(mainFields[i], typeTree.get(moreTableStruct.layer - 2));
 				ParseSqlHelper.checkFieldName(mainColumn, typeTree.get(moreTableStruct.layer - 2), mainFields[i]);
 
-				subColumn = toColumnName(subFields[i], subClass);
+				subColumn = _toColumnName(subFields[i], subClass);
 				ParseSqlHelper.checkFieldName(subColumn, subClass, subFields[i]);
 			}
 
@@ -427,7 +428,7 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 					}
 
 					// in Sharding model, sub table will use the main table's DS and tabSuffix.
-					if (ShardingUtil.isSharding()) {
+					if (ShardingUtil.isSharding() && !ShardingUtil.isBroadcastTab(_toTableName(subObject))) {
 						HintManager.setDataSourceName(mainAppointDs);
 //					    HintManager.setTableName(mainAppointTab); //mainAppointTab是表全名不合适，只需要用主表的下标在子表
 						HoneyContext.setTabSuffix(mainTabSuffix);
@@ -485,7 +486,7 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 //								else subAffect = getSuidRich().updateBy(subListObject.get(k), subFields);
 
 								// in Sharding model, sub table will use the main table's DS and tabSuffix.
-								if (ShardingUtil.isSharding()) {
+								if (ShardingUtil.isSharding() && !ShardingUtil.isBroadcastTab(_toTableName(subListObject.get(k)))) {
 									HintManager.setDataSourceName(mainAppointDs);
 //								    HintManager.setTableName(mainAppointTab); //mainAppointTab是表全名不合适，只需要用主表的下标在子表
 									HoneyContext.setTabSuffix(mainTabSuffix);
@@ -595,7 +596,11 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 	}
 
 	@SuppressWarnings("rawtypes")
-	private static String toColumnName(String fieldName, Class entityClass) {
+	private static String _toColumnName(String fieldName, Class entityClass) {
 		return HoneyUtil.toColumnName(fieldName, entityClass);
+	}
+	
+	private static String _toTableName(Object entity) {
+		return NameTranslateHandle.toTableName(NameUtil.getClassFullName(entity));
 	}
 }

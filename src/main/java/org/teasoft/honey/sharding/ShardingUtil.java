@@ -70,6 +70,10 @@ public class ShardingUtil {
 		else
 			return tableName;
 	}
+	//3.0.0
+	public static boolean isBroadcastTab(String tableName) {
+		return ShardingUtil.isSharding() && ShardingRegistry.isBroadcastTab(tableName);
+	}
 
 	public static boolean hadGroupSharding() {
 //		return HoneyContext.getCurrentGroupFunStruct() != null;
