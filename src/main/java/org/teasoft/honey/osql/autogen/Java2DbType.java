@@ -207,7 +207,7 @@ public class Java2DbType {
 	private static Map<String, String> forH2() {
 		Map<String, String> java2DbType = new HashMap<>();
 
-		java2DbType.put("java.lang.String", "VARCHAR2(255)"); //TODO
+		java2DbType.put("java.lang.String", "VARCHAR2(255)"); // 3.0.0 can use @StringLen change
 		java2DbType.put("java.lang.Integer", "INT4");
 		java2DbType.put("java.lang.Long", "BIGINT");
 		java2DbType.put("java.lang.Double", "FLOAT8");

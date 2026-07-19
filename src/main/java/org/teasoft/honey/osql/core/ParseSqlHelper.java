@@ -165,7 +165,7 @@ public final class ParseSqlHelper {
 		int len = field.length;
 		boolean hasJoinField = false;
 		for (int i = 0; i < len; i++) {
-			if (HoneyUtil.isSkipFieldForMoreTable(field[i])) continue; // 有Ignore注释,将不再处理JoinTable //TODO
+			if (HoneyUtil.isSkipFieldForMoreTable(field[i])) continue; // 有Ignore注释,将不再处理JoinTable
 			if (field[i] != null
 					&& (AnnoUtil.isJoinTable(field[i]) || (SuidType.MODIFY == suidType && AnnoUtil.isFK(field[i])))) {
 				hasJoinField = true;

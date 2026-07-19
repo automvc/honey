@@ -449,7 +449,7 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 					if (SuidType.INSERT == suidType) {
 						// 批量插入方式, 影响将自动生成的id保存起来
 //						if (!isSuperFieldNullValue) { // 上层主键值没有为空的，就一次将整个list插入
-//							subAffect = getSuidRich().insert(subListObject); // insert list   TODO 批量插入,可能和Sharding冲突; 要考虑将生成的id数组存起来
+//							subAffect = getSuidRich().insert(subListObject); // insert list   todo 批量插入,可能和Sharding冲突; 要考虑将生成的id数组存起来
 //						} else {
 						String subTableName = null;
 						for (int k = 0; k < subListObject.size(); k++) {
@@ -486,7 +486,7 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 								// 上层主键值是空,即子表没有设置外键值时就不执行(也不会往下层执行)
 								continue;
 							} else {
-//								Object idValeu = HoneyUtil.getIdValue(subListObject.get(k)); //不支持联合主键 TODO
+//								Object idValeu = HoneyUtil.getIdValue(subListObject.get(k)); //不支持联合主键 todo
 //								if (idValeu != null) subAffect=getSuidRich().update(subListObject.get(k)); // 有主键，使用主键作为过滤条件。
 //								else subAffect = getSuidRich().updateBy(subListObject.get(k), subFields);
 
