@@ -554,6 +554,7 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 				mainField1Cache, true, suidType);
 	}
 
+	@SuppressWarnings("unchecked")
 	private boolean checkAndFillSubFieldWithSuperField(String[] mainFields, String[] subFields, int layer,
 			Object lastLayerObject, Object subObject, Field mainField1Cache, boolean isNeedSet, SuidType suidType)
 			throws NoSuchFieldException, IllegalAccessException {
@@ -563,7 +564,7 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 
 		Map<String, Object> pkValueMap = null;
 		if (suidType == SuidType.INSERT) {
-			pkValueMap = (Map) HoneyContext1.get(LocalType.MORETABLE_INSERT,
+			pkValueMap = (Map<String, Object>) HoneyContext1.get(LocalType.MORETABLE_INSERT,
 					StringConst.MoreTableInsertInitIdByAuto + lastLayerObject.getClass().getName());
 		}
 		for (int i = 0; i < mainFields.length; i++) {
@@ -610,7 +611,7 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 	private static String _toColumnName(String fieldName, Class entityClass) {
 		return HoneyUtil.toColumnName(fieldName, entityClass);
 	}
-	
+
 	private static String _toTableName(Object entity) {
 		return NameTranslateHandle.toTableName(NameUtil.getClassFullName(entity));
 	}

@@ -49,11 +49,12 @@ public class ConditionHelper {
 	}
 
 	// ForUpdate
+	@SuppressWarnings("unchecked")
 	static boolean processConditionForUpdateSet(StringBuffer sqlBuffer, List<PreparedValue> list, Condition condition) {
 		UpdateSetConditionWrap wrap = processUpdateSetCondition(condition, true);
 
 		sqlBuffer.append(wrap.getSqlBuffer());
-		list.addAll((List) wrap.getPvList());
+		list.addAll((List<PreparedValue>) wrap.getPvList());
 
 		return wrap.isFirst();
 	}

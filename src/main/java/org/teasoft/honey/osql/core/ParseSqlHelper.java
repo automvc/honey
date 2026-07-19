@@ -16,7 +16,6 @@ import org.teasoft.honey.util.StringUtils;
 
 class EntityWrapper {
 	List<String> columnList; // 列名list
-//	List<String> classFieldnameList;// 类字段list
 	Map<String, Object> columnAndValue;// 列名和值的map
 	List<PreparedValue> preList;// 占位对应的值/类型
 }
@@ -27,19 +26,11 @@ public final class ParseSqlHelper {
 
 	private ParseSqlHelper() {}
 
+	@SuppressWarnings("unchecked")
 	static <T> EntityWrapper parseEntity(T entityOrClass, int includeType) {
 		if (entityOrClass == null) return null;
 
 		EntityWrapper wrapper = new EntityWrapper();
-//		boolean hasCacheFieldName = false;
-//		List<String> classFieldnameList = null;
-
-//		classFieldnameList = (List<String>) HoneyContext1.get("classFieldnameList:" + entity.getClass().getName());
-//		if (classFieldnameList != null) {
-//			wrapper.classFieldnameList = classFieldnameList;
-//			hasCacheFieldName = true;
-//		}
-
 		Class<?> clazz;
 		boolean paramIsClass = false;
 
@@ -60,7 +51,6 @@ public final class ParseSqlHelper {
 
 		Object value = null;
 		List<PreparedValue> preList = null;
-//		List<String> classFieldnameList = null;
 
 		Field fields[] = HoneyUtil.getFields(clazz);
 		int len = fields.length;
@@ -76,13 +66,11 @@ public final class ParseSqlHelper {
 			if (isFirst) {
 				isFirst = false;
 				preList = new ArrayList<>();
-//				if(!hasCacheFieldName)classFieldnameList = new ArrayList<>();
 				if (!hasCacheColumnList) columnList = new ArrayList<>();
 			}
 
 			column = _toColumnName(fields[i].getName(), clazz);
 			if (!hasCacheColumnList) columnList.add(column);
-//			if(!hasCacheFieldName) classFieldnameList.add(fields[i].getName());
 
 			if (paramIsClass) continue;
 
@@ -102,11 +90,6 @@ public final class ParseSqlHelper {
 			preList.add(new PreparedValue(fields[i], value));
 		}
 
-//		if (!hasCacheFieldName) {
-//			wrapper.classFieldnameList = classFieldnameList;
-//			HoneyContext1.set("classFieldnameList:" + entity.getClass().getName(), classFieldnameList);
-//		}
-
 		if (!hasCacheColumnList) {
 			wrapper.columnList = columnList;
 			HoneyContext1.set(StringConst.FOREVER_COLUMNLIST + entityOrClass.getClass().getName(), columnList);
@@ -117,6 +100,7 @@ public final class ParseSqlHelper {
 		return wrapper;
 	}
 
+	@SuppressWarnings("unchecked")
 	public static List<String> getColumnList(Class<?> clazz) {
 		List<String> columnList = (List<String>) HoneyContext1.get(StringConst.FOREVER_COLUMNLIST + clazz.getName());
 		if (columnList != null) return columnList;
@@ -137,7 +121,7 @@ public final class ParseSqlHelper {
 		return columnList;
 	}
 
-	public static void checkFieldName(String columnName, Class clazz, String fieldNameForLog) {
+	public static void checkFieldName(String columnName, Class<?> clazz, String fieldNameForLog) {
 		List<String> list = ParseSqlHelper.getColumnList(clazz);
 		if (list == null) return;
 		for (String f : list) {
@@ -151,6 +135,7 @@ public final class ParseSqlHelper {
 		return parseJoins(entity, SuidType.SELECT);
 	}
 
+	@SuppressWarnings("unchecked")
 	static <T> Map<String, MoreTableStruct3> parseJoins(T entity, SuidType suidType) {
 		if (entity == null) return null;
 
@@ -158,7 +143,8 @@ public final class ParseSqlHelper {
 		String key = StringConst.ForMoreTableStruct3 + suidType.name() + packageAndClassName;
 
 		// 每一次的对象不一样。 本次线程有效
-		Map<String, MoreTableStruct3> map = (Map) HoneyContext1.getInheritable(LocalType.REQUEST, key);
+		Map<String, MoreTableStruct3> map = (Map<String, MoreTableStruct3>) HoneyContext1
+				.getInheritable(LocalType.REQUEST, key);
 		if (map == null) {
 			map = parseJoins0(entity, suidType);
 			HoneyContext1.setInheritable(LocalType.REQUEST, key, map);
@@ -210,15 +196,14 @@ public final class ParseSqlHelper {
 				typeTree.add(moreTableStruct.subClass);
 
 				moreTableStruct.typeTree = typeTree;
-				// TODO change to debug
-				Logger.info(
+				Logger.debug(
 						"The layer is: 1, class is: " + entity.getClass() + ", alias is: " + moreTableStruct.mainAlias);
 
 				String subType = ", class is: ";
 				if (moreTableStruct.currentIsList) {
 					subType = ", class is List, element type is: ";
 				}
-				Logger.info("The layer is: " + layer + subType + moreTableStruct.subClass.getName() + ", alias is: "
+				Logger.debug("The layer is: " + layer + subType + moreTableStruct.subClass.getName() + ", alias is: "
 						+ moreTableStruct.subAlias);
 
 				int orignalSize = result.size();
@@ -276,7 +261,7 @@ public final class ParseSqlHelper {
 					subType = ", class is List, element type is: ";
 					overall.setHasAnySubListEntity(moreTableStruct2.currentIsList);
 				}
-				Logger.info("The layer is: " + layer + subType + moreTableStruct2.subClass.getName() + ", alias is: "
+				Logger.debug("The layer is: " + layer + subType + moreTableStruct2.subClass.getName() + ", alias is: "
 						+ moreTableStruct2.subAlias);
 
 				_parseOneHasOne(moreTableStruct2, result, layer, overall, suidType);
