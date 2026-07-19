@@ -11,9 +11,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.teasoft.bee.osql.DatabaseConst;
+import org.teasoft.bee.osql.annotation.ddl.ColumnType;
+import org.teasoft.bee.osql.annotation.ddl.StringLen;
 import org.teasoft.bee.osql.exception.BeeErrorNameException;
+import org.teasoft.bee.osql.exception.ConfigWrongException;
 import org.teasoft.bee.osql.exception.NotSupportedException;
 import org.teasoft.honey.logging.Logger;
+import org.teasoft.honey.osql.core.Check;
 import org.teasoft.honey.osql.core.HoneyConfig;
 import org.teasoft.honey.osql.core.HoneyContext;
 import org.teasoft.honey.osql.core.HoneyUtil;
@@ -30,6 +34,15 @@ import org.teasoft.honey.util.StringUtils;
  * The key word just use Upper.
  * @author Kingstar
  * @since  2.0
+ * 
+ * support @StringLen, @ColumnType
+ * e.g.
+<p>	@StringLen(len = "100")
+<p>	private String name;
+<p>	private String isbn;
+<p>	@ColumnType(type = "text(300)")
+<p>	private String remark;
+ * @since  3.0.0
  */
 public class DdlToSql {
 
@@ -183,12 +196,15 @@ public class DdlToSql {
 			}
 			sqlBuffer.append(_toColumnName(fields[i].getName(), entityClass)).append("  ");
 
-			if (isPrimaryKey(fields[i])) {
+			if (fields[i].isAnnotationPresent(ColumnType.class)) {
+				useDefineColumnType(fields[i], sqlBuffer);
+			} else if (isPrimaryKey(fields[i])) {
 				String pkSt = "bigint(20) PRIMARY KEY NOT NULL AUTO_INCREMENT";
 				if (String.class.equals(fields[i].getType())) {
 					String type = getJava2DbType().get(fields[i].getType().getName());
 					if (type != null) {
 						pkSt = "varchar(255) PRIMARY KEY NOT NULL";
+						pkSt = updateStringLenIfDefine(fields[i], pkSt);
 					}
 				}
 				sqlBuffer.append(pkSt);
@@ -199,6 +215,9 @@ public class DdlToSql {
 					type = getJava2DbType().get(java_lang_String);
 					Logger.warn(BE_REPLACE_WITH_TYPE + type);
 				}
+//				StringLen stringLen = fields[i].getAnnotation(StringLen.class);
+//				if(stringLen!=null) type=type.replace("255", stringLen.len().trim());
+				type = updateStringLenIfDefine(fields[i], type);
 				sqlBuffer.append(type);
 
 				if ("timestamp".equalsIgnoreCase(type) || "datetime".equalsIgnoreCase(type)) {
@@ -219,6 +238,34 @@ public class DdlToSql {
 		return sqlBuffer.toString();
 
 	}
+	
+	private static String updateStringLenIfDefine(Field field, String type) {
+		StringLen stringLen = field.getAnnotation(StringLen.class);
+		if (stringLen != null) {
+			if (stringLen.len() != null) {
+				try {
+					Integer.parseInt(stringLen.len().trim());
+					type = type.replace("255", stringLen.len().trim());
+				} catch (Exception e) {
+					Logger.warn("StringLen len() just support number");
+				}
+			}
+		}
+		return type;
+	}
+	
+	private static void useDefineColumnType(Field field, StringBuilder sqlBuffer) {
+		ColumnType columnType = field.getAnnotation(ColumnType.class);
+		String type = columnType.type();
+		if (StringUtils.isBlank(type)) {
+			throw new ConfigWrongException("ColumnType type() can not bee empty!");
+		}
+		type = type.trim();
+		if (Check.isNotValidExpression(type)) {
+			throw new ConfigWrongException("ColumnType type is not Valid, type: " + type);
+		}
+		sqlBuffer.append(type);
+	}
 
 //	H2
 	private static <T> String toCreateTableSQLForH2(Class<T> entityClass, String tableName) {
@@ -238,11 +285,16 @@ public class DdlToSql {
 			}
 			sqlBuffer.append(_toColumnName(fields[i].getName(), entityClass)).append("  ");
 
-			if (isPrimaryKey(fields[i])) {
-				if (!String.class.equals(fields[i].getType()))
+			if (fields[i].isAnnotationPresent(ColumnType.class)) {
+				useDefineColumnType(fields[i], sqlBuffer);
+			} else if (isPrimaryKey(fields[i])) {
+				if (!String.class.equals(fields[i].getType())) {
 					sqlBuffer.append(getPrimaryKeyStatement(databaseName));// different
-				else
-					sqlBuffer.append(getStringPrimaryKeyStatement(databaseName));
+				}else {
+					String t=getStringPrimaryKeyStatement(databaseName);
+					t = updateStringLenIfDefine(fields[i], t);
+					sqlBuffer.append(t);
+				}
 			} else {
 
 				String type = getJava2DbType().get(fields[i].getType().getName());
@@ -251,6 +303,7 @@ public class DdlToSql {
 					type = getJava2DbType().get(java_lang_String);
 					Logger.warn(BE_REPLACE_WITH_TYPE + type);
 				}
+				type = updateStringLenIfDefine(fields[i], type);
 				sqlBuffer.append(type);
 				if ("timestamp".equalsIgnoreCase(type) || "datetime".equalsIgnoreCase(type)) {
 					sqlBuffer.append(" DEFAULT CURRENT_TIMESTAMP");
@@ -289,7 +342,9 @@ public class DdlToSql {
 			}
 			sqlBuffer.append(_toColumnName(fields[i].getName(), entityClass)).append("  ");
 
-			if (isPrimaryKey(fields[i])) {
+			if (fields[i].isAnnotationPresent(ColumnType.class)) {
+				useDefineColumnType(fields[i], sqlBuffer);
+			} else if (isPrimaryKey(fields[i])) {
 				String pkSt = "bigint PRIMARY KEY NOT NULL";
 				if (String.class.equals(fields[i].getType())) {
 					String type = getJava2DbType().get(fields[i].getType().getName());
@@ -316,6 +371,7 @@ public class DdlToSql {
 						sqlBuffer.append("datetime DEFAULT NULL");
 					}
 				} else {
+					type = updateStringLenIfDefine(fields[i], type);
 					sqlBuffer.append(type);
 					sqlBuffer.append(" DEFAULT NULL");
 				}
