@@ -166,41 +166,6 @@ public class HoneyContext1 {
 		return (List<String>) get(LocalType.SHARDING, key);
 	}
 
-//	public static void setTrue(String key) {
-//		set(key, StringConst.tRue);
-//	}
-//
-//	public static boolean isTrue(String key) {
-//		return StringConst.tRue.equals(get(key));
-//	}
-
-//	/**
-//	 * 获取 ThreadLocal 中某个分类的所有数据（浅拷贝）
-//	 */
-//	public static Map<String, Object> getAll(LocalType category) {
-//		if (category == null) {
-//			return new HashMap<String, Object>();
-//		}
-//		Map<String, Object> catMap = LOCAL.get().get(category);
-//		return catMap != null ? new HashMap<String, Object>(catMap) : new HashMap<String, Object>();
-//	}
-
-//	/**
-//	 * 批量设置 ThreadLocal 数据
-//	 */
-//	public static void setAll(String category, Map<String, Object> data) {
-//		if (category == null || data == null || data.isEmpty()) {
-//			return;
-//		}
-//		Map<String, Map<String, Object>> store = LOCAL.get();
-//		Map<String, Object> catMap = store.get(category);
-//		if (catMap == null) {
-//			catMap = new ConcurrentHashMap<String, Object>();
-//			store.put(category, catMap);
-//		}
-//		catMap.putAll(data);
-//	}
-
 	// ==================== ThreadLocal ====================END
 
 	// ========== InheritableThreadLocal — 子线程自动继承 ==========
@@ -285,7 +250,7 @@ public class HoneyContext1 {
 	private static <T> T getInheritable(LocalType category, String key, Class<T> clazz) {
 		if (clazz == null) return null;
 
-		Object value = get(category, key);
+		Object value = getInheritable(category, key);
 		if (value == null) return null;
 		return clazz.isInstance(value) ? (T) value : null;
 	}
