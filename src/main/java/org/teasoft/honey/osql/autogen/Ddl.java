@@ -14,6 +14,21 @@ import org.teasoft.honey.osql.core.BeeFactoryHelper;
  * @author Kingstar
  * @since  1.9
  * @since  2.0
+ * 
+ * support @StringLen, @ColumnType, @NotNull, @Unique
+ * e.g.
+<p>	//@Table("book10")
+<p>	public class Book {
+<p>	@StringLen(len = "100")
+<p>	@NotNull("true")
+<p>	private String name;
+<p>	@Unique
+<p>	private String isbn;
+<p>	@ColumnType(type = "text(300)")
+<p>	private String remark;
+<p>	
+<p>	// ... get/set
+<p>	}
  */
 public class Ddl {
 

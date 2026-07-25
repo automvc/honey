@@ -1111,7 +1111,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 			String dropSql = DdlToSql.toDropTableSql(tableName);
 			try {
 				dropSql = doAfterCompleteSql(dropSql);
-				Logger.logSQL(LogSqlParse.parseSql("Drop SQL:", dropSql));
+				Logger.logSQL(LogSqlParse.parseSql("Drop SQL: ", dropSql));
 				_doModifyForDdl(dropSql);
 			} catch (Exception e) {
 				if (!(HoneyUtil.isOracle() || HoneyUtil.isSqlServer())) {
@@ -1121,7 +1121,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 //						dropSql = DdlToSql.toDropTableSimpleSql(entityClass);
 						dropSql = DdlToSql.toDropTableSimpleSql(tableName);
 						dropSql = doAfterCompleteSql(dropSql);
-						Logger.logSQL(LogSqlParse.parseSql("Drop SQL:", dropSql));
+						Logger.logSQL(LogSqlParse.parseSql("Drop SQL: ", dropSql));
 						_doModifyForDdl(dropSql);
 					} catch (Exception e2) {
 						Logger.warn(e2.getMessage());
@@ -1208,7 +1208,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 			doBeforePasreEntity(entityClass, SuidType.DDL);
 			_regEntityClass2(entityClass);
 			sql = doAfterCompleteSql(sql);
-			Logger.logSQL(LogSqlParse.parseSql("DDL SQL:", sql));
+			Logger.logSQL(LogSqlParse.parseSql("DDL SQL: ", sql));
 			_doModifyForDdl(sql);
 //			doBeforeReturn();
 			f = true;

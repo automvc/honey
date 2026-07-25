@@ -12,7 +12,9 @@ import java.util.Map;
 
 import org.teasoft.bee.osql.DatabaseConst;
 import org.teasoft.bee.osql.annotation.ddl.ColumnType;
+import org.teasoft.bee.osql.annotation.ddl.NotNull;
 import org.teasoft.bee.osql.annotation.ddl.StringLen;
+import org.teasoft.bee.osql.annotation.ddl.Unique;
 import org.teasoft.bee.osql.exception.BeeErrorNameException;
 import org.teasoft.bee.osql.exception.ConfigWrongException;
 import org.teasoft.bee.osql.exception.NotSupportedException;
@@ -35,22 +37,30 @@ import org.teasoft.honey.util.StringUtils;
  * @author Kingstar
  * @since  2.0
  * 
- * support @StringLen, @ColumnType
+ * support @StringLen, @ColumnType, @NotNull, @Unique
  * e.g.
+<p>	//@Table("book10")
+<p>	public class Book {
 <p>	@StringLen(len = "100")
+<p>	@NotNull("true")
 <p>	private String name;
+<p>	@Unique
 <p>	private String isbn;
 <p>	@ColumnType(type = "text(300)")
 <p>	private String remark;
+<p>	
+<p>	// ... get/set
+<p>	}
+<p>	
  * @since  3.0.0
  */
 public class DdlToSql {
 
+	private static final String ONE_SPACE = " ";
 	private static final String BE_REPLACE_WITH_TYPE = "It will be replace with type: ";
 	private static final String NOT_RELATIVE_COLUMN = " has not the relative database column type!";
 	private static final String THE_JAVA_TYPE = "The java type:";
 	private static final String CREATE_TABLE = "CREATE TABLE ";
-	// private static Map<String, String> java2DbType = Java2DbType.getJava2DbType(HoneyContext.getDbDialect());
 	private static String LINE_SEPARATOR = System.getProperty("line.separator"); // 换行符
 	private static Map<String, String> pkStatement = new HashMap<>();
 	private static Map<String, String> pkStringStatement = new HashMap<>();
@@ -102,7 +112,7 @@ public class DdlToSql {
 				if (i == fields.length - 1) sqlBuffer.delete(sqlBuffer.length() - 5, sqlBuffer.length() - 2);
 				continue;
 			}
-			sqlBuffer.append(_toColumnName(fields[i].getName(), entityClass)).append("  ");
+			sqlBuffer.append(_toColumnName(fields[i].getName(), entityClass)).append(ONE_SPACE);
 
 			String type = getType(fields[i]);
 
@@ -126,7 +136,7 @@ public class DdlToSql {
 			if (i != fields.length - 1)
 				sqlBuffer.append(",  ");
 			else
-				sqlBuffer.append("  ");
+				sqlBuffer.append(ONE_SPACE);
 			sqlBuffer.append(LINE_SEPARATOR);
 		}
 		sqlBuffer.append(" )");
@@ -194,7 +204,7 @@ public class DdlToSql {
 				if (i == fields.length - 1) sqlBuffer.delete(sqlBuffer.length() - 5, sqlBuffer.length() - 2);
 				continue;
 			}
-			sqlBuffer.append(_toColumnName(fields[i].getName(), entityClass)).append("  ");
+			sqlBuffer.append(_toColumnName(fields[i].getName(), entityClass)).append(ONE_SPACE);
 
 			if (fields[i].isAnnotationPresent(ColumnType.class)) {
 				useDefineColumnType(fields[i], sqlBuffer);
@@ -223,14 +233,22 @@ public class DdlToSql {
 				if ("timestamp".equalsIgnoreCase(type) || "datetime".equalsIgnoreCase(type)) {
 					sqlBuffer.append(" DEFAULT CURRENT_TIMESTAMP");
 				} else {
-					sqlBuffer.append(" DEFAULT NULL");
+//					NotNull notNull = fields[i].getAnnotation(NotNull.class);
+//					if (notNull != null && "true".equals(notNull.value()))
+					if(isNotNull(fields[i]))
+						sqlBuffer.append(" NOT NULL");
+					else
+						sqlBuffer.append(" DEFAULT NULL");
+					
+					if (isUnique(fields[i]))
+						sqlBuffer.append(" UNIQUE");
 				}
 			}
 
 			if (i != fields.length - 1)
 				sqlBuffer.append(",  ");
 			else
-				sqlBuffer.append("  ");
+				sqlBuffer.append(ONE_SPACE);
 			sqlBuffer.append(LINE_SEPARATOR);
 		}
 		sqlBuffer.append(" )");
@@ -266,6 +284,16 @@ public class DdlToSql {
 		}
 		sqlBuffer.append(type);
 	}
+	
+	private static boolean isNotNull(Field field) {
+		NotNull notNull = field.getAnnotation(NotNull.class);
+		return notNull != null && "true".equals(notNull.value());
+	}
+
+	private static boolean isUnique(Field field) {
+		Unique unique = field.getAnnotation(Unique.class);
+		return unique != null;
+	}
 
 //	H2
 	private static <T> String toCreateTableSQLForH2(Class<T> entityClass, String tableName) {
@@ -283,7 +311,7 @@ public class DdlToSql {
 				if (i == fields.length - 1) sqlBuffer.delete(sqlBuffer.length() - 5, sqlBuffer.length() - 2);
 				continue;
 			}
-			sqlBuffer.append(_toColumnName(fields[i].getName(), entityClass)).append("  ");
+			sqlBuffer.append(_toColumnName(fields[i].getName(), entityClass)).append(ONE_SPACE);
 
 			if (fields[i].isAnnotationPresent(ColumnType.class)) {
 				useDefineColumnType(fields[i], sqlBuffer);
@@ -308,14 +336,20 @@ public class DdlToSql {
 				if ("timestamp".equalsIgnoreCase(type) || "datetime".equalsIgnoreCase(type)) {
 					sqlBuffer.append(" DEFAULT CURRENT_TIMESTAMP");
 				} else {
-					sqlBuffer.append(" DEFAULT NULL");
+					if (isNotNull(fields[i]))
+						sqlBuffer.append(" NOT NULL");
+					else
+						sqlBuffer.append(" DEFAULT NULL");
+					
+					if (isUnique(fields[i]))
+						sqlBuffer.append(" UNIQUE");
 				}
 			}
 
 			if (i != fields.length - 1)
 				sqlBuffer.append(",  ");
 			else
-				sqlBuffer.append("  ");
+				sqlBuffer.append(ONE_SPACE);
 			sqlBuffer.append(LINE_SEPARATOR);
 		}
 		sqlBuffer.append(" )");
@@ -340,7 +374,7 @@ public class DdlToSql {
 				if (i == fields.length - 1) sqlBuffer.delete(sqlBuffer.length() - 5, sqlBuffer.length() - 2);
 				continue;
 			}
-			sqlBuffer.append(_toColumnName(fields[i].getName(), entityClass)).append("  ");
+			sqlBuffer.append(_toColumnName(fields[i].getName(), entityClass)).append(ONE_SPACE);
 
 			if (fields[i].isAnnotationPresent(ColumnType.class)) {
 				useDefineColumnType(fields[i], sqlBuffer);
@@ -365,7 +399,7 @@ public class DdlToSql {
 				if (("timestamp".equalsIgnoreCase(type))) {
 					if (!hasCurrentTime) {
 						sqlBuffer.append(type);
-						sqlBuffer.append(" ");
+						sqlBuffer.append(ONE_SPACE);
 						hasCurrentTime = true;
 					} else {
 						sqlBuffer.append("datetime DEFAULT NULL");
@@ -373,14 +407,20 @@ public class DdlToSql {
 				} else {
 					type = updateStringLenIfDefine(fields[i], type);
 					sqlBuffer.append(type);
-					sqlBuffer.append(" DEFAULT NULL");
+					if (isNotNull(fields[i]))
+						sqlBuffer.append(" NOT NULL");
+					else
+						sqlBuffer.append(" DEFAULT NULL");
+					
+					if (isUnique(fields[i]))
+						sqlBuffer.append(" UNIQUE");
 				}
 			}
 
 			if (i != fields.length - 1)
 				sqlBuffer.append(",  ");
 			else
-				sqlBuffer.append("  ");
+				sqlBuffer.append(ONE_SPACE);
 			sqlBuffer.append(LINE_SEPARATOR);
 		}
 		sqlBuffer.append(" )");
@@ -425,7 +465,7 @@ public class DdlToSql {
 
 	private static void initPkStatement() {
 		pkStatement.put(DatabaseConst.H2.toLowerCase(), "bigint PRIMARY KEY NOT NULL");
-		pkStatement.put(DatabaseConst.SQLite.toLowerCase(), " INTEGER PRIMARY KEY NOT NULL");
+		pkStatement.put(DatabaseConst.SQLite.toLowerCase(), "INTEGER PRIMARY KEY NOT NULL");
 		pkStatement.put(DatabaseConst.PostgreSQL.toLowerCase(), "bigserial NOT NULL");
 //		pkStatement.put("", "");
 //		pkStatement.put(null, "");
