@@ -25,6 +25,7 @@ import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
 import org.teasoft.bee.osql.exception.BeeIllegalSQLException;
 import org.teasoft.bee.sharding.FunStruct;
 import org.teasoft.bee.sharding.GroupFunStruct;
+import org.teasoft.bee.sharding.ShardingSortStruct;
 import org.teasoft.honey.logging.Logger;
 import org.teasoft.honey.osql.core.ConditionImpl.FunExpress;
 import org.teasoft.honey.osql.dialect.sqlserver.SqlServerPagingStruct;
@@ -335,85 +336,123 @@ public class ConditionHelper {
 			throw new BeeErrorGrammarException(conditionImpl.getSuidType()
 					+ " do not support specifying partial fields by method selectField(String) !");
 		}
-		String selectField[] = conditionImpl.getSelectField();
+		String selectField0[] = conditionImpl.getSelectField();
 
-		if (selectField == null) return null;
+		if (selectField0 == null) return null;
+
+		String selectField[] = selectField0;
+
+		// 3.0.0
+		ShardingSortStruct struct = ShardingUtil.parseOrderByMap(conditionImpl.getOrderBy());
+		String[] orderFields = struct.getOrderFields();
+		if (orderFields != null && orderFields.length > 0) {
+			List<String> addedOrderByFields = null;
+			for (int i = 0; i < orderFields.length; i++) {
+				if (isNeedAdd2Select(selectField0, orderFields[i])) {
+					if (addedOrderByFields == null) addedOrderByFields = new ArrayList<>();
+					addedOrderByFields.add(orderFields[i]);
+				}
+			}
+
+			if (addedOrderByFields!=null && addedOrderByFields.size() > 0) {
+				int addLen = addedOrderByFields.size();
+				selectField = new String[selectField0.length + addLen];
+				for (int j = 0; j < selectField0.length; j++) {
+					selectField[j] = selectField0[j];
+				}
+				int oldLen = selectField0.length;
+				for (int k = 0; k < addLen; k++) {
+					selectField[oldLen + k] = addedOrderByFields.get(k);
+				}
+
+				ShardingReg.regAddedOrderByField(addedOrderByFields);
+			}
+		}
 
 		return HoneyUtil.checkAndProcessSelectFieldViaString(columnNames, subDulFieldMap, selectField);
 	}
+	
+	private static boolean isNeedAdd2Select(String selectField0[], String target) {
+		if (selectField0 == null || selectField0.length == 0) return false;
+		if (target == null) return false;
 
-	public static String processFunction(String columnNames, Condition condition) {
-		return processFunction(columnNames, condition, null);
+		for (int i = 0; i < selectField0.length; i++) {
+			if (target.equals(selectField0[i])) return false;
+		}
+
+		return true;
 	}
 
-	public static String processFunction(String columnNames, Condition condition, String mainTable) {
+	//for Suid,SuidRich
+	public static String processFunction(String columnNames, Condition condition) {
+		return processFunction(columnNames, condition, null, null, null);
+	}
+	
+	// param mainClass, moreTableStructMap are for MoreTable
+	public static String processFunction(String columnNames, Condition condition, String mainTableAlias,
+			Class<?> mainClass, Map<String, MoreTableStruct3> moreTableStructMap) {
 
 		if (condition == null) return null;
 
-		boolean get_FunStructForSharding = OneTimeParameter.isTrue(StringConst.Get_GroupFunStruct); // V2.0
-
+//		boolean get_FunStructForSharding = OneTimeParameter.isTrue(StringConst.Get_GroupFunStruct); // V2.0
+		boolean get_FunStructForSharding;
+		
 		ConditionImpl conditionImpl = (ConditionImpl) condition;
 		List<FunExpress> funExpList = conditionImpl.getFunExpList();
 		String columnName;
 		String funStr = "";
 		boolean isFirst = true;
-		String alias;
-
+		String nameAlias;
+		boolean isSQLite = HoneyUtil.isSQLite();
+		
 		int size = funExpList.size();
-//		FunStruct funStructs[]=null;
 		List<FunStruct> funStructs = null;
-
 		String funUseName = "";
 
-		get_FunStructForSharding = get_FunStructForSharding && size > 0 && ShardingUtil.hadSharding();
-
-//		String sumStr="";
-//		String countStr="";
+		get_FunStructForSharding = size > 0 && ShardingUtil.hadSharding();
 
 		if (get_FunStructForSharding) {
 			funStructs = new ArrayList<>(size);
-//			sumStr="_sum_";
-//			countStr="_count_";
-//			if (HoneyUtil.isSqlKeyWordUpper()) {
-//				sumStr=sumStr.toUpperCase();
-//				countStr=countStr.toUpperCase();
-//			}
-
 		}
 
-		boolean isConfuseDuplicateFieldDB = isConfuseDuplicateFieldDB();
+		boolean isConfuseDuplicateFieldDB = HoneyUtil.isConfuseDuplicateFieldDB();
 		boolean hasAvg = false;
-//		int adjust=0;
 		for (int i = 0; i < funExpList.size(); i++) {
 
 			if ("*".equals(funExpList.get(i).getField())) {
 				columnName = "*";
 			} else { // todo //不校验字段
+
+				String fieldName = funExpList.get(i).getField();
+
+				if (mainClass == null || moreTableStructMap == null) {// for Suid,SuidRich
+					columnName = fieldName;
+				} else { // 3.0 for MoreTable
+					columnName = MoreTableHelper.fieldName2ColumnName(fieldName, mainTableAlias, mainClass,
+							moreTableStructMap);
+				}
 //				//聚合函数,支持复合写法,eg:"DISTINCT(school_id)", 不用检测
-				columnName = HoneyUtil.checkAndProcessSelectFieldViaString(columnNames, null, false,
-						funExpList.get(i).getField());
+				columnName = HoneyUtil.checkAndProcessSelectFieldViaString(columnNames, null, false, columnName);
 			}
 			if (isFirst) {
 				isFirst = false;
 			} else {
 				funStr += ",";
 			}
-//			funStr+=funExpList.get(i).getFunctionType().getName()+"("+columnName+")"; // funType要能转大小写风格
-//			String functionTypeName=funExpList.get(i).getFunctionType().getName();
 			String functionTypeName = funExpList.get(i).getFunctionType();
 			functionTypeName = FunAndOrderTypeMap.transfer(functionTypeName);
 
 			funStr += functionTypeName + "(" + columnName + ")";
 
-			alias = funExpList.get(i).getAlias();
-			if (StringUtils.isNotBlank(alias)) {
-				funUseName = alias;
-				String newAlias = alias;
+			nameAlias = funExpList.get(i).getAlias();
+			if (StringUtils.isNotBlank(nameAlias)) {
+				funUseName = nameAlias;
+				String newAlias = nameAlias;
 				// isConfuseDuplicateFieldDB用原来的,取名时应该取不有重名的
-				if (!isConfuseDuplicateFieldDB && StringUtils.isNotBlank(mainTable) && !alias.contains(".")) {
-					newAlias = "'" + mainTable + "." + alias + "'"; // mysql ok
+				if (!isConfuseDuplicateFieldDB && StringUtils.isNotBlank(mainTableAlias) && !nameAlias.contains(".")) {
+					newAlias = "'" + mainTableAlias + "." + nameAlias + "'"; // mysql ok
 				}
-				if (isSQLite()) {
+				if (isSQLite) {
 					funStr += " " + K.as + " " + newAlias;
 				} else {
 					funStr += " " + newAlias;
@@ -423,16 +462,10 @@ public class ConditionHelper {
 			}
 
 			if (get_FunStructForSharding) { // sharding
-//				funStructs[i+adjust] = new FunStruct(funUseName, functionTypeName);
 				funStructs.add(new FunStruct(funUseName, functionTypeName));
 				if (!hasAvg && FunctionType.AVG.getName().equalsIgnoreCase(functionTypeName)) {
 					hasAvg = true;
-//					adjust++;
-					// todo 一样也要改
-//					funStructs[i+adjust] = new FunStruct(funUseName+"_sum_", FunctionType.SUM.getName());
 					funStructs.add(new FunStruct(funUseName + "_sum_", FunctionType.SUM.getName()));
-//					adjust++;
-//					funStructs[i+adjust] = new FunStruct(funUseName+"_count_", FunctionType.COUNT.getName());
 					funStructs.add(new FunStruct(funUseName + "_count_", FunctionType.COUNT.getName()));
 
 					funStr += ", sum(" + columnName + ") " + K.as + " " + funUseName + "_sum_ , count(" + columnName
@@ -450,15 +483,7 @@ public class ConditionHelper {
 
 		return funStr;
 	}
-
-	private static boolean isSQLite() {
-		return HoneyUtil.isSQLite();
-	}
-
-	private static boolean isConfuseDuplicateFieldDB() {
-		return HoneyUtil.isConfuseDuplicateFieldDB();
-	}
-
+	
 	private static String _toColumnName(String fieldName, Class entityClass) {
 		return HoneyUtil.toColumnName(fieldName, entityClass);
 	}

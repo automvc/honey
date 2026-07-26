@@ -76,6 +76,13 @@ public class NameCheckUtil {
 			_checkName(name);
 		}
 	}
+	
+	public static void checkName(String names[]) {
+		if (names == null) return;
+		for (int i = 0; i < names.length; i++) {
+			_checkName(names[i].trim());
+		}
+	}
 
 	private static void _checkName(String name) {
 

@@ -170,6 +170,10 @@ public class ShardingReg {
 		setTrue(StringConst.MoreTableQuery);
 	}
 
+	public static void regAddedOrderByField(List<String> addedOrderByFields) {
+		HoneyContext1.setForSharding(StringConst.AddedOrderByField, addedOrderByFields);
+	}
+
 	// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>重写,排序,分页时用. end
 
 	public static void regShardingBatchInsertDoing() {

@@ -455,12 +455,20 @@ public class ConditionImpl implements Condition {
 
 	@Override
 	public Condition selectField(String... fieldList) {
-		if (fieldList != null && fieldList.length == 1)
-			checkField(fieldList[0]);
-		else
-			checkField(StringUtils.toCommasString(fieldList));
+		if (fieldList != null && fieldList.length == 1) {
+			if (fieldList[0] != null && fieldList[0].contains(",")) {
+				String n[] = fieldList[0].split(",");
+				checkFields(n);
+				this.selectField = n;
+			} else {
+				checkField(fieldList[0]);
+				this.selectField = fieldList;
+			}
+		} else {
+			checkFields(fieldList);
+			this.selectField = fieldList;
+		}
 
-		this.selectField = fieldList;
 		return this;
 	}
 
@@ -589,6 +597,10 @@ public class ConditionImpl implements Condition {
 	}
 
 	private void checkField(String fields) {
+		NameCheckUtil.checkName(fields);
+	}
+	
+	private void checkFields(String fields[]) {
 		NameCheckUtil.checkName(fields);
 	}
 

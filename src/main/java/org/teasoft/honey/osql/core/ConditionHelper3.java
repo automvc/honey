@@ -1,18 +1,14 @@
 package org.teasoft.honey.osql.core;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import org.teasoft.bee.osql.BeeException;
-import org.teasoft.bee.osql.FunctionType;
 import org.teasoft.bee.osql.OneMethod1;
 import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.api.Condition;
 import org.teasoft.bee.osql.dialect.DbFeature;
 import org.teasoft.bee.osql.exception.BeeErrorGrammarException;
-import org.teasoft.bee.sharding.FunStruct;
-import org.teasoft.bee.sharding.GroupFunStruct;
 import org.teasoft.honey.logging.Logger;
 import org.teasoft.honey.osql.core.ConditionImpl.FunExpress;
 import org.teasoft.honey.sharding.ShardingReg;
@@ -71,118 +67,6 @@ public class ConditionHelper3 {
 		}
 
 		return HoneyUtil.checkAndProcessSelectFieldViaString(columnNames, subDulFieldMap, selectFields);
-	}
-
-	public static String processFunction(String columnNames, Condition condition, String mainTableAlias,
-			Class<?> mainClass, Map<String, MoreTableStruct3> moreTableStructMap) {
-
-		if (condition == null) return null;
-
-		boolean get_FunStructForSharding = OneTimeParameter.isTrue(StringConst.Get_GroupFunStruct); // V2.0
-
-		ConditionImpl conditionImpl = (ConditionImpl) condition;
-		List<FunExpress> funExpList = conditionImpl.getFunExpList();
-		String columnName;
-		String funStr = "";
-		boolean isFirst = true;
-		String nameAlias;
-		boolean isSQLite = HoneyUtil.isSQLite();
-
-		int size = funExpList.size();
-//		FunStruct funStructs[]=null;
-		List<FunStruct> funStructs = null;
-
-		String funUseName = "";
-
-		get_FunStructForSharding = get_FunStructForSharding && size > 0 && ShardingUtil.hadSharding();
-
-//		String sumStr="";
-//		String countStr="";
-
-		if (get_FunStructForSharding) {
-			funStructs = new ArrayList<>(size);
-//			sumStr="_sum_";
-//			countStr="_count_";
-//			if (HoneyUtil.isSqlKeyWordUpper()) {
-//				sumStr=sumStr.toUpperCase();
-//				countStr=countStr.toUpperCase();
-//			}
-
-		}
-
-		boolean isConfuseDuplicateFieldDB = HoneyUtil.isConfuseDuplicateFieldDB();
-		boolean hasAvg = false;
-//		int adjust=0;
-		for (int i = 0; i < funExpList.size(); i++) {
-
-			if ("*".equals(funExpList.get(i).getField())) {
-				columnName = "*";
-			} else { // todo //不校验字段
-
-				// 3.0
-				String fieldName = funExpList.get(i).getField();
-				columnName = MoreTableHelper.fieldName2ColumnName(fieldName, mainTableAlias, mainClass,
-						moreTableStructMap);
-
-//				//聚合函数,支持复合写法,eg:"DISTINCT(school_id)", 不用检测
-				columnName = HoneyUtil.checkAndProcessSelectFieldViaString(columnNames, null, false, columnName);
-			}
-			if (isFirst) {
-				isFirst = false;
-			} else {
-				funStr += ",";
-			}
-//			funStr+=funExpList.get(i).getFunctionType().getName()+"("+columnName+")"; // funType要能转大小写风格
-//			String functionTypeName=funExpList.get(i).getFunctionType().getName();
-			String functionTypeName = funExpList.get(i).getFunctionType();
-			functionTypeName = FunAndOrderTypeMap.transfer(functionTypeName);
-
-			funStr += functionTypeName + "(" + columnName + ")";
-
-			nameAlias = funExpList.get(i).getAlias();
-			if (StringUtils.isNotBlank(nameAlias)) {
-				funUseName = nameAlias;
-				String newAlias = nameAlias;
-				// isConfuseDuplicateFieldDB用原来的,取名时应该取不有重名的
-				if (!isConfuseDuplicateFieldDB && StringUtils.isNotBlank(mainTableAlias) && !nameAlias.contains(".")) {
-					newAlias = "'" + mainTableAlias + "." + nameAlias + "'"; // mysql ok
-				}
-				if (isSQLite) {
-					funStr += " " + K.as + " " + newAlias;
-				} else {
-					funStr += " " + newAlias;
-				}
-			} else {
-				funUseName = columnName;
-			}
-
-			if (get_FunStructForSharding) { // sharding
-//				funStructs[i+adjust] = new FunStruct(funUseName, functionTypeName);
-				funStructs.add(new FunStruct(funUseName, functionTypeName));
-				if (!hasAvg && FunctionType.AVG.getName().equalsIgnoreCase(functionTypeName)) {
-					hasAvg = true;
-//					adjust++;
-					// TODO 一样也要改
-//					funStructs[i+adjust] = new FunStruct(funUseName+"_sum_", FunctionType.SUM.getName());
-					funStructs.add(new FunStruct(funUseName + "_sum_", FunctionType.SUM.getName()));
-//					adjust++;
-//					funStructs[i+adjust] = new FunStruct(funUseName+"_count_", FunctionType.COUNT.getName());
-					funStructs.add(new FunStruct(funUseName + "_count_", FunctionType.COUNT.getName()));
-
-					funStr += ", sum(" + columnName + ") " + K.as + " " + funUseName + "_sum_ , count(" + columnName
-							+ ") " + K.as + " " + funUseName + "_count_ "; // 改写
-				}
-			}
-		}
-
-		if (get_FunStructForSharding) {
-			GroupFunStruct struct = new GroupFunStruct();
-			struct.setFunStructs(funStructs);
-			struct.setHasAvg(hasAvg);
-			OneTimeParameter.setAttribute(StringConst.Return_GroupFunStruct, struct);
-		}
-
-		return funStr;
 	}
 
 	private static void adjustSqlServerPagingIfNeed(StringBuffer sqlBuffer, Map<String, String> orderByMap, Integer start,
