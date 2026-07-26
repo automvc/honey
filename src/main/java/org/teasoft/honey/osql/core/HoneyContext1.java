@@ -94,11 +94,11 @@ public class HoneyContext1 {
 	/**
 	 * 从 ThreadLocal 读取数据
 	 */
-	public static Object get(LocalType category, String key) {
-		if (isBlank(category) || isBlank(key)) {
+	public static Object get(LocalType localType, String key) {
+		if (isBlank(localType) || isBlank(key)) {
 			return null;
 		}
-		Map<String, Object> catMap = LOCAL.get().get(category);
+		Map<String, Object> catMap = LOCAL.get().get(localType);
 		return catMap != null ? catMap.get(key) : null;
 	}
 
@@ -106,10 +106,10 @@ public class HoneyContext1 {
 	 * 从 ThreadLocal 读取并自动转型
 	 */
 	@SuppressWarnings("unchecked")
-	private static <T> T get(LocalType category, String key, Class<T> clazz) {
+	private static <T> T get(LocalType localType, String key, Class<T> clazz) {
 		if (clazz == null) return null;
 
-		Object value = get(category, key);
+		Object value = get(localType, key);
 		if (value == null) return null;
 		return clazz.isInstance(value) ? (T) value : null;
 	}

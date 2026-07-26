@@ -123,7 +123,7 @@ final class _ObjectToSQLHelper {
 				List<String> groupNameslist = condition.getGroupByFields();
 				int size = groupNameslist == null ? -1 : groupNameslist.size();
 				if (checkGroup) checkGroup = checkGroup && size >= 1;
-				OneTimeParameter.setTrueForKey(StringConst.Get_GroupFunStruct);
+//				OneTimeParameter.setTrueForKey(StringConst.Get_GroupFunStruct);
 
 				// v1.9
 				String fun = ConditionHelper.processFunction(columnNames, condition);
@@ -137,6 +137,8 @@ final class _ObjectToSQLHelper {
 				}
 
 				String selectField = ConditionHelper.processSelectField(columnNames, condition);
+				
+//				selectField= selectField+",id";
 
 				if (isCheckOneFunction) {
 					columnNames = fun;

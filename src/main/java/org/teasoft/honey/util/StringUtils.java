@@ -63,14 +63,14 @@ public final class StringUtils {
 		return false;
 	}
 
-	/**
-	 * 字符串数组(或变长参数)转为用逗号分隔的字符串.string array to Strings separated by commas.
-	 * @param stringArray string array.
-	 * @return
-	 */
-	public static String toCommasString(String... stringArray) {
-		return Joiner.join(",", stringArray);
-	}
+//	/**
+//	 * 字符串数组(或变长参数)转为用逗号分隔的字符串.string array to Strings separated by commas.
+//	 * @param stringArray string array.
+//	 * @return
+//	 */
+//	public static String toCommasString(String... stringArray) {
+//		return Joiner.join(",", stringArray);
+//	}
 
 	/**
 	 * 数字数组(或变长参数)转为用逗号分隔的字符串.number array to Strings separated by commas.

@@ -117,7 +117,7 @@ class _MoreObjectToSQLHelper3 {
 			groupSize = groupNameslist == null ? -1 : groupNameslist.size();
 			checkGroup = OneTimeParameter.isTrue(StringConst.Check_Group_ForSharding) && ShardingUtil.hadSharding();
 			if (checkGroup) checkGroup = checkGroup && groupSize >= 1;
-			OneTimeParameter.setTrueForKey(StringConst.Get_GroupFunStruct);
+//			OneTimeParameter.setTrueForKey(StringConst.Get_GroupFunStruct);
 		}
 
 		boolean needRewritePagingSql = true;
@@ -536,7 +536,7 @@ class _MoreObjectToSQLHelper3 {
 		selectField = _addMaintableForSelectField(selectField, mainTableAlias);
 
 		// v1.9 // 字段相同,要取不一样的别名,才要传subDulFieldMap
-		String fun = ConditionHelper3.processFunction(columnNames, condition, mainTableAlias, mainClass,
+		String fun = ConditionHelper.processFunction(columnNames, condition, mainTableAlias, mainClass,
 				moreTableStructMap);
 
 		String pointSelectFieldOrFun = null;
