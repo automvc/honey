@@ -160,7 +160,7 @@ class _MoreObjectToSQLHelper3 {
 		if (needRewritePagingSql) {
 			Object idValue = HoneyUtil.getIdValue(entity);
 			// 7. 设置了主键值
-			if (idValue != null) {
+			if (idValue != null) {  //TODO 但子表，可能还是很多条。
 				needRewritePagingSql = false;
 			}
 		}
@@ -293,33 +293,26 @@ class _MoreObjectToSQLHelper3 {
 		if (condition != null && checkGroup) {
 			// 判断,是否是分片,且有group分组,聚合
 			// pre自定义和返回string[]的查询,也不需要. 可以传入标记, select,selectJson的才可以.
-
-//		 改写sql: 	avg改写; select没有分组字段的,要补上;    是否放这?    
-
-//			String groupFields[], GroupFunStruct gfsArray[]
-//			private String fieldName;
-//			private String functionType;
-			// TODO 可能要命名转换。
+			
 			Map<String, String> orderByMap = condition.getOrderBy();
 			boolean isEmptyOrderByMap = orderByMap.size() == 0;
-			boolean needGroupWhenNoFun = false; // must NoFun
+			String columnName;
 
 			// hadSharding, 分组的字段没有查询出来,则加分组的字段
 			for (String g : groupNameslist) {
-				if (columnNames.contains("," + g) || columnNames.contains(g + ",") || columnNames.equals(g)) {
+				columnName = toColumnName(g);
+				if (columnNames.contains(", " + columnName) || columnNames.contains("," + columnName) || columnNames.contains(columnName + ",") || columnNames.equals(columnName)) {
 					// already contain group field
 				} else {
 					if (!g.contains(".")) {
-						columnNames += "," + mainTableName + "." + g; // just adjust select field.
+						columnNames += ", " + mainTableName + "." + columnName; // just adjust select field.
 					} else {
-						columnNames += "," + g;
+						columnNames += ", " + columnName;
 					}
 				}
-				if (isEmptyOrderByMap)
-					condition.orderBy(g); // will adjust name in ConditionHelper
-				else {
-					if (!needGroupWhenNoFun && !orderByMap.containsKey(g)) needGroupWhenNoFun = true;
-				}
+//				group by分组的字段没有在order by,则添加进去 // V3.0.0.8 add !orderByMap.containsKey(g)
+				if (isEmptyOrderByMap || !orderByMap.containsKey(g))
+					condition.orderBy(g);
 				// 一个实体,原来有一个Map属性,取出后,能清空里面的元素吗???
 			}
 			GroupFunStruct gfStruct = null;
@@ -330,10 +323,7 @@ class _MoreObjectToSQLHelper3 {
 			// 排序没有分组字段,添加进去?
 			if (gfStruct != null) {
 				gfStruct.setGroupFields(groupNameslist);
-				gfStruct.setNeedGroupWhenNoFun(needGroupWhenNoFun); // 有一个排序字段, 但不是分组字段的, 多个分片的记录汇聚合到一起后,可能不合顺序.
 				gfStruct.setColumnNames(columnNames);
-
-//				HoneyContext.setCurrentGroupFunStruct(gfStruct);
 				HoneyContext1.setInheritable(LocalType.SHARDING, GroupFunStruct.class, gfStruct);
 			}
 		} // checkGroup
@@ -517,14 +507,6 @@ class _MoreObjectToSQLHelper3 {
 			ShardingReg.regMoreTableQuery();
 		}
 	}
-
-//	private static void adjustTableNameForShardingIfNeed(String tableName, StringBuffer sqlBuffer) {
-//		if (ShardingUtil.useTableIndex(tableName)) {
-//			sqlBuffer.append(StringConst.ShardingTableIndexStr);
-//			sqlBuffer.append(" ");
-//			sqlBuffer.append(tableName); // 2.4.0 baseTableName作为别名
-//		}
-//	}
 
 	private static PointSelectFieldOrFunWrapper pointSelectFieldOrFun(String columnNames, Condition condition,
 			Map<String, String> subDulFieldMap, String mainTableAlias, Class<?> mainClass,

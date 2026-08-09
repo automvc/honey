@@ -437,7 +437,7 @@ public class ConditionHelper {
 			if (isFirst) {
 				isFirst = false;
 			} else {
-				funStr += ",";
+				funStr += ", ";
 			}
 			String functionTypeName = funExpList.get(i).getFunctionType();
 			functionTypeName = FunAndOrderTypeMap.transfer(functionTypeName);
@@ -463,6 +463,7 @@ public class ConditionHelper {
 
 			if (get_FunStructForSharding) { // sharding
 				funStructs.add(new FunStruct(funUseName, functionTypeName));
+//				funStructs.add(new FunStruct(funStr, functionTypeName));
 				if (!hasAvg && FunctionType.AVG.getName().equalsIgnoreCase(functionTypeName)) {
 					hasAvg = true;
 					funStructs.add(new FunStruct(funUseName + "_sum_", FunctionType.SUM.getName()));

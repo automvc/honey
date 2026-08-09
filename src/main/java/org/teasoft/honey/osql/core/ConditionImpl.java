@@ -578,8 +578,9 @@ public class ConditionImpl implements Condition {
 	// v1.9
 	@Override
 	public Condition selectFun(FunctionType functionType, String fieldForFun, String alias) {
+		if (StringUtils.isBlank(alias)) throw new BeeErrorGrammarException("The alias in selectFun is empty !");
 		checkField(alias);
-		alias = _toColumnName(alias);
+		alias = _toColumnName(alias.trim());
 		funExpList.add(new FunExpress(functionType, fieldForFun, alias));
 		return this;
 	}
