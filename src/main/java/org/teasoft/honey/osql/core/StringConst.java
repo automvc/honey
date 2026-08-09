@@ -105,6 +105,8 @@ public final class StringConst {
 
 	public static final String AddedOrderByField = PREFIX + "AddedOrderByFieldForSharding";
 
+	public static final String SuidRichAvgRewrite = PREFIX + "SuidRichAvgRewrite";
+
 	// Sharding>>>>>>>>>>>>>>>>>>>>>>>
 
 	// MongoDB

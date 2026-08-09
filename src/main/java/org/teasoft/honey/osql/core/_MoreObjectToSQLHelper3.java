@@ -160,7 +160,7 @@ class _MoreObjectToSQLHelper3 {
 		if (needRewritePagingSql) {
 			Object idValue = HoneyUtil.getIdValue(entity);
 			// 7. 设置了主键值
-			if (idValue != null) {  //TODO 但子表，可能还是很多条。
+			if (idValue != null) {  //TODO 但子表，可能还是很多条。 
 				needRewritePagingSql = false;
 			}
 		}
@@ -525,7 +525,7 @@ class _MoreObjectToSQLHelper3 {
 		if (selectField != null && StringUtils.isEmpty(fun)) {
 			pointSelectFieldOrFun = selectField;
 		} else if (selectField != null && StringUtils.isNotEmpty(fun)) {
-			pointSelectFieldOrFun = selectField + "," + fun;
+			pointSelectFieldOrFun = selectField + ", " + fun;
 		} else if (selectField == null && StringUtils.isNotEmpty(fun)) {
 			pointSelectFieldOrFun = fun;
 		} else {

@@ -7,7 +7,6 @@
 package org.teasoft.honey.osql.core;
 
 import java.io.Serializable;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -16,12 +15,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 
 import org.teasoft.bee.osql.BeeSql;
 import org.teasoft.bee.osql.FunctionType;
@@ -39,7 +34,6 @@ import org.teasoft.honey.sharding.engine.ShardingSelectFunEngine;
 import org.teasoft.honey.sharding.engine.ShardingSelectJsonEngine;
 import org.teasoft.honey.sharding.engine.ShardingSelectListStringArrayEngine;
 import org.teasoft.honey.sharding.engine.ShardingSelectRsEngine;
-import org.teasoft.honey.util.ObjectUtils;
 import org.teasoft.honey.util.StringUtils;
 
 /**
@@ -210,11 +204,16 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 //					String funType = HoneyContext.getSysCommStrInheritableLocal(StringConst.FunType);
 					String funType = HoneyContext1.getExtForShardingStr(StringConst.FunType);
 					if (FunctionType.AVG.getName().equalsIgnoreCase(funType)) { // avg need change sql
-						String newSql = ShardingAvgEngine.rewriteAvgSql(sql);
-						HoneyContext.setPreparedValue(newSql, HoneyContext.justGetPreparedValue(sql));
-						List<String[]> rsList = new ShardingSelectListStringArrayEngine().asynProcess(newSql, this, entityClass);
+						List<String[]> rsList;
+						if (OneTimeParameter.isTrue(StringConst.SuidRichAvgRewrite)) {
+							String newSql = ShardingAvgEngine.rewriteAvgSql(sql);
+							HoneyContext.setPreparedValue(newSql, HoneyContext.justGetPreparedValue(sql));
+							rsList = new ShardingSelectListStringArrayEngine().asynProcess(newSql, this, entityClass);
+							clearContext(newSql);
+						} else {
+							rsList = new ShardingSelectListStringArrayEngine().asynProcess(sql, this, entityClass);
+						}
 						fun = ShardingAvgEngine.avgResultEngine(rsList);
-						clearContext(newSql);
 					} else {
 						fun = new ShardingSelectFunEngine().asynProcess(sql, this, entityClass);
 					}

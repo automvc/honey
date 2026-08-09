@@ -8,12 +8,14 @@ package org.teasoft.honey.sharding.engine;
 
 import java.util.List;
 
+import org.teasoft.honey.logging.Logger;
+import org.teasoft.honey.osql.core.K;
 import org.teasoft.honey.util.StringUtils;
 import org.teasoft.honey.util.currency.CurrencyArithmetic;
 
 /**
  * @author AiTeaSoft
- * @since  2.0
+ * @since 2.0
  */
 public class ShardingAvgEngine {
 
@@ -22,11 +24,17 @@ public class ShardingAvgEngine {
 		sql = sql.trim();
 		String lowerSql = sql.toLowerCase();
 		int startIndex = lowerSql.indexOf("select avg(");
+		if (startIndex < 0) {
+			// select orders.orderid,avg(orders.orderid)
+			Logger.debug("Do not rewrite avg sql, " + sql);
+			return sql;
+		}
 		startIndex = startIndex + 11;
 		int rightIndex = lowerSql.indexOf(')', startIndex);
 		String funFieldName = sql.substring(startIndex, rightIndex);// 字段名
 
-		String newFunStr = "sum(" + funFieldName + "),count(" + funFieldName + ") ";
+//		String newFunStr = "sum(" + funFieldName + "), count(" + funFieldName + ") ";
+		String newFunStr = K.sum + "(" + funFieldName + "), " + K.count + "(" + funFieldName + ") ";
 
 		int rightIndex2 = lowerSql.indexOf("from ", startIndex);
 		StringBuffer sb = new StringBuffer(sql);
@@ -35,7 +43,7 @@ public class ShardingAvgEngine {
 		return sb.toString();
 	}
 
-	// 处理并合并结果
+	// 处理并合并结果 TODO str[0], str[1]
 	public static String avgResultEngine(List<String[]> listStrArray) {
 		boolean first = true;
 		String sum = "0";

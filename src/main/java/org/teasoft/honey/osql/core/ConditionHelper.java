@@ -469,8 +469,11 @@ public class ConditionHelper {
 					funStructs.add(new FunStruct(funUseName + "_sum_", FunctionType.SUM.getName()));
 					funStructs.add(new FunStruct(funUseName + "_count_", FunctionType.COUNT.getName()));
 
-					funStr += ", sum(" + columnName + ") " + K.as + " " + funUseName + "_sum_ , count(" + columnName
-							+ ") " + K.as + " " + funUseName + "_count_ "; // 改写
+//					funStr += ", sum(" + columnName + ") " + K.as + " " + funUseName + "_sum_, count(" + columnName
+//							+ ") " + K.as + " " + funUseName + "_count_ "; // 改写
+					
+					funStr += ", " + K.sum + "(" + columnName + ") " + K.as + " " + funUseName + "_sum_, " + K.count
+							+ "(" + columnName + ") " + K.as + " " + funUseName + "_count_ "; // 改写
 				}
 			}
 		}

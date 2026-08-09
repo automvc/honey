@@ -77,6 +77,11 @@ public class K {
 	public static final String drop = k.drop();
 	public static final String If = k.If();
 	public static final String to_date = k.to_date();
+	
+	public static final String sum = k.sum();
+	public static final String max = k.max();
+	public static final String min = k.min();
+	public static final String avg = k.avg();
 
 	private static SqlKeyWord getSqlKeyWord() {
 		if (HoneyUtil.isSqlKeyWordUpper())
