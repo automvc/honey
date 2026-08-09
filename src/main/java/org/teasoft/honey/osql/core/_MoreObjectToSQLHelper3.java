@@ -117,7 +117,6 @@ class _MoreObjectToSQLHelper3 {
 			groupSize = groupNameslist == null ? -1 : groupNameslist.size();
 			checkGroup = OneTimeParameter.isTrue(StringConst.Check_Group_ForSharding) && ShardingUtil.hadSharding();
 			if (checkGroup) checkGroup = checkGroup && groupSize >= 1;
-//			OneTimeParameter.setTrueForKey(StringConst.Get_GroupFunStruct);
 		}
 
 		boolean needRewritePagingSql = true;

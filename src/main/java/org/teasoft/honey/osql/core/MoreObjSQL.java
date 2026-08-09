@@ -137,6 +137,7 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 			_doBeforePasreEntity(entity);// 因要解析子表,子表下放再执行
 			_regEntityClass1ForSqlLib(entity);
 			_regFunType(getFunctionType(funExpList.get(0).getFunctionType()));
+			OneTimeParameter.setTrueForKey(StringConst.Check_Group_ForSharding);
 			String sql = getMoreObjToSQL().toSelectSQL(entity, condition);
 			sql = doAfterCompleteSql(sql);
 			Logger.logSQL(LogSqlParse.parseSql(SELECT_SQL, sql)); // fixed, need logSQL before call BeeSql
