@@ -474,6 +474,8 @@ public class ConditionHelper {
 					
 					funStr += ", " + K.sum + "(" + columnName + ") " + K.as + " " + funUseName + "_sum_, " + K.count
 							+ "(" + columnName + ") " + K.as + " " + funUseName + "_count_ "; // 改写
+
+					OneTimeParameter.getAttribute(StringConst.SuidRichAvgRewrite);// 已改写，不需要这个。
 				}
 			}
 		}

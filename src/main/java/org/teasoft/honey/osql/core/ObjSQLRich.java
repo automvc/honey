@@ -373,6 +373,7 @@ public class ObjSQLRich extends ObjSQL implements SuidRich, Serializable {
 			String sql = getObjToSQLRich().toSelectFunSQL(entity, functionType, fieldForFun, condition);
 			_regEntityClass1(entity);
 			_regFunType(functionType);
+			OneTimeParameter.setTrueForKey(StringConst.SuidRichAvgRewrite); // 3.0.0.8
 			sql = doAfterCompleteSql(sql);
 			s = getBeeSql().selectFun(sql);
 		} finally {
