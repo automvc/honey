@@ -14,12 +14,14 @@ import org.teasoft.honey.util.StringUtils;
 import org.teasoft.honey.util.currency.CurrencyArithmetic;
 
 /**
+ * 处理没有分组的AVG聚合函数。
+ * eg:SuidRich.selectWithFun AVG 没有分组；
  * @author AiTeaSoft
  * @since 2.0
  */
 public class ShardingAvgEngine {
 
-	// 改写为AVG分片用的SQL
+	// 改写为SuidRich.selectWithFun AVG分片用的SQL
 	public static String rewriteAvgSql(String sql) {
 		sql = sql.trim();
 		String lowerSql = sql.toLowerCase();
@@ -43,7 +45,7 @@ public class ShardingAvgEngine {
 		return sb.toString();
 	}
 
-	// 处理并合并结果 TODO str[0], str[1]
+	// 处理并合并结果  SuidRich.selectWithFun AVG只查了两列，可以只用 str[0], str[1]
 	public static String avgResultEngine(List<String[]> listStrArray) {
 		boolean first = true;
 		String sum = "0";
