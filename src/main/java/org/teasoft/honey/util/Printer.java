@@ -44,4 +44,14 @@ public class Printer {
 				Logger.info(list.get(i).toString());
 		}
 	}
+	
+	public static void printArrayString(String[] a) {
+		if (ObjectUtils.isEmpty(a)) return;
+		String row = null;
+		row = "";
+		for (int j = 0; j < a.length; j++) {
+			row += a[j] + "   ";
+		}
+		Logger.info(row);
+	}
 }

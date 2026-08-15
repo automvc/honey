@@ -9,7 +9,6 @@ package org.teasoft.honey.sharding.engine;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutorCompletionService;
@@ -91,6 +90,8 @@ public class ShardingGroupbyListStringArrayEngine {
 		// 分页装饰
 		// 获取指定的一页数据
 		ResultPagingDecorator.pagingList(rsList);
+		
+//		RecoverAddedSelectColumnDecorator.recover(rsList);  //TODO 要记住想查的列在数组的下标。 要考虑多个平均值受的影响。
 
 		if (returnType == List_String_Array) { // String[]
 			// 要去掉多余的列 ,在groupAndAggregateStringArray已处理
@@ -110,15 +111,22 @@ public class ShardingGroupbyListStringArrayEngine {
 					targetObj = entityClass.newInstance();
 					String[] current = rsList.get(i);
 
-					for (Map.Entry<String, Integer> entry : groupFunStruct.getColumnIndexMap().entrySet()) {
-						String columnName = entry.getKey();
-						int index = entry.getValue();
+//					for (Map.Entry<String, Integer> entry : groupFunStruct.getColumnIndexMap().entrySet()) {
+//						String columnName = entry.getKey();
+//						int index = entry.getValue();
+					
+					List<String> orginalSelectColumn = groupFunStruct.getOrginalSelectColumn();
+					for (int k = 0; orginalSelectColumn != null && k < orginalSelectColumn.size(); k++) {
+						if (k == 0) Logger.logSQL("orginal Select Column: " + orginalSelectColumn);
+						String columnName = orginalSelectColumn.get(k);
+//						int index = groupFunStruct.getColumnIndexMap().get(columnName);
+						int index=k;
 						String value = current[index];
 
 						Field field = null;
 						String name = null;
 						try {
-							name = _toFieldName(columnName, entityClass);
+							name = _toFieldName(columnName, entityClass); //TODO 将field存起？？
 							field = HoneyUtil.getField(entityClass, name);// 可能会找不到Javabean的字段
 						} catch (NoSuchFieldException e) {
 							continue;

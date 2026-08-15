@@ -20,7 +20,7 @@ import org.teasoft.honey.sharding.ShardingUtil;
 
 /**
  * 分片的select操作
- * 主要是对函数操作和selectJson的分片.
+ * 主要是对函数操作,处理SuidRich.selectWithFun中非AVG的情形.
  * @author AiTeaSoft
  * @since  2.0
  */

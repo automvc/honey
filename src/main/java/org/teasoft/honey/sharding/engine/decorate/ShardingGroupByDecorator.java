@@ -7,11 +7,12 @@
 package org.teasoft.honey.sharding.engine.decorate;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.teasoft.bee.osql.FunctionType;
 import org.teasoft.bee.sharding.FunStruct;
@@ -22,6 +23,7 @@ import org.teasoft.honey.osql.core.HoneyUtil;
 import org.teasoft.honey.osql.core.LocalType;
 import org.teasoft.honey.osql.core.NameTranslateHandle;
 import org.teasoft.honey.util.ObjectCreatorFactory;
+import org.teasoft.honey.util.Printer;
 import org.teasoft.honey.util.StringUtils;
 import org.teasoft.honey.util.currency.CurrencyArithmetic;
 
@@ -38,35 +40,20 @@ public class ShardingGroupByDecorator {
 		groupAndAggregateEntity(list, groupFunStruct);
 	}
 
+	// 无avg,且查询返回T
 	public static <T> void groupAndAggregateEntity(List<T> list, GroupFunStruct groupFunStruct) {
 
 		if (list == null || list.size() <= 1 || groupFunStruct == null) return;
 
 		List<String> groupFields = groupFunStruct.getGroupFields();
-		if (groupFields == null || groupFields.size() == 0) return; // 没有分组,则不需要
+//		if (groupFields == null || groupFields.size() == 0) return; // 没有分组,则不需要.  V3.0.0.8  没有分组，多个分片的数据会合在一起，要重新计算。
 
 //		FunStruct funStructs[] = groupFunStruct.getFunStructs();
 		List<FunStruct> funStructs = groupFunStruct.getFunStructs();
 		// 有分组,但没有聚合,也不需要; 要是同一个分组的数据分布在不同节点,可以在后面排序
-//		没有聚合函数,可能有多条一样的数据, 这个方法,处理不了. 
+//		没有聚合函数,可能有多条一样的数据, 这个方法,处理不了.   //TODO
 //		if ((funStruts == null || funStruts.length == 0) && ! groupFunStruct.isNeedGroupWhenNoFun()) return;
 		if (funStructs == null || funStructs.size() == 0) return;
-
-//		String groupFields[]=new String[]{"userid","name"};
-////		String groupFields[]=new String[]{"userid"};
-//		//FunType,fieldName,
-////		Class fieldType
-//		GroupFunStruct g1=new GroupFunStruct("maxTotal","max");
-//		GroupFunStruct g2=new GroupFunStruct("minTotal","min");
-//		GroupFunStruct g3=new GroupFunStruct("countTotal","count");
-//		GroupFunStruct g4=new GroupFunStruct("sumTotal","sum");
-//		GroupFunStruct g5=new GroupFunStruct("avgTotal","avg");
-//		GroupFunStruct gfsArray[]=new GroupFunStruct[5];
-//		gfsArray[0]=g1;
-//		gfsArray[1]=g2;
-//		gfsArray[2]=g3;
-//		gfsArray[3]=g4;
-//		gfsArray[4]=g5;
 
 		Field field = null;
 		Field oldField = null;
@@ -84,7 +71,7 @@ public class ShardingGroupByDecorator {
 			for (int i = 0; i < list.size(); i++) {
 				currentEntity = list.get(i);
 				groupKey = "";
-				for (int j = 0; j < groupFields.size(); j++) {
+				for (int j = 0; groupFields != null && j < groupFields.size(); j++) {
 					String fieldName0 = _toFieldName(groupFields.get(j), elementClass);
 					field = currentEntity.getClass().getDeclaredField(fieldName0);
 					HoneyUtil.setAccessibleTrue(field);
@@ -119,20 +106,23 @@ public class ShardingGroupByDecorator {
 
 //						if(valueMap.get(groupKey)==null) valueMap.put(groupKey, new LinkedHashMap<String,Object>());
 
-						if (FunctionType.COUNT.getName().equalsIgnoreCase(funStructs.get(k).getFunctionType())) {
-							if (fun != null && StringUtils.isNotBlank(fun.toString())) {
-								long r = Long.parseLong(fun.toString());
-								if (oldFun != null && StringUtils.isNotBlank(oldFun.toString())) {
-									long r0 = Long.parseLong(oldFun.toString());
-									valueMap.get(groupKey).put(funStructs.get(k).getFieldName(), r0 + r);
-								} else {
-//									valueMap.put(groupKey + "," + gfsArray[k].getFieldName(),fun);
-									valueMap.get(groupKey).put(funStructs.get(k).getFieldName(), fun);// 第一次的是null,直接存第二次的
-								}
-
-							}
-//							else { 两次都是null,不用存}
-						} else if (FunctionType.SUM.getName().equalsIgnoreCase(funStructs.get(k).getFunctionType())) {
+//						if (FunctionType.COUNT.getName().equalsIgnoreCase(funStructs.get(k).getFunctionType())) {
+//							if (fun != null && StringUtils.isNotBlank(fun.toString())) {
+//								long r = Long.parseLong(fun.toString());
+//								if (oldFun != null && StringUtils.isNotBlank(oldFun.toString())) {
+//									long r0 = Long.parseLong(oldFun.toString());
+//									valueMap.get(groupKey).put(funStructs.get(k).getFieldName(), r0 + r);
+//								} else {
+////									valueMap.put(groupKey + "," + gfsArray[k].getFieldName(),fun);
+//									valueMap.get(groupKey).put(funStructs.get(k).getFieldName(), fun);// 第一次的是null,直接存第二次的
+//								}
+//
+//							}
+////							else { 两次都是null,不用存}
+//						} else 
+						if (FunctionType.SUM.getName().equalsIgnoreCase(funStructs.get(k).getFunctionType())
+							|| FunctionType.COUNT.getName().equalsIgnoreCase(funStructs.get(k).getFunctionType())	
+								) {
 							if (fun != null && StringUtils.isNotBlank(fun.toString())) {
 								if (oldFun != null && StringUtils.isNotBlank(oldFun.toString())) {
 									valueMap.get(groupKey).put(funStructs.get(k).getFieldName(),
@@ -187,8 +177,6 @@ public class ShardingGroupByDecorator {
 				}
 			}
 
-//			groupEntityMap.clear();
-//			valueMap.clear();
 			groupEntityMap = null;
 			valueMap = null;
 
@@ -208,12 +196,13 @@ public class ShardingGroupByDecorator {
 		groupAndAggregateStringArray(list, groupFunStruct);
 	}
 
+	// 查询返回List<String[]>; 有无 avg都可以。 返回T，但有avg的，也会有这里，因为String[]方便自动添加列。
 	public static void groupAndAggregateStringArray(List<String[]> list, GroupFunStruct groupFunStruct) {
 
 		if (list == null || list.size() <= 1 || groupFunStruct == null) return;
 
 		List<String> groupFields = groupFunStruct.getGroupFields();
-		if (groupFields == null || groupFields.size() == 0) return; // 没有分组,则不需要
+//		if (groupFields == null || groupFields.size() == 0) return; // 没有分组,则不需要.  V3.0.0.8  没有分组，多个分片的数据会合在一起，要重新计算。
 
 //		FunStruct funStructs[] = groupFunStruct.getFunStructs();
 		List<FunStruct> funStructs = groupFunStruct.getFunStructs();
@@ -231,7 +220,8 @@ public class ShardingGroupByDecorator {
 		boolean isMin = false;
 
 		boolean hasAvg = false;
-		List<Integer> avgNum = new ArrayList<>();
+//		List<Integer> avgNum = new ArrayList<>();
+		Set<Integer> avgNum=new TreeSet<>();
 
 		try {
 			String[] currentStringArray;
@@ -249,7 +239,12 @@ public class ShardingGroupByDecorator {
 				} else { // 只有分组, 没有聚合,则不需要执行
 					Map<String, String> t;
 					for (int k = 0; k < funStructs.size(); k++) {
-						int funIndex = groupFunStruct.getIndexByColumn(funStructs.get(k).getFieldName());
+						Integer funIndex = groupFunStruct.getIndexByColumn(funStructs.get(k).getFieldName()); // null?
+						if (funIndex == null) {
+							Logger.warn("Can not found " + funStructs.get(k).getFieldName() + " in " + groupFunStruct
+									.getColumnIndexMap());
+							continue;
+						}
 						String fun = currentStringArray[funIndex]; // 当前值
 						String oldFun;
 //						oldFun = valueMap.get(groupKey + "," + gfsArray[k].getFieldName()); //第三次才有;因为第二次在后来才放进去. 
@@ -290,7 +285,9 @@ public class ShardingGroupByDecorator {
 //							else {fun为empty,则不处理,保留原来的}
 						} else if (FunctionType.AVG.getName().equalsIgnoreCase(funStructs.get(k).getFunctionType())) {
 							hasAvg = true;
-							if (i == 0) avgNum.add(funIndex);
+//							if (i == 1) {
+								avgNum.add(funIndex);
+//							}
 						}
 					}
 					t = null;
@@ -313,42 +310,41 @@ public class ShardingGroupByDecorator {
 			// 更新为分组后的记录
 			if (list.size() != groupEntityMap.size()) {
 				list.clear();
+				Logger.info("select temp data:"); //TODO
 				for (Map.Entry<String, String[]> entry : groupEntityMap.entrySet()) {
-					list.add(adjust(entry.getValue(), hasAvg, avgNum)); // 要是有AVG,要删除自动增加的列
+					Printer.printArrayString(entry.getValue()); //TODO
+					list.add(adjustAvg(entry.getValue(), hasAvg, avgNum)); //会删除AVG自动增加的列
 				}
 			}
-
-//			groupEntityMap.clear();
-//			valueMap.clear();
 			groupEntityMap = null;
 			valueMap = null;
-
 		} catch (Exception e) {
 			Logger.warn(e.getMessage(), e);
 		}
 	}
 
-	private static String[] adjust(String[] old, boolean hasAvg, List<Integer> avgNum) {
+	// 重新计算平均值
+	private static String[] adjustAvg(String[] old, boolean hasAvg, Set<Integer> avgNum) {
 		if (!hasAvg) return old;
-
 		int num = avgNum.size();
 		String tempArray[] = new String[old.length - num * 2];
 		for (Integer index : avgNum) {
-			tempArray[index] = CurrencyArithmetic.divide(tempArray[index + 1], tempArray[index + 2]);
+			old[index] = CurrencyArithmetic.divide(old[index + 1], old[index + 2]);
 		}
 		for (int i = 0, k = 0; i < old.length; i++) {
 			tempArray[k++] = old[i];
-			if (existInList(avgNum, i)) i = i + 2; // 跳过两列(自动增加的)
+//			if (existInList(avgNum, i)) i = i + 2; // 跳过两列(自动增加的)
+			if (avgNum.contains(i)) i = i + 2; // 跳过两列(自动增加的)
 		}
 
 		return tempArray;
 	}
 
-	private static boolean existInList(List<Integer> avgNum, int index) {
-		for (Integer i : avgNum) {
-			if (index == i) return true;
-		}
-		return false;
-	}
+//	private static boolean existInList(Set<Integer> avgNum, int index) {
+//		for (Integer i : avgNum) {
+//			if (index == i) return true;
+//		}
+//		return false;
+//	}
 
 }

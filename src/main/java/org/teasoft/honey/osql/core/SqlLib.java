@@ -206,6 +206,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 					if (FunctionType.AVG.getName().equalsIgnoreCase(funType)) { // avg need change sql
 						List<String[]> rsList;
 						if (OneTimeParameter.isTrue(StringConst.SuidRichAvgRewrite)) {
+							// 用于处理： SuidRich.selectWithFun   AVG
 							String newSql = ShardingAvgEngine.rewriteAvgSql(sql);
 							HoneyContext.setPreparedValue(newSql, HoneyContext.justGetPreparedValue(sql));
 							rsList = new ShardingSelectListStringArrayEngine().asynProcess(newSql, this, entityClass);

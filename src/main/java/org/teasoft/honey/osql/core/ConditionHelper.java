@@ -407,16 +407,18 @@ public class ConditionHelper {
 		
 		int size = funExpList.size();
 		List<FunStruct> funStructs = null;
+		List<String> orginalSelectColumn = null;
 		String funUseName = "";
 
 		get_FunStructForSharding = size > 0 && ShardingUtil.hadSharding();
 
 		if (get_FunStructForSharding) {
 			funStructs = new ArrayList<>(size);
+			orginalSelectColumn = new ArrayList<>();
 		}
 
 		boolean isConfuseDuplicateFieldDB = HoneyUtil.isConfuseDuplicateFieldDB();
-		boolean hasAvg = false;
+		boolean isHasAvg = false;
 		for (int i = 0; i < funExpList.size(); i++) {
 
 			if ("*".equals(funExpList.get(i).getField())) {
@@ -457,33 +459,36 @@ public class ConditionHelper {
 				} else {
 					funStr += " " + newAlias;
 				}
+				if (get_FunStructForSharding) orginalSelectColumn.add(newAlias);
 			} else {
 				funUseName = columnName;
+				if (get_FunStructForSharding) orginalSelectColumn.add(functionTypeName + "(" + columnName + ")");
 			}
 
 			if (get_FunStructForSharding) { // sharding
 				funStructs.add(new FunStruct(funUseName, functionTypeName));
 //				funStructs.add(new FunStruct(funStr, functionTypeName));
-				if (!hasAvg && FunctionType.AVG.getName().equalsIgnoreCase(functionTypeName)) {
-					hasAvg = true;
+				if (!isHasAvg && FunctionType.AVG.getName().equalsIgnoreCase(functionTypeName)) {
+					isHasAvg = true;
 					funStructs.add(new FunStruct(funUseName + "_sum_", FunctionType.SUM.getName()));
 					funStructs.add(new FunStruct(funUseName + "_count_", FunctionType.COUNT.getName()));
 
 //					funStr += ", sum(" + columnName + ") " + K.as + " " + funUseName + "_sum_, count(" + columnName
-//							+ ") " + K.as + " " + funUseName + "_count_ "; // 改写
+//							+ ") " + K.as + " " + funUseName + "_count_"; // 改写
 					
 					funStr += ", " + K.sum + "(" + columnName + ") " + K.as + " " + funUseName + "_sum_, " + K.count
-							+ "(" + columnName + ") " + K.as + " " + funUseName + "_count_ "; // 改写
+							+ "(" + columnName + ") " + K.as + " " + funUseName + "_count_"; // 改写
 
-					OneTimeParameter.getAttribute(StringConst.SuidRichAvgRewrite);// 已改写，不需要这个。
+					OneTimeParameter.getAttribute(StringConst.SuidRichAvgRewrite);// 用掉; 已改写，不需要这个。
 				}
 			}
-		}
+		}// end for
 
 		if (get_FunStructForSharding) {
 			GroupFunStruct struct = new GroupFunStruct();
 			struct.setFunStructs(funStructs);
-			struct.setHasAvg(hasAvg);
+			struct.setHasAvg(isHasAvg);
+			struct.appendOrginalSelectColumn(orginalSelectColumn);
 			OneTimeParameter.setAttribute(StringConst.Return_GroupFunStruct, struct);
 		}
 
