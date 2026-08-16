@@ -174,6 +174,10 @@ public class ShardingReg {
 		HoneyContext1.setForSharding(StringConst.AddedOrderByField, addedOrderByFields);
 	}
 
+	public static void regAddedOrderByColumn(List<String> addedOrderByColumns) {
+		HoneyContext1.setForSharding(StringConst.AddedOrderByColumn, addedOrderByColumns);
+	}
+
 	// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>重写,排序,分页时用. end
 
 	public static void regShardingBatchInsertDoing() {

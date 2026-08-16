@@ -43,6 +43,7 @@ public class RecoverAddedSelectColumnDecorator {
 		if (rsList == null || rsList.isEmpty()
 				|| (ObjectUtils.isEmpty(addedOrderByFields) && ObjectUtils.isEmpty(addedGroupByColumn))) return;
 
+		//这里是操作实体, 用的是字段
 		if (ObjectUtils.isNotEmpty(addedOrderByFields)) {
 			Logger.debug("Recover auto AddedSelectColumn(OrderBy):" + addedOrderByFields);
 			recover0(rsList, addedOrderByFields);
@@ -78,7 +79,7 @@ public class RecoverAddedSelectColumnDecorator {
 		if (rsList == null || rsList.size() == 0) return;
 
 		List<String> addedOrderByFields = (List<String>) HoneyContext1.get(LocalType.SHARDING,
-				StringConst.AddedOrderByField);
+				StringConst.AddedOrderByColumn);  // 找下标，要用的是列名
 
 		if (ObjectUtils.isEmpty(addedOrderByFields)) return;
 
@@ -89,7 +90,7 @@ public class RecoverAddedSelectColumnDecorator {
 		// 找到新加列的下标
 		Set<Integer> addedOrderByFieldsIndex = new TreeSet<>();
 		for (String s : addedOrderByFields) {
-			addedOrderByFieldsIndex.add(groupFunStruct.getIndexByColumn(s));
+			addedOrderByFieldsIndex.add(groupFunStruct.getIndexByColumn(s)); // 找下标，要用的是列名
 		}
 
 		int oldLen = rsList.get(0).length;

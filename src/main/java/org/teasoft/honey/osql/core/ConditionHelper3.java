@@ -1,5 +1,6 @@
 package org.teasoft.honey.osql.core;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -14,7 +15,6 @@ import org.teasoft.honey.osql.core.ConditionImpl.FunExpress;
 import org.teasoft.honey.sharding.ShardingReg;
 import org.teasoft.honey.sharding.ShardingUtil;
 import org.teasoft.honey.util.ObjectUtils;
-import org.teasoft.honey.util.StringUtils;
 
 public class ConditionHelper3 {
 
@@ -47,6 +47,8 @@ public class ConditionHelper3 {
 		String selectFields[] = conditionImpl.getSelectField();
 		if (selectFields == null) return null;
 
+		int oldLen = selectFields.length;
+
 		// fieldName -> columnName
 		for (int i = 0; i < selectFields.length; i++) {
 			String old = selectFields[i];
@@ -58,6 +60,28 @@ public class ConditionHelper3 {
 		}
 
 		String selectField[] = ConditionHelper.addedOrderByFieldIfNeed(selectFields, conditionImpl);
+		int newLen = selectField.length;
+//		System.err.println(newLen-oldLen);
+
+//		String selectColumn[];
+		List<String> selectColumn = null;
+		if (newLen - oldLen > 0) {
+			selectColumn = new ArrayList<>(newLen - oldLen);
+		}
+
+		for (int k = oldLen; k < newLen; k++) {
+			String old = selectField[k];
+			selectField[k] = MoreTableHelper.fieldName2ColumnName(selectField[k], mainTableAlias, mainClass,
+					moreTableStructMap);
+			if (selectField[k] == null) {
+				throw new BeeException(old + " would transfer be null");
+			} else {
+				selectColumn.add(selectField[k]);
+			}
+		}
+		if (newLen - oldLen > 0) {
+			ShardingReg.regAddedOrderByColumn(selectColumn);
+		}
 
 		return HoneyUtil.checkAndProcessSelectFieldViaString(columnNames, subDulFieldMap, selectField);
 	}

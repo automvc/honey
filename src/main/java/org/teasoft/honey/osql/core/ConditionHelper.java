@@ -381,6 +381,8 @@ public class ConditionHelper {
 
 		for (int i = 0; i < selectField0.length; i++) {
 			if (target.equals(selectField0[i])) return false;
+			if (target.contains(".") && target.endsWith("." + selectField0[i])) return false;
+			if (selectField0[i].contains(".") && selectField0[i].endsWith("." + target)) return false;
 		}
 
 		return true;

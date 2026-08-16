@@ -106,6 +106,8 @@ public final class StringConst {
 	public static final String AddedOrderByField = PREFIX + "AddedOrderByFieldForSharding";
 	public static final String AddedOrderByFieldStruct = PREFIX + "AddedOrderByFieldStruct";
 
+	public static final String AddedOrderByColumn = PREFIX + "AddedOrderByColumnForSharding";
+
 	public static final String SuidRichAvgRewrite = PREFIX + "SuidRichAvgRewrite";
 
 	// Sharding end>>>>>>>>>>>>>>>>>>>>>>>
