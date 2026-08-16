@@ -141,7 +141,7 @@ final class _ObjectToSQLHelper {
 //					//full column names
 //				}
 
-				checkGroupOrAddedOrderByField(condition, columnNames, StringUtils.isNotEmpty(fun), selectField);
+				columnNames = checkGroupOrAddedOrderByField(condition, columnNames, StringUtils.isNotEmpty(fun), selectField);
 			}
 
 			sqlBuffer.append(K.select).append(" ").append(columnNames).append(" ").append(K.from).append(" ");
@@ -205,16 +205,16 @@ final class _ObjectToSQLHelper {
 	}
 
 	// 不是MoreTable, mainTableName传null
-	static void checkGroupOrAddedOrderByField(Condition condition, String columnNames, boolean hasFun,
+	static String checkGroupOrAddedOrderByField(Condition condition, String columnNames, boolean hasFun,
 			String selectField) {
-		checkGroupOrAddedOrderByField(condition, columnNames, hasFun, selectField, null);
+		return checkGroupOrAddedOrderByField(condition, columnNames, hasFun, selectField, null);
 	}
 
 	// 不是MoreTable, mainTableName传null
-	static void checkGroupOrAddedOrderByField(Condition condition, String columnNames, boolean hasFun,
+	static String checkGroupOrAddedOrderByField(Condition condition, String columnNames, boolean hasFun,
 			String selectField, String mainTableName) {
 
-		if (condition == null) return;
+		if (condition == null) return columnNames;
 
 		boolean checkGroup = OneTimeParameter.isTrue(StringConst.Check_Group_ForSharding)
 				&& ShardingUtil.hadSharding();
@@ -286,6 +286,8 @@ final class _ObjectToSQLHelper {
 				HoneyContext1.setInheritable(LocalType.SHARDING, StringConst.AddedOrderByFieldStruct, gfStruct);
 			}
 		}
+
+		return columnNames;
 	}
 
 	private static String toColumnName(String fieldName) {

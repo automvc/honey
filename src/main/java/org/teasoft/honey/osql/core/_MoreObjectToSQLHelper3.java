@@ -284,7 +284,8 @@ class _MoreObjectToSQLHelper3 {
 		else
 			columnNames = fullColumns.toString();
 		
-		_ObjectToSQLHelper.checkGroupOrAddedOrderByField(condition, columnNames, pointSelectFieldOrFunWrapper.hasFun, pointSelectFieldOrFunWrapper.selectField, mainTableName);
+		columnNames = _ObjectToSQLHelper.checkGroupOrAddedOrderByField(condition, columnNames,
+				pointSelectFieldOrFunWrapper.hasFun, pointSelectFieldOrFunWrapper.selectField, mainTableName);
 
 		sqlBuffer.append(K.select).append(ONE_SPACE).append(columnNames).append(ONE_SPACE).append(K.from)
 				.append(ONE_SPACE).append(tablePart);
