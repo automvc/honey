@@ -110,14 +110,9 @@ class _MoreObjectToSQLHelper3 {
 			index++;
 		}
 
-		boolean checkGroup = false;
-		List<String> groupNameslist = null;
 		int groupSize = 0;
 		if (condition != null) {
-			groupNameslist = condition.getGroupByFields();
-			groupSize = groupNameslist == null ? -1 : groupNameslist.size();
-			checkGroup = OneTimeParameter.isTrue(StringConst.Check_Group_ForSharding) && ShardingUtil.hadSharding();
-			if (checkGroup) checkGroup = checkGroup && groupSize >= 1;
+			groupSize = condition.getGroupByFields() == null ? -1 : condition.getGroupByFields().size();
 		}
 
 		boolean needRewritePagingSql = true;
@@ -288,65 +283,8 @@ class _MoreObjectToSQLHelper3 {
 			columnNames = pointSelectFieldOrFun;
 		else
 			columnNames = fullColumns.toString();
-
-		// V3.0.0.8 没有分组的，最终也要合并到一起
-		if (!checkGroup && pointSelectFieldOrFunWrapper.hasFun && ShardingUtil.hadSharding()) {
-			checkGroup = true;
-		}
-
-		// 2.4.0 For sharding
-		if (condition != null && checkGroup) {
-			// 判断,是否是分片,且有group分组,聚合
-			// pre自定义和返回string[]的查询,也不需要. 可以传入标记, select,selectJson的才可以.
-			
-			Map<String, String> orderByMap = condition.getOrderBy();
-			boolean isEmptyOrderByMap = orderByMap.size() == 0;
-			String columnG;
-			String mainTableForGroupField = "";
-
-			// hadSharding, 分组的字段没有查询出来,则加分组的字段
-			if (groupNameslist != null) {
-			for (String g : groupNameslist) {
-				columnG = toColumnName(g);
-				if (columnNames.contains(", " + columnG) || columnNames.contains("," + columnG) || columnNames.contains(columnG + ",") || columnNames.equals(columnG)) {
-					// already contain group field
-				} else {
-					if (!g.contains(".")) {
-						columnNames += ", " + mainTableName + "." + columnG; // just adjust select field.
-						mainTableForGroupField = mainTableName;
-					} else {
-						columnNames += ", " + columnG;
-					}
-				}
-//				group by分组的字段没有在order by,则添加进去 // V3.0.0.8 add !orderByMap.containsKey(g)
-				if (isEmptyOrderByMap || !orderByMap.containsKey(g))
-					condition.orderBy(g);
-				// 一个实体,原来有一个Map属性,取出后,能清空里面的元素吗???
-			}
-			}
-			GroupFunStruct gfStruct = null;
-			if (pointSelectFieldOrFunWrapper.hasFun) { // && size>=1
-				gfStruct = (GroupFunStruct) OneTimeParameter.getAttribute(StringConst.Return_GroupFunStruct);
-			}
-
-			// 排序没有分组字段,添加进去?
-			if (gfStruct != null) {
-				gfStruct.setGroupFields(groupNameslist);
-				gfStruct.setColumnNames(columnNames);
-				gfStruct.addFirstOrginalSelectColumn(pointSelectFieldOrFunWrapper.selectField); //V3.0.0.8   TODO moreTable need?
-				gfStruct.setMainTableForGroupField(mainTableForGroupField);//V3.0.0.8
-				HoneyContext1.setInheritable(LocalType.SHARDING, GroupFunStruct.class, gfStruct);
-			}
-		} // checkGroup
-		else {
-			List<String> addedOrderByFields = (List<String>) HoneyContext1.get(LocalType.SHARDING,
-					StringConst.AddedOrderByField);
-			if (ObjectUtils.isNotEmpty(addedOrderByFields)) {
-				GroupFunStruct gfStruct = new GroupFunStruct();
-				gfStruct.setColumnNames(columnNames);
-				HoneyContext1.setInheritable(LocalType.SHARDING, StringConst.AddedOrderByFieldStruct, gfStruct);
-			}
-		}
+		
+		_ObjectToSQLHelper.checkGroupOrAddedOrderByField(condition, columnNames, pointSelectFieldOrFunWrapper.hasFun, pointSelectFieldOrFunWrapper.selectField, mainTableName);
 
 		sqlBuffer.append(K.select).append(ONE_SPACE).append(columnNames).append(ONE_SPACE).append(K.from)
 				.append(ONE_SPACE).append(tablePart);
