@@ -67,6 +67,7 @@ public class ShardingGroupByDecorator {
 		try {
 			T currentEntity;
 			Map<String, T> groupEntityMap = new LinkedHashMap<>(); // 存每一个分组的一条记录
+			FunctionType functionType;
 
 			for (int i = 0; i < list.size(); i++) {
 				currentEntity = list.get(i);
@@ -106,7 +107,7 @@ public class ShardingGroupByDecorator {
 
 //						if(valueMap.get(groupKey)==null) valueMap.put(groupKey, new LinkedHashMap<String,Object>());
 
-//						if (FunctionType.COUNT.getName().equalsIgnoreCase(funStructs.get(k).getFunctionType())) {
+//						if (FunctionType.COUNT== functionType) {
 //							if (fun != null && StringUtils.isNotBlank(fun.toString())) {
 //								long r = Long.parseLong(fun.toString());
 //								if (oldFun != null && StringUtils.isNotBlank(oldFun.toString())) {
@@ -120,9 +121,10 @@ public class ShardingGroupByDecorator {
 //							}
 ////							else { 两次都是null,不用存}
 //						} else 
-						if (FunctionType.SUM.getName().equalsIgnoreCase(funStructs.get(k).getFunctionType())
-							|| FunctionType.COUNT.getName().equalsIgnoreCase(funStructs.get(k).getFunctionType())	
-								) {
+						
+						functionType = FunctionType.getByName(funStructs.get(k).getFunctionType());
+						
+						if (FunctionType.SUM == functionType || FunctionType.COUNT == functionType) {
 							if (fun != null && StringUtils.isNotBlank(fun.toString())) {
 								if (oldFun != null && StringUtils.isNotBlank(oldFun.toString())) {
 									valueMap.get(groupKey).put(funStructs.get(k).getFieldName(),
@@ -131,8 +133,8 @@ public class ShardingGroupByDecorator {
 									valueMap.get(groupKey).put(funStructs.get(k).getFieldName(), fun);
 								}
 							}
-						} else if ((isMax = FunctionType.MAX.getName().equalsIgnoreCase(funStructs.get(k).getFunctionType()))
-								|| (isMin = FunctionType.MIN.getName().equalsIgnoreCase(funStructs.get(k).getFunctionType()))) {
+						} else if ((isMax = FunctionType.MAX == functionType)
+								|| (isMin = FunctionType.MIN == functionType)) {
 							if (fun != null && StringUtils.isNotBlank(fun.toString())) {
 								if (oldFun != null && StringUtils.isNotBlank(oldFun.toString())) {
 									double d = Double.parseDouble(fun.toString());
@@ -145,7 +147,7 @@ public class ShardingGroupByDecorator {
 							}
 //							else {fun为empty,则不处理,保留原来的}
 						}
-//						else if (FunctionType.AVG.getName().equalsIgnoreCase(funStructs.get(k).getFunctionType())) {
+//						else if (FunctionType.AVG== functionType) {
 ////							.println("AVG不应该走这里的分支...");
 //						}
 					}
@@ -228,12 +230,13 @@ public class ShardingGroupByDecorator {
 			Map<String, String[]> groupEntityMap = new LinkedHashMap<>();
 			String mainTableForGroupField;
 			String groupField;
+			FunctionType functionType;
 			for (int i = 0; i < list.size(); i++) {
 				currentStringArray = list.get(i);
 				groupKey = "";
 				for (int j = 0; groupFields != null && j < groupFields.size(); j++) {
-					mainTableForGroupField=groupFunStruct.getMainTableForGroupField();
-					groupField=groupFields.get(j);
+					mainTableForGroupField = groupFunStruct.getMainTableForGroupField();
+					groupField = groupFields.get(j);
 					if (StringUtils.isNotBlank(mainTableForGroupField) && !groupField.contains(".")) {
 						groupField = mainTableForGroupField + "." + groupField;
 					}
@@ -266,8 +269,9 @@ public class ShardingGroupByDecorator {
 							oldFun = old[groupFunStruct.getIndexByColumn(funStructs.get(k).getFieldName())];
 						}
 
-						if (FunctionType.SUM.getName().equalsIgnoreCase(funStructs.get(k).getFunctionType())
-								|| FunctionType.COUNT.getName().equalsIgnoreCase(funStructs.get(k).getFunctionType())) {
+						functionType = FunctionType.getByName(funStructs.get(k).getFunctionType());
+
+						if (FunctionType.SUM == functionType || FunctionType.COUNT == functionType) {
 							if (fun != null && StringUtils.isNotBlank(fun.toString())) {
 								if (oldFun != null && StringUtils.isNotBlank(oldFun)) {
 									valueMap.get(groupKey).put(funStructs.get(k).getFieldName(),
@@ -276,35 +280,34 @@ public class ShardingGroupByDecorator {
 									valueMap.get(groupKey).put(funStructs.get(k).getFieldName(), fun);
 								}
 							}
-						} else if ((isMax = FunctionType.MAX.getName().equalsIgnoreCase(funStructs.get(k).getFunctionType()))
-								|| (isMin = FunctionType.MIN.getName().equalsIgnoreCase(funStructs.get(k).getFunctionType()))) {
-							if (fun != null && StringUtils.isNotBlank(fun.toString())) {
-								if (oldFun != null && StringUtils.isNotBlank(oldFun.toString())) {
-									double d = Double.parseDouble(fun.toString());
-									double d0 = Double.parseDouble(oldFun.toString());
-									if ((isMax && d > d0) || (isMin && d < d0))
-										valueMap.get(groupKey).put(funStructs.get(k).getFieldName(), fun);
-								} else {// 旧的为空,直接存新的
-									valueMap.get(groupKey).put(funStructs.get(k).getFieldName(), fun);
+						} else if ((isMax = FunctionType.MAX == functionType)
+								|| (isMin = FunctionType.MIN == functionType)) {
+									if (fun != null && StringUtils.isNotBlank(fun.toString())) {
+										if (oldFun != null && StringUtils.isNotBlank(oldFun.toString())) {
+											double d = Double.parseDouble(fun.toString());
+											double d0 = Double.parseDouble(oldFun.toString());
+											if ((isMax && d > d0) || (isMin && d < d0))
+												valueMap.get(groupKey).put(funStructs.get(k).getFieldName(), fun);
+										} else {// 旧的为空,直接存新的
+											valueMap.get(groupKey).put(funStructs.get(k).getFieldName(), fun);
+										}
+									}
+//							    else {fun为empty,则不处理,保留原来的}
+								} else if (FunctionType.AVG == functionType) {
+									hasAvg = true;
+									avgNum.add(funIndex);
 								}
-							}
-//							else {fun为empty,则不处理,保留原来的}
-						} else if (FunctionType.AVG.getName().equalsIgnoreCase(funStructs.get(k).getFunctionType())) {
-							hasAvg = true;
-//							if (i == 1) {
-								avgNum.add(funIndex);
-//							}
-						}
 					}
 					t = null;
 				}
 			} // end for
-			
-			if (avgNum.isEmpty()) { //若每组只有一行时，上面的没有设置avgNum；要在这检查设置
+
+			if (avgNum.isEmpty()) { // 若每组只有一行时，上面的没有设置avgNum；要在这检查设置
 				for (int k = 0; k < funStructs.size(); k++) {
 					Integer funIndex = groupFunStruct.getIndexByColumn(funStructs.get(k).getFieldName()); // null?
+					functionType = FunctionType.getByName(funStructs.get(k).getFunctionType());
 					if (funIndex == null) continue;
-					if (FunctionType.AVG.getName().equalsIgnoreCase(funStructs.get(k).getFunctionType())) {
+					if (FunctionType.AVG == functionType) {
 						hasAvg = true;
 						avgNum.add(funIndex);
 					}
@@ -323,9 +326,10 @@ public class ShardingGroupByDecorator {
 					}
 				}
 			}
-			
+
 			// 更新为分组后的记录; adjustAvg会删除自动加的列
-			if (list.size() != groupEntityMap.size() || !avgNum.isEmpty() || !groupFunStruct.getAddedGroupByColumn().isEmpty()) {
+			if (list.size() != groupEntityMap.size() || !avgNum.isEmpty() || !groupFunStruct.getAddedGroupByColumn()
+					.isEmpty()) {
 				list.clear();
 				Logger.debug("print select temp data start:");
 				Logger.debug("select temp columns: " + groupFunStruct.getColumnNames());
