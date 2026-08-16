@@ -22,7 +22,9 @@ import org.teasoft.honey.osql.core.HoneyContext1;
 import org.teasoft.honey.osql.core.HoneyUtil;
 import org.teasoft.honey.osql.core.LocalType;
 import org.teasoft.honey.osql.core.NameTranslateHandle;
+import org.teasoft.honey.osql.core.StringConst;
 import org.teasoft.honey.util.ObjectCreatorFactory;
+import org.teasoft.honey.util.ObjectUtils;
 import org.teasoft.honey.util.Printer;
 import org.teasoft.honey.util.StringUtils;
 import org.teasoft.honey.util.currency.CurrencyArithmetic;
@@ -223,7 +225,7 @@ public class ShardingGroupByDecorator {
 
 		boolean hasAvg = false;
 //		List<Integer> avgNum = new ArrayList<>();
-		Set<Integer> avgNum = new TreeSet<>();
+		Set<Integer> avgNum = new TreeSet<>(); //avgIndex
 
 		try {
 			String[] currentStringArray;
@@ -314,6 +316,8 @@ public class ShardingGroupByDecorator {
 				}
 			}
 
+			HoneyContext1.setForSharding(StringConst.AvgIndexSet, avgNum);
+
 			for (Map.Entry<String, Map<String, String>> entryKey : valueMap.entrySet()) { // valueMap里的值,第一行的也有计算了
 				// 将保存在valueMap的计算临时值,保存回groupEntityMap里的唯一记录
 				String[] tempEntity = groupEntityMap.get(entryKey.getKey());
@@ -328,17 +332,17 @@ public class ShardingGroupByDecorator {
 			}
 
 			// 更新为分组后的记录; adjustAvg会删除自动加的列
-			if (list.size() != groupEntityMap.size() || !avgNum.isEmpty() || !groupFunStruct.getAddedGroupByColumn()
-					.isEmpty()) {
-				list.clear();
-				Logger.debug("print select temp data start:");
-				Logger.debug("select temp columns: " + groupFunStruct.getColumnNames());
+			if (list.size() != groupEntityMap.size() || !avgNum.isEmpty()) {
+//				list.clear();
+//				Logger.debug("print select temp data start:");
+//				Logger.debug("select temp columns: " + groupFunStruct.getColumnNames());
 				for (Map.Entry<String, String[]> entry : groupEntityMap.entrySet()) {
-					Printer.printArrayStringInDebug(entry.getValue());
-					list.add(adjustAvg(entry.getValue(), hasAvg, avgNum, groupFunStruct)); // 会删除AVG自动增加的列
+//					Printer.printArrayStringInDebug(entry.getValue());
+//					list.add(adjustAvg(entry.getValue(), hasAvg, avgNum)); // 会删除AVG自动增加的列
+					adjustAvg(entry.getValue(), hasAvg, avgNum); // 重新计算平均值
 				}
-				Logger.debug("print select temp data end.");
-				Logger.info("the Orginal Select Column: " + groupFunStruct.getOrginalSelectColumn());
+//				Logger.debug("print select temp data end.");
+//				Logger.info("the Orginal Select Column: " + groupFunStruct.getOrginalSelectColumn());
 			}
 			groupEntityMap = null;
 			valueMap = null;
@@ -347,10 +351,40 @@ public class ShardingGroupByDecorator {
 		}
 	}
 
-	// 重新计算平均值; 删除自动加的列
-	private static String[] adjustAvg(String[] old, boolean hasAvg, Set<Integer> avgNum, GroupFunStruct groupFunStruct) {
+	// 重新计算平均值;
+//	注意： 还没排序，不能删除排序添加的列。  自动加的分组列可能与自动加的排序列一样，先不能删。
+//	平均值多的两列，也先不删；不然列数变了，找不到自动加的分组列。
+	private static void adjustAvg(String[] old, boolean hasAvg, Set<Integer> avgNum) {
+		if (!hasAvg) return;
+		for (Integer index : avgNum) {
+			old[index] = CurrencyArithmetic.divide(old[index + 1], old[index + 2], 6);
+		}
+	}
+	
+	
+	public static void removeAutoGenColumnForStringArray(List<String[]> rsList) {
+		GroupFunStruct groupFunStruct = HoneyContext1.getInheritable(LocalType.SHARDING, GroupFunStruct.class);
+		
+		if (rsList == null || rsList.size() == 0) return;
+		String old[];
+		String tempArray[];
+		Logger.debug("print select temp data start:");
+		Logger.debug("select temp columns: " + groupFunStruct.getColumnNames());
+		for (int m = 0; m < rsList.size(); m++) {
+			old = rsList.get(m);
+			Printer.printArrayStringInDebug(old);
+			Set<Integer> avgNum = (Set<Integer>) HoneyContext1.get(LocalType.SHARDING, StringConst.AvgIndexSet);
+			tempArray=removeAutoGenColumnForStringArray0(old, avgNum, groupFunStruct);
+			rsList.set(m, tempArray); // reset new value
+		}
+		Logger.debug("print select temp data end.");
+		Logger.info("the Orginal Select Column: " + groupFunStruct.getOrginalSelectColumn());
+	}
+	
+	// 重新计算平均值; 删除自动加的列   注意： 还没排序，不能删除排序添加的列。  自动加的分组列可能与自动加的排序列一样，先不能删。
+	private static String[] removeAutoGenColumnForStringArray0(String[] old, Set<Integer> avgNum, GroupFunStruct groupFunStruct) {
 		Set<String> addedGroupByColumn=groupFunStruct.getAddedGroupByColumn();
-		if (!hasAvg && addedGroupByColumn.isEmpty()) return old;
+		if (ObjectUtils.isEmpty(avgNum) && addedGroupByColumn.isEmpty()) return old;
 		
 		Set<Integer> addedGroupByColumnIndex=new TreeSet<>();
 		for(String s:addedGroupByColumn) {
@@ -359,9 +393,9 @@ public class ShardingGroupByDecorator {
 		
 		int num = avgNum.size();
 		String tempArray[] = new String[old.length - num * 2 - addedGroupByColumn.size()];
-		for (Integer index : avgNum) {
-			old[index] = CurrencyArithmetic.divide(old[index + 1], old[index + 2], 6);
-		}
+//		for (Integer index : avgNum) {
+//			old[index] = CurrencyArithmetic.divide(old[index + 1], old[index + 2], 6);
+//		}
 		for (int i = 0, k = 0; i < old.length; i++) {
 			if (addedGroupByColumnIndex.contains(i)) continue; //跳过自动加的分组列
 			tempArray[k++] = old[i];
@@ -370,5 +404,30 @@ public class ShardingGroupByDecorator {
 
 		return tempArray;
 	}
+
+
+//	// 重新计算平均值; 删除自动加的列   注意： 还没排序，不能删除排序添加的列。  自动加的分组列可能与自动加的排序列一样，先不能删。
+//	private static String[] adjustAvg(String[] old, boolean hasAvg, Set<Integer> avgNum, GroupFunStruct groupFunStruct) {
+//		Set<String> addedGroupByColumn=groupFunStruct.getAddedGroupByColumn();
+//		if (!hasAvg && addedGroupByColumn.isEmpty()) return old;
+//		
+//		Set<Integer> addedGroupByColumnIndex=new TreeSet<>();
+//		for(String s:addedGroupByColumn) {
+//			addedGroupByColumnIndex.add(groupFunStruct.getIndexByColumn(s));
+//		}
+//		
+//		int num = avgNum.size();
+//		String tempArray[] = new String[old.length - num * 2 - addedGroupByColumn.size()];
+//		for (Integer index : avgNum) {
+//			old[index] = CurrencyArithmetic.divide(old[index + 1], old[index + 2], 6);
+//		}
+//		for (int i = 0, k = 0; i < old.length; i++) {
+//			if (addedGroupByColumnIndex.contains(i)) continue; //跳过自动加的分组列
+//			tempArray[k++] = old[i];
+//			if (avgNum.contains(i)) i = i + 2; // 跳过两列(自动增加的)
+//		}
+//
+//		return tempArray;
+//	}
 
 }

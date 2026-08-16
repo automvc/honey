@@ -91,7 +91,7 @@ public class ShardingGroupbyListStringArrayEngine {
 		// 获取指定的一页数据
 		ResultPagingDecorator.pagingList(rsList);
 		
-//		RecoverAddedSelectColumnDecorator.recover(rsList);  //TODO 要记住想查的列在数组的下标。 要考虑多个平均值受的影响。
+		ShardingGroupByDecorator.removeAutoGenColumnForStringArray(rsList);
 
 		if (returnType == List_String_Array) { // String[]
 			// 要去掉多余的列 ,在groupAndAggregateStringArray已处理
