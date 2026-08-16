@@ -152,15 +152,15 @@ class _MoreObjectToSQLHelper3 {
 			}
 		}
 
-		if (needRewritePagingSql) {
-			Object idValue = HoneyUtil.getIdValue(entity);
-			// 7. 设置了主键值
-			if (idValue != null) {  //TODO 但子表，可能还是很多条。 
-				needRewritePagingSql = false;
-			}
-		}
-//		else if(){ //8. 多那头的子表的主键都设置有值,即结果只会有一条记录.
-//	    }
+//		if (needRewritePagingSql) {
+//			Object idValue = HoneyUtil.getIdValue(entity);
+//			// 7. 设置了主键值
+//			if (idValue != null) {  //TODO 但子表，可能还是很多条。 
+//				needRewritePagingSql = false;
+//			}
+//		}
+////		else if(){ //8. 多那头的子表的主键都设置有值,即结果只会有一条记录.
+////	    }
 
 		StringBuffer fullColumns = new StringBuffer();
 		StringBuffer joinPart = new StringBuffer();
