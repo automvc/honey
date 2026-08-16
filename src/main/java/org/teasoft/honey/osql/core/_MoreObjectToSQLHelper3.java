@@ -20,6 +20,7 @@ import org.teasoft.honey.logging.Logger;
 import org.teasoft.honey.osql.name.NameUtil;
 import org.teasoft.honey.sharding.ShardingReg;
 import org.teasoft.honey.sharding.ShardingUtil;
+import org.teasoft.honey.util.ObjectUtils;
 import org.teasoft.honey.util.StringUtils;
 
 class _MoreObjectToSQLHelper3 {
@@ -288,7 +289,10 @@ class _MoreObjectToSQLHelper3 {
 		else
 			columnNames = fullColumns.toString();
 
-		checkGroup = true; // TODO
+		// V3.0.0.8 没有分组的，最终也要合并到一起
+		if (!checkGroup && pointSelectFieldOrFunWrapper.hasFun && ShardingUtil.hadSharding()) {
+			checkGroup = true;
+		}
 
 		// 2.4.0 For sharding
 		if (condition != null && checkGroup) {
@@ -334,6 +338,15 @@ class _MoreObjectToSQLHelper3 {
 				HoneyContext1.setInheritable(LocalType.SHARDING, GroupFunStruct.class, gfStruct);
 			}
 		} // checkGroup
+		else {
+			List<String> addedOrderByFields = (List<String>) HoneyContext1.get(LocalType.SHARDING,
+					StringConst.AddedOrderByField);
+			if (ObjectUtils.isNotEmpty(addedOrderByFields)) {
+				GroupFunStruct gfStruct = new GroupFunStruct();
+				gfStruct.setColumnNames(columnNames);
+				HoneyContext1.setInheritable(LocalType.SHARDING, StringConst.AddedOrderByFieldStruct, gfStruct);
+			}
+		}
 
 		sqlBuffer.append(K.select).append(ONE_SPACE).append(columnNames).append(ONE_SPACE).append(K.from)
 				.append(ONE_SPACE).append(tablePart);

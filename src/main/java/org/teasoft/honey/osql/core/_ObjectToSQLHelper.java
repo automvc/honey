@@ -194,6 +194,15 @@ final class _ObjectToSQLHelper {
 						HoneyContext1.setInheritable(LocalType.SHARDING, GroupFunStruct.class, gfStruct);
 					}
 				} // checkGroup
+				else {
+					List<String> addedOrderByFields = (List<String>) HoneyContext1.get(LocalType.SHARDING,
+							StringConst.AddedOrderByField);
+					if (ObjectUtils.isNotEmpty(addedOrderByFields)) {
+						GroupFunStruct gfStruct = new GroupFunStruct();
+						gfStruct.setColumnNames(columnNames);
+						HoneyContext1.setInheritable(LocalType.SHARDING, StringConst.AddedOrderByFieldStruct, gfStruct);
+					}
+				}
 
 			}
 
