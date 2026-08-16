@@ -214,7 +214,8 @@ final class _ObjectToSQLHelper {
 	static void checkGroupOrAddedOrderByField(Condition condition, String columnNames, boolean hasFun,
 			String selectField, String mainTableName) {
 
-		// V2.0
+		if (condition == null) return;
+
 		boolean checkGroup = OneTimeParameter.isTrue(StringConst.Check_Group_ForSharding)
 				&& ShardingUtil.hadSharding();
 		List<String> groupNameslist = condition.getGroupByFields();
