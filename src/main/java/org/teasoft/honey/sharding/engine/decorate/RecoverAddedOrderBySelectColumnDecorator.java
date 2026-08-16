@@ -20,7 +20,7 @@ import org.teasoft.honey.util.ObjectUtils;
  * @author Kingstar
  * @since  3.0.0
  */
-public class RecoverAddedSelectColumnDecorator {
+public class RecoverAddedOrderBySelectColumnDecorator {
 	
 	@SuppressWarnings("unchecked")
 	public static <T> void recover(List<T> rsList) {
