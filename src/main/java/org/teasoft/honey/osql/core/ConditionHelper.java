@@ -419,8 +419,9 @@ public class ConditionHelper {
 
 		boolean isConfuseDuplicateFieldDB = HoneyUtil.isConfuseDuplicateFieldDB();
 		boolean isHasAvg = false;
+		String tempName;
 		for (int i = 0; i < funExpList.size(); i++) {
-
+			tempName = "";
 			if ("*".equals(funExpList.get(i).getField())) {
 				columnName = "*";
 			} else { // todo //不校验字段
@@ -443,8 +444,8 @@ public class ConditionHelper {
 			}
 			String functionTypeName = funExpList.get(i).getFunctionType();
 			functionTypeName = FunAndOrderTypeMap.transfer(functionTypeName);
-
-			funStr += functionTypeName + "(" + columnName + ")";
+			tempName = functionTypeName + "(" + columnName + ")";
+			funStr += tempName;
 
 			nameAlias = funExpList.get(i).getAlias();
 			if (StringUtils.isNotBlank(nameAlias)) {
@@ -459,15 +460,20 @@ public class ConditionHelper {
 				} else {
 					funStr += " " + newAlias;
 				}
-				if (get_FunStructForSharding) orginalSelectColumn.add(newAlias);
+				if (get_FunStructForSharding) {
+					orginalSelectColumn.add(newAlias);
+					funStructs.add(new FunStruct(newAlias, functionTypeName));
+				}
 			} else {
 				funUseName = columnName;
-				if (get_FunStructForSharding) orginalSelectColumn.add(functionTypeName + "(" + columnName + ")");
+				if (get_FunStructForSharding) {
+					orginalSelectColumn.add(tempName);
+					funStructs.add(new FunStruct(tempName, functionTypeName));
+				}
 			}
 
 			if (get_FunStructForSharding) { // sharding
-				funStructs.add(new FunStruct(funUseName, functionTypeName));
-//				funStructs.add(new FunStruct(funStr, functionTypeName));
+//				funStructs.add(new FunStruct(funUseName, functionTypeName));
 				if (!isHasAvg && FunctionType.AVG.getName().equalsIgnoreCase(functionTypeName)) {
 					isHasAvg = true;
 					funStructs.add(new FunStruct(funUseName + "_sum_", FunctionType.SUM.getName()));

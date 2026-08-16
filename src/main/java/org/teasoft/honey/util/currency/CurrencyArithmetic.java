@@ -83,6 +83,10 @@ public class CurrencyArithmetic {
 		return divide(a, b, SCALE, DEFAULT_ROUND_MODE);
 	}
 
+	public static String divide(String a, String b, int scale) {
+		return divide(a, b, scale, DEFAULT_ROUND_MODE);
+	}
+
 	public static String divide(String a, String b, int scale, RoundingMode roundingMode) {
 		BigDecimal one = new BigDecimal(a);
 		BigDecimal two = new BigDecimal(b);

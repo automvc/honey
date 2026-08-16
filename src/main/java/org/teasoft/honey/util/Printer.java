@@ -45,13 +45,24 @@ public class Printer {
 		}
 	}
 	
+	public static void printArrayStringInDebug(String[] a) {
+		printArrayString(a, true);
+	}
+
 	public static void printArrayString(String[] a) {
+		printArrayString(a, false);
+	}
+
+	public static void printArrayString(String[] a, boolean isDebug) {
 		if (ObjectUtils.isEmpty(a)) return;
 		String row = null;
 		row = "";
 		for (int j = 0; j < a.length; j++) {
 			row += a[j] + "   ";
 		}
-		Logger.info(row);
+		if (isDebug)
+			Logger.debug(row);
+		else
+			Logger.info(row);
 	}
 }

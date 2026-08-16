@@ -221,17 +221,23 @@ public class ShardingGroupByDecorator {
 
 		boolean hasAvg = false;
 //		List<Integer> avgNum = new ArrayList<>();
-		Set<Integer> avgNum=new TreeSet<>();
+		Set<Integer> avgNum = new TreeSet<>();
 
 		try {
 			String[] currentStringArray;
 			Map<String, String[]> groupEntityMap = new LinkedHashMap<>();
-
+			String mainTableForGroupField;
+			String groupField;
 			for (int i = 0; i < list.size(); i++) {
 				currentStringArray = list.get(i);
 				groupKey = "";
 				for (int j = 0; groupFields != null && j < groupFields.size(); j++) {
-					groupKey += currentStringArray[groupFunStruct.getIndexByColumn(groupFields.get(j))] + ",";
+					mainTableForGroupField=groupFunStruct.getMainTableForGroupField();
+					groupField=groupFields.get(j);
+					if (StringUtils.isNotBlank(mainTableForGroupField) && !groupField.contains(".")) {
+						groupField = mainTableForGroupField + "." + groupField;
+					}
+					groupKey += currentStringArray[groupFunStruct.getIndexByColumn(groupField)] + ",";
 				}
 				String[] old = groupEntityMap.get(groupKey);
 				if (old == null) {
@@ -293,6 +299,17 @@ public class ShardingGroupByDecorator {
 					t = null;
 				}
 			} // end for
+			
+			if (avgNum.isEmpty()) { //若每组只有一行时，上面的没有设置avgNum；要在这检查设置
+				for (int k = 0; k < funStructs.size(); k++) {
+					Integer funIndex = groupFunStruct.getIndexByColumn(funStructs.get(k).getFieldName()); // null?
+					if (funIndex == null) continue;
+					if (FunctionType.AVG.getName().equalsIgnoreCase(funStructs.get(k).getFunctionType())) {
+						hasAvg = true;
+						avgNum.add(funIndex);
+					}
+				}
+			}
 
 			for (Map.Entry<String, Map<String, String>> entryKey : valueMap.entrySet()) { // valueMap里的值,第一行的也有计算了
 				// 将保存在valueMap的计算临时值,保存回groupEntityMap里的唯一记录
@@ -306,15 +323,18 @@ public class ShardingGroupByDecorator {
 					}
 				}
 			}
-
-			// 更新为分组后的记录
-			if (list.size() != groupEntityMap.size()) {
+			
+			// 更新为分组后的记录; adjustAvg会删除自动加的列
+			if (list.size() != groupEntityMap.size() || !avgNum.isEmpty() || !groupFunStruct.getAddedGroupByColumn().isEmpty()) {
 				list.clear();
-				Logger.info("select temp data:"); //TODO
+				Logger.debug("print select temp data start:");
+				Logger.debug("select temp columns: " + groupFunStruct.getColumnNames());
 				for (Map.Entry<String, String[]> entry : groupEntityMap.entrySet()) {
-					Printer.printArrayString(entry.getValue()); //TODO
-					list.add(adjustAvg(entry.getValue(), hasAvg, avgNum)); //会删除AVG自动增加的列
+					Printer.printArrayStringInDebug(entry.getValue());
+					list.add(adjustAvg(entry.getValue(), hasAvg, avgNum, groupFunStruct)); // 会删除AVG自动增加的列
 				}
+				Logger.debug("print select temp data end.");
+				Logger.info("the Orginal Select Column: " + groupFunStruct.getOrginalSelectColumn());
 			}
 			groupEntityMap = null;
 			valueMap = null;
@@ -323,28 +343,28 @@ public class ShardingGroupByDecorator {
 		}
 	}
 
-	// 重新计算平均值
-	private static String[] adjustAvg(String[] old, boolean hasAvg, Set<Integer> avgNum) {
-		if (!hasAvg) return old;
+	// 重新计算平均值; 删除自动加的列
+	private static String[] adjustAvg(String[] old, boolean hasAvg, Set<Integer> avgNum, GroupFunStruct groupFunStruct) {
+		Set<String> addedGroupByColumn=groupFunStruct.getAddedGroupByColumn();
+		if (!hasAvg && addedGroupByColumn.isEmpty()) return old;
+		
+		Set<Integer> addedGroupByColumnIndex=new TreeSet<>();
+		for(String s:addedGroupByColumn) {
+			addedGroupByColumnIndex.add(groupFunStruct.getIndexByColumn(s));
+		}
+		
 		int num = avgNum.size();
-		String tempArray[] = new String[old.length - num * 2];
+		String tempArray[] = new String[old.length - num * 2 - addedGroupByColumn.size()];
 		for (Integer index : avgNum) {
-			old[index] = CurrencyArithmetic.divide(old[index + 1], old[index + 2]);
+			old[index] = CurrencyArithmetic.divide(old[index + 1], old[index + 2], 6);
 		}
 		for (int i = 0, k = 0; i < old.length; i++) {
+			if (addedGroupByColumnIndex.contains(i)) continue; //跳过自动加的分组列
 			tempArray[k++] = old[i];
-//			if (existInList(avgNum, i)) i = i + 2; // 跳过两列(自动增加的)
 			if (avgNum.contains(i)) i = i + 2; // 跳过两列(自动增加的)
 		}
 
 		return tempArray;
 	}
-
-//	private static boolean existInList(Set<Integer> avgNum, int index) {
-//		for (Integer i : avgNum) {
-//			if (index == i) return true;
-//		}
-//		return false;
-//	}
 
 }

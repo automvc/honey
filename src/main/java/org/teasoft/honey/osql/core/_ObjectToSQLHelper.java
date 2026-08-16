@@ -148,21 +148,34 @@ final class _ObjectToSQLHelper {
 //					//full column names
 //				}
 
+				// V3.0.0.8 没有分组的，最终也要合并到一起
+				if (!checkGroup && StringUtils.isNotEmpty(fun) && ShardingUtil.hadSharding()) {
+					checkGroup = true;
+				}
+
 				if (checkGroup) {
 					// 判断,是否是分片,且有group分组,聚合
 					// pre自定义和返回string[]的查询,也不需要. 可以传入标记, select,selectJson的才可以.
+					
+					GroupFunStruct gfStruct = null;
+					if (StringUtils.isNotEmpty(fun)) { // && size>=1
+						gfStruct = (GroupFunStruct) OneTimeParameter.getAttribute(StringConst.Return_GroupFunStruct);
+					}
 
 					Map<String, String> orderByMap = condition.getOrderBy();
 					boolean isEmptyOrderByMap = orderByMap.size() == 0;
 					String columnG;
 
 					// hadSharding, 分组的字段没有查询出来,则加分组的字段
+					if (groupNameslist != null) {
 					for (String g : groupNameslist) {
 						columnG = toColumnName(g); //V3.0.0.8
 						if (columnNames.contains(", " + columnG) || columnNames.contains("," + columnG) || columnNames.contains(columnG + ",") || columnNames.equals(columnG)) {
 							// already contain group field
 						} else {
 							columnNames += ", " + columnG;
+							if(gfStruct!=null)
+								gfStruct.appendAddedGroupByColumn(columnG);
 						}
 //						group by分组的字段没有在order by,则添加进去 // V3.0.0.8 add !orderByMap.containsKey(g)
 						if (isEmptyOrderByMap || !orderByMap.containsKey(g))
@@ -170,15 +183,13 @@ final class _ObjectToSQLHelper {
 
 						// 一个实体,原来有一个Map属性,取出后,能清空里面的元素吗???
 					}
-					GroupFunStruct gfStruct = null;
-					if (StringUtils.isNotEmpty(fun)) { // && size>=1
-						gfStruct = (GroupFunStruct) OneTimeParameter.getAttribute(StringConst.Return_GroupFunStruct);
 					}
 
 					// 排序没有分组字段,添加进去?
 					if (gfStruct != null) {
 						gfStruct.setGroupFields(groupNameslist);
 						gfStruct.setColumnNames(columnNames);
+						gfStruct.addFirstOrginalSelectColumn(selectField); //3.0.0.8   TODO moreTable need?
 
 						HoneyContext1.setInheritable(LocalType.SHARDING, GroupFunStruct.class, gfStruct);
 					}

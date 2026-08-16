@@ -288,6 +288,8 @@ class _MoreObjectToSQLHelper3 {
 		else
 			columnNames = fullColumns.toString();
 
+		checkGroup = true; // TODO
+
 		// 2.4.0 For sharding
 		if (condition != null && checkGroup) {
 			// 判断,是否是分片,且有group分组,聚合
@@ -295,24 +297,28 @@ class _MoreObjectToSQLHelper3 {
 			
 			Map<String, String> orderByMap = condition.getOrderBy();
 			boolean isEmptyOrderByMap = orderByMap.size() == 0;
-			String columnName;
+			String columnG;
+			String mainTableForGroupField = "";
 
 			// hadSharding, 分组的字段没有查询出来,则加分组的字段
+			if (groupNameslist != null) {
 			for (String g : groupNameslist) {
-				columnName = toColumnName(g);
-				if (columnNames.contains(", " + columnName) || columnNames.contains("," + columnName) || columnNames.contains(columnName + ",") || columnNames.equals(columnName)) {
+				columnG = toColumnName(g);
+				if (columnNames.contains(", " + columnG) || columnNames.contains("," + columnG) || columnNames.contains(columnG + ",") || columnNames.equals(columnG)) {
 					// already contain group field
 				} else {
 					if (!g.contains(".")) {
-						columnNames += ", " + mainTableName + "." + columnName; // just adjust select field.
+						columnNames += ", " + mainTableName + "." + columnG; // just adjust select field.
+						mainTableForGroupField = mainTableName;
 					} else {
-						columnNames += ", " + columnName;
+						columnNames += ", " + columnG;
 					}
 				}
 //				group by分组的字段没有在order by,则添加进去 // V3.0.0.8 add !orderByMap.containsKey(g)
 				if (isEmptyOrderByMap || !orderByMap.containsKey(g))
 					condition.orderBy(g);
 				// 一个实体,原来有一个Map属性,取出后,能清空里面的元素吗???
+			}
 			}
 			GroupFunStruct gfStruct = null;
 			if (pointSelectFieldOrFunWrapper.hasFun) { // && size>=1
@@ -323,6 +329,8 @@ class _MoreObjectToSQLHelper3 {
 			if (gfStruct != null) {
 				gfStruct.setGroupFields(groupNameslist);
 				gfStruct.setColumnNames(columnNames);
+				gfStruct.addFirstOrginalSelectColumn(pointSelectFieldOrFunWrapper.selectField); //V3.0.0.8   TODO moreTable need?
+				gfStruct.setMainTableForGroupField(mainTableForGroupField);//V3.0.0.8
 				HoneyContext1.setInheritable(LocalType.SHARDING, GroupFunStruct.class, gfStruct);
 			}
 		} // checkGroup
@@ -534,7 +542,7 @@ class _MoreObjectToSQLHelper3 {
 			}
 		}
 
-		return new PointSelectFieldOrFunWrapper(pointSelectFieldOrFun, StringUtils.isNotEmpty(fun));
+		return new PointSelectFieldOrFunWrapper(pointSelectFieldOrFun, StringUtils.isNotEmpty(fun), selectField);
 	}
 
 	// 为指定字段,没有带表名的,自动填上主表表名.
@@ -561,9 +569,11 @@ class _MoreObjectToSQLHelper3 {
 class PointSelectFieldOrFunWrapper {
 	String pointSelectFieldOrFun;
 	boolean hasFun;
+	String selectField;
 
-	public PointSelectFieldOrFunWrapper(String pointSelectFieldOrFun, boolean hasFun) {
+	public PointSelectFieldOrFunWrapper(String pointSelectFieldOrFun, boolean hasFun, String selectField) {
 		this.pointSelectFieldOrFun = pointSelectFieldOrFun;
 		this.hasFun = hasFun;
+		this.selectField = selectField;
 	}
 }
