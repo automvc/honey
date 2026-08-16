@@ -17,6 +17,7 @@ import org.teasoft.bee.osql.BeeSql;
 import org.teasoft.honey.osql.core.OrderByPagingRewriteSql;
 import org.teasoft.honey.osql.core.ShardingLogReg;
 import org.teasoft.honey.sharding.ShardingUtil;
+import org.teasoft.honey.sharding.engine.decorate.RecoverAddedSelectColumnDecorator;
 import org.teasoft.honey.sharding.engine.decorate.ResultPagingDecorator;
 import org.teasoft.honey.sharding.engine.decorate.SortStringArrayListDecorator;
 
@@ -70,6 +71,9 @@ public class ShardingSelectListStringArrayEngine {
 
 		// 排序装饰
 		SortStringArrayListDecorator.sort(rsList);
+
+//		//有排序时,因归并结果后要排序而加的查询列,要清除; List<String[]>
+		RecoverAddedSelectColumnDecorator.recoverStringArrayForOrderBy(rsList);
 
 		// 分页装饰
 		// 获取指定的一页数据

@@ -117,7 +117,7 @@ public class ShardingGroupbyListStringArrayEngine {
 					
 					List<String> orginalSelectColumn = groupFunStruct.getOrginalSelectColumn();
 					for (int k = 0; orginalSelectColumn != null && k < orginalSelectColumn.size(); k++) {
-						if (k == 0) Logger.logSQL("orginal Select Column: " + orginalSelectColumn);
+//						if (k == 0) Logger.logSQL("orginal Select Column: " + orginalSelectColumn);
 						String columnName = orginalSelectColumn.get(k);
 //						int index = groupFunStruct.getColumnIndexMap().get(columnName);
 						int index=k;

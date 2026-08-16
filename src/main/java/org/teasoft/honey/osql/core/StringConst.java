@@ -68,7 +68,7 @@ public final class StringConst {
 	public static final String SAME_CONN_END = "_SYS_Bee_SAME_CONN_END";
 	public static final String TIMER_START = "_SYS_Bee_TIMER_START";
 
-	// Sharding<<<<<<<<<<<<<<<<<<<<<<<<<<
+	// Sharding start<<<<<<<<<<<<<<<<<<<<<<<<<<
 	public static final String ShardingTableIndexStr = "'[$#(index)#$]'";// 2.4.0.8
 
 	///////////////
@@ -104,10 +104,11 @@ public final class StringConst {
 	public static final String ShardingSelectRs_ThreadFlag = PREFIX + "ShardingSelectRs_ThreadID";
 
 	public static final String AddedOrderByField = PREFIX + "AddedOrderByFieldForSharding";
+	public static final String AddedOrderByFieldStruct = PREFIX + "AddedOrderByFieldStruct";
 
 	public static final String SuidRichAvgRewrite = PREFIX + "SuidRichAvgRewrite";
 
-	// Sharding>>>>>>>>>>>>>>>>>>>>>>>
+	// Sharding end>>>>>>>>>>>>>>>>>>>>>>>
 
 	// MongoDB
 	public static final String GridFs_FileId = PREFIX + "GridFs_FileId";
