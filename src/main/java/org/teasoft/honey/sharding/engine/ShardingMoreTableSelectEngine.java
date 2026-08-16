@@ -19,6 +19,7 @@ import org.teasoft.honey.osql.core.HoneyConfig;
 import org.teasoft.honey.osql.core.OrderByPagingRewriteSql;
 import org.teasoft.honey.osql.core.ShardingLogReg;
 import org.teasoft.honey.sharding.ShardingUtil;
+import org.teasoft.honey.sharding.engine.decorate.RecoverAddedOrderBySelectColumnDecorator;
 import org.teasoft.honey.sharding.engine.decorate.ResultPagingDecorator;
 import org.teasoft.honey.sharding.engine.decorate.SortListDecorator;
 
@@ -81,6 +82,9 @@ public class ShardingMoreTableSelectEngine {
 		// 分页装饰
 		// 获取指定的一页数据
 		ResultPagingDecorator.pagingList(rsList);
+
+		// 有排序时,因归并结果后要排序而加的查询列,要清除
+		RecoverAddedOrderBySelectColumnDecorator.recover(rsList);
 
 		if (showShardingSQL) Logger.debug("after  ResultPagingDecorator, rows: " + rsList.size());
 

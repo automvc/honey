@@ -458,6 +458,7 @@ public class ConditionImpl implements Condition {
 		if (fieldList != null && fieldList.length == 1) {
 			if (fieldList[0] != null && fieldList[0].contains(",")) {
 				String n[] = fieldList[0].split(",");
+				StringUtils.trim(n);
 				checkFields(n);
 				this.selectField = n;
 			} else {
@@ -465,6 +466,7 @@ public class ConditionImpl implements Condition {
 				this.selectField = fieldList;
 			}
 		} else {
+			StringUtils.trim(fieldList);
 			checkFields(fieldList);
 			this.selectField = fieldList;
 		}

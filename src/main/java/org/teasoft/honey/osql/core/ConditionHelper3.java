@@ -43,18 +43,9 @@ public class ConditionHelper3 {
 			throw new BeeErrorGrammarException(conditionImpl.getSuidType()
 					+ " do not support specifying partial fields by method selectField(String) !");
 		}
-		String selectField[] = conditionImpl.getSelectField();
 
-		if (selectField == null) return null;
-
-		String selectFields[];
-
-		if (selectField.length == 1) { // 变长参数,只有一个时,才允许用逗号隔开
-			selectFields = selectField[0].split(",");
-		} else {
-			selectFields = selectField;
-		}
-		StringUtils.trim(selectFields);
+		String selectFields[] = conditionImpl.getSelectField();
+		if (selectFields == null) return null;
 
 		// fieldName -> columnName
 		for (int i = 0; i < selectFields.length; i++) {
@@ -66,7 +57,9 @@ public class ConditionHelper3 {
 			}
 		}
 
-		return HoneyUtil.checkAndProcessSelectFieldViaString(columnNames, subDulFieldMap, selectFields);
+		String selectField[] = ConditionHelper.addedOrderByFieldIfNeed(selectFields, conditionImpl);
+
+		return HoneyUtil.checkAndProcessSelectFieldViaString(columnNames, subDulFieldMap, selectField);
 	}
 
 	private static void adjustSqlServerPagingIfNeed(StringBuffer sqlBuffer, Map<String, String> orderByMap, Integer start,

@@ -337,11 +337,15 @@ public class ConditionHelper {
 					+ " do not support specifying partial fields by method selectField(String) !");
 		}
 		String selectField0[] = conditionImpl.getSelectField();
-
+		// fieldName -> columnName TODO??
 		if (selectField0 == null) return null;
+		String selectField[] = addedOrderByFieldIfNeed(selectField0, conditionImpl);
 
+		return HoneyUtil.checkAndProcessSelectFieldViaString(columnNames, subDulFieldMap, selectField);
+	}
+
+	static String[] addedOrderByFieldIfNeed(String selectField0[], ConditionImpl conditionImpl) {
 		String selectField[] = selectField0;
-
 		// 3.0.0
 		ShardingSortStruct struct = ShardingUtil.parseOrderByMap(conditionImpl.getOrderBy());
 		String[] orderFields = struct.getOrderFields();
@@ -354,7 +358,7 @@ public class ConditionHelper {
 				}
 			}
 
-			if (addedOrderByFields!=null && addedOrderByFields.size() > 0) {
+			if (addedOrderByFields != null && addedOrderByFields.size() > 0) {
 				int addLen = addedOrderByFields.size();
 				selectField = new String[selectField0.length + addLen];
 				for (int j = 0; j < selectField0.length; j++) {
@@ -368,10 +372,9 @@ public class ConditionHelper {
 				ShardingReg.regAddedOrderByField(addedOrderByFields);
 			}
 		}
-
-		return HoneyUtil.checkAndProcessSelectFieldViaString(columnNames, subDulFieldMap, selectField);
+		return selectField;
 	}
-	
+
 	private static boolean isNeedAdd2Select(String selectField0[], String target) {
 		if (selectField0 == null || selectField0.length == 0) return false;
 		if (target == null) return false;
