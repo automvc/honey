@@ -111,6 +111,11 @@ public final class StringConst {
 
 	public static final String SuidRichAvgRewrite = PREFIX + "SuidRichAvgRewrite";
 
+	public static final String ShardingSortStruct = PREFIX + "ShardingSortStruct";
+	public static final String ShardingPageStruct = PREFIX + "ShardingPageStruct";
+	public static final String Condition = PREFIX + "Condition";
+	public static final String GroupFunStruct = PREFIX + "GroupFunStruct";
+
 
 	// Sharding end>>>>>>>>>>>>>>>>>>>>>>>
 

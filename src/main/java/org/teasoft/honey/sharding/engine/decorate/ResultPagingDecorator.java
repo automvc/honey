@@ -12,6 +12,7 @@ import java.util.List;
 import org.teasoft.bee.sharding.ShardingPageStruct;
 import org.teasoft.honey.osql.core.HoneyContext1;
 import org.teasoft.honey.osql.core.LocalType;
+import org.teasoft.honey.osql.core.StringConst;
 import org.teasoft.honey.sharding.ShardingUtil;
 
 /**
@@ -24,7 +25,7 @@ public class ResultPagingDecorator {
 		// 分页装饰
 		// 获取指定的一页数据
 //		ShardingPageStruct shardingPage = HoneyContext.getCurrentShardingPage();
-		ShardingPageStruct shardingPage = HoneyContext1.get(LocalType.SHARDING, ShardingPageStruct.class);
+		ShardingPageStruct shardingPage = (ShardingPageStruct)HoneyContext1.get(LocalType.SHARDING, StringConst.ShardingPageStruct);
 		if (shardingPage != null) {
 			int type = shardingPage.getPagingType();
 //			if(type==2 || type==3) {

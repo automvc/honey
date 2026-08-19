@@ -89,7 +89,7 @@ public class ShardingSelectRsEngine {
 				if (i == 0) {
 					ShardingSortReg.regSort(rs.getMetaData());
 //					struct = HoneyContext.getCurrentShardingSort();
-					struct = HoneyContext1.getInheritable(LocalType.SHARDING, ShardingSortStruct.class);
+					struct = (ShardingSortStruct)HoneyContext1.getExtForSharding(StringConst.ShardingSortStruct);
 				}
 				queue.offer(new CompareResult(rs, struct));
 			} catch (InterruptedException e) {

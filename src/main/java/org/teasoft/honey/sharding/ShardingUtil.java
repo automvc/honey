@@ -16,7 +16,6 @@ import org.teasoft.bee.sharding.ShardingSortStruct;
 import org.teasoft.honey.osql.core.HoneyConfig;
 import org.teasoft.honey.osql.core.HoneyContext;
 import org.teasoft.honey.osql.core.HoneyContext1;
-import org.teasoft.honey.osql.core.LocalType;
 import org.teasoft.honey.osql.core.StringConst;
 import org.teasoft.honey.sharding.config.ShardingRegistry;
 import org.teasoft.honey.util.StringUtils;
@@ -77,12 +76,12 @@ public class ShardingUtil {
 
 	public static boolean hadGroupSharding() {
 //		return HoneyContext.getCurrentGroupFunStruct() != null;
-		return HoneyContext1.getInheritable(LocalType.SHARDING, GroupFunStruct.class) != null;
+		return HoneyContext1.getExtForSharding(StringConst.GroupFunStruct) != null;
 	}
 
 	public static boolean hadAvgSharding() {// 要分片,且有AVG分组
 //		return hadGroupSharding() && HoneyContext.getCurrentGroupFunStruct().isHasAvg();
-		return hadGroupSharding() && HoneyContext1.getInheritable(LocalType.SHARDING, GroupFunStruct.class).isHasAvg();
+		return hadGroupSharding() && ((GroupFunStruct)HoneyContext1.getExtForSharding(StringConst.GroupFunStruct)).isHasAvg();
 	}
 
 	public static boolean hadShardingFullSelect() {// 要分片,且要全域查询

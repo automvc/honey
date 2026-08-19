@@ -38,7 +38,7 @@ public class OrderByPagingRewriteSql {
 		List<PreparedValue> listValue = HoneyContext.justGetPreparedValue(sql);
 
 //		ShardingPageStruct shardingPage = HoneyContext.getCurrentShardingPage();
-		ShardingPageStruct shardingPage = HoneyContext1.get(LocalType.SHARDING, ShardingPageStruct.class);
+		ShardingPageStruct shardingPage = (ShardingPageStruct)HoneyContext1.get(LocalType.SHARDING, StringConst.ShardingPageStruct);
 
 		if (shardingPage == null) {// 没有分页的,即便可以union all也是走这里.
 			SimpleRewriteSql._createSql(list, tabSuffixList, sql, listValue, tabNameList, tab2DsMap);
@@ -139,7 +139,7 @@ public class OrderByPagingRewriteSql {
 
 	private static String rewritePaingSql(String sql) {
 //		ShardingPageStruct shardingPage = HoneyContext.getCurrentShardingPage();
-		ShardingPageStruct shardingPage = HoneyContext1.get(LocalType.SHARDING, ShardingPageStruct.class);
+		ShardingPageStruct shardingPage = (ShardingPageStruct)HoneyContext1.get(LocalType.SHARDING, StringConst.ShardingPageStruct);
 		if (shardingPage == null) return sql;
 		int start = shardingPage.getStart();
 		int size = shardingPage.getSize();

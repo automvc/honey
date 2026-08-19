@@ -275,7 +275,7 @@ final class _ObjectToSQLHelper {
 				gfStruct.setColumnNames(columnNames);
 				gfStruct.addFirstOrginalSelectColumn(selectField); //3.0.0.8
 				gfStruct.setMainTableForGroupField(mainTableForGroupField);//V3.0.0.8  for MoreTable
-				HoneyContext1.setInheritable(LocalType.SHARDING, GroupFunStruct.class, gfStruct);
+				HoneyContext1.setExtForSharding(StringConst.GroupFunStruct, gfStruct);
 			}
 		} else { // 没有group by, 只是补order by的列
 			List<String> addedOrderByFields = (List<String>) HoneyContext1.get(LocalType.SHARDING,
@@ -283,7 +283,7 @@ final class _ObjectToSQLHelper {
 			if (ObjectUtils.isNotEmpty(addedOrderByFields)) {
 				GroupFunStruct gfStruct = new GroupFunStruct();
 				gfStruct.setColumnNames(columnNames);
-				HoneyContext1.setInheritable(LocalType.SHARDING, StringConst.AddedOrderByFieldStruct, gfStruct);
+				HoneyContext1.setExtForSharding(StringConst.AddedOrderByFieldStruct, gfStruct);
 			}
 		}
 

@@ -116,7 +116,7 @@ public class ShardingReg {
 //			else struct.setPagingType("MoreDS");
 
 //			HoneyContext.setCurrentShardingPage(struct);
-			HoneyContext1.set(LocalType.SHARDING, ShardingPageStruct.class, struct);
+			HoneyContext1.setForSharding(StringConst.ShardingPageStruct, struct);
 		}
 	}
 
@@ -126,14 +126,14 @@ public class ShardingReg {
 
 		ShardingSortStruct struct = new ShardingSortStruct(orderSql, orderFields, orderTypes);
 //		HoneyContext.setCurrentShardingSort(struct);
-		HoneyContext1.setInheritable(LocalType.SHARDING, ShardingSortStruct.class, struct);
+		HoneyContext1.setExtForSharding(StringConst.ShardingSortStruct, struct);
 	}
 
 	// 带condition
 	public static void regShardingSort(ShardingSortStruct struct) {
 		if (!ShardingUtil.hadSharding()) return;
 //		HoneyContext.setCurrentShardingSort(struct);
-		HoneyContext1.setInheritable(LocalType.SHARDING, ShardingSortStruct.class, struct);
+		HoneyContext1.setInheritable(StringConst.ShardingSortStruct, struct);
 	}
 
 //	private Map<String,String> orderByMap=new LinkedHashMap<>();

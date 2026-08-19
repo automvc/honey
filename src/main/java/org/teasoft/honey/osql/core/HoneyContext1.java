@@ -57,10 +57,10 @@ public class HoneyContext1 {
 		return get(LocalType.NORMAL, key);
 	}
 
-	public static <T> void set(LocalType localType, Class<T> key, T value) {
-		if (key == null) return;
-		set(localType, key.getName(), value);
-	}
+//	public static <T> void set(LocalType localType, Class<T> key, T value) {
+//		if (key == null) return;
+//		set(localType, key.getName(), value);
+//	}
 
 	public static void setForSharding(String key, Object value) {
 //		if (!ShardingUtil.isSharding()) return;
@@ -86,10 +86,10 @@ public class HoneyContext1 {
 		catMap.put(key, value);
 	}
 
-	public static <T> T get(LocalType localType, Class<T> key) {
-		if (key == null) return null;
-		return get(localType, key.getName(), key);
-	}
+//	public static <T> T get(LocalType localType, Class<T> key) {
+//		if (key == null) return null;
+//		return get(localType, key.getName(), key);
+//	}
 
 	/**
 	 * 从 ThreadLocal 读取数据
@@ -102,17 +102,17 @@ public class HoneyContext1 {
 		return catMap != null ? catMap.get(key) : null;
 	}
 
-	/**
-	 * 从 ThreadLocal 读取并自动转型
-	 */
-	@SuppressWarnings("unchecked")
-	private static <T> T get(LocalType localType, String key, Class<T> clazz) {
-		if (clazz == null) return null;
-
-		Object value = get(localType, key);
-		if (value == null) return null;
-		return clazz.isInstance(value) ? (T) value : null;
-	}
+//	/**
+//	 * 从 ThreadLocal 读取并自动转型
+//	 */
+//	@SuppressWarnings("unchecked")
+//	private static <T> T get(LocalType localType, String key, Class<T> clazz) {
+//		if (clazz == null) return null;
+//
+//		Object value = get(localType, key);
+//		if (value == null) return null;
+//		return clazz.isInstance(value) ? (T) value : null;
+//	}
 
 	/**
 	 * 移除 ThreadLocal 中指定 key
@@ -196,11 +196,11 @@ public class HoneyContext1 {
 		return getInheritable(LocalType.NORMAL, key);
 	}
 
-//	public static void setInheritable(LocalType category, Class key, Object value) {
-	public static <T> void setInheritable(LocalType category, Class<T> key, T value) {
-		if (key == null) return;
-		setInheritable(category, key.getName(), value);
-	}
+////	public static void setInheritable(LocalType category, Class key, Object value) {
+//	public static <T> void setInheritable(LocalType category, Class<T> key, T value) {
+//		if (key == null) return;
+//		setInheritable(category, key.getName(), value);
+//	}
 
 	public static void setExtForSharding(String key, Object value) {
 //		if (!ShardingUtil.isSharding()) return;
@@ -226,11 +226,11 @@ public class HoneyContext1 {
 		catMap.put(key, value);
 	}
 
-//	public static Object getInheritable(LocalType category, Class key) {
-	public static <T> T getInheritable(LocalType category, Class<T> key) {
-		if (key == null) return null;
-		return getInheritable(category, key.getName(), key);
-	}
+////	public static Object getInheritable(LocalType category, Class key) {
+//	public static <T> T getInheritable(LocalType category, Class<T> key) {
+//		if (key == null) return null;
+//		return getInheritable(category, key.getName(), key);
+//	}
 
 	/**
 	 * 从 InheritableThreadLocal 读取数据
@@ -243,24 +243,24 @@ public class HoneyContext1 {
 		return catMap != null ? catMap.get(key) : null;
 	}
 
-	/**
-	 * 从 InheritableThreadLocal 读取并自动转型
-	 */
-	@SuppressWarnings("unchecked")
-	private static <T> T getInheritable(LocalType category, String key, Class<T> clazz) {
-		if (clazz == null) return null;
-
-		Object value = getInheritable(category, key);
-		if (value == null) return null;
-		return clazz.isInstance(value) ? (T) value : null;
-	}
-
-//	public static Object getInheritableForSharding(String key) {
-//		return getInheritable(LocalType.SHARDING, key);
+//	/**
+//	 * 从 InheritableThreadLocal 读取并自动转型
+//	 */
+//	@SuppressWarnings("unchecked")
+//	private static <T> T getInheritable(LocalType category, String key, Class<T> clazz) {
+//		if (clazz == null) return null;
+//
+//		Object value = getInheritable(category, key);
+//		if (value == null) return null;
+//		return clazz.isInstance(value) ? (T) value : null;
 //	}
 
+	public static Object getExtForSharding(String key) {
+		return getInheritable(LocalType.SHARDING, key);
+	}
+
 	public static String getExtForShardingStr(String key) {
-		return getInheritable(LocalType.SHARDING, key, String.class);
+		return (String) getInheritable(LocalType.SHARDING, key);
 	}
 
 	/**

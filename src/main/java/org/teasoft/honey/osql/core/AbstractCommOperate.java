@@ -69,7 +69,7 @@ public class AbstractCommOperate implements CommOperate {
 //		if (condition != null) condition = condition.clone();
 //		HoneyContext.setConditionLocal(condition);
 
-		HoneyContext1.set(LocalType.SHARDING, Condition.class, condition);
+		HoneyContext1.set(LocalType.SHARDING, StringConst.Condition, condition);
 	}
 
 	protected void doBeforePasreEntity(Object entity, SuidType SuidType) {

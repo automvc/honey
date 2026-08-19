@@ -147,7 +147,7 @@ public class ShardingInterceptor extends EmptyInterceptor {
 		ShardingBean shardingBean = null;
 
 //		Condition condition = HoneyContext.getConditionLocal();
-		Condition condition = HoneyContext1.get(LocalType.SHARDING, Condition.class);
+		Condition condition = (Condition)HoneyContext1.get(LocalType.SHARDING, StringConst.Condition);
 
 		// for 查找是否使用了注解
 		for (int i = 0; i < len; i++) {

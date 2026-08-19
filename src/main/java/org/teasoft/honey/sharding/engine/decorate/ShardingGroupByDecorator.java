@@ -38,7 +38,7 @@ public class ShardingGroupByDecorator {
 	public static <T> void groupAndAggregateEntity(List<T> list) {
 		// 有分组的,则需要
 //		GroupFunStruct groupFunStruct = HoneyContext.getCurrentGroupFunStruct();
-		GroupFunStruct groupFunStruct = HoneyContext1.getInheritable(LocalType.SHARDING, GroupFunStruct.class);
+		GroupFunStruct groupFunStruct = (GroupFunStruct)HoneyContext1.getExtForSharding(StringConst.GroupFunStruct);
 		groupAndAggregateEntity(list, groupFunStruct);
 	}
 
@@ -183,7 +183,7 @@ public class ShardingGroupByDecorator {
 
 	public static void groupAndAggregateStringArray(List<String[]> list) {
 //		GroupFunStruct groupFunStruct = HoneyContext.getCurrentGroupFunStruct();
-		GroupFunStruct groupFunStruct = HoneyContext1.getInheritable(LocalType.SHARDING, GroupFunStruct.class);
+		GroupFunStruct groupFunStruct = (GroupFunStruct)HoneyContext1.getExtForSharding(StringConst.GroupFunStruct);
 		groupAndAggregateStringArray(list, groupFunStruct);
 	}
 
@@ -345,7 +345,7 @@ public class ShardingGroupByDecorator {
 	}
 
 	public static void removeAutoGenColumnForStringArray(List<String[]> rsList) {
-		GroupFunStruct groupFunStruct = HoneyContext1.getInheritable(LocalType.SHARDING, GroupFunStruct.class);
+		GroupFunStruct groupFunStruct = (GroupFunStruct)HoneyContext1.getExtForSharding(StringConst.GroupFunStruct);
 
 		if (rsList == null || rsList.size() == 0) return;
 		Set<String> addedGroupByColumn = groupFunStruct.getAddedGroupByColumn();

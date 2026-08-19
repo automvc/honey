@@ -12,7 +12,7 @@ import java.util.List;
 
 import org.teasoft.bee.sharding.ShardingSortStruct;
 import org.teasoft.honey.osql.core.HoneyContext1;
-import org.teasoft.honey.osql.core.LocalType;
+import org.teasoft.honey.osql.core.StringConst;
 
 /**
  * @author AiTeaSoft
@@ -21,14 +21,13 @@ import org.teasoft.honey.osql.core.LocalType;
 public class SortStringArrayListDecorator {
 
 	public static void sort(List<String[]> list) {
-
+		ShardingSortStruct struct = (ShardingSortStruct) HoneyContext1.getExtForSharding(StringConst.ShardingSortStruct);
 		Collections.sort(list, new Comparator<String[]>() {
 			@Override
 			public int compare(String[] a, String[] b) {
 //				ShardingSortStruct struct = HoneyContext.getCurrentShardingSort();
-				ShardingSortStruct struct = HoneyContext1.getInheritable(LocalType.SHARDING, ShardingSortStruct.class);
 				if (struct == null) return 0;
-				int indexArray[] = struct.getIndex();
+				int indexArray[] = struct.getIndex();  //TODO
 				if (indexArray != null) {
 					int i = 0;
 					for (int index : indexArray) {

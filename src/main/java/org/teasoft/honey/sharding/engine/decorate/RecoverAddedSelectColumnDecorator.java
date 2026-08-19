@@ -35,7 +35,7 @@ public class RecoverAddedSelectColumnDecorator {
 		List<String> addedOrderByFields = (List<String>) HoneyContext1.get(LocalType.SHARDING,
 				StringConst.AddedOrderByField);
 
-		GroupFunStruct groupFunStruct = HoneyContext1.getInheritable(LocalType.SHARDING, GroupFunStruct.class);
+		GroupFunStruct groupFunStruct = (GroupFunStruct)HoneyContext1.getExtForSharding(StringConst.GroupFunStruct);
 		Set<String> addedGroupByColumn = null;
 		if (groupFunStruct != null)
 			addedGroupByColumn = groupFunStruct.getAddedGroupByColumn();

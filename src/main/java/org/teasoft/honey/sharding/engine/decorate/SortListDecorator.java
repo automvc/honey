@@ -14,7 +14,7 @@ import java.util.List;
 import org.teasoft.bee.sharding.ShardingSortStruct;
 import org.teasoft.honey.osql.core.HoneyContext1;
 import org.teasoft.honey.osql.core.HoneyUtil;
-import org.teasoft.honey.osql.core.LocalType;
+import org.teasoft.honey.osql.core.StringConst;
 
 /**
  * @author AiTeaSoft
@@ -56,7 +56,7 @@ public class SortListDecorator {
 			@Override
 			public int compare(T a, T b) {
 //				ShardingSortStruct struct = HoneyContext.getCurrentShardingSort();
-				ShardingSortStruct struct = HoneyContext1.getInheritable(LocalType.SHARDING, ShardingSortStruct.class);
+				ShardingSortStruct struct = (ShardingSortStruct)HoneyContext1.getExtForSharding(StringConst.ShardingSortStruct);
 				if (struct == null) return 0;
 				String orderFields[] = struct.getOrderFields();
 				if (orderFields != null) {
