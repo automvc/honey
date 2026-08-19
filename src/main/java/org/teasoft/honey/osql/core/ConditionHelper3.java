@@ -61,12 +61,10 @@ public class ConditionHelper3 {
 
 		String selectField[] = ConditionHelper.addedOrderByFieldIfNeed(selectFields, conditionImpl);
 		int newLen = selectField.length;
-//		System.err.println(newLen-oldLen);
 
-//		String selectColumn[];
-		List<String> selectColumn = null;
+		List<String> addedColumn = null;
 		if (newLen - oldLen > 0) {
-			selectColumn = new ArrayList<>(newLen - oldLen);
+			addedColumn = new ArrayList<>(newLen - oldLen);
 		}
 
 		for (int k = oldLen; k < newLen; k++) {
@@ -76,11 +74,11 @@ public class ConditionHelper3 {
 			if (selectField[k] == null) {
 				throw new BeeException(old + " would transfer be null");
 			} else {
-				selectColumn.add(selectField[k]);
+				addedColumn.add(selectField[k]);
 			}
 		}
 		if (newLen - oldLen > 0) {
-			ShardingReg.regAddedOrderByColumn(selectColumn);
+			ShardingReg.regAddedOrderByColumn(addedColumn);
 		}
 
 		return HoneyUtil.checkAndProcessSelectFieldViaString(columnNames, subDulFieldMap, selectField);

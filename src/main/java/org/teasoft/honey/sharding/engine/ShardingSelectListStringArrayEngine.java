@@ -72,12 +72,12 @@ public class ShardingSelectListStringArrayEngine {
 		// 排序装饰
 		SortStringArrayListDecorator.sort(rsList);
 
-//		//有排序时,因归并结果后要排序而加的查询列,要清除; List<String[]>
-		RecoverAddedSelectColumnDecorator.recoverStringArrayForOrderBy(rsList);
-
 		// 分页装饰
 		// 获取指定的一页数据
 		ResultPagingDecorator.pagingList(rsList);
+		
+//		//有排序时,因归并结果后要排序而加的查询列,要清除; List<String[]>
+		RecoverAddedSelectColumnDecorator.recoverStringArrayForOrderBy(rsList);
 
 		return rsList;
 	}

@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
+import org.teasoft.bee.osql.BeeException;
 import org.teasoft.bee.osql.FunctionType;
 import org.teasoft.bee.osql.OneMethod1;
 import org.teasoft.bee.osql.Op;
@@ -337,10 +338,30 @@ public class ConditionHelper {
 					+ " do not support specifying partial fields by method selectField(String) !");
 		}
 		String selectField0[] = conditionImpl.getSelectField();
-		// fieldName -> columnName TODO??
 		if (selectField0 == null) return null;
+		int oldLen = selectField0.length;
 		String selectField[] = addedOrderByFieldIfNeed(selectField0, conditionImpl);
+		
+		int newLen = selectField.length;
+		
+		List<String> addedColumn = null;
+		if (newLen - oldLen > 0) {
+			addedColumn = new ArrayList<>(newLen - oldLen);
+		}
 
+		for (int k = oldLen; k < newLen; k++) {
+			String old = selectField[k];
+			if (selectField[k] == null) {
+				throw new BeeException(old + " would transfer be null");
+			} else {
+				addedColumn.add(HoneyUtil.toColumnName(selectField[k]));
+			}
+		}
+		if (newLen - oldLen > 0) {
+			ShardingReg.regAddedOrderByColumn(addedColumn);
+		}
+
+		//这里会进行命名转换
 		return HoneyUtil.checkAndProcessSelectFieldViaString(columnNames, subDulFieldMap, selectField);
 	}
 
