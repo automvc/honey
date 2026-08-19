@@ -9,7 +9,6 @@ package org.teasoft.honey.sharding.engine;
 import java.util.List;
 
 import org.teasoft.bee.osql.FunctionType;
-import org.teasoft.honey.osql.core.HoneyContext;
 import org.teasoft.honey.osql.core.HoneyContext1;
 import org.teasoft.honey.osql.core.StringConst;
 import org.teasoft.honey.util.StringUtils;
@@ -24,9 +23,12 @@ public class ShardingFunResultEngine {
 	public static String funResultEngine(List<String> rsList) {
 //		String funType = HoneyContext.getSysCommStrInheritableLocal(StringConst.FunType);
 		String funType = HoneyContext1.getExtForShardingStr(StringConst.FunType);
+		
+		FunctionType functionType = FunctionType.getByName(funType);
+
 		Double temp = 0D;
 		int position = -1;
-		if (FunctionType.MAX.getName().equalsIgnoreCase(funType)) {
+		if (FunctionType.MAX == functionType) {
 			boolean first = true;
 			for (int i = 0; i < rsList.size(); i++) {
 
@@ -42,7 +44,7 @@ public class ShardingFunResultEngine {
 					}
 				}
 			}
-		} else if (FunctionType.MIN.getName().equalsIgnoreCase(funType)) {
+		} else if (FunctionType.MIN == functionType) {
 			boolean first = true;
 			for (int i = 0; i < rsList.size(); i++) {
 				if (StringUtils.isNotBlank(rsList.get(i))) {
@@ -57,7 +59,7 @@ public class ShardingFunResultEngine {
 					}
 				}
 			}
-		} else if (FunctionType.SUM.getName().equalsIgnoreCase(funType)) {
+		} else if (FunctionType.SUM == functionType) {
 			boolean first = true;
 			String sum = "0";
 			for (int i = 0; i < rsList.size(); i++) {
@@ -69,7 +71,7 @@ public class ShardingFunResultEngine {
 				}
 			}
 			if (!first) return sum;
-		} else if (FunctionType.COUNT.getName().equalsIgnoreCase(funType)) {
+		} else if (FunctionType.COUNT == functionType) {
 			long c = 0;
 			for (int i = 0; i < rsList.size(); i++) {
 				if (StringUtils.isNotBlank(rsList.get(i))) {
@@ -80,8 +82,7 @@ public class ShardingFunResultEngine {
 			return c + "";
 		}
 
-		if (FunctionType.MAX.getName().equalsIgnoreCase(funType)
-				|| FunctionType.MIN.getName().equalsIgnoreCase(funType)) {
+		if (FunctionType.MAX == functionType || FunctionType.MIN == functionType) {
 			if (position >= 0) return rsList.get(position); // 直接返回原来的元素,防止转换过程,精度有变化
 		}
 
