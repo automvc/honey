@@ -227,7 +227,14 @@ public class TransformResultSet {
 				fieldName = _toFieldName(rmeta.getColumnLabel(i + 1), null); // V2.1.8
 //				if (!isOrderField(orderFields, fieldName)) continue;
 				for (int j = 0; j < orderFieldsLen; j++) {
-					if (fieldName.equals(orderFields[j])) {
+					// use fieldName
+					String f = orderFields[j];
+					int ch;
+					ch = f.indexOf('.');
+					if (ch > 0) {
+						f = f.substring(ch + 1);
+					}
+					if (fieldName.equals(f)) {
 						javaType = HoneyUtil.getFieldType(rmeta.getColumnTypeName(i + 1).trim());
 						type[j] = javaType;
 						index[k] = i;

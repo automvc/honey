@@ -130,13 +130,13 @@ public class ShardingReg {
 	}
 
 	// 带condition
-	public static void regShardingSort(ShardingSortStruct struct) {
+	private static void regShardingSort(ShardingSortStruct struct) {
 		if (!ShardingUtil.hadSharding()) return;
 //		HoneyContext.setCurrentShardingSort(struct);
-		HoneyContext1.setInheritable(StringConst.ShardingSortStruct, struct);
+//		HoneyContext1.setInheritable(StringConst.ShardingSortStruct, struct);
+		HoneyContext1.setExtForSharding(StringConst.ShardingSortStruct, struct);
 	}
 
-//	private Map<String,String> orderByMap=new LinkedHashMap<>();
 	public static void regShardingSort(Map<String, String> orderByMap) {
 
 		if (!ShardingUtil.hadSharding()) return;
