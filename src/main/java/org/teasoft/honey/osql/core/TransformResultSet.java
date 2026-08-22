@@ -436,9 +436,16 @@ public class TransformResultSet {
 			List<String> mtStructKeys = new ArrayList<>(moreTableStructMap.keySet());
 			mtStructKeys.add(0, HoneyUtil.toTableName(entity.getClass()));// put main table in first.
 
+			boolean firstRow = true;
+			ResultSetMetaData rmeta = rs.getMetaData();
+
 			while (rs.next()) {
 				if (rs.isBeforeFirst()) rs.next();
-
+				// regSort
+				if (firstRow) {
+					firstRow = false;
+					regSort(rmeta);
+				}
 				rowNum++;
 				wrapper = parseOneRow(entity, mtStructKeys, moreTableStructMap, nameAndFieldCache, ONE_ROW_TYPE_RS, rs,
 						null);
