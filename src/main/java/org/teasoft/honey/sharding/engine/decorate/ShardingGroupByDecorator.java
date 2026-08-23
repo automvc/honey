@@ -52,7 +52,7 @@ public class ShardingGroupByDecorator {
 
 		List<FunStruct> funStructs = groupFunStruct.getFunStructs();
 		// 有分组,但没有聚合,也不需要; 要是同一个分组的数据分布在不同节点,可以在后面排序
-//		没有聚合函数,可能有多条一样的数据, 这个方法,处理不了.   //TODO
+//		没有聚合函数,可能有多条一样的数据, 这个方法,处理不了.   //todo
 //		if ((funStruts == null || funStruts.length == 0) && ! groupFunStruct.isNeedGroupWhenNoFun()) return;
 		if (funStructs == null || funStructs.size() == 0) return;
 
@@ -74,9 +74,8 @@ public class ShardingGroupByDecorator {
 				currentEntity = list.get(i);
 				groupKey = "";
 				for (int j = 0; groupFields != null && j < groupFields.size(); j++) {
-					// TODO String mainTableForGroupField;
-					String fieldName0 = _toFieldName(groupFields.get(j), elementClass);
-					field = currentEntity.getClass().getDeclaredField(fieldName0);
+					String groupField = _toFieldName(groupFields.get(j), elementClass);
+					field = currentEntity.getClass().getDeclaredField(groupField);
 					HoneyUtil.setAccessibleTrue(field);
 					groupKey += field.get(currentEntity) + ",";
 				}
@@ -89,6 +88,7 @@ public class ShardingGroupByDecorator {
 					for (int k = 0; k < funStructs.size(); k++) {
 						funFieldName = funStructs.get(k).getFieldName();
 						String fieldName = _toFieldName(funFieldName, elementClass);
+//						e.g. 'orders.sumOrderid' // 暂时只支持 主表带表名
 						field = currentEntity.getClass().getDeclaredField(fieldName);
 						HoneyUtil.setAccessibleTrue(field);
 						Object fun = field.get(currentEntity);
@@ -178,7 +178,13 @@ public class ShardingGroupByDecorator {
 
 	@SuppressWarnings("rawtypes")
 	private static String _toFieldName(String columnName, Class entityClass) {
-		return NameTranslateHandle.toFieldName(columnName, entityClass);
+		// TODO 还要考虑子表带表名，字段重名的情况。
+		String fieldName = NameTranslateHandle.toFieldName(columnName, entityClass);
+		if (fieldName != null && fieldName.contains(".")) {
+			fieldName = fieldName.substring(fieldName.indexOf('.') + 1);
+		}
+
+		return fieldName;
 	}
 
 	public static void groupAndAggregateStringArray(List<String[]> list) {

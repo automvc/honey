@@ -477,9 +477,11 @@ public class ConditionHelper {
 			if (StringUtils.isNotBlank(nameAlias)) {
 				funUseName = nameAlias;
 				String newAlias = nameAlias;
+				String newAliasForFun = nameAlias;
 				// isConfuseDuplicateFieldDB用原来的,取名时应该取不有重名的
 				if (!isConfuseDuplicateFieldDB && StringUtils.isNotBlank(mainTableAlias) && !nameAlias.contains(".")) {
-					newAlias = "'" + mainTableAlias + "." + nameAlias + "'"; // mysql ok
+					newAliasForFun= mainTableAlias + "." + nameAlias;
+					newAlias = "'" + newAliasForFun + "'"; // mysql ok
 				}
 				if (isSQLite) {
 					funStr += " " + K.as + " " + newAlias;
@@ -487,8 +489,8 @@ public class ConditionHelper {
 					funStr += " " + newAlias;
 				}
 				if (get_FunStructForSharding) {
-					orginalSelectColumn.add(newAlias);
-					funStructs.add(new FunStruct(newAlias, functionTypeName));
+					orginalSelectColumn.add(newAliasForFun);
+					funStructs.add(new FunStruct(newAliasForFun, functionTypeName));
 				}
 			} else {
 				funUseName = columnName;

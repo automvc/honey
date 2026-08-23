@@ -3,6 +3,7 @@ package org.teasoft.honey.osql.core;
 import java.util.Map;
 
 import org.teasoft.bee.osql.BeeException;
+import org.teasoft.honey.osql.name.NameUtil;
 
 public class MoreTableHelper {
 
@@ -22,6 +23,7 @@ public class MoreTableHelper {
 				columnName = tablePart + "." + _toColumnName(namePart, mainClass);
 			} else {
 				tablePart = _toColumnName(tablePart, null); // fixed 3.0.0; transfer entity name -> table name
+				tablePart = NameUtil.firstLetterToLowerCase(tablePart);// 首字母用小写
 				MoreTableStruct3 moreTableStruct = moreTableStructMap.get(tablePart);
 				if (moreTableStruct == null) {
 					throw new BeeException("Can not found the MoreTableStruct with " + tablePart + " via fieldName: "

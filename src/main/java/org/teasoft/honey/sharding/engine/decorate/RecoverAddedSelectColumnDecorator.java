@@ -55,12 +55,20 @@ public class RecoverAddedSelectColumnDecorator {
 		}
 	}
 
-	private static <T> void recover0(List<T> rsList, List<String> addedField) {
+	private static <T> void recover0(List<T> rsList, List<String> addedFields) {
 		try {
 			T entity = (T) rsList.get(0).getClass().newInstance();
-			Field[] fields = new Field[addedField.size()];
+			Field[] fields = new Field[addedFields.size()];
+			String fieldName;
 			for (int i = 0; i < fields.length; i++) {
-				fields[i] = HoneyUtil.getField(rsList.get(0).getClass(), addedField.get(i));
+				fieldName = addedFields.get(i);
+				int ch = fieldName.indexOf('.');
+				if (ch > 0) {
+					String entityname = rsList.get(0).getClass().getSimpleName().toLowerCase();
+					if (!fieldName.toLowerCase().startsWith(entityname + ".")) continue; // TODO 暂时不支持删除子表自动加的字段。
+					else fieldName = fieldName.substring(ch + 1);
+				}
+				fields[i] = HoneyUtil.getField(rsList.get(0).getClass(), fieldName);
 				HoneyUtil.setAccessibleTrue(fields[i]);
 				Object v = HoneyUtil.getValue(fields[i], entity);
 				for (T t : rsList) {
