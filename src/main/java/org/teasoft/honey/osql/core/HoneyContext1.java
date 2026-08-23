@@ -25,6 +25,7 @@ import org.teasoft.honey.util.StringUtils;
  *   String uid = HoneyContext1.get(LocalType.REQUEST, "userId", String.class);  
  *  
  *   // 清理  
+ *  // HoneyContext1.remove(..);
  *  // HoneyContext1.removexxx();
  * </pre>
  */
@@ -57,13 +58,7 @@ public class HoneyContext1 {
 		return get(LocalType.NORMAL, key);
 	}
 
-//	public static <T> void set(LocalType localType, Class<T> key, T value) {
-//		if (key == null) return;
-//		set(localType, key.getName(), value);
-//	}
-
 	public static void setForSharding(String key, Object value) {
-//		if (!ShardingUtil.isSharding()) return;
 		set(LocalType.SHARDING, key, value);
 	}
 
@@ -74,9 +69,6 @@ public class HoneyContext1 {
 		if (isBlank(localType) || isBlank(key) || value == null) {
 			return;
 		}
-
-//		if (LocalType.SHARDING == category && !ShardingUtil.isSharding()) return;
-
 		Map<LocalType, Map<String, Object>> store = LOCAL.get();
 		Map<String, Object> catMap = store.get(localType);
 		if (catMap == null) {
@@ -85,11 +77,6 @@ public class HoneyContext1 {
 		}
 		catMap.put(key, value);
 	}
-
-//	public static <T> T get(LocalType localType, Class<T> key) {
-//		if (key == null) return null;
-//		return get(localType, key.getName(), key);
-//	}
 
 	/**
 	 * 从 ThreadLocal 读取数据
@@ -101,18 +88,6 @@ public class HoneyContext1 {
 		Map<String, Object> catMap = LOCAL.get().get(localType);
 		return catMap != null ? catMap.get(key) : null;
 	}
-
-//	/**
-//	 * 从 ThreadLocal 读取并自动转型
-//	 */
-//	@SuppressWarnings("unchecked")
-//	private static <T> T get(LocalType localType, String key, Class<T> clazz) {
-//		if (clazz == null) return null;
-//
-//		Object value = get(localType, key);
-//		if (value == null) return null;
-//		return clazz.isInstance(value) ? (T) value : null;
-//	}
 
 	/**
 	 * 移除 ThreadLocal 中指定 key
@@ -161,7 +136,7 @@ public class HoneyContext1 {
 		return catMap != null ? catMap.keySet() : new HashSet<String>();
 	}
 
-	//////////// for Sharding just Local
+	// for Sharding just Local
 	public static List<String> getListLocal(String key) {
 		return (List<String>) get(LocalType.SHARDING, key);
 	}
@@ -196,14 +171,7 @@ public class HoneyContext1 {
 		return getInheritable(LocalType.NORMAL, key);
 	}
 
-////	public static void setInheritable(LocalType category, Class key, Object value) {
-//	public static <T> void setInheritable(LocalType category, Class<T> key, T value) {
-//		if (key == null) return;
-//		setInheritable(category, key.getName(), value);
-//	}
-
 	public static void setExtForSharding(String key, Object value) {
-//		if (!ShardingUtil.isSharding()) return;
 		setInheritable(LocalType.SHARDING, key, value);
 	}
 
@@ -215,8 +183,6 @@ public class HoneyContext1 {
 			return;
 		}
 
-//		if (LocalType.SHARDING == category && !ShardingUtil.isSharding()) return;
-
 		Map<LocalType, Map<String, Object>> store = INHERITABLE_LOCAL.get();
 		Map<String, Object> catMap = store.get(category);
 		if (catMap == null) {
@@ -225,12 +191,6 @@ public class HoneyContext1 {
 		}
 		catMap.put(key, value);
 	}
-
-////	public static Object getInheritable(LocalType category, Class key) {
-//	public static <T> T getInheritable(LocalType category, Class<T> key) {
-//		if (key == null) return null;
-//		return getInheritable(category, key.getName(), key);
-//	}
 
 	/**
 	 * 从 InheritableThreadLocal 读取数据
@@ -242,18 +202,6 @@ public class HoneyContext1 {
 		Map<String, Object> catMap = INHERITABLE_LOCAL.get().get(category);
 		return catMap != null ? catMap.get(key) : null;
 	}
-
-//	/**
-//	 * 从 InheritableThreadLocal 读取并自动转型
-//	 */
-//	@SuppressWarnings("unchecked")
-//	private static <T> T getInheritable(LocalType category, String key, Class<T> clazz) {
-//		if (clazz == null) return null;
-//
-//		Object value = getInheritable(category, key);
-//		if (value == null) return null;
-//		return clazz.isInstance(value) ? (T) value : null;
-//	}
 
 	public static Object getExtForSharding(String key) {
 		return getInheritable(LocalType.SHARDING, key);
@@ -307,16 +255,6 @@ public class HoneyContext1 {
 
 	public static boolean isTrueExtForSharding(String key) {
 		return StringConst.tRue.equals(getInheritable(LocalType.SHARDING, key));
-	}
-
-	public static void main(String[] args) {
-//		setTrueInheritable("aaa");
-//		
-//		
-//		System.out.println(isTrueInheritable("aaa"));
-//		System.out.println(isTrueInheritable("aaa2"));
-//		
-//		System.out.println(getInheritableKeys(LocalType.NORMAL));
 	}
 
 }

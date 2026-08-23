@@ -148,7 +148,6 @@ public class ConditionImpl implements Condition {
 
 	@Override
 	public Set<String> getWhereFields() {
-//		return whereField;
 		final Set<String> set = new HashSet<>(whereField);
 		return set;
 	}
@@ -398,8 +397,6 @@ public class ConditionImpl implements Condition {
 	}
 
 	public List<Expression> getOnExpList() {
-//		return onExpList;
-
 		final List<Expression> onExpList0 = new ArrayList<>(this.onExpList);
 		return onExpList0;
 	}
@@ -490,22 +487,15 @@ public class ConditionImpl implements Condition {
 
 	@Override
 	public String[] getSelectField() {
-//		return this.selectField;
-
-		final String[] selectField0 = this.selectField; // TODO ai?
-		return selectField0;
+		return this.selectField == null ? null : this.selectField.clone();
 	}
 
 	public List<Expression> getUpdateExpList() {
-//		return updateSetList;
-
 		final List<Expression> updateSetList0 = new ArrayList<>(this.updateSetList);
 		return updateSetList0;
 	}
 
 	public List<FunExpress> getFunExpList() {
-//		return funExpList;
-
 		final List<FunExpress> funExpList0 = new ArrayList<>(this.funExpList);
 		return funExpList0;
 	}
@@ -560,9 +550,7 @@ public class ConditionImpl implements Condition {
 
 	@Override
 	public Boolean getForUpdate() {
-//		return isForUpdate;
-		final Boolean f = isForUpdate;
-		return f;
+		return isForUpdate;
 	}
 
 	@Override
@@ -589,14 +577,7 @@ public class ConditionImpl implements Condition {
 
 	@Override
 	public List<String> getGroupByFields() {
-//		return groupByFields;
-
-		final List<String> list;
-		if (groupByFields == null)
-			list = null;
-		else
-			list = new ArrayList<>(groupByFields);
-		return list;
+		return this.groupByFields == null ? null : new ArrayList<>(this.groupByFields);
 	}
 
 	private void checkField(String fields) {

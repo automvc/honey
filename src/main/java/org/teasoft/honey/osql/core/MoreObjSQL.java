@@ -616,4 +616,13 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 	private static String _toTableName(Object entity) {
 		return NameTranslateHandle.toTableName(NameUtil.getClassFullName(entity));
 	}
+	
+//	public static void main(String[] args) {
+//		Object str0 = "tRue";
+//		if (StringConst.tRue.equals(str0)) {
+//			System.out.println("yes");
+//		}else {
+//			System.out.println("no");
+//		}
+//	}
 }

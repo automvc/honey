@@ -635,7 +635,7 @@ public final class HoneyConfig implements LoggerTypeConfig, LogSqlConfig {
 	public void overrideByActive(String active) {
 		_overrideByActive(active);
 
-//		// V2.1.10  TODO
+//		// V2.1.10  todo
 //		HoneyContext.setConfigRefresh(true);
 //		HoneyContext.setDsMapConfigRefresh(true); // 直接设置, 因解析时会判断相应属性后才进行相应解析
 	}

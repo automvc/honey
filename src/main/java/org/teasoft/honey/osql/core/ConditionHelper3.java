@@ -89,7 +89,7 @@ public class ConditionHelper3 {
 		ConditionHelper.adjustSqlServerPagingIfNeed(sqlBuffer, orderByMap, start, entityClass, useSubTableNames);
 	}
 
-	// TODO useSubTableNames 要更新。 主要是加表名。
+	// todo useSubTableNames 要更新。 主要是加表名。
 	static void processPaging(StringBuffer sqlBuffer, List<PreparedValue> list, Condition condition, boolean firstWhere,
 			String useSubTableNames[]) {
 
@@ -112,21 +112,12 @@ public class ConditionHelper3 {
 					Map<String, String> orderByMap = conditionImpl.getOrderBy();
 					adjustSqlServerPagingIfNeed(sqlBuffer, orderByMap, start, entityClass, useSubTableNames);
 
-					// TODO ShardingUtil.hadSharding()
 					if (ShardingUtil.hadSharding()) {
-//						先调整好分页，后面就不用再调 //TODO
-						// 以下regShadingPage就不用再注册。
-						// TODO copy condition??
-//						conditionImpl.start(firstRecordIndex())
-//						.size(start + size - 1);
-//						firstRecordIndex(), start + size - 1
+//						先调整好分页，后面就不用再调
 						sql = getDbFeature().toPageSql(sqlBuffer.toString(), firstRecordIndex(), start + size);
 					} else {
 						sql = getDbFeature().toPageSql(sqlBuffer.toString(), start, size);
 					}
-
-//					sql = getDbFeature().toPageSql(sqlBuffer.toString(), start, size);
-//					ShardingReg.regShadingPage(sqlBuffer.toString(), sql, start, size);// 2.0
 
 //			        sqlBuffer=new StringBuffer(sql); //new 之后不是原来的sqlBuffer,不能带回去.
 					sqlBuffer.delete(0, sqlBuffer.length());

@@ -886,7 +886,7 @@ public final class HoneyUtil {
 //			if(isMoreTable){  //带有点一样转换
 //			}
 
-			// TODO 不准确。
+			// todo 不准确。
 			if (!(columnsdNames.contains("," + checkColName + ",") || columnsdNames.startsWith(checkColName + ",")
 					|| columnsdNames.endsWith("," + checkColName) || columnsdNames.equals(checkColName)
 					|| columnsdNames.contains("." + checkColName + ",") || columnsdNames.endsWith("." + checkColName)

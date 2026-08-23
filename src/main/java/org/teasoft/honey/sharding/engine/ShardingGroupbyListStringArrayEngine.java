@@ -126,7 +126,7 @@ public class ShardingGroupbyListStringArrayEngine {
 						Field field = null;
 						String name = null;
 						try {
-							name = _toFieldName(columnName, entityClass); //TODO 将field存起？？
+							name = _toFieldName(columnName, entityClass); //todo 将field存起?
 							field = HoneyUtil.getField(entityClass, name);// 可能会找不到Javabean的字段
 						} catch (NoSuchFieldException e) {
 							continue;

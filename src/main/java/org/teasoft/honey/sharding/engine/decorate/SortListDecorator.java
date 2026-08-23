@@ -22,41 +22,15 @@ import org.teasoft.honey.osql.core.StringConst;
  */
 public class SortListDecorator {
 
-	/*public static void sort(List<?> rsList) {
-		//排序装饰
-		ShardingPageStruct shardingPage=HoneyContext.getCurrentShardingPage();
-		if (rsList != null && rsList.size() > 1) {
-			ShardingSortStruct shardingSort = HoneyContext.getCurrentShardingSort();
-			
-			if (shardingSort != null && shardingPage.getPagingType()!=1) { //分片分页的类型为1的,使用union all 已在DB进行排序
-				List<SortStruct> sortBeanList = new ArrayList<>();
-	
-	//			   sortBeanList.add(new SortStruct("id"));
-	//			   sortBeanList.add(new SortStruct("orderid",true));
-	
-				String orderFields[] = shardingSort.getOrderFields();
-				OrderType orderTypes[] = shardingSort.getOrderTypes();
-	
-				for (int i = 0; i < orderFields.length; i++) {
-					if (orderTypes == null || OrderType.DESC == orderTypes[i]) {
-						sortBeanList.add(new SortStruct(orderFields[i], true));
-					} else {
-						sortBeanList.add(new SortStruct(orderFields[i]));
-					}
-				}
-	
-				EntityUtil.sort(rsList, sortBeanList);
-			}
-		}
-	}*/
-
 	public static <T> void sort(List<T> rsList) {
+//		ShardingSortStruct struct = HoneyContext.getCurrentShardingSort();
+		ShardingSortStruct struct = (ShardingSortStruct)HoneyContext1.getExtForSharding(StringConst.ShardingSortStruct);
 
 		Collections.sort(rsList, new Comparator<T>() {
 			@Override
 			public int compare(T a, T b) {
-//				ShardingSortStruct struct = HoneyContext.getCurrentShardingSort();
-				ShardingSortStruct struct = (ShardingSortStruct)HoneyContext1.getExtForSharding(StringConst.ShardingSortStruct);
+////				ShardingSortStruct struct = HoneyContext.getCurrentShardingSort();
+//				ShardingSortStruct struct = (ShardingSortStruct)HoneyContext1.getExtForSharding(StringConst.ShardingSortStruct);
 				if (struct == null) return 0;
 				String orderFields[] = struct.getOrderFields();
 				if (orderFields != null) {

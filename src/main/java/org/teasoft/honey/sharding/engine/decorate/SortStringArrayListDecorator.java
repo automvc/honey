@@ -27,7 +27,7 @@ public class SortStringArrayListDecorator {
 			public int compare(String[] a, String[] b) {
 //				ShardingSortStruct struct = HoneyContext.getCurrentShardingSort();
 				if (struct == null) return 0;
-				int indexArray[] = struct.getIndex();  //TODO
+				int indexArray[] = struct.getIndex();
 				if (indexArray != null) {
 					int i = 0;
 					for (int index : indexArray) {

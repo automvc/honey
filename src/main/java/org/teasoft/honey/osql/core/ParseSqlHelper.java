@@ -181,8 +181,7 @@ public final class ParseSqlHelper {
 					moreTableStruct_first.overall.allEntityType = subClassIsList;
 				}
 				moreTableStruct_first.overall.allEntityType
-						.add(moreTableStruct.currentIsList + SEPARATOR + moreTableStruct.subClass.getName()); // TODO
-																												// MD5
+						.add(moreTableStruct.currentIsList + SEPARATOR + moreTableStruct.subClass.getName()); // todo MD5
 
 				result.put(moreTableStruct.subAlias, moreTableStruct);
 
@@ -251,8 +250,7 @@ public final class ParseSqlHelper {
 				moreTableStruct2.typeTree = currentTypeTree;
 
 				overall.allEntityType
-						.add(moreTableStruct2.currentIsList + SEPARATOR + moreTableStruct2.subClass.getName());// TODO
-																												// MD5
+						.add(moreTableStruct2.currentIsList + SEPARATOR + moreTableStruct2.subClass.getName());// todo MD5
 
 				result.put(moreTableStruct2.subAlias, moreTableStruct2);
 

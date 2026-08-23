@@ -932,7 +932,7 @@ final class _ObjectToSQLHelper {
 		Object id;
 		if (isInt(field)) {
 			int intId = (int) GenIdFactory.get(tableKey, GenIdFactory.GenType_IntSerialIdReturnLong);
-//			int intId = (int) GenIdFactory.get("Normal", GenIdFactory.GenType_IntSerialIdReturnLong); //TODO
+//			int intId = (int) GenIdFactory.get("Normal", GenIdFactory.GenType_IntSerialIdReturnLong); //todo
 			id = intId;
 		} else if (hasGenUUIDAnno && isStringField) {
 			id = UUID.getId(useSeparatorInUUID);
@@ -950,8 +950,7 @@ final class _ObjectToSQLHelper {
 						+ " value. " + obj.toString() + " would be replace by " + id);
 			}
 			// for MoreTable insert
-			if (StringConst.tRue
-					.equals(HoneyContext1.get(LocalType.MORETABLE_INSERT, StringConst.MoreTableInsertDoing))) {
+			if (StringConst.tRue.equals((String)HoneyContext1.get(LocalType.MORETABLE_INSERT, StringConst.MoreTableInsertDoing))) {
 				Map<String, Object> pkValueMap = new HashMap<>();
 				pkValueMap.put(pkName, id);
 //				HoneyContext1.set(LocalType.REQUEST, "InitIdByAutoForMoreTableInsert", idValue);
