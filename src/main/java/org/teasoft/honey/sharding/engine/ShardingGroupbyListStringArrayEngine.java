@@ -167,7 +167,11 @@ public class ShardingGroupbyListStringArrayEngine {
 
 	@SuppressWarnings("rawtypes")
 	private String _toFieldName(String columnName, Class entityClass) {
-		return NameTranslateHandle.toFieldName(columnName, entityClass);
+		String fieldName = NameTranslateHandle.toFieldName(columnName, entityClass);
+		// 聚合函数查到的值，应该放在主实体的属性。 不需要带表名
+		int ch = fieldName.indexOf('.');
+		if (ch > 0) fieldName = fieldName.substring(ch + 1);
+		return fieldName;
 	}
 
 //	Return ListStringArray

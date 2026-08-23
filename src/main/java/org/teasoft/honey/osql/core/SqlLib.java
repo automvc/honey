@@ -1106,9 +1106,14 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 				}
 
 				try {
-					// rsList还要排序
-					List<T> rsList = new ShardingMoreTableSelectEngine().asynProcess(sql, entity, this);
-
+					List<T> rsList;
+					if (ShardingUtil.hadAvgSharding()) {
+						int List_T = 2;
+						rsList = (List<T>) new ShardingGroupbyListStringArrayEngine().asynProcess(sql, this, entity.getClass(), List_T);
+					} else {
+						// rsList还要排序
+						rsList = new ShardingMoreTableSelectEngine().asynProcess(sql, entity, this);
+					}
 					addInCache(sql, rsList, rsList.size());
 					return rsList;
 

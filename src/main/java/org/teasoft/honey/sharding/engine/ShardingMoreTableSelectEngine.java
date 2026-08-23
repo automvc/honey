@@ -21,6 +21,7 @@ import org.teasoft.honey.osql.core.ShardingLogReg;
 import org.teasoft.honey.sharding.ShardingUtil;
 import org.teasoft.honey.sharding.engine.decorate.RecoverAddedSelectColumnDecorator;
 import org.teasoft.honey.sharding.engine.decorate.ResultPagingDecorator;
+import org.teasoft.honey.sharding.engine.decorate.ShardingGroupByDecorator;
 import org.teasoft.honey.sharding.engine.decorate.SortListDecorator;
 
 /**
@@ -62,8 +63,6 @@ public class ShardingMoreTableSelectEngine {
 
 		if (sqls != null) ShardingLogReg.log(sqls.length);
 
-//		Bee SQL Executor Engine
-//		tasks.forEach(completionService::submit);
 		int size = tasks.size();
 		for (int i = 0; tasks != null && i < size; i++) {
 			completionService.submit(tasks.get(i));
@@ -71,8 +70,10 @@ public class ShardingMoreTableSelectEngine {
 
 		// Result Merge
 		List<T> rsList = ResultMergeEngine.merge(completionService, size);
-
 		executor.shutdown();
+
+		// group and aggregate Entity,if necessary
+		ShardingGroupByDecorator.groupAndAggregateEntity(rsList);
 
 		// 排序装饰
 		SortListDecorator.sort(rsList);

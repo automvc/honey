@@ -27,7 +27,7 @@ public class ThreadPoolUtil {
 
 	private ThreadPoolUtil() {}
 
-	public static ExecutorService getThreadPool(int hopeSize) {//TODO  use jdk 21 Virtual Thread
+	public static ExecutorService getThreadPool(int hopeSize) {
 //		int executorSize = HoneyConfig.getHoneyConfig().executorSize; //bug
 		int executorSize = HoneyConfig.getHoneyConfig().sharding_executorSize; // fixed bug 2.1.10
 		if (hopeSize > 0 && executorSize > 0 && hopeSize < executorSize) // 实际需要的少于设置的,用少的
