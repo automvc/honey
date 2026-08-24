@@ -126,10 +126,9 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 			ConditionImpl conditionImpl = (ConditionImpl) condition;
 			List<FunExpress> funExpList = null;
 			if (conditionImpl != null) funExpList = conditionImpl.getFunExpList();
-			if (ObjectUtils.isEmpty(funExpList)) {
+			if (funExpList == null || funExpList.size() == 0) {
 				throw new BeeIllegalSQLException("In MoreTable selectWithFun, the aggregation function can not be empty!");
-			}
-			if (funExpList.size() > 1) {
+			} else if (funExpList.size() > 1) {
 				throw new BeeIllegalSQLException("In MoreTable selectWithFun, just support one aggregation function!");
 			}
 

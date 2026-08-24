@@ -62,22 +62,18 @@ public class ConditionHelper3 {
 		String selectField[] = ConditionHelper.addedOrderByFieldIfNeed(selectFields, conditionImpl);
 		int newLen = selectField.length;
 
-		List<String> addedColumn = null;
 		if (newLen - oldLen > 0) {
-			addedColumn = new ArrayList<>(newLen - oldLen);
-		}
-
-		for (int k = oldLen; k < newLen; k++) {
-			String old = selectField[k];
-			selectField[k] = MoreTableHelper.fieldName2ColumnName(selectField[k], mainTableAlias, mainClass,
-					moreTableStructMap);
-			if (selectField[k] == null) {
-				throw new BeeException(old + " would transfer be null");
-			} else {
-				addedColumn.add(selectField[k]);
+			List<String> addedColumn = new ArrayList<>(newLen - oldLen);
+			for (int k = oldLen; k < newLen; k++) {
+				String old = selectField[k];
+				selectField[k] = MoreTableHelper.fieldName2ColumnName(selectField[k], mainTableAlias, mainClass,
+						moreTableStructMap);
+				if (selectField[k] == null) {
+					throw new BeeException(old + " would transfer be null");
+				} else {
+					addedColumn.add(selectField[k]);
+				}
 			}
-		}
-		if (newLen - oldLen > 0) {
 			ShardingReg.regAddedOrderByColumn(addedColumn);
 		}
 
