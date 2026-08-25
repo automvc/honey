@@ -181,10 +181,6 @@ public final class HoneyConfig implements LoggerTypeConfig, LogSqlConfig {
 	@SysValue("${bee.osql.moreTable.columnListWithStar}")
 	boolean moreTable_columnListWithStar;
 
-	@Deprecated
-	@SysValue("${bee.osql.moreTable.twoTablesWithJoinOnStyle}")
-	boolean moreTable_twoTablesWithJoinOnStyle;
-
 	// ----------------------------- selectJson start
 	@SysValue("${bee.osql.selectJson.ignoreNull}")
 	public boolean selectJson_ignoreNull = true;
@@ -438,6 +434,7 @@ public final class HoneyConfig implements LoggerTypeConfig, LogSqlConfig {
 	@SysValue("${bee.dosql.sharding.forkJoinBatchInsert}")
 	public boolean sharding_forkJoinBatchInsert;
 
+	// 只对Suid/SuidRich有效; 对MoreTable不起作用.
 	@SysValue("${bee.dosql.sharding.jdbcStreamSelect}")
 	public boolean sharding_jdbcStreamSelect = true;
 
@@ -501,8 +498,6 @@ public final class HoneyConfig implements LoggerTypeConfig, LogSqlConfig {
 	// V2.5.2
 	private String getDbNameByUrl() {
 		String dbName = null;
-//		DataSource ds = BeeFactory.getInstance().getDataSource();
-//		if (ds == null) {
 		String t_url = getUrl();
 
 		if (t_url != null && !"".equals(t_url.trim())) { // sonar problem
@@ -525,7 +520,6 @@ public final class HoneyConfig implements LoggerTypeConfig, LogSqlConfig {
 				dbName = DatabaseConst.Cassandra;
 			else if (t_url.startsWith("jdbc:ucanaccess:")) dbName = DatabaseConst.MsAccess;
 		}
-//		}
 		return dbName;
 	}
 

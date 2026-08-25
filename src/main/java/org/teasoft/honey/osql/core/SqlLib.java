@@ -201,7 +201,6 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 
 				try {
 					String fun = "";
-//					String funType = HoneyContext.getSysCommStrInheritableLocal(StringConst.FunType);
 					String funType = HoneyContext1.getExtForShardingStr(StringConst.FunType);
 					if (FunctionType.AVG.getName().equalsIgnoreCase(funType)) { // avg need change sql
 						List<String[]> rsList;
@@ -497,9 +496,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 		Class entityClass = (Class) OneTimeParameter.getAttribute(StringConst.Route_EC);
 //		if (sql == null || "".equals(sql)) return -2;
 		if (sql == null || "".equals(sql)) return -1; // 2.4.0
-//		boolean clearFlag;
 		if (isSimpleMode()) {
-//			clearFlag = true;
 			return _modify(sql, entityClass, true); // 1.x版本及不用分片走的分支
 		} else {
 			if (HoneyContext.getSqlIndexLocal() == null) {// 拦截到的要分片的主线程
@@ -512,7 +509,6 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 					clearContext(sql); // 2.2 分片的主线程都要清主线程的上下文
 				}
 			} else { // 子线程执行
-//				clearFlag = false;
 				return _modify(sql, entityClass, false);
 			}
 		}
@@ -864,7 +860,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 	private void eachBatchCommitIfNeed(Connection conn) throws SQLException {
 		boolean eachBatchCommit = HoneyConfig.getHoneyConfig().eachBatchCommit;
 		if (eachBatchCommit && !HoneyContext.isTransactionConn()) {
-//			System.err.println("-----在方法内部每个批次提交一次----");
+//			.err.println("-----在方法内部每个批次提交一次----");
 			conn.commit();
 		}
 	}
@@ -872,7 +868,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 	private void allCommitIfNeed(Connection conn) throws SQLException {
 		boolean eachBatchCommit = HoneyConfig.getHoneyConfig().eachBatchCommit;
 		if (!eachBatchCommit && !HoneyContext.isTransactionConn()) {
-//			System.err.println("-----在方法内部所有批次一起提交----");
+//			.err.println("-----在方法内部所有批次一起提交----");
 			conn.commit();
 		}
 	}
