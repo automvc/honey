@@ -90,7 +90,10 @@ public class DdlToSql {
 			return toCreateTableSQLForMySQL(entityClass, tableName);
 		} else if (DatabaseConst.H2.equalsIgnoreCase(HoneyContext.getDbDialect())) {
 			return toCreateTableSQLForH2(entityClass, tableName);
-		} else if (DatabaseConst.PostgreSQL.equalsIgnoreCase(HoneyContext.getDbDialect())) {
+		} else if (DatabaseConst.PostgreSQL.equalsIgnoreCase(HoneyContext.getDbDialect())
+				|| DatabaseConst.GaussDB.equalsIgnoreCase(HoneyContext.getDbDialect())
+				|| DatabaseConst.OpenGauss.equalsIgnoreCase(HoneyContext.getDbDialect())
+				) {
 			return toCreateTableSQLForPostgreSQL(entityClass, tableName);
 		} else if (HoneyUtil.isSqlServer()) {
 			return toCreateTableSQLForSQLSERVER(entityClass, tableName);
@@ -456,7 +459,11 @@ public class DdlToSql {
 	private static void initStringPkStatement() {
 		pkStringStatement.put(DatabaseConst.H2.toLowerCase(), "varchar(255) PRIMARY KEY NOT NULL");
 		pkStringStatement.put(DatabaseConst.SQLite.toLowerCase(), " VARCHAR2(255) PRIMARY KEY NOT NULL");
+
 		pkStringStatement.put(DatabaseConst.PostgreSQL.toLowerCase(), "varchar(255) PRIMARY KEY NOT NULL");
+//		pkStringStatement.put(DatabaseConst.GaussDB.toLowerCase(), "varchar(255) PRIMARY KEY NOT NULL");
+//		pkStringStatement.put(DatabaseConst.OpenGauss.toLowerCase(), "varchar(255) PRIMARY KEY NOT NULL");
+		
 //		pkStringStatement.put("", "");
 //		pkStringStatement.put(null,"");
 		pkStringStatement.put("", "varchar(255) PRIMARY KEY NOT NULL"); // V2.1.8 默认
@@ -466,7 +473,11 @@ public class DdlToSql {
 	private static void initPkStatement() {
 		pkStatement.put(DatabaseConst.H2.toLowerCase(), "bigint PRIMARY KEY NOT NULL");
 		pkStatement.put(DatabaseConst.SQLite.toLowerCase(), "INTEGER PRIMARY KEY NOT NULL");
+		
 		pkStatement.put(DatabaseConst.PostgreSQL.toLowerCase(), "bigserial NOT NULL");
+//		pkStatement.put(DatabaseConst.GaussDB.toLowerCase(), "bigserial NOT NULL");
+//		pkStatement.put(DatabaseConst.OpenGauss.toLowerCase(), "bigserial NOT NULL");
+
 //		pkStatement.put("", "");
 //		pkStatement.put(null, "");
 		pkStatement.put("", "bigint PRIMARY KEY NOT NULL"); // V2.1.8 默认
