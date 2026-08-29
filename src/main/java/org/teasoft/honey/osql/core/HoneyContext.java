@@ -414,28 +414,28 @@ public final class HoneyContext {
 		currentConnection.remove();
 	}
 
-	// 记得conn起来，等处理完rs才关闭。
-	public synchronized static void regConnForSelectRs(Connection conn) {
-//		String threadFlag = HoneyContext.getSysCommStrInheritableLocal(StringConst.ShardingSelectRs_ThreadFlag);
-		String threadFlag = (String) HoneyContext1.getInheritable(LocalType.REQUEST,
-				StringConst.ShardingSelectRs_ThreadFlag);
-		Integer subThreadIndex = HoneyContext.getSqlIndexLocal();
-		String key = threadFlag + subThreadIndex;
-		conneForSelectRs.put(key, conn);
-	}
-
-	public synchronized static void clearConnForSelectRs(String key) {
-		Connection conn = conneForSelectRs.get(key);
-		if (conn != null) {
-			try {
-				conn.close();
-			} catch (Exception e) {
-				Logger.debug(e.getMessage(), e);
-			} finally {
-				conneForSelectRs.remove(key);
-			}
-		}
-	}
+//	// 记得conn起来，等处理完rs才关闭。
+//	public synchronized static void regConnForSelectRs(Connection conn) {
+////		String threadFlag = HoneyContext.getSysCommStrInheritableLocal(StringConst.ShardingSelectRs_ThreadFlag);
+//		String threadFlag = (String) HoneyContext1.getInheritable(LocalType.REQUEST,
+//				StringConst.ShardingSelectRs_ThreadFlag);
+//		Integer subThreadIndex = HoneyContext.getSqlIndexLocal();
+//		String key = threadFlag + subThreadIndex;
+//		conneForSelectRs.put(key, conn);
+//	}
+//
+//	public synchronized static void clearConnForSelectRs(String key) {
+//		Connection conn = conneForSelectRs.get(key);
+//		if (conn != null) {
+//			try {
+//				conn.close();
+//			} catch (Exception e) {
+//				Logger.debug(e.getMessage(), e);
+//			} finally {
+//				conneForSelectRs.remove(key);
+//			}
+//		}
+//	}
 
 	// V1.17
 	public static Object getCurrentAppDB() {

@@ -6,7 +6,6 @@
 
 package org.teasoft.honey.sharding.engine;
 
-import java.security.SecureRandom;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,12 +17,10 @@ import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 
 import org.teasoft.bee.osql.BeeSql;
+import org.teasoft.bee.osql.SelectRsWrap;
 import org.teasoft.bee.sharding.ShardingSortStruct;
-import org.teasoft.honey.distribution.GenIdFactory;
 import org.teasoft.honey.logging.Logger;
-import org.teasoft.honey.osql.core.HoneyContext;
 import org.teasoft.honey.osql.core.HoneyContext1;
-import org.teasoft.honey.osql.core.LocalType;
 import org.teasoft.honey.osql.core.OrderByPagingRewriteSql;
 import org.teasoft.honey.osql.core.ShardingLogReg;
 import org.teasoft.honey.osql.core.ShardingSortReg;
@@ -57,13 +54,13 @@ public class ShardingSelectRsEngine {
 
 		if (sqls == null || sqls.length == 0) return null;
 		ExecutorService executor = ThreadPoolUtil.getThreadPool(sqls.length);
-		CompletionService<ResultSet> completionService = new ExecutorCompletionService<>(executor);
-		final List<Callable<ResultSet>> tasks = new ArrayList<>();
+		CompletionService<SelectRsWrap> completionService = new ExecutorCompletionService<>(executor);
+		final List<Callable<SelectRsWrap>> tasks = new ArrayList<>();
 
-		// fixed bug
-		String threadFlag = getSelectRsThreadFlag();
-//		ShardingUtil.regSelectRsThreadFlag(threadFlag);
-		HoneyContext1.setInheritable(LocalType.REQUEST, StringConst.ShardingSelectRs_ThreadFlag, threadFlag);
+//		// fixed bug
+//		String threadFlag = getSelectRsThreadFlag();
+////		ShardingUtil.regSelectRsThreadFlag(threadFlag);
+//		HoneyContext1.setInheritable(LocalType.REQUEST, StringConst.ShardingSelectRs_ThreadFlag, threadFlag);
 
 		for (int i = 0; sqls != null && i < sqls.length; i++) {
 			tasks.add(new ShardingBeeSQLExecutorEngine<T>(sqls[i], i + 1, beeSql, dsArray[i])); // 获取RS
@@ -77,13 +74,15 @@ public class ShardingSelectRsEngine {
 			completionService.submit(tasks.get(i));
 		}
 
+		SelectRsWrap[] rsWrap= new SelectRsWrap[size];
 		ResultSet rs = null;
 		// Result Merge
 		ShardingSortStruct struct = null;
 		Queue<CompareResult> queue = new PriorityQueue<>(size);
 		for (int i = 0; i < size; i++) {
 			try {
-				rs = completionService.take().get(); // 先于getCurrentShardingSort获取
+				rsWrap[i] = completionService.take().get(); // 先于getCurrentShardingSort获取
+				rs = rsWrap[i].getResultSet();
 				if (size == 1) break; // 只有一个rs,直接转化
 
 				if (i == 0) {
@@ -109,31 +108,32 @@ public class ShardingSelectRsEngine {
 			rsList = new OrderByStreamResult<>(queue, entityClass).getOnePageList();
 		}
 
-		for (int i = 0; i < size; i++) { // fixed bug
-			HoneyContext.clearConnForSelectRs(threadFlag + (i + 1));
+		for (int i = 0; i < size; i++) {
+//			HoneyContext.clearConnForSelectRs(threadFlag + (i + 1));
+			rsWrap[i].close();
 		}
 
 		return rsList;
 	}
 
-	private class ShardingBeeSQLExecutorEngine<T> extends ShardingAbstractBeeSQLExecutorEngine<ResultSet> {
+	private class ShardingBeeSQLExecutorEngine<T> extends ShardingAbstractBeeSQLExecutorEngine<SelectRsWrap> {
 
 		public ShardingBeeSQLExecutorEngine(String sql, int index, BeeSql beeSql, String ds) {
 			super(sql, index, beeSql, ds);
 		}
 
-		public ResultSet shardingWork() {
+		public SelectRsWrap shardingWork() {
 			ShardingLogReg.regShardingSqlLog("select SQL", index, sql);
 			return beeSql.selectRs(this.sql);
 		}
 	}
 
-	private SecureRandom sr = new SecureRandom();
+//	private SecureRandom sr = new SecureRandom();
 
-	private String getSelectRsThreadFlag() {
-		long gid = GenIdFactory.get(StringConst.ShardingSelectRs_ThreadFlag, GenIdFactory.GenType_OneTimeSnowflakeId);
-		String threadFlag = gid + "" + sr.nextDouble();
-		return threadFlag;
-	}
+//	private String getSelectRsThreadFlag() {
+//		long gid = GenIdFactory.get(StringConst.ShardingSelectRs_ThreadFlag, GenIdFactory.GenType_OneTimeSnowflakeId);
+//		String threadFlag = gid + "" + sr.nextDouble();
+//		return threadFlag;
+//	}
 
 }

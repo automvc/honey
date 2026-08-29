@@ -19,9 +19,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.teasoft.bee.osql.BeeSql;
+import org.teasoft.bee.osql.DatabaseConst;
 import org.teasoft.bee.osql.FunctionType;
 import org.teasoft.bee.osql.ObjSQLException;
 import org.teasoft.bee.osql.ResultAssemblerRegistry;
+import org.teasoft.bee.osql.SelectRsWrap;
 import org.teasoft.bee.osql.SuidType;
 import org.teasoft.honey.logging.Logger;
 import org.teasoft.honey.sharding.ShardingUtil;
@@ -158,26 +160,78 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 	}
 
 	@Override
-	public ResultSet selectRs(String sql) {
+	public SelectRsWrap selectRs(String sql) {
 
 		Connection conn = null;
 		PreparedStatement pst = null;
 		ResultSet rs = null;
+		SelectRsWrap rsWrap;
 		try {
 			conn = getConn();
 			String exe_sql = HoneyUtil.deleteLastSemicolon(sql);
-			pst = conn.prepareStatement(exe_sql);
+
+			boolean jdbcStreamSelect = HoneyConfig.getHoneyConfig().sharding_jdbcStreamSelect;
+			boolean justStatement= !jdbcStreamSelect || !ShardingUtil.isSharding() || ShardingUtil.hadGroupSharding();
+
+//			pst = conn.prepareStatement(exe_sql);
+			rsWrap = getStreamStatementIfNeed(exe_sql, conn, justStatement);
+			pst = rsWrap.getPreparedStatement();
 
 			setPreparedValues(pst, sql);
 
 			rs = pst.executeQuery();
-			return rs;
+			rsWrap.setResultSet(rs);
+
+			return rsWrap;
 		} catch (SQLException e) {
 			throw ExceptionHelper.convert(e);
 		} finally {
 			clearContext(sql);
-			if (conn != null) HoneyContext.regConnForSelectRs(conn);
+//			if (conn != null) HoneyContext.regConnForSelectRs(conn);
 		}
+	}
+
+	private SelectRsWrap getStreamStatementIfNeed(String sql, Connection conn, boolean justStatement)
+			throws SQLException {
+
+		boolean isPostgreSQLJDBCStream = false;
+		Boolean oldAutoCommit = null; // oldAutoCommitForPostgreSQLJDBCStreamConn
+		if (justStatement) {
+//			return conn.prepareStatement(sql);
+			return new SelectRsWrap(conn, conn.prepareStatement(sql), isPostgreSQLJDBCStream, oldAutoCommit);
+		}
+
+		PreparedStatement pst;
+		if (HoneyUtil.isMysql()) {
+			// MySql
+			pst = conn.prepareStatement(sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+			pst.setFetchSize(Integer.MIN_VALUE);
+		} else if (isPostgreSQLFamily()) {
+			int fetchSize = 1000; // TODO
+			// PostgreSQL
+			pst = conn.prepareStatement(sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY,
+					ResultSet.CLOSE_CURSORS_AT_COMMIT);
+			oldAutoCommit = conn.getAutoCommit();
+			conn.setAutoCommit(false);
+			if (fetchSize > 0) {
+				pst.setFetchSize(fetchSize);
+			}
+			isPostgreSQLJDBCStream = true;
+		} else if (HoneyUtil.isH2()) {
+			// H2
+			pst = conn.prepareStatement(sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+		} else {
+			Logger.warn("not support streaming query in this DB: " + HoneyConfig.getHoneyConfig().getDbName());
+			pst = conn.prepareStatement(sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+		}
+
+//		return pst;
+		return new SelectRsWrap(conn, pst, isPostgreSQLJDBCStream, oldAutoCommit);
+	}
+
+	private boolean isPostgreSQLFamily() {
+		return HoneyUtil.isPostgreSQL()
+				|| DatabaseConst.OpenGauss.equalsIgnoreCase(HoneyConfig.getHoneyConfig().getDbName());
 	}
 
 	/**

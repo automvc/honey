@@ -8,7 +8,6 @@ package org.teasoft.honey.osql.core;
 
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
-import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -16,6 +15,7 @@ import java.util.Map;
 
 import org.teasoft.bee.app.BeeSqlForApp;
 import org.teasoft.bee.osql.BeeSql;
+import org.teasoft.bee.osql.SelectRsWrap;
 import org.teasoft.bee.osql.SuidType;
 import org.teasoft.bee.osql.annotation.customizable.Json;
 import org.teasoft.bee.osql.type.SetParaTypeConvert;
@@ -38,7 +38,7 @@ public class SqlLibForApp extends AbstractBase implements BeeSql, Serializable {
 	private static String SUCCESS_MSG = "[Bee] ==========Load BeeSqlForApp implement class successfully!";
 
 	@Override
-	public ResultSet selectRs(String sql) {
+	public SelectRsWrap selectRs(String sql) {
 		Logger.warn("[Bee] ==========SqlLibForApp do not support the method: selectRs");
 		return null;
 	}

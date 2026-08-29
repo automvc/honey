@@ -101,7 +101,7 @@ public final class StringConst {
 //	public static final String Get_GroupFunStruct = PREFIX + "Get_GroupFunStruct";
 	public static final String Return_GroupFunStruct = PREFIX + "Return_GroupFunStruct";
 
-	public static final String ShardingSelectRs_ThreadFlag = PREFIX + "ShardingSelectRs_ThreadID";
+//	public static final String ShardingSelectRs_ThreadFlag = PREFIX + "ShardingSelectRs_ThreadID";
 
 	public static final String AddedOrderByField = PREFIX + "AddedOrderByFieldForSharding";
 	public static final String AddedOrderByFieldStruct = PREFIX + "AddedOrderByFieldStruct";
