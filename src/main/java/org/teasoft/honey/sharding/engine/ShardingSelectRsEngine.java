@@ -57,11 +57,6 @@ public class ShardingSelectRsEngine {
 		CompletionService<SelectRsWrap> completionService = new ExecutorCompletionService<>(executor);
 		final List<Callable<SelectRsWrap>> tasks = new ArrayList<>();
 
-//		// fixed bug
-//		String threadFlag = getSelectRsThreadFlag();
-////		ShardingUtil.regSelectRsThreadFlag(threadFlag);
-//		HoneyContext1.setInheritable(LocalType.REQUEST, StringConst.ShardingSelectRs_ThreadFlag, threadFlag);
-
 		for (int i = 0; sqls != null && i < sqls.length; i++) {
 			tasks.add(new ShardingBeeSQLExecutorEngine<T>(sqls[i], i + 1, beeSql, dsArray[i])); // 获取RS
 		}
@@ -109,7 +104,6 @@ public class ShardingSelectRsEngine {
 		}
 
 		for (int i = 0; i < size; i++) {
-//			HoneyContext.clearConnForSelectRs(threadFlag + (i + 1));
 			rsWrap[i].close();
 		}
 
@@ -127,13 +121,5 @@ public class ShardingSelectRsEngine {
 			return beeSql.selectRs(this.sql);
 		}
 	}
-
-//	private SecureRandom sr = new SecureRandom();
-
-//	private String getSelectRsThreadFlag() {
-//		long gid = GenIdFactory.get(StringConst.ShardingSelectRs_ThreadFlag, GenIdFactory.GenType_OneTimeSnowflakeId);
-//		String threadFlag = gid + "" + sr.nextDouble();
-//		return threadFlag;
-//	}
 
 }
