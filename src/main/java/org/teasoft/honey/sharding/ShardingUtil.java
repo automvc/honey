@@ -98,7 +98,6 @@ public class ShardingUtil {
 
 	public static void setTrue(String key) {
 //		HoneyContext.setTrueInSysCommStrInheritableLocal(key);
-		
 		HoneyContext1.setTrueExtForSharding(key);
 	}
 
@@ -106,11 +105,6 @@ public class ShardingUtil {
 //		return HoneyContext.isTrueInSysCommStrInheritableLocal(key);
 		return HoneyContext1.isTrueExtForSharding(key);
 	}
-
-//	public static void regSelectRsThreadFlag(String threadFlag) {
-////		HoneyContext.setSysCommStrInheritableLocal(StringConst.ShardingSelectRs_ThreadFlag, threadFlag);
-//		HoneyContext1.setInheritable(LocalType.REQUEST, StringConst.ShardingSelectRs_ThreadFlag, threadFlag);
-//	}
 
 	public static boolean isShardingBatchInsertDoing() {
 		return isTrue(StringConst.ShardingBatchInsertDoing);
