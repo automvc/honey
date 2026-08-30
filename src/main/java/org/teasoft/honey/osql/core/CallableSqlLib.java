@@ -237,6 +237,7 @@ public class CallableSqlLib extends AbstractCommOperate implements CallableSql {
 
 	private String getIdString(CallableStatement cstmt) {
 //		return cstmt.toString(); //mysql is different in  modify(CallableStatement cstmt),getCallableStatement(String callSql)
+		if (cstmt == null) return "NULL_VALUE";
 		return cstmt.hashCode() + "";
 	}
 
