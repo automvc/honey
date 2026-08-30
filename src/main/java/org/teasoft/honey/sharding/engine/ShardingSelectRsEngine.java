@@ -104,7 +104,7 @@ public class ShardingSelectRsEngine {
 		}
 
 		for (int i = 0; i < size; i++) {
-			rsWrap[i].close();
+			if (rsWrap[i] != null) rsWrap[i].close();
 		}
 
 		return rsList;

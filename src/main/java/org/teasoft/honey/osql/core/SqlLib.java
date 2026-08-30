@@ -165,7 +165,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 		Connection conn = null;
 		PreparedStatement pst = null;
 		ResultSet rs = null;
-		SelectRsWrap rsWrap;
+		SelectRsWrap rsWrap = null;
 		try {
 			conn = getConn();
 			String exe_sql = HoneyUtil.deleteLastSemicolon(sql);
@@ -184,6 +184,8 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 
 			return rsWrap;
 		} catch (SQLException e) {
+			//有异常要及时关闭
+			if(rsWrap!=null) rsWrap.close();
 			throw ExceptionHelper.convert(e);
 		} finally {
 			clearContext(sql);
