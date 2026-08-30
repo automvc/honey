@@ -236,9 +236,6 @@ public final class HoneyConfig implements LoggerTypeConfig, LogSqlConfig {
 	@SysValue("${" + DbConfigConst.DB_PWORD + "}")
 	String password;
 
-//	@SysValue("${bee.db.differentDbEachTime}")
-//	public boolean differentDbEachTime; //V2.5.2
-
 	@SysValue("${bee.db.schemaName}")
 	String schemaName;
 
@@ -439,12 +436,17 @@ public final class HoneyConfig implements LoggerTypeConfig, LogSqlConfig {
 	public boolean sharding_jdbcStreamSelect = true;
 
 	@SysValue("${bee.dosql.sharding.notSupportUnionQuery}") // 2.0
-//	public boolean notSupportUnionQuery; //  bug
-	public boolean sharding_notSupportUnionQuery; // fixed V2.1.10
+	public boolean sharding_notSupportUnionQuery;
 
 	@SysValue("${bee.dosql.sharding.executorSize}") // 2.1.7
-//	public int executorSize=0;
-	public int sharding_executorSize = 0; // fixed V2.1.10
+	public int sharding_executorSize = 0;
+
+	/**
+	 * support JDK 21 VirtualThread.
+	 * 是否开启JDK21虚拟线程做分片查询;默认false
+	 */
+	@SysValue("${bee.dosql.sharding.useVirtualThread}") // 3.0.0
+	public boolean sharding_useVirtualThread = false;
 
 	// ----------------------------- sharding end
 
