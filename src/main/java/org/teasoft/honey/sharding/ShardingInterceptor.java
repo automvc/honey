@@ -455,8 +455,14 @@ public class ShardingInterceptor extends EmptyInterceptor {
 			// 不要这个是否可以?? 有时只转出了下标,就需要处理.
 			if (tabSuffixList.size() >= 1 && tabNameList.size() < 1) {
 				String tableName = _toTableName(entity);
+				String tabSuffix;
 				for (int i = 0; i < tabSuffixList.size(); i++) {
-					String tab = tableName.replace(StringConst.ShardingTableIndexStr, tabSuffixList.get(i));
+					tabSuffix = tabSuffixList.get(i);
+					if (tabSuffix == null) {
+						tabSuffix = "";
+						Logger.warn("tabSuffix is null. tableName: " + tableName);
+					}
+					String tab = tableName.replace(StringConst.ShardingTableIndexStr, tabSuffix);
 					tabNameList.add(tab);
 					tab2DsMap.put(tab, tab2DsMap.get(tabSuffixList.get(i)));
 				}
@@ -688,9 +694,8 @@ public class ShardingInterceptor extends EmptyInterceptor {
 		}
 
 		// 3.0.0 getTabSuffix 
-		if (ShardingUtil.isSharding() && StringConst.tRue.equals(HoneyContext1.get(LocalType.REQUEST, StringConst.MoreTableModifyStoreDsTabSuffix))) {
-			HoneyContext1.set(LocalType.MORETABLE_MODIFY, StringConst.MoreTableModifyTabSuffix,
-					dsTabStruct.getTabSuffix());
+		if (ShardingUtil.isSharding() && StringConst.tRue.equals(HoneyContext1.getInheritable(LocalType.REQUEST, StringConst.MoreTableModifyStoreDsTabSuffix))) {
+			HoneyContext1.setInheritable(LocalType.MORETABLE_MODIFY, StringConst.MoreTableModifyTabSuffix, dsTabStruct.getTabSuffix());
 		}
 
 		if (StringUtils.isBlank(dsTabStruct.getDsName())) { // 一库一表时, 若ds为空,通过表名查到ds后并设置. 用于在获取连接时使用.

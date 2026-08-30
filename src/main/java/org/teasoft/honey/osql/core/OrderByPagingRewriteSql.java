@@ -88,7 +88,7 @@ public class OrderByPagingRewriteSql {
 				list.add(new String[] { newSql }); // 合成一条sql了， sql也不用加随机前缀 V2.2
 				list.add(new String[] { dsNameList.get(0) });
 			} else {
-				Logger.warn("Involved many dataSource or not supported union all!! ");
+				Logger.debug("Involved many dataSource or not supported union all! ");
 //				是否还要按库分,然后,不同库的使用union?  取决于union all 和IO 哪个用的时间更少!!
 				// 其它的,应该可以重用. 只不过涉及分页的,sql重新使用新的扩大的分页参数生成
 
@@ -152,9 +152,15 @@ public class OrderByPagingRewriteSql {
 	}
 
 	private static String[] createShardingSql(List<String> tabSuffixList, String sql) {
+		String tabSuffix;
 		String sqls[] = new String[tabSuffixList.size()];
 		for (int i = 0; i < tabSuffixList.size(); i++) {
-			sqls[i] = sql.replace(StringConst.ShardingTableIndexStr, tabSuffixList.get(i)); // eg: 占位符替换成下标等
+			tabSuffix = tabSuffixList.get(i);
+			if (tabSuffix == null) {
+				tabSuffix = "";
+				Logger.warn("tabSuffix is null. sql: " + sql);
+			}
+			sqls[i] = sql.replace(StringConst.ShardingTableIndexStr, tabSuffix); // eg: 占位符替换成下标等
 		}
 		return sqls;
 	}

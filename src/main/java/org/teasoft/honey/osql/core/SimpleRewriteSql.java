@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.teasoft.bee.osql.exception.ShardingErrorException;
+import org.teasoft.honey.logging.Logger;
 import org.teasoft.honey.sharding.ShardingUtil;
 import org.teasoft.honey.sharding.config.ShardingRegistry;
 import org.teasoft.honey.util.StringUtils;
@@ -41,8 +42,14 @@ public class SimpleRewriteSql {
 			List<String> tabNameList, Map<String, String> tab2DsMap) {
 		String sqls[] = new String[tabSuffixList.size()];
 		String dsArray[] = new String[tabSuffixList.size()];
+		String tabSuffix;
 		for (int i = 0; i < tabSuffixList.size(); i++) { // 有tabSuffixList， sql可以不用加前缀 2.2; 但用并行流parallelStream()会出问题,还是加上前缀好;
-			sqls[i] = sql.replace(StringConst.ShardingTableIndexStr, tabSuffixList.get(i)); // eg: [$#(index)#$]替换成下标等
+			tabSuffix = tabSuffixList.get(i);
+			if (tabSuffix == null) {
+				tabSuffix = "";
+				Logger.warn("tabSuffix is null. sql: " + sql);
+			}
+			sqls[i] = sql.replace(StringConst.ShardingTableIndexStr, tabSuffix); // eg: StringConst.ShardingTableIndexStr替换成下标等
 			sqls[i] = HoneyUtil.getRandomPrefix() + sqls[i]; // 2.2
 																// //因parallelStream()+InheritableThreadLocal会有问题,但分片又必要要用InheritableThreadLocal,所以分片时,不支持parallelStream并行操作
 			HoneyContext.setPreparedValue(sqls[i], listValue);
@@ -89,6 +96,10 @@ public class SimpleRewriteSql {
 			if (justSomeDs && !isContain(dsNameList, dsName)) continue; // 只执行部分DS
 			Set<String> tabIndexSet = entry.getValue();
 			for (String tabIndex : tabIndexSet) {
+				if(tabIndex==null) {
+					Logger.warn("tabIndex is null. sql: " + sql);
+					tabIndex = "";
+				}
 				tempSql = sql.replace(StringConst.ShardingTableIndexStr, tabIndex); // 将下标占位符改为具体下标
 				tempSql = HoneyUtil.getRandomPrefix() + tempSql; // 2.2
 				sqlList.add(tempSql);
