@@ -198,7 +198,7 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 		Boolean oldAutoCommit = null; // oldAutoCommitForPostgreSQLJDBCStreamConn
 		if (justStatement) {
 //			return conn.prepareStatement(sql);
-			return new SelectRsWrap(conn, conn.prepareStatement(sql), isPostgreSQLJDBCStream, oldAutoCommit);
+			return new SelectRsWrap(conn, conn.prepareStatement(sql));
 		}
 
 		PreparedStatement pst;
@@ -207,8 +207,8 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 			pst = conn.prepareStatement(sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
 			pst.setFetchSize(Integer.MIN_VALUE);
 		} else if (isPostgreSQLFamily()) {
-			int fetchSize = 1000; // TODO
 			// PostgreSQL
+			int fetchSize = 1000; // TODO
 			pst = conn.prepareStatement(sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY,
 					ResultSet.CLOSE_CURSORS_AT_COMMIT);
 			oldAutoCommit = conn.getAutoCommit();
