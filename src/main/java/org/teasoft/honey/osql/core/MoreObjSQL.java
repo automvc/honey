@@ -30,7 +30,6 @@ import org.teasoft.honey.osql.shortcut.BF;
 import org.teasoft.honey.sharding.HintManager;
 import org.teasoft.honey.sharding.ShardingReg;
 import org.teasoft.honey.sharding.ShardingUtil;
-import org.teasoft.honey.util.ObjectUtils;
 import org.teasoft.honey.util.StringUtils;
 
 /**
@@ -287,7 +286,8 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 			return modify3(entity, SuidType.INSERT);
 		} finally {
 			HoneyContext1.removeCategory(LocalType.MORETABLE_INSERT);
-			HoneyContext1.removeCategory(LocalType.MORETABLE_MODIFY);
+//			HoneyContext1.removeCategory(LocalType.MORETABLE_MODIFY);
+			HoneyContext1.removeInheritableCategory(LocalType.MORETABLE_MODIFY);
 		}
 	}
 
@@ -303,7 +303,8 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 		try {
 			return modify3(entity, SuidType.UPDATE);
 		} finally {
-			HoneyContext1.removeCategory(LocalType.MORETABLE_MODIFY);
+//			HoneyContext1.removeCategory(LocalType.MORETABLE_MODIFY);
+			HoneyContext1.removeInheritableCategory(LocalType.MORETABLE_MODIFY);
 		}
 	}
 
@@ -316,7 +317,8 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 		try {
 			return modify3(entity, SuidType.DELETE);
 		} finally {
-			HoneyContext1.removeCategory(LocalType.MORETABLE_MODIFY);
+//			HoneyContext1.removeCategory(LocalType.MORETABLE_MODIFY);
+			HoneyContext1.removeInheritableCategory(LocalType.MORETABLE_MODIFY);
 		}
 	}
 
@@ -341,7 +343,7 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 		if (moreTableStructMap == null || moreTableStructMap.isEmpty())
 			throw new BeeException("Entity for MoreTable operate must have JoinTable or FK setting!");
 
-		HoneyContext1.set(LocalType.REQUEST, StringConst.MoreTableModifyStoreDsTabSuffix, StringConst.tRue);
+		HoneyContext1.setInheritable(LocalType.REQUEST, StringConst.MoreTableModifyStoreDsTabSuffix, StringConst.tRue);
 
 		// 检查 但有可能主键是在SuidRich时还自动添加的。 已有处理. 不是用原来的逻辑加了后面恢复. 只是在自动加的时候存起来,在这个类用.
 		// 1. process main entity
@@ -357,8 +359,8 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 		}
 
 		// in Sharding model, sub table will use the main table's DS and tabSuffix.
-		String mainAppointDs = (String) HoneyContext1.get(LocalType.MORETABLE_MODIFY, StringConst.MoreTableModifyDs);
-		String mainTabSuffix = (String) HoneyContext1.get(LocalType.MORETABLE_MODIFY, StringConst.MoreTableModifyTabSuffix);
+		String mainAppointDs = (String) HoneyContext1.getInheritable(LocalType.MORETABLE_MODIFY, StringConst.MoreTableModifyDs);
+		String mainTabSuffix = (String) HoneyContext1.getInheritable(LocalType.MORETABLE_MODIFY, StringConst.MoreTableModifyTabSuffix);
 
 		// 2. start process sub entity
 		MoreTableStruct3 moreTableStruct;
@@ -516,6 +518,10 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 			HintManager.setDataSourceName(mainAppointDs);
 //		    HintManager.setTableName(mainAppointTab); //mainAppointTab是表全名不合适，只需要用主表的下标在子表
 //			HoneyContext.setTabSuffix(mainTabSuffix);
+			if (mainTabSuffix == null) {
+				Logger.warn("mainTabSuffix is null, subTableName: " + subTableName);
+				mainTabSuffix = "";
+			}
 			HintManager.setTableName(subTableName + mainTabSuffix);
 		}
 	}
@@ -615,13 +621,5 @@ public class MoreObjSQL extends AbstractCommOperate implements MoreTable {
 	private static String _toTableName(Object entity) {
 		return NameTranslateHandle.toTableName(NameUtil.getClassFullName(entity));
 	}
-	
-//	public static void main(String[] args) {
-//		Object str0 = "tRue";
-//		if (StringConst.tRue.equals(str0)) {
-//			System.out.println("yes");
-//		}else {
-//			System.out.println("no");
-//		}
-//	}
+
 }

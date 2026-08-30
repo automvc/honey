@@ -92,6 +92,7 @@ public class ObjSQL extends AbstractCommOperate implements Suid {
 			_ObjectToSQLHelper.setInitIdByAuto(entity); // 2.4.0 setInitIdByAuto > doBeforePasreEntity
 			doBeforePasreEntity(entity, SuidType.INSERT);
 			String sql = getObjToSQL().toInsertSQL(entity);
+//			Logger.warn("--------------------: "+sql);
 			_regEntityClass(entity);
 			sql = doAfterCompleteSql(sql);
 			int insertNum = -1;
@@ -114,8 +115,8 @@ public class ObjSQL extends AbstractCommOperate implements Suid {
 	private void regDsForMoreTableModifySharding() {
 		if (!ShardingUtil.isSharding()) return;
 		// 3.0.0 for MoreTable sharding
-		if (StringConst.tRue.equals(HoneyContext1.get(LocalType.REQUEST, StringConst.MoreTableModifyStoreDsTabSuffix))) {
-			HoneyContext1.set(LocalType.MORETABLE_MODIFY, StringConst.MoreTableModifyDs, HoneyContext.getAppointDS());
+		if (StringConst.tRue.equals(HoneyContext1.getInheritable(LocalType.REQUEST, StringConst.MoreTableModifyStoreDsTabSuffix))) {
+			HoneyContext1.setInheritable(LocalType.MORETABLE_MODIFY, StringConst.MoreTableModifyDs, HoneyContext.getAppointDS());
 			// TabSuffix 在ShardingInterceptor记录
 		}
 	}
