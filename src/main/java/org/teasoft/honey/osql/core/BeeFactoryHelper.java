@@ -16,6 +16,8 @@ import org.teasoft.bee.osql.api.MoreTable;
 import org.teasoft.bee.osql.api.PreparedSql;
 import org.teasoft.bee.osql.api.Suid;
 import org.teasoft.bee.osql.api.SuidRich;
+import org.teasoft.bee.osql.api.cqrs.Command;
+import org.teasoft.bee.osql.api.cqrs.Query;
 import org.teasoft.bee.osql.chain.UnionSelect;
 
 /**
@@ -83,4 +85,11 @@ public class BeeFactoryHelper {
 		return BeeFactory.getHoneyFactory().getMongodbRawSql();
 	}
 
+	public static Query getQuery() {
+		return BeeFactory.getHoneyFactory().getQuery();
+	}
+
+	public static Command getCommand() {
+		return BeeFactory.getHoneyFactory().getCommand();
+	}
 }

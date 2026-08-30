@@ -23,6 +23,8 @@ import org.teasoft.bee.osql.api.MoreTable;
 import org.teasoft.bee.osql.api.PreparedSql;
 import org.teasoft.bee.osql.api.Suid;
 import org.teasoft.bee.osql.api.SuidRich;
+import org.teasoft.bee.osql.api.cqrs.Command;
+import org.teasoft.bee.osql.api.cqrs.Query;
 import org.teasoft.bee.osql.chain.UnionSelect;
 import org.teasoft.bee.osql.dialect.DbFeature;
 import org.teasoft.bee.osql.dialect.DbFeatureRegistry;
@@ -31,7 +33,12 @@ import org.teasoft.bee.osql.exception.NotSupportedException;
 import org.teasoft.bee.osql.interccept.InterceptorChain;
 import org.teasoft.honey.logging.Logger;
 import org.teasoft.honey.osql.chain.UnionSelectImpl;
-import org.teasoft.honey.osql.dialect.*;
+import org.teasoft.honey.osql.core.cqrs.CommandImpl;
+import org.teasoft.honey.osql.core.cqrs.QueryImpl;
+import org.teasoft.honey.osql.dialect.HSqlDbFrontLimitPaging;
+import org.teasoft.honey.osql.dialect.LimitOffsetPaging;
+import org.teasoft.honey.osql.dialect.NoPagingSupported;
+import org.teasoft.honey.osql.dialect.OffsetFetchPaging;
 import org.teasoft.honey.osql.dialect.mysql.MySqlFeature;
 import org.teasoft.honey.osql.dialect.oracle.OracleFeature;
 import org.teasoft.honey.osql.dialect.sqlserver.SqlServerFeature;
@@ -84,6 +91,9 @@ public class HoneyFactory {
 	private MongodbRawSql mongodbRawSql;
 	private ObjSQLService objSQLService;
 	private ObjSQLRichService objSQLRichService;
+	
+	private Query query;
+	private Command command;
 
 	private boolean isOceanBasePrintFirst = true;
 
@@ -347,6 +357,24 @@ public class HoneyFactory {
 
 	public void setObjSQLRichService(ObjSQLRichService objSQLRichService) {
 		this.objSQLRichService = objSQLRichService;
+	}
+
+	public Query getQuery() {
+		if (query == null) return new QueryImpl();
+		return query;
+	}
+
+	public void setQuery(Query query) {
+		this.query = query;
+	}
+
+	public Command getCommand() {
+		if (command == null) return new CommandImpl();
+		return command;
+	}
+
+	public void setCommand(Command command) {
+		this.command = command;
 	}
 
 	public Cache getCache() {
