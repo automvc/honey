@@ -189,7 +189,6 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 			throw ExceptionHelper.convert(e);
 		} finally {
 			clearContext(sql);
-//			if (conn != null) HoneyContext.regConnForSelectRs(conn);
 		}
 	}
 
@@ -199,19 +198,17 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 		boolean isPostgreSQLJDBCStream = false;
 		Boolean oldAutoCommit = null; // oldAutoCommitForPostgreSQLJDBCStreamConn
 		if (justStatement) {
-//			return conn.prepareStatement(sql);
-			return new SelectRsWrap(conn, conn.prepareStatement(sql));
+			return new SelectRsWrap(conn, conn.prepareStatement(sql));// NOSONAR
 		}
 
 		PreparedStatement pst;
 		if (HoneyUtil.isMysql()) {
 			// MySql
-			pst = conn.prepareStatement(sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+			pst = conn.prepareStatement(sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);// NOSONAR
 			pst.setFetchSize(Integer.MIN_VALUE);
 		} else if (isPostgreSQLFamily()) {
 			// PostgreSQL
-			pst = conn.prepareStatement(sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY,
-					ResultSet.CLOSE_CURSORS_AT_COMMIT);
+			pst = conn.prepareStatement(sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY, ResultSet.CLOSE_CURSORS_AT_COMMIT);// NOSONAR
 			oldAutoCommit = conn.getAutoCommit();
 			conn.setAutoCommit(false);
 			int fetchSize = HoneyConfig.getHoneyConfig().sharding_fetchSizeForPostgreSql;
@@ -221,13 +218,12 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 			isPostgreSQLJDBCStream = true;
 		} else if (HoneyUtil.isH2()) {
 			// H2
-			pst = conn.prepareStatement(sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+			pst = conn.prepareStatement(sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);// NOSONAR
 		} else {
 			Logger.warn("not support streaming query in this DB: " + HoneyConfig.getHoneyConfig().getDbName());
-			pst = conn.prepareStatement(sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+			pst = conn.prepareStatement(sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);// NOSONAR
 		}
 
-//		return pst;
 		return new SelectRsWrap(conn, pst, isPostgreSQLJDBCStream, oldAutoCommit);
 	}
 

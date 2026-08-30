@@ -240,7 +240,8 @@ public class KeyWord {
 
 	static String transformNameIfKeyWork(String name) {
 
-		boolean allowKeyWordInColumn = HoneyConfig.getHoneyConfig().naming_allowKeyWordInColumn;
+//		boolean allowKeyWordInColumn = HoneyConfig.getHoneyConfig().naming_allowKeyWordInColumn;
+		boolean allowKeyWordInColumn = false;
 		if (!allowKeyWordInColumn) { //if not allow, just print warn msg.
 			if (isSqlKeyWord(name)) warnKeyWord(name);
 			return name;

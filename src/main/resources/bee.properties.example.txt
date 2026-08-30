@@ -123,12 +123,6 @@ bee.osql.naming.useMoreTranslateType=false
 #但像mysql,默认不是全大写的,建议设为false,这样转换会更精准.
 bee.osql.naming.toLowerCaseBefore=true
 
-#since 2.5.2
-#bee.osql.naming.allowKeyWordInColumn=true
-#define for append if bee do not contain them.
-#bee.osql.naming.sqlKeyWordInColumn=comment,user
-
-
 #bee.osql.moreTable.columnListWithStar=false
 # since v1.7.0
 #inner join type. use "join .. on" when true, or use "where ...=".Just there is one sub table, it is enable.
@@ -247,6 +241,9 @@ bee.dosql.sharding.jdbcStreamSelect=true
 bee.dosql.sharding.notSupportUnionQuery=false
 #since 2.1.7
 #bee.dosql.sharding.executorSize=0
+#since 3.0.0 support jdk 21 VirtualThread
+bee.dosql.sharding.useVirtualThread=false
+#bee.dosql.sharding.fetchSizeForPostgreSql=200
 
 # 1:only r/w, one main and more sub-database;  2:only more database (table name is same)
 #bee.dosql.multiDS.type=1
