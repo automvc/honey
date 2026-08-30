@@ -448,6 +448,9 @@ public final class HoneyConfig implements LoggerTypeConfig, LogSqlConfig {
 	@SysValue("${bee.dosql.sharding.useVirtualThread}") // 3.0.0
 	public boolean sharding_useVirtualThread = false;
 
+	@SysValue("${bee.dosql.sharding.fetchSizeForPostgreSql}") // 3.0.0
+	public int sharding_fetchSizeForPostgreSql = 200;
+
 	// ----------------------------- sharding end
 
 	public int getDatabaseMajorVersion() {

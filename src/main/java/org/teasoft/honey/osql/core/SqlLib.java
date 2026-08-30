@@ -208,11 +208,11 @@ public class SqlLib extends AbstractBase implements BeeSql, Serializable {
 			pst.setFetchSize(Integer.MIN_VALUE);
 		} else if (isPostgreSQLFamily()) {
 			// PostgreSQL
-			int fetchSize = 1000; // TODO
 			pst = conn.prepareStatement(sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY,
 					ResultSet.CLOSE_CURSORS_AT_COMMIT);
 			oldAutoCommit = conn.getAutoCommit();
 			conn.setAutoCommit(false);
+			int fetchSize = HoneyConfig.getHoneyConfig().sharding_fetchSizeForPostgreSql;
 			if (fetchSize > 0) {
 				pst.setFetchSize(fetchSize);
 			}

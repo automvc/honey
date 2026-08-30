@@ -379,7 +379,7 @@ public class MongodbObjSQLRich extends MongodbObjSQL implements SuidRich, Serial
 			doBeforePasreEntity(entity, SuidType.SELECT);
 			List<String[]> list = null;
 
-			if (condition == null) condition = BeeFactoryHelper.getCondition(); // TODO
+			if (condition == null) condition = BeeFactoryHelper.getCondition(); // todo
 
 			if (condition.getSelectField() == null) {
 				condition.selectField(HoneyUtil.getColumnNames(entity));
