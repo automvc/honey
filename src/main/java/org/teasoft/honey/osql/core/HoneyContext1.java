@@ -37,8 +37,8 @@ public class HoneyContext1 {
 		return StringUtils.isBlank(str);
 	}
 
-	private static boolean isBlank(LocalType str) {
-		return str == null;
+	private static boolean isNull(LocalType localType) {
+		return localType == null;
 	}
 
 	// ==================== ThreadLocal ====================START
@@ -66,7 +66,7 @@ public class HoneyContext1 {
 	 * 存储数据到 ThreadLocal（子线程不继承）
 	 */
 	public static void set(LocalType localType, String key, Object value) {
-		if (isBlank(localType) || isBlank(key) || value == null) {
+		if (isNull(localType) || isBlank(key) || value == null) {
 			return;
 		}
 		Map<LocalType, Map<String, Object>> store = LOCAL.get();
@@ -82,7 +82,7 @@ public class HoneyContext1 {
 	 * 从 ThreadLocal 读取数据
 	 */
 	public static Object get(LocalType localType, String key) {
-		if (isBlank(localType) || isBlank(key)) {
+		if (isNull(localType) || isBlank(key)) {
 			return null;
 		}
 		Map<String, Object> catMap = LOCAL.get().get(localType);
@@ -179,7 +179,7 @@ public class HoneyContext1 {
 	 * 存储数据到 InheritableThreadLocal（子线程不继承）
 	 */
 	public static void setInheritable(LocalType category, String key, Object value) {
-		if (isBlank(category) || isBlank(key) || value == null) {
+		if (isNull(category) || isBlank(key) || value == null) {
 			return;
 		}
 
@@ -196,7 +196,7 @@ public class HoneyContext1 {
 	 * 从 InheritableThreadLocal 读取数据
 	 */
 	public static Object getInheritable(LocalType category, String key) {
-		if (isBlank(category) || isBlank(key)) {
+		if (isNull(category) || isBlank(key)) {
 			return null;
 		}
 		Map<String, Object> catMap = INHERITABLE_LOCAL.get().get(category);
