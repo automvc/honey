@@ -320,6 +320,8 @@ class _MoreObjectToSQLHelper3 {
 			sqlBuffer.deleteCharAt(sqlBuffer.length() - 1);
 		sqlBuffer.append(sqlBufferComm);
 
+		OneTimeParameter.setAttribute(StringConst.Column_EC, entity.getClass());
+
 		if (needRewritePagingSql) {
 			String pks[] = pkNames.split(",");
 
