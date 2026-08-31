@@ -665,8 +665,8 @@ public class TransformResultSet {
 								try {
 									value = HoneyUtil.getResultObject(rs, field.getType().getName(), aliasColumnName);
 									HoneyUtil.setFieldValue(field, mainObj, value);
-								} catch (SQLException e2) {
-									throw ExceptionHelper.convert(e);
+								} catch (SQLException e2) { // fixed e2
+									throw ExceptionHelper.convert(e2);
 								}
 							} else {
 								Logger.warn(e.getMessage(), e);
@@ -697,8 +697,8 @@ public class TransformResultSet {
 								try {
 									value = HoneyUtil.getResultObject(rs, field.getType().getName(), aliasColumnName);
 									HoneyUtil.setFieldValue(field, subObj, value);
-								} catch (SQLException e2) {
-									throw ExceptionHelper.convert(e);
+								} catch (SQLException e2) { // fixed e2
+									throw ExceptionHelper.convert(e2);
 								}
 							} else {
 								Logger.warn(e.getMessage(), e);
