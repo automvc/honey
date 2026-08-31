@@ -178,17 +178,28 @@ class _MoreObjectToSQLHelper3 {
 		EntityWrapper mainEntityWrapper = ParseSqlHelper.parseEntity(entity, includeType);
 		tableNamesForCache.append(mainTableName); // 用于缓存记录，要用真正的表名，不能用别名
 
-		concat(fullColumns, COMMA, mainTableName + ".", mainEntityWrapper.columnList);
+		int structIndex = 0;
+		for (Entry<String, MoreTableStruct3> entry : moreTableStructMap.entrySet()) {
+			MoreTableStruct3 moreTableStruct = entry.getValue();
+			String mainAlias = moreTableStruct.mainAlias;
+			if (structIndex == 0 && StringUtils.isNotBlank(mainAlias)) {
+				mainTableAlias = mainAlias;
+			}
+			structIndex++;
+			break;
+		}
+
+		concat(fullColumns, COMMA, mainTableAlias + ".", mainEntityWrapper.columnList);
 		columnSet.addAll(mainEntityWrapper.columnList);
 
 		Map<String, Object> columnAndValue = mainEntityWrapper.columnAndValue;
 		for (Entry<String, Object> item : columnAndValue.entrySet()) {
-			concat(filter, AND, mainTableName, item.getKey(), EQUAL_QUEST);
+			concat(filter, AND, mainTableAlias, item.getKey(), EQUAL_QUEST);
 		}
 
 		if (!mainEntityWrapper.preList.isEmpty()) preList0.addAll(mainEntityWrapper.preList);
 
-		int structIndex = 0;
+//		structIndex = 0;
 		for (Entry<String, MoreTableStruct3> entry : moreTableStructMap.entrySet()) {
 			joinExp = new StringBuffer(); // fixed
 
@@ -198,8 +209,8 @@ class _MoreObjectToSQLHelper3 {
 			Object subObject = moreTableStruct.subObject;
 			String mainAlias = moreTableStruct.mainAlias;
 
-			if (structIndex == 0 && StringUtils.isNotBlank(mainAlias)) mainTableAlias = mainAlias;
-			structIndex++;
+//			if (structIndex == 0 && StringUtils.isNotBlank(mainAlias)) mainTableAlias = mainAlias;
+//			structIndex++;
 
 			EntityWrapper subEntityWrapper;
 			if (subObject == null)
