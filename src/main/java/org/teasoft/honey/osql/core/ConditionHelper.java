@@ -319,6 +319,12 @@ public class ConditionHelper {
 		}
 
 		struct.setOrderColumn(pkName);
+		// V3.0.0.8
+		String mainTableAlias = (String) OneTimeParameter.getAttribute(StringConst.mainTableAlias);
+		if (StringUtils.isNotBlank(mainTableAlias)) {
+			struct.setMainTableAlias(mainTableAlias);
+		}
+
 		// 保存struct
 //		HoneyContext.setSqlServerPagingStruct(sqlBuffer.toString(), struct); // 作为key的sql不是最终sql;因此处理后,一般就要先分页
 		HoneyContext1.set(SqlServerPagingStruct.class.getName() + sqlBuffer.toString(), struct); // 作为key的sql不是最终sql;因此处理后,一般就要先分页

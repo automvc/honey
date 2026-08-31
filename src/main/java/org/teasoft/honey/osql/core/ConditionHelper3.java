@@ -80,14 +80,9 @@ public class ConditionHelper3 {
 		return HoneyUtil.checkAndProcessSelectFieldViaString(columnNames, subDulFieldMap, selectField);
 	}
 
-	private static void adjustSqlServerPagingIfNeed(StringBuffer sqlBuffer, Map<String, String> orderByMap, Integer start,
-			Class entityClass, String useSubTableNames[]) {
-		ConditionHelper.adjustSqlServerPagingIfNeed(sqlBuffer, orderByMap, start, entityClass, useSubTableNames);
-	}
-
 	// todo useSubTableNames 要更新。 主要是加表名。
 	static void processPaging(StringBuffer sqlBuffer, List<PreparedValue> list, Condition condition, boolean firstWhere,
-			String useSubTableNames[]) {
+			String mainTableAlias) {
 
 		Class entityClass = (Class) OneTimeParameter.getAttribute(StringConst.Column_EC);
 
@@ -101,12 +96,13 @@ public class ConditionHelper3 {
 			if (!OneTimeParameter.isTrue(StringConst.Select_Fun)) {
 				Integer size = conditionImpl.getSize();
 				String sql = "";
+				OneTimeParameter.setAttribute(StringConst.mainTableAlias, mainTableAlias); //for MoreTable 3.0.0.8
 				if (start != null && start != -1 && size != null) {
 					HoneyUtil.regPagePlaceholder();
 
 					// V1.17 sql server paging
 					Map<String, String> orderByMap = conditionImpl.getOrderBy();
-					adjustSqlServerPagingIfNeed(sqlBuffer, orderByMap, start, entityClass, useSubTableNames);
+					adjustSqlServerPagingIfNeed(sqlBuffer, orderByMap, start, entityClass, null);
 
 					if (ShardingUtil.hadSharding()) {
 //						先调整好分页，后面就不用再调
@@ -125,7 +121,7 @@ public class ConditionHelper3 {
 
 					// V1.17 sql server paging
 					Map<String, String> orderByMap = conditionImpl.getOrderBy();
-					adjustSqlServerPagingIfNeed(sqlBuffer, orderByMap, 0, entityClass, useSubTableNames); // start=0,只用于2012的offset语法
+					adjustSqlServerPagingIfNeed(sqlBuffer, orderByMap, 0, entityClass, null); // start=0,只用于2012的offset语法
 
 					sql = getDbFeature().toPageSql(sqlBuffer.toString(), size);
 					ShardingReg.regShadingPage(sqlBuffer.toString(), sql, null, size); // 2.0
@@ -149,6 +145,12 @@ public class ConditionHelper3 {
 								+ conditionImpl.getUpdatefields());
 			}
 		}
+	}
+
+	// consider remove useSubTableNames TODO
+	private static void adjustSqlServerPagingIfNeed(StringBuffer sqlBuffer, Map<String, String> orderByMap, Integer start,
+			Class entityClass, String useSubTableNames[]) {
+		ConditionHelper.adjustSqlServerPagingIfNeed(sqlBuffer, orderByMap, start, entityClass, useSubTableNames);
 	}
 
 	static void processForUpdate(StringBuffer sqlBuffer, Condition condition, String useSubTableNames[]) {

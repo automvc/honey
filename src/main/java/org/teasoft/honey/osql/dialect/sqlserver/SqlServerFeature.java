@@ -57,6 +57,12 @@ public class SqlServerFeature extends AbstractSqlServerFeature implements DbFeat
 		if (struct != null) {
 			boolean justChangePk = struct.isJustChangeOrderColumn();
 			String pkName = struct.getOrderColumn();
+
+			if (!pkName.contains(".")) {
+				String mainTableAlias = struct.getMainTableAlias();
+				if (StringUtils.isNotBlank(mainTableAlias)) pkName = mainTableAlias + "." + pkName;
+			}
+
 			String orderType = struct.getOrderType().getName();
 			if (justChangePk) {
 				processSql = adjustSqlServerPagingPk10(processSql, pkName, orderType);

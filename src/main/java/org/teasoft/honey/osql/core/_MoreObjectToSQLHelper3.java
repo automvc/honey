@@ -340,7 +340,7 @@ class _MoreObjectToSQLHelper3 {
 			pagingRewriteSql.append(sqlBufferComm);
 
 			preList.addAll(preList0); // temp_paging need those params
-			ConditionHelper3.processPaging(pagingRewriteSql, preList, condition, firstWhere, null);
+			ConditionHelper3.processPaging(pagingRewriteSql, preList, condition, firstWhere, mainTableAlias);
 //			String joinStr="join (";
 			if (!HoneyUtil.isSqlKeyWordUpper())
 				pagingRewriteSql.insert(0, JOIN_STR);
@@ -368,7 +368,7 @@ class _MoreObjectToSQLHelper3 {
 
 		if (!needRewritePagingSql) {
 			// paging, ForUpdate, check
-			ConditionHelper3.processPaging(sqlBuffer, preList, condition, firstWhere, null); // useSubTableNames
+			ConditionHelper3.processPaging(sqlBuffer, preList, condition, firstWhere, mainTableAlias);
 			ConditionHelper3.processForUpdate(sqlBufferComm, condition, null);
 		}
 

@@ -204,7 +204,7 @@ public class CommandImpl implements Command {
 	}
 
 	// ---------------common methods--------------
-	private SuidRich localSuidRichForDynamicParameter = null;
+//	private SuidRich localSuidRichForDynamicParameter = null;
 
 //	@Override
 //	public Command setDynamicParameter(String para, String value) {

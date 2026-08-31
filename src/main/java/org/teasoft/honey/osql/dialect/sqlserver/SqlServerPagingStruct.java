@@ -18,6 +18,7 @@ public class SqlServerPagingStruct {
 	private OrderType orderType = OrderType.ASC;
 	private boolean hasOrderBy; // 用于>=2012版本,order by id offset语法
 	private boolean justChangeOrderColumn;
+	private String mainTableAlias; // for MoreTable
 
 	public String getOrderColumn() {
 		return orderColumn;
@@ -49,6 +50,14 @@ public class SqlServerPagingStruct {
 
 	public void setJustChangeOrderColumn(boolean justChangeOrderColumn) {
 		this.justChangeOrderColumn = justChangeOrderColumn;
+	}
+
+	public String getMainTableAlias() {
+		return mainTableAlias;
+	}
+
+	public void setMainTableAlias(String mainTableAlias) {
+		this.mainTableAlias = mainTableAlias;
 	}
 
 }
