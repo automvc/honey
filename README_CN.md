@@ -30,13 +30,16 @@ Bee2.1.8 + Spring boot3.0.8对应版本**2.1.8.boot3.0.8 需要JDK17**
 Bee2.2 + Spring boot3.0.13对应版本**2.2.boot3.0.13 需要JDK17**  
 
 ## Bee主要功能特点介绍：  
+#### 体积小,速度快,功能强. 接近JDBC的速度,**3.0.0** LTS 版本仅969k.  
+
 <img src="illustration/ORM Bee Outline.png">  
 
 [主要功能介绍](../../../bee/blob/master/main-feature.md)  
 
 ## 最新功能简介: 
 
-### **V3.0.0(3.x·LTS版)**  
+### **V3.0.0(3.0.x·LTS版)**  
+**i) 多表查询增加支持多层子表**:  
 1. 多表查询 (一对一关联)  
 2. 多表查询支持 (多对一)  
 3. 多表查询支持 (一对多)  
@@ -45,19 +48,35 @@ Bee2.2 + Spring boot3.0.13对应版本**2.2.boot3.0.13 需要JDK17**
 6. 多表查询，精确分页  
 7. 支持分库分表  
 8. 多表关联支持update/insert/delete  
-9.update @JoinTable, @FK  
-update @JoinTable:  
-subClass="Student"  
-->
-subClass=Student.class  
+9. update @JoinTable, @FK  
+   update @JoinTable:  
+   subClass="Student"  
+   ->
+   subClass=Student.class  
   
-update @FK:  
-@FK(refBy="id", value="classno")  
-->  
-@FK(mainField="id", subField="classno")  
+   update @FK:  
+   @FK(refBy="id", value="classno")  
+   ->  
+   @FK(mainField="id", subField="classno")  
   
-value -> subField  
-10.  
+   value -> subField  
+10. MoreTable select 支持分库分表 Sharding  
+11. MoreTable insert/update/delete Sharding 多表关联插入/更新/删除,支持分库分表   
+**ii) DDL增加支持**  
+12. DDL create table(entity -> table) support  @StringLen, @ColumnType  
+13. DDL create table(entity -> table) support  @NotNull, @Unique  
+**iii) Sharding**  
+14. order by字段没有select, sharding需要补列  
+15. group by字段没有select, sharding需要补列  
+16. 删除sharding时自动补的列(group by/order by/avg)  
+17. MoreTable sharding多表分片时,结果排序支持 
+18. MoreTable sharding分片查询支持AVG  
+19. update BeeSql selectRs  
+
+20. 修复缺陷:sharding选择聚合函数时没有分组时各分片要归并成一组  
+
+iv)
+21. 支持JDK 21 VirtualThread虚拟线程  
 
 ### **V2.5.10(2.5.x·LTS版)**  
 1. 增强功能:  
@@ -315,7 +334,7 @@ OrdersService.java
        <dependency>
 	      <groupId>org.teasoft</groupId>
 	      <artifactId>bee-all</artifactId>
-	      <version>2.5.10</version>
+	      <version>3.0.0</version>
         </dependency>
 		
 	    <!-- Mysql config.You need change it to the real database config. -->
@@ -330,9 +349,9 @@ OrdersService.java
 Gradle
 
 ```xml
-implementation group: 'org.teasoft', name: 'bee-all', version: '2.5.10'
+implementation group: 'org.teasoft', name: 'bee-all', version: '3.0.0'
 //Gradle(Short)
-implementation 'org.teasoft:bee-all:2.5.10'
+implementation 'org.teasoft:bee-all:3.0.0'
 ```
 
 #### 1.2  也可以直接下载jar文件  	
