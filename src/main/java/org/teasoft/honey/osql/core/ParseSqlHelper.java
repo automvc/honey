@@ -166,8 +166,7 @@ public final class ParseSqlHelper {
 		boolean hasJoinField = false;
 		for (int i = 0; i < len; i++) {
 			if (HoneyUtil.isSkipFieldForMoreTable(field[i])) continue; // 有Ignore注释,将不再处理JoinTable
-			if (field[i] != null
-					&& (AnnoUtil.isJoinTable(field[i]) || (SuidType.MODIFY == suidType && AnnoUtil.isFK(field[i])))) {
+			if (field[i] != null && (AnnoUtil.isJoinTable(field[i]) || (SuidType.MODIFY == suidType && AnnoUtil.isFK(field[i])))) {
 				hasJoinField = true;
 				int layer = 2;
 				List<String> parentTree = new ArrayList<>();
@@ -202,6 +201,7 @@ public final class ParseSqlHelper {
 				String subType = ", class is: ";
 				if (moreTableStruct.currentIsList) {
 					subType = ", class is List, element type is: ";
+					overall.setHasAnySubListEntity(moreTableStruct.currentIsList); //fixed 3.0.0.8
 				}
 				Logger.debug("The layer is: " + layer + subType + moreTableStruct.subClass.getName() + ", alias is: "
 						+ moreTableStruct.subAlias);
@@ -224,11 +224,8 @@ public final class ParseSqlHelper {
 		Field field[] = HoneyUtil.getFields(currentMoreTableStruct.subClass);
 		int len = field.length;
 		for (int i = 0; i < len; i++) {
-			if (HoneyUtil.isSkipFieldForMoreTable(field[i])) continue; // 有Ignore注释,将不再处理JoinTable //todo
-//			if (field[i] != null && AnnoUtil.isJoinTable(field[i])) {
-			if (field[i] != null
-					&& (AnnoUtil.isJoinTable(field[i]) || (SuidType.MODIFY == suidType && AnnoUtil.isFK(field[i])))) {
-
+			if (HoneyUtil.isSkipFieldForMoreTable(field[i])) continue; // 有Ignore注释,将不再处理JoinTable
+			if (field[i] != null && (AnnoUtil.isJoinTable(field[i]) || (SuidType.MODIFY == suidType && AnnoUtil.isFK(field[i])))) {
 				layer = layer + 1;
 				if (layer >= 10) {
 					// todo

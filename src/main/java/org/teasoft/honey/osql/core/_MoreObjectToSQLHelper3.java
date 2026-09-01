@@ -146,16 +146,16 @@ class _MoreObjectToSQLHelper3 {
 					HoneyUtil.getField(entity.getClass(), "id");
 					pkNames = "id";
 				} catch (Exception e) {
+					needRewritePagingSql = false; // fixed 3.0.0.8
 					Logger.warn("Do not rewrite paing sql, as have not primary key in " + entity.getClass().getName());
 				}
-				needRewritePagingSql = false;
 			}
 		}
 
 //		if (needRewritePagingSql) {
 //			Object idValue = HoneyUtil.getIdValue(entity);
 //			// 7. 设置了主键值
-//			if (idValue != null) {  //todo 但子表，可能还是很多条。 
+//			if (idValue != null) {  //但子表，可能还是很多条。 
 //				needRewritePagingSql = false;
 //			}
 //		}
