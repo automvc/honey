@@ -180,13 +180,15 @@ class _MoreObjectToSQLHelper3 {
 
 		int structIndex = 0;
 		for (Entry<String, MoreTableStruct3> entry : moreTableStructMap.entrySet()) {
-			if (structIndex > 0) break;
 			MoreTableStruct3 moreTableStruct = entry.getValue();
 			String mainAlias = moreTableStruct.mainAlias;
-			if (structIndex == 0 && StringUtils.isNotBlank(mainAlias)) {
-				mainTableAlias = mainAlias;
+			if (structIndex == 0) {
+				structIndex++;
+				if (StringUtils.isNotBlank(mainAlias)) {
+					mainTableAlias = mainAlias;
+				}
+				break;
 			}
-			structIndex++;
 		}
 
 		concat(fullColumns, COMMA, mainTableAlias + ".", mainEntityWrapper.columnList);
