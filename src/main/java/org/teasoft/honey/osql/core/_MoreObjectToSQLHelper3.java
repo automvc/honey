@@ -180,13 +180,13 @@ class _MoreObjectToSQLHelper3 {
 
 		int structIndex = 0;
 		for (Entry<String, MoreTableStruct3> entry : moreTableStructMap.entrySet()) {
+			if (structIndex > 0) break;
 			MoreTableStruct3 moreTableStruct = entry.getValue();
 			String mainAlias = moreTableStruct.mainAlias;
 			if (structIndex == 0 && StringUtils.isNotBlank(mainAlias)) {
 				mainTableAlias = mainAlias;
 			}
 			structIndex++;
-			break;
 		}
 
 		concat(fullColumns, COMMA, mainTableAlias + ".", mainEntityWrapper.columnList);
@@ -199,7 +199,6 @@ class _MoreObjectToSQLHelper3 {
 
 		if (!mainEntityWrapper.preList.isEmpty()) preList0.addAll(mainEntityWrapper.preList);
 
-//		structIndex = 0;
 		for (Entry<String, MoreTableStruct3> entry : moreTableStructMap.entrySet()) {
 			joinExp = new StringBuffer(); // fixed
 
@@ -208,9 +207,6 @@ class _MoreObjectToSQLHelper3 {
 			Class<?> subClass = moreTableStruct.subClass;
 			Object subObject = moreTableStruct.subObject;
 			String mainAlias = moreTableStruct.mainAlias;
-
-//			if (structIndex == 0 && StringUtils.isNotBlank(mainAlias)) mainTableAlias = mainAlias;
-//			structIndex++;
 
 			EntityWrapper subEntityWrapper;
 			if (subObject == null)
