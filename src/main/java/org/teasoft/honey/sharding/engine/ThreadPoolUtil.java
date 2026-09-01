@@ -102,7 +102,7 @@ public final class ThreadPoolUtil {
 		}
 
 		@Override
-		public void execute(Runnable command) {
+		public void execute(final Runnable command) {
 			Runnable runnable = new Runnable() {
 				@Override
 				public void run() {

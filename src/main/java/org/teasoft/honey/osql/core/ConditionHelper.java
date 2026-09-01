@@ -649,8 +649,8 @@ public class ConditionHelper {
 		return processWhereCondition(condition, true, null);
 	}
 
-	static WhereConditionWrap processWhereCondition(Condition condition, boolean firstWhere, String useSubTableNames[]) {
-		Class entityClass = (Class) OneTimeParameter.getAttribute(StringConst.Column_EC); // 要消费了
+	static WhereConditionWrap processWhereCondition(Condition condition, boolean firstWhere, final String useSubTableNames[]) {
+		final Class entityClass = (Class) OneTimeParameter.getAttribute(StringConst.Column_EC); // 要消费了
 		return _processWhereCondition(condition, firstWhere, new OneMethod1<String>() {
 			public String doOneMethod(String fieldName) {
 				return _toColumnName(fieldName, useSubTableNames, entityClass);

@@ -24,7 +24,7 @@ public class SortListDecorator {
 
 	public static <T> void sort(List<T> rsList) {
 //		ShardingSortStruct struct = HoneyContext.getCurrentShardingSort();
-		ShardingSortStruct struct = (ShardingSortStruct)HoneyContext1.getExtForSharding(StringConst.ShardingSortStruct);
+		final ShardingSortStruct struct = (ShardingSortStruct)HoneyContext1.getExtForSharding(StringConst.ShardingSortStruct);
 
 		Collections.sort(rsList, new Comparator<T>() {
 			@Override

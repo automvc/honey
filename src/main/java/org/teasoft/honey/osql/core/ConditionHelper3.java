@@ -24,8 +24,8 @@ public class ConditionHelper3 {
 		return BeeFactory.getHoneyFactory().getDbFeature();
 	}
 
-	static WhereConditionWrap processWhereCondition3(Condition condition, boolean firstWhere, String mainTableAlias,
-			Class<?> mainClass, Map<String, MoreTableStruct3> moreTableStructMap) {
+	static WhereConditionWrap processWhereCondition3(Condition condition, boolean firstWhere, final String mainTableAlias,
+			final Class<?> mainClass, final Map<String, MoreTableStruct3> moreTableStructMap) {
 		return ConditionHelper._processWhereCondition(condition, firstWhere, new OneMethod1<String>() {
 			public String doOneMethod(String fieldName) {
 				return MoreTableHelper.fieldName2ColumnName(fieldName, mainTableAlias, mainClass, moreTableStructMap);

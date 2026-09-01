@@ -21,7 +21,7 @@ import org.teasoft.honey.osql.core.StringConst;
 public class SortStringArrayListDecorator {
 
 	public static void sort(List<String[]> list) {
-		ShardingSortStruct struct = (ShardingSortStruct) HoneyContext1.getExtForSharding(StringConst.ShardingSortStruct);
+		final ShardingSortStruct struct = (ShardingSortStruct) HoneyContext1.getExtForSharding(StringConst.ShardingSortStruct);
 		Collections.sort(list, new Comparator<String[]>() {
 			@Override
 			public int compare(String[] a, String[] b) {
